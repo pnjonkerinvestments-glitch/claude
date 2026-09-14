@@ -1,0 +1,41 @@
+//@version=6
+// Premarket-stijging als percentage van de vorige slotkoers.
+// Zet op de chart: Rechtermuisknop -> Settings -> Symbol -> "Extended trading hours" AAN.
+// Alert aanmaken: Condition = dit script -> "Any alert() function call",
+// Trigger = "Once per bar close", Notifications -> "Send email" aanvinken.
+indicator("Premarket-stijging %", overlay = false, precision = 1)
+
+thr      = input.float(50.0,  "Drempel (%)",                minval = 1)
+minPrice = input.float(1.0,   "Minimale koers ($)",         minval = 0)
+minVol   = input.int(50000,   "Minimaal premarket-volume",  minval = 0)
+onlyOnce = input.bool(true,   "Maximaal één melding per dag")
+
+// Dagbars volgen altijd de reguliere handelsuren, ook als de chart
+// extended hours toont. close[1] op 1D is dus de vorige officiële slotkoers.
+prevClose = request.security(syminfo.tickerid, "1D", close[1], lookahead = barmerge.lookahead_on)
+pct       = na(prevClose) or prevClose == 0 ? na : (close - prevClose) / prevClose * 100
+
+// Volume optellen vanaf de eerste bar van deze premarket-sessie.
+newSession = session.ispremarket and not session.ispremarket[1]
+var float pmVolume  = 0.0
+var bool  firedToday = false
+if newSession
+    pmVolume  := 0.0
+    firedToday := false
+if session.ispremarket
+    pmVolume += volume
+
+trigger = session.ispremarket and not na(pct) and pct >= thr and close >= minPrice and pmVolume >= minVol and (not onlyOnce or not firedToday)
+
+if trigger
+    firedToday := true
+    alert(str.format("{0}: premarket {1,number,#.#}% naar {2,number,#.##} (volume {3,number,#})",
+         syminfo.ticker, pct, close, pmVolume), alert.freq_once_per_bar_close)
+
+plot(pct, "Premarket %", color = color.new(color.teal, 0), linewidth = 2)
+hline(0, "Nul", color = color.new(color.gray, 50))
+hline(thr, "Drempel", color = color.new(color.red, 30), linestyle = hline.style_dashed)
+bgcolor(trigger ? color.new(color.green, 85) : na, title = "Melding")
+
+// Alternatief, voor wie liever met een vaste alert-conditie werkt:
+alertcondition(session.ispremarket and pct >= thr, "Premarket boven drempel", "Premarket-stijging boven de drempel")
