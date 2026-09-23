@@ -7,7 +7,7 @@ import { DAILY_MODES, STREAK_MILESTONES, completedDailies, dailyStateOf, nextDai
 import { ResetCountdown } from './ResetCountdown';
 
 export const DAILY_EMOJI: Record<DailyMode, string> = { rank: '🎯', daily: '✈️', compare: '⚖️', mosaic: '🧩' };
-export const dailyTitleKey = (mode: DailyMode) => mode === 'daily' ? 'dailyTitle' : mode;
+export const dailyTitleKey = (mode: DailyMode) => mode === 'daily' ? 'dailyTitle' : mode === 'rank' ? 'rankRadar' : mode;
 
 /** Shown when a daily game is finished: today's streak, what is still open and a direct way on. */
 export function DailyLoop({ app }: { app: any }) {

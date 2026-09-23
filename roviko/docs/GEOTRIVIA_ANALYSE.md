@@ -53,10 +53,17 @@ Op volgorde van verwachte impact voor het terugkeren van spelers:
 
 1. **"Je deed het beter dan X% van de spelers vandaag"** voor de dagspellen. Dat is een sterke sociale prikkel zonder punten. Het vraagt een eenvoudige, anonieme telling per dag op de server.
 2. **Archief van eerdere dagpuzzels.** Bij Geotrivia is dat Pro; bij Roviko kan het gratis. Goed voor mensen die een dag hebben gemist, en het versterkt de terugkeer.
-3. **Graduele feedback in Rank Radar**, zoals "2e beste keuze" in plaats van alleen goed of fout. Dat voelt vriendelijker, zeker voor kinderen.
+3. ~~**Graduele feedback in Rank Radar**~~ **Gedaan (ronde 5):** medailles 🥇🥈🥉⚪ per keuze, een medaillespoor en delen als medaillerij.
 4. **Een "blijf-staan"-modus voor Side by Side:** hoe ver kom je zonder fout? Kort en verslavend, en goed voor Reels-advertenties.
 5. **Statistieken per spel** (gespeeld, gemiddelde, perfecte rondes) in het paspoort.
 6. **Spelers laten meebeslissen:** onderwerpen van de dag beoordelen met sterren, en een nieuw onderwerp voorstellen. Dat geeft betrokkenheid en gratis productfeedback.
 7. **Een eigen kleurenspel** als tegenhanger van GeoPaint, met een andere invalshoek. Bijvoorbeeld: "Welke kleur ontbreekt er in deze vlag?", met kleurvlakken om uit te kiezen in plaats van schuifjes. Dat is makkelijker voor kinderen.
 
 **Waar Roviko al sterker is dan Geotrivia:** geen advertenties, één duidelijke dagroute met voortgangsring, een mascotte, Nederlands en Engels, bronnen bij elk getal, samen spelen in kamers, en een native app met dagelijkse herinnering.
+
+## Ronde 5: wat we visueel van Geotrivia leerden
+
+- **Rust:** een warme, gebroken witte achtergrond zonder patroon. De kleur zit in de speltegels, niet in de pagina.
+- **Grote tegels die in hun geheel klikbaar zijn**, met kleine knoppen in dezelfde kleur eronder. Bij Geotrivia zijn dat "Random" en "Archive"; bij Roviko "oefenen" en "?" (uitleg).
+- **Uitleg per spel** ("How to Play" bij Geotrivia): bij Roviko drie genummerde stappen met een tip, automatisch de eerste keer, plus één overzichtspagina.
+- **Bewust niet overgenomen:** hun namen, teksten, iconen, kleuren en de Pro/archief-opzet. Er zijn ook geen nieuwe spelvormen bijgekomen: overzicht gaat voor.

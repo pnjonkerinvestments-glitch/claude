@@ -33,18 +33,18 @@
 }
 :root[data-theme=light]{
   color-scheme:light;
-  --background:#f4f7fe;--foreground:#14213d;
+  --background:#f7f3ee;--foreground:#14213d;
   --card:#fff;--card-foreground:#14213d;--popover:#fff;--popover-foreground:#14213d;
   --primary:#2f5bea;--primary-foreground:#fff;--primary-deep:#1d3fb8;
-  --secondary:#eef2fd;--secondary-foreground:#14213d;
-  --muted:#eef2fb;--muted-foreground:#56637e;
+  --secondary:#f3eee7;--secondary-foreground:#14213d;
+  --muted:#f0ebe3;--muted-foreground:#56637e;
   --accent:#e6edff;--accent-foreground:#14213d;
-  --border:#e0e7f5;--input:#b9c5de;--ring:#2f5bea;
+  --border:#e8e0d5;--input:#c4b8a8;--ring:#2f5bea;
   --destructive:#c52b45;--success:#17844a;--purple:#5b45e0;--blue:#2f5bea;
   --error-ink:#b4233c;--error-bg:#ffeef0;--error-border:#ff9aa9;--correct-bg:#e7f8ee;--correct-border:#58c98a;
   --trip:#cdefa4;--compare:#ffd2ae;--mosaic:#cdd3ff;--radar:#ffcbc2;--ink:#14213d;--ink-soft:#34405a;
-  --rim:#dbe3f3;--lift:0 4px 0 var(--rim);--link:var(--primary);
-  --shadow:0 12px 32px #2f5bea14;
+  --rim:#e2d8cb;--lift:0 4px 0 var(--rim);--link:var(--primary);
+  --shadow:0 12px 32px #5a3e1c12;
   --hero-a:#2f5bea;--hero-b:#6a4cf0;--hero-c:#22a6f2;
   --map-water:#dff0ff;--map-land:#9fc3e6;--map-border:#f4faff;--map-grid:#c4dcf2;
 }
@@ -183,25 +183,11 @@ html{scroll-padding-top:88px}
 /* ───────── Daily cards ───────── */
 .daily-card-grid{gap:22px}
 .daily-card{border:2px solid var(--border);border-radius:26px;box-shadow:0 6px 0 var(--border);transition:transform 200ms cubic-bezier(.34,1.56,.64,1),box-shadow 200ms,border-color 200ms}
-.daily-card:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--game) 45%,var(--border));box-shadow:0 10px 0 color-mix(in srgb,var(--game) 30%,var(--border))}
-.daily-card:active{transform:translateY(2px);box-shadow:0 2px 0 var(--border)}
 .daily-cover .game-cover-image{transition:transform 400ms cubic-bezier(.34,1.56,.64,1)}
-.daily-card:hover .game-cover-image{transform:scale(1.07) rotate(-2deg)}
 .daily-state{border-radius:999px;font-weight:900;padding:5px 11px;box-shadow:0 2px 0 #14213d1f}
 .daily-state.state-new{background:var(--sun);color:var(--sun-ink)}
 .daily-state.state-active{background:#fff;color:var(--ink)}
 .daily-state.state-done{background:#17844a;color:#fff}
-.daily-card-meta>span:first-child{color:var(--game);font-weight:900;letter-spacing:.12em}
-.daily-card-meta>span:last-child{padding:3px 9px;border-radius:999px;background:var(--game-soft);color:var(--foreground);font-weight:800}
-.daily-card-copy h3{font-size:1.6rem;font-weight:700;letter-spacing:-.01em}
-.daily-card-copy p{font-weight:600}
-.daily-card-detail{border-top:2px dashed var(--border);font-weight:700}
-.daily-card-action{min-height:50px;border-radius:15px;background:var(--game);color:var(--game-ink);font-size:.98rem;box-shadow:0 4px 0 color-mix(in srgb,var(--game) 60%,#000)}
-.daily-card-action:hover{background:color-mix(in srgb,var(--game) 90%,#fff);color:var(--game-ink);box-shadow:0 4px 0 color-mix(in srgb,var(--game) 60%,#000)}
-.daily-card:active .daily-card-action{box-shadow:0 1px 0 color-mix(in srgb,var(--game) 60%,#000)}
-.daily-card-action svg{transition:transform 200ms}
-.daily-card:hover .daily-card-action svg{transform:translateX(4px)}
-.daily-card:has(.state-done) .daily-card-action{background:var(--card);color:var(--foreground);box-shadow:0 4px 0 var(--border);border:2px solid var(--border)}
 .daily-card:focus-within{outline:3px solid var(--ring);outline-offset:4px}
 
 /* Progress strip + week + tomorrow */
@@ -216,8 +202,6 @@ html{scroll-padding-top:88px}
 .is-today .week-stamp{border-color:var(--primary);background:var(--accent);color:var(--primary)}
 .tomorrow-preview{border-style:dashed}
 .tomorrow-emoji{font-size:2.2rem;animation:hero-bob 3.5s ease-in-out infinite}
-.daily-practice-links .text-link{padding:6px 12px;border-radius:999px;background:var(--card);border:2px solid var(--border);color:var(--foreground)}
-.daily-practice-links .text-link:hover{border-color:var(--primary);color:var(--primary)}
 
 /* ───────── Classic games grid ───────── */
 .quick-game-grid{gap:16px}
@@ -513,30 +497,14 @@ body{font-size:17px}
 .daily-card{display:flex;flex-direction:column;border-radius:24px}
 .daily-cover{aspect-ratio:4/3;min-height:0;height:auto}
 .daily-cover .game-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.daily-card-body{padding:16px 16px 18px;gap:0}
-.daily-card-copy h3{font-size:1.3rem}
-.daily-card-copy p{margin-top:4px;font-size:.95rem;line-height:1.45;min-height:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.daily-card-action{margin-top:14px;min-height:50px;justify-content:center;gap:8px}
 .daily-state{top:10px;left:10px}
 .daily-card.is-done .daily-cover::after{width:48px;height:48px;font-size:1.4rem;right:10px;bottom:10px}
 @media (max-width:1100px){.daily-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){
   .daily-card-grid{gap:12px}
   .daily-card{border-radius:20px}
-  .daily-card-body{padding:12px 12px 14px}
-  .daily-card-copy h3{font-size:1.1rem}
-  .daily-card-copy p{font-size:.85rem}
-  .daily-card-action{min-height:48px;padding:10px;font-size:.92rem}
-  .daily-card-action svg{display:none}
 }
 
-/* Practice row: one quiet line of chips */
-.daily-quiet-options{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:22px}
-.practice-label{font-weight:800;color:var(--muted-foreground);font-size:.9rem}
-.daily-practice-links{display:flex;flex-wrap:wrap;gap:8px}
-.daily-practice-links .text-link{min-height:44px;padding:8px 14px;font-size:.9rem}
-.daily-quiet-options,.daily-practice-links{flex-direction:row;justify-content:flex-start;align-items:center}
-.practice-reset{flex-basis:100%;font-size:.85rem;color:var(--muted-foreground)}
 
 /* Mystery keeps its own card but sits in the same rhythm */
 .mystery-card{margin-top:28px}
@@ -564,6 +532,31 @@ body{font-size:17px}
 .native-reminder p{margin:2px 0 0;font-size:.92rem;color:var(--muted-foreground)}
 .native-reminder .btn{flex-shrink:0}
 @media (max-width:480px){.native-reminder{flex-wrap:wrap}.native-reminder .btn{width:100%}}
+
+/* ───────── Rank Radar medals ───────── */
+.rank-trail{display:flex;justify-content:center;gap:8px;margin:14px 0 4px;padding:0;list-style:none}
+.rank-trail li{display:grid;place-items:center;width:40px;height:40px;border-radius:14px;border:2px dashed var(--input);background:var(--card);font-weight:900;color:var(--muted-foreground);font-size:.9rem}
+.rank-trail li.is-current{border:2px solid var(--game);color:var(--game);box-shadow:0 3px 0 color-mix(in srgb,var(--game) 40%,transparent)}
+.rank-trail li.is-done{border-style:solid;font-size:1.35rem;font-family:var(--emoji-font);animation:pop-in 380ms cubic-bezier(.34,1.56,.64,1)}
+.rank-trail li.place-1{border-color:#e7b416;background:#fff6d6}
+.rank-trail li.place-2{border-color:#b8c2d6;background:#f1f4fa}
+.rank-trail li.place-3{border-color:#d9a17a;background:#fbeee4}
+[data-theme=dark] .rank-trail li.place-1{background:#3a321a}
+[data-theme=dark] .rank-trail li.place-2{background:#26306a}
+[data-theme=dark] .rank-trail li.place-3{background:#3a2a1e}
+.rank-option-status{display:inline-flex;align-items:center;gap:4px}
+.rank-option.rank-revealed .rank-option-status{width:auto;min-width:0;height:auto;padding:0;border:0;background:none;box-shadow:none}
+.rank-option-medal{font-size:1.5rem;line-height:1;font-family:var(--emoji-font);animation:pop-in 420ms cubic-bezier(.34,1.56,.64,1)}
+.rank-feedback strong{font-family:var(--font-display);font-size:1.25rem}
+.rank-feedback[data-place="2"]{border-color:#f0b35a;background:#fff4e2}
+[data-theme=dark] .rank-feedback[data-place="2"]{border-color:#b77d2c;background:#3a2a1e}
+.rank-medal-row{display:flex;justify-content:center;gap:10px;margin:14px 0 6px}
+.rank-medal-row span{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--card);border:2px solid var(--border);box-shadow:0 4px 0 var(--border);font-size:1.9rem;font-family:var(--emoji-font);animation:pop-in 420ms cubic-bezier(.34,1.56,.64,1) both}
+.rank-medal-row span:nth-child(2){animation-delay:80ms}.rank-medal-row span:nth-child(3){animation-delay:160ms}.rank-medal-row span:nth-child(4){animation-delay:240ms}.rank-medal-row span:nth-child(5){animation-delay:320ms}.rank-medal-row span:nth-child(6){animation-delay:400ms}
+.rank-medal-row .place-1{border-color:#e7b416;box-shadow:0 4px 0 #c99a0a}
+.rank-medal-summary{text-align:center;font-weight:800;color:var(--muted-foreground)}
+.rank-review-medal{font-size:1.5rem;font-family:var(--emoji-font)}
+@media (max-width:480px){.rank-trail{gap:5px}.rank-trail li{width:36px;height:36px}.rank-medal-row{gap:6px}.rank-medal-row span{width:44px;height:44px;font-size:1.6rem}}
 
 /* ───────── World Duel ───────── */
 .duel-game{--game:#c23a6b;--game-ink:#fff;--game-soft:#ffebf2;max-width:760px;margin:0 auto}
@@ -650,19 +643,141 @@ body{font-size:17px}
   .duel-bar>i{grid-column:1/-1;grid-row:2}
 }
 /* Homepage teaser */
-.duel-teaser{display:flex;align-items:center;gap:16px;width:100%;margin-top:22px;padding:16px 18px;border:0;border-radius:24px;text-align:left;color:#fff;cursor:pointer;background:radial-gradient(circle at 92% 10%,#ffffff2b 0 50px,transparent 51px),linear-gradient(120deg,#c23a6b,#6a4cf0 120%);box-shadow:0 6px 0 #7a1f45;transition:transform 160ms cubic-bezier(.34,1.56,.64,1)}
-[data-theme=dark] .duel-teaser{box-shadow:0 6px 0 #3b1128}
-.duel-teaser:hover{transform:translateY(-3px)}
-.duel-teaser:active{transform:translateY(3px)}
-.duel-teaser-art{position:relative;flex-shrink:0;width:64px;height:64px}
-.duel-teaser-art img{width:64px;height:64px}
-.duel-teaser-art span{position:absolute;right:-8px;bottom:-6px;font-size:1.6rem;font-family:var(--emoji-font)}
-.duel-teaser-copy{display:grid;gap:2px;flex:1;min-width:0}
-.duel-teaser-copy small{font-size:.75rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#ffe3ee}
-.duel-teaser-copy strong{font-family:var(--font-display);font-size:1.45rem;font-weight:700;line-height:1.1}
-.duel-teaser-copy span{font-weight:700;color:#fff3f7}
-.duel-teaser-cta{flex-shrink:0;background:#fff!important;color:#7a1f45!important;box-shadow:0 4px 0 #7a1f45!important}
-@media (max-width:560px){.duel-teaser{flex-wrap:wrap}.duel-teaser-cta{width:100%;justify-content:center}}
+
+/* ───────── Round 5: calm tiles, one look everywhere ─────────
+   Learned from Geotrivia: a warm, quiet page and big solid-colour game tiles where the whole
+   tile is the button, with small same-colour actions underneath (practice + how to play). */
+body{background-image:none}
+
+/* Today: four colour tiles */
+.daily-card-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px}
+/* --art is the artwork's own backdrop, so the picture melts into the tile colour below it */
+.daily-card-rank{--tile:var(--radar);--art:#fdceac}
+.daily-card-daily{--tile:var(--trip);--art:#d6ee9a}
+.daily-card-compare{--tile:var(--compare);--art:#fec8a8}
+.daily-card-mosaic{--tile:var(--mosaic);--art:#b9cafd}
+.daily-card-grid .daily-card{--tile-rim:color-mix(in srgb,var(--game) 42%,var(--tile));display:flex;flex-direction:column;gap:12px;overflow:visible;padding:0;border:0;border-radius:0;background:none;box-shadow:none;transition:none}
+[data-theme=dark] .daily-card-grid .daily-card{--tile-rim:color-mix(in srgb,var(--tile) 55%,#000)}
+.daily-card-grid .daily-card:hover,.daily-card-grid .daily-card:active{transform:none;box-shadow:none;border-color:transparent}
+.daily-card-grid .daily-card:focus-within{outline:0}
+.daily-tile{position:relative;display:flex;flex-direction:column;flex:1;width:100%;min-width:0;padding:0;overflow:hidden;border:0;border-radius:26px;background:var(--tile);color:var(--ink);text-align:left;box-shadow:0 6px 0 var(--tile-rim);transition:transform 160ms cubic-bezier(.34,1.56,.64,1),box-shadow 160ms}
+.daily-tile:hover:not(:disabled){transform:translateY(-4px);box-shadow:0 10px 0 var(--tile-rim)}
+.daily-tile:active:not(:disabled){transform:translateY(4px);box-shadow:0 2px 0 var(--tile-rim)}
+.daily-tile:disabled{opacity:1;cursor:progress}
+.daily-tile:focus-visible{outline:3px solid var(--ring);outline-offset:4px}
+.daily-tile .daily-cover{display:block;position:relative;aspect-ratio:4/3;height:auto;min-height:0;background:transparent}
+.daily-tile .game-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 400ms cubic-bezier(.34,1.56,.64,1)}
+.daily-tile:hover .game-cover-image{transform:scale(1.06) rotate(-2deg)}
+.daily-tile .daily-cover{background:var(--art,transparent)}
+.daily-tile-copy{display:grid;gap:4px;padding:14px 18px 0;background:linear-gradient(var(--art,var(--tile)),var(--tile) 85%)}
+.daily-tile-title{font-family:var(--font-display);font-size:1.45rem;font-weight:700;line-height:1.1;letter-spacing:-.01em;color:var(--ink)}
+.daily-tile-copy>span{font-size:.95rem;font-weight:700;line-height:1.4;color:var(--ink-soft);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.daily-tile-cta{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;margin:14px 18px 18px;padding:9px 16px;border-radius:999px;background:#fff;color:var(--ink);font-weight:900;font-size:.95rem;line-height:1.2;box-shadow:0 3px 0 var(--tile-rim)}
+.daily-tile-cta svg{transition:transform 200ms}
+.daily-tile:hover .daily-tile-cta svg,.duel-tile:hover .daily-tile-cta svg{transform:translateX(4px)}
+.daily-card.is-done .daily-tile-cta{background:#17844a;color:#fff;box-shadow:0 3px 0 #0f5c33}
+.daily-tile-actions{display:flex;gap:8px}
+.tile-btn,.daily-tile-actions .howto-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:46px;padding:8px 12px;border:0;border-radius:14px;background:var(--tile);color:var(--ink);font-weight:800;font-size:.9rem;line-height:1.2;text-align:center;box-shadow:0 4px 0 var(--tile-rim);transition:transform 90ms ease,box-shadow 90ms ease,filter 150ms}
+.tile-btn{flex:1;min-width:0}
+.daily-tile-actions .howto-button{flex:0 0 46px;width:46px;height:auto;padding:0}
+.tile-btn:hover:not(:disabled),.daily-tile-actions .howto-button:hover{transform:translateY(-1px);filter:saturate(1.15) brightness(1.02)}
+.tile-btn:active:not(:disabled),.daily-tile-actions .howto-button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--tile-rim)}
+@media (max-width:1100px){.daily-card-grid{gap:16px}.daily-tile-title{font-size:1.25rem}.tile-btn{font-size:.84rem}}
+@media (max-width:900px){.daily-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.daily-tile .daily-cover{aspect-ratio:16/9}}
+@media (max-width:560px){
+  .daily-card-grid{gap:14px 12px}
+  .daily-tile{border-radius:20px;box-shadow:0 5px 0 var(--tile-rim)}
+  .daily-tile .daily-cover{aspect-ratio:3/2}
+  .daily-tile-copy{padding:10px 12px 0}
+  .daily-tile-title{font-size:1.12rem}
+  .daily-tile-copy>span{font-size:.8rem}
+  .daily-tile-cta{margin:10px 12px 12px;padding:7px 12px;font-size:.85rem}
+  .daily-tile-cta svg{display:none}
+  .daily-tile-actions{gap:6px}
+  .tile-btn{padding:6px 8px;font-size:.78rem;min-height:44px}
+  .tile-btn svg{display:none}
+  .daily-tile-actions .howto-button{flex-basis:44px;width:44px;min-height:44px}
+  .daily-state{font-size:.7rem;padding:4px 9px}
+}
+.practice-reset{margin-top:14px;font-size:.88rem;font-weight:700;color:var(--muted-foreground)}
+
+/* Extras: the duel and the mystery country side by side */
+.daily-extras{margin-top:44px}
+.daily-extras-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.9fr);gap:20px;align-items:stretch}
+.daily-extras-grid:not(:has(.mystery-card)){grid-template-columns:minmax(0,1fr)}
+.daily-extras .mystery-card{margin-top:0}
+.duel-tile{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-width:0;padding:24px 22px 22px;border:0;border-radius:26px;text-align:left;color:#fff;cursor:pointer;background:radial-gradient(circle at 88% 12%,#ffffff2b 0 54px,transparent 55px),radial-gradient(circle at 0 110%,#ffffff1a 0 90px,transparent 91px),linear-gradient(150deg,#c23a6b,#6a4cf0 130%);box-shadow:0 6px 0 #7a1f45;transition:transform 160ms cubic-bezier(.34,1.56,.64,1),box-shadow 160ms}
+[data-theme=dark] .duel-tile{box-shadow:0 6px 0 #3b1128}
+.duel-tile:hover{transform:translateY(-4px)}
+.duel-tile:active{transform:translateY(4px);box-shadow:0 2px 0 #7a1f45}
+.duel-tile:focus-visible{outline:3px solid var(--ring);outline-offset:4px}
+.duel-tile-art{position:relative;width:76px;height:76px}
+.duel-tile-art img{width:76px;height:76px;animation:hero-float 6s ease-in-out infinite}
+.duel-tile-art span{position:absolute;right:-10px;bottom:-4px;font-size:1.9rem;font-family:var(--emoji-font)}
+.duel-tile-copy{display:grid;gap:4px}
+.duel-tile-copy small{font-size:.75rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#ffe3ee}
+.duel-tile-copy strong{font-family:var(--font-display);font-size:1.6rem;font-weight:700;line-height:1.1}
+.duel-tile-copy span{font-weight:700;line-height:1.45;color:#fff3f7}
+.duel-tile .daily-tile-cta{margin:auto 0 0;color:#7a1f45;box-shadow:0 3px 0 #7a1f45}
+@media (max-width:860px){.daily-extras-grid{grid-template-columns:minmax(0,1fr)}.duel-tile{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;column-gap:16px}.duel-tile .daily-tile-cta{grid-column:1/-1;justify-self:stretch;justify-content:center;margin-top:4px}}
+@media (max-width:420px){.duel-tile{padding:18px 16px}.duel-tile-art,.duel-tile-art img{width:60px;height:60px}.duel-tile-copy strong{font-size:1.35rem}}
+.mystery-head>div{flex:1;min-width:0}
+.mystery-head .howto-button{align-self:flex-start}
+
+/* Classic games: soft colour tiles, quieter than today's four */
+.quick-game-card{background:var(--tone-bg);border-color:color-mix(in srgb,var(--tone) 16%,var(--tone-bg));box-shadow:0 5px 0 color-mix(in srgb,var(--tone) 26%,var(--tone-bg))}
+.quick-game-card:hover{background:var(--tone-bg);border-color:color-mix(in srgb,var(--tone) 40%,var(--tone-bg));box-shadow:0 8px 0 color-mix(in srgb,var(--tone) 34%,var(--tone-bg))}
+.quick-game-start>.mode-emoji{background:var(--card)!important;box-shadow:0 3px 0 color-mix(in srgb,var(--tone) 22%,var(--tone-bg))}
+.quick-game-settings{color:var(--foreground)}
+.quick-game-settings:hover{background:var(--card)}
+
+/* Game headers: room for the "?" button */
+.solo-top{grid-template-columns:44px minmax(0,1fr) auto 44px}
+@media (max-width:500px){.solo-top{grid-template-columns:36px minmax(0,1fr) auto 36px}.solo-top .howto-button{width:36px;height:36px}}
+.howto-button{color:var(--muted-foreground)}
+.howto-button:hover{color:var(--primary);background:var(--secondary)}
+
+/* How to play: dialog and overview page */
+.howto-rank{--hb:var(--radar)}.howto-daily{--hb:var(--trip)}.howto-compare{--hb:var(--compare)}.howto-mosaic{--hb:var(--mosaic)}
+.howto-duel{--hb:#ffd1e3}.howto-mystery{--hb:#ddd5ff}.howto-room{--hb:#ffe6a8}
+.howto-trail{--hb:#c9eff2}.howto-capitals{--hb:#dcd6ff}.howto-flags{--hb:#ffd8d1}.howto-pinpoint{--hb:#cdeed8}.howto-borders{--hb:#ffe0bf}.howto-order{--hb:#ffd3e3}
+.howto-badge{display:grid;place-items:center;flex-shrink:0;width:52px;height:52px;border-radius:16px;background:var(--hb,var(--accent));font-size:1.7rem;line-height:1;font-family:var(--emoji-font);box-shadow:inset 0 -4px 0 #14213d14}
+.howto-steps{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.howto-steps li{display:grid;grid-template-columns:auto auto minmax(0,1fr);align-items:start;gap:10px;padding:12px 14px;border-radius:16px;background:var(--secondary)}
+.howto-step-num{display:grid;place-items:center;width:26px;height:26px;border-radius:9px;background:var(--primary);color:var(--primary-foreground);font-weight:900;font-size:.85rem}
+.howto-step-icon{font-size:1.3rem;line-height:1.2;font-family:var(--emoji-font)}
+.howto-steps p{font-weight:700;line-height:1.45}
+.howto-tip{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border-radius:16px;border:2px dashed var(--border);font-weight:600;line-height:1.45}
+.howto-tip>span:first-child{font-family:var(--emoji-font);font-size:1.15rem;line-height:1.3}
+.howto-modal .howto-badge{justify-self:center;width:68px;height:68px;border-radius:20px;font-size:2.2rem}
+.howto-modal .modal-title{text-align:center;font-size:1.5rem;line-height:1.2;padding-inline:20px}
+.howto-go{margin-top:4px}
+.howto-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;margin-top:8px;color:var(--link)}
+.page-heading .howto-link{justify-content:center}
+.hero-howto{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:#fff;text-decoration:underline;text-underline-offset:4px;text-decoration-thickness:2px}
+.hero-howto:hover{text-decoration-color:var(--sun)}
+.howto-page{max-width:1100px;margin:0 auto}
+.howto-page .page-heading p{max-width:62ch;margin-inline:auto}
+.howto-jump{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:22px 0 8px}
+.howto-chip{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:6px 14px 6px 8px;border-radius:999px;background:var(--card);border:2px solid var(--border);box-shadow:0 3px 0 var(--border);font-weight:800;font-size:.92rem;color:var(--foreground)}
+.howto-chip>span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--hb,var(--accent));font-family:var(--emoji-font)}
+.howto-chip:hover{border-color:var(--primary);color:var(--primary)}
+.howto-group{margin-top:40px}
+.howto-group .atelier-section-heading{display:grid;justify-content:start;gap:2px}
+.howto-group .atelier-section-heading>span{white-space:normal;padding:0;border:0;background:none;font-weight:700}
+.howto-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:820px){.howto-grid{grid-template-columns:minmax(0,1fr)}}
+.howto-card{display:flex;flex-direction:column;gap:12px;padding:20px;border-radius:26px;background:var(--card);border:2px solid var(--border);box-shadow:0 5px 0 var(--border);scroll-margin-top:96px}
+.howto-card:target{border-color:var(--primary);box-shadow:0 5px 0 color-mix(in srgb,var(--primary) 40%,var(--border))}
+.howto-card header{display:flex;align-items:center;gap:12px}
+.howto-card h3{font-size:1.35rem;font-weight:700}
+.howto-card .howto-play{margin-top:auto}
+@media (max-width:560px){
+  .howto-jump{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;margin:18px -20px 0;padding:4px 20px 12px;scrollbar-width:none;scroll-snap-type:x proximity}
+  .howto-jump::-webkit-scrollbar{display:none}
+  .howto-chip{flex-shrink:0;scroll-snap-align:start;font-size:.85rem}
+  .howto-card{padding:16px}
+}
 
 /* ───────── Shared motion ───────── */
 @keyframes pop-in{0%{transform:scale(.85)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
@@ -670,10 +785,11 @@ body{font-size:17px}
 @keyframes slide-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 @media (prefers-reduced-motion:reduce){
-  .hero-mascot,.hero-sticker,.hero-bubble,.stat-streak.at-risk,.stat-streak.at-risk>span,.daily-card.is-done .daily-cover::after,.daily-state.state-active::before,.mystery-badge,.mystery-clues li,.mystery-option,.mystery-reveal,.mystery-card.is-right .mystery-reveal::after,.loop-flame,.loop-milestone-hit,.duel-mascot,.duel-card,.duel-reveal,.duel-bar>i,.duel-trail span,.daily-loop.is-complete .loop-flame,.tomorrow-emoji,.play-hero.is-done .hero-mascot,
+  .hero-mascot,.hero-sticker,.hero-bubble,.stat-streak.at-risk,.stat-streak.at-risk>span,.daily-card.is-done .daily-cover::after,.daily-state.state-active::before,.mystery-badge,.mystery-clues li,.mystery-option,.mystery-reveal,.mystery-card.is-right .mystery-reveal::after,.loop-flame,.loop-milestone-hit,.duel-mascot,.duel-tile-art img,.duel-card,.duel-reveal,.rank-trail li,.rank-option-medal,.rank-medal-row span,.duel-bar>i,.duel-trail span,.daily-loop.is-complete .loop-flame,.tomorrow-emoji,.play-hero.is-done .hero-mascot,
   .answer-option,.answer-feedback,.answer-feedback::after,.comparison-country,.comparison-reveal,.comparison-reveal::after,
   .mosaic-tile,.mosaic-group,.rank-option,.rank-feedback,.rank-feedback::after,.rank-country-flag,.flag-stage img,
   .daily-progress-marks>.complete,.journey-route .current .journey-stop,.puzzle-sticker,.feedback-heading>span,.learning-celebration,.answer-trail>span{animation:none!important}
-  .daily-card,.quick-game-card,.btn,.logo img,.game-cover-image,.mode-emoji,.rank-option-emoji{transition:none!important}
+  .daily-card,.daily-tile,.duel-tile,.tile-btn,.quick-game-card,.btn,.logo img,.game-cover-image,.mode-emoji,.rank-option-emoji{transition:none!important}
+  .daily-tile:hover,.duel-tile:hover,.daily-tile:hover .game-cover-image{transform:none}
   .daily-card:hover,.quick-game-card:hover,.daily-card:hover .game-cover-image,.quick-game-card:hover .mode-emoji{transform:none}
 }

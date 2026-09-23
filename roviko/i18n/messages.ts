@@ -1,8 +1,10 @@
 import { rankMessages } from './rank';
+import { howtoMessages } from './howto';
 export type Locale = 'en' | 'nl';
 export const messages = {
   "en": {
     ...rankMessages.en,
+    ...howtoMessages.en,
     "sourceAssetLicenses": "Fonts and icons",
     "lobby": "Lobby",
     "roomName": "Room name",
@@ -610,6 +612,7 @@ export const messages = {
   },
   "nl": {
     ...rankMessages.nl,
+    ...howtoMessages.nl,
     "sourceAssetLicenses": "Lettertypen en iconen",
     "play": "Spelen",
     "multiplayer": "Multiplayer",

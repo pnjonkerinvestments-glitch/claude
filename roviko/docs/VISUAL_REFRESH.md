@@ -74,3 +74,44 @@ Doel: een rustige homepage met één duidelijke route voor dagelijks gebruik, ge
 - **Oefenopties:** één rustige rij met chips en een label.
 - **Kindvriendelijk:** tekst 17 px, knoppen minimaal 48–50 px hoog, minder decoratie (stickers en stippellijn weg) en minder doorlopende animaties. Dat is ook zuiniger op goedkope telefoons.
 - **Schaal:** er zijn geen extra API-aanroepen op de homepage bijgekomen. Het mysterieland laadt twee statische, cachebare JSON-bestanden.
+
+---
+
+# Rustige tegels, uitleg per spel en Rank Radar-medailles (ronde 5)
+
+Doel: een fijnere, rustigere site waar elke speler snapt hoe elk spel werkt, zonder extra spelvormen op de homepage. Geleerd van Geotrivia: een warme, rustige achtergrond en grote gekleurde speltegels die in hun geheel klikbaar zijn, met kleine knoppen eronder. Er is niets overgenomen: eigen kleuren, eigen artwork, eigen teksten.
+
+- **Warme achtergrond:** de lichte modus is gebroken wit (`#f7f3ee`) met warme randen in plaats van koel blauwgrijs. Het stippenpatroon is weg. De donkere modus blijft navy.
+- **Dagspellen als gekleurde tegels:** de hele tegel is de knop (plaatje, naam, één regel en een witte "Start"-pil). De tegelkleur loopt over in de achtergrond van het artwork. Onder elke tegel staan twee knoppen in dezelfde kleur: **oefenen** ("Nog een ronde", "Vrij oefenen", "Ontdek alle 14 onderwerpen", "Nieuw mozaïek") en **?** (uitleg). De losse oefenrij is daarmee weg. Het raster is 4 kolommen tot 900 px breed, daaronder 2.
+- **Extra's in één rij:** Wereldduel als paarse tegel naast het mysterieland (onder elkaar op mobiel). Geen nieuwe spelvormen; het aantal blokken op de homepage blijft 6.
+- **Klassieke spellen:** zachte pasteltegels per spel, rustiger dan de vier dagspellen, zodat de volgorde van belangrijkheid duidelijk is.
+
+## Uitleg: elke speler snapt elk spel
+
+- **"?"-knop in elk spel:** Rank Radar, Wereldreis, Side by Side, Country Mosaic, Wereldduel, alle klassieke spellen en het mysterieland. De knop opent een venster met 3 genummerde stappen (met icoon), een tip en de knop "Snap ik, spelen!".
+- **Automatisch de eerste keer:** speel je een spel voor het eerst, dan opent de uitleg vanzelf (één keer per spel, onthouden in de browser via `roviko:howto:<spel>`). Bij "Rond de wereld" (gemengd) en in kamers opent hij niet vanzelf, om het spel niet te onderbreken.
+- **Uitlegpagina `/how-to-play`:** in de hoofdnavigatie ("Uitleg"). Alle 13 spelvormen in de groepen Dagspellen, Extra's, Klassieke spellen en Met vrienden, met snelkoppelingen bovenaan en per spel een knop om direct te spelen. De pagina staat ook in de sitemap.
+- **Op de homepage:** "Nieuw hier? Zo werkt elk spel" in de hero (zolang je vandaag nog niets gespeeld hebt) en het ?-knopje onder elke dagtegel.
+- **Toegankelijk:** Radix-dialoog (focus blijft in het venster, Esc sluit, de sneltoetsen 1–4 van het spel erachter reageren niet zolang de uitleg open is). Teksten zijn in het Engels en Nederlands en maximaal 160 tekens per stap.
+
+Bestanden: `lib/how-to-play.ts` (inhoud), `i18n/howto.ts` (interfaceteksten), `components/atelier/HowToPlay.tsx` (knop, dialoog en pagina) en `tests/how-to-play.test.mjs`.
+
+## Rank Radar: meer zoals een rangspel, zonder punten
+
+- **Medailles per keuze:** de beste keuze is 🥇, de 2e beste 🥈, de 3e 🥉 en de zwakste ⚪. Ook "net niet" voelt nu als vooruitgang, wat vriendelijker is voor kinderen. Gelijke posities delen een medaille.
+- **Medaillespoor** onder de voortgangsbalk, een **medaille-samenvatting** op het eindscherm ("4× beste · 1× 2e · 1× 3e"), "Perfecte radar!" bij zes keer goud, en medailles in het overzicht.
+- **Delen** als medaillerij (🥇🥈🥇🥇🥉🥇), zonder landen of antwoorden te verklappen.
+- De server stuurt de plaatsen mee (`places` in `/api/ranks`), zodat medailles na herladen blijven staan. Dit is een extra veld; de iOS-client blijft werken.
+- Nog steeds **geen timer, punten of XP**, volgens de productregels.
+
+## Testresultaten (lokaal, Linux, Node 22)
+
+- Typecheck en build geslaagd. `npm test`: 90/90 geslaagd, met 6 nieuwe tests (2 voor de medailles, 4 voor de uitleg). In `tests/rank.test.mjs` en `tests/puzzle-ui.test.mjs` staat `radix-ui` nu als externe module in de testbundel, omdat de spelkoppen de uitlegdialoog gebruiken; de controles zelf zijn niet veranderd.
+- ESLint: geen nieuwe fouten ten opzichte van de vorige commit in de gewijzigde bestanden.
+- Handmatig in headless Chromium: homepage, `/daily`, `/multiplayer` en `/how-to-play` op 1440, 1024 en 390 px, licht en donker. De uitleg opent automatisch de eerste keer in Rank Radar, Side by Side, Flag Signal en Wereldduel (Engels licht en Nederlands donker op mobiel), gaat niet opnieuw open na "Snap ik", is opnieuw te openen via ? en sluit met Esc.
+
+## Nog niet gecontroleerd
+
+- Echte telefoons (iOS Safari, Android Chrome) en de Capacitor-app. Controleer vooral de ?-knoppen onder de tegels en de horizontale snelkoppelingen op de uitlegpagina.
+- Schermlezers (VoiceOver, TalkBack) op de nieuwe tegels en de uitlegdialoog.
+- De Wereldreis-, Mosaic- en klassieke spellen zijn niet allemaal volledig uitgespeeld in deze ronde; alleen de uitleg en de koppen zijn gecontroleerd.

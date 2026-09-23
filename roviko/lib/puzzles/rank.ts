@@ -19,7 +19,7 @@ export type RankOption = RankCategory & Observation & { rank: number; coverage: 
 export type RankRound = { id: string; country: { id: string; name: Localized; flag: string }; options: RankOption[]; correct: string };
 export type RankAnswer = { value: string; correct: boolean; countryId: string; questionId: string; responseTime: number; at: number };
 export type RankState = { id: string; mode: 'rank'; daily: string | null; phase: 'question' | 'reveal' | 'finished'; round: number; questions: RankRound[]; answers: RankAnswer[]; streak: number; bestStreak: number; startedAt: number; turnAt: number; datasetVersion?: string };
-export type RankView = Omit<RankState, 'questions' | 'startedAt' | 'turnAt'> & { total: number; version: number; question: RankRound | null; review?: RankRound[]; learning: true };
+export type RankView = Omit<RankState, 'questions' | 'startedAt' | 'turnAt'> & { total: number; version: number; question: RankRound | null; review?: RankRound[]; learning: true; places?: number[] };
 
 /** Competition ranking: ties share a place. Coverage never includes missing values. */
 export function rankValues(values: Record<string, number>) {

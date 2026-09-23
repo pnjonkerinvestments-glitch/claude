@@ -4,12 +4,16 @@ import { one, rows, run, batch } from './db';
 import { dailyContent } from './daily-content';
 import { resultStatement } from './stats';
 import { generateRankRounds, type RankState, type RankView } from '../lib/puzzles/rank';
+import { choicePlace } from '../lib/puzzles/rank-medals';
 import type { Env, User } from './types';
 
 function view(s: RankState, version = 0): RankView {
   const {questions,startedAt,turnAt,...rest}=s;
   // This untimed learning game reveals only the current solution for instant feedback.
-  return {...rest,version,total:questions.length,learning:true,question:s.phase==='finished'?null:questions[s.round],...(s.phase==='finished'?{review:questions}:{})};
+  return {...rest,version,total:questions.length,learning:true,question:s.phase==='finished'?null:questions[s.round],
+    // Place of each given answer among its four subjects, so medals survive a reload mid-game.
+    places:s.answers.map((a,i)=>questions[i]?choicePlace(questions[i].options,a.value):4),
+    ...(s.phase==='finished'?{review:questions}:{})};
 }
 export async function startRank(env: Env, user: User, input: unknown) {
   const settings=z.object({daily:z.boolean().default(true)}).parse(input);

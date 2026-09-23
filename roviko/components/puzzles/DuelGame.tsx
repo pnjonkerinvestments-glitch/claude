@@ -7,6 +7,7 @@ import { BRAND } from '@/lib/config';
 import { formatMetric } from '@/lib/puzzles/topics';
 import { DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel';
 import { ResetCountdown } from '../atelier/ResetCountdown';
+import { HowToPlayButton } from '../atelier/HowToPlay';
 
 type Board = DuelBoard & { date: string | null };
 const storageKey = (board: Board) => 'roviko:duel:' + (board.date ?? board.seed);
@@ -62,6 +63,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
       <button className="icon-btn" onClick={() => go('/')} aria-label={t('back')}><ArrowLeft size={20}/></button>
       <div><strong><span aria-hidden="true">⚔️</span> {t('duel')}</strong><small>{board.date ?? t('duelPractice')}</small></div>
       <span className="puzzle-count">{Math.min(step + 1, DUEL_ROUNDS)} / {DUEL_ROUNDS}<small>{t('duelRounds')}</small></span>
+      <HowToPlayButton mode="duel" t={t} locale={loc} auto={!finished}/>
     </div>
     <Progress className="puzzle-progress" value={(Math.min(plays.length, DUEL_ROUNDS) / DUEL_ROUNDS) * 100}/>
 

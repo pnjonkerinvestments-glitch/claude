@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Check, Lightbulb, X } from 'lucide-react';
 import { mysteryOfTheDay, type MysteryCountryData, type MysteryFact } from '@/lib/daily-loop';
 import { ResetCountdown } from './ResetCountdown';
+import { HowToPlayButton } from './HowToPlay';
 
 type MysteryData = [{ facts: MysteryFact[] }, MysteryCountryData[]];
 let dataPromise: Promise<MysteryData> | null = null;
@@ -35,6 +36,7 @@ export function MysteryCountry({ date, t, locale }: { date: string; t: (k: strin
     <div className="mystery-head">
       <span className="mystery-badge" aria-hidden="true">{answered ? <img src={answer.flag} alt=""/> : '❓'}</span>
       <div><span className="mystery-kicker">{CATEGORY_EMOJI[fact.category] ?? '🌍'} {t('mysteryKicker')}</span><h2 id="mystery-title">{t('mysteryTitle')}</h2></div>
+      <HowToPlayButton mode="mystery" t={t} locale={locale}/>
     </div>
     <ol className="mystery-clues">{clues.slice(0, answered ? clues.length : hints).map((clue, i) => <li key={i}><span aria-hidden="true">{i + 1}</span>{clue}</li>)}</ol>
     {!answered && hints < clues.length && <button className="text-link mystery-hint" onClick={moreHints}><Lightbulb size={16}/>{t('mysteryHint')} · {hints}/{clues.length}</button>}
