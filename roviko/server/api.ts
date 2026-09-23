@@ -1,4 +1,5 @@
 import { startRank, rankAction } from './ranks';
+import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
 import { measure, measureStart } from './telemetry';
 import { mergeProgress } from './merge-progress';
@@ -14,6 +15,9 @@ import { createRoom, mutateRoom, roomView, connectSocket } from './multiplayer';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS } from '../lib/config';
 import type { Env, User } from './types';
+// Duel boards are deterministic per seed; generating one takes up to ~1s, so keep recent ones in memory.
+const duelCache = new Map<string, DuelBoard>();
+function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) { board = generateDuel(seed); if (duelCache.size > 64) duelCache.clear(); duelCache.set(seed, board); } return board; }
 const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania']), typed: z.boolean().optional() });
 const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: v?.mode === 'daily' ? 'mixed' : v?.mode ?? 'mixed' });
 function json(data: any, status = 200, headers: Record<string, string> = {}) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } }); }
@@ -46,6 +50,13 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             // Local Vite dev has no ASSETS binding; the dev server serves public/ on the same origin.
             const asset = env.ASSETS ? await env.ASSETS.fetch(assetRequest) : await fetch(assetRequest);
             return new Response(asset.body, { status: asset.status, headers: { 'Content-Type': png ? 'image/png' : 'image/svg+xml', 'Cache-Control': 'public,max-age=86400', 'X-Content-Type-Options': 'nosniff' } });
+        }
+        if (path[0] === 'duel' && method === 'GET') {
+            // Public, deterministic boards: no session or database needed, safe to cache.
+            const today = new Date().toISOString().slice(0, 10);
+            if (path[1] === 'today') return json({ date: today, ...duelBoard('roviko:duel:v1:' + today) }, 200, { 'Cache-Control': 'public, max-age=300' });
+            if (path[1] === 'practice' && /^[a-z0-9]{4,16}$/.test(path[2] ?? '')) return json({ date: null, ...duelBoard('roviko:duel:practice:' + path[2]) }, 200, { 'Cache-Control': 'public, max-age=86400' });
+            throw new AppError('NOT_FOUND', 404);
         }
         if (path[0] === 'health')
             return json({ ok: !!(await one(env, 'SELECT 1 ok')) });

@@ -100,6 +100,11 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
     {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={() => setReload(n => n+1)}>{t('retry')}</button></p>}
     {dailyPage && today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t}/>}
     {dailyPage && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true">🏅</span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}
+    {welcome && <button className="duel-teaser" onClick={() => go('/duel')}>
+      <span className="duel-teaser-art" aria-hidden="true"><img src="/globe-logo.webp" alt="" width={56} height={56}/><span>⚔️</span></span>
+      <span className="duel-teaser-copy"><small>{t('duelCardTitle')}</small><strong>{t('duel')}</strong><span>{t('duelTagline')}</span></span>
+      <span className="btn primary duel-teaser-cta">{t('duelPlay')}<ArrowRight size={18}/></span>
+    </button>}
     {welcome && <NativeReminder t={t}/>}
     {welcome && today && <MysteryCountry key={today.date} date={today.date} t={t} locale={locale}/>}
     <div className="daily-quiet-options"><span className="practice-label" aria-hidden="true">{t('extraPractice')}</span><div className="daily-practice-links" role="group" aria-label={t('extraPractice')}><button className="text-link" disabled={!!busy} onClick={() => play('rank', false)}>{t('rankPractice')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('compare')}>{t('puzzleBrowseTopics')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('mosaic')}>{t('freshMosaic')}<ArrowRight size={14}/></button></div>{dailyPage && <span className="practice-reset">{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</span>}</div>

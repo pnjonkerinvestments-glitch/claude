@@ -41,13 +41,13 @@ function observations(topic: RankCategory): Record<string, Observation> {
     return [[c.id, { value:fact.value, referenceYear:fact.reference_year, source:fact.source_id === 'zugspitze-operator' ? 'Zugspitze · mountain operator · numerical fact' : 'Factbook archive · CC0', sourceUrl:fact.source_url, estimated:fact.estimated, ...(fact.place ? {place:fact.place} : {}) }]];
   }));
 }
-const tables = RANK_CATEGORIES.map(category => { const values=observations(category); return { category, values, ranks:rankValues(Object.fromEntries(Object.entries(values).map(([id,o])=>[id,o.value]))) }; });
+export const RANK_TABLES = RANK_CATEGORIES.map(category => { const values=observations(category); return { category, values, ranks:rankValues(Object.fromEntries(Object.entries(values).map(([id,o])=>[id,o.value]))) }; });
 
 export function generateRankRounds(seed: string, count = 6): RankRound[] {
   const rng = random(seed), rounds: RankRound[] = [], usedWinners = new Set<string>();
   const pool = shuffle(COUNTRIES.filter(c => !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id)), rng);
   for (const country of pool) {
-    const options: RankOption[] = tables.filter(t => t.values[country.id]).map(t => ({...t.category,...t.values[country.id],...t.ranks[country.id]}));
+    const options: RankOption[] = RANK_TABLES.filter(t => t.values[country.id]).map(t => ({...t.category,...t.values[country.id],...t.ranks[country.id]}));
     // Leave a visible gap: avoid questions decided by rounding or unequal coverage.
     const candidates = shuffle(options.filter(o => o.position < .55 && !usedWinners.has(o.id)), rng);
     for (const winner of candidates) {
