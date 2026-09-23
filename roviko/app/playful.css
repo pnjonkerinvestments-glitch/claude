@@ -143,7 +143,6 @@ html{scroll-padding-top:88px}
 .play-hero-stats small{font-size:.78rem;font-weight:800;color:#eef2ff;letter-spacing:.01em}
 .play-hero-art{position:relative;justify-self:center;width:min(100%,320px);aspect-ratio:1}
 .hero-mascot{position:absolute;inset:12%;width:76%;height:76%;object-fit:contain;filter:drop-shadow(0 18px 18px #0b124044);animation:hero-float 5.5s ease-in-out infinite}
-.hero-orbit{position:absolute;inset:2%;border-radius:50%;border:3px dashed #ffffff55;animation:hero-spin 40s linear infinite}
 .hero-sticker{position:absolute;display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:#fff;font-size:1.65rem;font-family:var(--emoji-font);box-shadow:0 5px 0 #0b124033,0 10px 20px #0b12402e;animation:hero-bob 4.5s ease-in-out infinite}
 .hero-sticker.s1{top:38%;left:-6%;rotate:-10deg}
 .hero-sticker.s2{top:30%;right:-6%;rotate:8deg;animation-delay:-1.2s}
@@ -381,13 +380,116 @@ html{scroll-padding-top:88px}
 .app-modal{border:2px solid var(--border);border-radius:26px!important;box-shadow:0 8px 0 var(--border),0 30px 60px #14213d33!important}
 .puzzle-sticker{animation:pop-in 500ms cubic-bezier(.34,1.56,.64,1)}
 
+/* ───────── Daily return loop ───────── */
+/* Progress ring around the mascot: one arc per daily game */
+.hero-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.hero-ring circle{fill:none;stroke-width:5;stroke-linecap:round}
+.hero-ring-track{stroke:#ffffff26;stroke-dasharray:2 5;stroke-width:2.5!important}
+.hero-ring-arc{stroke:#ffffff40;transition:stroke 500ms ease,stroke-width 500ms cubic-bezier(.34,1.56,.64,1)}
+.hero-ring-arc.is-done{stroke-width:7}
+.hero-ring-arc.arc-rank.is-done{stroke:#ff8a7a}
+.hero-ring-arc.arc-daily.is-done{stroke:#6fdb9a}
+.hero-ring-arc.arc-compare.is-done{stroke:#ffc83d}
+.hero-ring-arc.arc-mosaic.is-done{stroke:#c8bdff}
+.play-hero.is-done .hero-ring{filter:drop-shadow(0 0 10px #ffe58a)}
+.hero-bubble{animation:bubble-in 600ms 150ms cubic-bezier(.34,1.56,.64,1) both}
+/* Streak: small goal bar towards the next milestone, a gentle pulse when today's streak is still open */
+.play-hero-stats li.stat-streak{position:relative;overflow:hidden}
+.stat-goal{position:absolute;left:12px;right:12px;bottom:6px;height:4px;border-radius:999px;background:#ffffff26;overflow:hidden}
+.stat-goal i{display:block;height:100%;border-radius:inherit;background:var(--sun)}
+.stat-streak.at-risk{box-shadow:inset 0 0 0 2px var(--sun);animation:risk-glow 2.2s ease-in-out infinite}
+.stat-streak.at-risk>span{animation:flame 1.2s ease-in-out infinite}
+@keyframes risk-glow{0%,100%{background:#ffffff1f}50%{background:#ffc83d38}}
+@keyframes flame{0%,100%{transform:scale(1) rotate(-4deg)}50%{transform:scale(1.18) rotate(5deg)}}
+.reset-countdown{display:inline-flex;align-items:center;gap:8px;font-weight:800}
+.reset-countdown time{font-family:var(--font-display);font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.02em;padding:4px 10px;border-radius:10px;background:var(--accent);color:var(--primary)}
+.hero-reset{padding:8px 8px 8px 14px;border-radius:999px;background:#ffffff24;color:#fff}
+.hero-reset time{background:#fff;color:var(--ink)}
+
+/* Daily cards: a stamp when finished, a live dot while started */
+.daily-card.is-done .daily-cover::after{content:"✓";position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;border:3px solid #17844a;background:#ffffffe6;color:#17844a;font:700 1.7rem/1 var(--font-display);transform:rotate(-12deg);box-shadow:0 3px 0 #0f5c3340;animation:stamp 500ms cubic-bezier(.34,1.56,.64,1) both}
+.daily-card.is-done .game-cover-image{filter:saturate(.75)}
+.daily-state.state-active::before{content:"";width:8px;height:8px;border-radius:50%;background:#e8590c;animation:live-dot 1.4s ease-in-out infinite}
+@keyframes stamp{from{opacity:0;transform:scale(1.8) rotate(-30deg)}to{opacity:1;transform:scale(1) rotate(-12deg)}}
+@keyframes live-dot{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Next badge nudge */
+.goal-nudge{display:grid;grid-template-columns:auto minmax(0,1fr) minmax(90px,.8fr) auto;align-items:center;gap:14px;margin-top:18px;padding:12px 18px;border:2px solid var(--border);border-radius:20px;background:var(--card);box-shadow:0 4px 0 var(--border)}
+.goal-nudge-medal{display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#fff3cf;font-size:1.5rem;font-family:var(--emoji-font)}
+[data-theme=dark] .goal-nudge-medal{background:#3a321a}
+.goal-nudge small{display:block;font-size:.75rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-foreground)}
+.goal-nudge strong{font-family:var(--font-display);font-weight:600;font-size:1.1rem}
+.goal-nudge>b{font-family:var(--font-display);font-weight:700;color:var(--primary)}
+.goal-bar{display:block;height:12px;border-radius:999px;background:var(--muted);overflow:hidden;box-shadow:inset 0 2px 0 #14213d0f}
+.goal-bar i{display:block;height:100%;min-width:12px;border-radius:inherit;background:linear-gradient(90deg,#ffb020,var(--sun));box-shadow:inset 0 -3px 0 #0000001a}
+@media (max-width:560px){.goal-nudge{grid-template-columns:auto minmax(0,1fr) auto}.goal-nudge .goal-bar{grid-column:1/-1;order:4}}
+
+/* Mystery country of the day */
+.mystery-card{position:relative;overflow:hidden;margin-top:22px;padding:24px;border-radius:26px;border:2px solid var(--border);background:
+  radial-gradient(circle at 100% 0,color-mix(in srgb,#6a4cf0 16%,transparent) 0 120px,transparent 121px),var(--card);box-shadow:0 6px 0 var(--border)}
+.mystery-head{display:flex;align-items:center;gap:14px}
+.mystery-badge{display:grid;place-items:center;flex-shrink:0;width:60px;height:60px;border-radius:18px;background:linear-gradient(135deg,#6a4cf0,#2f5bea);color:#fff;font-size:1.9rem;font-family:var(--emoji-font);box-shadow:0 4px 0 #3f2aa8;animation:hero-bob 3.2s ease-in-out infinite}
+.mystery-badge img{width:44px;height:auto;border-radius:6px;box-shadow:0 2px 0 #0003}
+.mystery-kicker{display:block;font-size:.78rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:#5b45e0}
+[data-theme=dark] .mystery-kicker{color:#c8bdff}
+.mystery-head h2{font-size:1.5rem;font-weight:700}
+.mystery-clues{display:grid;gap:8px;margin:16px 0 6px;padding:0;list-style:none}
+.mystery-clues li{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:14px;background:var(--secondary);font-weight:700;line-height:1.45;animation:slide-up 300ms ease both}
+.mystery-clues li>span{display:grid;place-items:center;flex-shrink:0;width:24px;height:24px;border-radius:8px;background:#5b45e0;color:#fff;font-size:.8rem;font-weight:900}
+.mystery-hint{min-height:40px}
+.mystery-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.mystery-option{display:flex;align-items:center;gap:10px;min-height:54px;padding:10px 14px;border:2px solid var(--border);border-bottom-width:5px;border-radius:16px;background:var(--card);color:var(--foreground);font-weight:800;font-size:1rem;text-align:left;transition:transform 90ms,border-color 120ms,background 120ms}
+.mystery-option:hover:not(:disabled){transform:translateY(-2px);border-color:#a999ff}
+.mystery-option:active:not(:disabled){transform:translateY(3px);border-bottom-width:2px}
+.mystery-option:disabled{opacity:.7;cursor:default}
+.mystery-option img{width:28px;height:auto;border-radius:4px;box-shadow:0 1px 0 #0002}
+.mystery-option>span{flex:1;min-width:0;overflow-wrap:anywhere}
+.mystery-option.is-correct{opacity:1;border-color:#58c98a;border-bottom-color:#2f9e63;background:var(--correct-bg);color:var(--success);animation:pop-in 420ms cubic-bezier(.34,1.56,.64,1)}
+.mystery-option.is-wrong{opacity:1;border-color:var(--error-border);border-bottom-color:#e0667b;background:var(--error-bg);color:var(--error-ink);animation:shake 420ms ease}
+.mystery-reveal{position:relative;overflow:hidden;margin-top:14px;padding:16px 18px;border-radius:18px;border:2px solid var(--border);background:var(--secondary);animation:slide-up 320ms cubic-bezier(.34,1.56,.64,1)}
+.mystery-card.is-right .mystery-reveal{border-color:var(--correct-border);background:var(--correct-bg)}
+.mystery-card.is-wrong .mystery-reveal{border-color:var(--error-border);background:var(--error-bg)}
+.mystery-card.is-wrong .mystery-verdict{color:var(--error-ink)}
+.mystery-card.is-right .mystery-verdict{color:var(--success)}
+.mystery-card.is-right .mystery-reveal::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle,#ffc83d 0 4px,transparent 5px) 10% 30%/0 0 no-repeat,radial-gradient(circle,#2f5bea 0 4px,transparent 5px) 30% 80%/0 0 no-repeat,radial-gradient(circle,#cf3b2b 0 3px,transparent 4px) 55% 20%/0 0 no-repeat,radial-gradient(circle,#6a4cf0 0 4px,transparent 5px) 80% 70%/0 0 no-repeat,radial-gradient(circle,#17844a 0 3px,transparent 4px) 92% 25%/0 0 no-repeat;animation:confetti5 900ms ease-out both}
+@keyframes confetti5{0%{opacity:1;background-size:0 0,0 0,0 0,0 0,0 0;transform:scale(.6)}40%{opacity:1;background-size:14px 14px,14px 14px,12px 12px,14px 14px,12px 12px}100%{opacity:0;transform:scale(1.25) translateY(-14px);background-size:14px 14px,14px 14px,12px 12px,14px 14px,12px 12px}}
+.mystery-verdict{display:block;font-family:var(--font-display);font-size:1.3rem;font-weight:700;margin-bottom:6px}
+.mystery-reveal p{margin:6px 0;line-height:1.55;font-weight:600}
+.mystery-source{font-size:.8rem;color:var(--muted-foreground)}
+.mystery-source a{text-decoration:underline}
+.mystery-reveal .reset-countdown{margin-top:8px;font-size:.9rem}
+@media (max-width:480px){.mystery-card{padding:18px}.mystery-options{grid-template-columns:1fr}}
+
+/* After a daily game: streak, what's still open, the way on */
+.daily-loop{margin:26px auto 8px;max-width:640px;padding:22px;border-radius:26px;text-align:center;color:#fff;
+  background:radial-gradient(circle at 90% 0,#ffffff26 0 70px,transparent 71px),linear-gradient(125deg,var(--hero-a),var(--hero-b) 70%,var(--hero-c) 140%);box-shadow:0 6px 0 color-mix(in srgb,var(--hero-a) 55%,#000)}
+.daily-loop h2{color:#fff;font-size:1.45rem;font-weight:700;margin:14px 0 12px}
+.loop-streak{display:inline-flex;align-items:center;gap:12px;padding:10px 18px 10px 12px;border-radius:20px;background:#ffffff1f;box-shadow:inset 0 0 0 2px #ffffff2e;text-align:left}
+.loop-flame{font-size:2.2rem;font-family:var(--emoji-font);animation:flame 1.4s ease-in-out infinite}
+.loop-streak-copy strong{display:block;font-weight:800;font-size:1rem}
+.loop-streak-copy strong b{font-family:var(--font-display);font-size:1.6rem;font-weight:700;margin-right:2px}
+.loop-goal{display:flex;align-items:center;gap:8px;font-size:.82rem;font-weight:800;color:#eef2ff}
+.loop-goal .goal-bar{width:90px;height:8px;background:#ffffff33}
+.loop-milestone-hit{display:inline-block;margin-top:2px;padding:3px 10px;border-radius:999px;background:var(--sun);color:var(--sun-ink);font-weight:900;font-size:.85rem;animation:pop-in 500ms cubic-bezier(.34,1.56,.64,1)}
+.loop-games{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 0 18px;padding:0;list-style:none}
+.loop-games li{display:inline-flex;align-items:center;gap:7px;padding:7px 12px 7px 7px;border-radius:999px;background:#ffffff1f;font-weight:800;font-size:.9rem}
+.loop-game-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#ffffff2e;font-family:var(--emoji-font)}
+.loop-games li.state-done{background:#ffffffe6;color:var(--ink)}
+.loop-games li.state-done .loop-game-icon{background:#17844a;color:#fff}
+.loop-games li.state-active{box-shadow:inset 0 0 0 2px var(--sun)}
+.daily-loop .loop-next{width:min(100%,380px);justify-content:space-between}
+.loop-reset{display:grid;justify-items:center;gap:8px;font-weight:700}
+.loop-reset .reset-countdown time{background:#fff;color:var(--ink);font-size:1.25rem}
+.loop-reset p{margin:0;color:#eef2ff}
+.daily-loop.is-complete .loop-flame{animation:hero-cheer 1.4s ease-in-out infinite}
+
 /* ───────── Shared motion ───────── */
 @keyframes pop-in{0%{transform:scale(.85)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
 @keyframes slide-up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
 @media (prefers-reduced-motion:reduce){
-  .hero-mascot,.hero-orbit,.hero-sticker,.hero-bubble,.tomorrow-emoji,.play-hero.is-done .hero-mascot,
+  .hero-mascot,.hero-sticker,.hero-bubble,.stat-streak.at-risk,.stat-streak.at-risk>span,.daily-card.is-done .daily-cover::after,.daily-state.state-active::before,.mystery-badge,.mystery-clues li,.mystery-option,.mystery-reveal,.mystery-card.is-right .mystery-reveal::after,.loop-flame,.loop-milestone-hit,.daily-loop.is-complete .loop-flame,.tomorrow-emoji,.play-hero.is-done .hero-mascot,
   .answer-option,.answer-feedback,.answer-feedback::after,.comparison-country,.comparison-reveal,.comparison-reveal::after,
   .mosaic-tile,.mosaic-group,.rank-option,.rank-feedback,.rank-feedback::after,.rank-country-flag,.flag-stage img,
   .daily-progress-marks>.complete,.journey-route .current .journey-stop,.puzzle-sticker,.feedback-heading>span,.learning-celebration,.answer-trail>span{animation:none!important}

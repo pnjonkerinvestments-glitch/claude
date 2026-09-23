@@ -15,6 +15,7 @@ import { messages, errorMessage, type Locale } from '@/i18n/messages';
 import { api, post, copyText, formatScore, sound, readPreference, writePreference, metric } from '@/lib/client';
 import { PassportCollection, PassportPeek } from './atelier/PassportCollection';
 import { NextDiscovery } from './atelier/NextDiscovery';
+import { DailyLoop } from './atelier/DailyLoop';
 import { returnDestination, navigationState } from '@/lib/navigation';
 import { JourneyRoute } from './game/JourneyRoute';
 import { Question } from './game/Question';
@@ -225,14 +226,14 @@ function DailyScreen() {
     return <div className="daily-hub"><PuzzleDeck app={app} dailyPage welcome/></div>;
 }
 function Results({ result, multiplayer = false, room, send }: any) {
-    const { t, locale, start, go, backToStart, copy, boot, fail } = useApp();
+    const app = useApp(), { t, locale, start, go, backToStart, copy, boot, fail } = app;
     const list = result.answers ?? result.results ?? [];
     const correct = list.filter((a: any) => a.correct).length;
     const score = result.score;
     const wrong = list.filter((a: any) => !a.correct);
     const share = () => copy(shareResult({ mode: multiplayer ? 'multiplayer' : result.daily ? 'daily' : result.settings?.mode ?? 'mixed', label: t(multiplayer ? 'multiplayer' : result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed'), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), origin: window.location.origin }));
     const winners = room?.players ?? [];
-    if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => start({ ...result.settings, mode: result.daily ? 'mixed' : result.settings.mode })} onShare={share} onHome={backToStart} followUp={<NextDiscovery result={result} t={t} go={go} fail={fail}/>}/>;
+    if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => start({ ...result.settings, mode: result.daily ? 'mixed' : result.settings.mode })} onShare={share} onHome={backToStart} followUp={<>{result.daily && <DailyLoop app={app}/>}<NextDiscovery result={result} t={t} go={go} fail={fail}/></>}/>;
     return <div className="results-page"><span className="result-emblem">{multiplayer ? <Trophy size={40}/> : result.daily ? <Sunrise size={40}/> : <Compass size={40}/>}</span><span className="eyebrow">{multiplayer ? t('multiplayer') : result.daily ? t('daily') : t(result.settings?.mode ?? 'mixed')}</span><h1>{t(multiplayer ? 'podium' : result.daily ? 'dailyResult' : 'yourResult')}</h1><p className="results-subtitle">{t(multiplayer ? 'podiumCopy' : 'resultCopy')}</p>{multiplayer && <div className="podium">{winners.slice(0, 3).map((p: any, i: number) => <div key={p.id} className={'podium-player place-' + (i + 1)}>{i === 0 && <Crown className="podium-crown" size={27}/>}<Avatar id={p.avatar} size="large"/><strong>{p.name}</strong><span>{formatScore(p.score)} {t('points')}</span><div className="podium-step"><span>{p.rank ?? i + 1}</span></div></div>)}</div>}
  {!multiplayer && <div className="result-score"><span>{formatScore(score)}</span><small>{t('points')}</small>{score > result.personalBest && <div className="record-chip"><Star size={14}/>{t('newRecord')}</div>}</div>}
  <div className="result-stats"><div><Target size={20}/><strong>{list.length ? Math.round(correct / list.length * 100) : 0}%</strong><span>{t('accuracy')}</span></div><div><Clock size={20}/><strong>{prettyTime(list.reduce((n: number, a: any) => n + a.responseTime, 0))}</strong><span>{t('time')}</span></div><div><Flame size={20}/><strong>{result.bestStreak ?? Math.max(0, ...list.map((a: any) => a.streak))}</strong><span>{t('bestStreak')}</span></div><div><Zap size={20}/><strong>+{result.xp ?? Math.round(score / 25) + list.length * 10}</strong><span>{t('xpEarned')}</span></div></div>

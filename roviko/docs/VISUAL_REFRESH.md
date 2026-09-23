@@ -38,3 +38,25 @@ Doel: Roviko speelser en vrolijker maken, met behoud van alle functies, productk
 - Echte iPhone/Android-apparaten, aanraking en VoiceOver/TalkBack.
 - Safari/WebKit en Firefox.
 - De live omgeving (niet bereikbaar vanuit deze ontwikkelomgeving).
+
+---
+
+# Terugkeer-lus (ronde 2)
+
+Doel: spelers elke dag laten terugkomen en langer laten spelen, maar op een eerlijke manier. Er zijn dus geen nep-meldingen, geen schuldgevoel-teksten en geen eindeloze feed. Punten en XP in solo blijven uit, zoals `START_HERE_CLAUDE.md` voorschrijft.
+
+| Psychologisch principe | Wat het doet in Roviko |
+| --- | --- |
+| Zeigarnik-effect (onafgemaakte taken blijven trekken) | Voortgangsring rond de mascotte met 4 bogen, één per dagspel. Afgeronde spellen kleuren in en op de kaart komt een ✓-stempel. |
+| Doelgradiënt (hoe dichter bij het doel, hoe meer motivatie) | Balkje onder de reeks naar de volgende mijlpaal (3, 7, 14, 30 … dagen) en een kaart "Volgende badge" met voortgangsbalk (bestaande solo-prestaties). |
+| Verliesaversie, mild ingezet | Als je reeks bestaat maar je vandaag nog niets hebt gespeeld: een gloeiende vlam en de tekst "Je reeks van N dagen wacht op je!". |
+| Minder frictie tussen spellen | Na elk dagspel verschijnt een paneel met je reeks, de 4 dagspellen en een knop "Volgende: …". |
+| Verwachting (het Wordle-effect) | Als alles af is: een live aftelklok tot de nieuwe puzzels om 00:00 UTC, plus het onderwerp van morgen. |
+| Nieuwsgierigheidskloof en variabele beloning | "Mysterieland van de dag": raad het land bij een UNESCO-erfgoedfeit. Extra hints zijn optioneel, er komt direct feedback met uitleg en bron, en het spel wisselt dagelijks. De voortgang blijft bewaard in de browser. |
+| Persoonlijke, reagerende mascotte | De tekstballon past zich aan: nieuw, bezig ("Nog 2 te gaan!"), reeks in gevaar, of alles gedaan. |
+
+Nieuwe bestanden: `lib/daily-loop.ts` (pure logica, getest in `tests/daily-loop.test.mjs`), `components/atelier/DailyLoop.tsx`, `components/atelier/MysteryCountry.tsx` en `components/atelier/ResetCountdown.tsx`. Het mysterieland gebruikt de bestaande dataset `public/data/mosaic-facts.json` (UNESCO, CC BY-SA 3.0 IGO) en vermeldt de bron bij elk antwoord.
+
+Tests: typecheck en build geslaagd, `npm test` 81/81 geslaagd (6 nieuw). Handmatig in headless Chromium: een volledig Rank-dagspel, de lus erna, de homepage met 1/4 klaar, het mysterieland (hint, fout antwoord, herladen), op desktop en 390 px, licht en donker.
+
+Nog open, vooral voor de app: echte pushmeldingen ("je reeks wacht"), een reeks-bevriezer en vrienden-reeksen. Die vragen server-opslag en expliciete toestemming van de speler.

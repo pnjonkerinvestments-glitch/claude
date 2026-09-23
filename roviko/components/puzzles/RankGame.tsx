@@ -1,4 +1,5 @@
 'use client';
+import { DailyLoop } from '../atelier/DailyLoop';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X, Flag, Share2, Radar } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
@@ -54,6 +55,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
       <div className="rank-finish-art"><img src="/art/rank-radar-480.webp" width="480" height="320" alt=""/></div><p className="rank-eyebrow">{t('rank')}</p><h1>{t('rankFinish')}</h1><p>{t('rankFinishCopy')}</p>
       <div className="rank-result"><strong>{correct}<span> / {game.total}</span></strong><span>{t('correctAnswers')}</span></div>
       <div className="puzzle-answer-trail" aria-label={t('correctAnswers')}>{game.answers.map((a,i)=><span key={i} className={a.correct?'correct':''} aria-label={`${i+1}: ${t(a.correct?'correct':'incorrect')}`}>{a.correct?<Check size={18}/>:<X size={18}/>}</span>)}</div>
+      {game.daily&&<DailyLoop app={app}/>}
       <div className="rank-results-actions"><button className="btn primary" disabled={busy} onClick={again}>{t('rankMore')}<ArrowRight size={18}/></button><button className="btn secondary" onClick={share}><Share2 size={18}/>{t('share')}</button></div>
       <h2>{t('rankReview')}</h2><div className="rank-review">{game.review?.map((r,i)=>{const best=r.options.find(o=>o.id===r.correct)!;return <div key={r.id}><img src={r.country.flag} alt=""/><div><strong>{r.country.name[lang]}</strong><span>{best.emoji} {best.label[lang]} · #{best.rank} / {best.coverage}</span></div><span className={game.answers[i].correct?'rank-check':'rank-miss'} aria-label={t(game.answers[i].correct?'correct':'incorrect')}>{game.answers[i].correct?<Check size={18}/>:<X size={18}/>}</span></div>;})}</div>
       <button className="text-link" onClick={()=>go('/daily')}>{t('finishForNow')}<ArrowRight size={16}/></button>

@@ -10,6 +10,11 @@ import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { TOPICS } from '@/lib/puzzles/topics';
 import type { PuzzleMode } from '@/lib/puzzles/model';
+import { ACHIEVEMENTS } from '@/lib/achievements';
+import { DAILY_MODES, completedDailies, dailyStateOf, nearestAchievement, nextDailyMode, streakAtRisk, streakMilestone, type DailyMode } from '@/lib/daily-loop';
+import { dailyTitleKey } from '../atelier/DailyLoop';
+import { MysteryCountry } from '../atelier/MysteryCountry';
+import { ResetCountdown } from '../atelier/ResetCountdown';
 
 export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: any; dailyPage?: boolean; welcome?: boolean }) {
   const { t, locale, boot, refresh, go, fail, start } = app;
@@ -40,32 +45,41 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
       setPractice(null); go((mode === 'rank' ? '/rank/' : '/puzzle/') + game.id);
     } catch (e) { fail(e); } finally { launching.current = false; setBusy(''); }
   }
-  const modes = ['rank', 'daily', 'compare', 'mosaic'] as const;
-  const completed = modes.filter(mode => today?.sessions.some((s: any) => s.mode === mode && s.completed)).length;
-  const stateOf = (mode: typeof modes[number]) => { const saved = today?.sessions.find((s: any) => s.mode === mode); return saved?.completed ? 'done' : saved ? 'active' : 'new'; };
-  const title = (mode: typeof modes[number]) => t(mode === 'daily' ? 'dailyTitle' : mode);
-  const launch = (mode: typeof modes[number]) => mode === 'daily' ? start({ ...DEFAULT_SETTINGS, mode: 'daily' }) : play(mode);
-  const next = modes.find(mode => stateOf(mode) === 'active') ?? modes.find(mode => stateOf(mode) === 'new');
+  const modes = DAILY_MODES;
+  const completed = completedDailies(today?.sessions);
+  const stateOf = (mode: DailyMode) => dailyStateOf(today?.sessions, mode);
+  const title = (mode: DailyMode) => t(dailyTitleKey(mode));
+  const launch = (mode: DailyMode) => mode === 'daily' ? start({ ...DEFAULT_SETTINGS, mode: 'daily' }) : play(mode);
+  const next = nextDailyMode(today?.sessions);
   const allDone = !!today && completed === modes.length;
-  const hero = welcome && <section className={'play-hero' + (allDone ? ' is-done' : '')} aria-labelledby="hero-title">
+  const streak = boot.stats.dailyStreak ?? 0, goal = streakMilestone(streak);
+  const atRisk = !!today && streakAtRisk(streak, completed);
+  const badge = nearestAchievement(ACHIEVEMENTS, boot.stats);
+  const bubble = allDone ? t('heroBubbleDone') : atRisk ? t('heroBubbleRisk').replace('{n}', String(streak)) : completed > 0 ? t('heroBubbleLeft').replace('{n}', String(modes.length - completed)) : t('heroBubble');
+  // Four arcs around the mascot, one per daily game; finished games light up in their colour.
+  const ring = 2 * Math.PI * 46, arc = ring / modes.length;
+  const hero = welcome && <section className={'play-hero' + (allDone ? ' is-done' : '') + (atRisk ? ' is-at-risk' : '')} aria-labelledby="hero-title">
     <div className="play-hero-copy">
       <h1 id="hero-title">{t('atelierTitle')}</h1>
-      <p>{t('atelierIntro')}</p>
+      <p>{atRisk ? t('streakAtRiskNote') : t('atelierIntro')}</p>
       <div className="play-hero-actions">
         {allDone
           ? <button className="btn hero-cta" onClick={() => document.getElementById('modes')?.scrollIntoView({ behavior: 'smooth' })}>{t('chooseGame')}<ArrowRight size={20}/></button>
-          : <button className="btn hero-cta" disabled={!today || !next || app.busy || !!busy} onClick={() => next && launch(next)}>{!today ? t('dailyStatusPending') : app.busy || busy ? t('loading') : t(next && stateOf(next) === 'active' ? 'heroContinue' : 'heroStart').replace('{game}', next ? title(next) : '')}<ArrowRight size={20}/></button>}
-        <span className="welcome-note"><Leaf size={16}/>{t('soloPace')}</span>
+          : <button className="btn hero-cta" disabled={!today || !next || app.busy || !!busy} onClick={() => next && launch(next)}>{!today ? t('dailyStatusPending') : app.busy || busy ? t('loading') : t(next && stateOf(next) === 'active' ? 'heroContinue' : completed > 0 ? 'loopNext' : 'heroStart').replace('{game}', next ? title(next) : '')}<ArrowRight size={20}/></button>}
+        {allDone ? <ResetCountdown className="hero-reset" label={t('heroResetIn')}/> : <span className="welcome-note"><Leaf size={16}/>{t('soloPace')}</span>}
       </div>
       <ul className="play-hero-stats">
-        <li className="stat-streak"><span aria-hidden="true">🔥</span><b>{boot.stats.dailyStreak ?? 0}</b><small>{t('heroStatStreak')}</small></li>
+        <li className={'stat-streak' + (atRisk ? ' at-risk' : '')}><span aria-hidden="true">🔥</span><b>{streak}</b><small>{t('heroStatStreak')}</small><em className="stat-goal" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></em></li>
         <li className="stat-today"><span aria-hidden="true">🎯</span><b>{today ? completed : 0}/{modes.length}</b><small>{t('heroStatToday')}</small></li>
         <li className="stat-countries"><span aria-hidden="true">🗺️</span><b>{boot.stats.discovered ?? 0}</b><small>{t('heroStatCountries')}</small></li>
       </ul>
     </div>
     <div className="play-hero-art" aria-hidden="true">
-      <span className="hero-bubble">{t(allDone ? 'heroBubbleDone' : 'heroBubble')}</span>
-      <span className="hero-orbit"/>
+      <span className="hero-bubble" key={bubble}>{bubble}</span>
+      <svg className="hero-ring" viewBox="0 0 100 100">
+        <circle className="hero-ring-track" cx="50" cy="50" r="46"/>
+        {modes.map((mode, i) => <circle key={mode} className={'hero-ring-arc arc-' + mode + (stateOf(mode) === 'done' ? ' is-done' : '')} cx="50" cy="50" r="46" strokeDasharray={`${arc - 7} ${ring - arc + 7}`} strokeDashoffset={-(arc * i) - 3.5}/>)}
+      </svg>
       <img className="hero-mascot" src="/globe-logo.webp" alt="" width={280} height={280}/>
       <span className="hero-sticker s1">✈️</span><span className="hero-sticker s2">🏔️</span><span className="hero-sticker s3">🧭</span><span className="hero-sticker s4">🚩</span>
     </div>
@@ -75,7 +89,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
     <div className="daily-card-grid">
       {modes.map(mode => {
         const state = stateOf(mode);
-        return <article key={mode} className={'daily-card daily-card-' + mode}>
+        return <article key={mode} className={'daily-card daily-card-' + mode + ' is-' + state}>
           <div className="daily-cover"><GameCover mode={mode}/><span className={'daily-state state-' + state}>{state === 'done' && <Check size={14}/>} {t(!today ? 'dailyStatusPending' : state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState')}</span></div>
           <div className="daily-card-body"><div className="daily-card-meta"><span>{t('cardVerb' + mode)}</span><span>{t(mode === 'daily' ? 'journeyExtent' : mode === 'compare' ? 'compareExtent' : mode === 'rank' ? 'rankExtent' : 'mosaicExtent')}</span></div>
           <div className="daily-card-copy"><h3>{t(mode === 'daily' ? 'dailyTitle' : mode)}</h3><p>{t(mode + 'CardCopy')}</p></div>
@@ -87,6 +101,8 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
     <div className={'daily-progress-strip' + (completed === modes.length ? ' all-discovered' : '')} aria-live="polite"><span className="daily-progress-marks" aria-hidden="true">{modes.map(mode => <span key={mode} className={today?.sessions.some((s:any) => s.mode === mode && s.completed) ? 'complete' : ''}>{today?.sessions.some((s:any) => s.mode === mode && s.completed) ? '✓' : '·'}</span>)}</span><span>{today ? t(completed === modes.length ? 'dailyAllDone' : 'todayCompleted').replace('{n}',String(completed)) : t('dailyStatusPending')}</span><button className="text-link" onClick={() => go('/profile')}>{t('openPassport')}<ArrowRight size={16}/></button></div>
     {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={() => setReload(n => n+1)}>{t('retry')}</button></p>}
     {today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t}/>}
+    {welcome && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true">🏅</span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}
+    {welcome && today && <MysteryCountry key={today.date} date={today.date} t={t} locale={locale}/>}
     <div className="daily-quiet-options"><div className="daily-practice-links" role="group" aria-label={t('extraPractice')}><button className="text-link" disabled={!!busy} onClick={() => play('rank', false)}>{t('rankPractice')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('compare')}>{t('puzzleBrowseTopics')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('mosaic')}>{t('freshMosaic')}<ArrowRight size={14}/></button></div><span>{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</span></div>
     <Dialog open={!!practice} onOpenChange={v => !v && setPractice(null)}><DialogContent className="app-modal puzzle-setup"><span className="puzzle-sticker" aria-hidden="true">{practice === 'compare' ? '⚖️' : '🧩'}</span><DialogTitle className="modal-title">{t(practice ?? 'compare')}</DialogTitle><DialogDescription>{t('puzzlePracticeCopy')}</DialogDescription>{practice === 'compare' ? <label className="field"><span>{t('puzzleTopic')}</span><Select value={topic} onValueChange={setTopic}><SelectTrigger className="select-trigger" aria-label={t('puzzleTopic')}><SelectValue/></SelectTrigger><SelectContent>{TOPICS.map(topic => <SelectItem value={topic.id} key={topic.id}>{topic.emoji} {topic.label[locale as 'en' | 'nl']}</SelectItem>)}</SelectContent></Select></label> : <><p className="field-label">{t('puzzleCluesPerCountry')}</p><Tabs value={size} onValueChange={setSize}><TabsList className="app-tabs puzzle-size-tabs">{['3','4','5'].map(n => <TabsTrigger key={n} value={n}>{n} {t('puzzleClues')}<small>{+n * 4} {t('puzzleTiles')}</small></TabsTrigger>)}</TabsList></Tabs><p className="muted">{t('puzzleSize' + size)}</p></>}<button className="btn primary wide" disabled={!!busy} onClick={() => play(practice!, false)}><Shuffle size={18}/>{busy ? t('loading') : t('puzzleStartPractice')}</button></DialogContent></Dialog>
   </section></>;
