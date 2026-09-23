@@ -22,7 +22,7 @@ Dit is de native app voor de App Store en Google Play, gebouwd met [Capacitor](h
 
 ## Vóór de lancering: belangrijk
 
-1. **Eigen domein.** De app wijst nu naar `roviko.info960133.chatgpt.site`. Verandert dat adres ooit, dan werkt de app niet meer tot er een update is goedgekeurd. Koppel daarom eerst een eigen domein (bijvoorbeeld `roviko.nl` of `playroviko.com`) aan de site en zet dat in `capacitor.config.json` (`server.url`, en de twee links in `www/`).
+1. **Eigen domein:** de app wijst naar `https://roviko.app`. Laat dit domein en de DNS-records in Cloudflare altijd actief. Verandert het adres ooit, pas dan `server.url` in `capacitor.config.json` aan en de links in `www/`.
 2. **App-ID `com.roviko.app`.** Dit ID kun je na de eerste upload nooit meer wijzigen. Wil je een ander, pas het dan nu aan in `capacitor.config.json`, `android/app/build.gradle` en in Xcode.
 3. **Risico bij Apple (richtlijn 4.2).** Apple wijst apps af die "alleen een website" zijn. De dagelijkse herinnering, het offline-scherm en de native splash helpen, maar goedkeuring is niet gegarandeerd. Wordt de app afgewezen, dan zijn de volgende stappen bijvoorbeeld haptische feedback bij antwoorden, een widget met de reeks, of de bestaande SwiftUI-app (die zit in het aparte app-pakket dat je van ChatGPT hebt).
 4. **Inloggen met Google.** Staat Google-login aan op de site, dan eist Apple (richtlijn 4.8) ook "Inloggen met Apple" of een vergelijkbare privacyvriendelijke optie. Gastspel en inloggen met e-mail zijn prima.

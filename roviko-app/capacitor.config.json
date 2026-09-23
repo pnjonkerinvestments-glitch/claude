@@ -3,7 +3,7 @@
   "appName": "Roviko",
   "webDir": "www",
   "server": {
-    "url": "https://roviko.info960133.chatgpt.site",
+    "url": "https://roviko.app",
     "errorPath": "offline.html",
     "androidScheme": "https"
   },

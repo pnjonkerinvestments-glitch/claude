@@ -66,8 +66,8 @@ Create a room and play with 2–12 friends or classmates. No account needed.
 
 - **Categorie:** Onderwijs (hoofdcategorie), Spellen → Trivia (extra)
 - **Leeftijd:** Apple 4+; Google: vragenlijst invullen. Er is geen geweld, geen gebruikerschat, geen aankopen en geen advertenties.
-- **Privacybeleid-URL:** `https://<jouw-domein>/privacy`
-- **Support-URL:** `https://<jouw-domein>/` (of een e-mailadres voor support)
+- **Privacybeleid-URL:** `https://roviko.app/privacy`
+- **Support-URL:** `https://roviko.app/` (of een e-mailadres voor support)
 
 ## Privacy / Data safety (op basis van de huidige code)
 

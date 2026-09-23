@@ -24,7 +24,7 @@
   <img src="mascot.png" alt="">
   <h1 id="t">Even geen internet</h1>
   <p id="c">Roviko heeft verbinding nodig om je puzzels op te halen. Check je wifi of mobiele data en probeer het opnieuw.</p>
-  <button id="b" onclick="location.href='https://roviko.info960133.chatgpt.site/'">Opnieuw proberen</button>
+  <button id="b" onclick="location.href='https://roviko.app/'">Opnieuw proberen</button>
 </main>
 <script>
   if (!/^nl\b/i.test(navigator.language || '')) {
@@ -33,7 +33,7 @@
     document.getElementById('c').textContent = 'Roviko needs a connection to fetch your puzzles. Check your Wi-Fi or mobile data and try again.';
     document.getElementById('b').textContent = 'Try again';
   }
-  window.addEventListener('online', () => location.href = 'https://roviko.info960133.chatgpt.site/');
+  window.addEventListener('online', () => location.href = 'https://roviko.app/');
 </script>
 </body>
 </html>
