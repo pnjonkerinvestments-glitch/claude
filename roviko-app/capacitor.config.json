@@ -1,0 +1,37 @@
+{
+  "appId": "com.roviko.app",
+  "appName": "Roviko",
+  "webDir": "www",
+  "server": {
+    "url": "https://roviko.info960133.chatgpt.site",
+    "errorPath": "offline.html",
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#2f5bea",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#2f5bea"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#2f5bea"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#2f5bea",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "LIGHT",
+      "backgroundColor": "#2f5bea"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_roviko",
+      "iconColor": "#2f5bea"
+    }
+  }
+}

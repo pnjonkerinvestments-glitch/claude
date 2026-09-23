@@ -555,6 +555,16 @@ body{font-size:17px}
 .tomorrow-emoji,.hero-sticker{animation:none}
 .hero-mascot{animation-duration:7s}
 
+.native-reminder{display:flex;align-items:center;gap:14px;margin-top:22px;padding:16px 18px;border:2px solid var(--border);border-radius:22px;background:var(--card);box-shadow:0 4px 0 var(--border)}
+.native-reminder.is-on{border-color:var(--correct-border);background:var(--correct-bg)}
+.native-reminder-icon{display:grid;place-items:center;flex-shrink:0;width:48px;height:48px;border-radius:16px;background:#fff3cf;font-size:1.6rem;font-family:var(--emoji-font)}
+[data-theme=dark] .native-reminder-icon{background:#3a321a}
+.native-reminder>div{flex:1;min-width:0}
+.native-reminder strong{font-family:var(--font-display);font-size:1.15rem;font-weight:600}
+.native-reminder p{margin:2px 0 0;font-size:.92rem;color:var(--muted-foreground)}
+.native-reminder .btn{flex-shrink:0}
+@media (max-width:480px){.native-reminder{flex-wrap:wrap}.native-reminder .btn{width:100%}}
+
 /* ───────── Shared motion ───────── */
 @keyframes pop-in{0%{transform:scale(.85)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
