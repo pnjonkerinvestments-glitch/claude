@@ -42,7 +42,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (!c)
                 throw new AppError('NOT_FOUND', 404);
             const png = url.searchParams.get('format') === 'png';
-            const asset = await env.ASSETS.fetch(new Request(new URL(png ? '/flags/png/' + c.iso2 + '.png' : c.flag, req.url)));
+            const assetRequest = new Request(new URL(png ? '/flags/png/' + c.iso2 + '.png' : c.flag, req.url));
+            // Local Vite dev has no ASSETS binding; the dev server serves public/ on the same origin.
+            const asset = env.ASSETS ? await env.ASSETS.fetch(assetRequest) : await fetch(assetRequest);
             return new Response(asset.body, { status: asset.status, headers: { 'Content-Type': png ? 'image/png' : 'image/svg+xml', 'Cache-Control': 'public,max-age=86400', 'X-Content-Type-Options': 'nosniff' } });
         }
         if (path[0] === 'health')

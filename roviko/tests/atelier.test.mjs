@@ -43,7 +43,7 @@ test('the daily calendar reflects saved days, labels dates accessibly and shows 
 });
 function lum(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(v=>v+v).join('');const c=hex.match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2];}
 function contrast(a,b){const [x,y]=[lum(a),lum(b)].sort((a,b)=>b-a);return (x+.05)/(y+.05);}
-const css=postcss.parse(['globals','revamp','atelier','rank'].map(f=>fs.readFileSync('app/'+f+'.css','utf8')).join('\n'));
+const css=postcss.parse(['globals','revamp','atelier','rank','playful'].map(f=>fs.readFileSync('app/'+f+'.css','utf8')).join('\n'));
 test('text contrast meets 4.5:1 for both themes, all daily card surfaces and red feedback',()=>{
   const evidence=[];
   for(const theme of ['light','dark']){

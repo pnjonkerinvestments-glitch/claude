@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Shuffle, Users } from 'lucide-react';
+import { ArrowRight, Check, Leaf, Shuffle, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -11,7 +11,7 @@ import { DEFAULT_SETTINGS } from '@/lib/config';
 import { TOPICS } from '@/lib/puzzles/topics';
 import type { PuzzleMode } from '@/lib/puzzles/model';
 
-export function PuzzleDeck({ app, dailyPage = false }: { app: any; dailyPage?: boolean }) {
+export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: any; dailyPage?: boolean; welcome?: boolean }) {
   const { t, locale, boot, refresh, go, fail, start } = app;
   const launching = useRef(false);
   const [loadError, setLoadError] = useState(false), [reload, setReload] = useState(0);
@@ -42,18 +42,45 @@ export function PuzzleDeck({ app, dailyPage = false }: { app: any; dailyPage?: b
   }
   const modes = ['rank', 'daily', 'compare', 'mosaic'] as const;
   const completed = modes.filter(mode => today?.sessions.some((s: any) => s.mode === mode && s.completed)).length;
-  return <section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
+  const stateOf = (mode: typeof modes[number]) => { const saved = today?.sessions.find((s: any) => s.mode === mode); return saved?.completed ? 'done' : saved ? 'active' : 'new'; };
+  const title = (mode: typeof modes[number]) => t(mode === 'daily' ? 'dailyTitle' : mode);
+  const launch = (mode: typeof modes[number]) => mode === 'daily' ? start({ ...DEFAULT_SETTINGS, mode: 'daily' }) : play(mode);
+  const next = modes.find(mode => stateOf(mode) === 'active') ?? modes.find(mode => stateOf(mode) === 'new');
+  const allDone = !!today && completed === modes.length;
+  const hero = welcome && <section className={'play-hero' + (allDone ? ' is-done' : '')} aria-labelledby="hero-title">
+    <div className="play-hero-copy">
+      <h1 id="hero-title">{t('atelierTitle')}</h1>
+      <p>{t('atelierIntro')}</p>
+      <div className="play-hero-actions">
+        {allDone
+          ? <button className="btn hero-cta" onClick={() => document.getElementById('modes')?.scrollIntoView({ behavior: 'smooth' })}>{t('chooseGame')}<ArrowRight size={20}/></button>
+          : <button className="btn hero-cta" disabled={!today || !next || app.busy || !!busy} onClick={() => next && launch(next)}>{!today ? t('dailyStatusPending') : app.busy || busy ? t('loading') : t(next && stateOf(next) === 'active' ? 'heroContinue' : 'heroStart').replace('{game}', next ? title(next) : '')}<ArrowRight size={20}/></button>}
+        <span className="welcome-note"><Leaf size={16}/>{t('soloPace')}</span>
+      </div>
+      <ul className="play-hero-stats">
+        <li className="stat-streak"><span aria-hidden="true">🔥</span><b>{boot.stats.dailyStreak ?? 0}</b><small>{t('heroStatStreak')}</small></li>
+        <li className="stat-today"><span aria-hidden="true">🎯</span><b>{today ? completed : 0}/{modes.length}</b><small>{t('heroStatToday')}</small></li>
+        <li className="stat-countries"><span aria-hidden="true">🗺️</span><b>{boot.stats.discovered ?? 0}</b><small>{t('heroStatCountries')}</small></li>
+      </ul>
+    </div>
+    <div className="play-hero-art" aria-hidden="true">
+      <span className="hero-bubble">{t(allDone ? 'heroBubbleDone' : 'heroBubble')}</span>
+      <span className="hero-orbit"/>
+      <img className="hero-mascot" src="/globe-logo.webp" alt="" width={280} height={280}/>
+      <span className="hero-sticker s1">✈️</span><span className="hero-sticker s2">🏔️</span><span className="hero-sticker s3">🧭</span><span className="hero-sticker s4">🚩</span>
+    </div>
+  </section>;
+  return <>{hero}<section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
     <div className="atelier-section-heading"><h2 id="today-title">{t('todayPlay')}</h2><span>{today ? new Date(today.date + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' }) : t('puzzleToday')}</span></div>
     <div className="daily-card-grid">
       {modes.map(mode => {
-        const saved = today?.sessions.find((s: any) => s.mode === mode);
-        const state = saved?.completed ? 'done' : saved ? 'active' : 'new';
+        const state = stateOf(mode);
         return <article key={mode} className={'daily-card daily-card-' + mode}>
           <div className="daily-cover"><GameCover mode={mode}/><span className={'daily-state state-' + state}>{state === 'done' && <Check size={14}/>} {t(!today ? 'dailyStatusPending' : state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState')}</span></div>
           <div className="daily-card-body"><div className="daily-card-meta"><span>{t('cardVerb' + mode)}</span><span>{t(mode === 'daily' ? 'journeyExtent' : mode === 'compare' ? 'compareExtent' : mode === 'rank' ? 'rankExtent' : 'mosaicExtent')}</span></div>
           <div className="daily-card-copy"><h3>{t(mode === 'daily' ? 'dailyTitle' : mode)}</h3><p>{t(mode + 'CardCopy')}</p></div>
           <div className="daily-card-detail">{mode === 'compare' ? <>{today?.topic.label[locale] ?? t('puzzleRotating')}</> : mode === 'daily' ? t('journeyKinds') : mode === 'rank' ? t('rankKinds') : t('mosaicKinds')}</div>
-          <button className="btn daily-card-action" disabled={app.busy || !!busy} onClick={() => mode === 'daily' ? start({ ...DEFAULT_SETTINGS, mode: 'daily' }) : play(mode)} aria-label={t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart') + ' · ' + t(mode === 'daily' ? 'dailyTitle' : mode)}>{app.busy || busy === mode ? t('loading') : t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart')}<ArrowRight size={18}/></button></div>
+          <button className="btn daily-card-action" disabled={app.busy || !!busy} onClick={() => launch(mode)} aria-label={t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart') + ' · ' + t(mode === 'daily' ? 'dailyTitle' : mode)}>{app.busy || busy === mode ? t('loading') : t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart')}<ArrowRight size={18}/></button></div>
         </article>;
       })}
     </div>
@@ -62,5 +89,5 @@ export function PuzzleDeck({ app, dailyPage = false }: { app: any; dailyPage?: b
     {today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t}/>}
     <div className="daily-quiet-options"><div className="daily-practice-links" role="group" aria-label={t('extraPractice')}><button className="text-link" disabled={!!busy} onClick={() => play('rank', false)}>{t('rankPractice')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('compare')}>{t('puzzleBrowseTopics')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('mosaic')}>{t('freshMosaic')}<ArrowRight size={14}/></button></div><span>{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</span></div>
     <Dialog open={!!practice} onOpenChange={v => !v && setPractice(null)}><DialogContent className="app-modal puzzle-setup"><span className="puzzle-sticker" aria-hidden="true">{practice === 'compare' ? '⚖️' : '🧩'}</span><DialogTitle className="modal-title">{t(practice ?? 'compare')}</DialogTitle><DialogDescription>{t('puzzlePracticeCopy')}</DialogDescription>{practice === 'compare' ? <label className="field"><span>{t('puzzleTopic')}</span><Select value={topic} onValueChange={setTopic}><SelectTrigger className="select-trigger" aria-label={t('puzzleTopic')}><SelectValue/></SelectTrigger><SelectContent>{TOPICS.map(topic => <SelectItem value={topic.id} key={topic.id}>{topic.emoji} {topic.label[locale as 'en' | 'nl']}</SelectItem>)}</SelectContent></Select></label> : <><p className="field-label">{t('puzzleCluesPerCountry')}</p><Tabs value={size} onValueChange={setSize}><TabsList className="app-tabs puzzle-size-tabs">{['3','4','5'].map(n => <TabsTrigger key={n} value={n}>{n} {t('puzzleClues')}<small>{+n * 4} {t('puzzleTiles')}</small></TabsTrigger>)}</TabsList></Tabs><p className="muted">{t('puzzleSize' + size)}</p></>}<button className="btn primary wide" disabled={!!busy} onClick={() => play(practice!, false)}><Shuffle size={18}/>{busy ? t('loading') : t('puzzleStartPractice')}</button></DialogContent></Dialog>
-  </section>;
+  </section></>;
 }

@@ -47,7 +47,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
   const share=()=>copy(shareResult({mode:'rank',label:t('rank'),date:game.daily,correct,total:game.total,answers:game.answers.map(a=>a.correct),origin:location.origin}));
   const again=async()=>{if(lock.current)return;lock.current=true;setBusy(true);try{const fresh=await post('/ranks',{daily:false});go('/rank/'+fresh.id);}catch{setError('puzzleLoadError');}finally{lock.current=false;setBusy(false);}};
   return <section className="puzzle-game rank-game">
-    <div className="puzzle-top"><button className="icon-btn" onClick={()=>backToStart?backToStart():go('/daily')} aria-label={t('back')}><ArrowLeft size={20}/></button><div><strong><Radar size={18}/> {t('rank')}</strong><small>{game.daily??t('puzzleStartPractice')}</small></div><span>{Math.min(game.round+1,game.total)} / {game.total}<small>{t('countries')}</small></span></div>
+    <div className="puzzle-top"><button className="icon-btn" onClick={()=>backToStart?backToStart():go('/daily')} aria-label={t('back')}><ArrowLeft size={20}/></button><div><strong><Radar size={18}/> {t('rank')}</strong><small>{game.daily??t('puzzleStartPractice')}</small></div><span className="puzzle-count">{Math.min(game.round+1,game.total)} / {game.total}<small>{t('countries')}</small></span></div>
     <Progress className="puzzle-progress" value={game.answers.length/game.total*100}/>
     {error&&<div className="puzzle-error" role="alert"><span>{t(error)}</span><button className="btn secondary" onClick={load}>{t('retry')}</button></div>}
     {game.phase==='finished'?<div className="rank-finished">

@@ -57,6 +57,7 @@ Four additional comparison subjects are derived only from the separately license
 
 ## 1.3 visual assets (2026-09-09)
 - Manrope variable and Outfit variable: self-hosted Latin WOFF2 files from the corresponding `@fontsource-variable` packages, SIL Open Font License 1.1. Original licenses included in `public/fonts/*-LICENSE`.
+- Nunito variable and Fredoka variable (added in the playful visual refresh): self-hosted Latin and Latin Extended WOFF2 files from `@fontsource-variable/nunito` 5.x and `@fontsource-variable/fredoka` 5.x, SIL Open Font License 1.1. Original licenses included in `public/fonts/nunito-LICENSE` and `public/fonts/fredoka-LICENSE`; linked from `/sources`.
 - Friendly globe mark: original image generated for Roviko, 2026-09-09; local transparent WebP and PNG derivatives. Decorative stylized continents, never used as factual quiz geometry. No competitor visual assets used.
 
 ## September 10 country-boundary derivative
