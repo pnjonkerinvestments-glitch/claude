@@ -1,0 +1,113 @@
+'use client';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { ArrowRight, Check, X, Shuffle, Lightbulb, RotateCcw, Share2, Flag } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { api, post, sound, readPreference, writePreference } from '@/lib/client';
+import { shareResult } from '@/lib/share';
+import { MosaicFactDetails } from './MosaicFactDetails';
+import { NextDiscovery } from '../atelier/NextDiscovery';
+import { BRAND } from '@/lib/config';
+import { checkMosaic, selectMosaicTile, mosaicHint, reviewMosaic, type PuzzleView, type Tile } from '@/lib/puzzles/model';
+import { formatMetric } from '@/lib/puzzles/topics';
+
+export function PuzzleGame({ id, app }: { id: string; app: any }) {
+  const { t, locale, go, refresh, muted, copy, report, fail, backToStart } = app;
+  const [game, setGame] = useState<PuzzleView | null>(null), [selected, setSelected] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false), [moving, setMoving] = useState(false), [error, setError] = useState('');
+  const [notice, setNotice] = useState<{ key: string; value?: string; good?: boolean } | null>(null);
+  const [checked, setChecked] = useState<ReturnType<typeof reviewMosaic>>(null);
+  const [autoNext, setAutoNext] = useState(() => readPreference('rv_auto_next', readPreference('rv_compare_auto', 'off')) === 'on');
+  useEffect(() => { if (game) document.title = t(game.mode) + (game.daily ? ' · ' + game.daily : '') + ' | ' + BRAND.name; }, [game?.mode, game?.daily, locale]);
+  const latest = useRef<PuzzleView | null>(null);
+  const [order, setOrder] = useState<string[]>([]);
+  const pending = useRef<Promise<PuzzleView> | null>(null), lock = useRef(false), nextLock = useRef(false), focusTarget = useRef<HTMLButtonElement | null>(null);
+  const load = useCallback(async () => { setError(''); pending.current = null; try { const g = await api('/puzzles/' + id); latest.current = g; setGame(g); const last=g.answers.at(-1); if(g.mode==='mosaic' && g.phase!=='finished' && last && !last.correct){setSelected(last.value);setChecked(reviewMosaic(g.board,last.value));setNotice({key:'puzzleTryMix'});} else {setSelected(prev => prev.filter(id => g.board?.tiles.some((tile: Tile) => tile.id === id && !g.solved.includes(tile.countryId))));} } catch { setError('puzzleLoadError'); } }, [id]);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => { if (game?.phase === 'finished' && !saving) refresh(); }, [game?.phase, saving, refresh]);
+  function save(action: string, value?: string | string[], optimistic?: PuzzleView) {
+    if (!game || lock.current) return;
+    lock.current = true; setSaving(true); setError('');
+    const previous = latest.current ?? game;
+    if (optimistic) setGame(optimistic);
+    const request: Promise<PuzzleView> = post('/puzzles/' + id + '/' + action, { version: previous.version, ...(value !== undefined ? { answer: value } : {}) }).then(g => { latest.current = g; setGame(g); return g; }).catch(async e => {
+      // Reconcile an ambiguous network result before permitting another submission.
+      try { const g = await api('/puzzles/' + id); latest.current = g; setGame(g); if (g.version > previous.version) return g; } catch { setGame(previous); }
+      setError('puzzleSaveError'); throw e;
+    }).finally(() => { lock.current = false; setSaving(false); });
+    pending.current = request;
+    request.catch(() => {});
+    return request;
+  }
+  function chooseCountry(value: string) {
+    if (!game?.question || game.phase !== 'question' || lock.current || error) return;
+    const correct = value === game.question.correct;
+    const attempt = { correct, value, countryId: game.question.correct, responseTime: 0, questionId: game.question.id };
+    save('answer', value, { ...game, phase: 'reveal', answers: [...game.answers, attempt], streak: correct ? game.streak + 1 : 0 });
+    if (!muted) sound(correct ? 'correct' : 'incorrect');
+  }
+  async function next() {
+    if (nextLock.current || error) return; nextLock.current = true; setMoving(true);
+    try { if (pending.current) await pending.current; pending.current = null; } catch { nextLock.current = false; setMoving(false); return; }
+    try { const current = latest.current; if (!current || current.phase !== 'reveal') return; const nextGame = await post('/puzzles/' + id + '/next', { version: current.version }); latest.current = nextGame; setGame(nextGame); focusTarget.current?.focus(); } catch { setError('puzzleSaveError'); } finally { nextLock.current = false; setMoving(false); }
+  }
+  function connect() {
+    if (!game?.board || lock.current || error) return;
+    const match = checkMosaic(game.board, game.solved, selected);
+    if (!match.valid) return;
+    const attempt = { correct: match.correct, value: selected, countryId: match.countryId, responseTime: 0, questionId: game.board.id };
+    const solved = match.correct ? [...game.solved, match.countryId] : game.solved;
+    setNotice({ key: match.correct ? 'puzzleConnected' : match.closest === game.board.size - 1 ? 'puzzleOneAway' : 'puzzleTryMix', good: match.correct, value: match.correct ? game.board.countries.find(c => c.id === match.countryId)!.name[locale as 'en' | 'nl'] : undefined });
+    setChecked(reviewMosaic(game.board, selected));
+    const draft = [...selected];
+    const saved = save('answer', draft, { ...game, solved, round: solved.length, phase: solved.length === 4 ? 'finished' : 'question', answers: [...game.answers, attempt] });
+    saved?.then(() => { if (match.correct) setSelected([]); }).catch(() => { setSelected(draft); setNotice(null); setChecked(null); });
+    if (!muted) sound(match.correct ? 'correct' : 'incorrect');
+  }
+  const chooseRef = useRef(chooseCountry); chooseRef.current = chooseCountry;
+  useEffect(() => { const key = (e: KeyboardEvent) => { const tag = (e.target as HTMLElement)?.tagName; if (['INPUT','TEXTAREA','SELECT'].includes(tag) || (e.target as HTMLElement)?.closest('[role="dialog"]')) return; if (game?.mode === 'compare' && game.phase === 'question' && ['1','2'].includes(e.key)) { e.preventDefault(); chooseRef.current(game.question!.countries[+e.key - 1].id); } }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [game?.mode, game?.phase, game?.question?.id]);
+  useEffect(() => { if (game?.mode === 'compare' && game.phase === 'question') focusTarget.current?.focus(); }, [game?.question?.id]);
+  const nextRef = useRef(next); nextRef.current = next;
+  useEffect(() => {
+    if (!autoNext || game?.mode !== 'compare' || game.phase !== 'reveal' || !game.answers.at(-1)?.correct || saving || moving || error) return;
+    const timer = setTimeout(() => { if (document.visibilityState === 'visible') nextRef.current(); }, 3000);
+    return () => clearTimeout(timer);
+  }, [autoNext, game?.phase, game?.round, saving, moving, error]);
+  if (!game) return <div className="puzzle-loading" role="status"><span aria-hidden="true">🌍</span><p>{t(error || 'loading')}</p>{error && <button className="btn primary" onClick={load}>{t('retry')}</button>}</div>;
+  const nl = locale === 'nl', correct = game.answers.filter(a => a.correct).length;
+  const board = game.board, question = game.question, revealed = game.phase === 'reveal';
+  const displayTiles = board ? [...board.tiles].sort((a, b) => order.length ? order.indexOf(a.id) - order.indexOf(b.id) : 0) : [];
+  const saveState = <span className="puzzle-save" role="status">{saving ? t('saving') : error ? '' : '✓ ' + t('saved')}</span>;
+  function share() {
+    copy(shareResult({ mode: game!.mode, label: t(game!.mode), date: game!.daily, correct: game!.mode === 'mosaic' ? game!.solved.length : correct, total: game!.mode === 'mosaic' ? 4 : game!.total, answers: game!.answers.map(a => a.correct), origin: window.location.origin, detail: game!.mode === 'mosaic' ? game!.answers.length + ' ' + t('puzzleAttempts') : undefined }));
+  }
+  async function again() { if(nextLock.current)return;nextLock.current=true;setMoving(true); try { const g = await post('/puzzles', { mode: game!.mode, daily: false, ...game!.settings }); go('/puzzle/' + g.id); } catch { setError('puzzleLoadError'); } finally { nextLock.current=false;setMoving(false); } }
+  return <div className={'puzzle-game puzzle-' + game.mode}>
+    <div className="puzzle-top"><button className="icon-btn" aria-label={t('back')} onClick={() => backToStart ? backToStart() : go(game.daily ? '/daily' : '/')}><X size={20}/></button><div><span>{game.mode === 'compare' ? '⚖️' : '🧩'}</span><strong>{t(game.mode)}</strong><small>{game.daily ? game.daily : t('puzzlePractice')}</small></div><span className="puzzle-count">{game.mode === 'compare' ? Math.min(game.total, game.round + 1) + ' / ' + game.total : game.solved.length + ' / 4'}<small>{t(game.mode === 'compare' ? 'questions' : 'countries')}</small></span></div>
+    <Progress className="puzzle-progress" value={(game.phase === 'finished' ? 1 : game.mode === 'compare' ? (game.round + +revealed) / game.total : game.solved.length / 4) * 100}/>
+    {error && <div className="puzzle-error" role="alert"><span>{t(error)}</span><button className="btn secondary" onClick={() => { setNotice(null); load(); }}>{t('retry')}</button></div>}
+    {game.phase === 'finished' ? <section className="puzzle-finished"><span className="puzzle-finish-emoji" aria-hidden="true">{game.mode === 'mosaic' ? '🧩' : correct === game.total ? '🎉' : '🌏'}</span><h1>{t(game.mode === 'mosaic' ? 'puzzleBoardComplete' : 'puzzleComparisonComplete')}</h1><p>{t('puzzleFinishedCopy')}</p><div className="puzzle-result-facts"><div><strong>{game.mode === 'compare' ? correct + '/' + game.total : '4/4'}</strong><span>{t(game.mode === 'compare' ? 'correctAnswers' : 'puzzleCountriesConnected')}</span></div><div><strong>{game.mode === 'mosaic' ? game.answers.length : game.bestStreak}</strong><span>{t(game.mode === 'mosaic' ? 'puzzleAttempts' : 'bestStreak')}</span></div></div>{game.mode === 'compare' && <div className="puzzle-answer-trail" aria-label={t('correctAnswers')}>{game.answers.map((a, i) => <span key={i} className={a.correct ? 'correct' : ''} aria-label={`${i + 1}: ${t(a.correct ? 'correct' : 'incorrect')}`}>{a.correct ? <Check size={20}/> : <X size={20}/>}</span>)}</div>}{board && <div className="mosaic-completed-countries">{board.countries.map(c => <span key={c.id}><img src={c.flag} alt=""/>{c.name[nl ? 'nl' : 'en']}</span>)}</div>}<NextDiscovery result={game} t={t} go={go} fail={fail ?? (()=>setError('puzzleLoadError'))} disabled={saving || moving || !!error}/><div className="puzzle-results-actions"><button className="btn secondary" onClick={() => backToStart ? backToStart() : go('/')}>{t('finishForNow')}</button><button className="btn ghost" disabled={saving || !!error} onClick={share}><Share2 size={18}/>{t('share')}</button><button className="btn ghost" disabled={saving || moving || !!error} onClick={again}>{t('playAgain')}</button></div>{saveState}<details className="puzzle-review"><summary>{t('puzzleReview')}</summary>{game.review?.map(q => <div className="comparison-review" key={q.id}><span>{q.topic.emoji} {q.topic.label[nl ? 'nl' : 'en']}</span>{q.countries.map(c => <div key={c.id}><img src={c.flag} alt=""/><strong>{c.name[nl ? 'nl' : 'en']}</strong><span>{formatMetric(c.value, q.topic.unit, nl ? 'nl' : 'en')}</span>{c.id === q.correct && <Check size={17}/>}</div>)}</div>)}{board?.countries.map(c => <div className="mosaic-review-country" key={c.id}><h3><img src={c.flag} alt=""/>{c.name[nl ? 'nl' : 'en']}</h3><div>{board.tiles.filter(tile => tile.countryId === c.id && tile.kind !== 'name' && tile.kind !== 'flag').map(tile => <span key={tile.id}><small>{t('tile' + tile.kind.charAt(0).toUpperCase() + tile.kind.slice(1))}</small><TileContent tile={tile} locale={nl ? 'nl' : 'en'} t={t}/></span>)}</div><MosaicFactDetails tile={board.tiles.find(tile => tile.countryId === c.id && tile.kind === 'fact')} locale={nl ? 'nl' : 'en'} t={t}/></div>)}</details></section> : game.mode === 'compare' && question ? <>
+      <div className="comparison-heading"><span className="topic-pill"><span aria-hidden="true">{question.topic.emoji}</span>{question.topic.label[nl ? 'nl' : 'en']}{question.referenceYear && <small>{question.referenceYear}</small>}</span><h1>{question.topic.prompt[nl ? 'nl' : 'en']}</h1><p>{t(game.practice ? 'reviewRoundCopy' : 'puzzleCarryCopy')}</p><details className="game-rule-help"><summary>{t('gameRules')}</summary><p>{t('comparisonTieRule')}</p></details><label className="auto-next"><input type="checkbox" checked={autoNext} onChange={e => (setAutoNext(e.target.checked), writePreference('rv_auto_next', e.target.checked ? 'on' : 'off'))}/>{t('autoNextAll')}</label>{autoNext && <p className="auto-explanation">{t('autoNextExplain')}</p>}</div>
+      <div className="comparison-cards">{question.countries.map((country, i) => { const chosen = revealed && game.answers.at(-1)?.value === country.id, winner = revealed && question.correct === country.id; return <button ref={i === 0 ? focusTarget : undefined} className={'comparison-country ' + (i === 1 && question.carried ? 'carried ' : 'fresh ') + (winner ? 'winner' : chosen ? 'wrong' : '')} key={country.id} onClick={() => chooseCountry(country.id)} disabled={revealed || !!error || saving} aria-label={country.name[nl ? 'nl' : 'en']}><span className="country-key" aria-hidden="true">{t(i === 1 && question.carried ? 'puzzleCarried' : 'puzzleNew')}</span><img src={country.flag} alt=""/><h2>{country.name[nl ? 'nl' : 'en']}</h2><div className="comparison-value">{revealed ? <><strong>{formatMetric(country.value, question.topic.unit, nl ? 'nl' : 'en')}</strong><span>{winner ? <><Check size={17}/>{t('puzzleHigher')}</> : <>{chosen && <X size={17}/>} {t('puzzleLower')}</>}</span></> : i === 1 && question.carried ? <><strong>{formatMetric(country.value, question.topic.unit, nl ? 'nl' : 'en')}</strong><span>{t('puzzleCarried')}</span></> : <span>{t('puzzleChooseThis')}<ArrowRight size={17}/></span>}</div>{chosen && <span className="your-choice">{t('puzzleYourChoice')}</span>}</button>; })}<span className="comparison-or">{t('puzzleOr')}</span></div>
+      {revealed && <div className={'comparison-reveal ' + (game.answers.at(-1)?.correct ? 'good' : 'bad')} role="status"><span aria-hidden="true">{game.answers.at(-1)?.correct ? '🎉' : '✕'}</span><div><strong>{t(game.answers.at(-1)?.correct ? 'puzzleCorrect' : 'puzzleLearned')}</strong><p>{question.countries.find(c => c.id === question.correct)!.name[nl ? 'nl' : 'en']} — <strong>{formatMetric(question.countries.find(c => c.id === question.correct)!.value, question.topic.unit, nl ? 'nl' : 'en')}</strong> {t('comparisonGreater')} {question.countries.find(c => c.id !== question.correct)!.name[nl ? 'nl' : 'en']} — <strong>{formatMetric(question.countries.find(c => c.id !== question.correct)!.value, question.topic.unit, nl ? 'nl' : 'en')}</strong>.</p><p className="comparison-detail">{question.topic.explanation[nl ? 'nl' : 'en']}</p></div></div>}
+      <div className="puzzle-bottom"><button className="text-link muted" onClick={() => report({ id: question.id, mode: 'compare' })}><Flag size={14}/>{t('reportIssue')}</button>{revealed ? <div>{saveState}<button className="btn primary" disabled={moving || !!error} onClick={next}>{t(game.round + 1 === game.total ? 'finish' : 'next')}<ArrowRight size={18}/></button></div> : <span className="puzzle-keyboard">{t('puzzleKeyboard')}</span>}</div>
+      <p className="puzzle-source"><a href={question.sourceUrl} target="_blank" rel="noreferrer">{question.source}</a> · {question.referenceYear ?? t('puzzleCatalog')} · <a href={question.referenceYear ? "/data/comparisons.json" : "/data/countries.json"} download>{t('puzzleData')}</a></p>
+    </> : board && <>
+      <div className="mosaic-heading"><h1>{t('puzzleMatchHeading')}</h1><p>{t('puzzleMatchInstruction').replace('{n}', String(board.size))}</p>{board.size > 3 && <p className="mosaic-edition-line"><span aria-hidden="true">↻</span>{t('mosaicDailyFacts')}{board.factDate && <time dateTime={board.factDate}>{new Intl.DateTimeFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(board.factDate + 'T00:00:00Z'))}</time>}</p>}</div>
+      <div className="mosaic-selection mosaic-overview"><div className="selection-slots">{(['flag','name','shape','fact','capital'] as const).filter(kind => board.tiles.some(tile => tile.kind === kind)).map(kind => { const tile = board.tiles.find(tile => tile.kind === kind && selected.includes(tile.id)); return <div key={kind} className={tile ? 'filled' : ''}><small>{t('tile' + kind.charAt(0).toUpperCase() + kind.slice(1))}</small>{tile ? <TileContent tile={tile} locale={nl ? 'nl' : 'en'} t={t}/> : <span aria-hidden="true">＋</span>}</div>; })}</div></div>
+      <div className="mosaic-solved" aria-live="polite">{game.solved.map((id, i) => { const c = board.countries.find(c => c.id === id)!; return <div className={'mosaic-group group-' + i} key={id}><img src={c.flag} alt=""/><strong>{c.name[nl ? 'nl' : 'en']}</strong><span>{board.size} {t('puzzleCluesConnected')}</span><Check size={20}/><MosaicFactDetails tile={board.tiles.find(tile => tile.countryId === id && tile.kind === 'fact')} locale={nl ? 'nl' : 'en'} t={t}/></div>; })}</div>
+      <div className="mosaic-board" data-clues={board.size} aria-label={t('mosaic')}>{displayTiles.map(tile => { const verdict = checked?.tiles.find(item => item.id === tile.id); const solved = game.solved.includes(tile.countryId); return <button key={tile.id} className={'mosaic-tile kind-' + tile.kind + (solved ? ' solved' : verdict ? verdict.correct ? ' clue-correct' : ' clue-wrong' : selected.includes(tile.id) ? ' selected' : '')} aria-pressed={selected.includes(tile.id)} aria-label={t('tile' + tile.kind.charAt(0).toUpperCase() + tile.kind.slice(1)) + (tile.text ? ': ' + tile.text[nl ? 'nl' : 'en'] : '') + (verdict ? '. ' + (verdict.correct ? t('mosaicFits') : t('mosaicBelongsTo') + ' ' + board.countries.find(c => c.id === tile.countryId)!.name[nl ? 'nl' : 'en']) : '')} disabled={saving || !!error || solved} onClick={() => { setSelected(prev => selectMosaicTile(board, game.solved, prev, tile.id)); setNotice(null); setChecked(null); }}><span className="tile-kind">{t('tile' + tile.kind.charAt(0).toUpperCase() + tile.kind.slice(1))}</span><TileContent tile={tile} locale={nl ? 'nl' : 'en'} t={t}/>{verdict && !solved && <span className="tile-verdict">{verdict.correct ? <Check size={15}/> : <X size={15}/>}<span>{verdict.correct ? t('mosaicFits') : board.countries.find(c => c.id === tile.countryId)!.name[nl ? 'nl' : 'en']}</span></span>}<span className="tile-tick" aria-hidden="true">{!verdict && (selected.includes(tile.id) || solved) ? <Check size={14}/> : null}</span></button>; })}</div>
+      <div className="mosaic-dock">
+        <ul className="mosaic-selection-status" aria-label={t('puzzleCluesConnected')}>{(['flag','name','shape','fact','capital'] as const).filter(kind => board.tiles.some(tile => tile.kind === kind)).map(kind => { const filled = board.tiles.some(tile => tile.kind === kind && selected.includes(tile.id)); return <li key={kind} className={filled ? 'filled' : ''}><span aria-hidden="true">{filled ? '✓' : '○'}</span>{t('tile' + kind.charAt(0).toUpperCase() + kind.slice(1))}</li>; })}</ul>
+        <div className={'mosaic-notice ' + (notice?.good ? 'good' : checked ? 'bad' : '')} role="status">{checked && !notice?.good ? <><X size={18}/><span>{t('mosaicMismatch').replace('{country}', board.countries.find(c => c.id === checked.countryId)!.name[nl ? 'nl' : 'en'])}</span></> : notice ? <><span aria-hidden="true">{notice.good ? '✓' : '💡'}</span>{t(notice.key)} {notice.value}</> : t('puzzleNoLives')}</div>
+        <div className="mosaic-toolbar"><div><button className="icon-btn" aria-label={t('puzzleShuffle')} disabled={saving} onClick={() => { const ids = displayTiles.filter(t => !game.solved.includes(t.countryId)).map(t => t.id); for (let i = ids.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; } let cursor = 0; setOrder(displayTiles.map(t => game.solved.includes(t.countryId) ? t.id : ids[cursor++])); }}><Shuffle size={19}/></button><button className="btn ghost" disabled={!selected.length || saving} onClick={() => { setSelected([]); setNotice(null); setChecked(null); }}>{t('puzzleClear')}</button><button className="icon-btn" disabled={saving} aria-label={t('puzzleHint')} onClick={() => { setSelected(prev => mosaicHint(board, game.solved, prev)); setChecked(null); setNotice({ key: 'puzzleHintCopy' }); }}><Lightbulb size={19}/></button></div><button className="btn primary mosaic-check" disabled={selected.length !== board.size || saving || !!error} onClick={connect}>{t('puzzleConnect')}<span className="selection-count">{selected.length}/{board.size}</span></button></div>
+      </div>
+      <div className="puzzle-bottom"><button className="text-link muted" onClick={() => report({ id: board.id, mode: 'mosaic' })}><Flag size={14}/>{t('reportIssue')}</button>{saveState}</div><p className="puzzle-source">{t('puzzleShapeNote')} <a href="/sources">{t('sources')}</a></p>
+    </>}
+  </div>;
+}
+export function TileContent({ tile, locale, t }: { tile: Tile; locale: 'en' | 'nl'; t: (key: string) => string }) {
+  if (tile.kind === 'flag') return <img className="tile-flag" src={tile.image} alt={t('tileFlag')}/>;
+  if (tile.kind === 'shape') return <svg className="tile-shape" viewBox="0 0 100 80" role="img" aria-label={t('tileShape')}><path d={tile.path}/></svg>;
+  if (tile.kind === 'fact' && tile.fact?.stat) { const stat = tile.fact.stat; return <span className="tile-stat"><span className="stat-label">{stat.label[locale]}</span><strong>{stat.value[locale]}</strong><span className="stat-unit">{stat.unit[locale]}</span><small>{stat.reference[locale]}</small></span>; }
+  return <span className="tile-text">{tile.text?.[locale]}</span>;
+}

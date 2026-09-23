@@ -1,0 +1,42 @@
+[
+  {
+    "id": "mledoze",
+    "name": "World countries 5.1.0",
+    "url": "https://github.com/mledoze/countries",
+    "license": "ODbL-1.0",
+    "importedAt": "2026-09-08",
+    "attribution": "Contains information from World countries by Mohammed Le Doze and contributors, made available under the Open Database License."
+  },
+  {
+    "id": "natural-earth",
+    "name": "Natural Earth via world-atlas 2.0.2",
+    "url": "https://www.naturalearthdata.com/about/terms-of-use/",
+    "license": "Public domain (data); ISC (world-atlas)",
+    "importedAt": "2026-09-08",
+    "attribution": "Made with Natural Earth; world-atlas \u00a9 Michael Bostock."
+  },
+  {
+    "id": "flags",
+    "name": "flag-icons 7.5.0",
+    "url": "https://github.com/lipis/flag-icons",
+    "license": "MIT",
+    "importedAt": "2026-09-08",
+    "attribution": "flag-icons \u00a9 Panayiotis Lipiridis."
+  },
+  {
+    "id": "worldbank-wdi-2023",
+    "name": "The World Bank: World Development Indicators (2023 snapshot)",
+    "url": "https://datacatalog.worldbank.org/search/dataset/0037712/world-development-indicators",
+    "license": "CC BY 4.0 with World Bank additional terms",
+    "importedAt": "2026-09-09",
+    "attribution": "The World Bank: World Development Indicators. Original providers are retained for every indicator in /data/comparisons.json. Filtered to 2023 and the Roviko roster; display values rounded."
+  },
+  {
+    "id": "factbook-archive",
+    "name": "Archived World Factbook numerical observations",
+    "url": "https://github.com/factbook/factbook.json/tree/144d6977b2b01ac1cbd220de754c0a005616760b",
+    "license": "CC0 1.0; separately attributed factual correction for Germany",
+    "importedAt": "2026-09-21",
+    "attribution": "CIA World Factbook, archived by factbook/factbook.json. Archived observations; reference years and estimates retained. The CIA discontinued the Factbook in February 2026. Filtered and mapped to the 195-country roster; ambiguous values omitted."
+  }
+]

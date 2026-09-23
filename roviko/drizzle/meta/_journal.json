@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1788880265822,
+      "tag": "0000_graceful_demogoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1788905110085,
+      "tag": "0001_mighty_madame_masque",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789053290802,
+      "tag": "0002_mute_phantom_reporter",
+      "breakpoints": true
+    }
+  ]
+}

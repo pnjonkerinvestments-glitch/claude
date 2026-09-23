@@ -1,0 +1,972 @@
+{
+  "id": "roviko-mosaic-heritage-v1",
+  "source": "UNESCO World Heritage Centre",
+  "license": "CC BY-SA 3.0 IGO",
+  "license_url": "https://creativecommons.org/licenses/by-sa/3.0/igo/",
+  "license_metadata_url": "https://whc.unesco.org/en/licenses/6",
+  "imported_at": "2026-09-21",
+  "modifications": "Original short English paraphrases and Dutch translations of the cited property descriptions; two clue variants and a learning explanation per property. No photos, emblems or third-party contributions are included.",
+  "attribution": "Adapted from UNESCO World Heritage Centre, cited property descriptions, CC BY-SA 3.0 IGO. Adaptations by Roviko. No UNESCO endorsement is implied.",
+  "facts": [
+    {
+      "id": "heritage-1",
+      "countryId": "ECU",
+      "category": "wildlife",
+      "clues": [
+        {
+          "en": "Finches and giant tortoises on its volcanic islands helped inspire Darwin.",
+          "nl": "Vinken en reuzenschildpadden op vulkanische eilanden inspireerden Darwin."
+        },
+        {
+          "en": "Three ocean currents meet around its Galápagos Islands.",
+          "nl": "Rond de Galápagoseilanden komen drie zeestromen samen."
+        }
+      ],
+      "explanation": {
+        "en": "The Galápagos lie in the Pacific, where three ocean currents meet. Their isolation allowed unusual species to evolve; Darwin visited in 1835.",
+        "nl": "De Galápagos liggen in de Stille Oceaan, waar drie zeestromen samenkomen. Door hun isolement ontstonden bijzondere soorten. Darwin bezocht de eilanden in 1835."
+      },
+      "source": {
+        "title": "Galápagos Islands",
+        "url": "https://whc.unesco.org/en/list/1/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1186",
+      "countryId": "EGY",
+      "category": "fossils",
+      "clues": [
+        {
+          "en": "Whale fossils with traces of hind legs lie in its Wadi Al-Hitan desert.",
+          "nl": "In de woestijn van Wadi Al-Hitan liggen walvisfossielen met resten van achterpoten."
+        },
+        {
+          "en": "Its Whale Valley records how whales evolved from land animals into ocean dwellers.",
+          "nl": "De Walvisvallei laat zien hoe walvissen van landdieren in zeebewoners veranderden."
+        }
+      ],
+      "explanation": {
+        "en": "Wadi Al-Hitan preserves early whales from a time when this desert lay beneath the sea. Their skeletons document the transition from life on land to life in the ocean.",
+        "nl": "Wadi Al-Hitan bewaart vroege walvissen uit een tijd waarin deze woestijn onder zee lag. Hun skeletten tonen de overgang van een leven op het land naar een leven in zee."
+      },
+      "source": {
+        "title": "Wadi Al-Hitan (Whale Valley)",
+        "url": "https://whc.unesco.org/en/list/1186/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1432",
+      "countryId": "BWA",
+      "category": "water",
+      "clues": [
+        {
+          "en": "The Okavango spreads into an inland delta instead of reaching the sea.",
+          "nl": "De Okavango stroomt uit in een binnendelta in plaats van de zee."
+        },
+        {
+          "en": "Its Okavango wetlands receive their annual flood during the dry season.",
+          "nl": "De Okavangomoerassen krijgen hun jaarlijkse overstroming juist in het droge seizoen."
+        }
+      ],
+      "explanation": {
+        "en": "The Okavango is an inland delta without an outlet to the sea. Its seasonal floods arrive during the local dry season, sustaining wildlife in an otherwise arid landscape.",
+        "nl": "De Okavango is een binnendelta zonder afvoer naar zee. De jaarlijkse overstroming komt in het plaatselijke droge seizoen en ondersteunt dieren in een verder droog landschap."
+      },
+      "source": {
+        "title": "Okavango Delta",
+        "url": "https://whc.unesco.org/en/list/1432/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1430",
+      "countryId": "NAM",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Fog is the main water source for life among its Namib coastal dunes.",
+          "nl": "Mist is de belangrijkste waterbron voor leven tussen de kustduinen van de Namib."
+        },
+        {
+          "en": "The dunes of its Namib Sand Sea meet a foggy Atlantic coast.",
+          "nl": "De duinen van de Namibzandzee grenzen aan een mistige Atlantische kust."
+        }
+      ],
+      "explanation": {
+        "en": "The Namib Sand Sea combines vast dune fields with coastal fog. Animals and plants here depend on moisture carried in from the ocean.",
+        "nl": "De Namibzandzee combineert uitgestrekte duinen met kustmist. Dieren en planten zijn er afhankelijk van vocht dat vanaf de oceaan binnenkomt."
+      },
+      "source": {
+        "title": "Namib Sand Sea",
+        "url": "https://whc.unesco.org/en/list/1430/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-494",
+      "countryId": "MDG",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Its Bemaraha landscape is a maze of sharp limestone needles called tsingy.",
+          "nl": "Het landschap van Bemaraha is een doolhof van scherpe kalksteennaalden: tsingy."
+        },
+        {
+          "en": "Lemurs live among forests and limestone pinnacles in its Bemaraha region.",
+          "nl": "In de regio Bemaraha leven lemuren tussen bossen en kalksteenpieken."
+        }
+      ],
+      "explanation": {
+        "en": "Bemaraha is part of the Andrefana Dry Forests World Heritage property. Its spectacular limestone formations, known as tsingy, shelter distinctive island wildlife.",
+        "nl": "Bemaraha hoort bij het werelderfgoed Andrefana Dry Forests. De spectaculaire kalksteenformaties, tsingy genoemd, bieden onderdak aan bijzondere eilanddieren."
+      },
+      "source": {
+        "title": "Andrefana Dry Forests",
+        "url": "https://whc.unesco.org/en/list/494/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1094",
+      "countryId": "AUS",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Its Bungle Bungle Range has striped sandstone towers shaped like beehives.",
+          "nl": "De Bungle Bungle Range heeft gestreepte zandsteentorens in de vorm van bijenkorven."
+        },
+        {
+          "en": "Cyanobacteria create dark bands on its Purnululu sandstone domes.",
+          "nl": "Cyanobacteriën vormen donkere banden op de zandsteenkoepels van Purnululu."
+        }
+      ],
+      "explanation": {
+        "en": "Erosion shaped the beehive-like towers of Purnululu. The darker bands hold more moisture, allowing cyanobacteria to grow on the sandstone.",
+        "nl": "Erosie vormde de bijenkorfachtige torens van Purnululu. De donkere banden houden meer vocht vast, waardoor cyanobacteriën op het zandsteen kunnen groeien."
+      },
+      "source": {
+        "title": "Purnululu National Park",
+        "url": "https://whc.unesco.org/en/list/1094/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1013",
+      "countryId": "MYS",
+      "category": "caves",
+      "clues": [
+        {
+          "en": "Vast caves in Gunung Mulu shelter millions of bats and swiftlets.",
+          "nl": "Enorme grotten in Gunung Mulu bieden onderdak aan miljoenen vleermuizen en gierzwaluwen."
+        },
+        {
+          "en": "Its Sarawak Chamber is an underground space roughly 600 metres long.",
+          "nl": "De ondergrondse Sarawakkamer is ongeveer 600 meter lang."
+        }
+      ],
+      "explanation": {
+        "en": "Gunung Mulu lies in Sarawak on Borneo. Its limestone cave systems include Sarawak Chamber, a vast natural room about 600 metres long and 415 metres wide.",
+        "nl": "Gunung Mulu ligt in Sarawak op Borneo. Het kalkstenen grottenstelsel bevat de Sarawakkamer: een natuurlijke ruimte van ongeveer 600 meter lang en 415 meter breed."
+      },
+      "source": {
+        "title": "Gunung Mulu National Park",
+        "url": "https://whc.unesco.org/en/list/1013/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1267",
+      "countryId": "ISL",
+      "category": "science",
+      "clues": [
+        {
+          "en": "Its island Surtsey rose from the sea during a volcanic eruption beginning in 1963.",
+          "nl": "Het eiland Surtsey rees uit zee tijdens een vulkaanuitbarsting die in 1963 begon."
+        },
+        {
+          "en": "Scientists study how life colonises its protected volcanic island of Surtsey.",
+          "nl": "Wetenschappers volgen hoe leven zich vestigt op het beschermde vulkaaneiland Surtsey."
+        }
+      ],
+      "explanation": {
+        "en": "Surtsey formed during eruptions from 1963 to 1967. Strict protection makes it a natural laboratory for studying how plants and animals arrive on new land.",
+        "nl": "Surtsey ontstond door uitbarstingen tussen 1963 en 1967. Strenge bescherming maakt het een natuurlijk laboratorium voor de komst van planten en dieren op nieuw land."
+      },
+      "source": {
+        "title": "Surtsey",
+        "url": "https://whc.unesco.org/en/list/1267/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-369",
+      "countryId": "GBR",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Around 40,000 basalt columns form its Giant’s Causeway.",
+          "nl": "Ongeveer 40.000 basaltzuilen vormen er de Giant’s Causeway."
+        },
+        {
+          "en": "Ancient volcanic activity built its geometric Giant’s Causeway coastline.",
+          "nl": "Vulkanische activiteit vormde de geometrische kustlijn van de Giant’s Causeway."
+        }
+      ],
+      "explanation": {
+        "en": "The Giant’s Causeway is in County Antrim, Northern Ireland, part of the United Kingdom. Cooling volcanic rock produced its striking columns.",
+        "nl": "De Giant’s Causeway ligt in County Antrim in Noord-Ierland, onderdeel van het Verenigd Koninkrijk. De opvallende zuilen ontstonden toen vulkanisch gesteente afkoelde."
+      },
+      "source": {
+        "title": "Giant’s Causeway and Causeway Coast",
+        "url": "https://whc.unesco.org/en/list/369/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-485",
+      "countryId": "TUR",
+      "category": "water",
+      "clues": [
+        {
+          "en": "Mineral-rich hot springs built the white terraces of Pamukkale.",
+          "nl": "Mineraalrijke warmwaterbronnen bouwden de witte terrassen van Pamukkale."
+        },
+        {
+          "en": "The ancient spa city of Hierapolis overlooks white mineral pools here.",
+          "nl": "De oude kuurstad Hierapolis kijkt hier uit over witte mineraalbassins."
+        }
+      ],
+      "explanation": {
+        "en": "Water from hot springs deposits calcite at Pamukkale, gradually forming white basins and terraces. The ancient spa settlement of Hierapolis stands nearby.",
+        "nl": "Warmwaterbronnen zetten bij Pamukkale calciet af. Zo groeien witte bassins en terrassen. De oude kuurstad Hierapolis ligt er vlakbij."
+      },
+      "source": {
+        "title": "Hierapolis-Pamukkale",
+        "url": "https://whc.unesco.org/en/list/485/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-455",
+      "countryId": "GRC",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Monasteries at Meteora stand on top of towering rock pillars.",
+          "nl": "De kloosters van Meteora staan boven op torenhoge rotspilaren."
+        },
+        {
+          "en": "Monks settled among its Meteora sandstone peaks from the 11th century.",
+          "nl": "Vanaf de 11e eeuw vestigden monniken zich tussen de zandsteenpieken van Meteora."
+        }
+      ],
+      "explanation": {
+        "en": "Meteora combines dramatic sandstone pillars with monasteries perched above the plain. The difficult terrain offered monks places of seclusion.",
+        "nl": "Meteora combineert indrukwekkende zandsteenpilaren met kloosters hoog boven de vlakte. Het moeilijk bereikbare terrein bood monniken afzondering."
+      },
+      "source": {
+        "title": "Meteora",
+        "url": "https://whc.unesco.org/en/list/455/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-98",
+      "countryId": "HRV",
+      "category": "water",
+      "clues": [
+        {
+          "en": "Mineral deposits keep building natural dams between its Plitvice lakes.",
+          "nl": "Mineralen bouwen voortdurend natuurlijke dammen tussen de Plitvicemeren."
+        },
+        {
+          "en": "Waterfalls link the terraced lakes of Plitvice in its limestone landscape.",
+          "nl": "Watervallen verbinden de getrapte Plitvicemeren in een kalksteenlandschap."
+        }
+      ],
+      "explanation": {
+        "en": "At Plitvice, flowing water deposits calcium carbonate. These travertine barriers create lakes and waterfalls, and the process continues today.",
+        "nl": "Bij Plitvice zet stromend water calciumcarbonaat af. Deze travertijnbarrières vormen meren en watervallen. Dat proces gaat nog steeds door."
+      },
+      "source": {
+        "title": "Plitvice Lakes National Park",
+        "url": "https://whc.unesco.org/en/list/98/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-32",
+      "countryId": "POL",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Underground chapels and statues were carved from salt at Wieliczka.",
+          "nl": "Bij Wieliczka zijn ondergrondse kapellen en beelden uit zout gehouwen."
+        },
+        {
+          "en": "Rock-salt mining at Wieliczka and Bochnia began in the 13th century.",
+          "nl": "In de mijnen van Wieliczka en Bochnia werd vanaf de 13e eeuw steenzout gewonnen."
+        }
+      ],
+      "explanation": {
+        "en": "The Wieliczka and Bochnia salt mines preserve centuries of mining history. Their underground spaces include chapels, sculptures and equipment illustrating the trade.",
+        "nl": "De zoutmijnen Wieliczka en Bochnia bewaren eeuwen mijnbouwgeschiedenis. Ondergronds zijn kapellen, beelden en werktuigen te vinden die het ambacht laten zien."
+      },
+      "source": {
+        "title": "Wieliczka and Bochnia Royal Salt Mines",
+        "url": "https://whc.unesco.org/en/list/32/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-326",
+      "countryId": "JOR",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Nabataean builders carved much of Petra directly into the rock.",
+          "nl": "Nabatese bouwers hakten grote delen van Petra rechtstreeks uit de rotsen."
+        },
+        {
+          "en": "Its rock-cut city of Petra stood on caravan routes between the Red and Dead Seas.",
+          "nl": "De rotsstad Petra lag aan karavaanroutes tussen de Rode Zee en de Dode Zee."
+        }
+      ],
+      "explanation": {
+        "en": "Petra was a Nabataean caravan centre. Buildings cut into the cliffs combine with an engineered water system in a landscape of mountains and gorges.",
+        "nl": "Petra was een Nabatese karavaanstad. Uit rotsen gehouwen gebouwen en een aangelegd watersysteem liggen in een landschap van bergen en kloven."
+      },
+      "source": {
+        "title": "Petra",
+        "url": "https://whc.unesco.org/en/list/326/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-202",
+      "countryId": "LKA",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Ruins of a royal capital crown its 180-metre-high Lion Rock at Sigiriya.",
+          "nl": "Op de 180 meter hoge Leeuwenrots van Sigiriya liggen de ruïnes van een koninklijke hoofdstad."
+        },
+        {
+          "en": "The ascent to Sigiriya once passed through a huge lion-shaped gateway.",
+          "nl": "De klim naar Sigiriya liep ooit door een enorme poort in de vorm van een leeuw."
+        }
+      ],
+      "explanation": {
+        "en": "Sigiriya was a royal capital in the fifth century. Its palace ruins occupy the summit of a steep rock, approached by a stairway through a monumental lion entrance.",
+        "nl": "Sigiriya was in de vijfde eeuw een koninklijke hoofdstad. De paleisruïnes liggen op een steile rots, bereikbaar via een trap door een monumentale leeuwenpoort."
+      },
+      "source": {
+        "title": "Ancient City of Sigiriya",
+        "url": "https://whc.unesco.org/en/list/202/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-592",
+      "countryId": "IDN",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Seventy-two openwork stupas surround the central dome of Borobudur.",
+          "nl": "Rond de centrale koepel van Borobudur staan 72 opengewerkte stoepa’s."
+        },
+        {
+          "en": "Its Buddhist temple of Borobudur was built on Java in the eighth and ninth centuries.",
+          "nl": "De boeddhistische tempel Borobudur werd in de achtste en negende eeuw op Java gebouwd."
+        }
+      ],
+      "explanation": {
+        "en": "Borobudur is a terraced Buddhist monument on Java. The upper circular platforms carry 72 perforated stupas, each enclosing a statue of the Buddha.",
+        "nl": "Borobudur is een boeddhistisch monument met terrassen op Java. De bovenste ronde platforms dragen 72 opengewerkte stoepa’s, elk met een Boeddhabeeld."
+      },
+      "source": {
+        "title": "Borobudur Temple Compounds",
+        "url": "https://whc.unesco.org/en/list/592/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-668",
+      "countryId": "KHM",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Forests surround the former capitals of the Khmer Empire at Angkor.",
+          "nl": "Bossen omringen bij Angkor de vroegere hoofdsteden van het Khmer-rijk."
+        },
+        {
+          "en": "Its Angkor complex includes both Angkor Wat and the Bayon temple.",
+          "nl": "Het complex van Angkor omvat zowel Angkor Wat als de Bayontempel."
+        }
+      ],
+      "explanation": {
+        "en": "Angkor preserves remains of successive Khmer capitals from the ninth to the fifteenth centuries. Its temples sit within a much larger archaeological landscape.",
+        "nl": "Angkor bewaart resten van opeenvolgende Khmer-hoofdsteden uit de negende tot de vijftiende eeuw. De tempels liggen in een veel groter archeologisch landschap."
+      },
+      "source": {
+        "title": "Angkor",
+        "url": "https://whc.unesco.org/en/list/668/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-672",
+      "countryId": "VNM",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Limestone towers rise from the sea in its Ha Long Bay.",
+          "nl": "In de Ha Longbaai rijzen kalksteentorens op uit zee."
+        },
+        {
+          "en": "Its Ha Long–Cat Ba seascape contains forested limestone islands and caves.",
+          "nl": "Het zeegebied Ha Long–Cat Ba bevat beboste kalksteeneilanden en grotten."
+        }
+      ],
+      "explanation": {
+        "en": "Ha Long Bay and the Cat Ba Archipelago form a marine karst landscape. Erosion has shaped the limestone into steep islands, caves and enclosed waters.",
+        "nl": "De Ha Longbaai en de Cat Ba-archipel vormen een karstlandschap in zee. Erosie heeft het kalksteen gevormd tot steile eilanden, grotten en omsloten wateren."
+      },
+      "source": {
+        "title": "Ha Long Bay – Cat Ba Archipelago",
+        "url": "https://whc.unesco.org/en/list/672/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-551",
+      "countryId": "NZL",
+      "category": "wildlife",
+      "clues": [
+        {
+          "en": "The kea, an alpine parrot, lives in its Te Wahipounamu wilderness.",
+          "nl": "De kea, een bergpapegaai, leeft in de wildernis van Te Wahipounamu."
+        },
+        {
+          "en": "Glaciers carved the fjords of its Te Wahipounamu landscape.",
+          "nl": "Gletsjers sleten de fjorden uit in het landschap van Te Wahipounamu."
+        }
+      ],
+      "explanation": {
+        "en": "Te Wahipounamu spans mountains, glaciers, fjords and ancient forests in the southwest of the South Island. Its wildlife includes the kea and the flightless takahē.",
+        "nl": "Te Wahipounamu omvat bergen, gletsjers, fjorden en oude bossen in het zuidwesten van het Zuidereiland. Hier leven onder meer de kea en de niet-vliegende takahē."
+      },
+      "source": {
+        "title": "Te Wahipounamu – South West New Zealand",
+        "url": "https://whc.unesco.org/en/list/551/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1010",
+      "countryId": "OMN",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Frankincense trees in Wadi Dawkah supplied an ancient incense trade.",
+          "nl": "Wierookbomen in Wadi Dawkah leverden hars voor een eeuwenoude wierookhandel."
+        },
+        {
+          "en": "Its Shisr oasis and ports of Khor Rori and Al-Baleed served the frankincense trade.",
+          "nl": "De oase Shisr en de havens Khor Rori en Al-Baleed dienden de wierookhandel."
+        }
+      ],
+      "explanation": {
+        "en": "The Land of Frankincense links groves of incense-producing trees with a caravan oasis and coastal ports. These places record a trade that flourished for centuries.",
+        "nl": "Het Land van de Wierook verbindt wierookbomen met een karavaanoase en kusthavens. Deze plaatsen herinneren aan een handel die eeuwenlang bloeide."
+      },
+      "source": {
+        "title": "Land of Frankincense",
+        "url": "https://whc.unesco.org/en/list/1010/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1505",
+      "countryId": "IRN",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Strong winds carved long, grooved ridges called yardangs in its Lut Desert.",
+          "nl": "Sterke wind sleet langgerekte ruggen, yardangs genoemd, in de Lutwoestijn."
+        },
+        {
+          "en": "Its Lut Desert contains wind-sculpted rock ridges and vast dune fields.",
+          "nl": "De Lutwoestijn bevat door wind gevormde rotsruggen en uitgestrekte duinen."
+        }
+      ],
+      "explanation": {
+        "en": "The Lut Desert is a striking example of erosion and deposition by wind. Its yardangs are long ridges sculpted as wind wears away the softer material around them.",
+        "nl": "De Lutwoestijn toont hoe wind materiaal wegslijt en afzet. De yardangs zijn langgerekte ruggen die ontstaan doordat zachter materiaal eromheen wordt weggeblazen."
+      },
+      "source": {
+        "title": "Lut Desert",
+        "url": "https://whc.unesco.org/en/list/1505/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-715",
+      "countryId": "CHL",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "The monumental moai statues stand on its remote island of Rapa Nui.",
+          "nl": "De monumentale moaibeelden staan op het afgelegen eiland Rapa Nui."
+        },
+        {
+          "en": "Polynesian settlers created giant stone figures on its Easter Island.",
+          "nl": "Polynesische kolonisten maakten reusachtige stenen beelden op Paaseiland."
+        }
+      ],
+      "explanation": {
+        "en": "Rapa Nui, also called Easter Island, is home to the moai. Polynesian communities developed a distinctive monumental tradition on this isolated Pacific island.",
+        "nl": "Rapa Nui, ook Paaseiland genoemd, is de thuisbasis van de moai. Polynesische gemeenschappen ontwikkelden op dit afgelegen eiland een eigen monumentale traditie."
+      },
+      "source": {
+        "title": "Rapa Nui National Park",
+        "url": "https://whc.unesco.org/en/list/715/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-700",
+      "countryId": "PER",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Giant drawings of animals and geometric shapes cover the desert at Nasca.",
+          "nl": "Reusachtige tekeningen van dieren en geometrische vormen bedekken de woestijn bij Nasca."
+        },
+        {
+          "en": "Its Nasca and Palpa geoglyphs were created between roughly 500 BC and AD 500.",
+          "nl": "De geogliefen van Nasca en Palpa ontstonden tussen ongeveer 500 v.Chr. en 500 n.Chr."
+        }
+      ],
+      "explanation": {
+        "en": "The Nasca and Palpa geoglyphs form a vast collection of lines and figures on the arid coastal plain. They depict animals, plants and geometric forms.",
+        "nl": "De geogliefen van Nasca en Palpa vormen een enorme verzameling lijnen en figuren op een droge kustvlakte. Ze stellen dieren, planten en geometrische vormen voor."
+      },
+      "source": {
+        "title": "Lines and Geoglyphs of Nasca and Palpa",
+        "url": "https://whc.unesco.org/en/list/700/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1290",
+      "countryId": "MEX",
+      "category": "wildlife",
+      "clues": [
+        {
+          "en": "Millions of monarch butterflies turn its mountain forests orange each autumn.",
+          "nl": "Miljoenen monarchvlinders kleuren de bergbossen er elke herfst oranje."
+        },
+        {
+          "en": "Monarch butterflies spend winter in its central mountain forests before migrating north.",
+          "nl": "Monarchvlinders overwinteren in de centrale bergbossen voordat ze noordwaarts trekken."
+        }
+      ],
+      "explanation": {
+        "en": "Monarch butterflies gather in dense colonies in the mountain forests of central Mexico. These wintering sites are part of a migration across North America.",
+        "nl": "Monarchvlinders verzamelen zich in dichte kolonies in de bergbossen van centraal Mexico. Deze overwinteringsplaatsen maken deel uit van hun trek door Noord-Amerika."
+      },
+      "source": {
+        "title": "Monarch Butterfly Biosphere Reserve",
+        "url": "https://whc.unesco.org/en/list/1290/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-662",
+      "countryId": "JPN",
+      "category": "wildlife",
+      "clues": [
+        {
+          "en": "Ancient sugi trees grow in the forests of its island Yakushima.",
+          "nl": "In de bossen van het eiland Yakushima groeien eeuwenoude sugibomen."
+        },
+        {
+          "en": "Its mountainous Yaku Island preserves warm-temperate forest and ancient cedars.",
+          "nl": "Het bergachtige eiland Yaku bewaart warm-gematigd bos en oude ceders."
+        }
+      ],
+      "explanation": {
+        "en": "Yakushima is a mountainous island with a wide range of vegetation. Its forests include ancient sugi trees, often called Japanese cedars.",
+        "nl": "Yakushima is een bergachtig eiland met uiteenlopende begroeiing. De bossen bevatten oude sugibomen, die vaak Japanse ceders worden genoemd."
+      },
+      "source": {
+        "title": "Yakushima",
+        "url": "https://whc.unesco.org/en/list/662/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-28",
+      "countryId": "USA",
+      "category": "water",
+      "clues": [
+        {
+          "en": "Geysers and hot springs fill its Yellowstone National Park.",
+          "nl": "Geisers en warmwaterbronnen vullen Yellowstone National Park."
+        },
+        {
+          "en": "Its Yellowstone protected landscape became a national park in 1872.",
+          "nl": "Het beschermde landschap Yellowstone werd in 1872 een nationaal park."
+        }
+      ],
+      "explanation": {
+        "en": "Yellowstone became a national park in 1872. Beneath its forests and lakes, volcanic heat powers an extraordinary concentration of hot springs and geysers.",
+        "nl": "Yellowstone werd in 1872 een nationaal park. Onder de bossen en meren voedt vulkanische warmte een uitzonderlijke verzameling warmwaterbronnen en geisers."
+      },
+      "source": {
+        "title": "Yellowstone National Park",
+        "url": "https://whc.unesco.org/en/list/28/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-304",
+      "countryId": "CAN",
+      "category": "fossils",
+      "clues": [
+        {
+          "en": "The Burgess Shale preserves fossils of soft-bodied sea creatures in its Rocky Mountains.",
+          "nl": "De Burgess Shale bewaart fossielen van zachte zeedieren in de Rocky Mountains."
+        },
+        {
+          "en": "Its mountain parks include Banff, Jasper, Kootenay and Yoho.",
+          "nl": "De bergparken omvatten onder meer Banff, Jasper, Kootenay en Yoho."
+        }
+      ],
+      "explanation": {
+        "en": "The Rocky Mountain Parks protect glaciers, peaks, lakes and forests. The Burgess Shale is especially valuable because it preserves details of ancient soft-bodied marine animals.",
+        "nl": "De Rocky Mountain Parks beschermen gletsjers, bergtoppen, meren en bossen. De Burgess Shale is bijzonder doordat details van zachte, oude zeedieren bewaard zijn gebleven."
+      },
+      "source": {
+        "title": "Canadian Rocky Mountain Parks",
+        "url": "https://whc.unesco.org/en/list/304/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-18",
+      "countryId": "ETH",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Eleven medieval churches at Lalibela were cut directly into rock.",
+          "nl": "Elf middeleeuwse kerken bij Lalibela zijn rechtstreeks uit de rotsen gehouwen."
+        },
+        {
+          "en": "Its mountain town of Lalibela is known for monolithic churches from the 13th century.",
+          "nl": "De bergplaats Lalibela staat bekend om monolithische kerken uit de 13e eeuw."
+        }
+      ],
+      "explanation": {
+        "en": "Lalibela’s churches were carved from rock rather than assembled from stone blocks. This medieval religious centre remains a place of pilgrimage.",
+        "nl": "De kerken van Lalibela werden uit rotsen gehouwen in plaats van opgebouwd uit steenblokken. Dit middeleeuwse religieuze centrum is nog steeds een bedevaartsoord."
+      },
+      "source": {
+        "title": "Rock-Hewn Churches, Lalibela",
+        "url": "https://whc.unesco.org/en/list/18/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-390",
+      "countryId": "SVN",
+      "category": "caves",
+      "clues": [
+        {
+          "en": "Underground waterfalls run through its enormous Škocjan cave system.",
+          "nl": "Ondergrondse watervallen stromen door het enorme grottenstelsel van Škocjan."
+        },
+        {
+          "en": "Its Škocjan caves form a vast limestone landscape beneath the Kras region.",
+          "nl": "De grotten van Škocjan vormen een uitgestrekt kalksteenlandschap onder de regio Kras."
+        }
+      ],
+      "explanation": {
+        "en": "The Škocjan system combines caves, collapsed sinkholes and underground waters. It is a major example of karst, a landscape formed when water dissolves soluble rock.",
+        "nl": "Het stelsel van Škocjan combineert grotten, ingestorte zinkgaten en ondergronds water. Het is een belangrijk voorbeeld van karst: een landschap gevormd doordat water gesteente oplost."
+      },
+      "source": {
+        "title": "Škocjan Caves",
+        "url": "https://whc.unesco.org/en/list/390/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-364",
+      "countryId": "ZWE",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "A medieval Shona trading city left monumental stone ruins in its highlands.",
+          "nl": "Een middeleeuwse Shona-handelsstad liet monumentale stenen ruïnes achter in het hoogland."
+        },
+        {
+          "en": "Its major medieval Shona city flourished as a trading centre from the 11th to 15th centuries.",
+          "nl": "Een grote middeleeuwse Shona-stad bloeide er van de 11e tot de 15e eeuw als handelscentrum."
+        }
+      ],
+      "explanation": {
+        "en": "Great Zimbabwe was an important Shona trading centre during the Middle Ages. Its monumental ruins preserve evidence of a sophisticated urban society.",
+        "nl": "Groot-Zimbabwe was in de middeleeuwen een belangrijk Shona-handelscentrum. De monumentale ruïnes getuigen van een ontwikkelde stedelijke samenleving."
+      },
+      "source": {
+        "title": "Great Zimbabwe National Monument",
+        "url": "https://whc.unesco.org/en/list/364/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-722",
+      "countryId": "PHL",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Ifugao communities shaped mountain slopes into rice terraces over many generations.",
+          "nl": "Ifugao-gemeenschappen vormden berghellingen generaties lang om tot rijstterrassen."
+        },
+        {
+          "en": "Its Ifugao rice fields follow the contours of steep mountain slopes.",
+          "nl": "De rijstvelden van de Ifugao volgen de contouren van steile berghellingen."
+        }
+      ],
+      "explanation": {
+        "en": "The Cordillera rice terraces reflect knowledge passed down through generations of Ifugao farmers. Water management and careful cultivation sustain this mountain landscape.",
+        "nl": "De rijstterrassen van de Cordillera weerspiegelen kennis die generaties Ifugao-boeren doorgaven. Waterbeheer en zorgvuldige landbouw houden dit berglandschap in stand."
+      },
+      "source": {
+        "title": "Rice Terraces of the Philippine Cordilleras",
+        "url": "https://whc.unesco.org/en/list/722/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-80",
+      "countryId": "FRA",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "A Gothic abbey crowns its tidal islet of Mont-Saint-Michel.",
+          "nl": "Een gotische abdij bekroont het getijdeneiland Mont-Saint-Michel."
+        },
+        {
+          "en": "Powerful tides surround the rock of its Mont-Saint-Michel abbey.",
+          "nl": "Krachtige getijden omringen de rots waarop de abdij Mont-Saint-Michel staat."
+        }
+      ],
+      "explanation": {
+        "en": "Mont-Saint-Michel stands on a rocky islet between Normandy and Brittany. Its Benedictine abbey rises above a small village in a bay shaped by powerful tides.",
+        "nl": "Mont-Saint-Michel staat op een rotseiland tussen Normandië en Bretagne. De benedictijnenabdij torent boven een dorp uit in een baai met krachtige getijden."
+      },
+      "source": {
+        "title": "Mont-Saint-Michel and its Bay",
+        "url": "https://whc.unesco.org/en/list/80/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1611",
+      "countryId": "BRA",
+      "category": "water",
+      "clues": [
+        {
+          "en": "Rain fills hollows between white dunes with lagoons in Lençóis Maranhenses.",
+          "nl": "Regen vult kuilen tussen witte duinen met lagunes in Lençóis Maranhenses."
+        },
+        {
+          "en": "Its Lençóis Maranhenses landscape alternates between sand dunes and seasonal lagoons.",
+          "nl": "Het landschap van Lençóis Maranhenses wisselt zandduinen af met seizoenslagunes."
+        }
+      ],
+      "explanation": {
+        "en": "Lençóis Maranhenses lies on the Atlantic coast. During the rainy season, fresh water gathers between the dunes, creating a shifting mosaic of sand and lagoons.",
+        "nl": "Lençóis Maranhenses ligt aan de Atlantische kust. Tijdens het regenseizoen verzamelt zoet water zich tussen de duinen en ontstaat een veranderend mozaïek van zand en lagunes."
+      },
+      "source": {
+        "title": "Lençóis Maranhenses National Park",
+        "url": "https://whc.unesco.org/en/list/1611/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-720",
+      "countryId": "DEU",
+      "category": "fossils",
+      "clues": [
+        {
+          "en": "Some mammal fossils in its Messel Pit still preserve stomach contents.",
+          "nl": "Sommige zoogdierfossielen uit de Messelgroeve bewaren zelfs de maaginhoud."
+        },
+        {
+          "en": "Its Messel Pit provides a remarkably detailed record of Eocene mammals.",
+          "nl": "De Messelgroeve geeft een uitzonderlijk gedetailleerd beeld van zoogdieren uit het Eoceen."
+        }
+      ],
+      "explanation": {
+        "en": "Messel Pit is famous for exceptionally preserved fossils from the Eocene. Some specimens retain fine details of bodies and even the remains of their last meals.",
+        "nl": "De Messelgroeve staat bekend om uitzonderlijk goed bewaarde fossielen uit het Eoceen. Sommige exemplaren bevatten fijne lichaamsdetails en zelfs resten van hun laatste maaltijd."
+      },
+      "source": {
+        "title": "Messel Pit Fossil Site",
+        "url": "https://whc.unesco.org/en/list/720/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-243",
+      "countryId": "IND",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Buddhist, Hindu and Jain monuments share the rock-cut site of Ellora.",
+          "nl": "Boeddhistische, hindoeïstische en jaïnistische monumenten delen de rotslocatie Ellora."
+        },
+        {
+          "en": "Its Ellora complex contains 34 monasteries and temples cut into basalt cliffs.",
+          "nl": "Het complex van Ellora bevat 34 kloosters en tempels uitgehouwen in basaltkliffen."
+        }
+      ],
+      "explanation": {
+        "en": "The Ellora monuments were created between about AD 600 and 1000. Three religious traditions are represented side by side in the rock-cut complex.",
+        "nl": "De monumenten van Ellora ontstonden tussen ongeveer 600 en 1000 n.Chr. Drie religieuze tradities zijn naast elkaar vertegenwoordigd in het uitgehouwen complex."
+      },
+      "source": {
+        "title": "Ellora Caves",
+        "url": "https://whc.unesco.org/en/list/243/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1540",
+      "countryId": "CHN",
+      "category": "wildlife",
+      "clues": [
+        {
+          "en": "Antelope migrate across the high plateau of its Hoh Xil reserve.",
+          "nl": "Antilopen trekken over de hoogvlakte van het reservaat Hoh Xil."
+        },
+        {
+          "en": "Its Hoh Xil wilderness protects a complete migration route for Tibetan antelope.",
+          "nl": "De wildernis van Hoh Xil beschermt een volledige trekroute van Tibetaanse antilopen."
+        }
+      ],
+      "explanation": {
+        "en": "Hoh Xil protects a vast high-altitude landscape and the migration routes of Tibetan antelope. Plants and animals here are adapted to a cold, oxygen-poor environment.",
+        "nl": "Hoh Xil beschermt een uitgestrekte hoogvlakte en trekroutes van Tibetaanse antilopen. Planten en dieren zijn er aangepast aan een koude, zuurstofarme omgeving."
+      },
+      "source": {
+        "title": "Qinghai Hoh Xil",
+        "url": "https://whc.unesco.org/en/list/1540/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-1011",
+      "countryId": "ARM",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Its churches at Echmiatsin helped shape a distinctive style of domed architecture.",
+          "nl": "De kerken van Echmiatsin hielpen een eigen stijl van koepelarchitectuur te vormen."
+        },
+        {
+          "en": "Echmiatsin and the ruins of Zvartnots preserve its early church-building traditions.",
+          "nl": "Echmiatsin en de ruïnes van Zvartnots bewaren vroege tradities van kerkbouw."
+        }
+      ],
+      "explanation": {
+        "en": "Echmiatsin and Zvartnots illustrate the development of a distinctive church type, combining a central dome with a cross-shaped hall. This architecture influenced the wider region.",
+        "nl": "Echmiatsin en Zvartnots tonen de ontwikkeling van een kerktype met een centrale koepel en een kruisvormige hal. Deze architectuur beïnvloedde de omliggende regio."
+      },
+      "source": {
+        "title": "Cathedral and Churches of Echmiatsin and the Archaeological Site of Zvartnots",
+        "url": "https://whc.unesco.org/en/list/1011/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-573",
+      "countryId": "NER",
+      "category": "landscapes",
+      "clues": [
+        {
+          "en": "Its volcanic Aïr Mountains form an ecological island in the Ténéré desert.",
+          "nl": "Het vulkanische Aïrgebergte vormt een ecologisch eiland in de Ténéréwoestijn."
+        },
+        {
+          "en": "Sahel wildlife survives around its Aïr massif, surrounded by the Sahara.",
+          "nl": "Rond het Aïrmassief overleven Saheldieren, omringd door de Sahara."
+        }
+      ],
+      "explanation": {
+        "en": "The Aïr massif rises within the Ténéré desert. The mountains preserve habitats with Sahelian characteristics amid a much drier Saharan landscape.",
+        "nl": "Het Aïrmassief rijst op in de Ténéréwoestijn. De bergen bewaren leefgebieden met Sahelkenmerken midden in een veel droger Saharalandschap."
+      },
+      "source": {
+        "title": "Aïr and Ténéré Natural Reserves",
+        "url": "https://whc.unesco.org/en/list/573/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-737",
+      "countryId": "KOR",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Haeinsa Temple keeps Buddhist texts carved onto around 80,000 wooden blocks.",
+          "nl": "De Haeinsatempel bewaart boeddhistische teksten op ongeveer 80.000 houten blokken."
+        },
+        {
+          "en": "Its Haeinsa depositories were designed to preserve a medieval woodblock collection.",
+          "nl": "De bewaarplaatsen van Haeinsa zijn ontworpen om middeleeuwse houtblokken te beschermen."
+        }
+      ],
+      "explanation": {
+        "en": "The Tripitaka Koreana was carved in the thirteenth century. Purpose-built depositories at Haeinsa have helped preserve this enormous collection of wooden printing blocks.",
+        "nl": "De Tripitaka Koreana werd in de dertiende eeuw uitgehouwen. Speciaal ontworpen bewaarplaatsen in Haeinsa hielpen deze enorme verzameling houten drukblokken te bewaren."
+      },
+      "source": {
+        "title": "Haeinsa Temple Janggyeong Panjeon, the Depositories for the Tripitaka Koreana Woodblocks",
+        "url": "https://whc.unesco.org/en/list/737/"
+      },
+      "checked_at": "2026-09-21"
+    },
+    {
+      "id": "heritage-316",
+      "countryId": "ESP",
+      "category": "heritage",
+      "clues": [
+        {
+          "en": "Its Gothic cathedral at Burgos was begun in the 13th century and took centuries to complete.",
+          "nl": "De gotische kathedraal van Burgos werd in de 13e eeuw begonnen en eeuwenlang uitgebreid."
+        },
+        {
+          "en": "Burgos Cathedral brings together several centuries of Gothic architecture here.",
+          "nl": "De kathedraal van Burgos verenigt hier verschillende eeuwen gotische architectuur."
+        }
+      ],
+      "explanation": {
+        "en": "Construction of Burgos Cathedral began in the thirteenth century. Later additions in the fifteenth and sixteenth centuries made it a record of changing Gothic styles.",
+        "nl": "De bouw van de kathedraal van Burgos begon in de dertiende eeuw. Toevoegingen in de vijftiende en zestiende eeuw laten veranderende gotische stijlen zien."
+      },
+      "source": {
+        "title": "Burgos Cathedral",
+        "url": "https://whc.unesco.org/en/list/316/"
+      },
+      "checked_at": "2026-09-21"
+    }
+  ]
+}

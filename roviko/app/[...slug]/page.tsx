@@ -1,0 +1,8 @@
+import RovikoApp from '@/components/RovikoApp';
+import {pageTitle} from '@/lib/page-title';
+import {messages} from '@/i18n/messages';
+import {BRAND} from '@/lib/config';
+import {siteMetadata} from '@/lib/site-metadata';
+const descriptions:Record<string,string>={'flags-quiz':'Meet the world one flag at a time. Try Flag Signal, learn from each answer and challenge friends in a private room.','capitals-quiz':'Connect countries with their capitals in City Circuit. Choose your region, type your answers or play a quick multiple-choice game.','world-geography-quiz':'Follow country clues, spot flags and place pins. Take a short geography trip across the world, alone or with your friends.','country-map-quiz':'A world map, one country and your best instinct. Drop a pin and discover how close you got.','europe-geography-quiz':'From Atlantic capitals to Alpine neighbours, put your knowledge of Europe to the test with a new mix of questions.','africa-geography-quiz':'Explore African capitals, flags and borders in a short game built for curious minds.'};
+export async function generateMetadata({params}:{params:Promise<{slug:string[]}>}){const {slug}=await params;const title=pageTitle('/'+slug.join('/'), key => (messages.en as any)[key] ?? key);return {...await siteMetadata('/'+slug.join('/'),title,descriptions[slug[0]]??'Stay curious. Play original geography games and challenge friends in live private rooms.'),robots:['room','game','puzzle','rank','profile','friends','admin'].includes(slug[0])?{index:false,follow:false}:undefined};}
+export default async function Page({params}:{params:Promise<{slug:string[]}>}){const {slug}=await params;return <RovikoApp initialPath={'/'+slug.join('/')}/>;}

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /room/
+Disallow: /game/
+Disallow: /profile
+Disallow: /admin

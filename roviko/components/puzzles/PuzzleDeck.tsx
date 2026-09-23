@@ -1,0 +1,66 @@
+'use client';
+import React, { useEffect, useRef, useState } from 'react';
+import { ArrowRight, Check, Shuffle, Users } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GameCover } from '../atelier/GameCover';
+import { DailyRhythm } from '../atelier/DailyRhythm';
+import { api, post } from '@/lib/client';
+import { DEFAULT_SETTINGS } from '@/lib/config';
+import { TOPICS } from '@/lib/puzzles/topics';
+import type { PuzzleMode } from '@/lib/puzzles/model';
+
+export function PuzzleDeck({ app, dailyPage = false }: { app: any; dailyPage?: boolean }) {
+  const { t, locale, boot, refresh, go, fail, start } = app;
+  const launching = useRef(false);
+  const [loadError, setLoadError] = useState(false), [reload, setReload] = useState(0);
+  const [today, setToday] = useState<any>(null), [practice, setPractice] = useState<PuzzleMode | null>(null);
+  const [topic, setTopic] = useState(TOPICS[0].id), [size, setSize] = useState('4'), [busy, setBusy] = useState('');
+  useEffect(() => {
+    if (!boot.user.id) return;
+    setToday(null);
+    let requestVersion=0;
+    let active = true, timer: ReturnType<typeof setTimeout>;
+    const load = async () => {
+      clearTimeout(timer); const version=++requestVersion;
+      try { const state = await api('/puzzles/today'); if (active && version===requestVersion) { setToday(state); setLoadError(false); } } catch (e) { if (active && version===requestVersion) setLoadError(true); }
+      if (active && version===requestVersion) timer = setTimeout(load, 86400000 - Date.now() % 86400000 + 500);
+    };
+    const visible = () => { if (document.visibilityState === 'visible') load(); };
+    load(); document.addEventListener('visibilitychange', visible);
+    return () => { active = false; clearTimeout(timer); document.removeEventListener('visibilitychange', visible); };
+  }, [boot.user.id, reload]);
+  async function play(mode: PuzzleMode | 'rank', daily = true) {
+    if (launching.current) return;
+    launching.current = true; setBusy(mode);
+    try {
+      if (!boot.user.id) { const ready = await refresh(); if (!ready) throw new Error('SESSION_EXPIRED'); }
+      const game = await post(mode === 'rank' ? '/ranks' : '/puzzles', { mode, daily, topic, size: +size });
+      setPractice(null); go((mode === 'rank' ? '/rank/' : '/puzzle/') + game.id);
+    } catch (e) { fail(e); } finally { launching.current = false; setBusy(''); }
+  }
+  const modes = ['rank', 'daily', 'compare', 'mosaic'] as const;
+  const completed = modes.filter(mode => today?.sessions.some((s: any) => s.mode === mode && s.completed)).length;
+  return <section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
+    <div className="atelier-section-heading"><h2 id="today-title">{t('todayPlay')}</h2><span>{today ? new Date(today.date + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' }) : t('puzzleToday')}</span></div>
+    <div className="daily-card-grid">
+      {modes.map(mode => {
+        const saved = today?.sessions.find((s: any) => s.mode === mode);
+        const state = saved?.completed ? 'done' : saved ? 'active' : 'new';
+        return <article key={mode} className={'daily-card daily-card-' + mode}>
+          <div className="daily-cover"><GameCover mode={mode}/><span className={'daily-state state-' + state}>{state === 'done' && <Check size={14}/>} {t(!today ? 'dailyStatusPending' : state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState')}</span></div>
+          <div className="daily-card-body"><div className="daily-card-meta"><span>{t('cardVerb' + mode)}</span><span>{t(mode === 'daily' ? 'journeyExtent' : mode === 'compare' ? 'compareExtent' : mode === 'rank' ? 'rankExtent' : 'mosaicExtent')}</span></div>
+          <div className="daily-card-copy"><h3>{t(mode === 'daily' ? 'dailyTitle' : mode)}</h3><p>{t(mode + 'CardCopy')}</p></div>
+          <div className="daily-card-detail">{mode === 'compare' ? <>{today?.topic.label[locale] ?? t('puzzleRotating')}</> : mode === 'daily' ? t('journeyKinds') : mode === 'rank' ? t('rankKinds') : t('mosaicKinds')}</div>
+          <button className="btn daily-card-action" disabled={app.busy || !!busy} onClick={() => mode === 'daily' ? start({ ...DEFAULT_SETTINGS, mode: 'daily' }) : play(mode)} aria-label={t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart') + ' · ' + t(mode === 'daily' ? 'dailyTitle' : mode)}>{app.busy || busy === mode ? t('loading') : t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart')}<ArrowRight size={18}/></button></div>
+        </article>;
+      })}
+    </div>
+    <div className={'daily-progress-strip' + (completed === modes.length ? ' all-discovered' : '')} aria-live="polite"><span className="daily-progress-marks" aria-hidden="true">{modes.map(mode => <span key={mode} className={today?.sessions.some((s:any) => s.mode === mode && s.completed) ? 'complete' : ''}>{today?.sessions.some((s:any) => s.mode === mode && s.completed) ? '✓' : '·'}</span>)}</span><span>{today ? t(completed === modes.length ? 'dailyAllDone' : 'todayCompleted').replace('{n}',String(completed)) : t('dailyStatusPending')}</span><button className="text-link" onClick={() => go('/profile')}>{t('openPassport')}<ArrowRight size={16}/></button></div>
+    {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={() => setReload(n => n+1)}>{t('retry')}</button></p>}
+    {today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t}/>}
+    <div className="daily-quiet-options"><div className="daily-practice-links" role="group" aria-label={t('extraPractice')}><button className="text-link" disabled={!!busy} onClick={() => play('rank', false)}>{t('rankPractice')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('compare')}>{t('puzzleBrowseTopics')}<ArrowRight size={14}/></button><button className="text-link" onClick={() => setPractice('mosaic')}>{t('freshMosaic')}<ArrowRight size={14}/></button></div><span>{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</span></div>
+    <Dialog open={!!practice} onOpenChange={v => !v && setPractice(null)}><DialogContent className="app-modal puzzle-setup"><span className="puzzle-sticker" aria-hidden="true">{practice === 'compare' ? '⚖️' : '🧩'}</span><DialogTitle className="modal-title">{t(practice ?? 'compare')}</DialogTitle><DialogDescription>{t('puzzlePracticeCopy')}</DialogDescription>{practice === 'compare' ? <label className="field"><span>{t('puzzleTopic')}</span><Select value={topic} onValueChange={setTopic}><SelectTrigger className="select-trigger" aria-label={t('puzzleTopic')}><SelectValue/></SelectTrigger><SelectContent>{TOPICS.map(topic => <SelectItem value={topic.id} key={topic.id}>{topic.emoji} {topic.label[locale as 'en' | 'nl']}</SelectItem>)}</SelectContent></Select></label> : <><p className="field-label">{t('puzzleCluesPerCountry')}</p><Tabs value={size} onValueChange={setSize}><TabsList className="app-tabs puzzle-size-tabs">{['3','4','5'].map(n => <TabsTrigger key={n} value={n}>{n} {t('puzzleClues')}<small>{+n * 4} {t('puzzleTiles')}</small></TabsTrigger>)}</TabsList></Tabs><p className="muted">{t('puzzleSize' + size)}</p></>}<button className="btn primary wide" disabled={!!busy} onClick={() => play(practice!, false)}><Shuffle size={18}/>{busy ? t('loading') : t('puzzleStartPractice')}</button></DialogContent></Dialog>
+  </section>;
+}
