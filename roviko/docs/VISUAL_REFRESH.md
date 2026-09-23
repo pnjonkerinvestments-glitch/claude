@@ -60,3 +60,17 @@ Nieuwe bestanden: `lib/daily-loop.ts` (pure logica, getest in `tests/daily-loop.
 Tests: typecheck en build geslaagd, `npm test` 81/81 geslaagd (6 nieuw). Handmatig in headless Chromium: een volledig Rank-dagspel, de lus erna, de homepage met 1/4 klaar, het mysterieland (hint, fout antwoord, herladen), op desktop en 390 px, licht en donker.
 
 Nog open, vooral voor de app: echte pushmeldingen ("je reeks wacht"), een reeks-bevriezer en vrienden-reeksen. Die vragen server-opslag en expliciete toestemming van de speler.
+
+---
+
+# Overzichtelijk en kindvriendelijk (ronde 3)
+
+Doel: een rustige homepage met één duidelijke route voor dagelijks gebruik, geschikt voor kinderen en voor grote aantallen spelers.
+
+- **Eén route per bezoek:** hero met één knop, dan de 4 dagspellen, het mysterieland, meer spellen en tot slot samen spelen. Het aantal blokken op de homepage ging van 11 naar 6.
+- **Dubbele informatie weg:** de losse voortgangsbalk ("0 van 4") stond er al in de hero en de ring. Ook de paspoort-teaser en de linkregel "195 Verkennen / Ranglijst" (die ook in de navigatie staan) zijn verwijderd. Via de teller "Landen ontdekt" kom je nu bij je paspoort.
+- **Rustige dagkaarten:** in een raster van 4 kolommen op desktop en 2 op mobiel. Per kaart alleen een plaatje, een naam, één regel uitleg en één knop. De labels ("Ontdek", "6 landen") en de detailregel zijn weg.
+- **Weekoverzicht, badge-voortgang en de uitleg over de reset** staan alleen nog op de pagina Dagelijks (`/daily`).
+- **Oefenopties:** één rustige rij met chips en een label.
+- **Kindvriendelijk:** tekst 17 px, knoppen minimaal 48–50 px hoog, minder decoratie (stickers en stippellijn weg) en minder doorlopende animaties. Dat is ook zuiniger op goedkope telefoons.
+- **Schaal:** er zijn geen extra API-aanroepen op de homepage bijgekomen. Het mysterieland laadt twee statische, cachebare JSON-bestanden.

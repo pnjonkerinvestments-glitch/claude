@@ -13,7 +13,7 @@ import { BRAND, DEFAULT_SETTINGS, MODES, MODE_EMOJIS, REGIONS } from '@/lib/conf
 import { ACHIEVEMENTS } from '@/lib/achievements';
 import { messages, errorMessage, type Locale } from '@/i18n/messages';
 import { api, post, copyText, formatScore, sound, readPreference, writePreference, metric } from '@/lib/client';
-import { PassportCollection, PassportPeek } from './atelier/PassportCollection';
+import { PassportCollection } from './atelier/PassportCollection';
 import { NextDiscovery } from './atelier/NextDiscovery';
 import { DailyLoop } from './atelier/DailyLoop';
 import { returnDestination, navigationState } from '@/lib/navigation';
@@ -112,14 +112,12 @@ export default function RovikoApp({ initialPath = '/' }: {
  <AuthModal /><CreateRoomModal /><ReportModal value={report} onClose={() => setReport(null)}/><Toaster theme={theme as any} position="bottom-center" richColors/></AppContext.Provider>;
 }
 function Home() {
-    const app = useApp(), { t, boot, start, playMode, setModal, busy, region, setRegion, locale } = app;
+    const app = useApp(), { t, start, playMode, setModal, busy, region, setRegion } = app;
     return <div className="home-page play-home atelier-home">
         <PuzzleDeck app={app} welcome/>
         <section id="modes" className="quick-games"><div className="atelier-section-heading"><h2>{t('chooseGame')}</h2><div className="quick-controls"><Choice label={t('region')} value={region} onChange={setRegion} options={REGIONS.map(v => ({ value: v, label: v === 'World' ? t('allRegions') : t(v) }))}/><button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><span aria-hidden="true">✦</span>{t('surpriseMe')}</button></div></div>
         <div className="quick-game-grid">{MODES.map(mode => <article className={'quick-game-card tone-' + mode} key={mode}><button className="quick-game-start" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}><ModeEmoji mode={mode}/><span><strong>{t(mode)}</strong><small>{t('category'+mode)}</small></span><ArrowRight size={18}/></button><button className="icon-btn quick-game-settings" disabled={busy} aria-label={t('gameSettings').replace('{game}',t(mode))} onClick={() => playMode(mode)}><Settings2 size={18}/></button></article>)}</div></section>
         <section className="atelier-social"><div className="avatar-stack"><Avatar id={0}/><Avatar id={1}/><Avatar id={4}/></div><div><h2>{t('socialTitle')}</h2><p>{t('socialCopy')}</p></div><div className="social-actions"><button className="btn primary" onClick={() => setModal('room')}><Users size={18}/>{t('createRoom')}</button><A className="btn secondary" href="/multiplayer">{t('joinRoom')}</A></div></section>
-        <PassportPeek stats={boot.stats} t={t} locale={locale} onOpen={() => app.go('/profile')}/>
-        <div className="community-inline"><A href="/explore" className="text-link"><Globe2 size={17}/>{boot.countryCount} {t('explore')}</A><A href="/leaderboard" className="text-link"><Trophy size={17}/>{t('leaderboard')}<ArrowRight size={16}/></A></div>
     </div>;
 }
 function JoinForm({ compact = false }: {

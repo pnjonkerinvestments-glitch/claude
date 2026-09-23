@@ -483,6 +483,78 @@ html{scroll-padding-top:88px}
 .loop-reset p{margin:0;color:#eef2ff}
 .daily-loop.is-complete .loop-flame{animation:hero-cheer 1.4s ease-in-out infinite}
 
+/* ───────── Clean daily layout (ronde 3) ─────────
+   One clear path per visit: hero → today's four games → mystery → more games → friends.
+   Bigger type and tap targets for younger players; fewer looping animations. */
+body{font-size:17px}
+.btn{min-height:50px}
+.home-page>section+section,.home-page .puzzle-deck-section{margin-top:44px}
+.atelier-section-heading{margin-bottom:16px}
+.atelier-section-heading h2{font-size:1.55rem}
+
+/* Hero: calmer, fewer decorations */
+.play-hero{padding:36px 44px;margin-bottom:0;gap:20px}
+.play-hero::before{display:none}
+.play-hero h1{font-size:clamp(2.1rem,4vw,3.1rem)}
+.play-hero-copy>p{font-size:1.1rem;max-width:36ch}
+.play-hero-actions{margin-top:22px}
+.play-hero-stats{margin-top:22px}
+.play-hero-art{width:min(100%,270px)}
+.play-hero-stats li.stat-countries{padding:0}
+.stat-countries>button{all:unset;box-sizing:border-box;cursor:pointer;width:100%;display:grid;grid-template-columns:auto auto;grid-template-rows:auto auto;column-gap:9px;align-items:center;justify-content:start;padding:10px 16px 10px 12px;border-radius:18px}
+.stat-countries>button>span{grid-row:1/3;font-size:1.6rem;line-height:1;font-family:var(--emoji-font)}
+@media (max-width:480px){.stat-countries>button{grid-template-columns:1fr;justify-items:center;text-align:center;padding:10px 6px}.stat-countries>button>span{grid-row:auto;font-size:1.3rem}}
+.play-hero-stats li.stat-countries:has(button:focus-visible){outline:3px solid #fff;outline-offset:3px}
+.play-hero-stats li.stat-countries:hover{background:#ffffff33}
+@media (max-width:860px){.play-hero{padding:24px 20px 22px}.play-hero-art{width:min(46vw,180px);margin-top:30px}}
+
+/* Today: four equal, simple cards — picture, name, one line, one button */
+.daily-card-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+.daily-card{display:flex;flex-direction:column;border-radius:24px}
+.daily-cover{aspect-ratio:4/3;min-height:0;height:auto}
+.daily-cover .game-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.daily-card-body{padding:16px 16px 18px;gap:0}
+.daily-card-copy h3{font-size:1.3rem}
+.daily-card-copy p{margin-top:4px;font-size:.95rem;line-height:1.45;min-height:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.daily-card-action{margin-top:14px;min-height:50px;justify-content:center;gap:8px}
+.daily-state{top:10px;left:10px}
+.daily-card.is-done .daily-cover::after{width:48px;height:48px;font-size:1.4rem;right:10px;bottom:10px}
+@media (max-width:1100px){.daily-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){
+  .daily-card-grid{gap:12px}
+  .daily-card{border-radius:20px}
+  .daily-card-body{padding:12px 12px 14px}
+  .daily-card-copy h3{font-size:1.1rem}
+  .daily-card-copy p{font-size:.85rem}
+  .daily-card-action{min-height:48px;padding:10px;font-size:.92rem}
+  .daily-card-action svg{display:none}
+}
+
+/* Practice row: one quiet line of chips */
+.daily-quiet-options{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin-top:22px}
+.practice-label{font-weight:800;color:var(--muted-foreground);font-size:.9rem}
+.daily-practice-links{display:flex;flex-wrap:wrap;gap:8px}
+.daily-practice-links .text-link{min-height:44px;padding:8px 14px;font-size:.9rem}
+.daily-quiet-options,.daily-practice-links{flex-direction:row;justify-content:flex-start;align-items:center}
+.practice-reset{flex-basis:100%;font-size:.85rem;color:var(--muted-foreground)}
+
+/* Mystery keeps its own card but sits in the same rhythm */
+.mystery-card{margin-top:28px}
+.mystery-badge{animation:none}
+
+/* More games: tidy tiles */
+.quick-game-grid{gap:14px}
+.quick-game-start{min-height:88px}
+.quick-game-start strong{font-size:1.12rem}
+@media (max-width:480px){.quick-controls{width:100%}.quick-controls .field{flex:1}}
+
+/* Friends banner, compact */
+.atelier-social{padding:22px 26px}
+
+/* Fewer looping animations for calm, low-power use */
+.tomorrow-emoji,.hero-sticker{animation:none}
+.hero-mascot{animation-duration:7s}
+
 /* ───────── Shared motion ───────── */
 @keyframes pop-in{0%{transform:scale(.85)}60%{transform:scale(1.04)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
