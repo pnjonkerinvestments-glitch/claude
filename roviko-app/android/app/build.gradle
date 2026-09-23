@@ -8,7 +8,7 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // CI passes a unique, increasing build number; Google Play rejects a reused versionCode.
-        versionCode (System.getenv("ROVIKO_VERSION_CODE") ?: "1") as Integer
+        versionCode Integer.parseInt(System.getenv("ROVIKO_VERSION_CODE") ?: "1")
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
