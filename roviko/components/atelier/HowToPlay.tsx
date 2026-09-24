@@ -1,8 +1,9 @@
 'use client';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight, CircleHelp, Lightbulb } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { GameIcon } from './GameIcon';
+import { CoverArt, type CoverMode } from '../home/CoverArt';
 import { HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
 
 type T = (key: string) => string;
@@ -52,18 +53,43 @@ export function HowToPlayButton({ mode, t, locale, auto = false, link = false }:
   </>;
 }
 
-/** The "How to play" page: every game in three steps, grouped like the homepage. */
+const RULE_KEYS: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail' };
+const COVER: Record<string, CoverMode> = { rank: 'rank', daily: 'daily', compare: 'compare', mosaic: 'mosaic', trail: 'trail', duel: 'duel', mystery: 'mystery', room: 'room' };
+
+/** The "How to play" page: pick a game from the tabs, see its goal, steps, scoring and a tip, then play it. */
 export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; locale: Loc; onPlay: (mode: string) => void; busy?: boolean }) {
-  return <div className="howto-page">
-    <div className="page-heading centered"><span className="eyebrow"><CircleHelp size={16}/>{t('howTo')}</span><h1>{t('howToPageTitle')}</h1><p>{t('howToPageIntro')}</p></div>
-    <nav className="howto-jump" aria-label={t('howToJump')}>{HOW_TO_PLAY_ORDER.map(mode => <a key={mode} href={'#howto-' + mode} className={'howto-chip howto-' + mode}><GameIcon mode={mode} size="sm"/>{howToGame(mode, t)}</a>)}</nav>
-    {HOW_TO_PLAY_GROUPS.map(group => <section key={group.key} className="howto-group" aria-labelledby={'howto-group-' + group.key}>
-      <div className="atelier-section-heading"><h2 id={'howto-group-' + group.key}>{t(group.key)}</h2><span>{t(group.note)}</span></div>
-      <div className="howto-grid">{group.modes.map(mode => <article key={mode} id={'howto-' + mode} className={'howto-card howto-' + mode} aria-labelledby={'howto-title-' + mode}>
-        <header><GameIcon mode={mode} className="howto-badge"/><h3 id={'howto-title-' + mode}>{howToGame(mode, t)}</h3></header>
-        <HowToSteps mode={mode} t={t} locale={locale}/>
-        <button className="btn secondary howto-play" disabled={busy} onClick={() => onPlay(mode)}>{mode === 'room' ? t('createRoom') : t('howToPlay').replace('{game}', howToGame(mode, t))}<ArrowRight size={18}/></button>
-      </article>)}</div>
-    </section>)}
+  const [mode, setMode] = useState<string>('rank');
+  // Deep links such as /how-to-play#trail open that game's tab once mounted.
+  useEffect(() => { const hash = window.location.hash.slice(1); if (HOW_TO_PLAY[hash]) setMode(hash); }, []);
+  const pick = (next: string) => { setMode(next); try { history.replaceState(history.state, '', '#' + next); } catch { /* ignore */ } };
+  const guide = HOW_TO_PLAY[mode];
+  const group = HOW_TO_PLAY_GROUPS.find(g => g.modes.includes(mode))!;
+  const onKey = (e: React.KeyboardEvent) => {
+    const i = HOW_TO_PLAY_ORDER.indexOf(mode);
+    const next = e.key === 'ArrowRight' ? HOW_TO_PLAY_ORDER[(i + 1) % HOW_TO_PLAY_ORDER.length] : e.key === 'ArrowLeft' ? HOW_TO_PLAY_ORDER[(i - 1 + HOW_TO_PLAY_ORDER.length) % HOW_TO_PLAY_ORDER.length] : null;
+    if (next) { e.preventDefault(); pick(next); requestAnimationFrame(() => document.getElementById('howto-tab-' + next)?.focus()); }
+  };
+  return <div className="page howto-v2">
+    <header className="page-header"><p className="kicker">{t('howKicker')}</p><h1>{t('howTitle')}</h1><p className="lead">{t('howLead')}</p></header>
+    <div className="howto-tabs" role="tablist" aria-label={t('howTitle')} onKeyDown={onKey}>
+      {HOW_TO_PLAY_GROUPS.map(g => <div key={g.key} className="howto-tab-group" role="presentation"><span className="howto-tab-label" role="presentation">{t(g.key)}</span>
+        {g.modes.map(m => <button key={m} id={'howto-tab-' + m} role="tab" aria-selected={mode === m} aria-controls="howto-panel" tabIndex={mode === m ? 0 : -1} className="howto-tab" onClick={() => pick(m)}><GameIcon mode={m} size="sm"/>{howToGame(m, t)}</button>)}
+      </div>)}
+    </div>
+    {guide && <section id="howto-panel" role="tabpanel" aria-labelledby={'howto-tab-' + mode} className={'howto-panel howto-' + mode}>
+      <div className="howto-art" aria-hidden="true"><CoverArt mode={COVER[mode] ?? 'classic'}/></div>
+      <div className="howto-body">
+        <p className="kicker">{t(group.key)}</p>
+        <h2>{howToGame(mode, t)}</h2>
+        <h3>{t('howGoal')}</h3>
+        <p className="howto-goal">{guide.steps[0].text[locale]}</p>
+        <h3>{t('howSteps')}</h3>
+        <ol className="howto-steps">{guide.steps.slice(1).map((step, i) => <li key={i}><span className="howto-step-num" aria-hidden="true">{i + 1}</span><p>{step.text[locale]}</p></li>)}</ol>
+        <h3>{t('howScoringLabel')}</h3>
+        <p>{RULE_KEYS[mode] ? t(RULE_KEYS[mode]) : mode === 'room' ? t('scoringFriendsCopy') : t('scoringExtrasCopy')}</p>
+        <p className="howto-tip"><Lightbulb size={18} aria-hidden="true"/><span><b>{t('howToTip')}:</b> {guide.tip[locale]}</span></p>
+        <div className="howto-actions"><button className="btn primary btn-lg" disabled={busy} onClick={() => onPlay(mode)}>{mode === 'room' ? t('createRoom') : t('howPlayCta').replace('{game}', howToGame(mode, t))}<ArrowRight size={19} aria-hidden="true"/></button>{RULE_KEYS[mode] && <a href="/scoring" className="text-link">{t('scoringLink')}</a>}</div>
+      </div>
+    </section>}
   </div>;
 }

@@ -605,6 +605,72 @@ button.status-item:hover{background:var(--color-surface-2)}
 [data-theme=dark] .connection-banner{background:#3a3119!important;color:#ffd978!important}
 @media (max-width:860px){.lobby-choice,.lobby-links{grid-template-columns:1fr}.lobby-card-body{padding:var(--space-5)}}
 
+/* ───────── How to play ───────── */
+.howto-tabs{display:flex;flex-wrap:wrap;gap:var(--space-4) var(--space-6);padding:4px 2px 8px}
+.howto-tab-group{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex-shrink:0}
+.howto-tab-label{width:100%;font:800 .75rem var(--font-sans);text-transform:uppercase;letter-spacing:.08em;color:var(--color-ink-soft);margin-bottom:2px}
+.howto-tab{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 5px;border:0;border-radius:999px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-line-strong);color:var(--color-ink);font:700 .875rem var(--font-sans);cursor:pointer;white-space:nowrap}
+.howto-tab .game-icon{border-radius:50%}
+.howto-tab:hover{background:var(--color-surface-2)}
+.howto-tab[aria-selected=true]{background:var(--color-forest);color:#fff;box-shadow:none}
+[data-theme=dark] .howto-tab[aria-selected=true]{background:var(--color-brand);color:var(--color-brand-ink)}
+.howto-panel{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);border-radius:var(--radius-hero);background:var(--color-surface);box-shadow:var(--shadow-card);overflow:hidden}
+.howto-art{position:relative;aspect-ratio:3/2;background:var(--color-mint);margin:var(--space-5);border-radius:var(--radius-card);overflow:hidden}
+.howto-panel{align-items:start}
+.howto-art .cover-svg,.howto-art .game-cover-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.howto-body{padding:var(--space-6) var(--space-7)}
+.howto-body h2{margin:0 0 var(--space-4);font-size:var(--text-h1)}
+.howto-body h3{margin:var(--space-5) 0 var(--space-2);font:800 .8125rem var(--font-sans);text-transform:uppercase;letter-spacing:.08em;color:var(--link)}
+.howto-body p{margin:0}
+.howto-goal{font-size:1.125rem}
+.howto-v2 .howto-steps{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.howto-v2 .howto-steps li{display:flex;gap:12px;align-items:flex-start}
+.howto-v2 .howto-step-num{display:grid;place-items:center;flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--color-mint);color:var(--color-forest);font-weight:800;font-size:.875rem;box-shadow:none;border:0}
+.howto-v2 .howto-steps p{margin:2px 0 0}
+.howto-tip{display:flex;gap:10px;margin-top:var(--space-5)!important;padding:14px 16px;border-radius:16px;background:#fdf3d8;color:#5b4200;border:0!important}
+[data-theme=dark] .howto-tip{background:#3a3119;color:#ffd978}
+.howto-tip svg{flex-shrink:0;margin-top:2px}
+.howto-actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4);margin-top:var(--space-5)}
+.howto-modal .howto-step-num{background:var(--color-mint)!important;color:var(--color-forest)!important;box-shadow:none!important;border:0!important}
+@media (max-width:860px){.howto-panel{grid-template-columns:1fr}.howto-art{aspect-ratio:2/1;margin:var(--space-3) var(--space-3) 0}.howto-body{padding:var(--space-5)}.howto-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.howto-tab-group{flex-wrap:nowrap}.howto-tab-label{display:none}}
+
+/* ───────── Documents: privacy, terms, data and credits ───────── */
+.doc-layout{display:grid;grid-template-columns:220px minmax(0,1fr);gap:var(--space-7);align-items:start}
+.doc-toc{position:sticky;top:96px;display:grid;gap:8px}
+.doc-toc p{margin:0;font:800 .75rem var(--font-sans);text-transform:uppercase;letter-spacing:.08em;color:var(--color-ink-soft)}
+.doc-toc ol{margin:0;padding:0;list-style:none;display:grid;gap:2px;border-left:2px solid var(--color-line)}
+.doc-toc a{display:block;padding:8px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--color-ink-soft);text-decoration:none;font-weight:600;font-size:.9375rem}
+.doc-toc a:hover{color:var(--color-ink);border-color:var(--color-brand)}
+.doc-body{max-width:68ch;display:grid;gap:var(--space-2)}
+.doc-body section{scroll-margin-top:96px;padding-bottom:var(--space-5)}
+.doc-body h2{margin:0 0 var(--space-2);font-size:var(--text-h3)}
+.doc-body p{margin:0 0 var(--space-3);font-size:1.0625rem;line-height:1.7}
+.doc-body .btn{justify-self:start}
+.doc-todo{display:flex;gap:12px;padding:var(--space-4);border-radius:16px;background:#fdf3d8;color:#5b4200}
+[data-theme=dark] .doc-todo{background:#3a3119;color:#ffd978}
+.doc-todo svg{flex-shrink:0;margin-top:2px}
+.doc-todo strong{display:block;margin-bottom:2px}
+.doc-todo p{margin:0;font-size:.9375rem;line-height:1.55}
+.doc-links{display:flex;flex-wrap:wrap;gap:var(--space-4)}
+.doc-links a{color:var(--link);font-weight:700}
+.dataset-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4)}
+.dataset-card{display:grid;gap:var(--space-4);align-content:start;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}
+.dataset-card header{display:flex;gap:12px;align-items:center}
+.dataset-card h2{margin:0;font-size:1.25rem}
+.dataset-card header p{margin:0;color:var(--color-ink-soft);font-size:var(--text-small)}
+.dataset-icon{display:grid;place-items:center;width:44px;height:44px;flex-shrink:0;border-radius:13px;background:var(--color-mint);color:var(--color-forest)}
+.dataset-card dl{margin:0;display:grid;gap:var(--space-3)}
+.dataset-card dt{font:800 .75rem var(--font-sans);text-transform:uppercase;letter-spacing:.08em;color:var(--color-ink-soft)}
+.dataset-card dd{margin:2px 0 0}
+.dataset-card dd a{color:var(--link);font-weight:700}
+.dataset-meta{display:flex;gap:var(--space-6)}
+.dataset-card footer{display:flex;flex-wrap:wrap;gap:0 var(--space-4);border-top:1px solid var(--color-line);padding-top:var(--space-2)}
+.doc-more{padding:var(--space-4) var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}
+.doc-more summary{cursor:pointer;font-weight:800;min-height:32px}
+.doc-more .source-card{box-shadow:none;padding:var(--space-3) 0 0}
+.doc-more .source-card a{display:inline-block;margin-right:16px;color:var(--link);font-weight:700}
+@media (max-width:860px){.doc-layout{grid-template-columns:1fr;gap:var(--space-5)}.doc-toc{position:static;padding:var(--space-4);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}.dataset-grid{grid-template-columns:1fr}}
+
 /* ───────── Scoring ───────── */
 .fact-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin:0;padding:0;list-style:none}
 .fact-tiles li{display:grid;gap:4px;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}
@@ -612,7 +678,7 @@ button.status-item:hover{background:var(--color-surface-2)}
 .fact-tiles strong{font:600 2rem/1.1 var(--font-display);font-variant-numeric:tabular-nums}
 .fact-tiles span{color:var(--color-ink-soft);font-weight:600;font-size:var(--text-small)}
 .points-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;height:48px}
-.points-seg{display:grid;place-items:center;border-radius:12px;background:var(--g-soft)}
+.points-seg{display:flex;align-items:center;justify-content:center;gap:6px;font-weight:800;font-size:.8125rem;color:#18211d;border-radius:12px;background:var(--g-soft)}
 .points-seg:first-child{border-radius:16px 8px 8px 16px}.points-seg:last-child{border-radius:8px 16px 16px 8px}
 .seg-rank{--g-soft:#f9e4dc}.seg-daily{--g-soft:#ddede6}.seg-compare{--g-soft:#f7e8ce}.seg-mosaic{--g-soft:#e3e7f6}.seg-trail{--g-soft:#daeef1}
 [data-theme=dark] .points-seg{background:var(--color-surface-2)}

@@ -36,14 +36,17 @@ test('game names and interface text exist in both languages', () => {
   assert.equal(howToTitle('room', t('en')), 'How playing together works');
 });
 
-test('the overview renders every game with numbered steps and a play button', () => {
+test('the overview offers every game as a tab and explains the chosen one in full', () => {
   const t = key => messages.nl[key] ?? key;
   const html = renderToStaticMarkup(createElement(HowToPlayPage, { t, locale: 'nl', onPlay() {} }));
-  assert.equal((html.match(/class="howto-card /g) || []).length, HOW_TO_PLAY_ORDER.length);
-  assert.equal((html.match(/class="howto-steps"/g) || []).length, HOW_TO_PLAY_ORDER.length);
-  assert.ok(html.includes('Zo werkt elk spel'));
-  assert.ok(html.includes('Speel Wereldduel'));
-  assert.ok(html.includes(HOW_TO_PLAY.rank.steps[2].text.nl));
+  assert.equal((html.match(/role="tab"/g) || []).length, HOW_TO_PLAY_ORDER.length);
+  assert.equal((html.match(/aria-selected="true"/g) || []).length, 1);
+  assert.equal((html.match(/role="tabpanel"/g) || []).length, 1);
+  assert.ok(html.includes('Kies een spel'));
+  assert.ok(html.includes('Speel Rank Radar'));
+  for (const step of HOW_TO_PLAY.rank.steps) assert.ok(html.includes(step.text.nl));
+  assert.ok(html.includes(HOW_TO_PLAY.rank.tip.nl));
+  assert.ok(html.includes(messages.nl.competitionRankRule));
   const steps = renderToStaticMarkup(createElement(HowToSteps, { mode: 'duel', t, locale: 'en' }));
   assert.equal((steps.match(/<li>/g) || []).length, 3);
 });
