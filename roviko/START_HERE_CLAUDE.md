@@ -66,6 +66,10 @@ De volledige testsuite gebruikt de buildoutput: daarom eerst bouwen. `npm run de
 
 `.openai/hosting.json` hoort bij de bestaande site en moet behouden blijven. Het project-ID is geen deploymentcredential. Een andere Cloudflare-omgeving vereist eigen hostingrechten/database/configuratie. Een code-ZIP geeft op zichzelf geen rechten om de live site te wijzigen.
 
+## Publiceren: ChatGPT of eigen Cloudflare
+
+De eigenaar kiest per release. **Optie A** (`npm run export:chatgpt`): exportzip voor de ChatGPT-hosting, die roviko.app bedient. **Optie B** (`npm run deploy:cloudflare`): bouwen, testen, nieuwe migraties en deploy naar het eigen Cloudflare-account op https://roviko.pnjonkerinvestments.workers.dev (eigen database `roviko-db`, zonder de live spelersdata). Config: `wrangler.cloudflare.jsonc` — bewust niet `wrangler.jsonc`, anders pakt de Vite-plugin hem op en verandert de ChatGPT-build. Zonder uitdrukkelijke toestemming geen DNS, routes of custom domains voor roviko.app. Alles stap voor stap in `docs/PUBLICEREN.md`.
+
 ## Native compatibiliteit
 
 De website stuurt `competition:true` voor officiële dagspellen en gebruikt `/puzzles/today?competition=1`. Oude native requests behouden de ongescoorde editie en volledige huidige-vraagdata. Verander dit contract niet zonder de native client mee te bouwen/testen. Deze ZIP bevat geen nieuwe App Store-binary. Native bouw, toesteltests, signing en Apple-indiening vereisen een Mac en de eigenaar zijn Apple Developer-account.

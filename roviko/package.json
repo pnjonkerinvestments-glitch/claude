@@ -16,7 +16,10 @@
     "test:unit": "node --test tests/core.test.mjs tests/puzzles.test.mjs",
     "test:integration": "node --test tests/integration.test.mjs",
     "typecheck": "tsc --noEmit",
-    "data:prepare": "node scripts/prepare-data.mjs"
+    "data:prepare": "node scripts/prepare-data.mjs",
+    "deploy:cloudflare": "bash scripts/deploy-cloudflare.sh",
+    "export:chatgpt": "bash scripts/export-chatgpt.sh",
+    "smoke": "node scripts/smoke-test.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
