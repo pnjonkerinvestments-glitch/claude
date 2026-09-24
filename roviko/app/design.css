@@ -135,6 +135,7 @@ small,.small{font-size:var(--text-small)}
 .site-main{max-width:var(--content);margin:0 auto;padding:var(--space-6) var(--space-5) var(--space-9);min-height:70vh}
 .site-main.game-main{padding-top:var(--space-5)}
 .page{display:grid;gap:var(--space-7)}
+.page>*,.home>*,.home-hero>*,.page-section>*{min-width:0}
 .page-header{max-width:720px}
 .page-header h1{margin:0}
 .page-section{display:grid;gap:var(--space-4)}
@@ -142,6 +143,8 @@ small,.small{font-size:var(--text-small)}
 .section-header{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-4)}
 .section-header h2{margin:0;font-size:var(--text-h2)}
 .section-header .kicker{margin-bottom:4px}
+.section-header .text-link{white-space:nowrap}
+@media (max-width:420px){.section-header h2{font-size:1.5rem}}
 .page-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4)}
 @media (max-width:640px){.site-main{padding:var(--space-5) var(--space-4) calc(var(--space-9) + 64px)}.page{gap:var(--space-6)}}
 
@@ -407,7 +410,7 @@ button.status-item:hover{background:var(--color-surface-2)}
 .practice-reset{color:var(--color-ink-soft);font-size:var(--text-small);margin:0!important}
 @media (max-width:1100px){.daily-card-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
 @media (max-width:860px){.day-panels,.daily-extras-grid{grid-template-columns:1fr}}
-@media (max-width:640px){.daily-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:var(--space-3)!important}.daily-card-grid .daily-card:last-child:nth-child(odd){grid-column:1/-1}.atelier-section-heading{flex-wrap:wrap}}
+@media (max-width:640px){.daily-card-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:var(--space-3)!important}.atelier-section-heading{flex-wrap:wrap}}
 
 /* ───────── In-game ───────── */
 .puzzle-top,.solo-top{border:0!important;border-radius:var(--radius-card)!important;background:var(--color-surface)!important;box-shadow:var(--shadow-card)!important}
@@ -598,6 +601,7 @@ button.status-item:hover{background:var(--color-surface-2)}
 .room-code-panel{border:0!important;border-radius:20px!important;background:var(--color-mint)!important;box-shadow:none!important}
 [data-theme=dark] .room-code-panel{background:var(--color-surface-2)!important}
 .invite-actions{display:flex;flex-wrap:wrap;gap:8px}
+.lobby-grid{align-items:start}
 .name-suffix{color:var(--color-ink-soft)}
 .lobby-player{border:0!important;border-radius:16px!important;background:var(--color-surface-2)!important;box-shadow:none!important}
 .invite-seat{border:1px dashed var(--color-line-strong)!important;border-radius:16px!important;background:transparent!important}
@@ -707,7 +711,7 @@ button.status-item:hover{background:var(--color-surface-2)}
 .discovery-card,.next-discovery,.rank-discovery{box-shadow:var(--shadow-card)!important;border:0!important}
 
 /* ───────── Scoring ───────── */
-.fact-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin:0;padding:0;list-style:none}
+.fact-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin:0;padding:0;list-style:none}
 .fact-tiles li{display:grid;gap:4px;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}
 .fact-tiles svg{color:var(--color-brand)}
 .fact-tiles strong{font:600 2rem/1.1 var(--font-display);font-variant-numeric:tabular-nums}
@@ -727,7 +731,7 @@ button.status-item:hover{background:var(--color-surface-2)}
 .rule-aside{display:flex;gap:6px;align-items:flex-start;margin-top:10px!important;font-size:var(--text-small)}
 .rule-aside svg{flex-shrink:0;margin-top:3px;color:#1b5a80}
 .small-print{font-size:var(--text-small);margin:0}
-@media (max-width:760px){.fact-tiles{grid-template-columns:1fr 1fr}.rule-grid{grid-template-columns:1fr}}
+@media (max-width:760px){.fact-tiles{grid-template-columns:repeat(2,minmax(0,1fr))}.fact-tiles strong{font-size:1.5rem}.points-seg{font-size:0;gap:0}.rule-grid{grid-template-columns:1fr}}
 
 /* ───────── Motion ───────── */
 @media (prefers-reduced-motion:reduce){

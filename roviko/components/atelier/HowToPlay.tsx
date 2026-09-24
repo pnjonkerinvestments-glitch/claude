@@ -4,6 +4,7 @@ import { ArrowRight, CircleHelp, Lightbulb } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { GameIcon } from './GameIcon';
 import { CoverArt, type CoverMode } from '../home/CoverArt';
+import { A } from '../app/shared';
 import { HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
 
 type T = (key: string) => string;
@@ -60,6 +61,7 @@ const COVER: Record<string, CoverMode> = { rank: 'rank', daily: 'daily', compare
 export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; locale: Loc; onPlay: (mode: string) => void; busy?: boolean }) {
   const [mode, setMode] = useState<string>('rank');
   // Deep links such as /how-to-play#trail open that game's tab once mounted.
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash only exists in the browser; reading it after mount keeps SSR stable
   useEffect(() => { const hash = window.location.hash.slice(1); if (HOW_TO_PLAY[hash]) setMode(hash); }, []);
   const pick = (next: string) => { setMode(next); try { history.replaceState(history.state, '', '#' + next); } catch { /* ignore */ } };
   const guide = HOW_TO_PLAY[mode];
@@ -88,7 +90,7 @@ export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; local
         <h3>{t('howScoringLabel')}</h3>
         <p>{RULE_KEYS[mode] ? t(RULE_KEYS[mode]) : mode === 'room' ? t('scoringFriendsCopy') : t('scoringExtrasCopy')}</p>
         <p className="howto-tip"><Lightbulb size={18} aria-hidden="true"/><span><b>{t('howToTip')}:</b> {guide.tip[locale]}</span></p>
-        <div className="howto-actions"><button className="btn primary btn-lg" disabled={busy} onClick={() => onPlay(mode)}>{mode === 'room' ? t('createRoom') : t('howPlayCta').replace('{game}', howToGame(mode, t))}<ArrowRight size={19} aria-hidden="true"/></button>{RULE_KEYS[mode] && <a href="/scoring" className="text-link">{t('scoringLink')}</a>}</div>
+        <div className="howto-actions"><button className="btn primary btn-lg" disabled={busy} onClick={() => onPlay(mode)}>{mode === 'room' ? t('createRoom') : t('howPlayCta').replace('{game}', howToGame(mode, t))}<ArrowRight size={19} aria-hidden="true"/></button>{RULE_KEYS[mode] && <A href="/scoring" className="text-link">{t('scoringLink')}</A>}</div>
       </div>
     </section>}
   </div>;

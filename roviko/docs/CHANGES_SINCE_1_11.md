@@ -123,3 +123,26 @@ Zie `docs/QA_1_12.md` voor de testresultaten en wat nog op echte apparaten gecon
 - **Server:** er zijn twee extra velden bij de kamerstatus, `roundAnswers` (tijdens de uitslag van een ronde) en `history` (aan het eind van de match). Antwoorden blijven geheim tot de uitslag. Geen migratie nodig.
 - **Tests:** de multiplayertest controleert nu ook de antwoorden per ronde en het overzicht aan het eind.
 
+
+## 1.14.0: redesign
+
+Een volledige UX- en visuele redesign, zonder de spelregels of de puntentelling te veranderen. Geen migratie, geen nieuwe API-routes en geen nieuwe geheimen.
+
+- **Designsysteem.** Een nieuwe laatste laag, `app/design.css`: papieren achtergrond, bosgroen, één merkgroen (#1F806B) en een vleugje goud. Alleen Fredoka en Manrope. Vaste schalen voor tekst, ruimte en afronding, en één schaduw.
+- **Navigatie.** Spelen, Ontdekken en Vrienden, met rechts de reeks, de instellingen en het paspoort. Op mobiel een tabbalk onderin.
+- **Homepage.** Eén uitgelichte dagreis met één knop, een statusbalk, drie kaarten "Meer om te ontdekken", een route van de vijf dagspellen en "Samen spelen". Scoreregels staan niet meer op de homepage.
+- **Nieuw en herbouwd.**
+  - `/daily` is nu "Alle spellen".
+  - Nieuwe pagina `/scoring`.
+  - Herbouwd: Ontdekken, Ranglijst, Paspoort (met gastvoorbeeld), Vrienden en kamers (met fouten in gewone taal), en Uitleg (met tabs).
+  - Privacy en voorwaarden hebben een inhoudsopgave en TODO's voor de eigenaar; de conceptzin is weg.
+  - Bronnen staan nu in datasetkaarten.
+- **Staten.** Skeletons in plaats van "Loading…", en vriendelijke lege en foutschermen.
+- **Na een dagspel.** Een getrapte viering (punten, record, reeks, doel), met respect voor reduced motion. Resettijden staan er als "over 3 u 42 min".
+- **Opruiming.**
+  - 1.191 ongebruikte CSS-regels weg.
+  - Vier lettertypes weg: bestanden, npm-pakketten en licenties.
+  - Ongebruikte bestanden weg: afbeeldingen en `SpanishInfo`.
+  - `RovikoApp` opgesplitst in `components/app`, `ds`, `home`, `shell` en `pages`.
+
+Details en openstaande punten: `docs/REDESIGN_1_14.md`. Tests: `docs/QA_1_14.md`.

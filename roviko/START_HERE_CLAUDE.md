@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.13.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
+**Versie 1.14.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -28,7 +28,7 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Dagdoelen (3 per dag, kroonkist) en Rank Radar-medailles zijn motivatie zonder punten: ze veranderen nooit dagpunten, ranglijsten of reeksen.
 - In singleplayer is een tik meteen het antwoord (geen bevestigknop), met een duidelijke rand om de gekozen kaart. Alleen multiplayer en Size Shuffle hebben een bevestigknop.
 - Reeksschilden worden afgeleid uit de opgeslagen dagresultaten (`lib/streak.ts`); geen aparte opslag, niet te kopen.
-- Visueel systeem in `app/polish.css` (laatste laag): rustige kaarten, lijniconen via `GameIcon` in plaats van emoji in de interface.
+- Visueel systeem in `app/design.css` (laatste laag, 1.14): tokens (canvas #F6F3E9, ink #18211D, forest #163B32, brand #1F806B, mint #DDEDE6, gold #F6B84B), alleen Fredoka + Manrope, vaste schalen, één schaduw. Nieuwe schermen gebruiken `components/ds` (States, Celebration) en de tokens, geen nieuwe losse kleuren. Eén primaire actie per scherm; scoreregels horen op `/scoring`, niet op de homepage. Lijniconen via `GameIcon` in plaats van emoji in de interface.
 - Wereldduel en het mysterieland zijn extra's zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
 - Toon feedback zodra de server heeft bevestigd. Verstuur nooit dagspeloplossingen vooraf om feedback sneller te laten lijken. Ongescoord oefenen mag lokaal onmiddellijk reageren.
 - Behoud bronnen, meetjaren, licenties, opgeslagen voortgang en de oorspronkelijke v3-vormgeving.
@@ -37,14 +37,14 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 
 React 19 + TypeScript + Vinext (Next.js App Router-API's bovenop Vite), Cloudflare Workers, D1/SQLite, Drizzle, native WebSockets. **Geen gewone standalone Next.js/Vercel-app en geen PostgreSQL/Supabase.**
 
-- `components/RovikoApp.tsx`: router, navigatie, solo, accounts, multiplayer.
+- `components/RovikoApp.tsx`: router, solo, accounts, kamers. `components/shell/SiteHeader.tsx`: navigatie. `components/home/`: homepage. `components/pages/`: Ontdekken, Ranglijst, Paspoort, Vrienden, Punten, privacy/voorwaarden/bronnen. `components/app/`: context en gedeelde bouwstenen. `components/ds/`: laad-, leeg-, fout- en vieringscomponenten.
 - `components/puzzles/`: dagelijkse spellen en kaarten; `components/atelier/Competition.tsx`: scores/ranglijsten.
 - `lib/daily-scoring.ts`, `server/competition.ts`: regels en serverledger.
 - `server/solo.ts`, `server/puzzles.ts`, `server/ranks.ts`: serverautoritair spelverloop.
 - `server/api.ts`, `server/multiplayer.ts`, `lib/realtime/`: API en kamers.
 - `lib/game-engine/`, `lib/puzzles/`: generators/validatie, gelicenseerde gegevens.
 - `i18n/messages.ts`, `es.ts`, `content.ts`, `competition.ts`: vertalingen.
-- CSS wordt in `app/layout.tsx` geladen; `competition.css` is de laatste laag. Controleer bestaande overrides bij visuele wijzigingen.
+- CSS wordt in `app/layout.tsx` geladen; `design.css` is de laatste laag. De oudere lagen bevatten nog regels voor de spellen; controleer overrides bij visuele wijzigingen.
 - `drizzle/`, `db/schema.ts`: schema/migraties; `db/seed.sql` bevat geografie, geen gebruikersgegevens.
 
 ## Installeren en controleren

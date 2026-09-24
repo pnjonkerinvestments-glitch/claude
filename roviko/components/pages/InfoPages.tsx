@@ -126,6 +126,7 @@ function SourcesPage() {
     <details className="doc-more"><summary>Country Mosaic</summary><MosaicSources locale={L}/></details>
     <section className="page-section doc-body"><h2>{({ en: 'Geographic choices', nl: 'Geografische keuzes', es: 'Criterios geográficos' })[L]}</h2><p>{choices[L]}</p>
       <h2>{({ en: 'Design and code', nl: 'Vormgeving en code', es: 'Diseño y código' })[L]}</h2><p>{design[L]}</p>
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- plain licence files, not pages */}
       <p className="doc-links"><a href="/fonts/fredoka-LICENSE">Fredoka · OFL 1.1</a><a href="/fonts/manrope-LICENSE">Manrope · OFL 1.1</a><a href="/licenses/lucide-ISC.txt">Lucide · ISC</a></p></section>
   </div>;
 }

@@ -20,15 +20,15 @@ function useReducedMotion() {
 /** Counts up to a number once, quickly; shows it straight away when motion is reduced. */
 export function CountUp({ value, format }: { value: number; format: (n: number) => string }) {
   const reduced = useReducedMotion();
-  const [shown, setShown] = useState(value);
+  const [shown, setShown] = useState(0);
   useEffect(() => {
-    if (reduced || value <= 0) { setShown(value); return; }
+    if (reduced || value <= 0) return;
     let frame = 0; const start = performance.now(), duration = 700;
     const tick = (now: number) => { const p = Math.min(1, (now - start) / duration); setShown(Math.round(value * (1 - (1 - p) ** 3))); if (p < 1) frame = requestAnimationFrame(tick); };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, [value, reduced]);
-  return <>{format(shown)}</>;
+  return <>{format(reduced || value <= 0 ? value : shown)}</>;
 }
 
 /**

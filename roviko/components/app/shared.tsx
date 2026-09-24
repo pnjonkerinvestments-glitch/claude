@@ -14,7 +14,7 @@ export function Avatar({ id = 0, size = '', name }: { id?: number; size?: string
 }
 export function ModeEmoji({ mode }: { mode: string }) { return <GameIcon mode={mode} className="mode-emoji"/>; }
 export function Logo() { return <span className="logo"><img src="/globe-logo.webp" alt=""/><span>{BRAND.name.toLowerCase()}<span className="logo-period">.</span></span></span>; }
-export function A({ href, children, className = '', ...rest }: any) { const { go } = useApp(); return <a href={href} className={className} onClick={e => { if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
+export function A({ href, children, className = '', ...rest }: any) { const go = useApp()?.go; return <a href={href} className={className} onClick={e => { if (go && !e.metaKey && !e.ctrlKey && !e.shiftKey) {
     e.preventDefault();
     go(href);
 } }} {...rest}>{children}</a>; }

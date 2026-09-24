@@ -43,12 +43,13 @@ test('the daily calendar reflects saved days, labels dates accessibly and shows 
 });
 function lum(hex){hex=hex.replace('#','');if(hex.length===3)hex=hex.split('').map(v=>v+v).join('');const c=hex.match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return .2126*c[0]+.7152*c[1]+.0722*c[2];}
 function contrast(a,b){const [x,y]=[lum(a),lum(b)].sort((a,b)=>b-a);return (x+.05)/(y+.05);}
-const css=postcss.parse(['globals','revamp','atelier','rank','playful'].map(f=>fs.readFileSync('app/'+f+'.css','utf8')).join('\n'));
+const css=postcss.parse(['globals','revamp','atelier','rank','playful','polish','design'].map(f=>fs.readFileSync('app/'+f+'.css','utf8')).join('\n'));
 test('text contrast meets 4.5:1 for both themes, all daily card surfaces and red feedback',()=>{
   const evidence=[];
   for(const theme of ['light','dark']){
     const vars={};css.walkRules(rule=>{if(rule.parent.type!=='root')return;if(rule.selector.split(',').some(s=>s.trim()===':root'||s.trim()===`:root[data-theme=${theme}]`))rule.walkDecls(d=>{if(d.prop.startsWith('--'))vars[d.prop]=d.value;});});
-    const pairs=[['body','--foreground','--background'],['muted','--muted-foreground','--background'],['primary button','--primary-foreground','--primary'],['red feedback','--error-ink','--error-bg'],...['--trip','--compare','--mosaic'].flatMap(bg=>[[bg+' heading','--ink',bg],[bg+' text','--ink-soft',bg]])];
+    const pairs=[['body','--foreground','--background'],['muted','--muted-foreground','--background'],['primary button','--primary-foreground','--primary'],['link','--link','--background'],['link on card','--link','--card'],['gold button','--color-gold-ink','--color-gold'],['muted on card','--muted-foreground','--card'],['red feedback','--error-ink','--error-bg'],...['--trip','--compare','--mosaic'].flatMap(bg=>[[bg+' heading','--ink',bg],[bg+' text','--ink-soft',bg]])];
+    const resolve=v=>{for(let i=0;i<6&&/^var\(/.test(v??'');i++)v=vars[v.slice(4,-1).split(',')[0].trim()];return v;};for(const k of Object.keys(vars))vars[k]=resolve(vars[k]);
     for(const [label,fg,bg]of pairs){const ratio=contrast(vars[fg],vars[bg]);assert.ok(ratio>=4.5,`${theme} ${label}: ${ratio.toFixed(2)}`);evidence.push({theme,label,foreground:vars[fg],background:vars[bg],ratio:Number(ratio.toFixed(2))});}
   }
   fs.writeFileSync('.test-runtime/contrast.json',JSON.stringify(evidence,null,2));
