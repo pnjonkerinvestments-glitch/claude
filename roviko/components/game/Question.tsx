@@ -40,8 +40,8 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         {q.mode === 'pinpoint' && <p className="map-rule">{t(q.mapRule === 'country-v1' ? 'mapCountryRule' : 'mapLegacyRule')} {q.dailyPoints?t('competitionDaily'):competitive?t('mapPointsRule'):null}</p>}
         {q.flag && (q.mode !== 'trail' || competitive || feedback || cluesShown >= 4) && <div className="flag-stage"><img src={q.flagUrl??('/api/flag/' + encodeURIComponent(q.flag))} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
         {q.mode === 'pinpoint' ? <>
-            <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct}/></Suspense>
-            {!locked && <><p className="question-help">{t('mapHint')}</p><button className="btn primary answer-submit" disabled={!answer || busy} onClick={() => submit(answer)}><Navigation size={17}/>{t('lockAnswer')}</button></>}
+            <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} onTap={competitive ? undefined : submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct}/></Suspense>
+            {!locked && <><p className="question-help">{t(competitive ? 'mapHint' : 'mapTapHint')}</p>{competitive && <button className="btn primary answer-submit" disabled={!answer || busy} onClick={() => submit(answer)}><Navigation size={17}/>{t('lockAnswer')}</button>}</>}
         </> : q.mode === 'order' ? <>
             <p className="question-help">{t(feedback ? 'orderReviewHelp' : 'orderHintGame')}</p>
             <div className="order-list">{shownOrder.map((o: any, i: number) => {

@@ -45,7 +45,7 @@ export function NativeReminder({ t }: { t: (k: string) => string }) {
     } finally { setBusy(false); }
   }
   return <section className={'native-reminder' + (on ? ' is-on' : '')} aria-live="polite">
-    <span className="native-reminder-icon" aria-hidden="true">{on ? '🔔' : '🔕'}</span>
+    <span className="native-reminder-icon" aria-hidden="true">{on ? <Bell size={22} strokeWidth={2.2}/> : <BellOff size={22} strokeWidth={2.2}/>}</span>
     <div><strong>{t('reminderTitle')}</strong><p>{denied ? t('reminderDenied') : t(on ? 'reminderOnCopy' : 'reminderCopy')}</p></div>
     <button className={'btn ' + (on ? 'secondary' : 'primary')} disabled={busy} onClick={toggle} aria-pressed={on}>{on ? <BellOff size={18}/> : <Bell size={18}/>}{t(on ? 'reminderTurnOff' : 'reminderTurnOn')}</button>
   </section>;

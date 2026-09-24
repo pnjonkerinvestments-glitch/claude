@@ -406,7 +406,7 @@ test('daily Mosaic hides unsolved associations, marks mismatches, charges hints 
 test('daily comparisons conceal values until reveal and accumulate with other daily modes',async()=>{
  const a=await bootstrap();let g=(await request(a.cookie,'/puzzles','POST',{mode:'compare',daily:true,competition:true})).data;
  while(g.phase!=='finished'){
-  assert.equal(g.question.correct,undefined);assert.ok(g.question.countries.every(c=>c.value===undefined));
+  assert.equal(g.question.correct,undefined);assert.equal(g.question.countries[0].value,undefined);assert.ok(g.question.carried?Number.isFinite(g.question.countries[1].value):g.question.countries[1].value===undefined,'only the carried country keeps its already revealed value');
   const q=(await privateGame(g.id)).questions[g.round];const r=await request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer:q.correct});assert.equal(r.status,200);assert.ok(r.data.question.countries.every(c=>Number.isFinite(c.value)));
   g=(await request(a.cookie,'/puzzles/'+g.id+'/next','POST',{version:r.data.version})).data;
  }

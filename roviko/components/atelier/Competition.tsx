@@ -27,7 +27,7 @@ export function CompetitionPanel({app,date,mode}:{app:any;date?:string;mode?:Poi
   const fmt=(n:number)=>n.toLocaleString(locale);
   const standings=data?.[tab];
   return <section className={'competition-panel'+(mode?' competition-result':'')} aria-label={t(mode?'competitionGame':'competitionTitle')}>
-    <header><span className="competition-medal" aria-hidden="true">🏆</span><div><h2>{t(mode?'competitionScoreSaved':'competitionTitle')}</h2><p>{mode?t(titles[mode]):t('competitionIntro')}</p></div><button className="icon-btn" disabled={loading} aria-label={t('competitionRefresh')} onClick={()=>setReload(n=>n+1)}><RefreshCw size={17}/></button></header>
+    <header><span className="competition-medal" aria-hidden="true"><Trophy size={22} strokeWidth={2.2}/></span><div><h2>{t(mode?'competitionScoreSaved':'competitionTitle')}</h2><p>{mode?t(titles[mode]):t('competitionIntro')}</p></div><button className="icon-btn" disabled={loading} aria-label={t('competitionRefresh')} onClick={()=>setReload(n=>n+1)}><RefreshCw size={17}/></button></header>
     {error&&<p role="alert">{t('competitionLoadError')}</p>}
     {!data&&!error&&<p role="status">{t('loading')}</p>}
     {data&&<>

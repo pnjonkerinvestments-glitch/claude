@@ -1,4 +1,4 @@
-# Game rules — Roviko 1.12.0
+# Game rules — Roviko 1.13.0
 
 These are the current rules. Documents for 1.9/v3 and earlier are historical. The requested daily competition replaces the earlier no-points policy **only for official daily games**.
 
@@ -97,3 +97,12 @@ When a player has country/mode pairs they answered wrongly before, the homepage 
 ## App reminders (1.12)
 
 In the native app only, the optional daily reminder is scheduled as seven weekly notifications at 18:00 local time, one per weekday, each with a different friendly line. Turning it off cancels all seven (and the earlier single reminder). The website never asks for notification permission.
+
+## Streak freezes (1.13)
+
+The daily streak counts consecutive UTC dates with at least one completed daily game. From 25 September 2026 on, every 7 play days earn one streak freeze, with at most 2 in stock. A missed day automatically uses a freeze: the streak survives, but frozen days do not add to it. If more days are missed than there are freezes, the streak breaks and the stock is emptied. Everything is derived from the stored daily results (`lib/streak.ts`, used by `server/stats.ts`), so no extra storage is needed, the outcome is identical on every device and freezes cannot be bought or farmed. Days before the start date follow the old rule, so no existing streak changes retroactively. `stats.streakFreezes` exposes `available`, `nextIn` and the last 14 `frozenDates`.
+
+## One tap answers in single player (1.13)
+
+In single player (solo, practice and all official daily games) a tap on an answer is the answer: Rank Radar subjects and Pinpoint map taps no longer need a separate confirm button. The tapped card is outlined straight away and stays marked after the reveal. Arrow-key pin moves still need Enter, and multiplayer keeps the explicit lock button. Size Shuffle keeps its confirm button, because reordering is not an answer by itself. In daily Side by Side the carried country shows the value that was already revealed in the previous round; the new country's value stays hidden until the answer is saved.
+

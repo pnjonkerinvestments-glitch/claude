@@ -9,9 +9,11 @@ type Props = {
     correct?: boolean;
     target?: number[];
     onConfirm?: (v: number[]) => void;
+    /** Called only when a pin is placed with a tap or click (not with the arrow keys), so solo games can answer in one step. */
+    onTap?: (v: number[]) => void;
     t: (key: string) => string;
 };
-export default function WorldMap({ value, onChange, disabled, target, t, onConfirm, correct }: Props) {
+export default function WorldMap({ value, onChange, disabled, target, t, onConfirm, onTap, correct }: Props) {
     const [paths, setPaths] = useState<any[]>([]), [failed, setFailed] = useState(false), [camera, setCamera] = useState<MapCamera>(initialCamera);
     const [detailPaths, setDetailPaths] = useState<any[] | null>(null);
     const zoom = camera.zoom;
@@ -64,7 +66,7 @@ export default function WorldMap({ value, onChange, disabled, target, t, onConfi
         const g=gesture.current;
         if(e.type==='pointerup' && active.current.size===1 && g && !g.moved && !g.multiple && !disabled){
             const f=fraction(e.clientX,e.clientY);
-            if(f.every(v=>v>=0&&v<=1)){const p=world(f);onChange([Math.max(-90,Math.min(90,90-p[1]/500*180)),Math.max(-180,Math.min(180,p[0]/1000*360-180))]);}
+            if(f.every(v=>v>=0&&v<=1)){const p=world(f),pin=[Math.max(-90,Math.min(90,90-p[1]/500*180)),Math.max(-180,Math.min(180,p[0]/1000*360-180))];onChange(pin);onTap?.(pin);}
         }
         active.current.delete(e.pointerId);
         if(active.current.size)begin();else gesture.current=null;

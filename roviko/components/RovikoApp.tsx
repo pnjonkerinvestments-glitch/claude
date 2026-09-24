@@ -4,6 +4,7 @@ import { SpanishInfo } from './SpanishInfo';
 import { withSpanish, spanishCountry, spanishCapital, spanishContent } from '../i18n/content';
 import { MosaicSources } from './puzzles/MosaicSources';
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { RotateCcw } from 'lucide-react';
 import { ArrowRight, ArrowLeft, Compass, Globe2, Flag, MapPin, Route, ListOrdered, Building2, Users, Sun, Moon, Volume2, VolumeX, ChevronDown, Flame, Trophy, Zap, Clock, Check, Copy, Link as LinkIcon, Plus, Star, Medal, Target, ArrowUpRight, Search, Settings2, LogOut, Download, Trash2, ShieldCheck, LockKeyhole, Menu, X, CheckCircle2, Mountain, Send, Navigation, Rocket, Leaf, Anchor, Sunrise, Bird, Heart, Ship, BookOpen, Crown, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
@@ -25,6 +26,7 @@ import { Question } from './game/Question';
 import { SoloResults } from './game/SoloResults';
 import { PuzzleDeck, openPuzzle } from './puzzles/PuzzleDeck';
 import { HowToPlayButton, HowToPlayPage } from './atelier/HowToPlay';
+import { GameIcon } from './atelier/GameIcon';
 import { RankGame } from './puzzles/RankGame';
 import { PuzzleGame } from './puzzles/PuzzleGame';
 import { DuelGame } from './puzzles/DuelGame';
@@ -41,7 +43,7 @@ function Avatar({ id = 0, size = '', name }: { id?: number; size?: string; name?
     const emoji = ['🧭', '🚀', '🏔️', '⚓', '🌿', '🦜', '🌅', '⛵'][id % 8] ?? '🧭';
     return <span className={'avatar avatar-' + id + ' ' + size} aria-label={name}><span className="avatar-emoji" aria-hidden="true">{emoji}</span></span>;
 }
-function ModeEmoji({ mode }: { mode: string }) { return <span className="mode-emoji" aria-hidden="true">{MODE_EMOJIS[mode] ?? '🌍'}</span>; }
+function ModeEmoji({ mode }: { mode: string }) { return <GameIcon mode={mode} className="mode-emoji"/>; }
 function Logo() { return <span className="logo"><img src="/globe-logo.webp" alt=""/><span>{BRAND.name.toLowerCase()}<span className="logo-period">.</span></span></span>; }
 function A({ href, children, className = '', ...rest }: any) { const { go } = useApp(); return <a href={href} className={className} onClick={e => { if (!e.metaKey && !e.ctrlKey && !e.shiftKey) {
     e.preventDefault();
@@ -121,7 +123,7 @@ function Home() {
     return <div className="home-page play-home atelier-home">
         <PuzzleDeck app={app} welcome/>
         <section id="modes" className="quick-games"><div className="atelier-section-heading"><h2>{t('chooseGame')}</h2><div className="quick-controls"><Choice label={t('region')} value={region} onChange={setRegion} options={REGIONS.map(v => ({ value: v, label: v === 'World' ? t('allRegions') : t(v) }))}/><button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><span aria-hidden="true">✦</span>{t('surpriseMe')}</button></div></div>
-        {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true">🔁</span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><span className="btn secondary review-card-cta">{t('reviewCardCta')}<ArrowRight size={17}/></span></button>}
+        {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true"><RotateCcw size={22} strokeWidth={2.2}/></span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><span className="btn secondary review-card-cta">{t('reviewCardCta')}<ArrowRight size={17}/></span></button>}
         <div className="quick-game-grid">{MODES.map(mode => <article className={'quick-game-card tone-' + mode} key={mode}><button className="quick-game-start" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}><ModeEmoji mode={mode}/><span><strong>{t(mode)}</strong><small>{t('category'+mode)}</small></span><ArrowRight size={18}/></button><button className="icon-btn quick-game-settings" disabled={busy} aria-label={t('gameSettings').replace('{game}',t(mode))} onClick={() => playMode(mode)}><Settings2 size={18}/></button></article>)}</div></section>
         <section className="atelier-social"><div className="avatar-stack"><Avatar id={0}/><Avatar id={1}/><Avatar id={4}/></div><div><h2>{t('socialTitle')}</h2><p>{t('socialCopy')}</p></div><div className="social-actions"><button className="btn primary" onClick={() => setModal('room')}><Users size={18}/>{t('createRoom')}</button><A className="btn secondary" href="/multiplayer">{t('joinRoom')}</A></div></section>
     </div>;

@@ -19,7 +19,7 @@ const view = (s: PuzzleState, version = 0): PuzzleView => {
   const result: PuzzleView = { ...rest,...(s.competition?{score:dailyScore(s)}:{}), question: s.mode === 'compare' && s.phase !== 'finished' ? questions[s.round] : null, ...(s.mode === 'compare' && s.phase === 'finished' ? { review: questions } : {}), total: s.mode === 'compare' ? questions.length : 4, version, learning: true };
   if(s.competition) {
     delete result.mosaicAid;
-    if(result.question && s.phase === 'question') result.question = {...result.question, correct:undefined, countries:result.question.countries.map(({value,...c})=>c)} as unknown as PuzzleView['question'];
+    if(result.question && s.phase === 'question') result.question = {...result.question, correct:undefined, countries:result.question.countries.map(({value,...c},i)=>i===1&&result.question!.carried?{...c,value}:c)} as unknown as PuzzleView['question'];
     if(result.board) {
       const last=s.answers.at(-1), review=last && Array.isArray(last.value)?reviewMosaic(result.board,last.value):null;
       result.mosaicReview = review ? {...review,tiles:review.tiles.map(t=>({...t,countryId:t.correct?review.countryId:''}))} : null;

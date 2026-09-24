@@ -6,7 +6,7 @@ const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   rank: { emoji: '🎯', steps: [
     { icon: '🌍', text: l('You see one country and four subjects, like coastline, forest or population.', 'Je ziet één land en vier onderwerpen, zoals kustlijn, bos of bevolking.', 'Ves un país y cuatro temas, como costa, bosque o población.') },
-    { icon: '👆', text: l('Pick the subject where this country ranks highest in the world, then tap Confirm.', 'Kies het onderwerp waarop dit land het hoogst staat in de wereld en tik op Bevestigen.', 'Elige el tema en el que este país está más alto del mundo y toca Confirmar.') },
+    { icon: '👆', text: l('Tap the subject where this country ranks highest in the world. Your tap is your answer.', 'Tik op het onderwerp waarop dit land het hoogst staat in de wereld. Je tik is meteen je antwoord.', 'Toca el tema en el que este país está más alto del mundo. Tu toque es tu respuesta.') },
     { icon: '🥇', text: l('Best choice: gold. 2nd best: silver, 3rd: bronze. Six countries a day.', 'Beste keuze: goud. 2e beste: zilver, 3e: brons. Elke dag zes landen.', 'Mejor elección: oro. 2.ª: plata, 3.ª: bronce. Seis países al día.') },
   ], tip: l('Think relative: a small country can still be world top in forest or coastline.', 'Denk relatief: een klein land kan toch wereldtop zijn in bos of kustlijn.', 'Piensa en relativo: un país pequeño puede ser top mundial en bosque o costa.') },
   daily: { emoji: '✈️', steps: [
@@ -51,7 +51,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   ], tip: l('Look at colours, symbols and stripes: neighbouring countries often have similar flags.', 'Let op kleuren, symbolen en strepen: buurlanden hebben vaak vergelijkbare vlaggen.', 'Fíjate en colores, símbolos y franjas: los países vecinos suelen tener banderas parecidas.') },
   pinpoint: { emoji: '🗺️', steps: [
     { icon: '📍', text: l('You get the name of a country.', 'Je krijgt de naam van een land.', 'Recibes el nombre de un país.') },
-    { icon: '👆', text: l('Tap where it lies on the world map. Pinch or use + and − to zoom, then confirm your pin.', 'Tik op de wereldkaart waar het ligt. Knijp of gebruik + en − om te zoomen en bevestig je pin.', 'Toca en el mapa dónde está. Pellizca o usa + y − para acercar y confirma tu chincheta.') },
+    { icon: '👆', text: l('Tap the country on the world map: your tap is your answer. Pinch or use + and − to zoom in first.', 'Tik op het land op de wereldkaart: je tik is je antwoord. Zoom eerst in met knijpen of + en −.', 'Toca el país en el mapa: tu toque es tu respuesta. Antes, pellizca o usa + y − para acercar.') },
     { icon: '📏', text: l('You see how far away you were and where the country really is.', 'Je ziet hoe ver je ernaast zat en waar het land echt ligt.', 'Ves a qué distancia quedaste y dónde está realmente el país.') },
   ], tip: l('Start with the continent, then zoom in.', 'Begin bij het werelddeel en zoom dan in.', 'Empieza por el continente y luego acércate.') },
   borders: { emoji: '🤝', steps: [

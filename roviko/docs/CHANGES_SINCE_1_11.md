@@ -1,4 +1,4 @@
-# Nieuw in Roviko 1.12.0 ten opzichte van 1.11.0
+# Nieuw in Roviko 1.12.0 en 1.13.0 ten opzichte van 1.11.0
 
 Datum: 24 september 2026.
 
@@ -81,3 +81,35 @@ Datum: 24 september 2026.
 - Een wereldwijde ranglijst kan jonge spelers ontmoedigen ("#5.231"). Zie `docs/DUOLINGO_ANALYSE.md` voor het advies over een weekcompetitie in kleine groepen.
 
 Zie `docs/QA_1_12.md` voor de testresultaten en wat nog op echte apparaten gecontroleerd moet worden.
+
+## Toegevoegd in 1.13.0
+
+**Reeksbevriezer**
+- Elke 7 speeldagen levert een bevriezer op, met maximaal 2 op voorraad. Mis je een dag, dan houdt een bevriezer automatisch je reeks in stand.
+- De bevriezers worden berekend uit de opgeslagen dagresultaten. Er is **geen migratie** nodig, het werkt op elk apparaat hetzelfde en je kunt ze niet kopen of opsparen.
+- Ze tellen pas vanaf 25 september 2026, zodat bestaande reeksen niet opeens veranderen.
+- Te zien in:
+  - de reekskaart op de homepage;
+  - een badge bij de reeksteller in de hero;
+  - het "wat nu"-blok na een spel;
+  - het weekoverzicht (❄ op geredde dagen);
+  - een tekstballon van Roviko als de bevriezer je reeks gisteren heeft gered.
+
+**Eén tik is je antwoord**
+- In singleplayer is er geen bevestigknop meer bij Rank Radar en Pinpoint.
+- De gekozen kaart krijgt meteen een duidelijke rand, die ook na de uitslag blijft staan.
+- Multiplayer en Size Shuffle houden hun bevestigknop.
+
+**Side by Side**
+- Het land dat blijft staan ("Nog één ronde") toont in het dagspel weer zijn waarde. Daar stond "NaN", omdat de server in 1.11 alle waarden verborg.
+- De waarde van het nieuwe land blijft verborgen tot je antwoord is opgeslagen.
+
+**Professionele afwerking**
+- Een nieuwe laatste stijllaag, `app/polish.css`: rustige witte kaarten met dunne randen en zachte schaduwen. Dagdoelen, scorekaart, mysterieland, uitleg, klassieke spellen en de spelkoppen hebben daardoor dezelfde vormtaal.
+- Alle emoji in de interface zijn vervangen door consistente lijniconen in een eigen kleur per spel (`components/atelier/GameIcon.tsx`).
+- De dagdoelen zijn een strakke lijst met dunne voortgangsbalken. Knoppen hebben een ingetogen diepte.
+
+**Tests**
+- Nieuw: `tests/streak.test.mjs`.
+- Aangepast: drie tests voor de nieuwe regels (één tik is het antwoord, en de waarde van het land dat blijft staan is zichtbaar).
+- `npm test`: 121 van 121 geslaagd.

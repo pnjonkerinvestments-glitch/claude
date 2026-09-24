@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { withSpanish, spanishCountry } from '../../i18n/content';
-import { Check, Lightbulb, X } from 'lucide-react';
+import { Check, Lightbulb, Search, X } from 'lucide-react';
 import { mysteryOfTheDay, type MysteryCountryData, type MysteryFact } from '@/lib/daily-loop';
 import { ResetCountdown } from './ResetCountdown';
 import { HowToPlayButton } from './HowToPlay';
@@ -11,7 +11,6 @@ type MysteryData = [{ facts: MysteryFact[] }, MysteryCountryData[]];
 let dataPromise: Promise<MysteryData> | null = null;
 const loadData = () => dataPromise ??= (Promise.all([fetch('/data/mosaic-facts.json').then(r => r.json()), fetch('/data/countries.json').then(r => r.json())]) as Promise<MysteryData>).catch(e => { dataPromise = null; throw e; });
 
-const CATEGORY_EMOJI: Record<string, string> = { heritage: '🏛️', landscapes: '🏞️', wildlife: '🦎', water: '🌊', fossils: '🦴', caves: '🕳️', science: '🔭' };
 
 type Saved = { hints?: number; picked?: string | null };
 function readSaved(key: string): Saved | null { try { return JSON.parse(localStorage.getItem(key) ?? 'null'); } catch { return null; } }
@@ -36,8 +35,8 @@ export function MysteryCountry({ date, t, locale }: { date: string; t: (k: strin
   const choose = (id: string) => { if (answered) return; setPicked(id); writeSaved(key, { hints, picked: id }); };
   return <section className={'mystery-card' + (answered ? correct ? ' is-right' : ' is-wrong' : '')} aria-labelledby="mystery-title">
     <div className="mystery-head">
-      <span className="mystery-badge" aria-hidden="true">{answered ? <img src={answer.flag} alt=""/> : '❓'}</span>
-      <div><span className="mystery-kicker">{CATEGORY_EMOJI[fact.category] ?? '🌍'} {t('competitionWarmup')}</span><h2 id="mystery-title">{t('mysteryTitle')}</h2></div>
+      <span className="mystery-badge" aria-hidden="true">{answered ? <img src={answer.flag} alt=""/> : <Search size={26} strokeWidth={2.3}/>}</span>
+      <div><span className="mystery-kicker">{t('competitionWarmup')}</span><h2 id="mystery-title">{t('mysteryTitle')}</h2></div>
       <HowToPlayButton mode="mystery" t={t} locale={locale}/>
     </div>
     <ol className="mystery-clues">{clues.slice(0, answered ? clues.length : hints).map((clue, i) => <li key={i}><span aria-hidden="true">{i + 1}</span>{clue}</li>)}</ol>

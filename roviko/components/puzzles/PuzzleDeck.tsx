@@ -1,7 +1,7 @@
 'use client';
 import { CompetitionPanel } from '../atelier/Competition';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Shuffle, Users } from 'lucide-react';
+import { ArrowRight, Check, Flame, Map as MapIcon, Medal, Shuffle, Snowflake, Swords, Target, Trophy, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -70,8 +70,11 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
   const allDone = !!today && completed === modes.length;
   const streak = boot.stats.dailyStreak ?? 0, goal = streakMilestone(streak);
   const atRisk = !!today && streakAtRisk(streak, completed);
+  const freeze = boot.stats.streakFreezes as { available: number; nextIn: number; frozenDates: string[] } | undefined;
+  const yesterday = today ? new Date(Date.parse(today.date + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10) : '';
+  const savedByFreeze = !!today && completed === 0 && !!freeze?.frozenDates.includes(yesterday);
   const badge = nearestAchievement(ACHIEVEMENTS, boot.stats);
-  const bubble = allDone ? t('heroBubbleDone') : atRisk ? t('heroBubbleRisk').replace('{n}', String(streak)) : completed > 0 ? t('heroBubbleLeft').replace('{n}', String(modes.length - completed)) : t('heroBubble');
+  const bubble = allDone ? t('heroBubbleDone') : savedByFreeze ? t('freezeSaved') : atRisk ? t('heroBubbleRisk').replace('{n}', String(streak)) : completed > 0 ? t('heroBubbleLeft').replace('{n}', String(modes.length - completed)) : t('heroBubble');
   // One arc per official game around the mascot, one per daily game; finished games light up in their colour.
   const ring = 2 * Math.PI * 46, arc = ring / modes.length;
   const hero = welcome && <section className={'play-hero' + (allDone ? ' is-done' : '') + (atRisk ? ' is-at-risk' : '')} aria-labelledby="hero-title">
@@ -86,9 +89,9 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
         {!allDone && completed === 0 && <button className="text-link hero-howto" onClick={() => go('/how-to-play')}>{t('howToHomeLink')}<ArrowRight size={16}/></button>}
       </div>
       <ul className="play-hero-stats">
-        <li className={'stat-streak' + (atRisk ? ' at-risk' : '')}><span aria-hidden="true">🔥</span><b>{streak}</b><small>{t('heroStatStreak')}</small><em className="stat-goal" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></em></li>
-        <li className="stat-today"><span aria-hidden="true">🎯</span><b>{today ? completed : 0}/{modes.length}</b><small>{t('heroStatToday')}</small></li>
-        <li className="stat-countries"><button onClick={() => go('/profile')}><span aria-hidden="true">🗺️</span><b>{boot.stats.discovered ?? 0}</b><small>{t('heroStatCountries')}</small></button></li>
+        <li className={'stat-streak' + (atRisk ? ' at-risk' : '')}><span aria-hidden="true"><Flame size={22} strokeWidth={2.2}/></span><b>{streak}</b><small>{t('heroStatStreak')}</small>{!!freeze?.available && <span className="stat-freeze" title={t('freezeExplain')} aria-label={t('freezeReady').replace('{n}', String(freeze.available))}><Snowflake size={13} strokeWidth={2.6} aria-hidden="true"/>{freeze.available}</span>}<em className="stat-goal" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></em></li>
+        <li className="stat-today"><span aria-hidden="true"><Target size={22} strokeWidth={2.2}/></span><b>{today ? completed : 0}/{modes.length}</b><small>{t('heroStatToday')}</small></li>
+        <li className="stat-countries"><button onClick={() => go('/profile')}><span aria-hidden="true"><MapIcon size={22} strokeWidth={2.2}/></span><b>{boot.stats.discovered ?? 0}</b><small>{t('heroStatCountries')}</small></button></li>
       </ul>
     </div>
     <div className="play-hero-art" aria-hidden="true">
@@ -109,7 +112,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
         return <article key={mode} className={'daily-card daily-card-' + mode + ' is-' + state}>
           <button className="daily-tile" disabled={app.busy || !!busy} onClick={() => launch(mode)} aria-label={cta + ' · ' + name}>
             <span className="daily-cover"><GameCover mode={mode}/><span className={'daily-state state-' + state}>{state === 'done' && <Check size={14}/>} {t(!today ? 'dailyStatusPending' : state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState')}</span></span>
-            <span className="daily-tile-copy"><strong className="daily-tile-title">{name}</strong><span>{t(mode + 'CardCopy')}</span><small className="daily-tile-points">🏅 {t('competitionGameMax')}</small></span>
+            <span className="daily-tile-copy"><strong className="daily-tile-title">{name}</strong><span>{t(mode + 'CardCopy')}</span><small className="daily-tile-points"><Trophy size={13} strokeWidth={2.4} aria-hidden="true"/>{t('competitionGameMax')}</small></span>
             <span className="daily-tile-cta">{app.busy || busy === mode ? t('loading') : cta}<ArrowRight size={18}/></span>
           </button>
           <div className="daily-tile-actions">
@@ -121,17 +124,28 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
     </div>
     {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={() => setReload(n => n+1)}>{t('retry')}</button></p>}
     <div className="day-panels">
-      <DailyQuests date={today?.date ?? fallbackDate} sessions={today?.sessions ?? []} t={t}/>
+      <div className="day-panels-side">
+        <DailyQuests date={today?.date ?? fallbackDate} sessions={today?.sessions ?? []} t={t}/>
+        <section className="streak-card" aria-labelledby="streak-card-title">
+          <span className="streak-card-flame" aria-hidden="true"><Flame size={22} strokeWidth={2.2}/></span>
+          <div><h2 id="streak-card-title"><b>{streak}</b> {t('heroStatStreak').toLowerCase()}</h2><p>{t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}</p></div>
+          <div className={'streak-card-freeze' + (freeze?.available ? ' is-ready' : '')} title={t('freezeExplain')}>
+            <span aria-hidden="true"><Snowflake size={18} strokeWidth={2.4}/></span>
+            <div><strong>{freeze?.available ? t('freezeReady').replace('{n}', String(freeze.available)) : t('freezeName')}</strong><small>{freeze && !freeze.nextIn ? t('freezeFull') : t('freezeNext').replace('{n}', String(freeze?.nextIn ?? 7))}</small></div>
+          </div>
+          <p className="streak-card-note">{t('freezeExplain')}</p>
+        </section>
+      </div>
       <CompetitionPanel app={app}/>
     </div>
     {dailyPage && <p className="practice-reset">{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</p>}
-    {dailyPage && today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t}/>}
-    {dailyPage && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true">🏅</span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl' | 'es']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}
+    {dailyPage && today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t} frozen={freeze?.frozenDates}/>}
+    {dailyPage && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true"><Medal size={22} strokeWidth={2.2}/></span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl' | 'es']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}
     {welcome && <div className="daily-extras">
       <div className="atelier-section-heading"><h2>{t('howToExtras')}</h2></div>
       <div className="daily-extras-grid">
         <button className="duel-tile" onClick={() => go('/duel')}>
-          <span className="duel-tile-art" aria-hidden="true"><img src="/globe-logo.webp" alt="" width={72} height={72}/><span>⚔️</span></span>
+          <span className="duel-tile-art" aria-hidden="true"><img src="/globe-logo.webp" alt="" width={72} height={72}/><span className="duel-tile-swords"><Swords size={18} strokeWidth={2.4}/></span></span>
           <span className="duel-tile-copy"><small>{t('duelCardTitle')}</small><strong>{t('duel')}</strong><span>{t('duelTagline')}</span></span>
           <span className="daily-tile-cta">{t('duelPlay')}<ArrowRight size={18}/></span>
         </button>

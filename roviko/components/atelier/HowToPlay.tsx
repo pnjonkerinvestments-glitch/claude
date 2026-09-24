@@ -1,7 +1,8 @@
 'use client';
 import { useState } from 'react';
-import { ArrowRight, CircleHelp } from 'lucide-react';
+import { ArrowRight, CircleHelp, Lightbulb } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { GameIcon } from './GameIcon';
 import { HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
 
 type T = (key: string) => string;
@@ -20,17 +21,16 @@ export function HowToSteps({ mode, t, locale }: { mode: string; t: T; locale: Lo
   return <>
     <ol className="howto-steps">{guide.steps.map((step, i) => <li key={i}>
       <span className="howto-step-num" aria-hidden="true">{i + 1}</span>
-      <span className="howto-step-icon" aria-hidden="true">{step.icon}</span>
       <p>{step.text[locale]}</p>
     </li>)}</ol>
-    <p className="howto-tip"><span aria-hidden="true">💡</span><span><b>{t('howToTip')}:</b> {guide.tip[locale]}</span></p>
+    <p className="howto-tip"><Lightbulb size={18} aria-hidden="true"/><span><b>{t('howToTip')}:</b> {guide.tip[locale]}</span></p>
   </>;
 }
 
 export function HowToDialog({ mode, open, onOpenChange, t, locale }: { mode: string; open: boolean; onOpenChange: (open: boolean) => void; t: T; locale: Loc }) {
   const guide = HOW_TO_PLAY[mode];
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className={'app-modal howto-modal howto-' + mode}>{guide && <>
-    <span className="howto-badge" aria-hidden="true">{guide.emoji}</span>
+    <GameIcon mode={mode} size="lg" className="howto-badge"/>
     <DialogTitle className="modal-title">{howToTitle(mode, t)}</DialogTitle>
     <DialogDescription className="sr-only">{t('howToSteps')}</DialogDescription>
     <HowToSteps mode={mode} t={t} locale={locale}/>
@@ -56,11 +56,11 @@ export function HowToPlayButton({ mode, t, locale, auto = false, link = false }:
 export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; locale: Loc; onPlay: (mode: string) => void; busy?: boolean }) {
   return <div className="howto-page">
     <div className="page-heading centered"><span className="eyebrow"><CircleHelp size={16}/>{t('howTo')}</span><h1>{t('howToPageTitle')}</h1><p>{t('howToPageIntro')}</p></div>
-    <nav className="howto-jump" aria-label={t('howToJump')}>{HOW_TO_PLAY_ORDER.map(mode => <a key={mode} href={'#howto-' + mode} className={'howto-chip howto-' + mode}><span aria-hidden="true">{HOW_TO_PLAY[mode].emoji}</span>{howToGame(mode, t)}</a>)}</nav>
+    <nav className="howto-jump" aria-label={t('howToJump')}>{HOW_TO_PLAY_ORDER.map(mode => <a key={mode} href={'#howto-' + mode} className={'howto-chip howto-' + mode}><GameIcon mode={mode} size="sm"/>{howToGame(mode, t)}</a>)}</nav>
     {HOW_TO_PLAY_GROUPS.map(group => <section key={group.key} className="howto-group" aria-labelledby={'howto-group-' + group.key}>
       <div className="atelier-section-heading"><h2 id={'howto-group-' + group.key}>{t(group.key)}</h2><span>{t(group.note)}</span></div>
       <div className="howto-grid">{group.modes.map(mode => <article key={mode} id={'howto-' + mode} className={'howto-card howto-' + mode} aria-labelledby={'howto-title-' + mode}>
-        <header><span className="howto-badge" aria-hidden="true">{HOW_TO_PLAY[mode].emoji}</span><h3 id={'howto-title-' + mode}>{howToGame(mode, t)}</h3></header>
+        <header><GameIcon mode={mode} className="howto-badge"/><h3 id={'howto-title-' + mode}>{howToGame(mode, t)}</h3></header>
         <HowToSteps mode={mode} t={t} locale={locale}/>
         <button className="btn secondary howto-play" disabled={busy} onClick={() => onPlay(mode)}>{mode === 'room' ? t('createRoom') : t('howToPlay').replace('{game}', howToGame(mode, t))}<ArrowRight size={18}/></button>
       </article>)}</div>

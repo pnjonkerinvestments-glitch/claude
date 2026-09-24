@@ -41,14 +41,13 @@ test('revealed units stay explicit and spoiler-free shares exclude country and s
  const share=shareResult({mode:'rank',label:'Rank Radar',date:'2026-09-22',correct:4,total:6,answers:[true,false,true,false,true,true],origin:'https://roviko.test'});
  assert.match(share,/● ○ ● ○ ● ●/);assert.match(share,/\/daily\?shared=rank/);assert.ok(!share.includes(q.country.name.en));assert.ok(!share.includes(q.correct));
 });
-test('wrong choice turns red immediately, identifies the winner and blocks duplicate saves and early next',async()=>{
+test('one tap answers: wrong choice turns red, identifies the winner and blocks duplicate saves and early next',async()=>{
  let saved=state(),writes=0;const wait=deferred();const wrong=saved.question.options.find(o=>o.id!==saved.question.correct);
  globalThis.transport={api:async()=>clone(saved),post:async(path,body)=>{writes++;await wait.promise;saved={...saved,phase:'reveal',version:1,answers:[{value:body.answer,correct:false}]};return clone(saved);}};
  let r;await act(async()=>{r=create(React.createElement(RankGame,{id:saved.id,app}));});
  const button=cards(r).find(c=>c.props['aria-label']===wrong.label.en);
- await act(async()=>{button.props.onClick();});
- assert.equal(writes,0,'Selecting a card does not submit');assert.equal(confirm(r).props.disabled,false);
- const submit=confirm(r).props.onClick;await act(async()=>{submit();submit();});
+ const tap=button.props.onClick;await act(async()=>{tap();tap();});
+ assert.equal(r.root.findAll(n=>n.props.className?.includes?.('answer-submit')).length,0,'no confirm step in single player');
  assert.equal(writes,1);assert.equal(cards(r).filter(c=>c.props.className.includes('rank-wrong')).length,1);assert.equal(cards(r).filter(c=>c.props.className.includes('rank-best')).length,1);
  assert.ok(cards(r).every(c=>c.props.disabled));assert.equal(next(r).props.disabled,true);
  const feedback=r.root.find(n=>n.props.className==='rank-feedback is-wrong');assert.ok(feedback.findAll(n=>n.type==='p').some(n=>n.children.some(s=>typeof s==='string'&&s.includes(wrong.label.en))));
@@ -59,7 +58,7 @@ test('lost saved response reconciles once, while an unsaved guess requires expli
  for(const committed of [true,false]){
   let saved=state(),writes=0;
   globalThis.transport={api:async()=>clone(saved),post:async(path,body)=>{writes++;if(committed)saved={...saved,phase:'reveal',version:1,answers:[{value:body.answer,correct:body.answer===saved.question.correct}]};throw Error('network');}};
-  let r;await act(async()=>{r=create(React.createElement(RankGame,{id:saved.id,app}));});await act(async()=>{cards(r)[0].props.onClick();});await act(async()=>{confirm(r).props.onClick();});assert.equal(writes,1);
+  let r;await act(async()=>{r=create(React.createElement(RankGame,{id:saved.id,app}));});await act(async()=>{cards(r)[0].props.onClick();});assert.equal(writes,1);
   assert.equal(r.root.findAll(n=>n.props.role==='alert').length,committed?0:1);
   if(!committed){assert.ok(cards(r).every(c=>c.props.disabled));await act(async()=>{r.root.findAll(n=>n.type==='button'&&n.children.includes(messages.en.retry))[0].props.onClick();});assert.ok(cards(r).every(c=>!c.props.disabled));}
   await act(async()=>r.unmount());
