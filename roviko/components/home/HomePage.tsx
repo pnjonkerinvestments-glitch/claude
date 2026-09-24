@@ -1,12 +1,12 @@
 'use client';
 import React, { useRef, useState } from 'react';
-import { ArrowRight, Check, Flame, ShieldCheck, Star, Target, Trophy, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, Check, ChevronRight, Flame, ShieldCheck, Star, Target, Trophy, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DAILY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DailyMode } from '@/lib/daily-loop';
 import { useApp } from '../app/context';
 import { A, Avatar } from '../app/shared';
 import { dailyTitleKey } from '../atelier/DailyLoop';
-import { DailyQuests } from '../atelier/DailyQuests';
+import { DailyQuests, type Quest } from '../atelier/DailyQuests';
 import { MysteryCountry } from '../atelier/MysteryCountry';
 import { Mascot, type MascotMood } from '../ds/Mascot';
 import { SectionHeader, Skeleton } from '../ds/States';
@@ -82,6 +82,7 @@ export function HomePage() {
     try { await launchDaily(app, mode); } catch (e) { fail(e); } finally { lock.current = false; setLaunching(''); }
   }
   const busy = !ready || !!launching || app.busy;
+  const pickQuest = (q: Quest) => { if (busy) return; if (q.kind === 'mode' && q.mode) open(q.mode as DailyMode); else if (q.kind === 'mystery') setMysteryOpen(true); else if (q.kind === 'duel') go('/duel'); else if (next) open(next); };
   const cta = allDone ? t('tripDoneCta') : completed === 0 && next && dailyStateOf(sessions, next) === 'new' ? t('tripStart') : t('tripContinue').replace('{game}', next ? name(next) : '');
   const pointsGoal = allDone ? '' : yesterday > 0 && pointsToday < yesterday ? t('beatYesterday').replace('{n}', n(yesterday)) : bestDay && pointsToday < bestDay ? t('beatBestDay').replace('{n}', n(bestDay)) : '';
 
@@ -137,11 +138,11 @@ export function HomePage() {
     </section>
 
     <section className="home-section motivation" aria-label={t('allGamesYourDay')}>
-      <div className="motivation-quests"><DailyQuests date={date} sessions={sessions ?? []} t={t} compact/></div>
-      <div className="motivation-week">
-        <header><span className="week-flame" aria-hidden="true"><Flame size={22} strokeWidth={2.3}/></span><div><h2>{streak > 0 ? t('statusStreak').replace('{n}', String(streak)) : t('statusStreakZero')}</h2><p>{streak > 0 ? t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target)) : t('streakStartCopy')}</p></div></header>
+      <div className="motivation-quests"><DailyQuests date={date} sessions={sessions ?? []} t={t} compact art onPick={pickQuest}/></div>
+      <div className="motivation-week journey-card">
+        <header><span className="week-flame" aria-hidden="true">{streak > 0 ? <Flame size={24} strokeWidth={2.2}/> : <CalendarDays size={24} strokeWidth={2.2}/>}</span><div><h2>{streak > 0 ? t('statusStreak').replace('{n}', String(streak)) : t('statusStreakZero')}</h2><p>{streak > 0 ? t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target)) : t('streakStartCopy')}</p></div><img className="card-corner-art" src="/art/journey-scene.webp" alt="" aria-hidden="true" width={203} height={232} loading="lazy" decoding="async"/></header>
         {today?.week ? <WeekDots week={today.week} frozen={freeze?.frozenDates ?? []} locale={locale}/> : <Skeleton className="sk-block sk-week"/>}
-        <p className="week-shield"><ShieldCheck size={17} aria-hidden="true"/>{freeze?.available ? t('freezeReady').replace('{n}', String(freeze.available)) : t('freezeNext').replace('{n}', String(freeze?.nextIn ?? 7))}</p>
+        <A href="/scoring#streaks" className="week-shield"><ShieldCheck size={18} aria-hidden="true"/><span>{freeze?.available ? t('freezeReady').replace('{n}', String(freeze.available)) : t('freezeNext').replace('{n}', String(freeze?.nextIn ?? 7))}</span><ChevronRight size={18} aria-hidden="true"/></A>
       </div>
     </section>
 
@@ -163,9 +164,9 @@ export function HomePage() {
       </div>
       <div className="together-actions">
         {online.length === 1
-          ? <button className="btn gold btn-lg" onClick={() => inviteToPlay(app, online[0]).catch(fail)}>{t('inviteToPlay')} {online[0].name}<ArrowRight size={19} aria-hidden="true"/></button>
-          : <button className="btn gold btn-lg" onClick={() => setModal('room')}>{t('createRoom')}<ArrowRight size={19} aria-hidden="true"/></button>}
-        <A href={online.length > 1 ? '/friends' : '/multiplayer'} className="text-link on-dark">{online.length > 1 ? t('friendsList') : t('togetherJoin') + ' ' + t('join')}</A>
+          ? <button className="btn primary btn-lg" onClick={() => inviteToPlay(app, online[0]).catch(fail)}>{t('inviteToPlay')} {online[0].name}<ArrowRight size={19} aria-hidden="true"/></button>
+          : <button className="btn primary btn-lg" onClick={() => setModal('room')}>{t('createRoom')}<ArrowRight size={19} aria-hidden="true"/></button>}
+        <A href={online.length > 1 ? '/friends' : '/multiplayer'} className="text-link">{online.length > 1 ? t('friendsList') : t('togetherJoin') + ' ' + t('join')}</A>
       </div>
     </section>
 

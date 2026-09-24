@@ -1,6 +1,7 @@
 // Daily quests (dagdoelen) and the rotating app reminders.
 export const questMessages = {
   en: {
+    questSubMode: 'Today\u2019s puzzle is ready for you.', questSubMystery: 'Use the clues to find today\u2019s country.', questSubDuel: 'Five cards against Roviko.', questSubGames: 'Any daily game counts.', questsLead: 'Play, learn and explore the world.',
     questsTitle: 'Daily quests', questsIntro: 'Three small goals. Finish all three for a crown.', questPlayMode: 'Play {game}', questPlayN: 'Play {n} daily games',
     questMystery: 'Solve the mystery country', questDuel: 'Finish the World Duel', questChest: 'Open your crown chest', questCrownWon: 'Crown earned! You now have {n}.',
     questCrowns: '{n} crowns collected', questNew: 'New quests in',
@@ -10,6 +11,7 @@ export const questMessages = {
     reminder4: 'Which country ranks highest today? Rank Radar is ready 🎯', reminder5: 'Roviko wants a rematch in the World Duel ⚔️', reminder6: 'Three daily quests, one crown. Can you get it today? 👑', reminder7: 'A few curious minutes, a little more of the world 🌍',
   },
   nl: {
+    questSubMode: 'De puzzel van vandaag staat voor je klaar.', questSubMystery: 'Vind het land van vandaag met de hints.', questSubDuel: 'Vijf kaarten tegen Roviko.', questSubGames: 'Elk dagspel telt mee.', questsLead: 'Speel, leer en ontdek de wereld.',
     questsTitle: 'Dagdoelen', questsIntro: 'Drie kleine doelen. Haal ze alle drie voor een kroon.', questPlayMode: 'Speel {game}', questPlayN: 'Speel {n} dagspellen',
     questMystery: 'Raad het mysterieland', questDuel: 'Speel het Wereldduel uit', questChest: 'Open je kroonkist', questCrownWon: 'Kroon verdiend! Je hebt er nu {n}.',
     questCrowns: '{n} kronen verzameld', questNew: 'Nieuwe doelen over',
@@ -19,6 +21,7 @@ export const questMessages = {
     reminder4: 'Waar staat welk land het hoogst? Rank Radar staat klaar 🎯', reminder5: 'Roviko wil revanche in het Wereldduel ⚔️', reminder6: 'Drie dagdoelen, één kroon. Haal jij hem vandaag? 👑', reminder7: 'Een paar nieuwsgierige minuten, een beetje meer wereld 🌍',
   },
   es: {
+    questSubMode: 'El reto de hoy te espera.', questSubMystery: 'Usa las pistas para encontrar el país de hoy.', questSubDuel: 'Cinco cartas contra Roviko.', questSubGames: 'Cuenta cualquier juego diario.', questsLead: 'Juega, aprende y explora el mundo.',
     questsTitle: 'Retos del día', questsIntro: 'Tres pequeños retos. Complétalos todos para ganar una corona.', questPlayMode: 'Juega a {game}', questPlayN: 'Juega {n} juegos diarios',
     questMystery: 'Resuelve el país misterioso', questDuel: 'Termina el Duelo Mundial', questChest: 'Abre tu cofre de corona', questCrownWon: '¡Corona ganada! Ya tienes {n}.',
     questCrowns: '{n} coronas conseguidas', questNew: 'Nuevos retos en',

@@ -7,6 +7,7 @@ import { useApp } from '../app/context';
 import { A } from '../app/shared';
 import { EmptyState, PageHeader } from '../ds/States';
 import { CoverArt } from '../home/CoverArt';
+import { GameIcon } from '../atelier/GameIcon';
 
 const CODE = /^[A-Z2-9]{5}$/;
 const ROOM_ERRORS: Record<string, [string, string]> = {
@@ -55,8 +56,7 @@ export function MultiplayerPage() {
       <section className="lobby-card lobby-create" aria-labelledby="create-title">
         <div className="lobby-card-art" aria-hidden="true"><CoverArt mode="room"/></div>
         <div className="lobby-card-body">
-          <h2 id="create-title">{t('createRoom')}</h2>
-          <p>{t('friendsCreateCopy')}</p>
+          <div className="lobby-title"><GameIcon mode="room"/><div><h2 id="create-title">{t('createRoom')}</h2><p>{t('friendsCreateCopy')}</p></div></div>
           <button className="btn primary btn-lg" onClick={() => setModal('room')}><Plus size={20} aria-hidden="true"/>{t('createRoom')}</button>
         </div>
       </section>

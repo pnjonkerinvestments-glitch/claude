@@ -11,9 +11,7 @@ import { EmptyState, ErrorState, PageHeader, SectionHeader, Skeleton } from '../
 
 type Country = { id: string; name: string; nl: string; official: string; capitals: string[]; region: string; subregion?: string; area: number; languages: string[]; currencies: string[]; borders: string[]; flag: string };
 const RECENT = 'roviko:explore:recent';
-const REGION_ART: Record<string, [string, string]> = { Europe: ['europe', '#e7e6fd'], Africa: ['africa', '#ffeeca'], Asia: ['asia', '#fde5df'], 'North America': ['north-america', '#d7f1f8'], 'South America': ['south-america', '#def2e9'], Oceania: ['oceania', '#e5e1fc'] };
-/** A decorative postcard scene behind each daily pick. The real flag sits on top, so the scene never stands in for geography. */
-const pickScene = (region: string, i: number) => region === 'Europe' ? (i % 2 ? 'pick-harbour' : 'pick-lake') : region === 'North America' ? 'pick-lake' : 'pick-tropical';
+const REGION_ART: Record<string, string> = { Europe: 'europe', Africa: 'africa', Asia: 'asia', 'North America': 'north-america', 'South America': 'south-america', Oceania: 'oceania' };
 
 function readRecent(): string[] { try { const v = JSON.parse(localStorage.getItem(RECENT) ?? '[]'); return Array.isArray(v) ? v.slice(0, 8) : []; } catch { return []; } }
 function hash(text: string) { let h = 2166136261; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -38,8 +36,9 @@ export function ExplorePage() {
     return () => { active = false; };
   }, [reload]);
   // Read this browser's recently opened countries once mounted, so the server render stays stable.
+  // A link such as /explore#north-america (from the passport) opens that region.
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setRecent(readRecent()); }, []);
+  useEffect(() => { setRecent(readRecent()); const slug = window.location.hash.slice(1); const hit = Object.keys(REGION_ART).find(r => REGION_ART[r] === slug); if (hit) setRegion(hit); }, []);
 
   const name = (c: Country) => locale === 'es' ? spanishCountry(c.name) : locale === 'nl' ? c.nl : c.name;
   const capital = (c: Country) => c.capitals.map(n => locale === 'es' ? spanishCapital(n) : n).join(' / ');
@@ -82,16 +81,18 @@ export function ExplorePage() {
         {continued.length > 0 && <section className="page-section" aria-labelledby="explore-continue"><SectionHeader id="explore-continue" title={t('exploreContinue')}/><div className="country-grid-v2">{continued.map(c => card(c, true))}</div></section>}
         <section className="page-section" aria-labelledby="explore-picks">
           <SectionHeader id="explore-picks" title={t('explorePicks')} kicker={new Date(today + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' })}/>
-          <div className="pick-row">{picks.map((c, i) => <button key={c.id} type="button" className="pick-card" onClick={() => open(c)}>
-            <span className="pick-flag"><img className="pick-scene" src={'/art/' + pickScene(c.region, i) + '.webp'} alt="" width={614} height={382} loading="lazy" decoding="async"/><span className="pick-postcard"><img src={c.flag} alt="" width={120} height={84} loading="lazy"/></span></span>
+          <div className="pick-row">{picks.map((c, i) => <button key={c.id} type="button" className={'pick-card' + (picks.slice(0, i).filter(p => p.region === c.region).length % 2 ? '' : ' is-mirrored')} onClick={() => open(c)}>
+            <span className="pick-flag"><img className="pick-scene" src={'/art/pick-' + (REGION_ART[c.region] ?? 'europe') + '.webp'} alt="" width={815} height={406} loading="lazy" decoding="async"/><span className="pick-postcard"><img src={c.flag} alt="" width={120} height={84} loading="lazy"/></span></span>
             <span className="pick-copy"><small>{t(c.region)}</small><strong>{name(c)}</strong><span>{capital(c)}</span></span>
+            <span className="round-go" aria-hidden="true"><ArrowRight size={17}/></span>
           </button>)}</div>
         </section>
         <section className="page-section" aria-labelledby="explore-regions">
           <SectionHeader id="explore-regions" title={t('exploreByRegion')} action={<button className="text-link" onClick={() => { setShowAll(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{t('exploreAll')}<ArrowRight size={16} aria-hidden="true"/></button>}/>
-          <div className="region-grid">{REGIONS.filter(r => r !== 'World').map(r => <button key={r} type="button" className="region-card" style={{ '--region': REGION_ART[r][1] } as React.CSSProperties} onClick={() => { setRegion(r); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-            <img className="region-art" src={'/art/region-' + REGION_ART[r][0] + '.webp'} alt="" width={616} height={230} loading="lazy" decoding="async"/>
+          <div className="region-grid">{REGIONS.filter(r => r !== 'World').map(r => <button key={r} type="button" className="region-card scene-card" onClick={() => { setRegion(r); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+            <picture className="region-art"><source media="(min-width: 761px)" srcSet={'/art/banner-' + REGION_ART[r] + '.webp'} width={658} height={210}/><img src={'/art/scene-' + REGION_ART[r] + '.webp'} alt="" width={627} height={465} loading="lazy" decoding="async"/></picture>
             <span className="region-copy"><strong>{t(r)}</strong><small>{t('exploreResults').replace('{n}', String(data.filter(c => c.region === r).length))}</small></span>
+            <span className="round-go" aria-hidden="true"><ArrowRight size={17}/></span>
           </button>)}</div>
         </section>
         <section className="page-section" aria-labelledby="explore-recent">

@@ -92,7 +92,7 @@ function LegalPage({ kind }: { kind: 'privacy' | 'terms' }) {
   const L = locale as 'en' | 'nl' | 'es';
   const sections = kind === 'privacy' ? PRIVACY : TERMS;
   return <div className="page doc-page">
-    <PageHeader kicker={t(kind === 'privacy' ? 'privacy' : 'terms')} title={t(kind === 'privacy' ? 'privacyTitle' : 'termsTitle')}/>
+    <PageHeader back={t('backLabel')} kicker={t(kind === 'privacy' ? 'privacy' : 'terms')} title={t(kind === 'privacy' ? 'privacyTitle' : 'termsTitle')}/>
     <div className="doc-layout">
       <Toc sections={sections} t={t} locale={L}/>
       <article className="doc-body">
@@ -117,7 +117,7 @@ function SourcesPage() {
     'Eigen productontwerp, teksten, vraaggenerator, spelillustraties, paspoortstempels en de Roviko-wereldbol. De wereldbol is decoratief en wordt nooit als quizkaart gebruikt. Iconen: Lucide (ISC). Lettertypen: Fredoka en Manrope (SIL Open Font License 1.1), zelf gehost.',
     'Diseño, textos, generador de preguntas, ilustraciones de los juegos, sellos del pasaporte y el globo de Roviko son originales. El globo es decorativo y nunca se usa como mapa de preguntas. Iconos: Lucide (ISC). Fuentes: Fredoka y Manrope (SIL Open Font License 1.1), alojadas por Roviko.');
   return <div className="page doc-page">
-    <PageHeader kicker={t('sourcesKicker')} title={t('sourceTitle')} lead={t('sourcesLead')}/>
+    <PageHeader back={t('backLabel')} kicker={t('sourcesKicker')} title={t('sourceTitle')} lead={t('sourcesLead')}/>
     <div className="dataset-grid">{DATASETS.map(d => <article key={d.name} className="dataset-card">
       <header><span className="dataset-icon" aria-hidden="true"><FileText size={20}/></span><div><h2>{d.name}</h2><p>{d.provider}</p></div></header>
       <dl>

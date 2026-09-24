@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { GameIcon } from './GameIcon';
 import { CoverArt, type CoverMode } from '../home/CoverArt';
 import { A } from '../app/shared';
+import { PageHeader } from '../ds/States';
 import { HOW_TO_EXAMPLES, HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
 
 type T = (key: string) => string;
@@ -72,19 +73,18 @@ export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; local
     if (next) { e.preventDefault(); pick(next); requestAnimationFrame(() => document.getElementById('howto-tab-' + next)?.focus()); }
   };
   return <div className="page howto-v2">
-    <header className="page-header howto-head"><div><p className="kicker">{t('howKicker')}</p><h1>{t('howTitle')}</h1><p className="lead">{t('howLead')}</p></div><img src="/art/howto-mascot.webp" alt="" aria-hidden="true" width={185} height={191} className="howto-mascot" decoding="async"/></header>
+    <PageHeader art="howto-hero" kicker={t('howKicker')} title={t('howTitle')} lead={t('howLead')}/>
     <div className="howto-tabs" role="tablist" aria-label={t('howTitle')} onKeyDown={onKey}>
       {HOW_TO_PLAY_GROUPS.map(g => <div key={g.key} className="howto-tab-group" role="presentation"><span className="howto-tab-label" role="presentation">{t(g.key)}</span>
         {g.modes.map(m => <button key={m} id={'howto-tab-' + m} role="tab" aria-selected={mode === m} aria-controls="howto-panel" tabIndex={mode === m ? 0 : -1} className="howto-tab" onClick={() => pick(m)}><GameIcon mode={m} size="sm"/>{howToGame(m, t)}</button>)}
       </div>)}
     </div>
     {guide && <section id="howto-panel" role="tabpanel" aria-labelledby={'howto-tab-' + mode} className={'howto-panel howto-' + mode}>
-      <div className="howto-art" aria-hidden="true"><CoverArt mode={COVER[mode] ?? 'classic'}/></div>
+      <div className={'howto-art howto-art-' + mode} aria-hidden="true">{COVER[mode] ? <CoverArt mode={COVER[mode]}/> : <img className="game-cover-image" src={'/art/classic-' + mode + '.webp'} alt="" width={574} height={248} decoding="async"/>}</div>
       <div className="howto-body">
         <p className="kicker">{t(group.key)}</p>
-        <h2>{howToGame(mode, t)}</h2>
-        <h3>{t('howGoal')}</h3>
-        <p className="howto-goal">{guide.steps[0].text[locale]}</p>
+        <h2><GameIcon mode={mode} size="sm" className="howto-title-logo"/>{howToGame(mode, t)}</h2>
+        <p className="howto-goal"><span className="sr-only">{t('howGoal')}: </span>{guide.steps[0].text[locale]}</p>
         <h3>{t('howSteps')}</h3>
         <ol className="howto-steps">{guide.steps.slice(1).map((step, i) => <li key={i}><span className="howto-step-num" aria-hidden="true">{i + 1}</span><p>{step.text[locale]}</p></li>)}</ol>
         <h3>{t('howScoringLabel')}</h3>

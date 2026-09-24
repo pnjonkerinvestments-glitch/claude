@@ -129,3 +129,15 @@ Nine flag-icons flags with detailed coats of arms (bo, do, es, gt, hr, me, mx, r
 ## Illustrations 1.16
 
 Since 1.16 the game covers, page-header scenes, explore postcards, region landscapes and friends artwork in `public/art/` come from design mockups the owner supplied for Roviko (September 2026; a flat cartoon style with the Roviko globe). They were cut out, cleaned and exported as WebP. No new third-party or competitor artwork was added. They are decorative only. The flags drawn inside the region landscapes are illustration, not quiz data. Every flag or shape used in questions and answers still comes from the licensed data above. The earlier clay-style covers (see `docs/ARTWORK_1_7.md` and `docs/ARTWORK_1_9.md`) are replaced in the interface.
+
+## Illustrations 1.17
+
+The 1.17 layout follows eight design mockups the owner generated with ChatGPT for Roviko (September 2026). Several illustrations were cut out of those mockups, cleaned with inpainting to remove the text and buttons drawn into them, and exported as WebP:
+- the continent scenes, banners and pick backgrounds (`scene-*`, `banner-*`, `pick-*`);
+- the classic game scenes (`classic-*`);
+- the scoring landscapes (`fact-*`);
+- `scoring-hero`, `howto-hero`, `quests-scene`, `journey-scene`, `passport-stamps`, `friends-hero` and `lobby-create`.
+
+They are decorative only. The flags drawn inside some scenes are illustration, not quiz data.
+
+The game logos in `components/atelier/GameIcon.tsx` are original SVG drawings made for Roviko. No third-party icon set is used for them.

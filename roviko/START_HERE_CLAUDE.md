@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.16.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
+**Versie 1.17.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -30,7 +30,9 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Reeksschilden worden afgeleid uit de opgeslagen dagresultaten (`lib/streak.ts`); geen aparte opslag, niet te kopen.
 - Visueel systeem in `app/design.css` (laatste laag, 1.14): tokens (canvas #F6F3E9, ink #18211D, forest #163B32, brand #1F806B, mint #DDEDE6, gold #F6B84B), alleen Fredoka + Manrope, vaste schalen, één schaduw. Nieuwe schermen gebruiken `components/ds` (States, Celebration) en de tokens, geen nieuwe losse kleuren. Eén primaire actie per scherm; scoreregels horen op `/scoring`, niet op de homepage. Lijniconen via `GameIcon` in plaats van emoji in de interface.
 - Vrienden (alleen accounts) zien elkaars online-status (heartbeat `/api/presence`, 90 s venster) en kunnen elkaar direct in een kamer uitnodigen (`/api/rooms/:code/invite`, `/api/invites/:id`). Online-status is alleen zichtbaar voor geaccepteerde vrienden; gasten schrijven geen presence.
-- Illustraties (1.16) zijn vlakke cartoons met Roviko de wereldbol, in `public/art/` (WebP). Nieuwe illustraties volgen die stijl; paginakoppen krijgen ze via `PageHeader art="..."`. Scènes zijn decoratie: vlaggen en vormen in vragen en antwoorden komen altijd uit de data, nooit uit een illustratie.
+- Elke spelvorm heeft een eigen logo in `components/atelier/GameIcon.tsx` (getekende SVG, tweekleurig via `currentColor`); nieuwe spelvormen krijgen daar ook een logo. Gebruik altijd `<GameIcon mode=…/>` waar een spel genoemd wordt, geen emoji of losse iconen.
+- Lay-out 1.17 volgt de ontwerpen van de eigenaar (ChatGPT, september 2026): veel witruimte, kleur in de illustraties en logo's, niet in achtergronden; lichte kaarten in plaats van donkere blokken; op mobiel een zwevende tabbalk. Nieuwe pagina's gebruiken dezelfde kaarttaal (illustratie boven, logo op de rand, titel, één regel, één actie).
+- Illustraties (1.16/1.17) zijn vlakke cartoons met Roviko de wereldbol, in `public/art/` (WebP). Nieuwe illustraties volgen die stijl; paginakoppen krijgen ze via `PageHeader art="..."`. Scènes zijn decoratie: vlaggen en vormen in vragen en antwoorden komen altijd uit de data, nooit uit een illustratie.
 - De homepage heeft de mascotte met ring (één boog per dagspel) en een tekstballon die zegt hoeveel spellen er nog zijn; de reeks, dagdoelen en week met reeksschild staan zichtbaar op de homepage. De mascotte-stemmingen staan in `components/ds/Mascot.tsx`.
 - Wereldduel en het mysterieland zijn extra's zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
 - Toon feedback zodra de server heeft bevestigd. Verstuur nooit dagspeloplossingen vooraf om feedback sneller te laten lijken. Ongescoord oefenen mag lokaal onmiddellijk reageren.

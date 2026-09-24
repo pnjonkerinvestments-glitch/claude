@@ -67,7 +67,7 @@ export function PassportPage() {
       </div>}
     </section>
 
-    <PassportCollection stats={s} t={t} locale={locale} onStart={() => start({ ...DEFAULT_SETTINGS, mode: 'flags', count: 5 })}/>
+    <PassportCollection stats={s} t={t} locale={locale} go={go} onStart={() => start({ ...DEFAULT_SETTINGS, mode: 'flags', count: 5 })}/>
 
     <section className="page-section" aria-labelledby="passport-review">
       <SectionHeader id="passport-review" title={t('reviewKnowledge')} action={reviews.length > 0 && <button className="text-link" onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed' }, true)}>{t('reviewCardCta')}<ArrowRight size={16} aria-hidden="true"/></button>}/>

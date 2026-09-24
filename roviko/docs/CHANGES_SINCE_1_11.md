@@ -231,3 +231,84 @@ Geen migratie en geen spelregelwijzigingen.
 - De checklist staat in `roviko-app/LANCERING.md`.
 
 **Tests:** 127 van 127. Nieuw: elke illustratie waarnaar de interface verwijst bestaat en blijft onder de 140 KB, en de regiokaarten houden hun tekst vrij van de illustratie.
+
+## 1.17.0: rustige Roviko-lay-out uit de ChatGPT-ontwerpen
+
+**Geen nieuwe migratie.** De laatste blijft `0004_daffy_tusk.sql`. Er zijn geen nieuwe geheimen en de API is niet gewijzigd. De cacheversie van de service worker is `roviko-shell-v1.17.0`.
+
+**Basis.** De live site roviko.app draaide 1.15.1. De bundelnamen op roviko.app zijn identiek aan onze 1.15.1-build, dus de bron hier is precies de live versie, plus 1.16 en 1.17.
+
+**Bron van de lay-out.** De eigenaar deelde acht ontwerpen via ChatGPT:
+- desktop: Ontdekken en Samen spelen;
+- mobiel: Punten, Hoe speel je, Dagdoelen en reis, Paspoort, Alle spellen en Klassieke spellen.
+
+Die zijn per pagina nagebouwd, met meer witruimte en minder concurrerende kleuren, zoals gevraagd.
+
+**Eén logo per spelvorm.** `components/atelier/GameIcon.tsx` tekent nu voor elke spelvorm een eigen logo als tweekleurige SVG, niet langer als los lijnicoon. Het gaat om 14 logo's:
+- Rank Radar: radar;
+- Wereldreis: wereldbol met vliegtuig;
+- Side by Side: weegschaal;
+- Country Mosaic: vier tegels;
+- Clue Trail: kaart met speld;
+- Wereldduel: kaarten;
+- Mysterieland: vergrootglas;
+- City Circuit: skyline;
+- Flag Signal: vlag;
+- Pinpoint: speld op doel;
+- Next Door: wegwijzer;
+- Size Shuffle: bollen op sokkels;
+- Around the World: bol met baan;
+- Kamers: twee spelers.
+
+De logo's staan overal waar een spel genoemd wordt: dagkaarten, klassiekers, spelkoppen, tabs van Hoe speel je, dagdoelen, Punten, de spel-, kamer- en oefendialogen en recente spellen. Ze werken ook in de donkere modus.
+
+**Per pagina**
+- **Alle spellen:**
+  - Dagspellen als kaarten met een illustratie, het logo op de rand, één regel tekst, "Tot 1.000 punten" en één duidelijke Start-knop. Oefenen en uitleg staan er rustig onder of in de hoek.
+  - Extra's in twee kaarten.
+  - Klassiekers als kaarten met een eigen scène: vergrootglas, stad, vlaggen, speld, wegwijzer en wereldbollen.
+  - Regio en "Verras me" naast elkaar.
+- **Ontdekken:**
+  - Tips van vandaag op een landschap van het werelddeel, met de echte vlag als ansichtkaart.
+  - Regio's als brede banners op desktop en als landschapskaarten op mobiel, met de tekst in de lucht zoals in het ontwerp.
+  - Regio via `/explore#<regio>` te openen.
+- **Paspoort:**
+  - De regio's zijn dezelfde landschapskaarten, met x/5 en een link naar die regio.
+  - De lege staat heeft de paspoort-illustratie.
+  - De kaart staat in een eigen kaart.
+- **Punten:**
+  - Terug-knop.
+  - Vier feitentegels met icoon en landschap: 1.000, 5.000, 1× en ∞.
+  - De vijf dagspellen met hun logo's.
+- **Hoe speel je:**
+  - Kop met de nieuwsgierige wereldbol.
+  - Tabs als pillen met logo.
+  - Per spel de eigen illustratie; ook de klassiekers hebben er nu een.
+- **Homepage:**
+  - Dagdoelen met ondertitel, een groot logo per doel en doorklikken naar het spel.
+  - Reiskaart met grote weekbolletjes en een schildregel die naar de uitleg linkt.
+  - Samen spelen als lichte kaart in plaats van een donker blok.
+- **Samen spelen:**
+  - Kamerlogo bij "Maak een kamer" en meer ruimte.
+  - Op mobiel één grote illustratie; de kop-illustratie en de gids-mascotte zijn daar weggelaten.
+- **Ranglijst:** "Jouw plek" is een lichte kaart.
+- **Documenten** (bronnen, privacy, voorwaarden): een Terug-knop.
+- **Mobiel algemeen:**
+  - Een zwevende, afgeronde tabbalk met een mint pil voor het actieve tabblad.
+  - Kop-illustraties rechtsboven met de tekst eromheen.
+  - Een warme vlam in de reeks-pil.
+  - Op 320 px wordt niets meer afgekapt en scrolt er niets zijwaarts; dat is getest in EN, NL en ES.
+
+**Illustraties.** Nieuw in `public/art/` (WebP, allemaal onder 140 KB):
+- `scene-*`, `banner-*` en `pick-*` per werelddeel;
+- `classic-*` per klassieker;
+- `fact-*` (vier);
+- `scoring-hero`, `howto-hero`, `quests-scene`, `journey-scene` en `passport-stamps`;
+- een nieuwe `friends-hero` en `lobby-create`.
+
+De tekst en knoppen die in de ontwerpen waren ingetekend, zijn weggehaald met inpainting. Elf oude illustraties die niet meer gebruikt worden, zijn verwijderd. In de donkere modus staan de illustraties op een klein papieren kaartje.
+
+**Tests:** 128/128. Nieuw:
+- alle illustraties bestaan en zijn licht, en er zijn geen ongebruikte bestanden;
+- elke spelvorm heeft een eigen logo, en de logo's worden gebruikt;
+- de regiokaarten houden hun tekstruimte.

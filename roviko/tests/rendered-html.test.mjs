@@ -45,7 +45,7 @@ test("renders the playable branded homepage before hydration", async () => {
   assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'stops in order');
   // Reasons to come back: quests and the week with the streak shield are visible on the homepage.
   assert.match(html, /Daily quests/);
-  assert.match(html, /class="motivation-week"/);
+  assert.match(html, /class="motivation-week[ "]/);
   assert.match(html, /How scoring works/);
   // More to explore: exactly three secondary cards and a way to all games.
   assert.equal((html.match(/class="game-card game-card-/g)||[]).length, 3);

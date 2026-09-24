@@ -924,3 +924,419 @@ small,.small{font-size:var(--text-small)}
 @media (min-width:981px){.together{grid-template-columns:minmax(0,300px) 1fr auto}}
 .together-art{min-width:0}
 .together-friends{width:100%;max-width:300px}
+
+/* ===================================================================================
+   1.17 · calm Roviko layout (from the owner's ChatGPT mockups, with more air)
+   - One logo per game (GameIcon), one card language: art on top, logo tile on the edge,
+     title, one line of copy, one clear action.
+   - More white space between cards and sections; colour lives in the art and the logos,
+     not in backgrounds.
+   =================================================================================== */
+.game-icon>svg.game-logo{width:66%;height:66%;overflow:visible}
+:root:not([data-theme=dark]) .game-icon{background:linear-gradient(180deg,color-mix(in srgb,var(--gi-bg) 45%,#fff),var(--gi-bg))}
+.game-icon-lg>svg.game-logo{width:64%;height:64%}
+
+/* Section rhythm */
+.page{gap:var(--space-8)}
+.page-section,.deck-v3,.classic-section,.deck-extras{display:grid;gap:var(--space-5)}
+.section-header{margin-bottom:0}
+.section-header p{margin:4px 0 0}
+@media (max-width:640px){.page{gap:var(--space-7)}}
+
+/* All games · daily cards */
+.deck-head{align-items:flex-end}
+.deck-reset{display:inline-flex;gap:6px;align-items:center;padding:8px 14px;border-radius:99px;background:var(--color-surface);box-shadow:var(--shadow-card);font-weight:700;font-size:.875rem;color:var(--color-ink-soft);white-space:nowrap}
+.deck-reset time{color:var(--color-ink)}
+.dgrid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:var(--space-5)}
+.dcard{grid-column:span 2;position:relative;display:flex;flex-direction:column;min-width:0;border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card);overflow:hidden}
+.dcard:nth-child(4),.dcard:nth-child(5){grid-column:span 3}
+.dcard-rank{--cover:#fcd1b5}.dcard-daily{--cover:#c4edc2}.dcard-compare{--cover:#fdcbbc}.dcard-mosaic{--cover:#d3cefd}.dcard-trail{--cover:#bdeedb}
+.dcard-art{position:relative;height:190px;background:var(--cover,var(--color-mint))}
+.dcard-art .game-cover-image{width:100%;height:100%;object-fit:contain;transition:transform 400ms var(--ease)}
+.dcard:hover .dcard-art .game-cover-image{transform:scale(1.03)}
+.dcard.is-done .dcard-art .game-cover-image{filter:saturate(.7)}
+.dcard-state{position:absolute;top:12px;left:12px;display:inline-flex;align-items:center;gap:6px;padding:5px 11px 5px 9px;border-radius:99px;background:#fff;color:#18211d;font:700 .8125rem/1.2 var(--font-sans);box-shadow:0 2px 8px rgba(24,33,29,.08)}
+.dcard-state i{width:8px;height:8px;border-radius:50%;background:var(--color-gold)}
+.dcard.is-active .dcard-state i{background:#1f806b}
+.dcard.is-done .dcard-state{background:#163b32;color:#fff}
+.dcard-body{position:relative;display:flex;flex:1;flex-direction:column;align-items:flex-start;gap:6px;padding:36px var(--space-5) var(--space-5)}
+.game-icon.dcard-logo,.game-icon.ccard-logo{position:absolute;top:-26px;left:var(--space-5);width:52px;height:52px;border-radius:15px;box-shadow:0 0 0 4px var(--color-surface),0 6px 14px rgba(24,33,29,.08)}
+.dcard h3{margin:0;font:600 1.375rem/1.2 var(--font-display);letter-spacing:-.005em}
+.dcard p{margin:0;color:var(--color-ink-soft);font-size:.9375rem;line-height:1.45}
+.dcard-points{display:inline-flex;align-items:center;gap:6px;margin-top:2px;color:var(--color-ink-soft);font-weight:700;font-size:.8125rem}
+.dcard-start{margin-top:auto;width:100%;justify-content:center}
+.dcard-body>p+.dcard-points{margin-bottom:var(--space-4)}
+.dcard-more{display:flex;align-items:center;justify-content:space-between;gap:var(--space-2);width:100%;min-height:36px}
+.dcard-more .text-link{display:inline-flex;align-items:center;gap:6px;font-size:.875rem;text-align:left}
+@media (max-width:760px){
+  .dgrid{grid-template-columns:1fr 1fr;gap:var(--space-4)}
+  .dcard,.dcard:nth-child(4){grid-column:auto}
+  .dcard:nth-child(5){grid-column:1/-1}
+  .dcard-art{height:132px}
+  .dcard:nth-child(5) .dcard-art{height:156px}
+  .dcard-body{padding:30px var(--space-4) var(--space-4);gap:4px}
+  .game-icon.dcard-logo{top:-22px;left:var(--space-4);width:44px;height:44px;border-radius:13px}
+  .dcard h3{font-size:1.125rem}
+  .dcard p{font-size:.875rem;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .dcard:nth-child(5) p{-webkit-line-clamp:2}
+  .dcard-start{min-height:44px;padding-inline:12px;font-size:.9375rem}
+  .dcard-more .text-link{font-size:.8125rem}
+  .deck-head{flex-wrap:wrap}
+}
+
+/* Extras */
+.extras-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+.extras-row .game-card-art{aspect-ratio:12/5}
+.extras-row .game-card-art .game-cover-image{object-position:center bottom}
+@media (max-width:760px){.extras-row{grid-template-columns:repeat(2,82%)}}
+
+/* Classic games */
+.classic-controls{display:flex;flex-wrap:wrap;align-items:flex-end;gap:var(--space-3)}
+.classic-controls .field{flex:1 1 220px;max-width:340px;margin:0}
+.classic-controls .surprise-button{min-height:48px}
+.classic-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--space-5)}
+.ccard{position:relative;min-width:0;border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card);overflow:hidden;transition:transform 200ms var(--ease)}
+.ccard:hover{transform:translateY(-3px)}
+.ccard-main{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;width:100%;padding:0;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.ccard-main:disabled{cursor:not-allowed;opacity:.65}
+.ccard-art{grid-column:1/-1;position:relative;display:block;aspect-ratio:574/248;overflow:hidden;background:var(--color-mint)}
+.ccard-art img{display:block;width:100%;height:100%;object-fit:cover}
+.ccard-wave{position:absolute;left:0;right:0;bottom:-1px;display:block;width:100%;height:20px;color:var(--color-surface)}
+.ccard-body{position:relative;display:grid;gap:2px;min-width:0;padding:34px var(--space-5) var(--space-5)}
+.ccard-body strong{font:600 1.25rem/1.2 var(--font-display)}
+.ccard-body small{color:var(--color-ink-soft);font-size:.9375rem;line-height:1.35}
+.ccard-go{display:grid;place-items:center;width:40px;height:40px;margin:0 var(--space-4) var(--space-5) 0;border-radius:50%;border:1px solid var(--color-line-strong);color:var(--color-ink);transition:transform var(--speed) var(--ease),background var(--speed)}
+.ccard:hover .ccard-go{transform:translateX(2px);background:var(--color-mint)}
+.icon-btn.ccard-settings{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);color:#18211d;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+@media (max-width:760px){
+  .classic-grid{grid-template-columns:1fr 1fr;gap:var(--space-4)}
+  .classic-controls .field{flex-basis:100%;max-width:none}
+  .classic-controls .surprise-button{flex:1}
+  .ccard-body{padding:28px var(--space-4) var(--space-4)}
+  .game-icon.ccard-logo{top:-22px;left:var(--space-4);width:44px;height:44px;border-radius:13px}
+  .ccard-body strong{font-size:1.0625rem}
+  .ccard-body small{font-size:.8125rem}
+  .ccard-go{width:34px;height:34px;margin:0 var(--space-3) var(--space-4) 0}
+}
+.dcard-help{position:absolute;top:10px;right:10px}
+.dcard-help .howto-button{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.92);color:#18211d;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.dcard-practice{display:inline-flex;align-items:center;gap:6px;align-self:center;margin-top:var(--space-2);font-size:.875rem;text-align:center}
+@media (max-width:760px){.dcard-practice{font-size:.8125rem}}
+/* Classic cards: settings sit quietly in the card body, not on top of the picture. */
+.icon-btn.ccard-settings{top:auto;bottom:auto;right:12px;margin-top:0;background:transparent;box-shadow:none;color:var(--color-ink-soft);width:34px;height:34px}
+.ccard .icon-btn.ccard-settings{position:absolute;top:calc(var(--ccard-art-h, 0px) + 8px)}
+.ccard-art{height:var(--ccard-art-h);aspect-ratio:auto}
+.ccard{--ccard-art-h:150px}
+.ccard-settings:hover{background:var(--color-mint);color:var(--color-ink)}
+@media (max-width:760px){.ccard{--ccard-art-h:96px}.ccard-wave{height:14px}}
+/* Extras: shorter pictures on a matching background, so nothing is blown up. */
+.extras-row .game-card-art{aspect-ratio:auto;height:180px}
+.extras-row .game-card-duel .game-card-art{background:#f7e2e5}
+.extras-row .game-card-mystery .game-card-art{background:#e0e0fd}
+.extras-row .game-card-art .game-cover-image{object-fit:contain;object-position:center}
+@media (max-width:760px){.extras-row .game-card-art{height:128px}}
+.deck-extras{margin-top:var(--space-6)}
+@media (max-width:760px){.extras-row{grid-template-columns:1fr;overflow:visible;margin:0;padding:0}}
+
+/* Explore · today's picks: a scene per region, the real flag as a postcard in the sky. */
+.pick-row{gap:var(--space-5)}
+.pick-card{grid-template-columns:minmax(0,1fr) auto;align-items:center}
+.pick-flag{grid-column:1/-1;aspect-ratio:2/1;background:#d9ecf6}
+.pick-flag .pick-scene{object-position:center top}
+.pick-postcard{left:6%;top:11%;width:33%;height:46%;padding:5px;border-radius:10px;transform:rotate(-4deg);box-shadow:0 8px 18px rgba(24,33,29,.18)}
+.pick-copy{padding:var(--space-4) var(--space-3) var(--space-5) var(--space-5)}
+.round-go{display:grid;place-items:center;flex-shrink:0;width:38px;height:38px;margin-right:var(--space-5);border-radius:50%;border:1px solid var(--color-line-strong);color:var(--color-ink);background:var(--color-surface);transition:transform var(--speed) var(--ease),background var(--speed)}
+.pick-card:hover .round-go,.scene-card:hover .round-go{transform:translateX(2px)}
+
+/* Explore · regions: one landscape per continent (same set as the passport). */
+.region-grid{gap:var(--space-5)}
+.region-card.scene-card,[data-theme=dark] .region-card.scene-card{display:block;position:relative;aspect-ratio:2/1;min-height:0;padding:0;background:#d9ecf6;color:#18211d}
+.scene-card .region-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 12%;order:0;margin:0}
+.scene-card .region-copy{position:relative;display:grid;gap:2px;padding:var(--space-5) var(--space-5)}
+.scene-card .region-copy strong{font:600 1.375rem/1.15 var(--font-display);color:#18211d}
+.scene-card .region-copy small{font-weight:600;color:#3d4843;opacity:1}
+.scene-card .round-go{position:absolute;right:14px;bottom:14px;margin:0;border:0;background:#fff;color:#18211d;box-shadow:0 4px 12px rgba(24,33,29,.14)}
+@media (max-width:760px){
+  .region-grid{gap:var(--space-4)}
+  .region-card.scene-card,[data-theme=dark] .region-card.scene-card{aspect-ratio:418/310;min-height:0}
+  .scene-card .region-art{position:absolute;height:100%;object-position:center}
+  .scene-card .region-copy{padding:var(--space-4)}
+  .scene-card .region-copy strong{font-size:1.125rem}
+  .scene-card .region-copy small{font-size:.8125rem}
+  .scene-card .round-go{width:34px;height:34px;right:10px;bottom:10px}
+  .pick-copy{padding:var(--space-3) var(--space-2) var(--space-4) var(--space-4)}
+  .round-go{margin-right:var(--space-4)}
+}
+.region-card.scene-card,[data-theme=dark] .region-card.scene-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch}
+/* The same landscape appears once per region: picks show it mirrored, with the flag on the other side. */
+.pick-card.is-mirrored .pick-scene{transform:scaleX(-1)}
+.pick-card.is-mirrored:hover .pick-scene{transform:scaleX(-1) scale(1.03)}
+.pick-card.is-mirrored .pick-postcard{left:auto;right:6%;transform:rotate(4deg)}
+
+/* Friends lobby: more air between the pictures, one picture per card at most. */
+.lobby-choice{gap:var(--space-6)}
+.lobby-card-body{gap:var(--space-4);padding:var(--space-6)}
+.lobby-title{display:flex;align-items:flex-start;gap:var(--space-4)}
+.lobby-title>div{display:grid;gap:6px}
+.lobby-title .game-icon{width:52px;height:52px;border-radius:15px;flex-shrink:0}
+.lobby-links{gap:var(--space-6)}
+.lobby-links .soft-link{padding:var(--space-5) var(--space-6)}
+.lobby-join .lobby-card-body{padding-top:var(--space-6)}
+.lobby-join-mascot{top:22px;right:22px;width:84px}
+@media (max-width:760px){
+  .lobby-choice,.lobby-links{gap:var(--space-5)}
+  .lobby-card-body{padding:var(--space-5)}
+  .lobby-links .soft-link{padding:var(--space-4) var(--space-5)}
+  .lobby-title .game-icon{width:44px;height:44px;border-radius:13px}
+}
+/* Region cards: wide banners on desktop (as in the mockup), square-ish landscapes on phones. */
+.scene-card .region-art{display:block}
+.scene-card .region-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center bottom}
+@media (min-width:761px){
+  .region-card.scene-card,[data-theme=dark] .region-card.scene-card{aspect-ratio:658/210}
+  .scene-card .region-copy{padding:var(--space-4) var(--space-5)}
+  .scene-card .round-go{display:none}
+}
+@media (max-width:760px){
+  .scene-card .region-copy{max-width:62%;padding:var(--space-3) var(--space-3) 0}
+  .scene-card .region-copy strong{font-size:1.0625rem;line-height:1.1;overflow-wrap:anywhere}
+  .scene-card .region-copy small{font-size:.75rem;line-height:1.3}
+  .scene-card::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(120% 90% at 0% 0%,rgba(255,255,255,.78),rgba(255,255,255,.35) 38%,rgba(255,255,255,0) 60%)}
+  .scene-card .region-copy,.scene-card .round-go{z-index:2}
+}
+
+/* Passport · region progress as landscape cards, and the "open passport" banner (mockup m6). */
+.passport-regions{margin:var(--space-5) 0 var(--space-2)}
+.passport-region{text-decoration:none}
+.passport-region .region-count{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font:600 1.25rem/1 var(--font-display);color:#18211d}
+.passport-region.is-earned .region-count{color:#17634f}
+.passport-region .region-copy small{margin-top:2px}
+@media (min-width:761px){.passport-region .region-copy{grid-template-columns:auto auto;justify-content:start;column-gap:10px;align-items:baseline}.passport-region .region-copy strong{grid-column:1/-1}.passport-region .region-count{margin-top:4px}}
+@media (max-width:760px){.passport-region .region-count{font-size:1.0625rem}}
+.stamp-empty,.stamp-empty{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);align-items:center;gap:var(--space-4);padding:var(--space-6);border-radius:var(--radius-card);background:#f1ebdb;overflow:hidden}
+[data-theme=dark] .stamp-empty{background:var(--color-surface-2)}
+.stamp-empty-copy{display:grid;gap:var(--space-4);justify-items:start}
+.stamp-empty-copy p{margin:0;font:600 clamp(1.375rem,1.1rem + 1vw,1.875rem)/1.15 var(--font-display);color:var(--color-ink)}
+.stamp-empty .btn{width:auto;white-space:normal}
+.stamp-empty-art{justify-self:end;width:100%;max-width:340px;height:auto}
+@media (max-width:640px){.stamp-empty{grid-template-columns:1fr 42%;padding:var(--space-5) var(--space-4);gap:var(--space-2)}.stamp-empty .btn{width:100%;padding-inline:14px;font-size:.9375rem}}
+/* The collection sits on the canvas like the mockup: the map gets its own card, the regions breathe. */
+.passport-collection{background:none;box-shadow:none;padding:0;margin:0;display:grid;gap:var(--space-4)}
+.passport-collection>.atelier-section-heading{display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-3);margin:0}
+.passport-collection>.atelier-section-heading h2{margin:0;font-size:var(--text-h2)}
+.passport-collection>.atelier-section-heading span{padding:4px 12px;border-radius:99px;background:var(--color-surface);box-shadow:var(--shadow-card);font-weight:700;font-size:.875rem}
+.passport-collection .stamp-rule{margin:0;max-width:720px}
+.passport-collection .discovery-atlas{background:var(--color-surface)!important;border-radius:var(--radius-card);box-shadow:var(--shadow-card)!important;border:0;padding:var(--space-5)!important}
+.passport-regions{margin:var(--space-3) 0 0}
+.stamp-region-rule{margin:0;text-align:center;color:var(--color-ink-soft);font-size:.875rem}
+@media (max-width:640px){.stamp-empty-copy p{font-size:1.1875rem}.stamp-empty{grid-template-columns:1fr 44%}}
+
+/* Home · daily quests and the journey card (mockup m5): icon tile, a small landscape in the corner, calm rows. */
+.quests-v3,.journey-card{position:relative;overflow:hidden}
+.quests-v3 header,.journey-card header{position:relative;display:flex;align-items:center;gap:var(--space-4);min-height:64px;margin:0 0 var(--space-4)!important}
+.quests-v3 header>div,.journey-card header>div{position:relative;z-index:1;min-width:0;max-width:62%}
+.quests-v3 h2,.journey-card h2{margin:0!important;font:600 1.375rem/1.15 var(--font-display)!important}
+.quests-v3 header p,.journey-card header p{margin:4px 0 0!important;color:var(--color-ink-soft);font-size:.9375rem!important;line-height:1.4}
+.quests-v3 .quests-badge,.journey-card .week-flame{position:relative;z-index:1;display:grid;place-items:center;width:56px!important;height:56px!important;flex-shrink:0;border-radius:16px!important;box-shadow:none!important}
+.quests-v3 .quests-badge{background:#fbeccb!important;color:#8a5a00!important}
+.journey-card .week-flame{background:#dcefe6;color:#17634f}
+.journey-card .week-flame svg{fill:none}
+[data-theme=dark] .quests-v3 .quests-badge{background:#3a2e17!important;color:#f6c870!important}
+[data-theme=dark] .journey-card .week-flame{background:#1c3a31;color:#8fd9bd}
+.card-corner-art{position:absolute;top:calc(-1 * var(--space-5));right:calc(-1 * var(--space-5));width:auto;height:118px;pointer-events:none;user-select:none}
+.quests-v3 .card-corner-art{height:112px}
+.journey-card .card-corner-art{height:124px}
+.quests-v3 .quests-crowns{position:relative;z-index:1;margin-left:auto}
+.quests-v3.has-art .quests-crowns{display:none}
+.quests-v3 .quest-list{display:grid;gap:var(--space-3);margin:0;padding:0;list-style:none}
+.quests-v3 .quest-list li{padding:0!important;border:0!important;background:none!important}
+.quests-v3 .quest-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;column-gap:var(--space-4);width:100%;padding:var(--space-4);border:0;border-radius:18px;background:var(--color-surface);box-shadow:0 1px 2px rgba(24,33,29,.04),0 6px 18px rgba(24,33,29,.05);color:inherit;font:inherit;text-align:left}
+button.quest-row{cursor:pointer;transition:transform var(--speed) var(--ease)}
+button.quest-row:hover{transform:translateY(-1px)}
+.quests-v3 .quest-icon{display:grid;place-items:center;width:52px!important;height:52px!important;border-radius:15px!important;background:none!important;box-shadow:none!important}
+.quests-v3 .quest-icon .game-icon{width:52px;height:52px;border-radius:15px}
+.quests-v3 .quest-icon-games{background:#fde6d3!important;color:#d9621b}
+.quests-v3 .quest-icon-games svg{fill:#f6b84b55}
+.quests-v3 li.is-done .quest-icon{background:#dcefe6!important;color:#17634f}
+[data-theme=dark] .quests-v3 .quest-icon-games{background:#3a2619!important;color:#ffb07a}
+.quest-copy{display:grid;gap:3px;min-width:0}
+.quest-copy strong{font:600 1.0625rem/1.25 var(--font-display)}
+.quest-copy small{color:var(--color-ink-soft);font-size:.875rem;line-height:1.35}
+.quests-v3 .quest-bar{display:block;height:8px;margin-top:6px;border-radius:99px;background:var(--color-surface-2);overflow:hidden}
+.quests-v3 .quest-bar i{display:block;height:100%;border-radius:99px;background:#45b97c}
+.quests-v3 .quest-count{align-self:end;padding-bottom:1px;color:var(--color-ink-soft);font-weight:800;font-size:.9375rem;font-variant-numeric:tabular-nums}
+.quest-go{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;background:var(--color-surface);box-shadow:0 0 0 1px var(--color-line-strong);color:var(--color-ink)}
+.quests-v3 li.is-done .quest-copy strong{color:var(--color-ink-soft)}
+.motivation-quests .quests-v3{padding:var(--space-5)!important}
+.journey-card{gap:var(--space-5)!important}
+.journey-card .week-dots{gap:4px}
+.journey-card .week-dot{width:clamp(32px,9vw,44px);height:clamp(32px,9vw,44px)}
+.journey-card .week-dots small{font-size:.8125rem}
+.journey-card .week-dots .is-today .week-dot{background:var(--color-surface-2);box-shadow:inset 0 0 0 3px var(--color-gold)}
+.journey-card .week-dots .is-today.is-played .week-dot{background:var(--color-brand)}
+a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding:12px 16px!important;border-radius:16px!important;text-decoration:none;font-size:.9375rem}
+@media (max-width:640px){
+  .quests-v3 h2,.journey-card h2{font-size:1.25rem!important}
+  .quests-v3 header p,.journey-card header p{font-size:.875rem!important}
+  .quests-v3 .quests-badge,.journey-card .week-flame{width:48px!important;height:48px!important;border-radius:14px!important}
+  .card-corner-art{height:92px;right:-20px;top:-20px}
+  .quests-v3 .quest-row{column-gap:var(--space-3);padding:var(--space-3)}
+  .quests-v3 .quest-icon,.quests-v3 .quest-icon .game-icon{width:44px!important;height:44px!important;border-radius:13px!important}
+  .quest-copy strong{font-size:1rem}
+  .quest-copy small{font-size:.8125rem}
+  .quest-go{width:32px;height:32px}
+}
+.quests-v3 .quest-list li{display:block!important;grid-template-columns:none!important;gap:0!important;min-height:0!important}
+
+/* Home · calmer "play together": a light card instead of a dark block. */
+.together{background:var(--color-surface)!important;color:var(--color-ink)!important;box-shadow:var(--shadow-card);border-radius:var(--radius-card)!important;padding:var(--space-6) var(--space-7)!important}
+.together h2{color:var(--color-ink)!important}
+.together p{color:var(--color-ink-soft)!important}
+.together .kicker{color:var(--link)!important}
+.together .avatar-stack .avatar{box-shadow:0 0 0 3px var(--color-surface)!important}
+@media (max-width:980px){.together{padding:var(--space-5)!important}}
+/* Home · trip header: title, then the progress line, with air in between. */
+.trip-v2 .section-header{margin-bottom:0}
+.trip-summary{margin:var(--space-2) 0 var(--space-4)!important;display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);color:var(--color-ink-soft);font-weight:700}
+.trip-summary>span:first-child{display:inline-flex;align-items:center;gap:6px}
+
+/* Back pill for pages outside the tab bar (scoring, how to play, documents). */
+.back-pill{display:inline-flex;align-items:center;gap:8px;justify-self:start;width:max-content;margin:0 0 var(--space-4);padding:9px 16px 9px 12px;border:0;border-radius:99px;background:var(--color-surface);box-shadow:var(--shadow-card);color:var(--color-ink);font:700 .9375rem/1 var(--font-sans);cursor:pointer}
+.back-pill:hover{background:var(--color-mint)}
+.page-header>.back-pill{display:flex}
+
+/* Scoring · four fact cards with a small landscape each (mockup m3), then the five daily games. */
+.fact-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-5);margin:0;padding:0;list-style:none}
+.fact-card{display:flex;flex-direction:column;min-width:0;border-radius:var(--radius-card);background:#fff;box-shadow:var(--shadow-card);overflow:hidden}
+[data-theme=dark] .fact-card{background:var(--color-surface)}
+.fact-card-top{display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-5) var(--space-5) var(--space-2)}
+.fact-card-top>div{display:grid;gap:2px;min-width:0}
+.fact-card strong{font:600 clamp(1.625rem,1.3rem + 1vw,2.125rem)/1.05 var(--font-display);font-variant-numeric:tabular-nums}
+.fact-card-top span:not(.fact-icon){color:var(--color-ink-soft);font-size:.9375rem;line-height:1.35}
+.fact-icon{display:grid;place-items:center;flex-shrink:0;width:48px;height:48px;border-radius:14px}
+.fact-points .fact-icon{background:#dcefe6;color:#17634f}
+.fact-day .fact-icon{background:#fbeccb;color:#8a5a00}
+.fact-once .fact-icon{background:#dcebf6;color:#1f5f8b}
+.fact-timer .fact-icon{background:#e5e1f8;color:#3b2f9a}
+[data-theme=dark] .fact-points .fact-icon{background:#1c3a31;color:#8fd9bd}[data-theme=dark] .fact-day .fact-icon{background:#3a2e17;color:#f6c870}
+[data-theme=dark] .fact-once .fact-icon{background:#16324a;color:#8fd0f5}[data-theme=dark] .fact-timer .fact-icon{background:#2a2550;color:#c3b8ff}
+.fact-art{display:block;width:100%;height:auto;margin-top:auto}
+[data-theme=dark] .fact-art{-webkit-mask-image:linear-gradient(to bottom,transparent,#000 45%);mask-image:linear-gradient(to bottom,transparent,#000 45%)}
+.five-games{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-4);margin-bottom:var(--space-3)}
+.five-game{display:grid;justify-items:center;gap:10px;padding:var(--space-4) var(--space-2);border-radius:var(--radius-card);color:var(--color-ink);text-decoration:none;text-align:center;font-weight:700;font-size:.9375rem;line-height:1.25;transition:background var(--speed)}
+.five-game:hover{background:var(--color-surface)}
+.five-game .game-icon-lg{width:72px;height:72px;border-radius:20px}
+.scoring-page .page-cta{display:flex;flex-wrap:wrap;align-items:center;gap:var(--space-4)}
+@media (max-width:900px){.fact-cards{grid-template-columns:1fr 1fr;gap:var(--space-4)}}
+@media (max-width:640px){
+  .fact-card-top{flex-direction:column;gap:var(--space-2);padding:var(--space-4) var(--space-4) var(--space-1)}
+  .fact-card-top span:not(.fact-icon){font-size:.875rem}
+  .fact-icon{width:42px;height:42px;border-radius:12px}
+  .five-games{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+  .five-game{padding:var(--space-2) 2px;font-size:.75rem;gap:6px}
+  .five-game .game-icon-lg{width:52px;height:52px;border-radius:15px}
+}
+
+/* Page headers on phones: the picture floats top-right and the text flows around it (mockups m3, m4). */
+@media (max-width:760px){
+  .page-header.has-art{display:flow-root!important;min-height:0!important;padding-right:0!important}
+  .page-header.has-art>.page-header-art,.page-header.has-art>.page-header-art[src*="-hero"]{position:static!important;float:right;order:0;width:44%;max-width:210px;height:auto!important;max-height:none!important;margin:-6px -6px 6px 12px!important;translate:none!important;shape-margin:4px;shape-image-threshold:.4;object-fit:contain}
+  .page-header.has-art>.page-header-art[src*="-hero"]{width:50%;max-width:240px}
+  .page-header.has-art>.kicker,.page-header.has-art>h1{padding-right:0!important}
+  .page-header.has-art>.lead{clear:none}
+}
+/* Dark mode: illustrations were painted on paper, so they sit on a small paper card. */
+[data-theme=dark] .page-header-art,[data-theme=dark] .stamp-empty-art,[data-theme=dark] .lobby-join-mascot,[data-theme=dark] .soft-link-mascot,[data-theme=dark] .soft-link-friends,[data-theme=dark] .together-friends,[data-theme=dark] .howto-mascot{background:#f6f3e9;border-radius:18px;padding:6px}
+[data-theme=dark] .card-corner-art{display:none}
+@media (max-width:760px){.page-header.has-art>.kicker{display:block}}
+
+/* How to play (mockup m4): pill tabs with each game's logo, one calm card per game. */
+.howto-tabs{gap:var(--space-2) var(--space-3)!important}
+.howto-tab-label{display:none!important}
+.howto-tab-group{gap:var(--space-2)!important}
+.howto-tab{min-height:52px!important;padding:5px 18px 5px 6px!important;font-weight:700;box-shadow:var(--shadow-card)!important}
+.howto-tab .game-icon{width:40px;height:40px;border-radius:50%!important;box-shadow:none}
+.howto-tab[aria-selected=true] .game-icon{background:#e3f1ea}
+.howto-art{background:var(--color-mint)}
+.howto-art-rank{background:#fcd1b5}.howto-art-daily{background:#c4edc2}.howto-art-compare{background:#fdcbbc}.howto-art-mosaic{background:#d3cefd}.howto-art-trail{background:#bdeedb}
+.howto-art-duel{background:#f7e2e5}.howto-art-mystery{background:#e0e0fd}
+.howto-art .game-cover-image{object-fit:contain!important}
+.howto-art img[src*="/art/classic-"],.howto-art img[src*="lobby-create"]{object-fit:cover!important}
+.howto-body h2{display:flex;align-items:center;gap:12px}
+.howto-title-logo{width:40px!important;height:40px!important;border-radius:12px!important}
+.howto-goal{font-size:1.125rem;color:var(--color-ink-soft);margin-bottom:var(--space-3)!important}
+.howto-body h3{margin-top:var(--space-6)!important}
+@media (max-width:860px){.howto-tabs{flex-wrap:nowrap!important;overflow-x:auto;margin:0 calc(-1 * var(--space-4));padding:4px var(--space-4) 10px!important;scrollbar-width:none}.howto-tabs::-webkit-scrollbar{display:none}.howto-tab{white-space:nowrap}}
+@media (max-width:640px){.howto-body h2{font-size:2rem}.howto-title-logo{display:none!important}}
+
+/* Mobile tab bar (mockups m3–m8): a floating rounded bar; the active tab sits in a soft mint pill. */
+@media (max-width:760px){
+  .tabbar{left:10px!important;right:10px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;padding:6px!important;border:0!important;border-radius:26px!important;background:var(--color-surface)!important;box-shadow:0 2px 6px rgba(24,33,29,.06),0 14px 34px rgba(24,33,29,.14)!important;gap:4px}
+  .tabbar a{min-height:56px!important;padding-top:7px!important;border-radius:20px!important;font-size:.8125rem!important}
+  .tabbar a.is-active{background:#e3f1ea;color:#17634f!important}
+  [data-theme=dark] .tabbar a.is-active{background:#1c3a31;color:#8fd9bd!important}
+  .tabbar a.is-active svg{fill:none!important}
+  .site-main{padding-bottom:calc(var(--space-9) + 84px)!important}
+  .app-footer{padding-bottom:calc(104px + env(safe-area-inset-bottom))!important}
+}
+/* Streak pill: a warm flame, like the mockups. */
+.streak-chip svg{color:#e8622a;fill:#f6b84b}
+.streak-chip:not(.is-on) svg{color:#e08a5a;fill:#fbd9a8}
+.streak-chip{box-shadow:var(--shadow-card)!important}
+
+/* Classic games controls (mockup m8): region picker with a globe and "Surprise me" side by side. */
+.classic-controls{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:var(--space-3)}
+.classic-controls .field{max-width:none!important;flex:none!important}
+.classic-controls .field>span{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.classic-controls .select-trigger{min-height:52px!important;padding-left:48px!important;border:0!important;border-radius:18px!important;background:var(--color-surface) url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2318211d%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22/%3E%3Cpath%20d%3D%22M12%202a14.5%2014.5%200%200%200%200%2020%2014.5%2014.5%200%200%200%200-20%22/%3E%3Cpath%20d%3D%22M2%2012h20%22/%3E%3C/svg%3E") no-repeat 16px center/20px!important;box-shadow:var(--shadow-card)!important;font-size:1rem!important;font-weight:700!important}
+[data-theme=dark] .classic-controls .select-trigger{background:var(--color-surface) url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23eef2ec%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2210%22/%3E%3Cpath%20d%3D%22M12%202a14.5%2014.5%200%200%200%200%2020%2014.5%2014.5%200%200%200%200-20%22/%3E%3Cpath%20d%3D%22M2%2012h20%22/%3E%3C/svg%3E") no-repeat 16px center/20px!important}
+.classic-controls .surprise-button{min-height:52px!important;border:0!important;border-radius:18px!important;background:var(--color-surface)!important;box-shadow:var(--shadow-card)!important;font-size:1rem}
+@media (min-width:761px){.classic-controls{max-width:560px}}
+@media (max-width:760px){.classic-controls .surprise-button{flex:none!important;padding-inline:16px}}
+/* Header illustrations on phones: figures stay small so the text leads. */
+@media (max-width:760px){.page-header.has-art>.page-header-art[src*="/art/spot-"],.page-header.has-art>.page-header-art[src*="join-mascot"]{width:36%;max-width:150px}}
+/* Friends lobby on phones: one big picture (the group), small mascots, more air. */
+@media (max-width:760px){
+  .friends-lobby .page-header-art{display:none}
+  .friends-lobby .lobby-choice,.friends-lobby .lobby-links{gap:var(--space-6)}
+  .soft-link-help .soft-link-mascot{display:none}
+  .soft-link-help{padding:var(--space-5)!important}
+}
+/* Daily card buttons: longer labels ("Continue puzzle", "Verder met de puzzel") wrap instead of being cut off. */
+.dcard-start{white-space:normal!important;text-align:center;line-height:1.15;height:auto!important;min-height:48px;padding-block:10px}
+@media (max-width:760px){.dcard-start{font-size:.875rem!important;padding-inline:8px!important;gap:4px}.dcard:not(:nth-child(5)) .dcard-start svg{display:none}}
+/* Rankings · "your position" as a calm light card with a mint edge, not a dark block. */
+.you-card{background:var(--color-surface)!important;color:var(--color-ink)!important;box-shadow:var(--shadow-card),inset 4px 0 0 var(--color-brand)}
+.you-card small{color:var(--link)!important}
+.you-card p{color:var(--color-ink-soft)!important}
+.you-card .btn.primary{background:var(--color-brand)!important;color:#fff!important}
+[data-theme=dark] .you-card .btn.primary{color:var(--color-brand-ink)!important}
+/* Small phones (320–380px): nothing may push the page sideways. */
+@media (max-width:760px){
+  .tabbar{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .tabbar a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .section-header{flex-wrap:wrap;row-gap:var(--space-2)}
+}
+@media (max-width:370px){.tabbar a{font-size:.75rem!important}.tabbar{left:6px!important;right:6px!important}}
+/* Skip link only for keyboard users, never after a tap or a route change. */
+.skip-link:focus:not(:focus-visible){top:-80px}
+/* Game header on small phones: the name gets the room, the logo steps aside. */
+@media (max-width:400px){
+  .game-header .game-title .game-icon{display:none}
+  .game-header-row{gap:6px}
+  .game-title strong{font-size:1rem}
+}
+/* Country Mosaic: the check button gets its own row on small phones. */
+@media (max-width:420px){
+  .mosaic-dock .mosaic-toolbar{flex-wrap:wrap}
+  .mosaic-dock .mosaic-check{flex:1 1 100%!important;order:10;justify-content:center}
+}
+/* World Duel: long subjects wrap inside the arena. */
+.duel-arena{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.duel-subject{max-width:100%;white-space:normal;overflow-wrap:break-word;hyphens:auto}
+@media (max-width:400px){.duel-subject{font-size:.875rem;padding:5px 10px}}
+@media (min-width:761px) and (max-width:1000px){.region-grid{grid-template-columns:1fr 1fr!important}}
+/* Dark mode: the header picture sits on a paper card, so text wraps around the card, not the drawing. */
+[data-theme=dark] .page-header-art{shape-outside:none!important}
+/* Modals open with the game's own logo. */
+.app-modal .game-icon.modal-logo{width:64px;height:64px;border-radius:18px;margin:0 auto var(--space-2)}
