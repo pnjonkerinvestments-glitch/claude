@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
   "website_version": "1.15.1",
-  "exported_at": "2026-09-24T11:21:39.623746+00:00",
-  "source_commit": "754af8d94f47cdf57517701a07be844cada49a46",
+  "exported_at": "2026-09-24T12:10:35.750Z",
+  "source_commit": "37a77540f6138a3d3f91e9245fd47fd51e26510b",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 8430,
-      "sha256": "038916f668e2595b3f2fc39b2bfd69ddc15ddf303adf6ce85d9b6c1adca65bd3"
+      "bytes": 9100,
+      "sha256": "256a654c70f38d6f3f42af1e9c269d00c426adebd0981d2e0c28dde8eaf36296"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -747,6 +747,11 @@
       "sha256": "65cd880f5bd485b8f62b97d423f3ff4ff8c3cd52ea2ce3c3469efcf7c51cde6a"
     },
     {
+      "path": "docs/PUBLICEREN.md",
+      "bytes": 6733,
+      "sha256": "bd9510038a13de375a1b11800e514a1a7883a2f7c32783a0c65a04787df7e526"
+    },
+    {
       "path": "docs/QA.md",
       "bytes": 10699,
       "sha256": "e65694fa4205e1772bb24ab43964333f9187adcb195f47b06e4062f1525e7155"
@@ -1233,8 +1238,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 2704,
-      "sha256": "9fd7b8d5baedffe37db5baa7cafa83130eff04a79603c8f143ae33876ceef77e"
+      "bytes": 2866,
+      "sha256": "966e1b4651e7e0779a64ca2d9d64a18663e32ec09b0bfe19921550bc910d26df"
     },
     {
       "path": "postcss.config.mjs",
@@ -4367,6 +4372,16 @@
       "sha256": "14cbfaa02749f47c6d8abcab68918c4836bd689bb7e802678475d146c3a9f46e"
     },
     {
+      "path": "scripts/deploy-cloudflare.sh",
+      "bytes": 1512,
+      "sha256": "a55700565435078828f3c830a06026b52964c808e0332864c846f570856e4c67"
+    },
+    {
+      "path": "scripts/export-chatgpt.sh",
+      "bytes": 3535,
+      "sha256": "49e9c87fcebe34b68ae617c5c9b534a79d0d7f588c00dc6312f5b56a19e6cb57"
+    },
+    {
       "path": "scripts/import-comparisons.py",
       "bytes": 3805,
       "sha256": "8ace4ee68a0ada4885516d42277233c102f735de504fef74f872513350539e7d"
@@ -4410,6 +4425,11 @@
       "path": "scripts/sites-env.sh",
       "bytes": 1530,
       "sha256": "df86ebfc27d2f00860036658e933ac0ddd7b5f6879aa5d51218f0863c7e1fb60"
+    },
+    {
+      "path": "scripts/smoke-test.mjs",
+      "bytes": 6591,
+      "sha256": "22e3fdb4069473f892a109c07d8751b43a7ccc3bfb6549f33de007032de05bf0"
     },
     {
       "path": "server/api.ts",
@@ -4620,10 +4640,22 @@
       "path": "worker/index.ts",
       "bytes": 2436,
       "sha256": "a9de367c891c5a23d97b375abdc4e1c253ec2f152c29cba9552bd68ac81bc3e6"
+    },
+    {
+      "path": "wrangler.cloudflare.jsonc",
+      "bytes": 1848,
+      "sha256": "6952c80ce2ea8fdb342e4290b99303f19156409acba1f06e5e97e912241cba5a"
     }
   ],
   "redesign": "docs/REDESIGN_1_14.md",
   "audit": "docs/AUDIT_1_14.md",
   "qa": "docs/QA_1_15.md",
-  "performance": "docs/CHANGES_SINCE_1_11.md#1151-sneller"
+  "performance": "docs/CHANGES_SINCE_1_11.md#1151-sneller",
+  "migrations_in_order": [
+    "drizzle/0000_graceful_demogoblin.sql",
+    "drizzle/0001_mighty_madame_masque.sql",
+    "drizzle/0002_mute_phantom_reporter.sql",
+    "drizzle/0003_gorgeous_arachne.sql",
+    "drizzle/0004_daffy_tusk.sql"
+  ]
 }
