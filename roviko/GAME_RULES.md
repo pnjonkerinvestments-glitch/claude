@@ -105,3 +105,8 @@ The daily streak counts consecutive UTC dates with at least one completed daily 
 ## One tap answers in single player (1.13)
 
 In single player (solo, practice and all official daily games) a tap on an answer is the answer: Rank Radar subjects and Pinpoint map taps no longer need a separate confirm button. The tapped card is outlined straight away and stays marked after the reveal. Arrow-key pin moves still need Enter, and multiplayer keeps the explicit lock button. Size Shuffle keeps its confirm button, because reordering is not an answer by itself. In daily Side by Side the carried country shows the value that was already revealed in the previous round; the new country's value stays hidden until the answer is saved.
+
+## Multiplayer review and clues (1.13.2)
+
+The pre-round countdown shows 3, 2, 1 and then "Go!". During each reveal the room view adds `roundAnswers`: every player's answer (as a readable label), whether it was right and the points it earned; answers stay private until the reveal. The live ranking shows each player's answer with ✓/✗ and their "+points" for the round (previously the points were hidden behind the streak indicator). A finished match adds `history`: every round's question, correct answer and all players' answers and points, shown as a round-by-round review on the podium screen. In multiplayer Clue Trail the four clues appear one at a time, 2 seconds apart; answering earlier still earns more speed points.
+

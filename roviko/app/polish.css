@@ -198,3 +198,35 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .streak-card-freeze.is-ready{background:#eef8fe;box-shadow:inset 0 0 0 1px #1673a833}
 [data-theme=dark] .streak-card-freeze.is-ready{background:#132a3d}
 .streak-card-note{grid-column:1/-1;font-size:.8rem;line-height:1.5;color:var(--muted-foreground)}
+
+/* ───────── Multiplayer: countdown, per-round answers, match review ───────── */
+.countdown-stage strong.is-go{color:#17844a;animation:pop-in 380ms cubic-bezier(.34,1.56,.64,1)}
+.live-rank-row .rank-person>span{display:flex;align-items:center;gap:4px;min-width:0}
+.rank-answer{font-size:.8rem;font-weight:700}
+.rank-answer em{font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.live-rank-row.was-right .rank-answer{color:var(--success)}
+.live-rank-row.was-wrong .rank-answer{color:var(--error-ink)}
+.rank-delta{flex-shrink:0;padding:2px 8px;border-radius:999px;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--line);color:var(--muted-foreground);font-size:.78rem;font-weight:800;font-variant-numeric:tabular-nums}
+.rank-delta.has-points{background:var(--correct-bg);color:var(--success);box-shadow:inset 0 0 0 1px var(--correct-border);animation:pop-in 380ms cubic-bezier(.34,1.56,.64,1)}
+.match-review{width:100%;max-width:760px;margin:36px auto 0;text-align:left}
+.match-review h2{font-size:1.35rem;font-weight:650}
+.match-review>p{margin:4px 0 14px;color:var(--muted-foreground);font-weight:600}
+.match-review>ol{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.match-review details{border:1px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:var(--shadow-1);overflow:hidden}
+.match-review summary{display:grid;grid-template-columns:28px 30px minmax(0,1fr) auto;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;list-style:none}
+.match-review summary::-webkit-details-marker{display:none}
+.match-review-round{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--primary);font-weight:900;font-size:.85rem}
+.match-review-q{font-weight:700;line-height:1.35;min-width:0}
+.match-review-answer{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;background:var(--correct-bg);color:var(--success);font-weight:800;font-size:.85rem;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.match-review details ul{margin:0;padding:4px 14px 10px;list-style:none;border-top:1px solid var(--line)}
+.match-review details li{display:grid;grid-template-columns:auto minmax(0,.8fr) minmax(0,1.2fr) auto;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
+.match-review details li:first-child{border-top:0}
+.match-review details li .avatar{width:30px;height:30px;font-size:.95rem}
+.match-review details li strong{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.match-review details li.is-you strong{color:var(--primary)}
+.match-review-pick{display:inline-flex;align-items:center;gap:5px;font-weight:700;font-size:.9rem;min-width:0}
+.match-review details li.was-right .match-review-pick{color:var(--success)}
+.match-review details li.was-wrong .match-review-pick{color:var(--error-ink)}
+.match-review details li b{font-variant-numeric:tabular-nums;font-weight:800;color:var(--muted-foreground)}
+.match-review details li.was-right b{color:var(--success)}
+@media (max-width:560px){.match-review summary{grid-template-columns:28px minmax(0,1fr);}.match-review summary .game-icon{display:none}.match-review-answer{grid-column:2;justify-self:start}.match-review details li{grid-template-columns:auto minmax(0,1fr) auto}.match-review-pick{grid-column:2;grid-row:2}}

@@ -113,3 +113,13 @@ Zie `docs/QA_1_12.md` voor de testresultaten en wat nog op echte apparaten gecon
 - Nieuw: `tests/streak.test.mjs`.
 - Aangepast: drie tests voor de nieuwe regels (één tik is het antwoord, en de waarde van het land dat blijft staan is zichtbaar).
 - `npm test`: 121 van 121 geslaagd.
+
+## Toegevoegd in 1.13.2 (multiplayer)
+
+- **Aftellen:** eindigt nu op "Go!" in plaats van twee keer "1".
+- **Na elke ronde:** de ranglijst toont per speler het gegeven antwoord met ✓ of ✗ en de punten voor die ronde. Die punten waren eerst verborgen zodra iemand een reeks had.
+- **Aan het eind:** "Kijk elke ronde terug", met per ronde de vraag, het goede antwoord en van iedere speler het antwoord en de punten.
+- **Clue Trail in multiplayer:** de hints verschijnen één voor één, om de 2 seconden, in plaats van alle vier tegelijk.
+- **Server:** er zijn twee extra velden bij de kamerstatus, `roundAnswers` (tijdens de uitslag van een ronde) en `history` (aan het eind van de match). Antwoorden blijven geheim tot de uitslag. Geen migratie nodig.
+- **Tests:** de multiplayertest controleert nu ook de antwoorden per ronde en het overzicht aan het eind.
+

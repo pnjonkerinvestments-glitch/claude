@@ -5,7 +5,7 @@ import { prepareGeography, enrichMapFeedback } from './geography';
 import { one, rows, run, batch } from './db';
 import { AppError, requireUser, checkOrigin, nameSchema } from './auth';
 import { roomCode, random } from '../lib/game-engine/scoring';
-import { generateQuestions, evaluate, publicQuestion, type Settings } from '../lib/game-engine/questions';
+import { generateQuestions, evaluate, publicQuestion, type Settings, type Question } from '../lib/game-engine/questions';
 import { resultStatement } from './stats';
 import type { Room, Player, Env, User } from './types';
 const TTL = 30 * 60000;
@@ -81,8 +81,21 @@ export function tick(r: Room, now: number) {
     }
     return changed;
 }
+type Label = { en: string; nl: string; es?: string };
+/** A readable version of a player's answer, only ever sent after the round is revealed. */
+function answerLabel(q: Question, value: unknown): Label | null {
+    const option = (id: unknown) => q.options.find(o => o.id === id) as (Label & { id: string }) | undefined;
+    if (typeof value === 'string') { const o = option(value); return o ? { en: o.en, nl: o.nl, ...(o.es ? { es: o.es } : {}) } : { en: value, nl: value, es: value }; }
+    if (Array.isArray(value) && q.mode === 'order') { const names = value.map(id => option(id)); return { en: names.map(o => o?.en ?? '?').join(' › '), nl: names.map(o => o?.nl ?? '?').join(' › ') }; }
+    return null;
+}
+/** Every player's answer, correctness and points for one round (for the reveal and the match review). */
+function roundAnswers(r: Room, round: number) {
+    const q = r.questions[round];
+    return r.players.map(p => { const res = p.results[round]; return { id: p.id, name: p.name, avatar: p.avatar, answered: !!res && res.value !== null && res.value !== undefined, correct: !!res?.correct, points: res?.points ?? 0, distance: res?.distance ?? null, answer: res && q ? answerLabel(q, res.value) : null }; });
+}
 export function roomView(r: Room, userId: string) { const p = r.players.find(p => p.id === userId); if (!p)
-    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot })), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, answered: !!r.answers[userId], score: p.score }; }
+    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot })), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
 async function saveMatch(env: Env, r: Room) {
     if (r.phase !== 'finished') return;
     if (!savingMatches.has(r.matchId)) { const task = writeMatch(env,r).finally(() => savingMatches.delete(r.matchId)); savingMatches.set(r.matchId,task); }
