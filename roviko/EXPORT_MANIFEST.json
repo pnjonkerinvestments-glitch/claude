@@ -1,12 +1,12 @@
 {
   "product": "Roviko",
-  "website_version": "1.13.2",
-  "exported_at": "2026-09-24T09:06:36.602148+00:00",
-  "source_commit": "f53277199b85e16c23c1d0abe0f274597a1ce124",
+  "website_version": "1.14.0",
+  "exported_at": "2026-09-24T10:24:03.408427+00:00",
+  "source_commit": "da03bbb40e0554818d026cbb28283123704ac912",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
-    "note": "ChatGPT 1.11.0 export merged with Claude v4/v5 work and 1.12 additions"
+    "note": "ChatGPT 1.11.0 export merged with Claude v4/v5 work, 1.12–1.13 additions and the 1.14 redesign"
   },
   "live_url": "https://roviko.app",
   "hosting_url": "https://roviko.info960133.chatgpt.site",
@@ -27,7 +27,8 @@
     "production_build": "passed",
     "tests_passed": 121,
     "tests_failed": 0,
-    "browser_visual_qa": "local headless Chromium only (1440/1024/820/390 px, light/dark, EN/NL/ES); no physical devices",
+    "eslint": "272 errors / 166 warnings (was 281 / 179 before 1.14)",
+    "browser_visual_qa": "local headless Chromium only (320/375/430/768/1024/1280/1440 px, light/dark, EN/NL/ES); no physical devices",
     "native_ios_build": "not performed"
   },
   "required_latest_migration": "drizzle/0003_gorgeous_arachne.sql",
@@ -65,8 +66,8 @@
     },
     {
       "path": "DATA_SOURCES.md",
-      "bytes": 18868,
-      "sha256": "6ba434a862b8ca3c643a49a9f8ce984011b378b77a7185b268408a1e591beade"
+      "bytes": 18966,
+      "sha256": "2537282e20fc02018d44c81c8f8cb9905daec9078a2484ca50f4ec1b627d16f5"
     },
     {
       "path": "GAME_RULES.md",
@@ -95,8 +96,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 6966,
-      "sha256": "060b688c5193b8c2c936254a440d388db7b897ef75afc4c425444933c33f53de"
+      "bytes": 7665,
+      "sha256": "0cb8dd934f2ba19fd7765de0c6ed67281196ad5d0860fe2491ec942448658c4c"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -105,8 +106,8 @@
     },
     {
       "path": "app/atelier.css",
-      "bytes": 26331,
-      "sha256": "2f8fe107a81029e3b0861f509b6786fecc4329ab5072b712e98114dba2efad26"
+      "bytes": 21554,
+      "sha256": "eed35235c9d2c6e795cabdd465fd1a5bedf13d3fab4b6ddae2aa5c6520eb5b86"
     },
     {
       "path": "app/chatgpt-auth.ts",
@@ -115,18 +116,23 @@
     },
     {
       "path": "app/competition.css",
-      "bytes": 5962,
-      "sha256": "77fa8bacbd6f722130e5b3c60c451542fbbf2c4e55f17491ab162162c1e1e7ea"
+      "bytes": 5914,
+      "sha256": "513bdd5cdd0bfb3f65e1f0c3f8528fb2c0e2fe6ce1d257de5e2ad220417a61dd"
+    },
+    {
+      "path": "app/design.css",
+      "bytes": 69822,
+      "sha256": "6ea0442466549185937554ac9967ecd3eb1f3c18367a51d58bdfe44bf15ef39d"
     },
     {
       "path": "app/globals.css",
-      "bytes": 117596,
-      "sha256": "e68ca0dbd016cf498425b7887bc9611f96022269252da804ea739c05cc1b38f8"
+      "bytes": 66282,
+      "sha256": "d019134c5a68a579965ef1af2fb499d7b84b28b4b5ac116d02a964ea0a5c71eb"
     },
     {
       "path": "app/layout.tsx",
-      "bytes": 989,
-      "sha256": "5452698586dd3a6296152f54efba3f5b5620ab8f29197990ef1178e9d6a23074"
+      "bytes": 1012,
+      "sha256": "6e6787bf51445b1597726f8d639dd2ab1423a32b747a747d96b80182d4ff7dde"
     },
     {
       "path": "app/page.tsx",
@@ -135,23 +141,23 @@
     },
     {
       "path": "app/playful.css",
-      "bytes": 82372,
-      "sha256": "068159ede3f2b12c9149be8d7a01ea55d0628a35bac52c7a39beb9f5a1ffa437"
+      "bytes": 67055,
+      "sha256": "38f155a1cbcfbc4bd9e9160a89d711db9c2ba826dcdd5bad51ee0fd56e02d841"
     },
     {
       "path": "app/polish.css",
-      "bytes": 20725,
-      "sha256": "77a243a4af68d701934316f0495e37af7213477674341d37b58f8fd23006e1b5"
+      "bytes": 19166,
+      "sha256": "2bde9e246a01c43a6736fd77130277b840052de6e3a816d01159390d1ebd0a1a"
     },
     {
       "path": "app/rank.css",
-      "bytes": 9931,
-      "sha256": "2a0dbbe6a68f7b104b44cb279ecdad8813378042e840a51ecf6f9ab72e0a8349"
+      "bytes": 9347,
+      "sha256": "02d07ec8db9bcedf92d98f1b7e788536a6be900c74b884f1be8a12a93eb0cbce"
     },
     {
       "path": "app/revamp.css",
-      "bytes": 36118,
-      "sha256": "585651668a12241ad07607ecc06608e8b87f6fb4eada43aca94436907792ab91"
+      "bytes": 27674,
+      "sha256": "ce5b774cdd264c911f7a1a079d78555a2b7fddad285363be3b38bfaa5bb5f7b9"
     },
     {
       "path": "build/sites-vite-plugin.ts",
@@ -165,28 +171,33 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 83068,
-      "sha256": "a63b93c075c380d1c274332dc3c5d014329f0498ad3a457339d6d56fa5ec9fd7"
+      "bytes": 52138,
+      "sha256": "b0ba7bc491c4e22f1af0d3ab9cb5fc444b2d57f008a60b1b7e93a02eb0e603e5"
     },
     {
-      "path": "components/SpanishInfo.tsx",
-      "bytes": 6900,
-      "sha256": "4bab06933b32e0502ebd792ccc285ba5ed10640c1fb4b11b9d80d13607c21898"
+      "path": "components/app/context.tsx",
+      "bytes": 340,
+      "sha256": "278ddcd443bb45dcb93482716981fdddb8b0ebf9ffca7b4a8fa83eb46dff02de"
+    },
+    {
+      "path": "components/app/shared.tsx",
+      "bytes": 2558,
+      "sha256": "d124f50104a414bf9b106ac87b746623c9b72ffa0acba681c4b93e9876bfeff0"
     },
     {
       "path": "components/atelier/Competition.tsx",
-      "bytes": 5117,
-      "sha256": "a2454854ad1b0a8a424bd70afffdef34fd149e823843f375228bc0b2d015f444"
+      "bytes": 6121,
+      "sha256": "c6fe0183d17360ae74ab18e7b6f377e9c78a69d5d3d4da6cdaa9d8c332367225"
     },
     {
       "path": "components/atelier/DailyLoop.tsx",
-      "bytes": 4714,
-      "sha256": "5293475df1e8dd529e7f8f0b8828fbc99b0482e0f4d4f725420c9c4717dd0a4b"
+      "bytes": 4720,
+      "sha256": "82a32f30176cea6c92ccf79670153efd3dbf37b8546c63a42b359be57d4bd9e4"
     },
     {
       "path": "components/atelier/DailyQuests.tsx",
-      "bytes": 4263,
-      "sha256": "b34bef936b589c57545397843b1c6af56c0af87f5d9c7c7077442d05d205a09b"
+      "bytes": 4579,
+      "sha256": "ad25152b9da3eefd46910c1f0d943982803dcd91f3b698fb521fec0fa4f82962"
     },
     {
       "path": "components/atelier/DailyRhythm.tsx",
@@ -210,13 +221,13 @@
     },
     {
       "path": "components/atelier/HowToPlay.tsx",
-      "bytes": 5127,
-      "sha256": "67c455ccecdfa7a92ce956f0d0e6f1eaa8b99224251cd1daa25462e36afdb101"
+      "bytes": 7473,
+      "sha256": "7a11618cdb7324224f1701ead054a5bd1f090fa97ba6eab64c57ecac5d167300"
     },
     {
       "path": "components/atelier/MysteryCountry.tsx",
-      "bytes": 5028,
-      "sha256": "460c9bf08cab2d2f0ffdc8594b3825368b13f617b4269a17e212ad44774632d2"
+      "bytes": 5034,
+      "sha256": "89d9647d59b22303e97920f71675da17e218ee6b161591ec29c21e7d0fb2b9b1"
     },
     {
       "path": "components/atelier/NativeReminder.tsx",
@@ -235,8 +246,18 @@
     },
     {
       "path": "components/atelier/ResetCountdown.tsx",
-      "bytes": 807,
-      "sha256": "d8546ca18ffe3690f69cb766ad3eb30bc413c47d9c792376bf08efd8a9240596"
+      "bytes": 547,
+      "sha256": "ef8f172784decfee74b6d16cd417755195a5603134ae6c82bcdb04d721cb4fe4"
+    },
+    {
+      "path": "components/ds/Celebration.tsx",
+      "bytes": 2530,
+      "sha256": "8788379bde57dfb40fb016c848e49ccf9390fd9f524cb0ef95ab96af0273d4f6"
+    },
+    {
+      "path": "components/ds/States.tsx",
+      "bytes": 4031,
+      "sha256": "09f0407590bdd645a1126a9229802fe0d9f3b49f501c212739bbad6279479688"
     },
     {
       "path": "components/game/BorderMap.tsx",
@@ -264,9 +285,69 @@
       "sha256": "82ccf34ff927a766e240e51cb73681397aa053b6dd0ba278911293b3d7fcb435"
     },
     {
+      "path": "components/home/CoverArt.tsx",
+      "bytes": 5640,
+      "sha256": "49e1aceacbf338455df19da3994719fbc0dc8974d8f57dd0fab43060ca14dee7"
+    },
+    {
+      "path": "components/home/GameCard.tsx",
+      "bytes": 1115,
+      "sha256": "a8fcbe6a6f86a5bc55bb9107eeb5dfa2a065a86df58a1cbf3a4af782402be4d4"
+    },
+    {
+      "path": "components/home/HomePage.tsx",
+      "bytes": 8621,
+      "sha256": "8fccc62d8c8739cab794624ab8a7496950ad91127de542bf1cee47cac7808647"
+    },
+    {
+      "path": "components/home/ProgressRoute.tsx",
+      "bytes": 1726,
+      "sha256": "1c418c25507ef9e4afee3f056ac96be92941d11c1199bfa3987eb94f28294141"
+    },
+    {
+      "path": "components/home/StatusBar.tsx",
+      "bytes": 2553,
+      "sha256": "3337743dc9380076cb57d87c3454fc71a12ff8747128aa2be24fc7648484c181"
+    },
+    {
+      "path": "components/home/useDay.ts",
+      "bytes": 3159,
+      "sha256": "5cff0ba62392330804c4e0dabbaf5fcf0745f4b47a5581a989cd18949d6427af"
+    },
+    {
+      "path": "components/pages/ExplorePage.tsx",
+      "bytes": 10632,
+      "sha256": "1744605c08cb4e844cae2bd9a5bff36511632b83fd5c2262b5eeea8617a4c2f8"
+    },
+    {
+      "path": "components/pages/InfoPages.tsx",
+      "bytes": 18062,
+      "sha256": "69e60ecc4c20217889277e0f07857531dbd2a12f8a82a72ab81f6777757f427a"
+    },
+    {
+      "path": "components/pages/MultiplayerPage.tsx",
+      "bytes": 5302,
+      "sha256": "e6ab7fffdf6736a450e7942e1328481a4963868ea174a1db2b5221a0904a2cea"
+    },
+    {
+      "path": "components/pages/PassportPage.tsx",
+      "bytes": 11703,
+      "sha256": "dfdbd43bf07f562729facf43cdf6883c4e749478bf673c7eba9ea6a08040fc7a"
+    },
+    {
+      "path": "components/pages/RankingsPage.tsx",
+      "bytes": 5942,
+      "sha256": "ca2121e39cafc6a9e02f697b181a11e98cad6835bda5b49061c82a613e6cafc9"
+    },
+    {
+      "path": "components/pages/ScoringPage.tsx",
+      "bytes": 3220,
+      "sha256": "8cbf303c0cb47aa83f1655bf5170daa9cdda340702136c91cb03b3a8dc815f52"
+    },
+    {
       "path": "components/puzzles/DuelGame.tsx",
-      "bytes": 10148,
-      "sha256": "4862298f87b55188ccc901f59a34fbf4a9507b1cff2d7d95f9728e4fbc3b9081"
+      "bytes": 10154,
+      "sha256": "26e977648cecc6e3c86f84ec1e5c850864be120feaafc0306cfb9e08925fc1f0"
     },
     {
       "path": "components/puzzles/MosaicFactDetails.tsx",
@@ -280,8 +361,8 @@
     },
     {
       "path": "components/puzzles/PuzzleDeck.tsx",
-      "bytes": 15089,
-      "sha256": "243d7aa58a1065147ff4d53854ba5dc5318a888611e2a489969a0a63e7d321f6"
+      "bytes": 10415,
+      "sha256": "1b47b758307e9c0155fc6d564c2ec579c69c54d1ffa89e2a5b222b9dd422f512"
     },
     {
       "path": "components/puzzles/PuzzleGame.tsx",
@@ -292,6 +373,11 @@
       "path": "components/puzzles/RankGame.tsx",
       "bytes": 11817,
       "sha256": "523e85bc31dcca5b0d99481896378c39a9b6dbb88821a1ffffa10688f9efe9a5"
+    },
+    {
+      "path": "components/shell/SiteHeader.tsx",
+      "bytes": 5120,
+      "sha256": "798c8cd74707b33c42df73738d4157e1ad0cfa618af9ad07964b1c89b73830bc"
     },
     {
       "path": "components/ui/accordion.tsx",
@@ -624,14 +710,19 @@
       "sha256": "a6953776609a5b36f2e51ea1b7832e97da93a960db48e77476c025539e091769"
     },
     {
+      "path": "docs/AUDIT_1_14.md",
+      "bytes": 6571,
+      "sha256": "4935725b8178a72b5ad304917f94299472a3ab99155a9bf56912978305123197"
+    },
+    {
       "path": "docs/BRAND.md",
       "bytes": 8155,
       "sha256": "980d36d9a0b9f5fb170aefb16bc32c1c24b6a548a8f746720cd296b05157bc03"
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 7375,
-      "sha256": "ad9b5c1f11a67d4cfc753138feb6e485f781fea694014574d0ccdb376dd616c9"
+      "bytes": 9087,
+      "sha256": "5db7ff6a5645af305fe577609cd6671c158a1341e5071528ef724e8ef024450d"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -664,6 +755,11 @@
       "sha256": "49b1ae67c51178bd7a1e226e2b4e0d020c8799b021ffb3cd7ccccee1d156cb2c"
     },
     {
+      "path": "docs/QA_1_14.md",
+      "bytes": 1679,
+      "sha256": "a7eb52a672d1253810ce65d936c81d979eee73a5ece1a79c12c845f80763b59d"
+    },
+    {
       "path": "docs/QA_1_6.md",
       "bytes": 5908,
       "sha256": "dfe3eb1c28e12acc41335eddbb2c84d97d67c63571e15fa058b523bb737591de"
@@ -687,6 +783,11 @@
       "path": "docs/RECHTEN_CHECK.md",
       "bytes": 3443,
       "sha256": "3cafcd747f582bf117c65d976cb9f2621d27621a7d6e6bc8f4aeec98e2065392"
+    },
+    {
+      "path": "docs/REDESIGN_1_14.md",
+      "bytes": 11463,
+      "sha256": "cdfe2599ee21478ab566f3615aae7e508967f82d4d19ce78ebe9620695a3b967"
     },
     {
       "path": "docs/RELEASE_1_5.md",
@@ -717,6 +818,61 @@
       "path": "docs/WEBSITE_UPDATE_1_10.md",
       "bytes": 3022,
       "sha256": "8a9ada38d81b83c025c21d001a692f34861060dbb82aa646bdf2f63f8ff4fa64"
+    },
+    {
+      "path": "docs/screenshots-1.14/explore-desktop.webp",
+      "bytes": 61762,
+      "sha256": "5bdcb23436d8e1720c66ce223b70eafe6606c0c7527f51a8f3f32353c468147d"
+    },
+    {
+      "path": "docs/screenshots-1.14/explore-mobile.webp",
+      "bytes": 45262,
+      "sha256": "163d8dd9fe745353e097798845db2060b12a3f9ce3ffb17348ba77d286d377fa"
+    },
+    {
+      "path": "docs/screenshots-1.14/game-desktop.webp",
+      "bytes": 23462,
+      "sha256": "b829df97bdda9fb8876d9eeda6f8c4e282b5e6a744d820e892fa84fc225a5581"
+    },
+    {
+      "path": "docs/screenshots-1.14/home-desktop.webp",
+      "bytes": 74262,
+      "sha256": "a6dafdfc1bdcdb35067f4d7bf8bd1c0a2cd7f3d637c5312fb1cbacb7e538326b"
+    },
+    {
+      "path": "docs/screenshots-1.14/home-mobile-dark.webp",
+      "bytes": 53178,
+      "sha256": "d33d9f74e7675310f30f8af2b4ce79d31354ac00f872782809c6ab712733cebb"
+    },
+    {
+      "path": "docs/screenshots-1.14/home-mobile.webp",
+      "bytes": 54344,
+      "sha256": "71037e5871f5f5f41c9bb0026e6d7144639f3972bab5b924bd94ef22155ade26"
+    },
+    {
+      "path": "docs/screenshots-1.14/lobby-desktop.webp",
+      "bytes": 47332,
+      "sha256": "5354ce65a12c74b924a007a622378320ca487e1e0a2ad217f41a9b01f37db22b"
+    },
+    {
+      "path": "docs/screenshots-1.14/passport-desktop.webp",
+      "bytes": 116836,
+      "sha256": "2b0ebaa81d28749d92b0ead9720c076e6bcf3b6b87abe5fe840d1bd50b514ed8"
+    },
+    {
+      "path": "docs/screenshots-1.14/passport-mobile.webp",
+      "bytes": 96716,
+      "sha256": "73418bec661bedb56a64cc46dafc046640e046f43d5c4fa04d299ac5c7ea3dcf"
+    },
+    {
+      "path": "docs/screenshots-1.14/rankings-desktop.webp",
+      "bytes": 39304,
+      "sha256": "eb1a38bbd5ba13808e2c8e9e9a3020aec5bca012da5adbd0cd127f2c0e847d62"
+    },
+    {
+      "path": "docs/screenshots-1.14/rankings-mobile.webp",
+      "bytes": 35186,
+      "sha256": "7b908aee2aee1d3e5fc6a2003bcb0e50a2d166dc4b60109063245ef70bd31af1"
     },
     {
       "path": "drizzle.config.ts",
@@ -810,8 +966,8 @@
     },
     {
       "path": "i18n/es.ts",
-      "bytes": 28356,
-      "sha256": "cb94003c8edf9ae0d1eac0576a7bd4e75de23e35905ef75f43186498708da1ed"
+      "bytes": 28240,
+      "sha256": "ace9e0210a62aafa9835992a20d777b4a752d443669e129e40dfcdfdb2e93d36"
     },
     {
       "path": "i18n/howto.ts",
@@ -820,8 +976,8 @@
     },
     {
       "path": "i18n/messages.ts",
-      "bytes": 64599,
-      "sha256": "1e7354d7992598dc6fc512ed94cf15b2c4860bf667f77d1a1b4f2f2686a67a9f"
+      "bytes": 64525,
+      "sha256": "77373374c9d4c1697c5e9d4f47361dbe80ef61b6f0d1c9c0983f2fff13f0475d"
     },
     {
       "path": "i18n/quests.ts",
@@ -832,6 +988,11 @@
       "path": "i18n/rank.ts",
       "bytes": 4636,
       "sha256": "7665bbdb56cc891f4f635a0ec6b86ea626dcd6035d1415a0040af744e23c499e"
+    },
+    {
+      "path": "i18n/redesign.ts",
+      "bytes": 25863,
+      "sha256": "095d3de9cb8847793ef61dde157ca82324d9d51c55a06214765453e0b7dd53c7"
     },
     {
       "path": "i18n/terms-es.json",
@@ -851,7 +1012,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "f2b1fc61536278967feb15393a81162f7cd96e167a8a6f643b73279dc082dec7"
+      "sha256": "25b1970ce070dff09557a589b9e385c8d76c7b211b8375ecae7462a9de9810ac"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -940,8 +1101,8 @@
     },
     {
       "path": "lib/page-title.ts",
-      "bytes": 792,
-      "sha256": "4f87abe47e7f51d62ac42cf9c3057def09ae98916afd2104d1a327aaf2dfd584"
+      "bytes": 884,
+      "sha256": "6a32e38290540c04288ccbc206ef5c7b2d03741568b3279b37f918b059fbf2c3"
     },
     {
       "path": "lib/passport.ts",
@@ -1015,13 +1176,13 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 500020,
-      "sha256": "11c38f79b469c338a29bd40e256e9d8f00074359aad2695f5ffb1bd904792fd7"
+      "bytes": 499155,
+      "sha256": "95aecd46d6bb7e2db40d265c358f51b4275904f6a8ff3ba2a3d5551a92d66ea6"
     },
     {
       "path": "package.json",
-      "bytes": 2830,
-      "sha256": "41f62ee89302375c9c62804ed018331bb944ff90db749de159e43cb9a4386894"
+      "bytes": 2704,
+      "sha256": "9fd7b8d5baedffe37db5baa7cafa83130eff04a79603c8f143ae33876ceef77e"
     },
     {
       "path": "postcss.config.mjs",
@@ -1117,11 +1278,6 @@
       "path": "public/favicon.svg",
       "bytes": 362,
       "sha256": "e28c661c15519c1cee78ec28cd0ccb69901cca88956a9e0d3818e4dde4755b00"
-    },
-    {
-      "path": "public/file.svg",
-      "bytes": 392,
-      "sha256": "1e0ae4d1a1ddfa36752988647b731e4abf150c414d069ec83c96fb0aaeff0307"
     },
     {
       "path": "public/flags/ad.svg",
@@ -3074,26 +3230,6 @@
       "sha256": "e27fcdcc882d7175cc4c07542779911043dc56262fe43b42f39bdaca09b762d5"
     },
     {
-      "path": "public/fonts/dm-sans-latin-400-normal.woff2",
-      "bytes": 14200,
-      "sha256": "4ab51eb2cd7305d177187908d6397474d4520663f6c6e572feb0a64f4fa80006"
-    },
-    {
-      "path": "public/fonts/dm-sans-latin-500-normal.woff2",
-      "bytes": 14304,
-      "sha256": "19bf1984956517c35c2bd35b6cdedac12a21d6fcd3596c614ecdfb88b648909d"
-    },
-    {
-      "path": "public/fonts/dm-sans-latin-600-normal.woff2",
-      "bytes": 14144,
-      "sha256": "6bb2b2645ba5eeaecf56322c543fa3a75b87b927977b9c03b1dabc4205089120"
-    },
-    {
-      "path": "public/fonts/dm-sans-latin-700-normal.woff2",
-      "bytes": 14348,
-      "sha256": "35c5efa0e5daa52ee5c6500f5be354bf751fb65c4e49e1d6806c6eb5883e8fe9"
-    },
-    {
       "path": "public/fonts/fredoka-LICENSE",
       "bytes": 4387,
       "sha256": "9bbd4f5f107895d5a213579b73821fadd05105241cf4360e86050199fcfd6034"
@@ -3119,46 +3255,6 @@
       "sha256": "a30ddcd349703aff7464c34bef3fffdff405ee50c113440d7c8693c02d210972"
     },
     {
-      "path": "public/fonts/nunito-LICENSE",
-      "bytes": 4491,
-      "sha256": "40991bfa02ac620aae16dc527f3c47765a25e43f270d4c301ee6ab663a8d9015"
-    },
-    {
-      "path": "public/fonts/nunito-latin-ext-wght-normal.woff2",
-      "bytes": 35588,
-      "sha256": "2c8d792869818ecb253a46bc3c63c7013df7aac2f69291c3c85e5cdc94160960"
-    },
-    {
-      "path": "public/fonts/nunito-latin-wght-normal.woff2",
-      "bytes": 39128,
-      "sha256": "ba344451eab25b217a165363b1982048a5e5830a0daf36577973955a04cac793"
-    },
-    {
-      "path": "public/fonts/outfit-LICENSE",
-      "bytes": 4387,
-      "sha256": "0e5fcef5d93bfcae273c11c00f0bb453d3b5491860e1ac8b658767b7577c938f"
-    },
-    {
-      "path": "public/fonts/outfit-variable.woff2",
-      "bytes": 32292,
-      "sha256": "6c18d579fd87c3776be068b762cbc83fde3acb543d49eabd3ade842eb987e887"
-    },
-    {
-      "path": "public/fonts/space-grotesk-latin-500-normal.woff2",
-      "bytes": 13312,
-      "sha256": "1b1a8131d9edf975d9decee81e2f2bf504812f7a4f498e5500f28a613e22e64c"
-    },
-    {
-      "path": "public/fonts/space-grotesk-latin-600-normal.woff2",
-      "bytes": 13284,
-      "sha256": "685bbbf69fa616df1ef81847c85fc76be097ddfb3468ff2257be54511ab3130f"
-    },
-    {
-      "path": "public/fonts/space-grotesk-latin-700-normal.woff2",
-      "bytes": 12840,
-      "sha256": "35f8aec56cfd5cbfdb03cc68733a54a0b05bb3617ffcd5fd332badc0b045ca55"
-    },
-    {
       "path": "public/globe-logo.webp",
       "bytes": 34898,
       "sha256": "1169b01a475741c5b5915aae53e79dfd4f4e3231cc5cbfc4e38794df812feba8"
@@ -3167,16 +3263,6 @@
       "path": "public/globe.png",
       "bytes": 1584153,
       "sha256": "bdc3e30c29234b9fdb8ca7af242cf7f42a09e597ac07903c419263e6d1449b96"
-    },
-    {
-      "path": "public/globe.svg",
-      "bytes": 1036,
-      "sha256": "d051a8c47936990a9085693d307bb7cea1bc1b6d7ed956bcbaacf674f4ec96b9"
-    },
-    {
-      "path": "public/globe.webp",
-      "bytes": 97412,
-      "sha256": "d154ead81a9939d19740df25fbf1c5981ab96f5f36984d3f543af5df433b028d"
     },
     {
       "path": "public/icon-192.png",
@@ -3194,11 +3280,6 @@
       "sha256": "3e7634891f31a15d33455351b7bd59653b96045d8d8f7f7aff5c3084c798eefc"
     },
     {
-      "path": "public/licenses/dm-sans-OFL.txt",
-      "bytes": 4502,
-      "sha256": "6fbd040a29c2037a765dfb9f2561e9965b5c95c6dcb5dce516089d63d5f17af7"
-    },
-    {
       "path": "public/licenses/factbook-CC0.txt",
       "bytes": 6555,
       "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
@@ -3212,11 +3293,6 @@
       "path": "public/licenses/lucide-ISC.txt",
       "bytes": 3208,
       "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
-    },
-    {
-      "path": "public/licenses/space-grotesk-OFL.txt",
-      "bytes": 4401,
-      "sha256": "18a4de52385f6b988782639d5d0cc1326e5a8c2de9a7f01d7b20d9aedcc60943"
     },
     {
       "path": "public/licenses/world-atlas-ISC.txt",
@@ -4216,12 +4292,7 @@
     {
       "path": "public/sw.js",
       "bytes": 856,
-      "sha256": "76110f26991e76a1f03291e6663199c6682c2c2e9dddab70ab7df52991410dc9"
-    },
-    {
-      "path": "public/window.svg",
-      "bytes": 386,
-      "sha256": "decf1cf7bb22b5c99c4857cfcd5718ce5465c4454166317589c83fc73df74b66"
+      "sha256": "8a0a4213801ed936fa1dadbc0c889b4f29675647d86789e5195a30459da5ad76"
     },
     {
       "path": "scripts/build-verified.sh",
@@ -4365,8 +4436,8 @@
     },
     {
       "path": "tests/atelier.test.mjs",
-      "bytes": 5337,
-      "sha256": "c1650a3553f0116df92a541665ea1932a0e713ed84546f1e4429e5d8c9fae180"
+      "bytes": 5698,
+      "sha256": "1798bf120080dfc271bf3379a2b0a1758b6856be6aafb6171846b62dc1e62921"
     },
     {
       "path": "tests/competition.test.mjs",
@@ -4400,8 +4471,8 @@
     },
     {
       "path": "tests/how-to-play.test.mjs",
-      "bytes": 3492,
-      "sha256": "7085fd3db810dea700bff68b9d816e5b247ad10d1d793ce48d5a24f784ebde17"
+      "bytes": 3666,
+      "sha256": "e2183cf86cfdec12634c7bd9f344ae71e617a91fcbaefeae3f7e15a8c9d76a15"
     },
     {
       "path": "tests/integration.test.mjs",
@@ -4440,8 +4511,8 @@
     },
     {
       "path": "tests/rendered-html.test.mjs",
-      "bytes": 3132,
-      "sha256": "6ab1b6886ad4d4f98fa5a9647fb5ef38cbc7a46b5d2d774eb79f2fcb1122ea0a"
+      "bytes": 4182,
+      "sha256": "cdcb29df570a22ac4e27d5cee0ce396ddb88537cb8b41e5661c272c881c5fe3e"
     },
     {
       "path": "tests/streak.test.mjs",
@@ -4483,5 +4554,8 @@
       "bytes": 2436,
       "sha256": "a9de367c891c5a23d97b375abdc4e1c253ec2f152c29cba9552bd68ac81bc3e6"
     }
-  ]
+  ],
+  "redesign": "docs/REDESIGN_1_14.md",
+  "audit": "docs/AUDIT_1_14.md",
+  "qa": "docs/QA_1_14.md"
 }
