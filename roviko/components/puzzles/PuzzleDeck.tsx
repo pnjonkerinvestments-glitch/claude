@@ -1,24 +1,25 @@
 'use client';
 import { CompetitionPanel } from '../atelier/Competition';
-import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Flame, Map as MapIcon, Medal, Shuffle, ShieldCheck, Swords, Target, Trophy, Users } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { ArrowRight, Check, Flame, Medal, Shuffle, ShieldCheck, Trophy } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GameCover } from '../atelier/GameCover';
 import { DailyRhythm } from '../atelier/DailyRhythm';
-import { api, post } from '@/lib/client';
+import { post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { TOPICS } from '@/lib/puzzles/topics';
 import type { PuzzleMode } from '@/lib/puzzles/model';
 import { ACHIEVEMENTS } from '@/lib/achievements';
-import { DAILY_MODES, completedDailies, dailyStateOf, nearestAchievement, nextDailyMode, streakAtRisk, streakMilestone, type DailyMode } from '@/lib/daily-loop';
+import { DAILY_MODES, dailyStateOf, nearestAchievement, streakMilestone, type DailyMode } from '@/lib/daily-loop';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { MysteryCountry } from '../atelier/MysteryCountry';
 import { NativeReminder } from '../atelier/NativeReminder';
-import { ResetCountdown } from '../atelier/ResetCountdown';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { DailyQuests } from '../atelier/DailyQuests';
+import { useToday } from '../home/useDay';
+import { GameCard } from '../home/GameCard';
 
 const PRACTICE_LABELS: Record<DailyMode, string> = { rank: 'tilePracticeRank', daily: 'tilePracticeDaily', compare: 'puzzleBrowseTopics', mosaic: 'tilePracticeMosaic', trail: 'tilePracticeTrail' };
 
@@ -30,27 +31,19 @@ export async function openPuzzle(app: PuzzleLauncher, mode: PuzzleMode | 'rank',
   app.go((mode === 'rank' ? '/rank/' : '/puzzle/') + game.id);
 }
 
-export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: any; dailyPage?: boolean; welcome?: boolean }) {
+/** Open one of today's five daily games: resumes it when it was started, shows the result when it is done. */
+export async function launchDaily(app: PuzzleLauncher & { start: (settings: Record<string, unknown>) => Promise<void> }, mode: DailyMode) {
+  if (mode === 'daily' || mode === 'trail') return app.start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'daily-trail' : 'daily' });
+  return openPuzzle(app, mode);
+}
+
+export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: any; dailyPage?: boolean; extras?: boolean }) {
   const { t, locale, boot, go, fail, start } = app;
   const launching = useRef(false);
-  const [loadError, setLoadError] = useState(false), [reload, setReload] = useState(0);
-  const [today, setToday] = useState<any>(null), [practice, setPractice] = useState<PuzzleMode | null>(null);
+  const { data: today, error: loadError, retry } = useToday(boot);
+  const [practice, setPractice] = useState<PuzzleMode | null>(null);
   const [topic, setTopic] = useState(TOPICS[0].id), [size, setSize] = useState('4'), [busy, setBusy] = useState('');
   const [fallbackDate] = useState(() => new Date().toISOString().slice(0, 10));
-  useEffect(() => {
-    if (!boot.user.id) return;
-    setToday(null);
-    let requestVersion=0;
-    let active = true, timer: ReturnType<typeof setTimeout>;
-    const load = async () => {
-      clearTimeout(timer); const version=++requestVersion;
-      try { const state = await api('/puzzles/today?competition=1'); if (active && version===requestVersion) { setToday(state); setLoadError(false); } } catch (e) { if (active && version===requestVersion) setLoadError(true); }
-      if (active && version===requestVersion) timer = setTimeout(load, 86400000 - Date.now() % 86400000 + 500);
-    };
-    const visible = () => { if (document.visibilityState === 'visible') load(); };
-    load(); document.addEventListener('visibilitychange', visible);
-    return () => { active = false; clearTimeout(timer); document.removeEventListener('visibilitychange', visible); };
-  }, [boot.user.id, reload]);
   async function play(mode: PuzzleMode | 'rank', daily = true) {
     if (launching.current) return;
     launching.current = true; setBusy(mode);
@@ -60,51 +53,16 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
     } catch (e) { fail(e); } finally { launching.current = false; setBusy(''); }
   }
   const modes = DAILY_MODES;
-  const completed = completedDailies(today?.sessions);
   const stateOf = (mode: DailyMode) => dailyStateOf(today?.sessions, mode);
   const title = (mode: DailyMode) => t(dailyTitleKey(mode));
   const launch = (mode: DailyMode) => mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode:mode==='trail'?'daily-trail':'daily' }) : play(mode);
   // Practice under each tile, like a "random" round: unranked, never touches today's shared puzzle.
   const practiceFor = (mode: DailyMode) => mode === 'rank' ? play('rank', false) : mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'trail' : 'mixed', region: app.region ?? 'World' }) : setPractice(mode);
-  const next = nextDailyMode(today?.sessions);
-  const allDone = !!today && completed === modes.length;
   const streak = boot.stats.dailyStreak ?? 0, goal = streakMilestone(streak);
-  const atRisk = !!today && streakAtRisk(streak, completed);
   const freeze = boot.stats.streakFreezes as { available: number; nextIn: number; frozenDates: string[] } | undefined;
-  const yesterday = today ? new Date(Date.parse(today.date + 'T00:00:00Z') - 86400000).toISOString().slice(0, 10) : '';
-  const savedByFreeze = !!today && completed === 0 && !!freeze?.frozenDates.includes(yesterday);
   const badge = nearestAchievement(ACHIEVEMENTS, boot.stats);
-  const bubble = allDone ? t('heroBubbleDone') : savedByFreeze ? t('freezeSaved') : atRisk ? t('heroBubbleRisk').replace('{n}', String(streak)) : completed > 0 ? t('heroBubbleLeft').replace('{n}', String(modes.length - completed)) : t('heroBubble');
-  // One arc per official game around the mascot, one per daily game; finished games light up in their colour.
-  const ring = 2 * Math.PI * 46, arc = ring / modes.length;
-  const hero = welcome && <section className={'play-hero' + (allDone ? ' is-done' : '') + (atRisk ? ' is-at-risk' : '')} aria-labelledby="hero-title">
-    <div className="play-hero-copy">
-      <h1 id="hero-title">{t('atelierTitle')}</h1>
-      <p>{atRisk ? t('streakAtRiskNote') : t('atelierIntro')}</p>
-      <div className="play-hero-actions">
-        {allDone
-          ? <button className="btn hero-cta" onClick={() => document.getElementById('modes')?.scrollIntoView({ behavior: 'smooth' })}>{t('chooseGame')}<ArrowRight size={20}/></button>
-          : <button className="btn hero-cta" disabled={!today || !next || app.busy || !!busy} onClick={() => next && launch(next)}>{!today ? t('dailyStatusPending') : app.busy || busy ? t('loading') : t(next && stateOf(next) === 'active' ? 'heroContinue' : completed > 0 ? 'loopNext' : 'heroStart').replace('{game}', next ? title(next) : '')}<ArrowRight size={20}/></button>}
-        {allDone && <ResetCountdown className="hero-reset" label={t('heroResetIn')}/>}
-        {!allDone && completed === 0 && <button className="text-link hero-howto" onClick={() => go('/how-to-play')}>{t('howToHomeLink')}<ArrowRight size={16}/></button>}
-      </div>
-      <ul className="play-hero-stats">
-        <li className={'stat-streak' + (atRisk ? ' at-risk' : '')}><span aria-hidden="true"><Flame size={22} strokeWidth={2.2}/></span><b>{streak}</b><small>{t('heroStatStreak')}</small>{!!freeze?.available && <span className="stat-freeze" title={t('freezeExplain')} aria-label={t('freezeReady').replace('{n}', String(freeze.available))}><ShieldCheck size={13} strokeWidth={2.6} aria-hidden="true"/>{freeze.available}</span>}<em className="stat-goal" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></em></li>
-        <li className="stat-today"><span aria-hidden="true"><Target size={22} strokeWidth={2.2}/></span><b>{today ? completed : 0}/{modes.length}</b><small>{t('heroStatToday')}</small></li>
-        <li className="stat-countries"><button onClick={() => go('/profile')}><span aria-hidden="true"><MapIcon size={22} strokeWidth={2.2}/></span><b>{boot.stats.discovered ?? 0}</b><small>{t('heroStatCountries')}</small></button></li>
-      </ul>
-    </div>
-    <div className="play-hero-art" aria-hidden="true">
-      <span className="hero-bubble" key={bubble}>{bubble}</span>
-      <svg className="hero-ring" viewBox="0 0 100 100">
-        <circle className="hero-ring-track" cx="50" cy="50" r="46"/>
-        {modes.map((mode, i) => <circle key={mode} className={'hero-ring-arc arc-' + mode + (stateOf(mode) === 'done' ? ' is-done' : '')} cx="50" cy="50" r="46" strokeDasharray={`${arc - 7} ${ring - arc + 7}`} strokeDashoffset={-(arc * i) - 3.5}/>)}
-      </svg>
-      <img className="hero-mascot" src="/globe-logo.webp" alt="" width={280} height={280}/>
-    </div>
-  </section>;
-  return <>{hero}<section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
-    <div className="atelier-section-heading"><h2 id="today-title">{t('todayPlay')}</h2><span>{today ? new Date(today.date + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' }) : t('puzzleToday')}</span></div>
+  return <><section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
+    <div className="atelier-section-heading"><div><h2 id="today-title">{t('allGamesDaily')}</h2><p className="muted">{t('allGamesDailyNote')}</p></div><span>{today ? new Date(today.date + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' }) : t('puzzleToday')}</span></div>
     <div className="daily-card-grid">
       {modes.map(mode => {
         const state = stateOf(mode), name = title(mode);
@@ -122,7 +80,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
         </article>;
       })}
     </div>
-    {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={() => setReload(n => n+1)}>{t('retry')}</button></p>}
+    {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={retry}>{t('retry')}</button></p>}
     <div className="day-panels">
       <div className="day-panels-side">
         <DailyQuests date={today?.date ?? fallbackDate} sessions={today?.sessions ?? []} t={t}/>
@@ -139,20 +97,16 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
       <CompetitionPanel app={app}/>
     </div>
     {dailyPage && <p className="practice-reset">{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</p>}
-    {dailyPage && today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t} frozen={freeze?.frozenDates}/>}
+    {dailyPage && today?.week && today.tomorrowTopic && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t} frozen={freeze?.frozenDates}/>}
     {dailyPage && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true"><Medal size={22} strokeWidth={2.2}/></span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl' | 'es']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}
-    {welcome && <div className="daily-extras">
-      <div className="atelier-section-heading"><h2>{t('howToExtras')}</h2></div>
+    {extras && <div className="daily-extras" id="extras">
+      <div className="atelier-section-heading"><div><h2>{t('allGamesExtras')}</h2><p className="muted">{t('allGamesExtrasNote')}</p></div></div>
       <div className="daily-extras-grid">
-        <button className="duel-tile" onClick={() => go('/duel')}>
-          <span className="duel-tile-art" aria-hidden="true"><img src="/globe-logo.webp" alt="" width={72} height={72}/><span className="duel-tile-swords"><Swords size={18} strokeWidth={2.4}/></span></span>
-          <span className="duel-tile-copy"><small>{t('duelCardTitle')}</small><strong>{t('duel')}</strong><span>{t('duelTagline')}</span></span>
-          <span className="daily-tile-cta">{t('duelPlay')}<ArrowRight size={18}/></span>
-        </button>
+        <GameCard mode="duel" title={t('duel')} tagline={t('cardDuelTag')} meta={t('cardNoPoints')} cta={t('cardPlay')} onClick={() => go('/duel')}/>
         {today && <MysteryCountry key={today.date} date={today.date} t={t} locale={locale}/>}
       </div>
     </div>}
-    {welcome && <NativeReminder t={t}/>}
+    {extras && <NativeReminder t={t}/>}
     <Dialog open={!!practice} onOpenChange={v => !v && setPractice(null)}><DialogContent className="app-modal puzzle-setup"><span className="puzzle-sticker" aria-hidden="true">{practice === 'compare' ? '⚖️' : '🧩'}</span><DialogTitle className="modal-title">{t(practice ?? 'compare')}</DialogTitle><DialogDescription>{t('puzzlePracticeCopy')}</DialogDescription>{practice === 'compare' ? <label className="field"><span>{t('puzzleTopic')}</span><Select value={topic} onValueChange={setTopic}><SelectTrigger className="select-trigger" aria-label={t('puzzleTopic')}><SelectValue/></SelectTrigger><SelectContent>{TOPICS.map(topic => <SelectItem value={topic.id} key={topic.id}>{topic.emoji} {topic.label[locale as 'en' | 'nl' | 'es']}</SelectItem>)}</SelectContent></Select></label> : <><p className="field-label">{t('puzzleCluesPerCountry')}</p><Tabs value={size} onValueChange={setSize}><TabsList className="app-tabs puzzle-size-tabs">{['3','4','5'].map(n => <TabsTrigger key={n} value={n}>{n} {t('puzzleClues')}<small>{+n * 4} {t('puzzleTiles')}</small></TabsTrigger>)}</TabsList></Tabs><p className="muted">{t('puzzleSize' + size)}</p></>}<button className="btn primary wide" disabled={!!busy} onClick={() => play(practice!, false)}><Shuffle size={18}/>{busy ? t('loading') : t('puzzleStartPractice')}</button></DialogContent></Dialog>
   </section></>;
 }

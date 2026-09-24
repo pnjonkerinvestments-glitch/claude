@@ -23,11 +23,16 @@ function subscribe(onChange: () => void) {
 export const notifyProgress = () => { try { window.dispatchEvent(new Event('roviko:progress')); } catch { /* not in a browser */ } };
 
 type Session = { mode: string; completed?: boolean };
-export function DailyQuests({ date, sessions, t, compact = false }: { date: string; sessions: Session[]; t: (k: string) => string; compact?: boolean }) {
+/** Today's three quests with local bonus progress, and the crowns collected so far. */
+export function useQuests(date: string, sessions: Session[]) {
   const snapshot = useSyncExternalStore(subscribe, () => localSnapshot(date), () => '0|0|0|0');
   const [mystery, duel, crowns, crowned] = snapshot.split('|').map(Number);
   const quests = questsFor(date, { completedModes: sessions.filter(s => s.completed).map(s => s.mode), mysteryPlayed: !!mystery, duelDone: !!duel });
-  const done = allQuestsDone(quests);
+  return { quests, crowns, crowned: !!crowned, done: allQuestsDone(quests), finished: quests.filter(q => q.done).length };
+}
+
+export function DailyQuests({ date, sessions, t, compact = false }: { date: string; sessions: Session[]; t: (k: string) => string; compact?: boolean }) {
+  const { quests, crowns, crowned, done } = useQuests(date, sessions);
   const label = (q: Quest) => q.kind === 'mode' ? t('questPlayMode').replace('{game}', t(dailyTitleKey(q.mode!))) : q.kind === 'mystery' ? t('questMystery') : q.kind === 'duel' ? t('questDuel') : t('questPlayN').replace('{n}', String(q.target));
   const claim = () => { try { localStorage.setItem(CROWNS, JSON.stringify(addCrown(readJson<string[]>(CROWNS, []), date))); } catch { /* storage unavailable */ } notifyProgress(); };
   return <section className={'daily-quests' + (done ? ' is-complete' : '') + (compact ? ' is-compact' : '')} aria-labelledby={'quests-title' + (compact ? '-loop' : '')}>

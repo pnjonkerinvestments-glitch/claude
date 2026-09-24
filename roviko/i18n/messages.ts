@@ -2,11 +2,12 @@ import { competitionMessages } from './competition';
 import { rankMessages } from './rank';
 import { howtoMessages } from './howto';
 import { questMessages } from './quests';
+import { redesignMessages } from './redesign';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -627,7 +628,8 @@ export const messages = {
     "autoNextAll": "Continue automatically after correct answers",
     "autoNextExplain": "After 3 seconds. Incorrect answers stay open for you to review.",
     "joinHelp": "Enter the five-character code from your friend.",
-    "practiceSaved": "Practice saved separately"
+    "practiceSaved": "Practice saved separately",
+    ...redesignMessages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1249,7 +1251,8 @@ export const messages = {
     "joinHelp": "Vul de code van vijf tekens van je vriend in.",
     "practiceSaved": "Oefening apart opgeslagen",
     "roomName": "Kamernaam",
-    "lobby": "Wachtruimte"
+    "lobby": "Wachtruimte",
+    ...redesignMessages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;
