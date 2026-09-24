@@ -1,12 +1,12 @@
 {
   "product": "Roviko",
-  "website_version": "1.14.0",
-  "exported_at": "2026-09-24T10:24:03.408427+00:00",
-  "source_commit": "da03bbb40e0554818d026cbb28283123704ac912",
+  "website_version": "1.15.0",
+  "exported_at": "2026-09-24T11:01:03.317771+00:00",
+  "source_commit": "044ad66da2f47358c3e2fb1854af3674f737f2c9",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
-    "note": "ChatGPT 1.11.0 export merged with Claude v4/v5 work, 1.12–1.13 additions and the 1.14 redesign"
+    "note": "ChatGPT 1.11.0 export merged with Claude v4/v5 work, 1.12–1.13 additions, the 1.14 redesign and 1.15 friends/motivation update"
   },
   "live_url": "https://roviko.app",
   "hosting_url": "https://roviko.info960133.chatgpt.site",
@@ -25,14 +25,16 @@
   "validation": {
     "typecheck": "passed",
     "production_build": "passed",
-    "tests_passed": 121,
+    "tests_passed": 124,
     "tests_failed": 0,
-    "eslint": "272 errors / 166 warnings (was 281 / 179 before 1.14)",
-    "browser_visual_qa": "local headless Chromium only (320/375/430/768/1024/1280/1440 px, light/dark, EN/NL/ES); no physical devices",
+    "eslint_source": "225 errors (was 228 in 1.14)",
+    "browser_visual_qa": "local headless Chromium only (desktop and 390 px, light/dark, EN/NL); two-browser friends invite flow; no physical devices",
     "native_ios_build": "not performed"
   },
-  "required_latest_migration": "drizzle/0003_gorgeous_arachne.sql",
-  "new_migrations_since_1_11": [],
+  "required_latest_migration": "drizzle/0004_daffy_tusk.sql",
+  "new_migrations_since_1_11": [
+    "drizzle/0004_daffy_tusk.sql (1.15: user_presence, room_invites; additive)"
+  ],
   "files": [
     {
       "path": ".env.example",
@@ -81,8 +83,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 13028,
-      "sha256": "a0c9d1fc1ba786ec0e4cd602a1867dbe750686ac3efca89f9f142ad7e51facf6"
+      "bytes": 13084,
+      "sha256": "a32295a343179cf63abc99dc079cc7a2c3e30cdb5417a84fe31d754159fe5395"
     },
     {
       "path": "SECURITY.md",
@@ -96,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 7665,
-      "sha256": "0cb8dd934f2ba19fd7765de0c6ed67281196ad5d0860fe2491ec942448658c4c"
+      "bytes": 8430,
+      "sha256": "038916f668e2595b3f2fc39b2bfd69ddc15ddf303adf6ce85d9b6c1adca65bd3"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -121,8 +123,8 @@
     },
     {
       "path": "app/design.css",
-      "bytes": 69822,
-      "sha256": "6ea0442466549185937554ac9967ecd3eb1f3c18367a51d58bdfe44bf15ef39d"
+      "bytes": 89413,
+      "sha256": "8bb2df86dcc7a1cd59654eec020cc0c35199a959e2a48ffac1378ca3eadd109d"
     },
     {
       "path": "app/globals.css",
@@ -171,8 +173,8 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 52138,
-      "sha256": "b0ba7bc491c4e22f1af0d3ab9cb5fc444b2d57f008a60b1b7e93a02eb0e603e5"
+      "bytes": 49966,
+      "sha256": "a9f9e818b2a4b34886d89c83eb866916e53d1097f8788a08cbd688e2c2998737"
     },
     {
       "path": "components/app/context.tsx",
@@ -186,8 +188,8 @@
     },
     {
       "path": "components/atelier/Competition.tsx",
-      "bytes": 6121,
-      "sha256": "c6fe0183d17360ae74ab18e7b6f377e9c78a69d5d3d4da6cdaa9d8c332367225"
+      "bytes": 6493,
+      "sha256": "7827d0ff3f1739fc7c75d89919b4f705fa9b7d046bb3443c7cbbb14931ea73c1"
     },
     {
       "path": "components/atelier/DailyLoop.tsx",
@@ -221,8 +223,8 @@
     },
     {
       "path": "components/atelier/HowToPlay.tsx",
-      "bytes": 7473,
-      "sha256": "7a11618cdb7324224f1701ead054a5bd1f090fa97ba6eab64c57ecac5d167300"
+      "bytes": 7742,
+      "sha256": "179287079a572b8ba35ab31e2db6aa9eca471c5c73f5d440b6091a809899bbf1"
     },
     {
       "path": "components/atelier/MysteryCountry.tsx",
@@ -255,14 +257,29 @@
       "sha256": "8788379bde57dfb40fb016c848e49ccf9390fd9f524cb0ef95ab96af0273d4f6"
     },
     {
+      "path": "components/ds/Mascot.tsx",
+      "bytes": 2524,
+      "sha256": "f5b48db43081873841c1ef59916013ff3cadd4b737a9c0b8904ca945d5a90868"
+    },
+    {
       "path": "components/ds/States.tsx",
       "bytes": 4031,
       "sha256": "09f0407590bdd645a1126a9229802fe0d9f3b49f501c212739bbad6279479688"
     },
     {
+      "path": "components/friends/Friends.tsx",
+      "bytes": 12048,
+      "sha256": "76e9855803f180e2ae29b0d7fcac355dd0615d718357a928b651c32c5a04eacf"
+    },
+    {
       "path": "components/game/BorderMap.tsx",
       "bytes": 2248,
       "sha256": "d41e8936593130ab7eabca126c18948303a3d080ce95b74cd68fc3b75906e6ec"
+    },
+    {
+      "path": "components/game/GameHeader.tsx",
+      "bytes": 1693,
+      "sha256": "cb25dc6f3b7afe250baadbd90f6d8adb63ce11ce0fdb68072c3514d08064de12"
     },
     {
       "path": "components/game/JourneyRoute.tsx",
@@ -276,8 +293,8 @@
     },
     {
       "path": "components/game/SoloResults.tsx",
-      "bytes": 2637,
-      "sha256": "880a46c31f13c9050bb3719fdba83efd9f7ec925075be96d63e3ccfc83144f98"
+      "bytes": 2851,
+      "sha256": "eee4d11279e7a006a0b70b7eadb0cc0129efaacf118e45e3e630fb0b9e236ba9"
     },
     {
       "path": "components/game/WorldMap.tsx",
@@ -296,23 +313,13 @@
     },
     {
       "path": "components/home/HomePage.tsx",
-      "bytes": 8621,
-      "sha256": "8fccc62d8c8739cab794624ab8a7496950ad91127de542bf1cee47cac7808647"
-    },
-    {
-      "path": "components/home/ProgressRoute.tsx",
-      "bytes": 1726,
-      "sha256": "1c418c25507ef9e4afee3f056ac96be92941d11c1199bfa3987eb94f28294141"
-    },
-    {
-      "path": "components/home/StatusBar.tsx",
-      "bytes": 2553,
-      "sha256": "3337743dc9380076cb57d87c3454fc71a12ff8747128aa2be24fc7648484c181"
+      "bytes": 13784,
+      "sha256": "16f71d95d412fff8d0fa2d515ab775c239a7c04d7f6f8cec37ce4b3bf1331c02"
     },
     {
       "path": "components/home/useDay.ts",
-      "bytes": 3159,
-      "sha256": "5cff0ba62392330804c4e0dabbaf5fcf0745f4b47a5581a989cd18949d6427af"
+      "bytes": 3294,
+      "sha256": "dd8206792a29bfefbd5262d1c1d2379a557e35e8c796bb08450e4e682e4867b5"
     },
     {
       "path": "components/pages/ExplorePage.tsx",
@@ -346,8 +353,8 @@
     },
     {
       "path": "components/puzzles/DuelGame.tsx",
-      "bytes": 10154,
-      "sha256": "26e977648cecc6e3c86f84ec1e5c850864be120feaafc0306cfb9e08925fc1f0"
+      "bytes": 10029,
+      "sha256": "f720465c76df9f0d14a134cc9641104160a71fe9888a0c3cdbb6076fd8cd43ba"
     },
     {
       "path": "components/puzzles/MosaicFactDetails.tsx",
@@ -366,13 +373,13 @@
     },
     {
       "path": "components/puzzles/PuzzleGame.tsx",
-      "bytes": 24194,
-      "sha256": "acb8372d0ba5df05e9e5ad8bdad17bf8dae079b7f5fbbf4d16b3b326040f17cb"
+      "bytes": 24099,
+      "sha256": "3267db9b4ece2fd16cb76c2e245a5f084d0032fe9906939d1b92e546352c0bdc"
     },
     {
       "path": "components/puzzles/RankGame.tsx",
-      "bytes": 11817,
-      "sha256": "523e85bc31dcca5b0d99481896378c39a9b6dbb88821a1ffffa10688f9efe9a5"
+      "bytes": 11733,
+      "sha256": "da35fdf60b2dfddee545aa4af9e48bbdf6427b2ea367f59a2734be2847c6ea61"
     },
     {
       "path": "components/shell/SiteHeader.tsx",
@@ -691,8 +698,8 @@
     },
     {
       "path": "db/schema.ts",
-      "bytes": 8738,
-      "sha256": "ea5464b38cd9ee79c98eead6a1dcc1eb3e328e6fe1e6d316b53fa7fd3d55fe57"
+      "bytes": 9646,
+      "sha256": "cdbbed21e84caea4df267cf9bbbb1c6bdee9da7bc7c52b83e893255663389b5c"
     },
     {
       "path": "db/seed.sql",
@@ -721,8 +728,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 9087,
-      "sha256": "5db7ff6a5645af305fe577609cd6671c158a1341e5071528ef724e8ef024450d"
+      "bytes": 11676,
+      "sha256": "4c76db8c4297969449c75407d490610c8911186faf0b36f7de4c070686f4d288"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -756,8 +763,13 @@
     },
     {
       "path": "docs/QA_1_14.md",
-      "bytes": 1679,
-      "sha256": "a7eb52a672d1253810ce65d936c81d979eee73a5ece1a79c12c845f80763b59d"
+      "bytes": 1674,
+      "sha256": "488771a50a59d544e2214d9e9ccbb23ee0e6e03dfd96e3b67f15c7a92f5ce962"
+    },
+    {
+      "path": "docs/QA_1_15.md",
+      "bytes": 1651,
+      "sha256": "a8db179238287899c70105001cd47e84c1012ae45799a8795f5ea29ff86b2b59"
     },
     {
       "path": "docs/QA_1_6.md",
@@ -786,8 +798,8 @@
     },
     {
       "path": "docs/REDESIGN_1_14.md",
-      "bytes": 11463,
-      "sha256": "cdfe2599ee21478ab566f3615aae7e508967f82d4d19ce78ebe9620695a3b967"
+      "bytes": 11887,
+      "sha256": "e494831e3e2d3fe0d8b2dd57c3c0fe1b0429593dc40e064536fcd0a299f8e5a6"
     },
     {
       "path": "docs/RELEASE_1_5.md",
@@ -820,59 +832,84 @@
       "sha256": "8a9ada38d81b83c025c21d001a692f34861060dbb82aa646bdf2f63f8ff4fa64"
     },
     {
-      "path": "docs/screenshots-1.14/explore-desktop.webp",
+      "path": "docs/screenshots/explore-desktop.webp",
       "bytes": 61762,
       "sha256": "5bdcb23436d8e1720c66ce223b70eafe6606c0c7527f51a8f3f32353c468147d"
     },
     {
-      "path": "docs/screenshots-1.14/explore-mobile.webp",
+      "path": "docs/screenshots/explore-mobile.webp",
       "bytes": 45262,
       "sha256": "163d8dd9fe745353e097798845db2060b12a3f9ce3ffb17348ba77d286d377fa"
     },
     {
-      "path": "docs/screenshots-1.14/game-desktop.webp",
-      "bytes": 23462,
-      "sha256": "b829df97bdda9fb8876d9eeda6f8c4e282b5e6a744d820e892fa84fc225a5581"
+      "path": "docs/screenshots/friends-desktop.webp",
+      "bytes": 29862,
+      "sha256": "80df1544a6e85e6d293e9586ef296061b53d2f3f97b63f911df17a568c59c2f5"
     },
     {
-      "path": "docs/screenshots-1.14/home-desktop.webp",
-      "bytes": 74262,
-      "sha256": "a6dafdfc1bdcdb35067f4d7bf8bd1c0a2cd7f3d637c5312fb1cbacb7e538326b"
+      "path": "docs/screenshots/game-desktop.webp",
+      "bytes": 23888,
+      "sha256": "4c5ea1995c839f6c2864e739321d43d920aca70abb50f7c5ac7ef296fcfb7fe0"
     },
     {
-      "path": "docs/screenshots-1.14/home-mobile-dark.webp",
-      "bytes": 53178,
-      "sha256": "d33d9f74e7675310f30f8af2b4ce79d31354ac00f872782809c6ab712733cebb"
+      "path": "docs/screenshots/game-mobile-dark.webp",
+      "bytes": 16280,
+      "sha256": "99fb84d195b206ca12e2eee0f72602c6cf571d7d9eda8c126cb1c017a48d93b8"
     },
     {
-      "path": "docs/screenshots-1.14/home-mobile.webp",
-      "bytes": 54344,
-      "sha256": "71037e5871f5f5f41c9bb0026e6d7144639f3972bab5b924bd94ef22155ade26"
+      "path": "docs/screenshots/home-desktop.webp",
+      "bytes": 94950,
+      "sha256": "6c5787d469d0d90c5a57daf1d990715105c8f48c9d2b75b1bac68678925a5348"
     },
     {
-      "path": "docs/screenshots-1.14/lobby-desktop.webp",
-      "bytes": 47332,
-      "sha256": "5354ce65a12c74b924a007a622378320ca487e1e0a2ad217f41a9b01f37db22b"
+      "path": "docs/screenshots/home-mobile-dark.webp",
+      "bytes": 58776,
+      "sha256": "b6dbd7a6f41d4df3b3b6253024e627dc241442e7b7ba10aa8703cf6b62125af6"
     },
     {
-      "path": "docs/screenshots-1.14/passport-desktop.webp",
-      "bytes": 116836,
-      "sha256": "2b0ebaa81d28749d92b0ead9720c076e6bcf3b6b87abe5fe840d1bd50b514ed8"
+      "path": "docs/screenshots/home-mobile.webp",
+      "bytes": 60978,
+      "sha256": "c31e57ff10b052714057f51a0bd1aae5cfde2342873cabb9a3e9f558ecaff243"
     },
     {
-      "path": "docs/screenshots-1.14/passport-mobile.webp",
-      "bytes": 96716,
-      "sha256": "73418bec661bedb56a64cc46dafc046640e046f43d5c4fa04d299ac5c7ea3dcf"
+      "path": "docs/screenshots/invite-mobile.webp",
+      "bytes": 20374,
+      "sha256": "1ed7ae2be7906dc5b6f645919680fd93bc980c574114f96eb9f95b16fffa2f6c"
     },
     {
-      "path": "docs/screenshots-1.14/rankings-desktop.webp",
-      "bytes": 39304,
-      "sha256": "eb1a38bbd5ba13808e2c8e9e9a3020aec5bca012da5adbd0cd127f2c0e847d62"
+      "path": "docs/screenshots/lobby-desktop.webp",
+      "bytes": 46502,
+      "sha256": "f92106227196a1360385a2da7662a37ca8eeb96ea742fe566f2a1b61c33058a2"
     },
     {
-      "path": "docs/screenshots-1.14/rankings-mobile.webp",
-      "bytes": 35186,
-      "sha256": "7b908aee2aee1d3e5fc6a2003bcb0e50a2d166dc4b60109063245ef70bd31af1"
+      "path": "docs/screenshots/lobby-invite-desktop.webp",
+      "bytes": 30084,
+      "sha256": "7bee15492cf50643a5e1ed7d55838580ec96b2531ecf04843b4c2178223a7cde"
+    },
+    {
+      "path": "docs/screenshots/passport-desktop.webp",
+      "bytes": 116850,
+      "sha256": "a6c30a15497955afb0f9d58ecad25351ab0dcda64f39f71450d1511797ad8324"
+    },
+    {
+      "path": "docs/screenshots/passport-mobile.webp",
+      "bytes": 96666,
+      "sha256": "c314c4aa9e1a358cfa7fd669b384ca958c66e351891e5095aed6450d3a15378b"
+    },
+    {
+      "path": "docs/screenshots/rankings-desktop.webp",
+      "bytes": 41278,
+      "sha256": "8fd05fcd80f3b0e6a0551e259536e752df6109200da001e499bb9d82c18b2079"
+    },
+    {
+      "path": "docs/screenshots/rankings-mobile.webp",
+      "bytes": 35252,
+      "sha256": "0d9502b68fceda5a0747e7665052fb4235e8496a5217695e4a54d8c0074a1f2d"
+    },
+    {
+      "path": "docs/screenshots/result-desktop.webp",
+      "bytes": 63914,
+      "sha256": "9eca65e928c19a120e401614f75619c1e02c2527173aed568ffe6ebd27b71829"
     },
     {
       "path": "drizzle.config.ts",
@@ -900,6 +937,11 @@
       "sha256": "fbc2d8e8fe61e529668a8f2d1bab0b16ddc367c7c34ee66266d50204770e84dc"
     },
     {
+      "path": "drizzle/0004_daffy_tusk.sql",
+      "bytes": 936,
+      "sha256": "710cf9f911825f334b11ef6d6e9c625f6fa50da3a7ef865ffebf4388bf64138b"
+    },
+    {
       "path": "drizzle/meta/0000_snapshot.json",
       "bytes": 33287,
       "sha256": "1f5b5f37e58f222fef6b789a0ad509536e17a1fab56174a186c489d4f54d4164"
@@ -920,9 +962,14 @@
       "sha256": "1824a2e9b935352575bbe4053368b7cc50ca9ab593ce3417a5c4c74f30c205d6"
     },
     {
+      "path": "drizzle/meta/0004_snapshot.json",
+      "bytes": 44916,
+      "sha256": "2e2ef571ac14caa8a2594f6c819d9c57050c21006af4cd6eee9d5c115195eced"
+    },
+    {
       "path": "drizzle/meta/_journal.json",
-      "bytes": 650,
-      "sha256": "0b140cbe5d484466fed7edd7ac4d545371249deb6cc616e003a50a26bf6245b3"
+      "bytes": 788,
+      "sha256": "777aa17e374f6c8dfd93626e6986a35b444cd23ca57d3f86c5b9acf02e613377"
     },
     {
       "path": "eslint.config.mjs",
@@ -991,8 +1038,8 @@
     },
     {
       "path": "i18n/redesign.ts",
-      "bytes": 25863,
-      "sha256": "095d3de9cb8847793ef61dde157ca82324d9d51c55a06214765453e0b7dd53c7"
+      "bytes": 31220,
+      "sha256": "9f0314c3f275b7bdfdad23a2442d74dd42034f085522220681cc02fe48b147fa"
     },
     {
       "path": "i18n/terms-es.json",
@@ -1012,7 +1059,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "25b1970ce070dff09557a589b9e385c8d76c7b211b8375ecae7462a9de9810ac"
+      "sha256": "aa626dea01f8d890876b56d580a580e8d3379bbbcf62891eb01657e7fd9a6c56"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -1086,8 +1133,8 @@
     },
     {
       "path": "lib/how-to-play.ts",
-      "bytes": 13879,
-      "sha256": "ce26156ed656d17364eb69c08c26e25ed5bac4e97d2aaf084f60eabce284162c"
+      "bytes": 18800,
+      "sha256": "5be67dc8885b9cf42f32519561eb7908763d9c2a0c26205503f6d9cb18ab3848"
     },
     {
       "path": "lib/navigation.ts",
@@ -4292,7 +4339,7 @@
     {
       "path": "public/sw.js",
       "bytes": 856,
-      "sha256": "8a0a4213801ed936fa1dadbc0c889b4f29675647d86789e5195a30459da5ad76"
+      "sha256": "5148d17c0d301ab1fae86e42b8ed218c3e0b19599addd1218b933364ba528fc1"
     },
     {
       "path": "scripts/build-verified.sh",
@@ -4351,8 +4398,8 @@
     },
     {
       "path": "server/api.ts",
-      "bytes": 24048,
-      "sha256": "0ffbf5db2ee358d9d0f74dc875e9e3bc15be925bf17e0fda9a52235f4a1dbffc"
+      "bytes": 25068,
+      "sha256": "5b9b24878a3e82290d70e116f1bfbeabeefd8d6f5cd4b46a444c4886d519c5ae"
     },
     {
       "path": "server/auth.ts",
@@ -4366,8 +4413,8 @@
     },
     {
       "path": "server/competition.ts",
-      "bytes": 2642,
-      "sha256": "2871de6ec257cc7a31bf969bb2ba8ed7a7aaf655fff8f76d3a1f1a4fe91e6ae3"
+      "bytes": 3510,
+      "sha256": "89230dc6ddbbe003d2754e15b78454dd70b76c123ada2febbd6ca611b07bb470"
     },
     {
       "path": "server/daily-content.ts",
@@ -4398,6 +4445,11 @@
       "path": "server/multiplayer.ts",
       "bytes": 20428,
       "sha256": "a6dcdb3a3f62557289193e027f73e955f73f27d3541e27ad32f5ebd43e5641f9"
+    },
+    {
+      "path": "server/presence.ts",
+      "bytes": 3336,
+      "sha256": "ad27312fe6231a0b8d18601eaa29947749a9fbb43d48ceccc752d0267e75f407"
     },
     {
       "path": "server/puzzles.ts",
@@ -4471,13 +4523,13 @@
     },
     {
       "path": "tests/how-to-play.test.mjs",
-      "bytes": 3666,
-      "sha256": "e2183cf86cfdec12634c7bd9f344ae71e617a91fcbaefeae3f7e15a8c9d76a15"
+      "bytes": 4188,
+      "sha256": "f3d135f125787e0d3b0a2842b7e2cd19d97b82cc48eb7cb10d3526aa1aada5cf"
     },
     {
       "path": "tests/integration.test.mjs",
-      "bytes": 62059,
-      "sha256": "f75ecf9523da8753c5b1fef233fb07716a6f0a4d822b4f52062f79dbaf3041e3"
+      "bytes": 66004,
+      "sha256": "ee4370554284214913dc4786e8aa77ce4c8a049b9c915a88d170d82888ee9f96"
     },
     {
       "path": "tests/learning-ui.test.mjs",
@@ -4511,8 +4563,8 @@
     },
     {
       "path": "tests/rendered-html.test.mjs",
-      "bytes": 4182,
-      "sha256": "cdcb29df570a22ac4e27d5cee0ce396ddb88537cb8b41e5661c272c881c5fe3e"
+      "bytes": 4036,
+      "sha256": "1f421dc007a4f2100c33fcb2771f58b8e62fa322bf7f4103d2043901a806d413"
     },
     {
       "path": "tests/streak.test.mjs",
@@ -4557,5 +4609,5 @@
   ],
   "redesign": "docs/REDESIGN_1_14.md",
   "audit": "docs/AUDIT_1_14.md",
-  "qa": "docs/QA_1_14.md"
+  "qa": "docs/QA_1_15.md"
 }
