@@ -21,9 +21,15 @@ async function ranking(env: Env, user: User, date?: string, mode?: string) {
 }
 export async function competitionSummary(env: Env, user: User, date: string, mode?: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date+'T00:00:00Z')) || new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date || (mode && !DAILY_POINT_MODES.includes(mode as any))) throw new AppError('INVALID_INPUT');
-  const [today,total,game,scores] = await Promise.all([
+  const yesterday = new Date(Date.parse(date+'T00:00:00Z')-86400000).toISOString().slice(0,10);
+  const [today,total,game,scores,bests,bestDay,previous] = await Promise.all([
     ranking(env,user,date),ranking(env,user),mode ? ranking(env,user,date,mode) : Promise.resolve(null),
     rows(env,'SELECT mode,score FROM daily_scores WHERE user_id=? AND date=?',user.id,date),
+    // Personal bests from earlier days only, so today's own result can beat them.
+    rows(env,'SELECT mode,MAX(score) best,COUNT(*) plays FROM daily_scores WHERE user_id=? AND date<? GROUP BY mode',user.id,date),
+    one(env,'SELECT MAX(total) best FROM (SELECT SUM(score) total FROM daily_scores WHERE user_id=? AND date<? GROUP BY date)',user.id,date),
+    one(env,'SELECT COALESCE(SUM(score),0) score,COUNT(*) games FROM daily_scores WHERE user_id=? AND date=?',user.id,yesterday),
   ]);
-  return {date,today,total,game,scores,maxPerGame:1000,maxPerDay:5000};
+  const personalBest = Object.fromEntries(bests.map((b:any)=>[b.mode,{best:Number(b.best),plays:Number(b.plays)}]));
+  return {date,today,total,game,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0)},maxPerGame:1000,maxPerDay:5000};
 }

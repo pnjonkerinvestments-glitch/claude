@@ -13,6 +13,7 @@ import { stats, leaderboard } from './stats';
 import { startSolo, soloAction, recordSolo } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket } from './multiplayer';
+import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
@@ -177,6 +178,12 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 return json(result);
             }
         }
+        if (path[0] === 'presence' && method === 'POST')
+            return json(await heartbeat(env, user, z.object({ room: z.string().max(8).nullish() }).parse(await body(req)).room));
+        if (path[0] === 'invites' && path[1] && method === 'POST')
+            return json(await answerInvite(env, user, z.string().max(64).parse(path[1]), z.object({ status: z.string().max(16) }).parse(await body(req)).status));
+        if (path[0] === 'rooms' && path[2] === 'invite' && method === 'POST')
+            return json(await inviteFriend(env, user, path[1]?.toUpperCase() ?? '', z.object({ friendId: z.string().max(64) }).parse(await body(req)).friendId));
         if (path[0] === 'rooms') {
             if (method === 'POST' && !path[1]) {
                 await limit(env, 'rooms:' + user.id, 10);
@@ -207,7 +214,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (user.guest)
                 throw new AppError('ACCOUNT_REQUIRED', 403);
             if (method === 'GET')
-                return json({ friends: await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected'`, user.id, user.id, user.id) });
+                return json({ friends: await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id) });
             const b = await body(req);
             if (path[1]) {
                 const f = await one(env, 'SELECT * FROM friend_requests WHERE id=? AND (to_id=? OR from_id=?)', path[1], user.id, user.id);

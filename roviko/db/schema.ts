@@ -29,3 +29,14 @@ export const dailyScores = sqliteTable('daily_scores', {
   sessionId: text('session_id').notNull().references(() => games.id, { onDelete: 'cascade' }),
   score: integer('score').notNull(), scoringVersion: integer('scoring_version').notNull().default(1), createdAt: integer('created_at').notNull(),
 }, t => [primaryKey({columns:[t.userId,t.date,t.mode]}), uniqueIndex('daily_score_session').on(t.sessionId), index('daily_scores_ranking').on(t.date,t.mode,t.score), check('daily_score_bounds',sql`${t.score} BETWEEN 0 AND 1000`), check('daily_score_modes',sql`${t.mode} IN ('daily','trail','compare','mosaic','rank')`)]);
+// 1.15: who is online (a heartbeat while the site is open) and direct room invites between friends.
+export const presence = sqliteTable('user_presence', {
+  userId: text('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+  lastSeen: integer('last_seen').notNull(), roomCode: text('room_code'),
+}, t => [index('presence_seen').on(t.lastSeen)]);
+export const roomInvites = sqliteTable('room_invites', {
+  id: text('id').primaryKey(),
+  fromId: text('from_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  toId: text('to_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  roomCode: text('room_code').notNull(), status: text('status').notNull().default('pending'), createdAt: integer('created_at').notNull(),
+}, t => [index('room_invites_to').on(t.toId, t.status, t.createdAt), uniqueIndex('room_invite_pair').on(t.fromId, t.toId, t.roomCode)]);

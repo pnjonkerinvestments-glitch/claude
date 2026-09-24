@@ -440,3 +440,36 @@ test('daily ranks and cumulative ranks use different date scopes and validate qu
  const historic=(await request(a.cookie,'/competition?date='+yesterday+'&mode=trail')).data;assert.equal(historic.game.score,1000);assert.ok(historic.game.place>=1);
  for(const query of ['?date=2026-99-99','?date=2026-02-30','?mode=madeup','?date=abc'])assert.equal((await request(a.cookie,'/competition'+query)).status,400);
 });
+test('competition summary reports earlier personal bests, the best day and yesterday, never counting today',async()=>{
+ const a=await bootstrap();const id=a.data.user.id;const day=n=>new Date(Date.now()-n*86400000).toISOString().slice(0,10);
+ const score=async(date,mode,points)=>{const sid=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,completed,created_at) VALUES (?,?,?,?,'{}',1,?)").bind(sid,id,'synthetic:'+mode,date,Date.now()).run();await db.prepare('INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)').bind(id,date,mode,sid,points,Date.now()).run();};
+ await score(day(2),'rank',700);await score(day(1),'rank',400);await score(day(1),'compare',300);await score(day(0),'rank',800);
+ const s=(await request(a.cookie,'/competition?mode=rank')).data;
+ assert.equal(s.game.score,800);assert.deepEqual(s.personalBest.rank,{best:700,plays:2});assert.deepEqual(s.personalBest.compare,{best:300,plays:1});
+ assert.equal(s.bestDay,700);assert.deepEqual(s.yesterday,{score:700,games:2});
+ const fresh=(await request((await bootstrap()).cookie,'/competition')).data;assert.deepEqual(fresh.personalBest,{});assert.equal(fresh.bestDay,null);assert.deepEqual(fresh.yesterday,{score:0,games:0});
+});
+test('friends see who is online and can invite each other straight into a room',async()=>{
+ const signup=async(n)=>{const g=await bootstrap();return request(g.cookie,'/auth/signup','POST',{name:'Invite '+n,email:'invite-'+n.toLowerCase()+'@example.test',password:'Synthetic-invite-password-'+n});};
+ const a=await signup('A'),b=await signup('B'),c=await signup('C');
+ await request(a.cookie,'/friends','POST',{code:b.data.user.friendCode});const pending=(await request(b.cookie,'/friends')).data.friends[0];
+ assert.equal(pending.online,0,'pending requests never reveal presence');
+ await request(b.cookie,'/friends/'+pending.id,'POST',{status:'accepted'});
+ assert.deepEqual((await request(a.cookie,'/presence','POST',{})).data,{invites:[]});
+ let seen=(await request(b.cookie,'/friends')).data.friends[0];assert.equal(seen.online,1);assert.equal(seen.name,'Invite A');
+ const room=(await request(a.cookie,'/rooms','POST',{settings})).data;
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:c.data.user.id})).status,403,'only accepted friends');
+ assert.equal((await request(c.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,403,'only players in the room');
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200);
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200,'re-inviting refreshes');
+ const inbox=(await request(b.cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].code,room.code);assert.equal(inbox[0].name,'Invite A');
+ assert.equal((await request(c.cookie,'/invites/'+inbox[0].id,'POST',{status:'accepted'})).status,404,'nobody else can answer it');
+ const answer=(await request(b.cookie,'/invites/'+inbox[0].id,'POST',{status:'accepted'})).data;assert.equal(answer.code,room.code);
+ assert.equal((await request(b.cookie,'/rooms/'+room.code+'/join','POST',{})).status,200);
+ assert.deepEqual((await request(b.cookie,'/presence','POST',{room:room.code})).data.invites,[]);
+ seen=(await request(a.cookie,'/friends')).data.friends[0];assert.equal(seen.room_code,room.code);
+ await db.prepare('UPDATE user_presence SET last_seen=? WHERE user_id=?').bind(Date.now()-5*60000,a.data.user.id).run();
+ assert.equal((await request(b.cookie,'/friends')).data.friends[0].online,0);
+ const guest=await bootstrap();assert.deepEqual((await request(guest.cookie,'/presence','POST',{})).data,{invites:[]});
+ assert.equal(await db.prepare('SELECT COUNT(*) n FROM user_presence WHERE user_id=?').bind(guest.data.user.id).first('n'),0);
+});
