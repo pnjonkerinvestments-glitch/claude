@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.13.1",
-  "exported_at": "2026-09-24T08:09:15.837452+00:00",
-  "source_commit": "075b9ab220ad0b77f985f06f9190df79c4cee88e",
+  "website_version": "1.13.2",
+  "exported_at": "2026-09-24T09:06:36.602148+00:00",
+  "source_commit": "f53277199b85e16c23c1d0abe0f274597a1ce124",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -70,8 +70,8 @@
     },
     {
       "path": "GAME_RULES.md",
-      "bytes": 14912,
-      "sha256": "4730d6d2ed4879937f6fcbc7338656cd471234131b558743a36f88984717120b"
+      "bytes": 15644,
+      "sha256": "47d17e636d036afd53470155d802799d314c044b805d64e1f7435f58d1937188"
     },
     {
       "path": "MULTIPLAYER.md",
@@ -140,8 +140,8 @@
     },
     {
       "path": "app/polish.css",
-      "bytes": 17275,
-      "sha256": "d4ed9794cd446cf9a600abf9f969838774fdca64e4dee32bf0c77f672f040bc6"
+      "bytes": 20725,
+      "sha256": "77a243a4af68d701934316f0495e37af7213477674341d37b58f8fd23006e1b5"
     },
     {
       "path": "app/rank.css",
@@ -165,8 +165,8 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 80926,
-      "sha256": "f6047544c95e0cedea1d76019d396318cae2dd6a9cc582f1842bf23689d09a4f"
+      "bytes": 83068,
+      "sha256": "a63b93c075c380d1c274332dc3c5d014329f0498ad3a457339d6d56fa5ec9fd7"
     },
     {
       "path": "components/SpanishInfo.tsx",
@@ -250,8 +250,8 @@
     },
     {
       "path": "components/game/Question.tsx",
-      "bytes": 10344,
-      "sha256": "f3c4e882b8b800cee87515e8257fcf13250145ee86517764231a84dc4cfee97f"
+      "bytes": 10958,
+      "sha256": "611cca6e400242e94014b9bc8df82a5f1a1110fb318fd89fe29e324f9281124b"
     },
     {
       "path": "components/game/SoloResults.tsx",
@@ -630,8 +630,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 6511,
-      "sha256": "83efb1aa1dccca1995a0f81c59112e0d96d5075c12af10cb81719165d86d652a"
+      "bytes": 7375,
+      "sha256": "ad9b5c1f11a67d4cfc753138feb6e485f781fea694014574d0ccdb376dd616c9"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -810,8 +810,8 @@
     },
     {
       "path": "i18n/es.ts",
-      "bytes": 28345,
-      "sha256": "3373d3814ddb8523479b7a734063c4885310158574669e7472ec9d5cc5002a41"
+      "bytes": 28356,
+      "sha256": "cb94003c8edf9ae0d1eac0576a7bd4e75de23e35905ef75f43186498708da1ed"
     },
     {
       "path": "i18n/howto.ts",
@@ -820,13 +820,13 @@
     },
     {
       "path": "i18n/messages.ts",
-      "bytes": 64544,
-      "sha256": "8fd6a3a5400c62a2203cf0d4fa2910f6dceefdbb94fc780b79e6127a48e7c90c"
+      "bytes": 64599,
+      "sha256": "1e7354d7992598dc6fc512ed94cf15b2c4860bf667f77d1a1b4f2f2686a67a9f"
     },
     {
       "path": "i18n/quests.ts",
-      "bytes": 4898,
-      "sha256": "07ec999a8122379d14e552a8d4d7502b6e212ce38447691ba3f393a58784bac8"
+      "bytes": 5361,
+      "sha256": "4af55aebce76f39b0376beaa49757ae5f7ce7220515f25f64c5068845d9dc3f4"
     },
     {
       "path": "i18n/rank.ts",
@@ -851,7 +851,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "d5330c80c89c4e1aba2ba169a48e5a149f05f49f9c120704e2a8d24ed2bf520d"
+      "sha256": "f2b1fc61536278967feb15393a81162f7cd96e167a8a6f643b73279dc082dec7"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -4216,7 +4216,7 @@
     {
       "path": "public/sw.js",
       "bytes": 856,
-      "sha256": "a35074b714c30e4ab683692dce3d62ef71587ffc5e30785308de38083679adc0"
+      "sha256": "76110f26991e76a1f03291e6663199c6682c2c2e9dddab70ab7df52991410dc9"
     },
     {
       "path": "public/window.svg",
@@ -4325,8 +4325,8 @@
     },
     {
       "path": "server/multiplayer.ts",
-      "bytes": 18923,
-      "sha256": "fbccc9ea7ded969063b07d6a3f033d5cf491a98bf3f53fd48067d6f5c36d6089"
+      "bytes": 20428,
+      "sha256": "a6dcdb3a3f62557289193e027f73e955f73f27d3541e27ad32f5ebd43e5641f9"
     },
     {
       "path": "server/puzzles.ts",
@@ -4405,8 +4405,8 @@
     },
     {
       "path": "tests/integration.test.mjs",
-      "bytes": 61474,
-      "sha256": "93aa7bb2d9a6035ae215d8e53dfaebeeaac45cfdb734600bfc387f36d0a81140"
+      "bytes": 62059,
+      "sha256": "f75ecf9523da8753c5b1fef233fb07716a6f0a4d822b4f52062f79dbaf3041e3"
     },
     {
       "path": "tests/learning-ui.test.mjs",
