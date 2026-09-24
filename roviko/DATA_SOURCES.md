@@ -121,3 +121,7 @@ The 40 heritage records (80 clues plus explanations) in both copies of `mosaic-f
 ## 1.11 daily competition
 
 Daily scores/ranks use first-party gameplay records; no external leaderboard or competitor data is imported. Clue Trail reuses the existing licensed country/capital/border catalog. The Clue Trail card's compass-and-path SVG in `components/atelier/GameCover.tsx` was authored for Roviko in this release and uses no external image asset. Existing flag, geometry, metric, font and illustration attributions remain unchanged.
+
+## Flag optimisation (1.15.1)
+
+Nine flag-icons flags with detailed coats of arms (bo, do, es, gt, hr, me, mx, rs, sv) are served as a 640×480 WebP rendering of the original flag-icons 7.5.0 SVG, wrapped in an SVG with the same viewBox (`scripts/optimize-flags.mjs`). The artwork is unchanged; the MIT licence of flag-icons continues to apply.

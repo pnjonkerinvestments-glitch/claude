@@ -473,3 +473,17 @@ test('friends see who is online and can invite each other straight into a room',
  const guest=await bootstrap();assert.deepEqual((await request(guest.cookie,'/presence','POST',{})).data,{invites:[]});
  assert.equal(await db.prepare('SELECT COUNT(*) n FROM user_presence WHERE user_id=?').bind(guest.data.user.id).first('n'),0);
 });
+test('the next flag can load while the answer is shown, but never early and never a hidden Clue Trail flag',async()=>{
+ const a=await bootstrap();let g=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'flags',count:5}})).data;
+ assert.equal(g.preloadFlag,undefined,'nothing to preload before answering');
+ const r=(await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:0,answer:g.question.options[0].id})).data;
+ assert.match(r.preloadFlag,/^\/api\/flag\//);
+ const img=await mf.dispatchFetch(origin+r.preloadFlag,{headers:{Cookie:a.cookie}});assert.equal(img.status,200);await img.arrayBuffer();
+ const next=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;assert.equal('/api/flag/'+encodeURIComponent(next.question.flag),r.preloadFlag,'the preloaded image is exactly the next question');
+ const trail=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'trail',count:5}})).data;
+ const tr=(await request(a.cookie,'/games/'+trail.id+'/answer','POST',{round:0,answer:trail.question.options[0].id})).data;assert.equal(tr.preloadFlag,undefined,'Clue Trail flags stay hidden');
+ const daily=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily'},competition:true})).data;
+ assert.match(daily.question.flagUrl,/^\/api\/game-asset\//);
+ const early=await mf.dispatchFetch(origin+'/api/game-asset/'+daily.id+'/1',{headers:{Cookie:a.cookie}});assert.equal(early.status,404,'future rounds stay private while a question is open');await early.arrayBuffer();
+ const own=await mf.dispatchFetch(origin+daily.question.flagUrl,{headers:{Cookie:a.cookie}});assert.equal(own.status,200);assert.match(own.headers.get('cache-control'),/private/);await own.arrayBuffer();
+});

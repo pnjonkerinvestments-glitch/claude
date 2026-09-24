@@ -1,0 +1,16 @@
+# Long-lived browser caching for static files (Cloudflare Workers static assets / Pages format).
+# Hashed build files never change; flags, art and fonts only change with a release.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/flags/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
+/art/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
+/shapes/*
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
+/globe-logo.webp
+  Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
+/data/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

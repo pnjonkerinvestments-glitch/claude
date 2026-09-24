@@ -136,9 +136,8 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .native-reminder-icon{background:var(--amber-soft);color:var(--amber-ink);font-size:0}
 
 /* ───────── Game screens ───────── */
-.solo-top,.puzzle-top{border:1px solid var(--line)!important;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-1)!important}
-.solo-progress,.puzzle-progress{height:10px!important;box-shadow:none;background:var(--line)!important}
-.solo-mode>.game-icon.mode-emoji{width:34px;height:34px;border-radius:10px;font-size:0}.solo-mode>.game-icon.mode-emoji svg{width:18px;height:18px}
+.puzzle-top{border:1px solid var(--line)!important;border-radius:20px;background:var(--surface);box-shadow:var(--shadow-1)!important}
+.puzzle-progress{height:10px!important;box-shadow:none;background:var(--line)!important}
 .loop-game-icon .game-icon-sm{width:26px;height:26px;border-radius:8px;background:#ffffff;box-shadow:none}
 .loop-game-icon .game-icon-sm svg{width:15px;height:15px}
 .loop-flame{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#ff9f43;color:#fff;font-size:0}

@@ -156,10 +156,11 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if(!row) throw new AppError('NOT_FOUND',404);
             const s=JSON.parse(row.state); let flag:string|undefined;
             if(s.board) { const tile=s.board.tiles.find((t:any)=>t.id===decodeURIComponent(path[2]??'')&&t.kind==='flag'); flag=tile?.image; }
-            else { const round=Number(path[2]),q=s.questions[round]; if(!Number.isInteger(round)||round<0||round>s.round||!q?.flag||(q.mode==='trail'&&(s.cluesShown?.[round]??1)<4&&round===s.round&&s.phase==='question'))throw new AppError('NOT_FOUND',404); flag=COUNTRIES.find(c=>c.iso2===q.flag)?.flag; }
+            else { const round=Number(path[2]),q=s.questions[round],preload=round===s.round+1&&s.phase==='reveal'&&q?.mode==='flags'; if(!Number.isInteger(round)||round<0||(round>s.round&&!preload)||!q?.flag||(q.mode==='trail'&&(s.cluesShown?.[round]??1)<4&&round===s.round&&s.phase==='question'))throw new AppError('NOT_FOUND',404); flag=COUNTRIES.find(c=>c.iso2===q.flag)?.flag; }
             if(!flag) throw new AppError('NOT_FOUND',404);
             const request=new Request(new URL(flag,req.url)); const asset=env.ASSETS?await env.ASSETS.fetch(request):await fetch(request);
-            return new Response(asset.body,{status:asset.status,headers:{'Content-Type':'image/svg+xml','Cache-Control':'private,no-store','X-Content-Type-Options':'nosniff'}});
+            // Each address belongs to one session and one round, so the image never changes: the browser may keep it privately.
+            return new Response(asset.body,{status:asset.status,headers:{'Content-Type':'image/svg+xml','Cache-Control':asset.ok?'private,max-age=86400,immutable':'no-store','X-Content-Type-Options':'nosniff'}});
         }
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {

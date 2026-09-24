@@ -25,7 +25,13 @@ export function soloView(stored: Solo) {
         if (q.clues) { question.clueCount = q.clues.length; question.clues = q.clues.slice(0,s.phase === 'reveal' ? 4 : cluesShown); question.availablePoints = dailyRoundPoints('trail',{correct:true,cluesUsed:cluesShown}); }
         if (q.flag) { question.flag = 'private'; question.flagUrl = '/api/game-asset/' + s.id + '/' + s.round; }
     }
-    return { id: s.id, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, competition:s.competition, score:s.score, streak: s.streak, bestStreak: s.bestStreak, question, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
+    // While the player reads the answer, hand the browser the next flag's opaque address so it can load in the background.
+    // Only for plain flag questions: in Clue Trail the flag is the last hidden clue and stays private until earned.
+    const upcoming = s.phase === 'reveal' ? s.questions[s.round + 1] : undefined;
+    const preloadFlag = upcoming?.flag && upcoming.mode === 'flags'
+      ? (s.competition || /^[a-z]+:[0-9a-f-]{36}$/.test(upcoming.id) ? '/api/game-asset/' + s.id + '/' + (s.round + 1) : '/api/flag/' + encodeURIComponent(String(publicQuestion(upcoming).flag)))
+      : undefined;
+    return { id: s.id, preloadFlag, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, competition:s.competition, score:s.score, streak: s.streak, bestStreak: s.bestStreak, question, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
 }
 export async function startSolo(env: Env, user: User, settings: Settings, practice = false, focus?: string, competition = false) {
     settings = { ...settings, timer: 0 };

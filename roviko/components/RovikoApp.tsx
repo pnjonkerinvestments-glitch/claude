@@ -21,9 +21,9 @@ import { SoloResults } from './game/SoloResults';
 import { PuzzleDeck, openPuzzle } from './puzzles/PuzzleDeck';
 import { HowToPlayButton, HowToPlayPage } from './atelier/HowToPlay';
 import { GameIcon } from './atelier/GameIcon';
-import { RankGame } from './puzzles/RankGame';
-import { PuzzleGame } from './puzzles/PuzzleGame';
-import { DuelGame } from './puzzles/DuelGame';
+const RankGame = React.lazy(() => import('./puzzles/RankGame').then(m => ({ default: m.RankGame })));
+const PuzzleGame = React.lazy(() => import('./puzzles/PuzzleGame').then(m => ({ default: m.PuzzleGame })));
+const DuelGame = React.lazy(() => import('./puzzles/DuelGame').then(m => ({ default: m.DuelGame })));
 import { evaluateLearning } from '@/lib/game-engine/learning';
 import { pageTitle } from '@/lib/page-title';
 import { shareResult } from '@/lib/share';
@@ -32,12 +32,12 @@ import { AppContext, useApp } from './app/context';
 import { SiteHeader } from './shell/SiteHeader';
 import { ErrorState, PageHeader } from './ds/States';
 import { HomePage } from './home/HomePage';
-import { ScoringPage } from './pages/ScoringPage';
-import { ExplorePage } from './pages/ExplorePage';
-import { RankingsPage } from './pages/RankingsPage';
-import { PassportPage } from './pages/PassportPage';
+const ScoringPage = React.lazy(() => import('./pages/ScoringPage').then(m => ({ default: m.ScoringPage })));
+const ExplorePage = React.lazy(() => import('./pages/ExplorePage').then(m => ({ default: m.ExplorePage })));
+const RankingsPage = React.lazy(() => import('./pages/RankingsPage').then(m => ({ default: m.RankingsPage })));
+const PassportPage = React.lazy(() => import('./pages/PassportPage').then(m => ({ default: m.PassportPage })));
 import { MultiplayerPage, RoomProblem } from './pages/MultiplayerPage';
-import { InfoPage } from './pages/InfoPages';
+const InfoPage = React.lazy(() => import('./pages/InfoPages').then(m => ({ default: m.InfoPage })));
 import { FriendsPage, InvitePanel, InviteInbox, usePresence } from './friends/Friends';
 import { A, Avatar, AvatarPicker, Choice, Empty, Loading, Logo, ModeEmoji } from './app/shared';
 const icons: any = { trail: Compass, capitals: Building2, flags: Flag, pinpoint: MapPin, borders: Route, order: ListOrdered, mixed: Globe2, daily: Sunrise };
@@ -74,6 +74,8 @@ export default function RovikoApp({ initialPath = '/' }: {
         if (!boot.user.id)
             await refresh();
         const game = await post('/games', { settings: { ...settings, timer: 0 }, practice, competition:['daily','daily-trail'].includes(settings.mode) });
+        // Start loading the first flag now, in parallel with opening the game screen.
+        const q = game.question; if (q?.mode === 'flags' && (q.flagUrl || q.flag)) { const img = new Image(); img.src = q.flagUrl ?? '/api/flag/' + encodeURIComponent(q.flag); }
         go('/game/' + game.id);
     }
     catch (e) {
@@ -95,7 +97,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     const ctx = { bootLoaded, setLocale, setTheme, toggleSound, backToStart, region, setRegion, measurement, setMeasurement: (on: boolean) => { setMeasurement(on); writePreference('rv_metrics',on ? 'on':'off'); document.cookie = 'rv_metrics=' + (on ? 'on':'off') + '; Path=/; SameSite=Lax; Max-Age=31536000' + (location.protocol === 'https:' ? '; Secure':''); }, t, locale, theme, go, boot, refresh, modal, setModal, playMode, start, busy, setBusy, fail, copy, muted, report: setReport };
     const gamePath = path.startsWith('/rank/') || path.startsWith('/game/') || path.startsWith('/room/') || path.startsWith('/puzzle/') || path === '/duel';
     return <AppContext.Provider value={ctx}><a className="skip-link" href="#main">{t('skipToContent')}</a><SiteHeader path={path} hideTabs={gamePath}/>
- <main id="main" className={'site-main ' + (gamePath ? 'game-main' : '')}>{fatal ? <ErrorState title={t('stateErrorTitle')} copy={t(errorMessage(fatal))} onRetry={refresh} retryLabel={t('retry')}/> : !bootLoaded && ['/game/', '/puzzle/', '/rank/', '/room/', '/profile', '/friends', '/admin', '/leaderboard'].some(v => path.startsWith(v)) ? <Loading variant={gamePath ? 'game' : path === '/leaderboard' || path === '/friends' ? 'list' : path === '/profile' ? 'passport' : 'page'}/> : path === '/' ? <HomePage /> : path === '/scoring' ? <ScoringPage /> : path === '/multiplayer' ? <MultiplayerPage /> : path.startsWith('/room/') ? <RoomScreen key={path} code={path.split('/')[2]}/> : path.startsWith('/game/') ? <SoloScreen key={path} id={path.split('/')[2]}/> : path.startsWith('/rank/') ? <RankGame key={path} id={path.split('/')[2]} app={ctx}/> : path.startsWith('/puzzle/') ? <PuzzleGame key={path} id={path.split('/')[2]} app={ctx}/> : path === '/daily' ? <AllGames /> : path === '/duel' ? <DuelScreen /> : path === '/how-to-play' ? <HowToScreen /> : path === '/leaderboard' ? <RankingsPage /> : path === '/profile' ? <PassportPage /> : path === '/friends' ? <FriendsPage /> : path === '/explore' ? <ExplorePage /> : path === '/admin' ? <Admin /> : ['/privacy', '/terms', '/sources'].includes(path) ? <InfoPage kind={path.slice(1)}/> : <SEOPage slug={path.slice(1)}/>}</main>
+ <main id="main" className={'site-main ' + (gamePath ? 'game-main' : '')}><React.Suspense fallback={<Loading variant={gamePath ? 'game' : 'page'}/>}>{fatal ? <ErrorState title={t('stateErrorTitle')} copy={t(errorMessage(fatal))} onRetry={refresh} retryLabel={t('retry')}/> : !bootLoaded && ['/game/', '/puzzle/', '/rank/', '/room/', '/profile', '/friends', '/admin', '/leaderboard'].some(v => path.startsWith(v)) ? <Loading variant={gamePath ? 'game' : path === '/leaderboard' || path === '/friends' ? 'list' : path === '/profile' ? 'passport' : 'page'}/> : path === '/' ? <HomePage /> : path === '/scoring' ? <ScoringPage /> : path === '/multiplayer' ? <MultiplayerPage /> : path.startsWith('/room/') ? <RoomScreen key={path} code={path.split('/')[2]}/> : path.startsWith('/game/') ? <SoloScreen key={path} id={path.split('/')[2]}/> : path.startsWith('/rank/') ? <RankGame key={path} id={path.split('/')[2]} app={ctx}/> : path.startsWith('/puzzle/') ? <PuzzleGame key={path} id={path.split('/')[2]} app={ctx}/> : path === '/daily' ? <AllGames /> : path === '/duel' ? <DuelScreen /> : path === '/how-to-play' ? <HowToScreen /> : path === '/leaderboard' ? <RankingsPage /> : path === '/profile' ? <PassportPage /> : path === '/friends' ? <FriendsPage /> : path === '/explore' ? <ExplorePage /> : path === '/admin' ? <Admin /> : ['/privacy', '/terms', '/sources'].includes(path) ? <InfoPage kind={path.slice(1)}/> : <SEOPage slug={path.slice(1)}/>}</React.Suspense></main>
  {!gamePath && <footer className="app-footer"><div className="footer-inner"><div className="footer-brand"><A href="/" aria-label={BRAND.name}><Logo /></A><p>{t('footerCopy')}</p></div><nav className="footer-nav" aria-label={t('navMore')}><div><h2>{t('play')}</h2><A href="/daily">{t('viewAllGames')}</A><A href="/how-to-play">{t('howToLink')}</A><A href="/scoring">{t('scoringLink')}</A><A href="/leaderboard">{t('leaderboard')}</A></div><div><h2>{t('explore')}</h2><A href="/explore">{t('exploreAll')}</A><A href="/multiplayer">{t('togetherTitle')}</A><A href="/profile">{t('navPassport')}</A></div><div><h2>{BRAND.name}</h2><A href="/sources">{t('sourcesKicker')}</A><A href="/privacy">{t('privacy')}</A><A href="/terms">{t('terms')}</A>{boot?.isAdmin && <A href="/admin">{t('admin')}</A>}</div></nav></div><p className="copyright">© {new Date().getFullYear()} {BRAND.name}</p></footer>}
  <Dialog open={modal === 'game'} onOpenChange={v => !v && setModal(null)}><DialogContent className="app-modal"><div className={'mode-symbol tone-' + mode}><ModeEmoji mode={mode}/></div><DialogTitle className="modal-title">{t(mode)}</DialogTitle><DialogDescription>{t(mode + 'Desc')}</DialogDescription><p className="solo-pace-note"><span aria-hidden="true">🌿</span>{t('soloNote')}</p><GameSettings value={setup} onChange={setSetup}/><button className="btn primary wide" disabled={busy} onClick={() => start(setup)}>{busy ? t('loading') : t('startGame')}<ArrowRight size={18}/></button></DialogContent></Dialog>
  <Dialog open={manualCopy !== null} onOpenChange={v => !v && setManualCopy(null)}><DialogContent className="app-modal"><DialogTitle>{t('manualCopyTitle')}</DialogTitle><DialogDescription>{t('manualCopyHelp')}</DialogDescription><textarea className="text-input manual-share" aria-label={t('share')} readOnly value={manualCopy ?? ''} onFocus={e => e.target.select()}/><button className="btn secondary" onClick={() => setManualCopy(null)}>{t('done')}</button></DialogContent></Dialog>
@@ -171,6 +173,8 @@ function SoloScreen({ id }: { id: string }) {
         finally { sending.current = false; pendingSave.current = null; setSaving(false); }
     }, [game, id, muted, fail, load]);
     useEffect(() => { if (game?.phase === 'finished') refresh(); }, [game?.phase, refresh]);
+    // Warm the next flag while the answer is on screen, so it appears instantly on "Next".
+    useEffect(() => { if (game?.preloadFlag) { const img = new Image(); img.decoding = 'async'; img.src = game.preloadFlag; } }, [game?.preloadFlag]);
     const next = async () => {
         if (moving.current) return;
         moving.current = true; setAdvancing(true);

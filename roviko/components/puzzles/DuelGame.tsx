@@ -5,7 +5,7 @@ import { Progress } from '@/components/ui/progress';
 import { api, copyText, sound } from '@/lib/client';
 import { BRAND } from '@/lib/config';
 import { formatMetric } from '@/lib/puzzles/topics';
-import { DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel';
+import { DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel-shared';
 import { ResetCountdown } from '../atelier/ResetCountdown';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';

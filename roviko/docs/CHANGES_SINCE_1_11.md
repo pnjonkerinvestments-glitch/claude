@@ -169,3 +169,36 @@ Details en openstaande punten: `docs/REDESIGN_1_14.md`. Tests: `docs/QA_1_14.md`
 - **Uitlegpagina.** Elk spel heeft nu ook een uitgewerkt voorbeeld, in het Engels, Nederlands en Spaans.
 - **Spelschermen.** Alle spellen gebruiken nu één gedeelde spelkop (`components/game/GameHeader.tsx`): sluiten, het spelicoon met de naam en de editie, de teller, uitleg en een voortgangsbalk in de spelkleur. Antwoordkaarten, feedback en uitslagen zijn in dezelfde rustige stijl gezet. Emoji zijn vervangen door de mascotte en lijniconen.
 - **Tests.** Er zijn drie tests bij gekomen: persoonlijke records, uitnodigingen en online-status, en de voorbeelden op de uitlegpagina. **124 van 124 geslaagd.**
+
+## 1.15.1: sneller
+
+Geen migratie en geen spelregelwijzigingen.
+
+**Vlaggen**
+- **De vlag van de volgende vraag laadt al op de achtergrond** terwijl je de uitleg bij je antwoord leest. Klik je op "Volgende", dan staat hij er direct.
+  - Dit werkt alleen voor gewone vlagvragen. De verborgen vlag-hint van Clue Trail blijft geheim.
+  - Een vlag uit een toekomstige ronde blijft onbereikbaar zolang de huidige vraag nog open staat (getest).
+- **De eerste vlag van een spel** begint te laden zodra je op Start tikt, tegelijk met het openen van het spel.
+- **Vlaggen van officiële dagspellen** mag de browser nu privé bewaren. Het adres geldt voor één sessie en één ronde, en de afbeelding verandert nooit. Eerder stond dit op `no-store`, waardoor elke keer de server én de database nodig waren.
+- **Negen zware vlaggen** met ingewikkelde wapens (Servië, Mexico, Bolivia, Spanje, El Salvador, Montenegro, Guatemala, Kroatië en de Dominicaanse Republiek) zijn omgezet naar een scherpe WebP binnen hetzelfde `.svg`-pad. Gecomprimeerd gaan ze van 196 KB naar 87 KB, en een telefoon hoeft die ingewikkelde tekeningen niet meer te renderen.
+  - Het script is `scripts/optimize-flags.mjs`. Het leest de originelen uit `flag-icons` en zet alleen om als het echt kleiner wordt.
+
+**JavaScript en CSS**
+- **Serverdata kwam per ongeluk in de browserbundel.** Ongeveer 290 KB aan landen- en statistiekdata kwam mee via het Wereldduel. De helpers staan nu in `lib/puzzles/duel-shared.ts`.
+- **Pagina's en spellen laden pas als je ze opent.** Dat geldt voor Ontdekken, Ranglijst, Paspoort, Punten, privacy, voorwaarden, bronnen, Rank Radar, Side by Side, Mosaic en Wereldduel.
+- **Het resultaat:**
+
+| | Vóór | Na |
+| --- | --- | --- |
+| Hoofdbundel | 945 KB | 291 KB |
+| Alle JavaScript bij het openen van de homepage | ruim 1,2 MB | ongeveer 750 KB |
+| CSS | 438 KB | 313 KB |
+
+  Aan de CSS-kant komt de winst van twee dingen: Tailwind scant alleen nog de gebruikte componenten, en 141 ongebruikte regels zijn weg.
+
+**Cache en scrollen**
+- **De service worker** bewaart nu ook illustraties, lettertypen, landvormen en de mascotte, naast vlaggen en data.
+- **`public/_headers`** geeft lange cache-tijden voor statische bestanden. Of de host dit bestand gebruikt, hangt af van de hostingconfiguratie. De service worker werkt hoe dan ook.
+- **Soepeler scrollen:** de vaste balken gebruiken geen achtergrond-blur meer. Die was zwaar op goedkopere telefoons.
+
+**Tests:** 125 van 125 geslaagd, waarvan één nieuwe test voor het vooraf laden van vlaggen.

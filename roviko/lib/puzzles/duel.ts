@@ -7,19 +7,8 @@ import { GEOGRAPHY_POLICY } from '../config';
 import { RANK_TABLES, type RankCategory } from './rank';
 import type { Localized } from './topics';
 
-export const DUEL_ROUNDS = 5;
-/** A duel only counts as clear when the two values differ by at least this share. */
-export const DUEL_MARGIN = 0.12;
-
-export type DuelCard = { id: string; name: Localized; flag: string };
-export type DuelFact = { value: number; rank: number; coverage: number; referenceYear: number | null; source: string; sourceUrl: string; estimated?: boolean };
-export type DuelRound = {
-  category: Pick<RankCategory, 'id' | 'emoji' | 'label' | 'unit' | 'explanation'>;
-  roviko: DuelCard & DuelFact;
-  /** The value of every card in the player's hand for this round's subject. */
-  hand: Record<string, DuelFact>;
-};
-export type DuelBoard = { seed: string; hand: DuelCard[]; rounds: DuelRound[]; solution: string[] };
+import { DUEL_MARGIN, DUEL_ROUNDS, type DuelBoard, type DuelCard, type DuelFact, type DuelRound } from './duel-shared';
+export { DUEL_MARGIN, DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelFact, type DuelRound } from './duel-shared';
 
 const card = (c: typeof COUNTRIES[number]): DuelCard => ({ id: c.id, name: { en: c.name, nl: c.nl }, flag: c.flag });
 const clear = (a: number, b: number) => Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b), 1e-9) >= DUEL_MARGIN;
@@ -70,6 +59,3 @@ export function generateDuel(seed: string): DuelBoard {
 }
 
 /** Does this card beat Roviko's country in this round? */
-export function duelWon(round: DuelRound, cardId: string) {
-  return (round.hand[cardId]?.value ?? -Infinity) > round.roviko.value;
-}
