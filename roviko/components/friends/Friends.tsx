@@ -67,11 +67,11 @@ function FriendRow({ friend, action }: { friend: Friend; action?: React.ReactNod
 }
 
 /** Shown in the room lobby: invite friends in with one tap, no code or link needed. */
-export function InvitePanel({ code }: { code: string }) {
+export function InvitePanel({ code, inRoom = [] }: { code: string; inRoom?: string[] }) {
   const { t, fail, boot, setModal } = useApp();
   const { friends } = useFriends();
   const [sent, setSent] = useState<Record<string, boolean>>({});
-  const accepted = (friends ?? []).filter(f => f.status === 'accepted');
+  const everyone = (friends ?? []).filter(f => f.status === 'accepted'), accepted = everyone.filter(f => !inRoom.includes(f.user_id));
   const invite = async (f: Friend) => { try { await inviteToPlay({ go: () => {} }, f, code); setSent(s => ({ ...s, [f.user_id]: true })); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } };
   return <section className="invite-panel" aria-labelledby="invite-panel-title">
     <h3 id="invite-panel-title"><UserPlus size={18} aria-hidden="true"/>{t('inviteFriendsTitle')}</h3>
@@ -80,7 +80,7 @@ export function InvitePanel({ code }: { code: string }) {
       : accepted.length ? <><p className="muted">{t('inviteFriendsCopy')}</p><ul className="friend-list-v2">{accepted.map(f => <FriendRow key={f.id} friend={f} action={sent[f.user_id]
         ? <span className="invite-sent"><Check size={16} aria-hidden="true"/>{t('invited')}</span>
         : <button className="btn secondary btn-sm" onClick={() => invite(f)} disabled={f.room_code === code}><Send size={15} aria-hidden="true"/>{t('inviteOne')}</button>}/>)}</ul></>
-      : <p className="muted">{t('inviteNoFriends')} <A className="text-link" href="/friends">{t('friendsList')}</A></p>}
+      : everyone.length ? <p className="muted">{t('inviteAllHere')}</p> : <p className="muted">{t('inviteNoFriends')} <A className="text-link" href="/friends">{t('friendsList')}</A></p>}
   </section>;
 }
 

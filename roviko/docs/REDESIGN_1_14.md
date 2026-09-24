@@ -151,3 +151,9 @@ De canonieke lijst staat in `docs/AUDIT_1_14.md`.
 7. **Oude CSS-lagen.** globals, revamp, atelier, playful, competition en polish bestaan nog, met ongeveer 217 KB aan regels die wél gebruikt worden, vooral binnen de spellen. Samenvoegen tot één laag kan gefaseerd, spel voor spel.
 8. **Echte apparaten.** Controleer op echte iOS- en Android-toestellen: de safe area van de tabbalk, het toetsenbord bij het codeveld en het delen via `navigator.share`. Controleer ook schermlezers: VoiceOver en TalkBack.
 9. **Visuele regressie.** De screenshots zijn met de hand gemaakt en bekeken (zie `docs/QA_1_14.md`). Er is nog geen geautomatiseerde vergelijking in CI.
+
+## Update 1.15
+
+- **Opgelost in 1.15:** punt 2 (persoonlijk record per spel), punt 5 (voorbeeld per spel op de uitlegpagina) en punt 6 (mascottestemmingen).
+- **Spelschermen:** alle spellen gebruiken nu dezelfde `GameHeader` en dezelfde rustige stijl.
+- **Nog open:** de spelbalk tijdens een multiplayermatch (`GameTop`, met timer en score) is alleen via CSS in de nieuwe stijl gezet, nog niet omgebouwd naar `GameHeader`.

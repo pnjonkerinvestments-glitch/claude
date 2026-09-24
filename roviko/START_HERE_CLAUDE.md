@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.14.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`). Live domein: https://roviko.app
+**Versie 1.15.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -29,6 +29,8 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - In singleplayer is een tik meteen het antwoord (geen bevestigknop), met een duidelijke rand om de gekozen kaart. Alleen multiplayer en Size Shuffle hebben een bevestigknop.
 - Reeksschilden worden afgeleid uit de opgeslagen dagresultaten (`lib/streak.ts`); geen aparte opslag, niet te kopen.
 - Visueel systeem in `app/design.css` (laatste laag, 1.14): tokens (canvas #F6F3E9, ink #18211D, forest #163B32, brand #1F806B, mint #DDEDE6, gold #F6B84B), alleen Fredoka + Manrope, vaste schalen, één schaduw. Nieuwe schermen gebruiken `components/ds` (States, Celebration) en de tokens, geen nieuwe losse kleuren. Eén primaire actie per scherm; scoreregels horen op `/scoring`, niet op de homepage. Lijniconen via `GameIcon` in plaats van emoji in de interface.
+- Vrienden (alleen accounts) zien elkaars online-status (heartbeat `/api/presence`, 90 s venster) en kunnen elkaar direct in een kamer uitnodigen (`/api/rooms/:code/invite`, `/api/invites/:id`). Online-status is alleen zichtbaar voor geaccepteerde vrienden; gasten schrijven geen presence.
+- De homepage heeft de mascotte met ring (één boog per dagspel) en een tekstballon die zegt hoeveel spellen er nog zijn; de reeks, dagdoelen en week met reeksschild staan zichtbaar op de homepage. De mascotte-stemmingen staan in `components/ds/Mascot.tsx`.
 - Wereldduel en het mysterieland zijn extra's zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
 - Toon feedback zodra de server heeft bevestigd. Verstuur nooit dagspeloplossingen vooraf om feedback sneller te laten lijken. Ongescoord oefenen mag lokaal onmiddellijk reageren.
 - Behoud bronnen, meetjaren, licenties, opgeslagen voortgang en de oorspronkelijke v3-vormgeving.
@@ -60,7 +62,7 @@ npm test
 
 De volledige testsuite gebruikt de buildoutput: daarom eerst bouwen. `npm run dev` start de Vinext/Vite-ontwikkelomgeving; lees README.md voor de D1-binding. Tests maken een eigen geïsoleerde Workerd/D1-database met alle migraties.
 
-**Nieuwe migratie vereist:** pas alle SQL-bestanden uit `drizzle/` in journaalvolgorde toe, inclusief `0003_gorgeous_arachne.sql`. Dit voegt `daily_scores` toe. Niet bestaande migraties herschrijven; geen lege database over productie zetten. De hostingbuild neemt de migraties mee. Geen nieuw geheim nodig. `.env.example` bevat voorbeelden; Google OAuth vereist eigen providerconfiguratie.
+**Nieuwe migratie vereist (1.15):** pas alle SQL-bestanden uit `drizzle/` in journaalvolgorde toe, tot en met `0004_daffy_tusk.sql`. `0003` voegt `daily_scores` toe; `0004` voegt `user_presence` (wie is online) en `room_invites` (directe kameruitnodigingen) toe. Beide zijn alleen toevoegingen; bestaande tabellen en data veranderen niet. Niet bestaande migraties herschrijven; geen lege database over productie zetten. De hostingbuild neemt de migraties mee. Geen nieuw geheim nodig. `.env.example` bevat voorbeelden; Google OAuth vereist eigen providerconfiguratie.
 
 `.openai/hosting.json` hoort bij de bestaande site en moet behouden blijven. Het project-ID is geen deploymentcredential. Een andere Cloudflare-omgeving vereist eigen hostingrechten/database/configuratie. Een code-ZIP geeft op zichzelf geen rechten om de live site te wijzigen.
 

@@ -146,3 +146,26 @@ Een volledige UX- en visuele redesign, zonder de spelregels of de puntentelling 
   - `RovikoApp` opgesplitst in `components/app`, `ds`, `home`, `shell` en `pages`.
 
 Details en openstaande punten: `docs/REDESIGN_1_14.md`. Tests: `docs/QA_1_14.md`.
+
+## 1.15.0: vrienden, motivatie, spelschermen
+
+**Let op bij de hosting.** Er is een **nieuwe migratie**: `drizzle/0004_daffy_tusk.sql`. Die voegt twee tabellen toe, `user_presence` en `room_invites`. Het is alleen een toevoeging; bestaande data verandert niet. Er zijn geen nieuwe geheimen.
+
+- **Vrienden uitnodigen**
+  - Op `/friends` zie je wie van je vrienden online is, en of ze in een kamer zitten.
+  - Met één tik op "Uitnodigen" maak je een kamer en krijgt je vriend direct een uitnodiging. Zit je al in een kamer, dan nodig je in de lobby uit via "Vrienden uitnodigen".
+  - Wie uitgenodigd is, krijgt een melding met "Meedoen". Er is geen link of code meer nodig.
+  - Zit een vriend al in een kamer, dan kun je met "Meedoen" direct aansluiten.
+  - Online-status is alleen zichtbaar voor geaccepteerde vrienden.
+- **Homepage die laat terugkomen**
+  - De mascotte met ring is terug, zoals in 1.13. Elke boog is een dagspel en kleurt als dat spel klaar is.
+  - De tekstballon zegt hoeveel spellen er nog zijn, waarschuwt als je reeks in gevaar is en meldt het als een schild je reeks heeft gered.
+  - De reeks staat groot bovenaan, met een voortgangsbalk naar de volgende mijlpaal en het aantal schilden.
+  - "Versla gisteren" en "je beste dag" als doel om punten te halen.
+  - De dagdoelen en een weekoverzicht (gespeeld, gered door een schild, vandaag) staan direct op de homepage.
+- **De reis van vandaag is een mix.** Vijf stops, vijf verschillende spellen, als kaarten met hun illustratie, status en punten.
+- **Persoonlijk record.** De server geeft per dagspel je beste eerdere score terug, plus je beste dag en je totaal van gisteren. De viering toont "Persoonlijk record" alleen als je dat echt verbetert. Op de uitslagkaart staat "Je beste tot nu toe" of "Nieuw persoonlijk record! Vorige: …".
+- **Mascotte met stemmingen:** blij, juichend, knipogend, bezorgd, slaperig en nieuwsgierig. Te zien op de homepage, bij uitslagen, bij het duel en op de uitlegpagina.
+- **Uitlegpagina.** Elk spel heeft nu ook een uitgewerkt voorbeeld, in het Engels, Nederlands en Spaans.
+- **Spelschermen.** Alle spellen gebruiken nu één gedeelde spelkop (`components/game/GameHeader.tsx`): sluiten, het spelicoon met de naam en de editie, de teller, uitleg en een voortgangsbalk in de spelkleur. Antwoordkaarten, feedback en uitslagen zijn in dezelfde rustige stijl gezet. Emoji zijn vervangen door de mascotte en lijniconen.
+- **Tests.** Er zijn drie tests bij gekomen: persoonlijke records, uitnodigingen en online-status, en de voorbeelden op de uitlegpagina. **124 van 124 geslaagd.**

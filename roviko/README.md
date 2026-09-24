@@ -24,7 +24,7 @@ The website offers five official UTC daily games, each worth up to **1,000 point
 
 Practice earns no competition points. It retains immediate local learning feedback. Daily competition withholds solutions until a server-validated answer and uses a separate `daily_scores` ledger. Multiplayer retains its own match scores/XP and does not enter daily totals. The Mystery Country bonus is a warm-up without ranking points. Legacy clients/results remain unranked; the website explicitly requests the new competitive edition.
 
-**Migration required:** apply all migrations through `drizzle/0003_gorgeous_arachne.sql` before serving this version. The hosting build includes these migrations. No new production secret is needed.
+**Migration required:** apply all migrations through `drizzle/0004_daffy_tusk.sql` before serving this version (0004 adds `user_presence` and `room_invites`; additive only). The hosting build includes these migrations. No new production secret is needed.
 
 [Changes since the supplied v3](docs/CHANGES_SINCE_V3.md) · [Claude handoff](START_HERE_CLAUDE.md) · [Verification](docs/QA_1_11.md)
 
