@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.13.0",
-  "exported_at": "2026-09-24T07:47:13.845011+00:00",
-  "source_commit": "bb4b9be8035682668ae5d4654bbb1d51cacefe29",
+  "website_version": "1.13.1",
+  "exported_at": "2026-09-24T08:09:15.837452+00:00",
+  "source_commit": "075b9ab220ad0b77f985f06f9190df79c4cee88e",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -71,7 +71,7 @@
     {
       "path": "GAME_RULES.md",
       "bytes": 14912,
-      "sha256": "d3047d46c940cc3020ad3baf08991a3f4a956c8c64d93d65ca1993a8d7314177"
+      "sha256": "4730d6d2ed4879937f6fcbc7338656cd471234131b558743a36f88984717120b"
     },
     {
       "path": "MULTIPLAYER.md",
@@ -95,8 +95,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 6968,
-      "sha256": "6bea3130cd3ae9b60591f0634a49893e6962d588e8a3e8d45f3636c5a54178f2"
+      "bytes": 6966,
+      "sha256": "060b688c5193b8c2c936254a440d388db7b897ef75afc4c425444933c33f53de"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -135,8 +135,8 @@
     },
     {
       "path": "app/playful.css",
-      "bytes": 82386,
-      "sha256": "10162b0f56778260ae1eebce6192976e04ab0e36bc7a113a70b08137a3be5596"
+      "bytes": 82372,
+      "sha256": "068159ede3f2b12c9149be8d7a01ea55d0628a35bac52c7a39beb9f5a1ffa437"
     },
     {
       "path": "app/polish.css",
@@ -165,8 +165,8 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 79588,
-      "sha256": "adbd261d357a1496df3977722a59bf663ff0f3a811888903102faf9db0412541"
+      "bytes": 80926,
+      "sha256": "f6047544c95e0cedea1d76019d396318cae2dd6a9cc582f1842bf23689d09a4f"
     },
     {
       "path": "components/SpanishInfo.tsx",
@@ -180,8 +180,8 @@
     },
     {
       "path": "components/atelier/DailyLoop.tsx",
-      "bytes": 4710,
-      "sha256": "7552d4bcda80c4aa47236835c5d0dbae0c4ddd1ace937282ab75c880e8d9ab69"
+      "bytes": 4714,
+      "sha256": "5293475df1e8dd529e7f8f0b8828fbc99b0482e0f4d4f725420c9c4717dd0a4b"
     },
     {
       "path": "components/atelier/DailyQuests.tsx",
@@ -190,8 +190,8 @@
     },
     {
       "path": "components/atelier/DailyRhythm.tsx",
-      "bytes": 2402,
-      "sha256": "385599eb2e452932278668c84773cc3c8f2e887041762574fe63620ca6c8d1b8"
+      "bytes": 2406,
+      "sha256": "757432e66224ccd20e9786bc81399bdbe037bbbe8d4a1ce422fe129ee1d11249"
     },
     {
       "path": "components/atelier/GameArtwork.tsx",
@@ -280,8 +280,8 @@
     },
     {
       "path": "components/puzzles/PuzzleDeck.tsx",
-      "bytes": 15083,
-      "sha256": "6ad938a0b9ec59590b640b3a27906a818a1d0e87ddbf011ba4c50e06c0cc361f"
+      "bytes": 15089,
+      "sha256": "243d7aa58a1065147ff4d53854ba5dc5318a888611e2a489969a0a63e7d321f6"
     },
     {
       "path": "components/puzzles/PuzzleGame.tsx",
@@ -630,8 +630,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 6525,
-      "sha256": "c83ed36d124e1a3506d3d6fe0d7315ab45fd80e4a18a7de3a13e2d00a28d676f"
+      "bytes": 6511,
+      "sha256": "83efb1aa1dccca1995a0f81c59112e0d96d5075c12af10cb81719165d86d652a"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -640,8 +640,8 @@
     },
     {
       "path": "docs/DUOLINGO_ANALYSE.md",
-      "bytes": 5381,
-      "sha256": "d6d44b4165eb43a555c5ec1f51b09102cb038d72d74d976d621d2df077770ad3"
+      "bytes": 5375,
+      "sha256": "ebcff1e0c1a952760b23818906f1506edf4f2a2ab81586bc0197311f0bbd9dd6"
     },
     {
       "path": "docs/GEOTRIVIA_ANALYSE.md",
@@ -682,6 +682,11 @@
       "path": "docs/QA_1_9.md",
       "bytes": 3942,
       "sha256": "d9bb513b9e8fd90d1d07f1bcb0311e7f3583775d610b6ea1d03a1680f1ec286a"
+    },
+    {
+      "path": "docs/RECHTEN_CHECK.md",
+      "bytes": 3443,
+      "sha256": "3cafcd747f582bf117c65d976cb9f2621d27621a7d6e6bc8f4aeec98e2065392"
     },
     {
       "path": "docs/RELEASE_1_5.md",
@@ -820,8 +825,8 @@
     },
     {
       "path": "i18n/quests.ts",
-      "bytes": 4935,
-      "sha256": "74a5fed8462e07d8287daa5eafcde2f8c6cf3080be0a65b554156d7b0ded613e"
+      "bytes": 4898,
+      "sha256": "07ec999a8122379d14e552a8d4d7502b6e212ce38447691ba3f393a58784bac8"
     },
     {
       "path": "i18n/rank.ts",
@@ -846,7 +851,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "6a3cce8141a993067e51c8ad28708c2a0635c523fe734e6eba3b7dcd90ceb792"
+      "sha256": "d5330c80c89c4e1aba2ba169a48e5a149f05f49f9c120704e2a8d24ed2bf520d"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -4211,7 +4216,7 @@
     {
       "path": "public/sw.js",
       "bytes": 856,
-      "sha256": "374e601e489d9e898cc4c4f3de4368c29ea04adfc52d8e8b3e6e8aa34909c53e"
+      "sha256": "a35074b714c30e4ab683692dce3d62ef71587ffc5e30785308de38083679adc0"
     },
     {
       "path": "public/window.svg",
