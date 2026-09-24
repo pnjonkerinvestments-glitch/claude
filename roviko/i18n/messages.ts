@@ -1,14 +1,16 @@
 import { competitionMessages } from './competition';
 import { rankMessages } from './rank';
 import { howtoMessages } from './howto';
+import { questMessages } from './quests';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
+    ...questMessages.en,
     ...competitionMessages.en,
 "confirmOrder":"Confirm order",
 "confirmChoice":"Confirm choice",
@@ -556,7 +558,6 @@ export const messages = {
     "reminderDenied": "Notifications are switched off for Roviko. You can turn them on in your phone's settings.",
     "reminderTurnOn": "Turn on",
     "reminderTurnOff": "Turn off",
-    "reminderBody": "Your daily games are ready! 🌍",
     "heroBubbleRisk": "Your {n}-day streak is waiting for you!",
     "heroBubbleLeft": "{n} to go. You're on a roll!",
     "heroStreakGoal": "{n} more to {target} days",
@@ -631,6 +632,7 @@ export const messages = {
   "nl": {
     ...rankMessages.nl,
     ...howtoMessages.nl,
+    ...questMessages.nl,
     ...competitionMessages.nl,
 "confirmOrder":"Volgorde bevestigen",
 "confirmChoice":"Keuze bevestigen",
@@ -1176,7 +1178,6 @@ export const messages = {
     "reminderDenied": "Meldingen staan uit voor Roviko. Je kunt ze aanzetten in de instellingen van je telefoon.",
     "reminderTurnOn": "Aanzetten",
     "reminderTurnOff": "Uitzetten",
-    "reminderBody": "Je dagspellen staan klaar! 🌍",
     "heroBubbleRisk": "Je reeks van {n} dagen wacht op je!",
     "heroBubbleLeft": "Nog {n} te gaan. Lekker bezig!",
     "heroStreakGoal": "Nog {n} tot {target} dagen",

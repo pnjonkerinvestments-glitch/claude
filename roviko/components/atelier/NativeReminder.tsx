@@ -15,7 +15,10 @@ const plugin = () => capacitor()?.Plugins?.LocalNotifications;
 const subscribe = () => () => {};
 const isApp = () => !!capacitor()?.isNativePlatform?.() && !!plugin();
 
-const REMINDER_ID = 1001, HOUR = 18, KEY = 'roviko:reminder';
+const HOUR = 18, KEY = 'roviko:reminder';
+// One weekly notification per weekday (Capacitor: 1 = Sunday … 7 = Saturday), each with its own friendly line,
+// so the nudge never reads the same two days running. ID 1001 was the earlier single daily reminder.
+const WEEKDAYS = [1, 2, 3, 4, 5, 6, 7], idFor = (weekday: number) => 1000 + weekday;
 function readOn() { try { return localStorage.getItem(KEY) === 'on'; } catch { return false; } }
 function writeOn(on: boolean) { try { localStorage.setItem(KEY, on ? 'on' : 'off'); } catch { /* the reminder still works for this session */ } }
 
@@ -30,12 +33,13 @@ export function NativeReminder({ t }: { t: (k: string) => string }) {
     setBusy(true);
     try {
       if (on) {
-        await notifications.cancel({ notifications: [{ id: REMINDER_ID }] });
+        await notifications.cancel({ notifications: WEEKDAYS.map(d => ({ id: idFor(d) })) });
         writeOn(false); setOn(false);
       } else {
         const permission = await notifications.requestPermissions();
         if (permission.display !== 'granted') { setDenied(true); return; }
-        await notifications.schedule({ notifications: [{ id: REMINDER_ID, title: 'Roviko', body: t('reminderBody'), schedule: { on: { hour: HOUR, minute: 0 }, allowWhileIdle: false } }] });
+        await notifications.cancel({ notifications: WEEKDAYS.map(d => ({ id: idFor(d) })) });
+        await notifications.schedule({ notifications: WEEKDAYS.map(d => ({ id: idFor(d), title: 'Roviko', body: t('reminder' + d), schedule: { on: { weekday: d, hour: HOUR, minute: 0 }, allowWhileIdle: false } })) });
         writeOn(true); setOn(true); setDenied(false);
       }
     } finally { setBusy(false); }

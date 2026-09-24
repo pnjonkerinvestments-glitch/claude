@@ -5,6 +5,7 @@ import { Check, Lightbulb, X } from 'lucide-react';
 import { mysteryOfTheDay, type MysteryCountryData, type MysteryFact } from '@/lib/daily-loop';
 import { ResetCountdown } from './ResetCountdown';
 import { HowToPlayButton } from './HowToPlay';
+import { notifyProgress } from './DailyQuests';
 
 type MysteryData = [{ facts: MysteryFact[] }, MysteryCountryData[]];
 let dataPromise: Promise<MysteryData> | null = null;
@@ -14,7 +15,7 @@ const CATEGORY_EMOJI: Record<string, string> = { heritage: '🏛️', landscapes
 
 type Saved = { hints?: number; picked?: string | null };
 function readSaved(key: string): Saved | null { try { return JSON.parse(localStorage.getItem(key) ?? 'null'); } catch { return null; } }
-function writeSaved(key: string, value: Saved) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage may be unavailable; the puzzle still works */ } }
+function writeSaved(key: string, value: Saved) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage may be unavailable; the puzzle still works */ } notifyProgress(); }
 
 /** A small daily curiosity puzzle on the homepage: guess the country behind a sourced heritage fact. */
 export function MysteryCountry({ date, t, locale }: { date: string; t: (k: string) => string; locale: 'en' | 'nl' | 'es' }) {

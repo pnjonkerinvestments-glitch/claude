@@ -12,5 +12,4 @@ export const spanishExtras: Record<string, string> = {
   duelRoute: 'La ruta perfecta', duelVs: 'contra', duelYourPick: 'Tu carta', duelNew: 'Jugar un duelo de práctica', duelNextDaily: 'Nuevo duelo en', duelPractice: 'Duelo de práctica',
   reminderTitle: 'Recordatorio diario', reminderCopy: 'Recibe un aviso amable a las 18:00 cuando tus juegos te esperan.', reminderOnCopy: 'Activado. Te avisaremos cada día a las 18:00.',
   reminderDenied: 'Las notificaciones de Roviko están desactivadas. Puedes activarlas en los ajustes del teléfono.', reminderTurnOn: 'Activar', reminderTurnOff: 'Desactivar',
-  reminderBody: '¡Tus juegos diarios están listos! 🌍',
 };

@@ -8,11 +8,12 @@ import { formatMetric } from '@/lib/puzzles/topics';
 import { DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel';
 import { ResetCountdown } from '../atelier/ResetCountdown';
 import { HowToPlayButton } from '../atelier/HowToPlay';
+import { notifyProgress } from '../atelier/DailyQuests';
 
 type Board = DuelBoard & { date: string | null };
 const storageKey = (board: Board) => 'roviko:duel:' + (board.date ?? board.seed);
 function readPlays(board: Board): string[] { try { const v = JSON.parse(localStorage.getItem(storageKey(board)) ?? '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, DUEL_ROUNDS) : []; } catch { return []; } }
-function writePlays(board: Board, plays: string[]) { try { localStorage.setItem(storageKey(board), JSON.stringify(plays)); } catch { /* progress still works for this visit */ } }
+function writePlays(board: Board, plays: string[]) { try { localStorage.setItem(storageKey(board), JSON.stringify(plays)); } catch { /* progress still works for this visit */ } notifyProgress(); }
 
 /** World Duel: beat Roviko's country on each subject with a card from your hand, every card once. */
 export function DuelGame({ app, practice = false }: { app: any; practice?: boolean }) {

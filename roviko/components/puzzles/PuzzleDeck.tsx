@@ -18,6 +18,7 @@ import { MysteryCountry } from '../atelier/MysteryCountry';
 import { NativeReminder } from '../atelier/NativeReminder';
 import { ResetCountdown } from '../atelier/ResetCountdown';
 import { HowToPlayButton } from '../atelier/HowToPlay';
+import { DailyQuests } from '../atelier/DailyQuests';
 
 const PRACTICE_LABELS: Record<DailyMode, string> = { rank: 'tilePracticeRank', daily: 'tilePracticeDaily', compare: 'puzzleBrowseTopics', mosaic: 'tilePracticeMosaic', trail: 'tilePracticeTrail' };
 
@@ -35,6 +36,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
   const [loadError, setLoadError] = useState(false), [reload, setReload] = useState(0);
   const [today, setToday] = useState<any>(null), [practice, setPractice] = useState<PuzzleMode | null>(null);
   const [topic, setTopic] = useState(TOPICS[0].id), [size, setSize] = useState('4'), [busy, setBusy] = useState('');
+  const [fallbackDate] = useState(() => new Date().toISOString().slice(0, 10));
   useEffect(() => {
     if (!boot.user.id) return;
     setToday(null);
@@ -98,7 +100,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
       <img className="hero-mascot" src="/globe-logo.webp" alt="" width={280} height={280}/>
     </div>
   </section>;
-  return <>{hero}<CompetitionPanel app={app}/><section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
+  return <>{hero}<section className={'puzzle-deck-section atelier-dailies ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
     <div className="atelier-section-heading"><h2 id="today-title">{t('todayPlay')}</h2><span>{today ? new Date(today.date + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' }) : t('puzzleToday')}</span></div>
     <div className="daily-card-grid">
       {modes.map(mode => {
@@ -118,6 +120,10 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
       })}
     </div>
     {loadError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={() => setReload(n => n+1)}>{t('retry')}</button></p>}
+    <div className="day-panels">
+      <DailyQuests date={today?.date ?? fallbackDate} sessions={today?.sessions ?? []} t={t}/>
+      <CompetitionPanel app={app}/>
+    </div>
     {dailyPage && <p className="practice-reset">{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</p>}
     {dailyPage && today && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t}/>}
     {dailyPage && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true">🏅</span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl' | 'es']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}

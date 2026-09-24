@@ -6,8 +6,10 @@ import type { PointMode } from '@/lib/daily-scoring';
 
 const ruleKeys:Record<PointMode,string>={daily:'competitionDaily',trail:'competitionTrail',compare:'competitionCompare',mosaic:'competitionMosaic',rank:'competitionRankRule'};
 const titles:Record<PointMode,string>={daily:'dailyTitle',trail:'dailyTrail',compare:'compare',mosaic:'mosaic',rank:'rankRadar'};
+/** Numbers follow the page language (1.000 in Dutch and Spanish), which the app keeps on <html lang>. */
+const pageLang=()=>typeof document==='undefined'?undefined:document.documentElement?.lang||undefined;
 export function DailyScoreRule({mode,t,score}:{mode:PointMode;t:(key:string)=>string;score?:number}) {
-  return <details className="daily-score-rule"><summary><Trophy size={16}/>{score===undefined?t('competitionGameMax'):score.toLocaleString()+' / 1,000'}<span>{t('competitionRules')}</span></summary><p>{t(ruleKeys[mode])}</p><p>{t('competitionGeneral')}</p></details>;
+  return <details className="daily-score-rule"><summary><Trophy size={16}/>{score===undefined?t('competitionGameMax'):score.toLocaleString(pageLang())+' / '+(1000).toLocaleString(pageLang())}<span>{t('competitionRules')}</span></summary><p>{t(ruleKeys[mode])}</p><p>{t('competitionGeneral')}</p></details>;
 }
 export function CompetitionPanel({app,date,mode}:{app:any;date?:string;mode?:PointMode}) {
   const {t,locale,boot}=app;

@@ -1,4 +1,4 @@
-# Game rules — Roviko 1.11.0
+# Game rules — Roviko 1.12.0
 
 These are the current rules. Documents for 1.9/v3 and earlier are historical. The requested daily competition replaces the earlier no-points policy **only for official daily games**.
 
@@ -73,3 +73,27 @@ Match XP is `round(score/25)+10*rounds`; level is `1+floor(sqrt(XP/100))`. These
 ## Learning and saved progress
 
 Completing at least one daily game on a UTC date adds one daily streak entry. Thirty achievements cover learning and multiplayer milestones. Personal retries revisit up to five misses without altering the official result. A passport stamp requires one correct country answer; a knowledge seal requires correct answers in a concept across three distinct sessions. Reloading cannot multiply awards. Shared daily snapshots and scored answers are not regenerated after a deployment.
+
+## Rank Radar medals (1.12)
+
+Every choice also earns a medal for its place among the four subjects of that country: 🥇 best, 🥈 second, 🥉 third, ⚪ weakest. Place is `1 + count(options with a strictly better relative position)`, so ties share a medal. Medals are feedback only: daily points still follow the table above (`round(correctAnswers / 6 * 1000)`). The medal trail, the result summary (`n× best · n× 2nd · n× 3rd`) and the share text (`🥇🥈…`) use these places; a share never names countries or subjects. `GET /api/ranks/:id` adds `places` for answered rounds only, so medals survive a reload and nothing about an unanswered round is revealed.
+
+## World Duel (extra, unranked)
+
+The player holds five country cards. Each of five rounds shows one Rank Radar subject and one country played by Roviko; the player picks an unused card and the higher value wins that duel. Each card is played once. Boards are deterministic per seed (`roviko:duel:v1:<UTC date>` for the daily board, a random nonce for practice) and use the same sourced observations as Rank Radar. The generator only accepts boards where every card–round pairing differs by at least 12%, exactly one assignment wins all five rounds, and at least three rounds can be won by more than one card. After each play both values, world ranks, the explanation, source and year are shown. No timer, points or XP; progress is kept per board in the browser.
+
+## How to play
+
+Every mode has three short steps and one tip in English, Dutch and Spanish (`lib/how-to-play.ts`). The explanation opens by itself the first time a player starts a game (once per game, remembered in the browser), except in mixed practice and multiplayer rooms. A "?" button in every game header reopens it, and `/how-to-play` lists every game with a button to start it. While it is open, a game's number-key shortcuts are ignored.
+
+## Daily quests and crowns (1.12)
+
+Three quests per UTC date, the same for everyone (`lib/daily-quests.ts`): (1) finish one named daily game, rotating through the five daily games; (2) finish a bonus game, alternating between the mystery country and the World Duel; (3) finish three different daily games. Progress comes from today's completed official daily games (server sessions) and the bonus games' browser progress. When all three are done, the player can open a chest that adds one crown for that date. Quests and crowns award no points or XP and never change daily scores, rankings or streaks. Crowns are kept in the browser (at most 400 dates) and are not synchronised between devices.
+
+## Practise tricky countries (1.12)
+
+When a player has country/mode pairs they answered wrongly before, the homepage offers an unranked practice round. It uses the existing practice selection (up to 20 of the weakest country concepts), has no timer, points or XP, and never alters daily results.
+
+## App reminders (1.12)
+
+In the native app only, the optional daily reminder is scheduled as seven weekly notifications at 18:00 local time, one per weekday, each with a different friendly line. Turning it off cancels all seven (and the earlier single reminder). The website never asks for notification permission.

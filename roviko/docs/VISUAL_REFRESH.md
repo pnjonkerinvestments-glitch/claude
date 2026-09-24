@@ -115,3 +115,15 @@ Bestanden: `lib/how-to-play.ts` (inhoud), `i18n/howto.ts` (interfaceteksten), `c
 - Echte telefoons (iOS Safari, Android Chrome) en de Capacitor-app. Controleer vooral de ?-knoppen onder de tegels en de horizontale snelkoppelingen op de uitlegpagina.
 - Schermlezers (VoiceOver, TalkBack) op de nieuwe tegels en de uitlegdialoog.
 - De Wereldreis-, Mosaic- en klassieke spellen zijn niet allemaal volledig uitgespeeld in deze ronde; alleen de uitleg en de koppen zijn gecontroleerd.
+
+---
+
+# Samenvoeging met 1.11 en lessen van Duolingo (ronde 6)
+
+- **Basis:** 1.11 van ChatGPT, met daarop de tegels, uitleg, medailles en het Wereldduel uit ronde 4–5. Details staan in `docs/CHANGES_SINCE_1_11.md`.
+- **Vijf dagtegels:** 5 naast elkaar vanaf 1100 px, daaronder 3 + 2, en op de telefoon 2 + 2 + 1 breed. De vijfde tegel (Clue Trail) is dan liggend, met de illustratie links. Clue Trail heeft een eigen mintkleur.
+- **"Jouw dag":** de dagdoelen en de scorekaart staan naast elkaar, onder de speltegels (op mobiel onder elkaar). Zo is het eerste wat je ziet altijd iets om te spelen.
+- **Dagdoelen:** drie rijen met een icoon, voortgangsbalk en teller. Een gehaald doel wordt groen met een vinkje. Bij drie groene doelen verschijnt een wiebelende kroonkist.
+- **Oefen je lastige landen:** een zachte paarse kaart boven de klassieke spellen, alleen zichtbaar als je eerder fouten maakte.
+- **Opgeloste fouten:** zie de lijst "Fouten die zijn opgelost" in `docs/CHANGES_SINCE_1_11.md`.
+- Beweging staat uit bij "verminder beweging" (de kist, de kroon en de balken).

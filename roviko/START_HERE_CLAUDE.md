@@ -1,12 +1,12 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.11.0 · 24 september 2026.** Live domein: https://roviko.app
+**Versie 1.12.0 · 24 september 2026** (1.11.0 van ChatGPT + samenvoeging met de verbeteringen van Claude). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
 ## Eerst lezen
 
-1. `docs/CHANGES_SINCE_V3.md`: verschillen met de door de eigenaar aangeleverde v3.
+1. `docs/CHANGES_SINCE_1_11.md`: wat 1.12 toevoegt aan 1.11 (geen nieuwe migratie). Daarna `docs/CHANGES_SINCE_V3.md` voor 1.10/1.11.
 2. `GAME_RULES.md`: actuele regels en puntentelling, leidend boven oude releasedocumenten.
 3. `ARCHITECTURE.md`, `SECURITY.md`, `DATA_SOURCES.md`, `MULTIPLAYER.md`.
 4. `docs/QA_1_11.md`: wat getest is en wat nog fysiek gecontroleerd moet worden.
@@ -24,6 +24,9 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Side by Side: links schuift naar rechts voor één extra vergelijking, ongeacht de keuze.
 - Dagspelresultaten zijn eenmalig en hervatbaar per speler/UTC-datum/spel. Geen herhaalpunten, geen retroactieve scores voor oude edities.
 - EN/NL/ES, light/dark mode, gasten zonder account, responsief en toetsenbordbedienbaar.
+- Elke spelvorm heeft een uitleg (3 stappen + tip, EN/NL/ES) die de eerste keer vanzelf opent, een ?-knop in elk spel en de pagina `/how-to-play`. Nieuwe spelvormen krijgen altijd een uitleg in `lib/how-to-play.ts`.
+- Dagdoelen (3 per dag, kroonkist) en Rank Radar-medailles zijn motivatie zonder punten: ze veranderen nooit dagpunten, ranglijsten of reeksen.
+- Wereldduel en het mysterieland zijn extra's zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
 - Toon feedback zodra de server heeft bevestigd. Verstuur nooit dagspeloplossingen vooraf om feedback sneller te laten lijken. Ongescoord oefenen mag lokaal onmiddellijk reageren.
 - Behoud bronnen, meetjaren, licenties, opgeslagen voortgang en de oorspronkelijke v3-vormgeving.
 

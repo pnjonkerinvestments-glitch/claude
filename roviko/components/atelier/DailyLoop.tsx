@@ -5,6 +5,7 @@ import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { DAILY_MODES, STREAK_MILESTONES, completedDailies, dailyStateOf, nextDailyMode, streakMilestone, type DailyMode } from '@/lib/daily-loop';
 import { ResetCountdown } from './ResetCountdown';
+import { DailyQuests } from './DailyQuests';
 
 export const DAILY_EMOJI: Record<DailyMode, string> = { rank: '🎯', daily: '✈️', compare: '⚖️', mosaic: '🧩', trail:'🧭' };
 export const dailyTitleKey = (mode: DailyMode) => mode === 'daily' ? 'dailyTitle' : mode === 'trail' ? 'dailyTrail' : mode === 'rank' ? 'rankRadar' : mode;
@@ -12,7 +13,7 @@ export const dailyTitleKey = (mode: DailyMode) => mode === 'daily' ? 'dailyTitle
 /** Shown when a daily game is finished: today's streak, what is still open and a direct way on. */
 export function DailyLoop({ app }: { app: any }) {
   const { t, locale, boot, go, fail, start } = app;
-  const [today, setToday] = useState<{ sessions: { mode: string; completed?: boolean }[]; tomorrowTopic?: { emoji?: string; label: Record<string, string> } } | null>(null), [busy, setBusy] = useState(false);
+  const [today, setToday] = useState<{ date: string; sessions: { mode: string; completed?: boolean }[]; tomorrowTopic?: { emoji?: string; label: Record<string, string> } } | null>(null), [busy, setBusy] = useState(false);
   const lock = useRef(false);
   useEffect(() => { let active = true; api('/puzzles/today?competition=1').then(s => { if (active) setToday(s); }).catch(() => {}); return () => { active = false; }; }, [boot.stats.dailyStreak, boot.stats.dailyCount]);
   if (!today) return null;
@@ -43,6 +44,7 @@ export function DailyLoop({ app }: { app: any }) {
         <span className="sr-only">{t(state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState')}</span>
       </li>; })}
     </ol>
+    <DailyQuests compact date={today.date} sessions={today.sessions} t={t}/>
     {next
       ? <button className="btn hero-cta loop-next" disabled={busy || app.busy} onClick={() => launch(next)}>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}<ArrowRight size={20}/></button>
       : <div className="loop-reset"><ResetCountdown label={t('heroResetIn')}/>{today.tomorrowTopic && <p>{t('loopTomorrow').replace('{topic}', (today.tomorrowTopic.emoji ? today.tomorrowTopic.emoji + ' ' : '') + today.tomorrowTopic.label[locale])}</p>}</div>}
