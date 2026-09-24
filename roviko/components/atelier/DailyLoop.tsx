@@ -50,6 +50,6 @@ export function DailyLoop({ app }: { app: any }) {
     <DailyQuests compact date={today.date} sessions={today.sessions} t={t}/>
     {next
       ? <button className="btn hero-cta loop-next" disabled={busy || app.busy} onClick={() => launch(next)}>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}<ArrowRight size={20}/></button>
-      : <div className="loop-reset"><ResetCountdown label={t('heroResetIn')}/>{today.tomorrowTopic && <p>{t('loopTomorrow').replace('{topic}', (today.tomorrowTopic.emoji ? today.tomorrowTopic.emoji + ' ' : '') + today.tomorrowTopic.label[locale])}</p>}</div>}
+      : <div className="loop-reset"><ResetCountdown label={t('heroResetIn')} t={t}/>{today.tomorrowTopic && <p>{t('loopTomorrow').replace('{topic}', (today.tomorrowTopic.emoji ? today.tomorrowTopic.emoji + ' ' : '') + today.tomorrowTopic.label[locale])}</p>}</div>}
   </section>;
 }

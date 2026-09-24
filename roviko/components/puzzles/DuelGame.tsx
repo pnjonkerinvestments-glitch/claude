@@ -134,7 +134,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
         <button className="btn secondary" onClick={share}><Share2 size={18}/>{t(copied ? 'copied' : 'share')}</button>
         <button className="btn primary" onClick={newPractice}><RefreshCw size={18}/>{t('duelNew')}</button>
       </div>
-      {board.date && <ResetCountdown label={t('duelNextDaily')}/>}
+      {board.date && <ResetCountdown label={t('duelNextDaily')} t={t}/>}
     </div>}
   </section>;
 }

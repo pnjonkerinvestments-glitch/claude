@@ -671,6 +671,41 @@ button.status-item:hover{background:var(--color-surface-2)}
 .doc-more .source-card a{display:inline-block;margin-right:16px;color:var(--link);font-weight:700}
 @media (max-width:860px){.doc-layout{grid-template-columns:1fr;gap:var(--space-5)}.doc-toc{position:static;padding:var(--space-4);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}.dataset-grid{grid-template-columns:1fr}}
 
+/* ───────── Celebration ───────── */
+.celebration{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 0 var(--space-4)}
+.celebrate-chip{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border-radius:999px;background:var(--color-surface-2);color:var(--color-ink);font-weight:700;opacity:0;transform:translateY(8px) scale(.96);animation:rv-arrive 420ms var(--ease) forwards}
+.celebrate-chip b{font:600 1.375rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.celebrate-chip.is-points{background:var(--color-brand);color:var(--color-brand-ink);min-height:52px;padding:0 20px}
+.celebrate-chip.is-best{background:#fdf3d8;color:#5b4200}
+.celebrate-chip.is-streak svg{color:#e0772e;fill:#f6b84b55}
+.celebrate-chip.is-quest svg{color:#c98d1f;fill:var(--color-gold)}
+[data-theme=dark] .celebrate-chip.is-best{background:#3a3119;color:#ffd978}
+@keyframes rv-arrive{to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.celebrate-chip{opacity:1;transform:none;animation:none}}
+
+/* ───────── World Duel ───────── */
+.duel-arena{background:var(--color-forest)!important;border:0!important;box-shadow:none!important;border-radius:var(--radius-hero)!important}
+.duel-arena::before,.duel-arena::after{display:none!important}
+.duel-card,.duel-route>*,.duel-trail>*{border:1px solid var(--color-line-strong)!important;border-bottom-width:1px!important;box-shadow:0 1px 2px rgba(24,33,29,.05)!important;border-radius:18px!important}
+.duel-arena .duel-card{border:0!important}
+.duel-hand .duel-card:hover:not(:disabled){border-color:var(--color-brand)!important;transform:translateY(-2px)}
+.duel-vs{background:var(--color-gold)!important;color:var(--color-gold-ink)!important;box-shadow:none!important}
+
+/* ───────── After a daily game ───────── */
+.daily-loop{background:var(--color-forest)!important;border:0!important;border-radius:var(--radius-hero)!important;box-shadow:none!important}
+.daily-loop::before,.daily-loop::after{display:none!important}
+.loop-streak{background:#ffffff12!important;border:0!important;box-shadow:none!important}
+.loop-games>*{box-shadow:none!important;border:0!important}
+.daily-loop .btn.hero-cta{background:var(--color-gold)!important;color:var(--color-gold-ink)!important}
+.daily-loop .daily-quests.is-compact{box-shadow:none!important}
+.daily-loop .daily-quests.is-compact .quest-list li.is-done{background:var(--color-mint)!important}
+[data-theme=dark] .daily-loop .daily-quests.is-compact{background:var(--color-surface)!important;color:var(--color-ink)}
+.competition-game-result>b{color:var(--link)!important}
+.competition-medal{background:#fdf3d8!important;color:#8a5a00!important;border:0!important;box-shadow:none!important}
+.puzzle-finished,.rank-finished,.learning-results{text-align:center}
+.rank-finished-art,.rank-finish-art{border-radius:var(--radius-card)!important;box-shadow:none!important}
+.discovery-card,.next-discovery,.rank-discovery{box-shadow:var(--shadow-card)!important;border:0!important}
+
 /* ───────── Scoring ───────── */
 .fact-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin:0;padding:0;list-style:none}
 .fact-tiles li{display:grid;gap:4px;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}

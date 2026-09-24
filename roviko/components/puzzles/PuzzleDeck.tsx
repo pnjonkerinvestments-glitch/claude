@@ -19,6 +19,7 @@ import { NativeReminder } from '../atelier/NativeReminder';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { DailyQuests } from '../atelier/DailyQuests';
 import { useToday } from '../home/useDay';
+import { ResetCountdown } from '../atelier/ResetCountdown';
 import { GameCard } from '../home/GameCard';
 
 const PRACTICE_LABELS: Record<DailyMode, string> = { rank: 'tilePracticeRank', daily: 'tilePracticeDaily', compare: 'puzzleBrowseTopics', mosaic: 'tilePracticeMosaic', trail: 'tilePracticeTrail' };
@@ -96,7 +97,7 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
       </div>
       <CompetitionPanel app={app}/>
     </div>
-    {dailyPage && <p className="practice-reset">{t('dailyResetLocal').replace('{time}', new Date(new Date().setUTCHours(24,0,0,0)).toLocaleTimeString(locale, { hour:'2-digit', minute:'2-digit', timeZoneName:'short' }))}</p>}
+    {dailyPage && <p className="practice-reset"><ResetCountdown label={t('resetIn').split('{time}')[0].trim()} t={t}/></p>}
     {dailyPage && today?.week && today.tomorrowTopic && <DailyRhythm week={today.week} date={today.date} tomorrowTopic={today.tomorrowTopic} locale={locale} t={t} frozen={freeze?.frozenDates}/>}
     {dailyPage && badge && <div className="goal-nudge"><span className="goal-nudge-medal" aria-hidden="true"><Medal size={22} strokeWidth={2.2}/></span><div><small>{t('goalNudge')}</small><strong>{badge.name[locale as 'en' | 'nl' | 'es']}</strong></div><span className="goal-bar" aria-hidden="true"><i style={{ width: badge.progress * 100 + '%' }}/></span><b>{Math.min(badge.value, badge.target)}/{badge.target}</b></div>}
     {extras && <div className="daily-extras" id="extras">

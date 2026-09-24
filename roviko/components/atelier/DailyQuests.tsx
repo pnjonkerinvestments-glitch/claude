@@ -48,6 +48,6 @@ export function DailyQuests({ date, sessions, t, compact = false }: { date: stri
     </li>)}</ul>
     {done && !crowned && <button className="btn hero-cta quest-chest" onClick={claim}><Gift size={19} strokeWidth={2.3} aria-hidden="true"/>{t('questChest')}</button>}
     {done && !!crowned && <p className="quest-crowned" role="status"><Crown size={20} strokeWidth={2.3} aria-hidden="true"/>{t('questCrownWon').replace('{n}', String(crowns))}</p>}
-    {!compact && !done && <ResetCountdown className="quest-reset" label={t('questNew')}/>}
+    {!compact && !done && <ResetCountdown className="quest-reset" label={t('questNew')} t={t}/>}
   </section>;
 }

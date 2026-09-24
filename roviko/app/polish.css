@@ -45,19 +45,13 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .atelier-section-heading>span{border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow-1);font-weight:700;font-size:.85rem}
 
 /* Buttons: a restrained press depth */
-.primary,.mosaic-primary{box-shadow:none}
-.primary:hover,.mosaic-primary:hover{box-shadow:none}
+.primary{box-shadow:none}
+.primary:hover{box-shadow:none}
 .secondary{border:1px solid var(--line-strong);box-shadow:none}
 .secondary:hover{box-shadow:none;border-color:var(--line-strong)}
 .hero-cta{box-shadow:none}
 
 /* ───────── Hero ───────── */
-.play-hero-stats li{background:#ffffff1a;box-shadow:inset 0 0 0 1px #ffffff2e;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.play-hero-stats li>span,.stat-countries>button>span{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#ffffff26;color:#fff;font-size:0}
-.play-hero-stats li.stat-streak>span{background:#ff9f43;color:#fff}
-.play-hero-stats li.stat-streak{position:relative}
-.stat-freeze{position:absolute;top:-8px;right:-8px;display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:999px;background:#dff3ff;color:#0b5c8a;font-size:.75rem;font-weight:900;box-shadow:0 2px 6px #0b124033}
-@media (max-width:480px){.play-hero-stats li>span,.stat-countries>button>span{width:32px;height:32px;border-radius:10px}.play-hero-stats li>span svg,.stat-countries>button>span svg{width:18px;height:18px}}
 
 /* ───────── Daily tiles: calmer depth ───────── */
 .daily-tile{box-shadow:0 4px 0 var(--tile-rim),0 12px 24px -16px #10182859}
@@ -120,8 +114,6 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .daily-score-rule{border:1px solid var(--line);box-shadow:var(--shadow-1);border-radius:14px}
 
 /* ───────── Extras ───────── */
-.duel-tile{box-shadow:0 4px 0 #7a1f45,0 16px 30px -18px #7a1f4599}
-.duel-tile-art span.duel-tile-swords{display:grid;place-items:center;width:32px;height:32px;right:-8px;bottom:-2px;border-radius:50%;background:#fff;color:#c23a6b;box-shadow:0 2px 6px #0000002e}
 .mystery-card{padding:24px}
 .mystery-badge{width:52px;height:52px;border-radius:15px;background:#eeeaff;color:#6a4cf0;box-shadow:inset 0 0 0 1px #6a4cf026;font-size:0}
 [data-theme=dark] .mystery-badge{background:#2a2560;color:#c8bdff}
@@ -141,7 +133,6 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .review-card{border-color:var(--line)!important;background:var(--surface)!important;padding:16px 18px}
 .review-card-icon{background:#eeeaff;color:#6a4cf0;box-shadow:inset 0 0 0 1px #6a4cf026;font-size:0}
 [data-theme=dark] .review-card-icon{background:#2a2560;color:#c8bdff}
-.atelier-social{box-shadow:0 4px 0 #3f2aa8,0 20px 40px -20px #3f2aa899}
 .native-reminder-icon{background:var(--amber-soft);color:var(--amber-ink);font-size:0}
 
 /* ───────── Game screens ───────── */
@@ -176,8 +167,6 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .howto-card .howto-play{box-shadow:none}
 
 /* ───────── Pages ───────── */
-.site-header{background:color-mix(in srgb,var(--background) 82%,transparent);border-bottom:1px solid var(--line)}
-.site-footer{border-top:1px solid var(--line)}
 .page-heading .eyebrow,.eyebrow{letter-spacing:.06em}
 
 @media (prefers-reduced-motion:reduce){.quest-chest svg{animation:none!important}}

@@ -1,20 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { formatCountdown, msUntilReset } from '@/lib/daily-loop';
+import { useResetLabel } from '../home/useDay';
 
-/** Live time left until the 00:00 UTC reset. Renders a placeholder until mounted to keep SSR stable. */
-export function useResetCountdown() {
-  const [ms, setMs] = useState<number | null>(null);
-  useEffect(() => {
-    const tick = () => setMs(msUntilReset());
-    tick();
-    const timer = setInterval(tick, 1000);
-    return () => clearInterval(timer);
-  }, []);
-  return ms;
-}
-
-export function ResetCountdown({ label, className = '' }: { label: string; className?: string }) {
-  const ms = useResetCountdown();
-  return <span className={'reset-countdown ' + className}><span>{label}</span><time aria-live="off">{ms === null ? '--:--:--' : formatCountdown(ms)}</time></span>;
+/**
+ * Calm time left until the next daily games ("3h 42m"), in the page language.
+ * Renders a non-breaking space until mounted, so server and client markup agree and nothing shifts.
+ */
+export function ResetCountdown({ label, t, className = '' }: { label: string; t: (key: string) => string; className?: string }) {
+  const left = useResetLabel(t);
+  return <span className={'reset-countdown ' + className}><span>{label}</span> <time aria-live="off">{left ?? ' '}</time></span>;
 }

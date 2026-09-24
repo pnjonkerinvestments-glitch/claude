@@ -51,7 +51,7 @@ export function MysteryCountry({ date, t, locale }: { date: string; t: (k: strin
       {!correct && pickedCountry && <p>{t('mysteryYouPicked').replace('{pick}', name(pickedCountry)).replace('{answer}', name(answer))}</p>}
       <p>{fact.explanation[locale]}</p>
       <p className="mystery-source">{t('mysterySource')}: <a href={fact.source.url} target="_blank" rel="noopener noreferrer">{fact.source.title}</a> · UNESCO World Heritage Centre · CC BY-SA 3.0 IGO</p>
-      <ResetCountdown label={t('mysteryNext')}/>
+      <ResetCountdown label={t('mysteryNext')} t={t}/>
     </div>}
   </section>;
 }
