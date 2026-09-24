@@ -4,7 +4,7 @@
   "private": true,
   "description": "Roviko native shell for the App Store and Google Play",
   "scripts": {
-    "assets": "node scripts/make-icon.mjs && capacitor-assets generate --iconBackgroundColor '#2f5bea' --iconBackgroundColorDark '#1d2a6b' --splashBackgroundColor '#2f5bea' --splashBackgroundColorDark '#0f1630'",
+    "assets": "node scripts/make-icon.mjs && capacitor-assets generate --iconBackgroundColor '#F6F3E9' --iconBackgroundColorDark '#163B32' --splashBackgroundColor '#F6F3E9' --splashBackgroundColorDark '#163B32'",
     "sync": "cap sync",
     "check": "node scripts/check-config.mjs"
   },

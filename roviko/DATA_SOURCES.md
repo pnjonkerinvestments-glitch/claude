@@ -125,3 +125,7 @@ Daily scores/ranks use first-party gameplay records; no external leaderboard or 
 ## Flag optimisation (1.15.1)
 
 Nine flag-icons flags with detailed coats of arms (bo, do, es, gt, hr, me, mx, rs, sv) are served as a 640×480 WebP rendering of the original flag-icons 7.5.0 SVG, wrapped in an SVG with the same viewBox (`scripts/optimize-flags.mjs`). The artwork is unchanged; the MIT licence of flag-icons continues to apply.
+
+## Illustrations 1.16
+
+Since 1.16 the game covers, page-header scenes, explore postcards, region landscapes and friends artwork in `public/art/` come from design mockups the owner supplied for Roviko (September 2026; a flat cartoon style with the Roviko globe). They were cut out, cleaned and exported as WebP. No new third-party or competitor artwork was added. They are decorative only. The flags drawn inside the region landscapes are illustration, not quiz data. Every flag or shape used in questions and answers still comes from the licensed data above. The earlier clay-style covers (see `docs/ARTWORK_1_7.md` and `docs/ARTWORK_1_9.md`) are replaced in the interface.

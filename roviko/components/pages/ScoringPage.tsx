@@ -15,7 +15,7 @@ export function ScoringPage() {
   const { t, locale } = useApp();
   const n = (v: number) => v.toLocaleString(locale);
   return <div className="page scoring-page">
-    <PageHeader kicker={t('scoringKicker')} title={t('scoringTitle')} lead={t('scoringLead')}/>
+    <PageHeader art="spot-country-mosaic" kicker={t('scoringKicker')} title={t('scoringTitle')} lead={t('scoringLead')}/>
     <ul className="fact-tiles">
       <li><Sparkles size={22} aria-hidden="true"/><strong>{n(1000)}</strong><span>{t('scoringPerGame')}</span></li>
       <li><Crown size={22} aria-hidden="true"/><strong>{n(5000)}</strong><span>{t('scoringPerDay')}</span></li>

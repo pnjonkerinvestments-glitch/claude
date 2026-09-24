@@ -30,7 +30,10 @@ const PRIVACY: Section[] = [
   { id: 'visible', title: l('What others can see', 'Wat anderen zien', 'Qué ven los demás'), body: [
     l('Display names and scores appear in game rooms and rankings. In your passport you can hide yourself from friend requests; hidden players appear as "Explorer" in the daily rankings.',
       'Spelersnamen en scores verschijnen in spelrooms en ranglijsten. In je paspoort kun je vriendschapsverzoeken uitzetten; wie niet vindbaar is, staat als "Explorer" in de dagranglijst.',
-      'Los nombres y las puntuaciones aparecen en salas y clasificaciones. En tu pasaporte puedes ocultarte de las solicitudes de amistad; quien no es visible aparece como «Explorer» en la clasificación diaria.')] },
+      'Los nombres y las puntuaciones aparecen en salas y clasificaciones. En tu pasaporte puedes ocultarte de las solicitudes de amistad; quien no es visible aparece como «Explorer» en la clasificación diaria.'),
+    l('Friends you have accepted can see whether you have Roviko open right now (online in the last 90 seconds) and can invite you to their room. Guests never share an online status.',
+      'Vrienden die je hebt geaccepteerd zien of je Roviko nu open hebt (online in de afgelopen 90 seconden) en kunnen je uitnodigen in hun kamer. Gasten delen nooit een online-status.',
+      'Los amigos que has aceptado ven si tienes Roviko abierto ahora (en línea en los últimos 90 segundos) y pueden invitarte a su sala. Los invitados nunca comparten su estado en línea.')] },
   { id: 'choices', title: l('Your choices', 'Jouw keuzes', 'Tus decisiones'), body: [
     l('In your passport you can download your data and delete your account. Guest progress is tied to the session cookie. Sessions expire after 30 days. Rooms expire after 30 minutes without active players.',
       'In je paspoort kun je je gegevens downloaden en je account verwijderen. Gastvoortgang is verbonden aan de sessiecookie. Sessies verlopen na 30 dagen. Rooms verlopen na 30 minuten zonder actieve spelers.',

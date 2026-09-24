@@ -75,7 +75,7 @@ function FriendsRankings() {
 export function RankingsPage() {
   const { t } = useApp();
   return <div className="page rankings">
-    <PageHeader kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('rankingsLead')}/>
+    <PageHeader art="spot-rank-radar" kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('rankingsLead')}/>
     <DailyRankings/>
     <FriendsRankings/>
   </div>;

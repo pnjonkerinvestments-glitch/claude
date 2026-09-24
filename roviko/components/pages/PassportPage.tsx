@@ -41,7 +41,7 @@ export function PassportPage() {
   const L = locale as Locale;
 
   return <div className="page passport">
-    <PageHeader kicker={t('passportKicker')} title={t('passportTitle')} lead={t('passportSub')}/>
+    <PageHeader art="spot-world-trip" kicker={t('passportKicker')} title={t('passportTitle')} lead={t('passportSub')}/>
 
     <section className={'passport-cover' + (u.guest ? ' is-guest' : '')} aria-label={t('navPassport')}>
       <div className="passport-cover-id">

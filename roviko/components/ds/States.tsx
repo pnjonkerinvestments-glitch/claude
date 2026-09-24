@@ -63,8 +63,9 @@ export function SectionHeader({ id, title, kicker, action }: { id?: string; titl
 }
 
 /** Page title block: small kicker, one H1, one calm sentence. */
-export function PageHeader({ kicker, title, lead, children }: { kicker?: React.ReactNode; title: React.ReactNode; lead?: React.ReactNode; children?: React.ReactNode }) {
-  return <header className="page-header">
+export function PageHeader({ kicker, title, lead, art, children }: { kicker?: React.ReactNode; title: React.ReactNode; lead?: React.ReactNode; art?: string; children?: React.ReactNode }) {
+  return <header className={'page-header' + (art ? ' has-art' : '')}>
+    {art && <img className="page-header-art" src={'/art/' + art + '.webp'} alt="" aria-hidden="true" decoding="async" fetchPriority="high"/>}
     {kicker && <p className="kicker">{kicker}</p>}
     <h1>{title}</h1>
     {lead && <p className="lead">{lead}</p>}

@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useState } from 'react';
-import { ArrowRight, Check, Flame, ShieldCheck, Sparkles, Target, Trophy, Users } from 'lucide-react';
+import { ArrowRight, Check, Flame, ShieldCheck, Star, Target, Trophy, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DAILY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DailyMode } from '@/lib/daily-loop';
 import { useApp } from '../app/context';
@@ -98,18 +98,18 @@ export function HomePage() {
         {todayError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={retry}>{t('retry')}</button></p>}
         <ul className="hero-stats" aria-label={t('statusLabel')}>
           <li className={'hero-stat stat-streak' + (streak > 0 ? ' is-on' : '') + (atRisk ? ' is-at-risk' : '')}>
-            <span className="hero-stat-icon" aria-hidden="true"><Flame size={22} strokeWidth={2.3}/></span>
+            <span className="hero-stat-icon" aria-hidden="true"><Flame size={26} strokeWidth={2}/></span>
             <span>{ready ? <b>{streak}</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatStreak')}</small></span>
             {ready && <span className="stat-meter" role="img" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></span>}
             {!!freeze?.available && <span className="stat-shield" title={t('freezeExplain')}><ShieldCheck size={13} strokeWidth={2.6} aria-hidden="true"/><span className="sr-only">{t('freezeReady').replace('{n}', String(freeze.available))}</span><span aria-hidden="true">{freeze.available}</span></span>}
           </li>
           <li className="hero-stat stat-today">
-            <span className="hero-stat-icon" aria-hidden="true"><Target size={22} strokeWidth={2.3}/></span>
+            <span className="hero-stat-icon" aria-hidden="true"><Target size={26} strokeWidth={2.2}/></span>
             <span>{ready ? <b>{completed}/5</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatToday')}</small></span>
           </li>
           <li className="hero-stat stat-points">
             <button type="button" onClick={() => go('/leaderboard')}>
-              <span className="hero-stat-icon" aria-hidden="true"><Sparkles size={22} strokeWidth={2.3}/></span>
+              <span className="hero-stat-icon" aria-hidden="true"><Star size={26} strokeWidth={2}/></span>
               <span>{competition ? <b>{n(pointsToday)}</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatPoints')}</small></span>
             </button>
           </li>
@@ -147,7 +147,7 @@ export function HomePage() {
 
     <section className="home-section" aria-labelledby="more-title">
       <SectionHeader id="more-title" title={t('moreTitle')} action={<A href="/daily" className="text-link">{t('viewAllGames')}<ArrowRight size={16} aria-hidden="true"/></A>}/>
-      <div className="card-row">
+      <div className="card-row more-row">
         <GameCard mode="duel" title={t('duel')} tagline={t('cardDuelTag')} meta={t('cardNoPoints')} cta={t('cardPlay')} onClick={() => go('/duel')}/>
         <GameCard mode="mystery" title={t('cardMysteryTitle')} tagline={t('cardMysteryTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => setMysteryOpen(true)}/>
         <GameCard mode="classic" title={t('cardClassicTitle')} tagline={t('cardClassicTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => go('/daily#classic')}/>
@@ -155,7 +155,7 @@ export function HomePage() {
     </section>
 
     <section className="together" aria-labelledby="together-title">
-      <div className="together-art" aria-hidden="true"><div className="avatar-stack">{(online.length ? online.slice(0, 4).map(f => f.avatar) : [0, 4, 1, 6]).map((a, i) => <Avatar key={i} id={a}/>)}</div></div>
+      <div className="together-art" aria-hidden="true">{online.length ? <div className="avatar-stack">{online.slice(0, 4).map((f, i) => <Avatar key={i} id={f.avatar}/>)}</div> : <img className="together-friends" src="/art/friends-row.webp" alt="" width={407} height={88} loading="lazy" decoding="async"/>}</div>
       <div className="together-copy">
         <p className="kicker"><Users size={15} aria-hidden="true"/>{online.length ? t('friendsOnlineCount').replace('{n}', String(online.length)) : t('togetherKicker')}</p>
         <h2 id="together-title">{t('togetherTitle')}</h2>

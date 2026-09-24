@@ -865,3 +865,62 @@ small,.small{font-size:var(--text-small)}
   .game-card:hover:not(:disabled){transform:none}
   .sk{animation:none}
 }
+
+/* ===== 1.16 · illustrated style (flat cartoon art with Roviko the globe) ===== */
+.page-header.has-art{position:relative;max-width:none;min-height:170px;padding-right:min(46%,480px)}
+.page-header-art{position:absolute;right:0;top:50%;translate:0 -50%;height:176px;width:auto;max-width:44%;object-fit:contain;pointer-events:none;user-select:none}
+.page-header-art[src*="-hero"]{height:240px;max-width:48%}
+[data-theme=dark] .page-header-art[src*="-hero"]{opacity:.9}
+@media (max-width:760px){
+  .page-header.has-art{display:flex;flex-direction:column;min-height:0;padding-right:0}
+  .page-header.has-art .page-header-art{position:absolute;top:0;right:-4px;translate:none;height:92px;max-width:34%}
+  .page-header.has-art>.kicker,.page-header.has-art>h1{padding-right:min(34%,130px)}
+  .page-header.has-art .page-header-art[src*="-hero"]{position:static;order:10;height:auto;width:100%;max-width:420px;max-height:170px;margin:var(--space-2) 0 0 auto;object-position:right}
+  .page-header.has-art:has(.page-header-art[src*="-hero"])>.kicker,.page-header.has-art:has(.page-header-art[src*="-hero"])>h1{padding-right:0}
+}
+
+/* Game covers are the new cartoon scenes; the extras sit on the bottom of their 3:2 frame. */
+.cover-scene{object-position:center bottom}
+.more-row .game-card-art{aspect-ratio:12/5}
+.more-row .game-card-art .game-cover-image{object-position:center bottom}
+
+/* Explore: postcard scenes behind today's picks, landmark scenes for regions. */
+.pick-flag{position:relative;display:block;aspect-ratio:614/382;background:#cfe9f4;overflow:hidden}
+.pick-flag .pick-scene{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:0;box-shadow:none;transform:none;transition:transform 400ms var(--ease)}
+.pick-card:hover .pick-scene{transform:scale(1.03)}
+.pick-postcard{position:absolute;left:23%;top:6%;width:51%;height:64%;display:grid;place-items:center;padding:6px;border-radius:12px;background:#fffaf0;box-shadow:0 10px 22px rgba(24,33,29,.22);transform:rotate(-3deg)}
+.pick-flag .pick-postcard img{width:100%;height:100%;object-fit:contain;border-radius:6px;box-shadow:none;transform:none}
+.region-card,[data-theme=dark] .region-card{display:flex;flex-direction:column;justify-content:flex-start;align-items:stretch;min-height:0;aspect-ratio:616/228;padding:0;background:var(--region,#eef0f6);color:#18211d}
+.region-art{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:right bottom;pointer-events:none}
+.region-copy{position:relative;display:grid;gap:2px;padding:var(--space-5)}
+.region-card small{color:#3d4843;opacity:1}
+@media (max-width:760px){
+  .region-card,[data-theme=dark] .region-card{aspect-ratio:auto}
+  .region-copy{padding:var(--space-4) var(--space-4) var(--space-2)}
+  .region-art{position:static;order:2;height:104px;margin-top:auto}
+  .region-card strong{font-size:1.1875rem;line-height:1.15}
+}
+
+/* Friends lobby: the group scene, a waving mascot on the join card, cartoon friends and a curious guide. */
+.lobby-card-art{aspect-ratio:964/522}
+.lobby-card-art img{width:100%;height:100%;object-fit:cover;display:block}
+.lobby-join{position:relative}
+.lobby-join-mascot{position:absolute;right:16px;top:14px;width:92px;height:auto;pointer-events:none}
+.lobby-join .lobby-card-body>h2,.lobby-join .lobby-card-body>p{padding-right:96px}
+.soft-link-art{display:grid;grid-template-columns:1fr auto;align-items:end;row-gap:var(--space-3)}
+.soft-link-art .soft-link-friends{grid-column:1/-1;height:62px;width:auto;max-width:100%;object-fit:contain;justify-self:start}
+.soft-link-help{overflow:hidden}
+.soft-link-help .soft-link-mascot{flex-shrink:0;width:96px;height:auto;margin:-6px 0 -18px -4px}
+.together-friends{display:block;width:min(300px,100%);height:auto}
+.howto-mascot{width:150px;height:auto}
+@media (max-width:640px){.howto-mascot{width:96px;height:auto}.lobby-join-mascot{width:72px}.lobby-join .lobby-card-body>h2,.lobby-join .lobby-card-body>p{padding-right:74px}}
+/* Colourful stat icons, like stickers. */
+.hero-stat-icon,.stat-streak.is-on .hero-stat-icon,.stat-today .hero-stat-icon{width:42px;height:42px;background:transparent}
+.stat-streak .hero-stat-icon svg{color:#e8622a;fill:#f6b84b}
+.stat-streak:not(.is-on) .hero-stat-icon svg{color:#e8a27a;fill:#fbe3c4}
+.stat-today .hero-stat-icon svg{color:#1f806b;fill:#cfe9dd}
+.stat-points .hero-stat-icon svg{color:#e0a020;fill:#f6c94b}
+.hero-stat.stat-points .hero-stat-icon{background:transparent}
+@media (min-width:981px){.together{grid-template-columns:minmax(0,300px) 1fr auto}}
+.together-art{min-width:0}
+.together-friends{width:100%;max-width:300px}

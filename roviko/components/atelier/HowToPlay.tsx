@@ -6,7 +6,6 @@ import { GameIcon } from './GameIcon';
 import { CoverArt, type CoverMode } from '../home/CoverArt';
 import { A } from '../app/shared';
 import { HOW_TO_EXAMPLES, HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
-import { Mascot } from '../ds/Mascot';
 
 type T = (key: string) => string;
 type Loc = 'en' | 'nl' | 'es';
@@ -73,7 +72,7 @@ export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; local
     if (next) { e.preventDefault(); pick(next); requestAnimationFrame(() => document.getElementById('howto-tab-' + next)?.focus()); }
   };
   return <div className="page howto-v2">
-    <header className="page-header howto-head"><div><p className="kicker">{t('howKicker')}</p><h1>{t('howTitle')}</h1><p className="lead">{t('howLead')}</p></div><Mascot mood="curious" size={120} className="howto-mascot"/></header>
+    <header className="page-header howto-head"><div><p className="kicker">{t('howKicker')}</p><h1>{t('howTitle')}</h1><p className="lead">{t('howLead')}</p></div><img src="/art/howto-mascot.webp" alt="" aria-hidden="true" width={185} height={191} className="howto-mascot" decoding="async"/></header>
     <div className="howto-tabs" role="tablist" aria-label={t('howTitle')} onKeyDown={onKey}>
       {HOW_TO_PLAY_GROUPS.map(g => <div key={g.key} className="howto-tab-group" role="presentation"><span className="howto-tab-label" role="presentation">{t(g.key)}</span>
         {g.modes.map(m => <button key={m} id={'howto-tab-' + m} role="tab" aria-selected={mode === m} aria-controls="howto-panel" tabIndex={mode === m ? 0 : -1} className="howto-tab" onClick={() => pick(m)}><GameIcon mode={m} size="sm"/>{howToGame(m, t)}</button>)}

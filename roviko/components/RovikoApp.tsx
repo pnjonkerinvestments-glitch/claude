@@ -107,7 +107,7 @@ function PresenceLayer({ path }: { path: string }) { const { invites, dismiss } 
 function AllGames() {
     const app = useApp(), { t, start, playMode, setModal, busy, region, setRegion, boot } = app;
     return <div className="page all-games">
-        <PageHeader kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
+        <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
         <PuzzleDeck app={app} dailyPage extras/>
         <section id="classic" className="quick-games"><div className="atelier-section-heading"><div><h2>{t('allGamesClassic')}</h2><p className="muted">{t('allGamesClassicNote')}</p></div><div className="quick-controls"><Choice label={t('region')} value={region} onChange={setRegion} options={REGIONS.map(v => ({ value: v, label: v === 'World' ? t('allRegions') : t(v) }))}/><button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><span aria-hidden="true">✦</span>{t('surpriseMe')}</button></div></div>
         {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true"><RotateCcw size={22} strokeWidth={2.2}/></span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><span className="btn secondary review-card-cta">{t('reviewCardCta')}<ArrowRight size={17}/></span></button>}

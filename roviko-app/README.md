@@ -1,11 +1,13 @@
 # Roviko-app (iOS + Android)
 
+> **Lanceren?** Begin bij [`LANCERING.md`](LANCERING.md): de checklist met alles wat klaarstaat en wat jij nog moet doen.
+
 Dit is de native app voor de App Store en Google Play, gebouwd met [Capacitor](https://capacitorjs.com) 8. De app laadt de live website (`server.url` in `capacitor.config.json`), dus elke website-update staat meteen ook in de app. Een nieuwe app-versie is alleen nodig als er iets aan de native kant verandert.
 
 ## Wat de app extra doet ten opzichte van de website
 
 - **Eigen app-icoon en splashscreen** met de mascotte (bron: `assets/`, gemaakt met `npm run assets`).
-- **Dagelijkse herinnering:** een lokale melding om 18:00 ("Je 4 dagpuzzels staan klaar!"). De speler zet die zelf aan op de homepage (`components/atelier/NativeReminder.tsx` in de website). Er is geen server of pushdienst nodig en er worden geen gegevens gedeeld.
+- **Dagelijkse herinnering:** een lokale melding om 18:00, met elke dag van de week een andere vrolijke tekst (bijvoorbeeld "Je vijf dagspellen staan klaar. Roviko heeft zijn koffer al gepakt! 🧳"). De speler zet die zelf aan op de homepage (`components/atelier/NativeReminder.tsx` in de website). Er is geen server of pushdienst nodig en er worden geen gegevens gedeeld.
 - **Vriendelijk offline-scherm** (`www/offline.html`) in plaats van een foutpagina. Het scherm probeert het vanzelf opnieuw zodra het internet terug is.
 - **Externe links** (zoals UNESCO-bronnen) openen in de gewone browser, zodat spelers de app niet kwijtraken.
 - Op Android is de permissie voor "exacte wekkers" verwijderd, omdat Google Play die alleen toestaat voor wekker- en agenda-apps.
@@ -64,7 +66,7 @@ Dit is de native app voor de App Store en Google Play, gebouwd met [Capacitor](h
    - Maak de app aan met de teksten uit `store-listing.md`.
    - Vul de privacylabels in (zie `store-listing.md`).
    - Zet de leeftijdsclassificatie op 4+.
-   - Upload screenshots: 6,9" iPhone (1320×2868) en, omdat de app ook op iPad werkt, 13" iPad (2064×2752).
+   - Upload de screenshots uit `store/ios-iphone-6.9/` (1320×2868) en, omdat de app ook op iPad werkt, `store/ios-ipad-13/` (2064×2752). Het icoon van 1024 px staat in `store/app-store-icon-1024.png`.
 5. Test eerst via **TestFlight** en dien de app daarna in. De beoordeling duurt meestal 1–3 dagen.
 
 **Kinderen:** kies bij Apple **niet** de categorie "Kinderen". Die eist een ouderpoort voor elke externe link. Categorie *Onderwijs* of *Spellen → Trivia* met leeftijd 4+ is geschikt. Bij Google moet je bij *Doelgroep* kiezen. Kies je ook leeftijden onder 13, dan geldt het Families-beleid. Roviko heeft geen advertenties en geen trackers, dus dat is haalbaar, maar vul de formulieren zorgvuldig in.

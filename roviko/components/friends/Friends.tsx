@@ -115,7 +115,7 @@ export function FriendsPage() {
   const add = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await post('/friends', { code }); setCode(''); toast.success(t('friendSaved')); reload(); } catch (err) { fail(err); } finally { setBusy(false); } };
   const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
-  if (boot.user.guest) return <div className="page friends-v2"><PageHeader kicker={t('friendsKicker')} title={t('friendsTitle')}/><EmptyState icon={Users} title={t('accountRequired')} copy={t('guestPassport')}><button className="btn primary" onClick={() => setModal('signup')}>{t('signUp')}</button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></EmptyState></div>;
+  if (boot.user.guest) return <div className="page friends-v2"><PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')}/><EmptyState icon={Users} title={t('accountRequired')} copy={t('guestPassport')}><button className="btn primary" onClick={() => setModal('signup')}>{t('signUp')}</button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></EmptyState></div>;
   const visible = (friends ?? []).filter(f => f.status !== 'blocked');
   const requests = visible.filter(f => f.status === 'pending' && f.to_id === boot.user.id);
   const sentRequests = visible.filter(f => f.status === 'pending' && f.to_id !== boot.user.id);
@@ -125,7 +125,7 @@ export function FriendsPage() {
     ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
     : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>;
   return <div className="page friends-v2">
-    <PageHeader kicker={t('friendsKicker')} title={t('friendsTitle')} lead={t('friendsListCopy')}/>
+    <PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')} lead={t('friendsListCopy')}/>
     <section className="friend-add" aria-labelledby="friend-add-title">
       <div><h2 id="friend-add-title">{t('friendsAddTitle')}</h2><p className="muted">{t('friendsAddCopy')}</p></div>
       <button className="friend-code" onClick={() => copy(boot.user.friendCode)} aria-label={t('friendCode') + ' ' + boot.user.friendCode}><small>{t('friendCode')}</small><b>{boot.user.friendCode}</b><Copy size={16} aria-hidden="true"/></button>

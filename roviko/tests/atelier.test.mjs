@@ -54,3 +54,28 @@ test('text contrast meets 4.5:1 for both themes, all daily card surfaces and red
   }
   fs.writeFileSync('.test-runtime/contrast.json',JSON.stringify(evidence,null,2));
 });
+
+test('1.16 illustrations: every artwork the interface references exists and stays light', () => {
+  const files = ['components/home/CoverArt.tsx', 'components/atelier/GameCover.tsx', 'components/pages/ExplorePage.tsx', 'components/pages/MultiplayerPage.tsx', 'components/home/HomePage.tsx', 'components/atelier/HowToPlay.tsx'];
+  const src = files.map(f => fs.readFileSync(f, 'utf8')).join('\n');
+  const direct = [...src.matchAll(/\/art\/([a-z0-9-]+\.webp)/g)].map(m => m[1]);
+  const covers = ['rank-radar', 'world-trip', 'side-by-side', 'country-mosaic', 'clue-trail'].flatMap(n => [n + '-480.webp', n + '-960.webp']);
+  const scenes = ['duel', 'mystery', 'classic'].flatMap(n => [n + '-480.webp', n + '-720.webp']);
+  const regions = ['europe', 'africa', 'asia', 'north-america', 'south-america', 'oceania'].map(n => 'region-' + n + '.webp');
+  const picks = ['pick-tropical', 'pick-lake', 'pick-harbour'].map(n => n + '.webp');
+  const headers = [];
+  for (const f of ['components/RovikoApp.tsx', 'components/friends/Friends.tsx', 'components/pages/PassportPage.tsx', 'components/pages/ExplorePage.tsx', 'components/pages/RankingsPage.tsx', 'components/pages/ScoringPage.tsx', 'components/pages/MultiplayerPage.tsx']) for (const m of fs.readFileSync(f, 'utf8').matchAll(/art="([a-z0-9-]+)"/g)) headers.push(m[1] + '.webp');
+  assert.ok(headers.length >= 7, 'page headers carry artwork');
+  for (const name of new Set([...direct, ...covers, ...scenes, ...regions, ...picks, ...headers])) {
+    const path = 'public/art/' + name;
+    assert.ok(fs.existsSync(path), 'missing artwork ' + path);
+    assert.ok(fs.statSync(path).size < 140_000, name + ' is too heavy');
+  }
+});
+
+test('1.16 explore: region cards keep their copy clear of the artwork on phones', () => {
+  const css = fs.readFileSync('app/design.css', 'utf8');
+  const phone = css.slice(css.indexOf('/* ===== 1.16'));
+  assert.match(phone, /\.region-art\{position:static;order:2/);
+  assert.doesNotMatch(fs.readFileSync('components/pages/ExplorePage.tsx', 'utf8'), /region-flags/);
+});

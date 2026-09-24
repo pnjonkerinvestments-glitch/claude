@@ -202,3 +202,32 @@ Geen migratie en geen spelregelwijzigingen.
 - **Soepeler scrollen:** de vaste balken gebruiken geen achtergrond-blur meer. Die was zwaar op goedkopere telefoons.
 
 **Tests:** 125 van 125 geslaagd, waarvan één nieuwe test voor het vooraf laden van vlaggen.
+
+## 1.16.0: getekende stijl en app-lancering
+
+**Geen nieuwe migratie.** De laatste blijft `0004_daffy_tusk.sql`. Er zijn geen nieuwe geheimen en de API is niet gewijzigd. De cacheversie van de service worker is `roviko-shell-v1.16.0`.
+
+**Nieuwe illustratiestijl.** De eigenaar leverde voorbeeldontwerpen aan in een vlakke cartoonstijl, met Roviko de wereldbol in elke illustratie. Die illustraties zijn uit de voorbeelden gehaald en als WebP in `public/art/` gezet:
+- **Spelkaarten:** de vijf dagspellen (`rank-radar`, `world-trip`, `side-by-side`, `country-mosaic` en nu ook `clue-trail`), elk in 480 en 960 px. De extra's (`duel`, `mystery`, `classic`) zijn er in 480 en 720 px.
+- **Paginakoppen:** `PageHeader` heeft een `art`-optie. Ontdekken en Samen spelen krijgen een scène (`explore-hero`, `friends-hero`). Ranglijst, Paspoort, Punten, Alle spellen en Vrienden krijgen een losse figuur (`spot-*`, `join-mascot`). Op de telefoon staat een scène onder de tekst en een figuur klein rechtsboven.
+- **Ontdekken:**
+  - De dagkeuzes staan op een ansichtkaartscène (`pick-tropical`, `pick-lake`, `pick-harbour`, gekozen per werelddeel), met de echte vlag op een kaartje erbovenop. De scène is decoratie, geen geografie.
+  - De regiokaarten hebben een landschap met bezienswaardigheid (`region-*`).
+- **Samen spelen:** een groepsscène op "Maak een kamer", een zwaaiende mascotte bij "Doe mee", cartoonvrienden en een nieuwsgierige gids bij de links.
+- **Homepage:**
+  - Gekleurde iconen bij reeks, vandaag en punten.
+  - Bredere kaarten bij "Meer ontdekken".
+  - Cartoonvrienden in het blok "Samen spelen" zolang er geen echte vrienden online zijn. Zijn er wel vrienden online, dan zie je hun eigen avatars.
+- **Hoe speel je:** de nieuwsgierige gids met vraagteken.
+
+**Mobiel hersteld.** Op de telefoon vielen de vlaggen van de regiokaarten over de tekst "45 landen". De tekst staat nu boven de illustratie en de kaart groeit mee. Getest op 390 px zonder horizontaal scrollen.
+
+**Privacy.** Onder "Wat anderen zien" staat nu ook dat geaccepteerde vrienden je online-status zien. In NL, EN en ES.
+
+**App Store en Google Play** (map `../roviko-app`):
+- Icoon, opstartscherm, statusbalk en offline-scherm zijn in de 1.16-stijl: crème, met donkergroen in donkere modus. Het offline-scherm is er nu ook in het Spaans.
+- Winkelteksten in NL, EN en ES.
+- Captioned screenshots voor iPhone 6,9", iPad 13" en Google Play, plus een Play-banner en winkeliconen.
+- De checklist staat in `roviko-app/LANCERING.md`.
+
+**Tests:** 127 van 127. Nieuw: elke illustratie waarnaar de interface verwijst bestaat en blijft onder de 140 KB, en de regiokaarten houden hun tekst vrij van de illustratie.

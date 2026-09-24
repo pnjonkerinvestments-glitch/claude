@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
-import { ArrowRight, HelpCircle, Link as LinkIcon, Plus, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Link as LinkIcon, Plus, ShieldCheck } from 'lucide-react';
 import { post } from '@/lib/client';
 import { errorMessage } from '@/i18n/messages';
 import { useApp } from '../app/context';
-import { A, Avatar } from '../app/shared';
+import { A } from '../app/shared';
 import { EmptyState, PageHeader } from '../ds/States';
 import { CoverArt } from '../home/CoverArt';
 
@@ -50,7 +50,7 @@ export function RoomProblem({ code, onRetry }: { code: string; onRetry: () => vo
 export function MultiplayerPage() {
   const { t, setModal } = useApp();
   return <div className="page friends-lobby">
-    <PageHeader kicker={t('friendsKicker')} title={t('friendsLobbyTitle')} lead={t('friendsLobbyLead')}/>
+    <PageHeader art="friends-hero" kicker={t('friendsKicker')} title={t('friendsLobbyTitle')} lead={t('friendsLobbyLead')}/>
     <div className="lobby-choice">
       <section className="lobby-card lobby-create" aria-labelledby="create-title">
         <div className="lobby-card-art" aria-hidden="true"><CoverArt mode="room"/></div>
@@ -61,6 +61,7 @@ export function MultiplayerPage() {
         </div>
       </section>
       <section className="lobby-card lobby-join" aria-labelledby="join-title">
+        <img className="lobby-join-mascot" src="/art/join-mascot.webp" alt="" aria-hidden="true" width={161} height={137} decoding="async"/>
         <div className="lobby-card-body">
           <h2 id="join-title">{t('joinRoom')}</h2>
           <p>{t('friendsJoinCopy')}</p>
@@ -69,8 +70,8 @@ export function MultiplayerPage() {
       </section>
     </div>
     <div className="lobby-links">
-      <A href="/friends" className="soft-link"><span className="avatar-stack"><Avatar id={1}/><Avatar id={2}/><Avatar id={6}/></span><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
-      <A href="/how-to-play" className="soft-link"><span className="soft-link-icon" aria-hidden="true"><HelpCircle size={20}/></span><span><strong>{t('howToLink')}</strong><small>{t('scoringFriendsCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
+      <A href="/friends" className="soft-link soft-link-art"><img className="soft-link-friends" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
+      <A href="/how-to-play" className="soft-link soft-link-help"><img className="soft-link-mascot" src="/art/howto-mascot.webp" alt="" aria-hidden="true" width={185} height={191} decoding="async"/><span><strong>{t('howToLink')}</strong><small>{t('scoringFriendsCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
     </div>
     <p className="center-note"><ShieldCheck size={16} aria-hidden="true"/>{t('guestNote')}</p>
   </div>;

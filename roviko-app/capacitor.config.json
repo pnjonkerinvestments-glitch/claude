@@ -7,31 +7,31 @@
     "errorPath": "offline.html",
     "androidScheme": "https"
   },
-  "backgroundColor": "#2f5bea",
+  "backgroundColor": "#F6F3E9",
   "ios": {
     "contentInset": "never",
-    "backgroundColor": "#2f5bea"
+    "backgroundColor": "#F6F3E9"
   },
   "android": {
     "allowMixedContent": false,
-    "backgroundColor": "#2f5bea"
+    "backgroundColor": "#F6F3E9"
   },
   "plugins": {
     "SplashScreen": {
       "launchShowDuration": 1200,
       "launchAutoHide": true,
-      "backgroundColor": "#2f5bea",
+      "backgroundColor": "#F6F3E9",
       "showSpinner": false,
       "androidScaleType": "CENTER_CROP"
     },
     "StatusBar": {
       "overlaysWebView": false,
       "style": "LIGHT",
-      "backgroundColor": "#2f5bea"
+      "backgroundColor": "#F6F3E9"
     },
     "LocalNotifications": {
       "smallIcon": "ic_stat_roviko",
-      "iconColor": "#2f5bea"
+      "iconColor": "#1F806B"
     }
   }
 }
