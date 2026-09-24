@@ -564,6 +564,47 @@ button.status-item:hover{background:var(--color-surface-2)}
 .settings-card-row.is-danger,.settings-card-row.is-danger svg{color:var(--destructive)}
 @media (max-width:760px){.passport-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.passport-stats .passport-stat:last-child{grid-column:1/-1}.passport-cover{padding:var(--space-5)}.you-score{text-align:left}.leader-list li{grid-template-columns:32px 32px minmax(0,1fr) auto;gap:10px;padding:6px 8px}}
 
+/* ───────── With friends ───────── */
+.lobby-choice{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:var(--space-5)}
+.lobby-card{display:grid;border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card);overflow:hidden}
+.lobby-card-art{aspect-ratio:12/5;overflow:hidden}
+.lobby-card-art .cover-svg{width:100%;height:100%;display:block;object-fit:cover}
+.lobby-card-body{display:grid;gap:var(--space-3);align-content:start;padding:var(--space-5) var(--space-6) var(--space-6)}
+.lobby-card-body h2{margin:0;font-size:var(--text-h3)}
+.lobby-card-body p{margin:0;color:var(--color-ink-soft)}
+.lobby-card-body .btn{justify-self:start}
+.lobby-join{align-self:start}
+.join-form{display:grid!important;gap:8px;margin-top:var(--space-2);border:0!important;padding:0!important;background:none!important;box-shadow:none!important}
+.join-form .code-input{min-height:56px!important;padding:0 16px!important;font:700 1.5rem/1 var(--font-display)!important;letter-spacing:.3em!important;border-radius:16px!important}
+.join-form .btn{min-height:56px!important;padding:0 20px!important;font-size:1rem!important}
+.join-row{display:flex;gap:8px}
+.code-input{flex:1;min-width:0;min-height:56px;padding:0 16px;border-radius:16px;border:1px solid var(--color-line-strong);background:var(--color-surface);color:var(--color-ink);font:700 1.5rem/1 var(--font-display);letter-spacing:.3em;text-transform:uppercase}
+.code-input::placeholder{color:color-mix(in srgb,var(--color-ink-soft) 45%,transparent)}
+.code-input:focus{outline:none;border-color:var(--color-brand);box-shadow:0 0 0 3px color-mix(in srgb,var(--color-brand) 22%,transparent)}
+.code-input[aria-invalid=true]{border-color:var(--error-border)}
+.join-row .btn{min-height:56px}
+.field-help{margin:0;color:var(--color-ink-soft);font-size:var(--text-small)}
+.field-error{margin:0;color:var(--error-ink);font-size:var(--text-small);font-weight:700}
+.lobby-links{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+.soft-link{display:flex;align-items:center;gap:14px;padding:var(--space-4) var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card);color:var(--color-ink);text-decoration:none}
+.soft-link>span:nth-child(2){flex:1;display:grid}
+.soft-link small{color:var(--color-ink-soft)}
+.soft-link>svg{color:var(--color-ink-soft)}
+.soft-link .avatar-stack{display:flex}.soft-link .avatar{width:32px;height:32px;margin-left:-8px;box-shadow:0 0 0 2px var(--color-surface)}.soft-link .avatar:first-child{margin-left:0}
+.soft-link-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--color-mint);color:var(--color-forest)}
+.center-note{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;color:var(--color-ink-soft);font-size:var(--text-small)}
+.room-screen .panel{padding:var(--space-5)}
+.room-code{font:600 2.5rem/1 var(--font-display)!important;letter-spacing:.18em!important;color:var(--color-ink)!important;background:none!important;border:0!important;box-shadow:none!important}
+.room-code-panel{border:0!important;border-radius:20px!important;background:var(--color-mint)!important;box-shadow:none!important}
+[data-theme=dark] .room-code-panel{background:var(--color-surface-2)!important}
+.invite-actions{display:flex;flex-wrap:wrap;gap:8px}
+.name-suffix{color:var(--color-ink-soft)}
+.lobby-player{border:0!important;border-radius:16px!important;background:var(--color-surface-2)!important;box-shadow:none!important}
+.invite-seat{border:1px dashed var(--color-line-strong)!important;border-radius:16px!important;background:transparent!important}
+.connection-banner{border:0!important;border-radius:16px!important;background:#fff4dc!important;color:#6b4a00!important;box-shadow:none!important}
+[data-theme=dark] .connection-banner{background:#3a3119!important;color:#ffd978!important}
+@media (max-width:860px){.lobby-choice,.lobby-links{grid-template-columns:1fr}.lobby-card-body{padding:var(--space-5)}}
+
 /* ───────── Scoring ───────── */
 .fact-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin:0;padding:0;list-style:none}
 .fact-tiles li{display:grid;gap:4px;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}

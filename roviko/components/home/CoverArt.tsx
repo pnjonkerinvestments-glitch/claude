@@ -11,7 +11,7 @@ export type CoverMode = 'rank' | 'daily' | 'compare' | 'mosaic' | 'trail' | 'due
 const shade = (id: string, from: string, to: string) => <radialGradient id={id} cx="35%" cy="30%" r="80%"><stop offset="0" stopColor={from}/><stop offset="1" stopColor={to}/></radialGradient>;
 
 function Duel() {
-  return <svg viewBox="0 0 480 320" className="cover-svg" aria-hidden="true" focusable="false">
+  return <svg viewBox="0 0 480 320" className="cover-svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <defs>{shade('duel-a', '#fffaf2', '#efe4d2')}{shade('duel-b', '#2a4a6b', '#17304a')}{shade('duel-g', '#8fd3c0', '#3e9c83')}</defs>
     <rect width="480" height="320" fill="#f4dde4"/>
     <ellipse cx="240" cy="262" rx="150" ry="16" fill="#d9b8c3" opacity=".7"/>
@@ -22,7 +22,7 @@ function Duel() {
 }
 
 function Mystery() {
-  return <svg viewBox="0 0 480 320" className="cover-svg" aria-hidden="true" focusable="false">
+  return <svg viewBox="0 0 480 320" className="cover-svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <defs>{shade('my-card', '#fffaf2', '#ece2d0')}{shade('my-glass', '#ffffff', '#dfe8f5')}</defs>
     <rect width="480" height="320" fill="#e3def5"/>
     <ellipse cx="238" cy="266" rx="160" ry="15" fill="#c6bee6" opacity=".75"/>
@@ -33,7 +33,7 @@ function Mystery() {
 }
 
 function Classic() {
-  return <svg viewBox="0 0 480 320" className="cover-svg" aria-hidden="true" focusable="false">
+  return <svg viewBox="0 0 480 320" className="cover-svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <defs>{shade('cl-hill', '#9fd6bf', '#4f9e82')}{shade('cl-pin', '#ff9a86', '#d4553f')}</defs>
     <rect width="480" height="320" fill="#dcece4"/>
     <ellipse cx="240" cy="258" rx="170" ry="16" fill="#b9d6c8" opacity=".8"/>
@@ -47,7 +47,7 @@ function Classic() {
 }
 
 function Room() {
-  return <svg viewBox="0 0 480 320" className="cover-svg" aria-hidden="true" focusable="false">
+  return <svg viewBox="0 0 480 320" className="cover-svg" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
     <rect width="480" height="320" fill="#163b32"/>
     <circle cx="240" cy="170" r="92" fill="#1f806b" opacity=".55"/>
     {[[160, 150, '#f6b84b'], [240, 118, '#ddede6'], [320, 150, '#e0664f'], [196, 214, '#9fd6bf'], [284, 214, '#b8c9fc']].map(([x, y, c], i) => <g key={i}><circle cx={x} cy={y} r="30" fill={c as string}/><circle cx={+x - 9} cy={+y - 4} r="3.5" fill="#163b32"/><circle cx={+x + 9} cy={+y - 4} r="3.5" fill="#163b32"/><path d={`M${+x - 9} ${+y + 8}q9 7 18 0`} stroke="#163b32" strokeWidth="3" fill="none" strokeLinecap="round"/></g>)}
