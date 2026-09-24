@@ -29,7 +29,8 @@ if [[ "${failed:-1}" != "0" ]]; then echo "Tests mislukt: geen zip gemaakt." >&2
 mkdir -p outputs
 zip_path="outputs/roviko-${version}-chatgpt.zip"
 rm -f "$zip_path"
-git archive --format=zip -o "$zip_path" "HEAD:${prefix}"
+# Vanaf de repo-root draaien: in een submap beperkt git archive zich anders nog eens tot die submap.
+git -C "$(git rev-parse --show-toplevel)" archive --format=zip -o "$(pwd)/$zip_path" "HEAD:${prefix}"
 
 VERSION="$version" COMMIT="$commit" PREFIX="$prefix" TYPECHECK="$typecheck" PASSED="$passed" FAILED="$failed" node --input-type=module <<'JS'
 import { execFileSync } from 'node:child_process';
@@ -38,7 +39,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 const { VERSION, COMMIT, PREFIX, TYPECHECK, PASSED, FAILED } = process.env;
 const git = (...a) => execFileSync('git', a, { maxBuffer: 1 << 28 });
 const previous = JSON.parse(readFileSync('EXPORT_MANIFEST.json', 'utf8'));
-const files = git('ls-tree', '-r', '-z', '--name-only', 'HEAD', '.').toString().split('\0').filter(Boolean)
+const files = git('ls-tree', '-r', '-z', '--name-only', '--full-name', 'HEAD', '.').toString().split('\0').filter(Boolean)
   .map(p => p.slice(PREFIX.length)).filter(p => p !== 'EXPORT_MANIFEST.json').sort()
   .map(path => { const data = git('show', `HEAD:${PREFIX}${path}`); return { path, bytes: data.length, sha256: createHash('sha256').update(data).digest('hex') }; });
 const journal = JSON.parse(readFileSync('drizzle/meta/_journal.json', 'utf8'));
