@@ -59,7 +59,7 @@ export const redesignMessages = {
     sourcesKicker: 'Data and credits', sourcesLead: 'Every question is built from open data. Here is where it comes from, and what we use it for.',
     sourceUsedFor: 'Used for', sourceLicence: 'Licence', sourceYear: 'Data year', sourceVisit: 'Visit source', sourceDownloadShort: 'Download',
     celebratePoints: '+{n} points', celebrateBest: 'Personal best', celebrateStreak: '{n}-day journey', celebrateQuest: 'Quest complete',
-    microNice: 'Nice catch.', microOneMore: 'One more stop?', microAlmost: 'So close.', microCurious: 'Curious? Read why.',
+    showAll: 'Show all', microNice: 'Nice catch.', microOneMore: 'One more stop?', microAlmost: 'So close.', microCurious: 'Curious? Read why.',
   },
   nl: {
     skipToContent: 'Naar de inhoud',
@@ -119,7 +119,7 @@ export const redesignMessages = {
     sourcesKicker: 'Data en bronnen', sourcesLead: 'Elke vraag is gebouwd op open data. Hier zie je waar die vandaan komt en waarvoor we hem gebruiken.',
     sourceUsedFor: 'Gebruikt voor', sourceLicence: 'Licentie', sourceYear: 'Jaar van de data', sourceVisit: 'Naar de bron', sourceDownloadShort: 'Downloaden',
     celebratePoints: '+{n} punten', celebrateBest: 'Persoonlijk record', celebrateStreak: '{n} dagen op reis', celebrateQuest: 'Doel gehaald',
-    microNice: 'Goed gezien.', microOneMore: 'Nog één stop?', microAlmost: 'Bijna.', microCurious: 'Nieuwsgierig? Lees waarom.',
+    showAll: 'Toon alles', microNice: 'Goed gezien.', microOneMore: 'Nog één stop?', microAlmost: 'Bijna.', microCurious: 'Nieuwsgierig? Lees waarom.',
   },
   es: {
     skipToContent: 'Ir al contenido',
@@ -179,6 +179,6 @@ export const redesignMessages = {
     sourcesKicker: 'Datos y créditos', sourcesLead: 'Cada pregunta se basa en datos abiertos. Aquí ves de dónde vienen y para qué los usamos.',
     sourceUsedFor: 'Se usa para', sourceLicence: 'Licencia', sourceYear: 'Año de los datos', sourceVisit: 'Ir a la fuente', sourceDownloadShort: 'Descargar',
     celebratePoints: '+{n} puntos', celebrateBest: 'Récord personal', celebrateStreak: '{n} días de viaje', celebrateQuest: 'Misión completada',
-    microNice: 'Bien visto.', microOneMore: '¿Una parada más?', microAlmost: 'Casi.', microCurious: '¿Curiosidad? Lee por qué.',
+    showAll: 'Ver todo', microNice: 'Bien visto.', microOneMore: '¿Una parada más?', microAlmost: 'Casi.', microCurious: '¿Curiosidad? Lee por qué.',
   },
 };

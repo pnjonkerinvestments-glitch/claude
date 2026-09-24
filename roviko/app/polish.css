@@ -45,11 +45,11 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .atelier-section-heading>span{border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow-1);font-weight:700;font-size:.85rem}
 
 /* Buttons: a restrained press depth */
-.primary,.mosaic-primary{box-shadow:0 3px 0 var(--primary-deep)}
-.primary:hover,.mosaic-primary:hover{box-shadow:0 4px 0 var(--primary-deep)}
-.secondary{border:1px solid var(--line-strong);box-shadow:0 2px 0 var(--line-strong)}
-.secondary:hover{box-shadow:0 3px 0 var(--line-strong);border-color:var(--line-strong)}
-.hero-cta{box-shadow:0 4px 0 var(--sun-deep,#d99a00)}
+.primary,.mosaic-primary{box-shadow:none}
+.primary:hover,.mosaic-primary:hover{box-shadow:none}
+.secondary{border:1px solid var(--line-strong);box-shadow:none}
+.secondary:hover{box-shadow:none;border-color:var(--line-strong)}
+.hero-cta{box-shadow:none}
 
 /* ───────── Hero ───────── */
 .play-hero-stats li{background:#ffffff1a;box-shadow:inset 0 0 0 1px #ffffff2e;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -63,7 +63,7 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .daily-tile{box-shadow:0 4px 0 var(--tile-rim),0 12px 24px -16px #10182859}
 .daily-tile:hover:not(:disabled){box-shadow:0 7px 0 var(--tile-rim),0 18px 30px -18px #10182866}
 .daily-tile-points{display:inline-flex!important;align-items:center;gap:5px}
-.tile-btn,.daily-tile-actions .howto-button{box-shadow:0 3px 0 var(--tile-rim)}
+.tile-btn,.daily-tile-actions .howto-button{box-shadow:none}
 .daily-state{box-shadow:0 1px 2px #14213d26}
 
 /* ───────── Daily quests ───────── */
@@ -173,7 +173,7 @@ h1,h2,h3,.modal-title{font-weight:650;letter-spacing:-.015em}
 .howto-tip>svg{flex-shrink:0;color:var(--amber-ink);margin-top:2px}
 .howto-chip{border:1px solid var(--line);box-shadow:var(--shadow-1);padding:5px 14px 5px 6px}
 .howto-chip .game-icon-sm{width:28px;height:28px;border-radius:50%}
-.howto-card .howto-play{box-shadow:0 2px 0 var(--line-strong)}
+.howto-card .howto-play{box-shadow:none}
 
 /* ───────── Pages ───────── */
 .site-header{background:color-mix(in srgb,var(--background) 82%,transparent);border-bottom:1px solid var(--line)}
