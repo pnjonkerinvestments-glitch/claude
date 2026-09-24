@@ -31,11 +31,13 @@ test("renders the playable branded homepage before hydration", async () => {
   assert.doesNotMatch(html, /codex-preview/);
   assert.match(html, /Your daily detour/);
   assert.doesNotMatch(html, /journey-route/);
-  assert.equal((html.match(/class="daily-card daily-card-/g)||[]).length,4);
-  assert.ok(html.indexOf('daily-card-daily') < html.indexOf('Side by Side'));
+  assert.equal((html.match(/class="daily-card daily-card-/g)||[]).length,5);
+  assert.ok(html.indexOf('daily-card-daily') < html.indexOf('daily-card-compare'));
   assert.match(html, /Side by Side/);
   assert.match(html, /Country Mosaic/);
   assert.match(html, /Rank Radar/);
+  assert.match(html, /Daily Clue Trail/);
+  assert.match(html, /Your daily scorecard/);
   assert.ok(html.indexOf('daily-card-rank') < html.indexOf('daily-card-daily'));
   assert.match(html, /Explore all 14 topics/);
   assert.ok(html.indexOf('Side by Side') < html.indexOf('Flag Signal'));

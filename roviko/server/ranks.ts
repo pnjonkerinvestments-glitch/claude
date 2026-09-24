@@ -1,3 +1,5 @@
+import { COMPETITION_SUFFIX, dailyScore } from '../lib/daily-scoring';
+import { recordCompetition } from './competition';
 import { z } from 'zod';
 import { AppError } from './auth';
 import { one, rows, run, batch } from './db';
@@ -10,28 +12,30 @@ import type { Env, User } from './types';
 function view(s: RankState, version = 0): RankView {
   const {questions,startedAt,turnAt,...rest}=s;
   // This untimed learning game reveals only the current solution for instant feedback.
-  return {...rest,version,total:questions.length,learning:true,question:s.phase==='finished'?null:questions[s.round],
+  const question = s.phase === 'finished' ? null : s.competition && s.phase === 'question' ? {...questions[s.round],correct:undefined,options:questions[s.round].options.map(({id,emoji,label,explanation,unit})=>({id,emoji,label,explanation,unit}))} : questions[s.round];
+  return {...rest,...(s.competition?{score:dailyScore(s)}:{}),version,total:questions.length,learning:true,question:question as RankView['question'],
     // Place of each given answer among its four subjects, so medals survive a reload mid-game.
     places:s.answers.map((a,i)=>questions[i]?choicePlace(questions[i].options,a.value):4),
     ...(s.phase==='finished'?{review:questions}:{})};
 }
 export async function startRank(env: Env, user: User, input: unknown) {
-  const settings=z.object({daily:z.boolean().default(true)}).parse(input);
+  const settings=z.object({daily:z.boolean().default(true),competition:z.boolean().default(false)}).parse(input);
   const daily=settings.daily?new Date().toISOString().slice(0,10):null;
-  if(daily){const existing=await one(env,'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?',user.id,daily,'rank');if(existing){const s=JSON.parse(existing.state);await record(env,user,s);return view(s,existing.version);}}
+  const ranked=!!daily&&settings.competition,kind='rank'+(ranked?COMPETITION_SUFFIX:'');
+  if(daily){const existing=await one(env,'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?',user.id,daily,kind);if(existing){const s=JSON.parse(existing.state);await record(env,user,s);return view(s,existing.version);}}
   const id=crypto.randomUUID();
   const generate=(seed:string)=>({questions:generateRankRounds(seed),settings:{mode:'rank'}});
-  const content=daily?await dailyContent(env,daily,'rank',generate):generate(id);
+  const content=daily?await dailyContent(env,daily,kind,generate):generate(id);
   const blocked=await rows(env,'SELECT question_id FROM disabled_questions');
   if(blocked.some((b:any)=>content.questions.some((q:any)=>q.id===b.question_id)))throw new AppError('QUESTION_UNAVAILABLE',503);
-  const s:RankState={id,mode:'rank',daily,phase:'question',round:0,questions:content.questions,datasetVersion:content.datasetVersion,answers:[],streak:0,bestStreak:0,startedAt:Date.now(),turnAt:Date.now()};
-  const inserted=await run(env,'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)',id,user.id,'rank',daily,JSON.stringify(s),Date.now());
-  if(!inserted.meta.changes&&daily){const saved=await one(env,'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?',user.id,daily,'rank');return view(JSON.parse(saved.state),saved.version);}
+  const s:RankState={id,...(ranked?{competition:{version:1,mode:'rank'} as const}:{}),mode:'rank',daily,phase:'question',round:0,questions:content.questions,datasetVersion:content.datasetVersion,answers:[],streak:0,bestStreak:0,startedAt:Date.now(),turnAt:Date.now()};
+  const inserted=await run(env,'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)',id,user.id,kind,daily,JSON.stringify(s),Date.now());
+  if(!inserted.meta.changes&&daily){const saved=await one(env,'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?',user.id,daily,kind);return view(JSON.parse(saved.state),saved.version);}
   return view(s);
 }
 export async function rankAction(env: Env, user: User, id: string, action: string, input: unknown) {
   const row=await one(env,'SELECT * FROM game_sessions WHERE id=? AND user_id=?',id,user.id);
-  if(!row||row.kind!=='rank')throw new AppError('GAME_NOT_FOUND',404);
+  if(!row||!['rank','rank'+COMPETITION_SUFFIX].includes(row.kind))throw new AppError('GAME_NOT_FOUND',404);
   const s=JSON.parse(row.state) as RankState;
   if(action==='get'){await record(env,user,s);return view(s,row.version);}
   const body=z.object({version:z.number().int().min(0),answer:z.string().max(40).optional()}).parse(input);
@@ -58,4 +62,5 @@ async function record(env: Env,user: User,s: RankState){
     if(s.daily)statements.push({sql:'INSERT OR IGNORE INTO daily_challenge_results(user_id,date,result_id,score) VALUES (?,?,?,?)',args:[user.id,s.daily,s.id,0]});
   }
   if(statements.length)await batch(env,statements);
+  await recordCompetition(env,user,s);
 }

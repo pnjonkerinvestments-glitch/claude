@@ -17,7 +17,8 @@ function writePlays(board: Board, plays: string[]) { try { localStorage.setItem(
 /** World Duel: beat Roviko's country on each subject with a card from your hand, every card once. */
 export function DuelGame({ app, practice = false }: { app: any; practice?: boolean }) {
   const { t, locale, go } = app;
-  const loc = locale as 'en' | 'nl';
+  const loc = locale as 'en' | 'nl' | 'es';
+  const tr = (v: { en: string; nl: string; es?: string }) => v[loc] ?? v.en;
   const [board, setBoard] = useState<Board | null>(null), [error, setError] = useState(false);
   const [plays, setPlays] = useState<string[]>([]), [step, setStep] = useState(0);
   const [nonce, setNonce] = useState<string | null>(() => practice ? Math.random().toString(36).slice(2, 10) : null);
@@ -31,7 +32,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     }).catch(() => active && setError(true));
     return () => { active = false; };
   }, [nonce, reload]);
-  const name = (c: DuelCard) => c.name[loc];
+  const name = (c: DuelCard) => tr(c.name);
   const value = (round: DuelRound, v: number) => formatMetric(v, round.category.unit, loc) + (round.category.unit === 'm' ? ' m' : '');
   const results = useMemo(() => board ? plays.map((id, i) => duelWon(board.rounds[i], id)) : [], [board, plays]);
   if (error) return <div className="puzzle-game duel-game"><p className="inline-error" role="alert">{t('puzzleLoadError')} <button className="text-link" onClick={() => { setError(false); setReload(n => n + 1); }}>{t('retry')}</button></p></div>;
@@ -70,7 +71,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     <ol className="duel-route" aria-label={t('duelRoute')}>
       {board.rounds.map((r, i) => <li key={r.category.id} className={(i < results.length ? results[i] ? 'is-won' : 'is-lost' : '') + (i === step && !finished ? ' is-current' : '')}>
         <span aria-hidden="true">{i < results.length ? results[i] ? '✓' : '✕' : r.category.emoji}</span>
-        <small>{r.category.label[loc]}</small>
+        <small>{tr(r.category.label)}</small>
       </li>)}
     </ol>
 
@@ -86,7 +87,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
         </div>
         <span className="duel-vs" aria-hidden="true">VS</span>
         <div className="duel-side duel-you">
-          <span className="duel-subject"><span aria-hidden="true">{round.category.emoji}</span>{round.category.label[loc]}</span>
+          <span className="duel-subject"><span aria-hidden="true">{round.category.emoji}</span>{tr(round.category.label)}</span>
           {revealed ? <div className={'duel-card is-yours ' + (duelWon(round, played) ? 'is-winner' : 'is-beaten')}>
             <img src={cardOf(played).flag} alt=""/><strong>{name(cardOf(played))}</strong>
             <b className="duel-value">{value(round, round.hand[played].value)}</b>
@@ -95,7 +96,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
       </div>
 
       {!revealed ? <>
-        <h1 id="duel-title" className="duel-prompt">{t('duelPrompt').replace('{subject}', round.category.label[loc].toLowerCase())}</h1>
+        <h1 id="duel-title" className="duel-prompt">{t('duelPrompt').replace('{subject}', tr(round.category.label).toLowerCase())}</h1>
         <p className="duel-hint">{t(step === 0 ? 'duelIntro' : 'duelPlanAhead')}</p>
         <div className="duel-hand" role="group" aria-label={t('duelYourHand')}>
           {board.hand.map(c => { const used = plays.includes(c.id); return <button key={c.id} className="duel-card duel-pick" disabled={used} onClick={() => play(c.id)}>
@@ -112,7 +113,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
           </div>)}
         </div>
         {!duelWon(round, played) && board.solution[step] !== played && <p>{t('duelTip').replace('{card}', name(cardOf(board.solution[step])))}</p>}
-        <p className="duel-explain">{round.category.explanation[loc]} <small>{round.roviko.referenceYear ? round.roviko.referenceYear + ' · ' : ''}<a href={round.roviko.sourceUrl} target="_blank" rel="noopener noreferrer">{round.roviko.source}</a></small></p>
+        <p className="duel-explain">{tr(round.category.explanation)} <small>{round.roviko.referenceYear ? round.roviko.referenceYear + ' · ' : ''}<a href={round.roviko.sourceUrl} target="_blank" rel="noopener noreferrer">{round.roviko.source}</a></small></p>
         <button className="btn hero-cta duel-next" onClick={() => setStep(s => s + 1)}>{t(step + 1 >= DUEL_ROUNDS ? 'duelResults' : 'duelNext')}<ArrowRight size={20}/></button>
       </div>}
     </> : <div className="duel-finished">
@@ -122,7 +123,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
       <section className="duel-solution">
         <h2>{t('duelRoute')}</h2>
         <ol>{board.rounds.map((r, i) => { const best = cardOf(board.solution[i]), mine = plays[i]; return <li key={r.category.id} className={results[i] ? 'won' : 'lost'}>
-          <span className="duel-solution-subject"><span aria-hidden="true">{r.category.emoji}</span>{r.category.label[loc]}</span>
+          <span className="duel-solution-subject"><span aria-hidden="true">{r.category.emoji}</span>{tr(r.category.label)}</span>
           <span><img src={best.flag} alt=""/>{name(best)} <b>{value(r, r.hand[best.id].value)}</b></span>
           <span className="duel-solution-vs">{t('duelVs')} <img src={r.roviko.flag} alt=""/>{name(r.roviko)} <b>{value(r, r.roviko.value)}</b></span>
           {mine && mine !== best.id && <small className={results[i] ? 'also-won' : ''}>{t('duelYourPick')}: {name(cardOf(mine))} ({value(r, r.hand[mine].value)})</small>}

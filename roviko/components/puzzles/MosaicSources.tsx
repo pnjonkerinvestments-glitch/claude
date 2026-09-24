@@ -1,6 +1,6 @@
 import React from 'react';
 
-export function MosaicSources({ locale }: { locale: 'en' | 'nl' }) {
+export function MosaicSources({ locale }: { locale: 'en' | 'nl' | 'es' }) {
   const nl = locale === 'nl';
   return <div className="source-card">
     <h2>{nl ? 'Mosaic · cijfers over landen' : 'Mosaic · country numbers'}</h2>

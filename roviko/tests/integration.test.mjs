@@ -88,14 +88,14 @@ test('two-player WebSocket rooms, synchronized rounds, score authority, rematch 
  const wa=await connect(a.cookie),wb=await connect(b.cookie);
  const waitFor=async(client,predicate)=>{const end=Date.now()+6000;while(Date.now()<end){const found=client.messages.find(predicate);if(found)return found;await new Promise(r=>setTimeout(r,50));}throw new Error('Expected WebSocket state not received: '+JSON.stringify(client.messages.slice(-2)));};
  wa.ws.send(JSON.stringify({type:'start'}));const firstA=await waitFor(wa,x=>x.phase==='countdown'),firstB=await waitFor(wb,x=>x.phase==='countdown');assert.deepEqual(firstA.question,firstB.question);assert.equal(firstA.startAt,firstB.startAt);assert.equal(firstA.question,null);assert.equal(firstB.question,null);const matchId=firstA.matchId;
- for(let i=0;i<5;i++){await alter(code,r=>{r.startAt=Date.now()-800;r.deadline=Date.now()+4000;});let g=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(g.phase,'question');const raw=await stored(code);const correct=raw.questions[i].correct;const wrong=raw.questions[i].options.find(o=>o.id!==correct).id;wa.ws.send(JSON.stringify({type:'answer',round:i,matchId,answer:correct,score:9999999}));await waitFor(wa,x=>x.round===i&&x.answered);const noLeak=(await request(b.cookie,'/rooms/'+code)).data;assert.equal(noLeak.feedback,null);assert.equal(noLeak.players.find(p=>p.id===a.data.user.id).score,i===0?0:(await stored(code)).players.find(p=>p.id===a.data.user.id).score);assert.equal((await request(a.cookie,'/rooms/'+code+'/answer','POST',{round:i,matchId,answer:wrong})).status,409);assert.equal((await request(b.cookie,'/rooms/'+code+'/answer','POST',{round:i,matchId,answer:wrong})).status,200);await alter(code,r=>{r.deadline=Date.now()-1;});g=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(g.phase,'reveal');assert.ok(g.feedback.correct);assert.ok(g.feedback.points<=1750);assert.equal(g.players.find(p=>p.id===b.data.user.id).score,0);assert.equal((await request(b.cookie,'/rooms/'+code+'/answer','POST',{round:i,matchId,answer:correct})).status,409);await alter(code,r=>{r.revealUntil=Date.now()-1;});g=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(g.phase,i===4?'finished':'countdown');}
+ for(let i=0;i<5;i++){await alter(code,r=>{r.startAt=Date.now()-800;r.deadline=Date.now()+4000;});let g=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(g.phase,'question');const raw=await stored(code);const correct=raw.questions[i].correct;const wrong=raw.questions[i].options.find(o=>o.id!==correct).id;wa.ws.send(JSON.stringify({type:'answer',round:i,matchId,answer:correct,score:9999999}));await waitFor(wa,x=>x.round===i&&x.answered);const noLeak=(await request(b.cookie,'/rooms/'+code)).data;assert.equal(noLeak.feedback,null);assert.equal(noLeak.players.find(p=>p.id===a.data.user.id).score,i===0?0:(await stored(code)).players.find(p=>p.id===a.data.user.id).score);assert.equal((await request(a.cookie,'/rooms/'+code+'/answer','POST',{round:i,matchId,answer:wrong})).status,409);assert.equal((await request(b.cookie,'/rooms/'+code+'/answer','POST',{round:i,matchId,answer:wrong})).status,200);if(i===0){const pending=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(pending.phase,'question');assert.equal(pending.feedback,null);const target=pending.answersCompleteAt;assert.ok(target<Date.now()+1200);const [aReveal,bReveal]=await Promise.all([waitFor(wa,x=>x.phase==='reveal'&&x.round===i),waitFor(wb,x=>x.phase==='reveal'&&x.round===i)]);assert.ok(aReveal.serverTime>=target);assert.ok(bReveal.serverTime>=target);assert.ok(Math.max(aReveal.serverTime,bReveal.serverTime)-target<1800);assert.equal(aReveal.revealUntil,bReveal.revealUntil);assert.ok(aReveal.serverTime<pending.deadline,'Reveal does not wait out the round timer');g=aReveal;}else{await alter(code,r=>{r.deadline=Date.now()-1;if(r.answersCompleteAt)r.answersCompleteAt=Date.now()-1;});g=(await request(a.cookie,'/rooms/'+code)).data;}assert.equal(g.phase,'reveal');assert.ok(g.feedback.correct);assert.ok(g.feedback.points<=1750);assert.equal(g.players.find(p=>p.id===b.data.user.id).score,0);assert.equal((await request(b.cookie,'/rooms/'+code+'/answer','POST',{round:i,matchId,answer:correct})).status,409);await alter(code,r=>{r.revealUntil=Date.now()-1;});g=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(g.phase,i===4?'finished':'countdown');}
  const final=(await request(a.cookie,'/rooms/'+code)).data;assert.equal(final.players[0].id,a.data.user.id);assert.ok(final.players[0].score<9000);assert.equal((await request(a.cookie,'/profile')).data.stats.wins,1);assert.equal((await request(b.cookie,'/profile')).data.stats.wins,0);const oldIds=(await stored(code)).questions.map(q=>q.id);const rematch=await request(a.cookie,'/rooms/'+code+'/rematch','POST',{});assert.equal(rematch.data.phase,'lobby');assert.equal(rematch.data.players.length,2);wa.ws.close();wb.ws.close();const again=await connect(b.cookie);await waitFor(again,x=>x.phase==='lobby');assert.equal((await request(b.cookie,'/rooms/'+code)).data.players.length,2);await alter(code,r=>{r.players.find(p=>p.id===a.data.user.id).lastSeen=Date.now()-40000;r.players.find(p=>p.id===b.data.user.id).lastSeen=Date.now();});assert.equal((await request(b.cookie,'/rooms/'+code)).data.host,b.data.user.id);const fresh=(await request(b.cookie,'/rooms/'+code+'/start','POST',{})).data;assert.equal(fresh.phase,'countdown');assert.ok(!(await stored(code)).questions.some(q=>oldIds.includes(q.id)));
  const rejoinedA=await connect(a.cookie);await waitFor(rejoinedA,x=>x.phase==='countdown');
  for(let i=0;i<5;i++){
   await alter(code,r=>{r.startAt=Date.now()-800;r.deadline=Date.now()+4000;});await request(b.cookie,'/rooms/'+code);const r=await stored(code),value=r.questions[i].correct;
   again.ws.send(JSON.stringify({type:'answer',round:i,matchId:fresh.matchId,answer:value}));rejoinedA.ws.send(JSON.stringify({type:'answer',round:i,matchId:fresh.matchId,answer:value}));
   await waitFor(again,x=>x.round===i&&x.answered&&x.matchId===fresh.matchId);await waitFor(rejoinedA,x=>x.round===i&&x.answered&&x.matchId===fresh.matchId);
-  await alter(code,r=>{r.deadline=Date.now()-1;});assert.equal((await request(b.cookie,'/rooms/'+code)).data.phase,'reveal');await alter(code,r=>{r.revealUntil=Date.now()-1;});await request(b.cookie,'/rooms/'+code);
+  await alter(code,r=>{r.deadline=Date.now()-1;if(r.answersCompleteAt)r.answersCompleteAt=Date.now()-1;});assert.equal((await request(b.cookie,'/rooms/'+code)).data.phase,'reveal');await alter(code,r=>{r.revealUntil=Date.now()-1;});await request(b.cookie,'/rooms/'+code);
  }
  await waitFor(again,x=>x.phase==='finished'&&x.matchId===fresh.matchId);assert.equal((await request(b.cookie,'/profile')).data.stats.multiGames,2);again.ws.close();rejoinedA.ws.close();
 });
@@ -185,7 +185,7 @@ test('twelve independent guests complete five concurrent rounds and a full remat
    const responses=await Promise.all(people.slice(0,12).map(p=>request(p.cookie,path+'/answer','POST',{round:i,matchId:room.matchId,answer,score:9999999})));
    assert.ok(responses.every(r=>r.status===200),JSON.stringify(responses.map(r=>r.data.error)));
    assert.equal((await request(people[0].cookie,path+'/answer','POST',{round:i,matchId:room.matchId,answer})).status,409);
-   const reveal=(await request(people[0].cookie,path)).data;assert.equal(reveal.phase,'reveal');assert.equal(reveal.players.length,12);assert.ok(reveal.players.every(p=>p.rank===1));
+   await alter(room.code,r=>{r.answersCompleteAt=Date.now()-1;});const reveal=(await request(people[0].cookie,path)).data;assert.equal(reveal.phase,'reveal');assert.equal(reveal.players.length,12);assert.ok(reveal.players.every(p=>p.rank===1));
    await alter(room.code,r=>{r.revealUntil=Date.now()-1;});room=(await request(people[0].cookie,path)).data;
   }
   assert.equal(room.phase,'finished');assert.ok(room.players.every(p=>p.score===5500));
@@ -291,4 +291,152 @@ test('six Rank Radar rounds persist exactly once, award no points and expose a n
  const daily=(await request(a.cookie,'/puzzles/today')).data.sessions.find(s=>s.mode==='rank');assert.equal(daily.completed,true);
  const practice=(await request(a.cookie,'/ranks','POST',{daily:false})).data;assert.equal(practice.daily,null);assert.notEqual(practice.id,g.id);assert.notEqual(practice.question.id,firstQuestion);
  assert.equal((await request(a.cookie,'/next-round','POST',{sessionId:g.id,intent:'review'})).status,400);
+});
+
+test('room options validate count and mode exclusions, enforce the host and persist through rematch',async()=>{
+ const host=await bootstrap(),guest=await bootstrap();
+ for(const count of [5,10,15,20]){
+  const room=(await request(host.cookie,'/rooms','POST',{settings:{...settings,mode:'mixed',count,enabledModes:['flags','order']}})).data;
+  const path='/rooms/'+room.code;
+  assert.equal(room.settings.count,count);assert.deepEqual(room.settings.enabledModes,['flags','order']);
+  await request(guest.cookie,path+'/join','POST',{});
+  assert.equal((await request(guest.cookie,path+'/settings','POST',{settings:{...settings,count:20}})).status,403);
+  for(const enabledModes of [[],['not-a-mode'],['flags','flags']])assert.equal((await request(host.cookie,path+'/settings','POST',{settings:{...settings,mode:'mixed',enabledModes}})).status,400);
+  assert.equal((await request(host.cookie,path+'/settings','POST',{settings:{...settings,count:7}})).status,400);
+  const started=await request(host.cookie,path+'/start','POST',{});assert.equal(started.status,200);assert.equal(started.data.total,count);
+  assert.ok((await stored(room.code)).questions.every(q=>['flags','order'].includes(q.mode)));
+  await alter(room.code,r=>{r.phase='finished';r.players.forEach(p=>p.results=[]);});
+  const rematch=await request(host.cookie,path+'/rematch','POST',{});assert.equal(rematch.status,200);assert.deepEqual(rematch.data.settings.enabledModes,['flags','order']);assert.equal(rematch.data.settings.count,count);
+ }
+ const standard=(await request(host.cookie,'/rooms','POST',{settings:{...settings,mode:'mixed',count:20}})).data;
+ await request(host.cookie,'/rooms/'+standard.code+'/start','POST',{});assert.equal(new Set((await stored(standard.code)).questions.map(q=>q.mode)).size,6);
+});
+
+test('map accuracy points survive saving and reload without accepting a client-supplied score',async()=>{
+ const guest=await bootstrap();let game=(await request(guest.cookie,'/games','POST',{settings:{...settings,mode:'pinpoint'}})).data;
+ const correct=game.question.solution.correct;
+ const answered=await request(guest.cookie,'/games/'+game.id+'/answer','POST',{round:0,answer:correct,points:999999,mapPoints:999999});assert.equal(answered.status,200);assert.equal(answered.data.feedback.mapPoints,1000);assert.equal(answered.data.feedback.points,0);
+ const resumed=(await request(guest.cookie,'/games/'+game.id)).data;assert.equal(resumed.feedback.mapPoints,1000);assert.equal(resumed.feedback.mapRelation,'mapExact');
+});
+
+// Daily competition uses server-owned solutions. Tests read the private D1 snapshot,
+// never a public solution field, to exercise the same HTTP routes as the website.
+async function privateGame(id){return JSON.parse((await db.prepare('SELECT state FROM game_sessions WHERE id=?').bind(id).first()).state);}
+async function finishCompetitionSolo(a,g,choose){
+ while(g.phase!=='finished'){
+  const s=await privateGame(g.id),q=s.questions[g.round];
+  const answer=choose?choose(q,g.round):q.correct;
+  const saved=await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:g.round,answer,score:999999});assert.equal(saved.status,200,JSON.stringify(saved.data));
+  const next=await request(a.cookie,'/games/'+g.id+'/next','POST',{});assert.equal(next.status,200,JSON.stringify(next.data));g=next.data;
+ }return g;
+}
+test('official Clue Trail reveals paid hints in order, keeps flags private, scores once and rejects duplicate answers',async()=>{
+ const a=await bootstrap(),b=await bootstrap();
+ const create={settings:{...settings,mode:'daily-trail',count:20,region:'Europe',typed:true},competition:true};
+ let g=(await request(a.cookie,'/games','POST',create)).data;const s=await privateGame(g.id);
+ assert.equal(g.total,5);assert.equal(g.settings.region,'World');assert.equal(g.settings.typed,undefined);assert.equal(g.competition.mode,'trail');
+ assert.equal(g.question.solution,undefined);assert.equal(g.question.correct,undefined);assert.equal(g.question.clues.length,1);assert.equal(g.question.clueCount,4);assert.equal(g.question.availablePoints,200);assert.ok(g.question.options.every(o=>!o.flag));
+ assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,404);
+ g=(await request(a.cookie,'/games/'+g.id+'/hint','POST',{round:0,count:3})).data;
+ assert.equal(g.question.availablePoints,100);assert.equal(g.question.clues.length,3);assert.match(g.question.clues[2].en,/capital/);assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,404);
+ g=(await request(a.cookie,'/games/'+g.id+'/hint','POST',{round:0,count:4})).data;
+ assert.match(g.question.clues[3].en,/flag/);assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,200);assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:b.cookie}})).status,404);
+ g=(await request(a.cookie,'/games/'+g.id+'/hint','POST',{round:0,count:1})).data;assert.equal(g.question.availablePoints,50,'Cannot refund revealed hints');
+ const body={round:0,answer:s.questions[0].correct};const writes=await Promise.all([request(a.cookie,'/games/'+g.id+'/answer','POST',body),request(a.cookie,'/games/'+g.id+'/answer','POST',body)]);assert.deepEqual(writes.map(x=>x.status).sort(),[200,409]);
+ g=writes.find(x=>x.status===200).data;assert.equal(g.feedback.points,50);assert.equal(g.feedback.cluesUsed,4);
+ g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;g=await finishCompetitionSolo(a,g,(q,round)=>round===1?q.options.find(o=>o.id!==q.correct).id:q.correct);
+ assert.equal(g.score,650);assert.equal(g.answers[1].points,0);assert.equal(g.answers[1].cluesUsed,1);
+ const standings=(await request(a.cookie,'/competition?mode=trail')).data;assert.equal(standings.game.score,650);assert.equal(standings.today.score,650);assert.equal(standings.total.score,650);assert.equal(standings.game.place,1);
+ for(let i=0;i<2;i++){assert.equal((await request(a.cookie,'/games','POST',create)).data.id,g.id);await request(a.cookie,'/games/'+g.id);}
+ assert.equal((await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE user_id=?').bind(a.data.user.id).first()).n,1);
+ const fresh=(await request(b.cookie,'/games','POST',create)).data;assert.equal(fresh.question.id,s.questions[0].id);assert.equal(fresh.question.clues.length,1);
+ const retry=(await request(a.cookie,'/next-round','POST',{sessionId:g.id,intent:'review'})).data;
+ const review=(await request(a.cookie,retry.href.replace('/game/','/games/'))).data;assert.equal(review.competition,undefined);assert.equal(review.score,0);assert.equal(review.daily,null);
+});
+test('World Trip uses accuracy points for maps, hides solutions and ignores client scores',async()=>{
+ const a=await bootstrap();let g=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily'},competition:true})).data;
+ let expected=0;
+ while(g.phase!=='finished'){
+  assert.equal(g.question.solution,undefined);assert.equal(g.question.correct,undefined);assert.equal(g.question.geometry,undefined);
+  const s=await privateGame(g.id),q=s.questions[g.round];
+  const answer=q.mode==='pinpoint'?[0,0]:q.correct;
+  const saved=await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:g.round,answer,points:9999});assert.equal(saved.status,200,JSON.stringify(saved.data));
+  const feedback=saved.data.feedback;assert.equal(feedback.points,q.mode==='pinpoint'?Math.round(feedback.mapPoints/5):200);expected+=feedback.points;
+  g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;
+ }
+ assert.equal(g.score,expected);assert.equal((await request(a.cookie,'/competition?mode=daily')).data.game.score,expected);
+ const sessions=(await request(a.cookie,'/puzzles/today?competition=1')).data.sessions;assert.equal(sessions.find(s=>s.mode==='daily').id,g.id);
+});
+test('daily Rank Radar ranks ties, counts finished players, preserves zero scores and excludes practice',async()=>{
+ const players=await Promise.all([bootstrap(),bootstrap(),bootstrap()]);
+ for(let j=0;j<players.length;j++){
+  const a=players[j];let g=(await request(a.cookie,'/ranks','POST',{daily:true,competition:true})).data;
+  while(g.phase!=='finished'){
+   assert.equal(g.question.correct,undefined);for(const o of g.question.options){assert.equal(o.rank,undefined);assert.equal(o.value,undefined);assert.equal(o.sourceUrl,undefined);}
+   const s=await privateGame(g.id),q=s.questions[g.round],answer=j===2?q.options.find(o=>o.id!==q.correct).id:g.round===0?q.options.find(o=>o.id!==q.correct).id:q.correct;
+   const r=await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer});assert.equal(r.status,200,JSON.stringify(r.data));assert.ok(r.data.question.options.every(o=>o.rank>0));
+   g=(await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:r.data.version})).data;
+  }
+  assert.equal(g.score,j===2?0:833);
+ }
+ const first=(await request(players[0].cookie,'/competition?mode=rank')).data,second=(await request(players[1].cookie,'/competition?mode=rank')).data,last=(await request(players[2].cookie,'/competition?mode=rank')).data;
+ assert.equal(first.game.place,1);assert.equal(second.game.place,1);assert.equal(last.game.place,3);assert.equal(first.game.participants,3);assert.equal(last.game.score,0);
+ let practice=(await request(players[0].cookie,'/ranks','POST',{daily:false,competition:true})).data;assert.equal(practice.competition,undefined);
+ while(practice.phase!=='finished'){const r=await request(players[0].cookie,'/ranks/'+practice.id+'/answer','POST',{version:practice.version,answer:practice.question.correct});practice=(await request(players[0].cookie,'/ranks/'+practice.id+'/next','POST',{version:r.data.version})).data;}
+ assert.equal((await request(players[0].cookie,'/competition')).data.total.score,833);
+ await db.prepare('UPDATE users SET blocked=1 WHERE id=?').bind(players[1].data.user.id).run();assert.equal((await request(players[0].cookie,'/competition?mode=rank')).data.game.participants,2);
+});
+test('daily Mosaic hides unsolved associations, marks mismatches, charges hints and saves the final group score once',async()=>{
+ const a=await bootstrap();let g=(await request(a.cookie,'/puzzles','POST',{mode:'mosaic',daily:true,competition:true})).data;
+ const s=await privateGame(g.id),board=s.board,group=id=>board.tiles.filter(t=>t.countryId===id).map(t=>t.id);
+ for(const tile of g.board.tiles){if(tile.kind!=='name')assert.equal(tile.countryId,'');if(tile.kind==='flag')assert.match(tile.image,/^\/api\/game-asset\//);if(tile.kind==='fact'){assert.equal(tile.fact.explanation,undefined);assert.equal(tile.fact.source,undefined);}}
+ assert.ok(g.board.countries.every(c=>!c.flag));assert.equal(g.mosaicAid,undefined);
+ const country=board.countries[0].id,second=board.countries[1].id;
+ const wrong=board.tiles.filter(t=>t.countryId===country&&t.kind!=='flag').map(t=>t.id).concat(board.tiles.find(t=>t.countryId!==country&&t.kind==='flag').id);
+ g=(await request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer:wrong})).data;assert.equal(g.mosaicReview.countryId,country);assert.equal(g.mosaicReview.tiles.filter(t=>!t.correct).length,1);assert.equal(g.mosaicReview.tiles.find(t=>!t.correct).countryId,'');assert.equal(g.score,0);
+ g=(await request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer:group(country)})).data;assert.equal(g.score,0);assert.ok(g.board.tiles.filter(t=>t.countryId===country).length===4);
+ const anchor=board.tiles.find(t=>t.countryId===second&&t.kind==='name').id;
+ const before=g.version;g=(await request(a.cookie,'/puzzles/'+g.id+'/hint','POST',{version:g.version,answer:[anchor]})).data;assert.equal(g.hintSelection.length,2);assert.equal(g.mosaicAid,undefined);
+ assert.equal((await request(a.cookie,'/puzzles/'+g.id+'/hint','POST',{version:before,answer:[anchor]})).status,409);
+ for(const c of board.countries.slice(1))g=(await request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer:group(c.id)})).data;
+ assert.equal(g.phase,'finished');assert.equal(g.score,625);assert.ok(g.board.tiles.filter(t=>t.kind==='fact').every(t=>!!t.fact.source));
+ const summary=(await request(a.cookie,'/competition?mode=mosaic')).data;assert.equal(summary.game.score,625);
+ await request(a.cookie,'/puzzles/'+g.id);assert.equal((await request(a.cookie,'/competition')).data.total.score,625);
+});
+test('daily comparisons conceal values until reveal and accumulate with other daily modes',async()=>{
+ const a=await bootstrap();let g=(await request(a.cookie,'/puzzles','POST',{mode:'compare',daily:true,competition:true})).data;
+ while(g.phase!=='finished'){
+  assert.equal(g.question.correct,undefined);assert.ok(g.question.countries.every(c=>c.value===undefined));
+  const q=(await privateGame(g.id)).questions[g.round];const r=await request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer:q.correct});assert.equal(r.status,200);assert.ok(r.data.question.countries.every(c=>Number.isFinite(c.value)));
+  g=(await request(a.cookie,'/puzzles/'+g.id+'/next','POST',{version:r.data.version})).data;
+ }
+ assert.equal(g.score,1000);
+ let trail=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;trail=await finishCompetitionSolo(a,trail);
+ const summary=(await request(a.cookie,'/competition')).data;assert.equal(summary.today.score,2000);assert.equal(summary.total.score,2000);assert.equal(summary.today.games,2);assert.equal(summary.scores.length,2);
+ const exported=(await request(a.cookie,'/export')).data;assert.equal(exported.dailyScores.length,2);
+ // Existing unranked clients keep their published edition and never get retroactive points.
+ const legacy=(await request(a.cookie,'/puzzles','POST',{mode:'compare',daily:true})).data;assert.equal(legacy.competition,undefined);assert.ok(legacy.question.correct);assert.notEqual(legacy.id,g.id);
+ assert.equal((await request(a.cookie,'/competition')).data.today.score,2000);
+});
+test('guest daily scores merge once, preserve the account’s first result and disappear on account deletion',async()=>{
+ const a=await bootstrap(),email='daily-merge@example.test',password='Synthetic-daily-merge-password';
+ const account=await request(a.cookie,'/auth/signup','POST',{email,password,name:'Daily Player'});assert.equal(account.status,200);const registered={cookie:account.cookie,data:{user:account.data.user}};
+ let first=(await request(registered.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;
+ first=await finishCompetitionSolo(registered,first,(q,round)=>round===0?q.options.find(o=>o.id!==q.correct).id:q.correct);assert.equal(first.score,800);
+ const guest=await bootstrap();let duplicate=(await request(guest.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;duplicate=await finishCompetitionSolo(guest,duplicate);assert.equal(duplicate.score,1000);
+ let extra=(await request(guest.cookie,'/games','POST',{settings:{...settings,mode:'daily'},competition:true})).data;extra=await finishCompetitionSolo(guest,extra);
+ const login=await request(guest.cookie,'/auth/login','POST',{email,password});assert.equal(login.status,200,JSON.stringify(login.data));
+ let scores=(await request(login.cookie,'/competition')).data;assert.equal(scores.today.games,2);assert.equal(scores.scores.find(s=>s.mode==='trail').score,800);assert.equal(scores.total.score,800+extra.score);
+ assert.equal((await request(login.cookie,'/games/'+duplicate.id)).data.competition,undefined);
+ await request(login.cookie,'/games/'+extra.id);assert.equal((await request(login.cookie,'/competition')).data.total.score,scores.total.score);
+ assert.equal((await request(guest.cookie,'/competition')).status,401);
+ const deleted=await request(login.cookie,'/profile','DELETE');assert.equal(deleted.status,200);assert.equal((await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE user_id=?').bind(account.data.user.id).first()).n,0);
+});
+test('daily ranks and cumulative ranks use different date scopes and validate query input',async()=>{
+ const a=await bootstrap();let g=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;g=await finishCompetitionSolo(a,g);
+ const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
+ await db.prepare('UPDATE daily_scores SET date=? WHERE session_id=?').bind(yesterday,g.id).run();
+ const summary=(await request(a.cookie,'/competition')).data;assert.equal(summary.today.score,0);assert.equal(summary.today.place,null);assert.equal(summary.total.score,1000);assert.equal(summary.scores.length,0);
+ const historic=(await request(a.cookie,'/competition?date='+yesterday+'&mode=trail')).data;assert.equal(historic.game.score,1000);assert.ok(historic.game.place>=1);
+ for(const query of ['?date=2026-99-99','?date=2026-02-30','?mode=madeup','?date=abc'])assert.equal((await request(a.cookie,'/competition'+query)).status,400);
 });

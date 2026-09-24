@@ -1,16 +1,16 @@
 # Roviko
 
-An original geography gaming platform: two daily puzzles, six untimed classic games, a daily expedition, and live private rooms. English and Dutch, light and dark themes, 195-country catalog, optional accounts, persistent guest sessions, progress, 30 achievements, friends and leaderboards.
+An original geography gaming platform: five competitive daily games, six untimed classic games, and live private rooms. English, Dutch and Spanish, light and dark themes, 195-country catalog, optional accounts, persistent guest sessions, progress, 30 achievements, friends and leaderboards.
 
 ## What runs
 
-- **Side by Side**: ten country comparisons on one daily topic, with 14 topics rotating across UTC dates. Choose any topic for fresh practice. Values and reference years reveal immediately; review every comparison after finishing.
+- **Side by Side**: ten country comparisons on one daily topic, with 14 topics rotating across UTC dates. Choose any topic for fresh practice. Values and reference years reveal after the server accepts the answer; review every comparison after finishing.
 - **Country Mosaic**: connect one country’s flag, name, silhouette, fact and optionally capital. Practice uses 3, 4 or 5 clue types (12/16/20 tiles). The shared daily board uses four countries and four clues each. Unlimited attempts, shuffle, a pair hint, saved progress and a complete solution review.
 
 - **Clue Trail**: infer a country from its capital and geographic clues.
 - **City Circuit**: capitals, with multiple choice or typed answers and conservative typo matching.
 - **Flag Signal**: identify flags served through opaque question assets.
-- **Pinpoint**: tap an unlabelled, locally hosted world map; distance feedback appears immediately and is independently validated when saving; points apply only in multiplayer. Keyboard, zoom and touch input included.
+- **Pinpoint**: tap an unlabelled, locally hosted world map; distance feedback appears immediately and is independently validated when saving; distance-based credit applies in the official daily expedition. Keyboard, zoom and touch input included.
 - **Next Door**: identify a land neighbour.
 - **Size Shuffle**: order four countries by area; drag or use accessible move buttons.
 - **Daily expedition**: five seeded rounds, identical worldwide for the UTC date. Only the first completed result counts.
@@ -18,9 +18,15 @@ An original geography gaming platform: two daily puzzles, six untimed classic ga
 - Email/password accounts, guest-to-account linking on signup, server-persisted history and personal stats. Google OAuth works when provider credentials are configured.
 - Friend requests/codes, consent to discoverability, accept/decline/block and room creation. No free chat, uploads, payments or trackers.
 
-## Relaxed solo play
+## Daily competition and relaxed practice (1.11.0)
 
-Solo, practice and daily games have no timers, points or XP. Answers and learning facts appear immediately on selection; the server validates and saves progress independently. The current solo solution is available to the browser for this purpose. Multiplayer retains hidden answers, synchronized timers and server scoring. Past solo score records are retained for export, but are excluded from current rankings and point aggregates.
+The website offers five official UTC daily games, each worth up to **1,000 points**: World Trip, Daily Clue Trail, Side by Side, Country Mosaic and Rank Radar. The homepage shows today's total (maximum 5,000), cumulative points across all days, and real ranks/participant counts. Completed results are immutable, once per user/date/mode. Ties share places. There are no daily timers, speed bonuses or XP. See [GAME_RULES.md](GAME_RULES.md) for the exact scoring.
+
+Practice earns no competition points. It retains immediate local learning feedback. Daily competition withholds solutions until a server-validated answer and uses a separate `daily_scores` ledger. Multiplayer retains its own match scores/XP and does not enter daily totals. The Mystery Country bonus is a warm-up without ranking points. Legacy clients/results remain unranked; the website explicitly requests the new competitive edition.
+
+**Migration required:** apply all migrations through `drizzle/0003_gorgeous_arachne.sql` before serving this version. The hosting build includes these migrations. No new production secret is needed.
+
+[Changes since the supplied v3](docs/CHANGES_SINCE_V3.md) · [Claude handoff](START_HERE_CLAUDE.md) · [Verification](docs/QA_1_11.md)
 
 ## Stack and deployment choice
 
@@ -112,8 +118,10 @@ The genuine SwiftUI iPhone client is in [ios/](ios/README.md). It includes the t
 Regenerate native assets with `node scripts/prepare-ios-assets.mjs`; regenerate the dependency-free Xcode project with `python3 ios/scripts/generate-project.py`. These steps use local, licensed source assets. No additional database migration or production secret is needed for this release.
 
 
-## Current release: 1.9 — Rank Radar
+## Historical release: 1.9 — Rank Radar
 
 Four daily games now include **Rank Radar**, an original six-country discovery game. Choose which of four subjects gives a country its strongest relative rank, then see all four positions, values, coverage and source years. Fifteen subjects rotate across deterministic UTC puzzles; fresh practice is unlimited. Solo play remains untimed and unscored. Choices save on the server and resume across the website and the signed-in native app.
 
 The homepage uses a two-by-two desktop collection, compact mobile cards, original warm game artwork and immediate, accessible red/green feedback. The SwiftUI client includes the same fourth daily game, practice and result recap in `ios/Roviko/RankRadar.swift`. See [verification and limits](docs/QA_1_9.md), [game rules](GAME_RULES.md) and the [native Mac release gates](ios/APP_STORE.md). No migration or new production secret is needed. Native compilation, signing and Apple submission still require a Mac and the owner's Apple Developer account.
+
+Website 1.10.0 adds Spanish, early multiplayer reveals, mode exclusions, explicit ranking confirmation and improved map gestures/accuracy credit. See [the release notes](docs/WEBSITE_UPDATE_1_10.md).

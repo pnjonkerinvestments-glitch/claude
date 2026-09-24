@@ -47,7 +47,7 @@ test('Mosaic clues retain source metadata without giving away regions; trails re
    for(const locale of ['en','nl']) assert.ok(!f.text[locale].toLowerCase().includes(country.name[locale].toLowerCase()),'Clue must not print its answer');
   }
  }
- const qs=lib.generateQuestions({mode:'trail',count:5,region:'World',difficulty:'medium'},'trail-test');for(const q of qs){assert.equal(q.clues.length,4);assert.match(q.clues[0].en,/Start your search/);assert.match(q.clues[3].en,/capital/);assert.ok(!q.prompt.en.includes(q.clues[3].en));}
+ const qs=lib.generateQuestions({mode:'trail',count:5,region:'World',difficulty:'medium'},'trail-test');for(const q of qs){assert.equal(q.clues.length,4);assert.match(q.clues[0].en,/Start your search/);assert.match(q.clues[2].en,/capital/);assert.match(q.clues[3].en,/flag/);assert.ok(!q.prompt.en.includes(q.clues[3].en));}
 });
 test('UTC boundaries and share/title content contain the correct mode and no private technical ID or answer',()=>{
  assert.equal(lib.utcDate(Date.parse('2026-09-10T23:59:59.999Z')),'2026-09-10');assert.equal(lib.utcDate(Date.parse('2026-09-11T00:00:00Z')),'2026-09-11');

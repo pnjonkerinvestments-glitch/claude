@@ -5,7 +5,7 @@
   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/igo/",
   "license_metadata_url": "https://whc.unesco.org/en/licenses/6",
   "imported_at": "2026-09-21",
-  "modifications": "Original short English paraphrases and Dutch translations of the cited property descriptions; two clue variants and a learning explanation per property. No photos, emblems or third-party contributions are included.",
+  "modifications": "Original short English paraphrases and Dutch translations of the cited property descriptions; two clue variants and a learning explanation per property. No photos, emblems or third-party contributions are included. Spanish translations of the existing clues and explanations added by Roviko on 2026-09-23 under the same CC BY-SA 3.0 IGO terms.",
   "attribution": "Adapted from UNESCO World Heritage Centre, cited property descriptions, CC BY-SA 3.0 IGO. Adaptations by Roviko. No UNESCO endorsement is implied.",
   "facts": [
     {
@@ -15,16 +15,19 @@
       "clues": [
         {
           "en": "Finches and giant tortoises on its volcanic islands helped inspire Darwin.",
-          "nl": "Vinken en reuzenschildpadden op vulkanische eilanden inspireerden Darwin."
+          "nl": "Vinken en reuzenschildpadden op vulkanische eilanden inspireerden Darwin.",
+          "es": "Los pinzones y las tortugas gigantes de sus islas volcánicas inspiraron a Darwin."
         },
         {
           "en": "Three ocean currents meet around its Galápagos Islands.",
-          "nl": "Rond de Galápagoseilanden komen drie zeestromen samen."
+          "nl": "Rond de Galápagoseilanden komen drie zeestromen samen.",
+          "es": "Tres corrientes oceánicas se encuentran alrededor de sus islas Galápagos."
         }
       ],
       "explanation": {
         "en": "The Galápagos lie in the Pacific, where three ocean currents meet. Their isolation allowed unusual species to evolve; Darwin visited in 1835.",
-        "nl": "De Galápagos liggen in de Stille Oceaan, waar drie zeestromen samenkomen. Door hun isolement ontstonden bijzondere soorten. Darwin bezocht de eilanden in 1835."
+        "nl": "De Galápagos liggen in de Stille Oceaan, waar drie zeestromen samenkomen. Door hun isolement ontstonden bijzondere soorten. Darwin bezocht de eilanden in 1835.",
+        "es": "Las Galápagos están en el Pacífico, donde confluyen tres corrientes oceánicas. Su aislamiento permitió la evolución de especies singulares; Darwin las visitó en 1835."
       },
       "source": {
         "title": "Galápagos Islands",
@@ -39,16 +42,19 @@
       "clues": [
         {
           "en": "Whale fossils with traces of hind legs lie in its Wadi Al-Hitan desert.",
-          "nl": "In de woestijn van Wadi Al-Hitan liggen walvisfossielen met resten van achterpoten."
+          "nl": "In de woestijn van Wadi Al-Hitan liggen walvisfossielen met resten van achterpoten.",
+          "es": "En su desierto de Wadi Al-Hitan hay fósiles de ballenas con restos de patas traseras."
         },
         {
           "en": "Its Whale Valley records how whales evolved from land animals into ocean dwellers.",
-          "nl": "De Walvisvallei laat zien hoe walvissen van landdieren in zeebewoners veranderden."
+          "nl": "De Walvisvallei laat zien hoe walvissen van landdieren in zeebewoners veranderden.",
+          "es": "Su Valle de las Ballenas muestra la evolución de las ballenas desde animales terrestres hasta habitantes del océano."
         }
       ],
       "explanation": {
         "en": "Wadi Al-Hitan preserves early whales from a time when this desert lay beneath the sea. Their skeletons document the transition from life on land to life in the ocean.",
-        "nl": "Wadi Al-Hitan bewaart vroege walvissen uit een tijd waarin deze woestijn onder zee lag. Hun skeletten tonen de overgang van een leven op het land naar een leven in zee."
+        "nl": "Wadi Al-Hitan bewaart vroege walvissen uit een tijd waarin deze woestijn onder zee lag. Hun skeletten tonen de overgang van een leven op het land naar een leven in zee.",
+        "es": "Wadi Al-Hitan conserva ballenas primitivas de cuando este desierto estaba bajo el mar. Sus esqueletos documentan la transición de la vida terrestre a la marina."
       },
       "source": {
         "title": "Wadi Al-Hitan (Whale Valley)",
@@ -63,16 +69,19 @@
       "clues": [
         {
           "en": "The Okavango spreads into an inland delta instead of reaching the sea.",
-          "nl": "De Okavango stroomt uit in een binnendelta in plaats van de zee."
+          "nl": "De Okavango stroomt uit in een binnendelta in plaats van de zee.",
+          "es": "El Okavango forma un delta interior en lugar de llegar al mar."
         },
         {
           "en": "Its Okavango wetlands receive their annual flood during the dry season.",
-          "nl": "De Okavangomoerassen krijgen hun jaarlijkse overstroming juist in het droge seizoen."
+          "nl": "De Okavangomoerassen krijgen hun jaarlijkse overstroming juist in het droge seizoen.",
+          "es": "Sus humedales del Okavango reciben la inundación anual durante la estación seca."
         }
       ],
       "explanation": {
         "en": "The Okavango is an inland delta without an outlet to the sea. Its seasonal floods arrive during the local dry season, sustaining wildlife in an otherwise arid landscape.",
-        "nl": "De Okavango is een binnendelta zonder afvoer naar zee. De jaarlijkse overstroming komt in het plaatselijke droge seizoen en ondersteunt dieren in een verder droog landschap."
+        "nl": "De Okavango is een binnendelta zonder afvoer naar zee. De jaarlijkse overstroming komt in het plaatselijke droge seizoen en ondersteunt dieren in een verder droog landschap.",
+        "es": "El Okavango es un delta interior sin salida al mar. Sus inundaciones llegan en la estación seca local y sostienen la fauna de un paisaje árido."
       },
       "source": {
         "title": "Okavango Delta",
@@ -87,16 +96,19 @@
       "clues": [
         {
           "en": "Fog is the main water source for life among its Namib coastal dunes.",
-          "nl": "Mist is de belangrijkste waterbron voor leven tussen de kustduinen van de Namib."
+          "nl": "Mist is de belangrijkste waterbron voor leven tussen de kustduinen van de Namib.",
+          "es": "La niebla es la principal fuente de agua para la vida entre sus dunas costeras del Namib."
         },
         {
           "en": "The dunes of its Namib Sand Sea meet a foggy Atlantic coast.",
-          "nl": "De duinen van de Namibzandzee grenzen aan een mistige Atlantische kust."
+          "nl": "De duinen van de Namibzandzee grenzen aan een mistige Atlantische kust.",
+          "es": "Las dunas de su mar de arena del Namib llegan hasta una costa atlántica cubierta de niebla."
         }
       ],
       "explanation": {
         "en": "The Namib Sand Sea combines vast dune fields with coastal fog. Animals and plants here depend on moisture carried in from the ocean.",
-        "nl": "De Namibzandzee combineert uitgestrekte duinen met kustmist. Dieren en planten zijn er afhankelijk van vocht dat vanaf de oceaan binnenkomt."
+        "nl": "De Namibzandzee combineert uitgestrekte duinen met kustmist. Dieren en planten zijn er afhankelijk van vocht dat vanaf de oceaan binnenkomt.",
+        "es": "El mar de arena del Namib combina grandes campos de dunas y niebla costera. Animales y plantas dependen de la humedad que llega del océano."
       },
       "source": {
         "title": "Namib Sand Sea",
@@ -111,16 +123,19 @@
       "clues": [
         {
           "en": "Its Bemaraha landscape is a maze of sharp limestone needles called tsingy.",
-          "nl": "Het landschap van Bemaraha is een doolhof van scherpe kalksteennaalden: tsingy."
+          "nl": "Het landschap van Bemaraha is een doolhof van scherpe kalksteennaalden: tsingy.",
+          "es": "Su paisaje de Bemaraha es un laberinto de agujas calizas llamadas tsingy."
         },
         {
           "en": "Lemurs live among forests and limestone pinnacles in its Bemaraha region.",
-          "nl": "In de regio Bemaraha leven lemuren tussen bossen en kalksteenpieken."
+          "nl": "In de regio Bemaraha leven lemuren tussen bossen en kalksteenpieken.",
+          "es": "Los lémures viven entre bosques y pináculos de piedra caliza en su región de Bemaraha."
         }
       ],
       "explanation": {
         "en": "Bemaraha is part of the Andrefana Dry Forests World Heritage property. Its spectacular limestone formations, known as tsingy, shelter distinctive island wildlife.",
-        "nl": "Bemaraha hoort bij het werelderfgoed Andrefana Dry Forests. De spectaculaire kalksteenformaties, tsingy genoemd, bieden onderdak aan bijzondere eilanddieren."
+        "nl": "Bemaraha hoort bij het werelderfgoed Andrefana Dry Forests. De spectaculaire kalksteenformaties, tsingy genoemd, bieden onderdak aan bijzondere eilanddieren.",
+        "es": "Bemaraha forma parte de los Bosques Secos de Andrefana, Patrimonio Mundial. Sus formaciones calizas, llamadas tsingy, albergan una fauna insular singular."
       },
       "source": {
         "title": "Andrefana Dry Forests",
@@ -135,16 +150,19 @@
       "clues": [
         {
           "en": "Its Bungle Bungle Range has striped sandstone towers shaped like beehives.",
-          "nl": "De Bungle Bungle Range heeft gestreepte zandsteentorens in de vorm van bijenkorven."
+          "nl": "De Bungle Bungle Range heeft gestreepte zandsteentorens in de vorm van bijenkorven.",
+          "es": "Su cordillera Bungle Bungle tiene torres de arenisca a rayas con forma de colmena."
         },
         {
           "en": "Cyanobacteria create dark bands on its Purnululu sandstone domes.",
-          "nl": "Cyanobacteriën vormen donkere banden op de zandsteenkoepels van Purnululu."
+          "nl": "Cyanobacteriën vormen donkere banden op de zandsteenkoepels van Purnululu.",
+          "es": "Las cianobacterias forman bandas oscuras en sus cúpulas de arenisca de Purnululu."
         }
       ],
       "explanation": {
         "en": "Erosion shaped the beehive-like towers of Purnululu. The darker bands hold more moisture, allowing cyanobacteria to grow on the sandstone.",
-        "nl": "Erosie vormde de bijenkorfachtige torens van Purnululu. De donkere banden houden meer vocht vast, waardoor cyanobacteriën op het zandsteen kunnen groeien."
+        "nl": "Erosie vormde de bijenkorfachtige torens van Purnululu. De donkere banden houden meer vocht vast, waardoor cyanobacteriën op het zandsteen kunnen groeien.",
+        "es": "La erosión modeló las torres de Purnululu. Las bandas más oscuras retienen más humedad, lo que permite crecer a las cianobacterias."
       },
       "source": {
         "title": "Purnululu National Park",
@@ -159,16 +177,19 @@
       "clues": [
         {
           "en": "Vast caves in Gunung Mulu shelter millions of bats and swiftlets.",
-          "nl": "Enorme grotten in Gunung Mulu bieden onderdak aan miljoenen vleermuizen en gierzwaluwen."
+          "nl": "Enorme grotten in Gunung Mulu bieden onderdak aan miljoenen vleermuizen en gierzwaluwen.",
+          "es": "Las grandes cuevas de Gunung Mulu albergan millones de murciélagos y salanganas."
         },
         {
           "en": "Its Sarawak Chamber is an underground space roughly 600 metres long.",
-          "nl": "De ondergrondse Sarawakkamer is ongeveer 600 meter lang."
+          "nl": "De ondergrondse Sarawakkamer is ongeveer 600 meter lang.",
+          "es": "Su cámara de Sarawak es un espacio subterráneo de unos 600 metros de largo."
         }
       ],
       "explanation": {
         "en": "Gunung Mulu lies in Sarawak on Borneo. Its limestone cave systems include Sarawak Chamber, a vast natural room about 600 metres long and 415 metres wide.",
-        "nl": "Gunung Mulu ligt in Sarawak op Borneo. Het kalkstenen grottenstelsel bevat de Sarawakkamer: een natuurlijke ruimte van ongeveer 600 meter lang en 415 meter breed."
+        "nl": "Gunung Mulu ligt in Sarawak op Borneo. Het kalkstenen grottenstelsel bevat de Sarawakkamer: een natuurlijke ruimte van ongeveer 600 meter lang en 415 meter breed.",
+        "es": "Gunung Mulu está en Sarawak, en Borneo. Sus cuevas calizas incluyen la cámara de Sarawak, una sala natural de unos 600 metros de largo y 415 de ancho."
       },
       "source": {
         "title": "Gunung Mulu National Park",
@@ -183,16 +204,19 @@
       "clues": [
         {
           "en": "Its island Surtsey rose from the sea during a volcanic eruption beginning in 1963.",
-          "nl": "Het eiland Surtsey rees uit zee tijdens een vulkaanuitbarsting die in 1963 begon."
+          "nl": "Het eiland Surtsey rees uit zee tijdens een vulkaanuitbarsting die in 1963 begon.",
+          "es": "Su isla Surtsey surgió del mar durante una erupción que comenzó en 1963."
         },
         {
           "en": "Scientists study how life colonises its protected volcanic island of Surtsey.",
-          "nl": "Wetenschappers volgen hoe leven zich vestigt op het beschermde vulkaaneiland Surtsey."
+          "nl": "Wetenschappers volgen hoe leven zich vestigt op het beschermde vulkaaneiland Surtsey.",
+          "es": "Los científicos estudian cómo llega la vida a su isla volcánica protegida de Surtsey."
         }
       ],
       "explanation": {
         "en": "Surtsey formed during eruptions from 1963 to 1967. Strict protection makes it a natural laboratory for studying how plants and animals arrive on new land.",
-        "nl": "Surtsey ontstond door uitbarstingen tussen 1963 en 1967. Strenge bescherming maakt het een natuurlijk laboratorium voor de komst van planten en dieren op nieuw land."
+        "nl": "Surtsey ontstond door uitbarstingen tussen 1963 en 1967. Strenge bescherming maakt het een natuurlijk laboratorium voor de komst van planten en dieren op nieuw land.",
+        "es": "Surtsey se formó entre 1963 y 1967. Su protección estricta la convierte en un laboratorio natural sobre la llegada de plantas y animales a tierras nuevas."
       },
       "source": {
         "title": "Surtsey",
@@ -207,16 +231,19 @@
       "clues": [
         {
           "en": "Around 40,000 basalt columns form its Giant’s Causeway.",
-          "nl": "Ongeveer 40.000 basaltzuilen vormen er de Giant’s Causeway."
+          "nl": "Ongeveer 40.000 basaltzuilen vormen er de Giant’s Causeway.",
+          "es": "Unas 40 000 columnas de basalto forman su Calzada del Gigante."
         },
         {
           "en": "Ancient volcanic activity built its geometric Giant’s Causeway coastline.",
-          "nl": "Vulkanische activiteit vormde de geometrische kustlijn van de Giant’s Causeway."
+          "nl": "Vulkanische activiteit vormde de geometrische kustlijn van de Giant’s Causeway.",
+          "es": "Antiguas erupciones crearon la costa geométrica de su Calzada del Gigante."
         }
       ],
       "explanation": {
         "en": "The Giant’s Causeway is in County Antrim, Northern Ireland, part of the United Kingdom. Cooling volcanic rock produced its striking columns.",
-        "nl": "De Giant’s Causeway ligt in County Antrim in Noord-Ierland, onderdeel van het Verenigd Koninkrijk. De opvallende zuilen ontstonden toen vulkanisch gesteente afkoelde."
+        "nl": "De Giant’s Causeway ligt in County Antrim in Noord-Ierland, onderdeel van het Verenigd Koninkrijk. De opvallende zuilen ontstonden toen vulkanisch gesteente afkoelde.",
+        "es": "La Calzada del Gigante está en el condado de Antrim, en Irlanda del Norte, parte del Reino Unido. La roca volcánica al enfriarse formó sus columnas."
       },
       "source": {
         "title": "Giant’s Causeway and Causeway Coast",
@@ -231,16 +258,19 @@
       "clues": [
         {
           "en": "Mineral-rich hot springs built the white terraces of Pamukkale.",
-          "nl": "Mineraalrijke warmwaterbronnen bouwden de witte terrassen van Pamukkale."
+          "nl": "Mineraalrijke warmwaterbronnen bouwden de witte terrassen van Pamukkale.",
+          "es": "Aguas termales ricas en minerales formaron las terrazas blancas de Pamukkale."
         },
         {
           "en": "The ancient spa city of Hierapolis overlooks white mineral pools here.",
-          "nl": "De oude kuurstad Hierapolis kijkt hier uit over witte mineraalbassins."
+          "nl": "De oude kuurstad Hierapolis kijkt hier uit over witte mineraalbassins.",
+          "es": "La antigua ciudad termal de Hierápolis domina unas piscinas minerales blancas."
         }
       ],
       "explanation": {
         "en": "Water from hot springs deposits calcite at Pamukkale, gradually forming white basins and terraces. The ancient spa settlement of Hierapolis stands nearby.",
-        "nl": "Warmwaterbronnen zetten bij Pamukkale calciet af. Zo groeien witte bassins en terrassen. De oude kuurstad Hierapolis ligt er vlakbij."
+        "nl": "Warmwaterbronnen zetten bij Pamukkale calciet af. Zo groeien witte bassins en terrassen. De oude kuurstad Hierapolis ligt er vlakbij.",
+        "es": "El agua termal deposita calcita en Pamukkale y va formando terrazas y piscinas blancas. Cerca se encuentra la antigua ciudad termal de Hierápolis."
       },
       "source": {
         "title": "Hierapolis-Pamukkale",
@@ -255,16 +285,19 @@
       "clues": [
         {
           "en": "Monasteries at Meteora stand on top of towering rock pillars.",
-          "nl": "De kloosters van Meteora staan boven op torenhoge rotspilaren."
+          "nl": "De kloosters van Meteora staan boven op torenhoge rotspilaren.",
+          "es": "Los monasterios de Meteora se alzan sobre enormes pilares de roca."
         },
         {
           "en": "Monks settled among its Meteora sandstone peaks from the 11th century.",
-          "nl": "Vanaf de 11e eeuw vestigden monniken zich tussen de zandsteenpieken van Meteora."
+          "nl": "Vanaf de 11e eeuw vestigden monniken zich tussen de zandsteenpieken van Meteora.",
+          "es": "Los monjes se instalaron entre sus picos de arenisca de Meteora desde el siglo XI."
         }
       ],
       "explanation": {
         "en": "Meteora combines dramatic sandstone pillars with monasteries perched above the plain. The difficult terrain offered monks places of seclusion.",
-        "nl": "Meteora combineert indrukwekkende zandsteenpilaren met kloosters hoog boven de vlakte. Het moeilijk bereikbare terrein bood monniken afzondering."
+        "nl": "Meteora combineert indrukwekkende zandsteenpilaren met kloosters hoog boven de vlakte. Het moeilijk bereikbare terrein bood monniken afzondering.",
+        "es": "Meteora combina pilares de arenisca y monasterios suspendidos sobre la llanura. El terreno difícil ofrecía a los monjes lugares de retiro."
       },
       "source": {
         "title": "Meteora",
@@ -279,16 +312,19 @@
       "clues": [
         {
           "en": "Mineral deposits keep building natural dams between its Plitvice lakes.",
-          "nl": "Mineralen bouwen voortdurend natuurlijke dammen tussen de Plitvicemeren."
+          "nl": "Mineralen bouwen voortdurend natuurlijke dammen tussen de Plitvicemeren.",
+          "es": "Los depósitos minerales siguen formando presas naturales entre sus lagos de Plitvice."
         },
         {
           "en": "Waterfalls link the terraced lakes of Plitvice in its limestone landscape.",
-          "nl": "Watervallen verbinden de getrapte Plitvicemeren in een kalksteenlandschap."
+          "nl": "Watervallen verbinden de getrapte Plitvicemeren in een kalksteenlandschap.",
+          "es": "Cascadas conectan los lagos escalonados de Plitvice en su paisaje calizo."
         }
       ],
       "explanation": {
         "en": "At Plitvice, flowing water deposits calcium carbonate. These travertine barriers create lakes and waterfalls, and the process continues today.",
-        "nl": "Bij Plitvice zet stromend water calciumcarbonaat af. Deze travertijnbarrières vormen meren en watervallen. Dat proces gaat nog steeds door."
+        "nl": "Bij Plitvice zet stromend water calciumcarbonaat af. Deze travertijnbarrières vormen meren en watervallen. Dat proces gaat nog steeds door.",
+        "es": "En Plitvice, el agua deposita carbonato de calcio. Estas barreras de travertino crean lagos y cascadas, y el proceso continúa hoy."
       },
       "source": {
         "title": "Plitvice Lakes National Park",
@@ -303,16 +339,19 @@
       "clues": [
         {
           "en": "Underground chapels and statues were carved from salt at Wieliczka.",
-          "nl": "Bij Wieliczka zijn ondergrondse kapellen en beelden uit zout gehouwen."
+          "nl": "Bij Wieliczka zijn ondergrondse kapellen en beelden uit zout gehouwen.",
+          "es": "En Wieliczka se tallaron capillas y estatuas subterráneas en sal."
         },
         {
           "en": "Rock-salt mining at Wieliczka and Bochnia began in the 13th century.",
-          "nl": "In de mijnen van Wieliczka en Bochnia werd vanaf de 13e eeuw steenzout gewonnen."
+          "nl": "In de mijnen van Wieliczka en Bochnia werd vanaf de 13e eeuw steenzout gewonnen.",
+          "es": "La extracción de sal en Wieliczka y Bochnia comenzó en el siglo XIII."
         }
       ],
       "explanation": {
         "en": "The Wieliczka and Bochnia salt mines preserve centuries of mining history. Their underground spaces include chapels, sculptures and equipment illustrating the trade.",
-        "nl": "De zoutmijnen Wieliczka en Bochnia bewaren eeuwen mijnbouwgeschiedenis. Ondergronds zijn kapellen, beelden en werktuigen te vinden die het ambacht laten zien."
+        "nl": "De zoutmijnen Wieliczka en Bochnia bewaren eeuwen mijnbouwgeschiedenis. Ondergronds zijn kapellen, beelden en werktuigen te vinden die het ambacht laten zien.",
+        "es": "Las minas de sal de Wieliczka y Bochnia conservan siglos de historia minera. Sus espacios subterráneos incluyen capillas, esculturas y herramientas del oficio."
       },
       "source": {
         "title": "Wieliczka and Bochnia Royal Salt Mines",
@@ -327,16 +366,19 @@
       "clues": [
         {
           "en": "Nabataean builders carved much of Petra directly into the rock.",
-          "nl": "Nabatese bouwers hakten grote delen van Petra rechtstreeks uit de rotsen."
+          "nl": "Nabatese bouwers hakten grote delen van Petra rechtstreeks uit de rotsen.",
+          "es": "Los constructores nabateos tallaron gran parte de Petra directamente en la roca."
         },
         {
           "en": "Its rock-cut city of Petra stood on caravan routes between the Red and Dead Seas.",
-          "nl": "De rotsstad Petra lag aan karavaanroutes tussen de Rode Zee en de Dode Zee."
+          "nl": "De rotsstad Petra lag aan karavaanroutes tussen de Rode Zee en de Dode Zee.",
+          "es": "Su ciudad de Petra estaba en rutas de caravanas entre el mar Rojo y el mar Muerto."
         }
       ],
       "explanation": {
         "en": "Petra was a Nabataean caravan centre. Buildings cut into the cliffs combine with an engineered water system in a landscape of mountains and gorges.",
-        "nl": "Petra was een Nabatese karavaanstad. Uit rotsen gehouwen gebouwen en een aangelegd watersysteem liggen in een landschap van bergen en kloven."
+        "nl": "Petra was een Nabatese karavaanstad. Uit rotsen gehouwen gebouwen en een aangelegd watersysteem liggen in een landschap van bergen en kloven.",
+        "es": "Petra fue un centro de caravanas nabateo. Los edificios excavados en los acantilados conviven con un sistema hidráulico en un paisaje de montañas y gargantas."
       },
       "source": {
         "title": "Petra",
@@ -351,16 +393,19 @@
       "clues": [
         {
           "en": "Ruins of a royal capital crown its 180-metre-high Lion Rock at Sigiriya.",
-          "nl": "Op de 180 meter hoge Leeuwenrots van Sigiriya liggen de ruïnes van een koninklijke hoofdstad."
+          "nl": "Op de 180 meter hoge Leeuwenrots van Sigiriya liggen de ruïnes van een koninklijke hoofdstad.",
+          "es": "Las ruinas de una capital real coronan su Roca del León de 180 metros en Sigiriya."
         },
         {
           "en": "The ascent to Sigiriya once passed through a huge lion-shaped gateway.",
-          "nl": "De klim naar Sigiriya liep ooit door een enorme poort in de vorm van een leeuw."
+          "nl": "De klim naar Sigiriya liep ooit door een enorme poort in de vorm van een leeuw.",
+          "es": "La subida a Sigiriya pasaba por una enorme entrada con forma de león."
         }
       ],
       "explanation": {
         "en": "Sigiriya was a royal capital in the fifth century. Its palace ruins occupy the summit of a steep rock, approached by a stairway through a monumental lion entrance.",
-        "nl": "Sigiriya was in de vijfde eeuw een koninklijke hoofdstad. De paleisruïnes liggen op een steile rots, bereikbaar via een trap door een monumentale leeuwenpoort."
+        "nl": "Sigiriya was in de vijfde eeuw een koninklijke hoofdstad. De paleisruïnes liggen op een steile rots, bereikbaar via een trap door een monumentale leeuwenpoort.",
+        "es": "Sigiriya fue una capital real en el siglo V. Las ruinas del palacio están en una roca escarpada, a la que se accedía por una escalera y una entrada monumental de león."
       },
       "source": {
         "title": "Ancient City of Sigiriya",
@@ -375,16 +420,19 @@
       "clues": [
         {
           "en": "Seventy-two openwork stupas surround the central dome of Borobudur.",
-          "nl": "Rond de centrale koepel van Borobudur staan 72 opengewerkte stoepa’s."
+          "nl": "Rond de centrale koepel van Borobudur staan 72 opengewerkte stoepa’s.",
+          "es": "Setenta y dos estupas caladas rodean la cúpula central de Borobudur."
         },
         {
           "en": "Its Buddhist temple of Borobudur was built on Java in the eighth and ninth centuries.",
-          "nl": "De boeddhistische tempel Borobudur werd in de achtste en negende eeuw op Java gebouwd."
+          "nl": "De boeddhistische tempel Borobudur werd in de achtste en negende eeuw op Java gebouwd.",
+          "es": "Su templo budista de Borobudur se construyó en Java en los siglos VIII y IX."
         }
       ],
       "explanation": {
         "en": "Borobudur is a terraced Buddhist monument on Java. The upper circular platforms carry 72 perforated stupas, each enclosing a statue of the Buddha.",
-        "nl": "Borobudur is een boeddhistisch monument met terrassen op Java. De bovenste ronde platforms dragen 72 opengewerkte stoepa’s, elk met een Boeddhabeeld."
+        "nl": "Borobudur is een boeddhistisch monument met terrassen op Java. De bovenste ronde platforms dragen 72 opengewerkte stoepa’s, elk met een Boeddhabeeld.",
+        "es": "Borobudur es un monumento budista escalonado en Java. Las plataformas circulares superiores tienen 72 estupas perforadas, cada una con una estatua de Buda."
       },
       "source": {
         "title": "Borobudur Temple Compounds",
@@ -399,16 +447,19 @@
       "clues": [
         {
           "en": "Forests surround the former capitals of the Khmer Empire at Angkor.",
-          "nl": "Bossen omringen bij Angkor de vroegere hoofdsteden van het Khmer-rijk."
+          "nl": "Bossen omringen bij Angkor de vroegere hoofdsteden van het Khmer-rijk.",
+          "es": "Los bosques rodean las antiguas capitales del Imperio jemer en Angkor."
         },
         {
           "en": "Its Angkor complex includes both Angkor Wat and the Bayon temple.",
-          "nl": "Het complex van Angkor omvat zowel Angkor Wat als de Bayontempel."
+          "nl": "Het complex van Angkor omvat zowel Angkor Wat als de Bayontempel.",
+          "es": "Su conjunto de Angkor incluye Angkor Wat y el templo de Bayón."
         }
       ],
       "explanation": {
         "en": "Angkor preserves remains of successive Khmer capitals from the ninth to the fifteenth centuries. Its temples sit within a much larger archaeological landscape.",
-        "nl": "Angkor bewaart resten van opeenvolgende Khmer-hoofdsteden uit de negende tot de vijftiende eeuw. De tempels liggen in een veel groter archeologisch landschap."
+        "nl": "Angkor bewaart resten van opeenvolgende Khmer-hoofdsteden uit de negende tot de vijftiende eeuw. De tempels liggen in een veel groter archeologisch landschap.",
+        "es": "Angkor conserva restos de sucesivas capitales jemeres de los siglos IX al XV. Sus templos forman parte de un paisaje arqueológico mucho mayor."
       },
       "source": {
         "title": "Angkor",
@@ -423,16 +474,19 @@
       "clues": [
         {
           "en": "Limestone towers rise from the sea in its Ha Long Bay.",
-          "nl": "In de Ha Longbaai rijzen kalksteentorens op uit zee."
+          "nl": "In de Ha Longbaai rijzen kalksteentorens op uit zee.",
+          "es": "Torres de piedra caliza emergen del mar en su bahía de Ha Long."
         },
         {
           "en": "Its Ha Long–Cat Ba seascape contains forested limestone islands and caves.",
-          "nl": "Het zeegebied Ha Long–Cat Ba bevat beboste kalksteeneilanden en grotten."
+          "nl": "Het zeegebied Ha Long–Cat Ba bevat beboste kalksteeneilanden en grotten.",
+          "es": "Su paisaje marino de Ha Long–Cat Ba tiene islas calizas boscosas y cuevas."
         }
       ],
       "explanation": {
         "en": "Ha Long Bay and the Cat Ba Archipelago form a marine karst landscape. Erosion has shaped the limestone into steep islands, caves and enclosed waters.",
-        "nl": "De Ha Longbaai en de Cat Ba-archipel vormen een karstlandschap in zee. Erosie heeft het kalksteen gevormd tot steile eilanden, grotten en omsloten wateren."
+        "nl": "De Ha Longbaai en de Cat Ba-archipel vormen een karstlandschap in zee. Erosie heeft het kalksteen gevormd tot steile eilanden, grotten en omsloten wateren.",
+        "es": "La bahía de Ha Long y el archipiélago de Cat Ba forman un paisaje kárstico marino. La erosión ha creado islas escarpadas, cuevas y aguas cerradas."
       },
       "source": {
         "title": "Ha Long Bay – Cat Ba Archipelago",
@@ -447,16 +501,19 @@
       "clues": [
         {
           "en": "The kea, an alpine parrot, lives in its Te Wahipounamu wilderness.",
-          "nl": "De kea, een bergpapegaai, leeft in de wildernis van Te Wahipounamu."
+          "nl": "De kea, een bergpapegaai, leeft in de wildernis van Te Wahipounamu.",
+          "es": "El kea, un loro alpino, vive en su zona silvestre de Te Wahipounamu."
         },
         {
           "en": "Glaciers carved the fjords of its Te Wahipounamu landscape.",
-          "nl": "Gletsjers sleten de fjorden uit in het landschap van Te Wahipounamu."
+          "nl": "Gletsjers sleten de fjorden uit in het landschap van Te Wahipounamu.",
+          "es": "Los glaciares excavaron los fiordos de su paisaje de Te Wahipounamu."
         }
       ],
       "explanation": {
         "en": "Te Wahipounamu spans mountains, glaciers, fjords and ancient forests in the southwest of the South Island. Its wildlife includes the kea and the flightless takahē.",
-        "nl": "Te Wahipounamu omvat bergen, gletsjers, fjorden en oude bossen in het zuidwesten van het Zuidereiland. Hier leven onder meer de kea en de niet-vliegende takahē."
+        "nl": "Te Wahipounamu omvat bergen, gletsjers, fjorden en oude bossen in het zuidwesten van het Zuidereiland. Hier leven onder meer de kea en de niet-vliegende takahē.",
+        "es": "Te Wahipounamu abarca montañas, glaciares, fiordos y bosques antiguos al suroeste de la Isla Sur. Allí viven el kea y el takahē, un ave que no vuela."
       },
       "source": {
         "title": "Te Wahipounamu – South West New Zealand",
@@ -471,16 +528,19 @@
       "clues": [
         {
           "en": "Frankincense trees in Wadi Dawkah supplied an ancient incense trade.",
-          "nl": "Wierookbomen in Wadi Dawkah leverden hars voor een eeuwenoude wierookhandel."
+          "nl": "Wierookbomen in Wadi Dawkah leverden hars voor een eeuwenoude wierookhandel.",
+          "es": "Los árboles de incienso de Wadi Dawkah abastecían un antiguo comercio."
         },
         {
           "en": "Its Shisr oasis and ports of Khor Rori and Al-Baleed served the frankincense trade.",
-          "nl": "De oase Shisr en de havens Khor Rori en Al-Baleed dienden de wierookhandel."
+          "nl": "De oase Shisr en de havens Khor Rori en Al-Baleed dienden de wierookhandel.",
+          "es": "Su oasis de Shisr y los puertos de Khor Rori y Al-Baleed servían al comercio del incienso."
         }
       ],
       "explanation": {
         "en": "The Land of Frankincense links groves of incense-producing trees with a caravan oasis and coastal ports. These places record a trade that flourished for centuries.",
-        "nl": "Het Land van de Wierook verbindt wierookbomen met een karavaanoase en kusthavens. Deze plaatsen herinneren aan een handel die eeuwenlang bloeide."
+        "nl": "Het Land van de Wierook verbindt wierookbomen met een karavaanoase en kusthavens. Deze plaatsen herinneren aan een handel die eeuwenlang bloeide.",
+        "es": "La Tierra del Incienso conecta arboledas productoras de incienso con un oasis de caravanas y puertos costeros. Estos lugares reflejan un comercio que prosperó durante siglos."
       },
       "source": {
         "title": "Land of Frankincense",
@@ -495,16 +555,19 @@
       "clues": [
         {
           "en": "Strong winds carved long, grooved ridges called yardangs in its Lut Desert.",
-          "nl": "Sterke wind sleet langgerekte ruggen, yardangs genoemd, in de Lutwoestijn."
+          "nl": "Sterke wind sleet langgerekte ruggen, yardangs genoemd, in de Lutwoestijn.",
+          "es": "Los fuertes vientos tallaron largas crestas acanaladas, llamadas yardangs, en su desierto de Lut."
         },
         {
           "en": "Its Lut Desert contains wind-sculpted rock ridges and vast dune fields.",
-          "nl": "De Lutwoestijn bevat door wind gevormde rotsruggen en uitgestrekte duinen."
+          "nl": "De Lutwoestijn bevat door wind gevormde rotsruggen en uitgestrekte duinen.",
+          "es": "Su desierto de Lut tiene crestas de roca esculpidas por el viento y grandes campos de dunas."
         }
       ],
       "explanation": {
         "en": "The Lut Desert is a striking example of erosion and deposition by wind. Its yardangs are long ridges sculpted as wind wears away the softer material around them.",
-        "nl": "De Lutwoestijn toont hoe wind materiaal wegslijt en afzet. De yardangs zijn langgerekte ruggen die ontstaan doordat zachter materiaal eromheen wordt weggeblazen."
+        "nl": "De Lutwoestijn toont hoe wind materiaal wegslijt en afzet. De yardangs zijn langgerekte ruggen die ontstaan doordat zachter materiaal eromheen wordt weggeblazen.",
+        "es": "El desierto de Lut muestra la erosión y la deposición del viento. Sus yardangs son largas crestas que quedan cuando el viento desgasta el material más blando a su alrededor."
       },
       "source": {
         "title": "Lut Desert",
@@ -519,16 +582,19 @@
       "clues": [
         {
           "en": "The monumental moai statues stand on its remote island of Rapa Nui.",
-          "nl": "De monumentale moaibeelden staan op het afgelegen eiland Rapa Nui."
+          "nl": "De monumentale moaibeelden staan op het afgelegen eiland Rapa Nui.",
+          "es": "Las estatuas monumentales moái se alzan en su remota isla de Rapa Nui."
         },
         {
           "en": "Polynesian settlers created giant stone figures on its Easter Island.",
-          "nl": "Polynesische kolonisten maakten reusachtige stenen beelden op Paaseiland."
+          "nl": "Polynesische kolonisten maakten reusachtige stenen beelden op Paaseiland.",
+          "es": "Los pobladores polinesios crearon enormes figuras de piedra en su isla de Pascua."
         }
       ],
       "explanation": {
         "en": "Rapa Nui, also called Easter Island, is home to the moai. Polynesian communities developed a distinctive monumental tradition on this isolated Pacific island.",
-        "nl": "Rapa Nui, ook Paaseiland genoemd, is de thuisbasis van de moai. Polynesische gemeenschappen ontwikkelden op dit afgelegen eiland een eigen monumentale traditie."
+        "nl": "Rapa Nui, ook Paaseiland genoemd, is de thuisbasis van de moai. Polynesische gemeenschappen ontwikkelden op dit afgelegen eiland een eigen monumentale traditie.",
+        "es": "Rapa Nui, también llamada isla de Pascua, es el hogar de los moái. Las comunidades polinesias desarrollaron una tradición monumental propia en esta isla aislada del Pacífico."
       },
       "source": {
         "title": "Rapa Nui National Park",
@@ -543,16 +609,19 @@
       "clues": [
         {
           "en": "Giant drawings of animals and geometric shapes cover the desert at Nasca.",
-          "nl": "Reusachtige tekeningen van dieren en geometrische vormen bedekken de woestijn bij Nasca."
+          "nl": "Reusachtige tekeningen van dieren en geometrische vormen bedekken de woestijn bij Nasca.",
+          "es": "Enormes dibujos de animales y figuras geométricas cubren el desierto de Nasca."
         },
         {
           "en": "Its Nasca and Palpa geoglyphs were created between roughly 500 BC and AD 500.",
-          "nl": "De geogliefen van Nasca en Palpa ontstonden tussen ongeveer 500 v.Chr. en 500 n.Chr."
+          "nl": "De geogliefen van Nasca en Palpa ontstonden tussen ongeveer 500 v.Chr. en 500 n.Chr.",
+          "es": "Sus geoglifos de Nasca y Palpa se crearon aproximadamente entre el 500 a. C. y el 500 d. C."
         }
       ],
       "explanation": {
         "en": "The Nasca and Palpa geoglyphs form a vast collection of lines and figures on the arid coastal plain. They depict animals, plants and geometric forms.",
-        "nl": "De geogliefen van Nasca en Palpa vormen een enorme verzameling lijnen en figuren op een droge kustvlakte. Ze stellen dieren, planten en geometrische vormen voor."
+        "nl": "De geogliefen van Nasca en Palpa vormen een enorme verzameling lijnen en figuren op een droge kustvlakte. Ze stellen dieren, planten en geometrische vormen voor.",
+        "es": "Los geoglifos de Nasca y Palpa forman una gran colección de líneas y figuras en la árida llanura costera. Representan animales, plantas y formas geométricas."
       },
       "source": {
         "title": "Lines and Geoglyphs of Nasca and Palpa",
@@ -567,16 +636,19 @@
       "clues": [
         {
           "en": "Millions of monarch butterflies turn its mountain forests orange each autumn.",
-          "nl": "Miljoenen monarchvlinders kleuren de bergbossen er elke herfst oranje."
+          "nl": "Miljoenen monarchvlinders kleuren de bergbossen er elke herfst oranje.",
+          "es": "Millones de mariposas monarca tiñen de naranja sus bosques de montaña cada otoño."
         },
         {
           "en": "Monarch butterflies spend winter in its central mountain forests before migrating north.",
-          "nl": "Monarchvlinders overwinteren in de centrale bergbossen voordat ze noordwaarts trekken."
+          "nl": "Monarchvlinders overwinteren in de centrale bergbossen voordat ze noordwaarts trekken.",
+          "es": "Las mariposas monarca pasan el invierno en sus montañas centrales antes de migrar al norte."
         }
       ],
       "explanation": {
         "en": "Monarch butterflies gather in dense colonies in the mountain forests of central Mexico. These wintering sites are part of a migration across North America.",
-        "nl": "Monarchvlinders verzamelen zich in dichte kolonies in de bergbossen van centraal Mexico. Deze overwinteringsplaatsen maken deel uit van hun trek door Noord-Amerika."
+        "nl": "Monarchvlinders verzamelen zich in dichte kolonies in de bergbossen van centraal Mexico. Deze overwinteringsplaatsen maken deel uit van hun trek door Noord-Amerika.",
+        "es": "Las mariposas monarca se reúnen en colonias densas en los bosques montañosos del centro de México. Sus refugios de invierno forman parte de una migración por América del Norte."
       },
       "source": {
         "title": "Monarch Butterfly Biosphere Reserve",
@@ -591,16 +663,19 @@
       "clues": [
         {
           "en": "Ancient sugi trees grow in the forests of its island Yakushima.",
-          "nl": "In de bossen van het eiland Yakushima groeien eeuwenoude sugibomen."
+          "nl": "In de bossen van het eiland Yakushima groeien eeuwenoude sugibomen.",
+          "es": "Antiguos árboles sugi crecen en los bosques de su isla de Yakushima."
         },
         {
           "en": "Its mountainous Yaku Island preserves warm-temperate forest and ancient cedars.",
-          "nl": "Het bergachtige eiland Yaku bewaart warm-gematigd bos en oude ceders."
+          "nl": "Het bergachtige eiland Yaku bewaart warm-gematigd bos en oude ceders.",
+          "es": "Su montañosa isla de Yaku conserva bosques templados cálidos y cedros milenarios."
         }
       ],
       "explanation": {
         "en": "Yakushima is a mountainous island with a wide range of vegetation. Its forests include ancient sugi trees, often called Japanese cedars.",
-        "nl": "Yakushima is een bergachtig eiland met uiteenlopende begroeiing. De bossen bevatten oude sugibomen, die vaak Japanse ceders worden genoemd."
+        "nl": "Yakushima is een bergachtig eiland met uiteenlopende begroeiing. De bossen bevatten oude sugibomen, die vaak Japanse ceders worden genoemd.",
+        "es": "Yakushima es una isla montañosa con vegetación muy variada. Sus bosques albergan antiguos árboles sugi, también llamados cedros japoneses."
       },
       "source": {
         "title": "Yakushima",
@@ -615,16 +690,19 @@
       "clues": [
         {
           "en": "Geysers and hot springs fill its Yellowstone National Park.",
-          "nl": "Geisers en warmwaterbronnen vullen Yellowstone National Park."
+          "nl": "Geisers en warmwaterbronnen vullen Yellowstone National Park.",
+          "es": "Los géiseres y las aguas termales llenan su parque nacional de Yellowstone."
         },
         {
           "en": "Its Yellowstone protected landscape became a national park in 1872.",
-          "nl": "Het beschermde landschap Yellowstone werd in 1872 een nationaal park."
+          "nl": "Het beschermde landschap Yellowstone werd in 1872 een nationaal park.",
+          "es": "Su paisaje protegido de Yellowstone se convirtió en parque nacional en 1872."
         }
       ],
       "explanation": {
         "en": "Yellowstone became a national park in 1872. Beneath its forests and lakes, volcanic heat powers an extraordinary concentration of hot springs and geysers.",
-        "nl": "Yellowstone werd in 1872 een nationaal park. Onder de bossen en meren voedt vulkanische warmte een uitzonderlijke verzameling warmwaterbronnen en geisers."
+        "nl": "Yellowstone werd in 1872 een nationaal park. Onder de bossen en meren voedt vulkanische warmte een uitzonderlijke verzameling warmwaterbronnen en geisers.",
+        "es": "Yellowstone se convirtió en parque nacional en 1872. Bajo sus bosques y lagos, el calor volcánico alimenta una concentración extraordinaria de fuentes termales y géiseres."
       },
       "source": {
         "title": "Yellowstone National Park",
@@ -639,16 +717,19 @@
       "clues": [
         {
           "en": "The Burgess Shale preserves fossils of soft-bodied sea creatures in its Rocky Mountains.",
-          "nl": "De Burgess Shale bewaart fossielen van zachte zeedieren in de Rocky Mountains."
+          "nl": "De Burgess Shale bewaart fossielen van zachte zeedieren in de Rocky Mountains.",
+          "es": "Burgess Shale conserva fósiles de animales marinos de cuerpo blando en sus Montañas Rocosas."
         },
         {
           "en": "Its mountain parks include Banff, Jasper, Kootenay and Yoho.",
-          "nl": "De bergparken omvatten onder meer Banff, Jasper, Kootenay en Yoho."
+          "nl": "De bergparken omvatten onder meer Banff, Jasper, Kootenay en Yoho.",
+          "es": "Sus parques de montaña incluyen Banff, Jasper, Kootenay y Yoho."
         }
       ],
       "explanation": {
         "en": "The Rocky Mountain Parks protect glaciers, peaks, lakes and forests. The Burgess Shale is especially valuable because it preserves details of ancient soft-bodied marine animals.",
-        "nl": "De Rocky Mountain Parks beschermen gletsjers, bergtoppen, meren en bossen. De Burgess Shale is bijzonder doordat details van zachte, oude zeedieren bewaard zijn gebleven."
+        "nl": "De Rocky Mountain Parks beschermen gletsjers, bergtoppen, meren en bossen. De Burgess Shale is bijzonder doordat details van zachte, oude zeedieren bewaard zijn gebleven.",
+        "es": "Los parques de las Montañas Rocosas protegen glaciares, cumbres, lagos y bosques. Burgess Shale es especial porque conserva detalles de antiguos animales marinos de cuerpo blando."
       },
       "source": {
         "title": "Canadian Rocky Mountain Parks",
@@ -663,16 +744,19 @@
       "clues": [
         {
           "en": "Eleven medieval churches at Lalibela were cut directly into rock.",
-          "nl": "Elf middeleeuwse kerken bij Lalibela zijn rechtstreeks uit de rotsen gehouwen."
+          "nl": "Elf middeleeuwse kerken bij Lalibela zijn rechtstreeks uit de rotsen gehouwen.",
+          "es": "Once iglesias medievales de Lalibela se excavaron directamente en la roca."
         },
         {
           "en": "Its mountain town of Lalibela is known for monolithic churches from the 13th century.",
-          "nl": "De bergplaats Lalibela staat bekend om monolithische kerken uit de 13e eeuw."
+          "nl": "De bergplaats Lalibela staat bekend om monolithische kerken uit de 13e eeuw.",
+          "es": "Su ciudad montañosa de Lalibela es conocida por iglesias monolíticas del siglo XIII."
         }
       ],
       "explanation": {
         "en": "Lalibela’s churches were carved from rock rather than assembled from stone blocks. This medieval religious centre remains a place of pilgrimage.",
-        "nl": "De kerken van Lalibela werden uit rotsen gehouwen in plaats van opgebouwd uit steenblokken. Dit middeleeuwse religieuze centrum is nog steeds een bedevaartsoord."
+        "nl": "De kerken van Lalibela werden uit rotsen gehouwen in plaats van opgebouwd uit steenblokken. Dit middeleeuwse religieuze centrum is nog steeds een bedevaartsoord.",
+        "es": "Las iglesias de Lalibela se tallaron en la roca en vez de construirse con bloques. Este centro religioso medieval sigue siendo un lugar de peregrinación."
       },
       "source": {
         "title": "Rock-Hewn Churches, Lalibela",
@@ -687,16 +771,19 @@
       "clues": [
         {
           "en": "Underground waterfalls run through its enormous Škocjan cave system.",
-          "nl": "Ondergrondse watervallen stromen door het enorme grottenstelsel van Škocjan."
+          "nl": "Ondergrondse watervallen stromen door het enorme grottenstelsel van Škocjan.",
+          "es": "Cascadas subterráneas recorren su enorme sistema de cuevas de Škocjan."
         },
         {
           "en": "Its Škocjan caves form a vast limestone landscape beneath the Kras region.",
-          "nl": "De grotten van Škocjan vormen een uitgestrekt kalksteenlandschap onder de regio Kras."
+          "nl": "De grotten van Škocjan vormen een uitgestrekt kalksteenlandschap onder de regio Kras.",
+          "es": "Sus cuevas de Škocjan forman un gran paisaje calizo bajo la región de Kras."
         }
       ],
       "explanation": {
         "en": "The Škocjan system combines caves, collapsed sinkholes and underground waters. It is a major example of karst, a landscape formed when water dissolves soluble rock.",
-        "nl": "Het stelsel van Škocjan combineert grotten, ingestorte zinkgaten en ondergronds water. Het is een belangrijk voorbeeld van karst: een landschap gevormd doordat water gesteente oplost."
+        "nl": "Het stelsel van Škocjan combineert grotten, ingestorte zinkgaten en ondergronds water. Het is een belangrijk voorbeeld van karst: een landschap gevormd doordat water gesteente oplost.",
+        "es": "Škocjan reúne cuevas, dolinas de hundimiento y aguas subterráneas. Es un gran ejemplo de karst, un paisaje creado cuando el agua disuelve roca soluble."
       },
       "source": {
         "title": "Škocjan Caves",
@@ -711,16 +798,19 @@
       "clues": [
         {
           "en": "A medieval Shona trading city left monumental stone ruins in its highlands.",
-          "nl": "Een middeleeuwse Shona-handelsstad liet monumentale stenen ruïnes achter in het hoogland."
+          "nl": "Een middeleeuwse Shona-handelsstad liet monumentale stenen ruïnes achter in het hoogland.",
+          "es": "Una ciudad comercial shona medieval dejó monumentales ruinas de piedra en sus tierras altas."
         },
         {
           "en": "Its major medieval Shona city flourished as a trading centre from the 11th to 15th centuries.",
-          "nl": "Een grote middeleeuwse Shona-stad bloeide er van de 11e tot de 15e eeuw als handelscentrum."
+          "nl": "Een grote middeleeuwse Shona-stad bloeide er van de 11e tot de 15e eeuw als handelscentrum.",
+          "es": "Su gran ciudad shona medieval prosperó como centro comercial entre los siglos XI y XV."
         }
       ],
       "explanation": {
         "en": "Great Zimbabwe was an important Shona trading centre during the Middle Ages. Its monumental ruins preserve evidence of a sophisticated urban society.",
-        "nl": "Groot-Zimbabwe was in de middeleeuwen een belangrijk Shona-handelscentrum. De monumentale ruïnes getuigen van een ontwikkelde stedelijke samenleving."
+        "nl": "Groot-Zimbabwe was in de middeleeuwen een belangrijk Shona-handelscentrum. De monumentale ruïnes getuigen van een ontwikkelde stedelijke samenleving.",
+        "es": "Gran Zimbabue fue un importante centro comercial shona durante la Edad Media. Sus ruinas monumentales muestran una sociedad urbana sofisticada."
       },
       "source": {
         "title": "Great Zimbabwe National Monument",
@@ -735,16 +825,19 @@
       "clues": [
         {
           "en": "Ifugao communities shaped mountain slopes into rice terraces over many generations.",
-          "nl": "Ifugao-gemeenschappen vormden berghellingen generaties lang om tot rijstterrassen."
+          "nl": "Ifugao-gemeenschappen vormden berghellingen generaties lang om tot rijstterrassen.",
+          "es": "Las comunidades ifugao modelaron las laderas en terrazas de arroz durante generaciones."
         },
         {
           "en": "Its Ifugao rice fields follow the contours of steep mountain slopes.",
-          "nl": "De rijstvelden van de Ifugao volgen de contouren van steile berghellingen."
+          "nl": "De rijstvelden van de Ifugao volgen de contouren van steile berghellingen.",
+          "es": "Sus arrozales ifugao siguen los contornos de laderas empinadas."
         }
       ],
       "explanation": {
         "en": "The Cordillera rice terraces reflect knowledge passed down through generations of Ifugao farmers. Water management and careful cultivation sustain this mountain landscape.",
-        "nl": "De rijstterrassen van de Cordillera weerspiegelen kennis die generaties Ifugao-boeren doorgaven. Waterbeheer en zorgvuldige landbouw houden dit berglandschap in stand."
+        "nl": "De rijstterrassen van de Cordillera weerspiegelen kennis die generaties Ifugao-boeren doorgaven. Waterbeheer en zorgvuldige landbouw houden dit berglandschap in stand.",
+        "es": "Las terrazas de arroz de la Cordillera reflejan conocimientos transmitidos entre generaciones de agricultores ifugao. El riego y el cultivo cuidadoso sostienen este paisaje de montaña."
       },
       "source": {
         "title": "Rice Terraces of the Philippine Cordilleras",
@@ -759,16 +852,19 @@
       "clues": [
         {
           "en": "A Gothic abbey crowns its tidal islet of Mont-Saint-Michel.",
-          "nl": "Een gotische abdij bekroont het getijdeneiland Mont-Saint-Michel."
+          "nl": "Een gotische abdij bekroont het getijdeneiland Mont-Saint-Michel.",
+          "es": "Una abadía gótica corona su islote mareal de Mont-Saint-Michel."
         },
         {
           "en": "Powerful tides surround the rock of its Mont-Saint-Michel abbey.",
-          "nl": "Krachtige getijden omringen de rots waarop de abdij Mont-Saint-Michel staat."
+          "nl": "Krachtige getijden omringen de rots waarop de abdij Mont-Saint-Michel staat.",
+          "es": "Mareas poderosas rodean la roca de su abadía de Mont-Saint-Michel."
         }
       ],
       "explanation": {
         "en": "Mont-Saint-Michel stands on a rocky islet between Normandy and Brittany. Its Benedictine abbey rises above a small village in a bay shaped by powerful tides.",
-        "nl": "Mont-Saint-Michel staat op een rotseiland tussen Normandië en Bretagne. De benedictijnenabdij torent boven een dorp uit in een baai met krachtige getijden."
+        "nl": "Mont-Saint-Michel staat op een rotseiland tussen Normandië en Bretagne. De benedictijnenabdij torent boven een dorp uit in een baai met krachtige getijden.",
+        "es": "Mont-Saint-Michel está en un islote rocoso entre Normandía y Bretaña. Su abadía benedictina se alza sobre un pequeño pueblo en una bahía moldeada por grandes mareas."
       },
       "source": {
         "title": "Mont-Saint-Michel and its Bay",
@@ -783,16 +879,19 @@
       "clues": [
         {
           "en": "Rain fills hollows between white dunes with lagoons in Lençóis Maranhenses.",
-          "nl": "Regen vult kuilen tussen witte duinen met lagunes in Lençóis Maranhenses."
+          "nl": "Regen vult kuilen tussen witte duinen met lagunes in Lençóis Maranhenses.",
+          "es": "La lluvia llena de lagunas los huecos entre dunas blancas en Lençóis Maranhenses."
         },
         {
           "en": "Its Lençóis Maranhenses landscape alternates between sand dunes and seasonal lagoons.",
-          "nl": "Het landschap van Lençóis Maranhenses wisselt zandduinen af met seizoenslagunes."
+          "nl": "Het landschap van Lençóis Maranhenses wisselt zandduinen af met seizoenslagunes.",
+          "es": "Su paisaje de Lençóis Maranhenses alterna dunas de arena y lagunas estacionales."
         }
       ],
       "explanation": {
         "en": "Lençóis Maranhenses lies on the Atlantic coast. During the rainy season, fresh water gathers between the dunes, creating a shifting mosaic of sand and lagoons.",
-        "nl": "Lençóis Maranhenses ligt aan de Atlantische kust. Tijdens het regenseizoen verzamelt zoet water zich tussen de duinen en ontstaat een veranderend mozaïek van zand en lagunes."
+        "nl": "Lençóis Maranhenses ligt aan de Atlantische kust. Tijdens het regenseizoen verzamelt zoet water zich tussen de duinen en ontstaat een veranderend mozaïek van zand en lagunes.",
+        "es": "Lençóis Maranhenses está en la costa atlántica. En la estación lluviosa, el agua dulce se acumula entre las dunas y crea un mosaico cambiante de arena y lagunas."
       },
       "source": {
         "title": "Lençóis Maranhenses National Park",
@@ -807,16 +906,19 @@
       "clues": [
         {
           "en": "Some mammal fossils in its Messel Pit still preserve stomach contents.",
-          "nl": "Sommige zoogdierfossielen uit de Messelgroeve bewaren zelfs de maaginhoud."
+          "nl": "Sommige zoogdierfossielen uit de Messelgroeve bewaren zelfs de maaginhoud.",
+          "es": "Algunos fósiles de mamíferos de su yacimiento de Messel conservan el contenido del estómago."
         },
         {
           "en": "Its Messel Pit provides a remarkably detailed record of Eocene mammals.",
-          "nl": "De Messelgroeve geeft een uitzonderlijk gedetailleerd beeld van zoogdieren uit het Eoceen."
+          "nl": "De Messelgroeve geeft een uitzonderlijk gedetailleerd beeld van zoogdieren uit het Eoceen.",
+          "es": "Su yacimiento de Messel ofrece un registro muy detallado de mamíferos del Eoceno."
         }
       ],
       "explanation": {
         "en": "Messel Pit is famous for exceptionally preserved fossils from the Eocene. Some specimens retain fine details of bodies and even the remains of their last meals.",
-        "nl": "De Messelgroeve staat bekend om uitzonderlijk goed bewaarde fossielen uit het Eoceen. Sommige exemplaren bevatten fijne lichaamsdetails en zelfs resten van hun laatste maaltijd."
+        "nl": "De Messelgroeve staat bekend om uitzonderlijk goed bewaarde fossielen uit het Eoceen. Sommige exemplaren bevatten fijne lichaamsdetails en zelfs resten van hun laatste maaltijd.",
+        "es": "Messel es famoso por sus fósiles del Eoceno excepcionalmente conservados. Algunos ejemplares mantienen detalles del cuerpo e incluso restos de sus últimas comidas."
       },
       "source": {
         "title": "Messel Pit Fossil Site",
@@ -831,16 +933,19 @@
       "clues": [
         {
           "en": "Buddhist, Hindu and Jain monuments share the rock-cut site of Ellora.",
-          "nl": "Boeddhistische, hindoeïstische en jaïnistische monumenten delen de rotslocatie Ellora."
+          "nl": "Boeddhistische, hindoeïstische en jaïnistische monumenten delen de rotslocatie Ellora.",
+          "es": "Monumentos budistas, hindúes y jainistas comparten el conjunto excavado de Ellora."
         },
         {
           "en": "Its Ellora complex contains 34 monasteries and temples cut into basalt cliffs.",
-          "nl": "Het complex van Ellora bevat 34 kloosters en tempels uitgehouwen in basaltkliffen."
+          "nl": "Het complex van Ellora bevat 34 kloosters en tempels uitgehouwen in basaltkliffen.",
+          "es": "Su conjunto de Ellora tiene 34 monasterios y templos excavados en acantilados de basalto."
         }
       ],
       "explanation": {
         "en": "The Ellora monuments were created between about AD 600 and 1000. Three religious traditions are represented side by side in the rock-cut complex.",
-        "nl": "De monumenten van Ellora ontstonden tussen ongeveer 600 en 1000 n.Chr. Drie religieuze tradities zijn naast elkaar vertegenwoordigd in het uitgehouwen complex."
+        "nl": "De monumenten van Ellora ontstonden tussen ongeveer 600 en 1000 n.Chr. Drie religieuze tradities zijn naast elkaar vertegenwoordigd in het uitgehouwen complex.",
+        "es": "Los monumentos de Ellora se crearon entre aproximadamente el 600 y el 1000 d. C. Tres tradiciones religiosas conviven en este conjunto excavado en la roca."
       },
       "source": {
         "title": "Ellora Caves",
@@ -855,16 +960,19 @@
       "clues": [
         {
           "en": "Antelope migrate across the high plateau of its Hoh Xil reserve.",
-          "nl": "Antilopen trekken over de hoogvlakte van het reservaat Hoh Xil."
+          "nl": "Antilopen trekken over de hoogvlakte van het reservaat Hoh Xil.",
+          "es": "Los antílopes migran por la alta meseta de su reserva de Hoh Xil."
         },
         {
           "en": "Its Hoh Xil wilderness protects a complete migration route for Tibetan antelope.",
-          "nl": "De wildernis van Hoh Xil beschermt een volledige trekroute van Tibetaanse antilopen."
+          "nl": "De wildernis van Hoh Xil beschermt een volledige trekroute van Tibetaanse antilopen.",
+          "es": "Su zona silvestre de Hoh Xil protege una ruta migratoria completa del antílope tibetano."
         }
       ],
       "explanation": {
         "en": "Hoh Xil protects a vast high-altitude landscape and the migration routes of Tibetan antelope. Plants and animals here are adapted to a cold, oxygen-poor environment.",
-        "nl": "Hoh Xil beschermt een uitgestrekte hoogvlakte en trekroutes van Tibetaanse antilopen. Planten en dieren zijn er aangepast aan een koude, zuurstofarme omgeving."
+        "nl": "Hoh Xil beschermt een uitgestrekte hoogvlakte en trekroutes van Tibetaanse antilopen. Planten en dieren zijn er aangepast aan een koude, zuurstofarme omgeving.",
+        "es": "Hoh Xil protege un vasto paisaje de gran altitud y rutas migratorias del antílope tibetano. Plantas y animales están adaptados al frío y al poco oxígeno."
       },
       "source": {
         "title": "Qinghai Hoh Xil",
@@ -879,16 +987,19 @@
       "clues": [
         {
           "en": "Its churches at Echmiatsin helped shape a distinctive style of domed architecture.",
-          "nl": "De kerken van Echmiatsin hielpen een eigen stijl van koepelarchitectuur te vormen."
+          "nl": "De kerken van Echmiatsin hielpen een eigen stijl van koepelarchitectuur te vormen.",
+          "es": "Sus iglesias de Echmiatsin ayudaron a definir un estilo de arquitectura con cúpulas."
         },
         {
           "en": "Echmiatsin and the ruins of Zvartnots preserve its early church-building traditions.",
-          "nl": "Echmiatsin en de ruïnes van Zvartnots bewaren vroege tradities van kerkbouw."
+          "nl": "Echmiatsin en de ruïnes van Zvartnots bewaren vroege tradities van kerkbouw.",
+          "es": "Echmiatsin y las ruinas de Zvartnots conservan sus primeras tradiciones de construcción de iglesias."
         }
       ],
       "explanation": {
         "en": "Echmiatsin and Zvartnots illustrate the development of a distinctive church type, combining a central dome with a cross-shaped hall. This architecture influenced the wider region.",
-        "nl": "Echmiatsin en Zvartnots tonen de ontwikkeling van een kerktype met een centrale koepel en een kruisvormige hal. Deze architectuur beïnvloedde de omliggende regio."
+        "nl": "Echmiatsin en Zvartnots tonen de ontwikkeling van een kerktype met een centrale koepel en een kruisvormige hal. Deze architectuur beïnvloedde de omliggende regio.",
+        "es": "Echmiatsin y Zvartnots ilustran un tipo de iglesia que combina una cúpula central y una sala en forma de cruz. Su arquitectura influyó en toda la región."
       },
       "source": {
         "title": "Cathedral and Churches of Echmiatsin and the Archaeological Site of Zvartnots",
@@ -903,16 +1014,19 @@
       "clues": [
         {
           "en": "Its volcanic Aïr Mountains form an ecological island in the Ténéré desert.",
-          "nl": "Het vulkanische Aïrgebergte vormt een ecologisch eiland in de Ténéréwoestijn."
+          "nl": "Het vulkanische Aïrgebergte vormt een ecologisch eiland in de Ténéréwoestijn.",
+          "es": "Sus montañas volcánicas de Aïr forman una isla ecológica en el desierto del Teneré."
         },
         {
           "en": "Sahel wildlife survives around its Aïr massif, surrounded by the Sahara.",
-          "nl": "Rond het Aïrmassief overleven Saheldieren, omringd door de Sahara."
+          "nl": "Rond het Aïrmassief overleven Saheldieren, omringd door de Sahara.",
+          "es": "La fauna del Sahel sobrevive junto a su macizo de Aïr, rodeado por el Sáhara."
         }
       ],
       "explanation": {
         "en": "The Aïr massif rises within the Ténéré desert. The mountains preserve habitats with Sahelian characteristics amid a much drier Saharan landscape.",
-        "nl": "Het Aïrmassief rijst op in de Ténéréwoestijn. De bergen bewaren leefgebieden met Sahelkenmerken midden in een veel droger Saharalandschap."
+        "nl": "Het Aïrmassief rijst op in de Ténéréwoestijn. De bergen bewaren leefgebieden met Sahelkenmerken midden in een veel droger Saharalandschap.",
+        "es": "El macizo de Aïr se eleva en el desierto del Teneré. Las montañas conservan hábitats de características sahelianas en un paisaje sahariano mucho más seco."
       },
       "source": {
         "title": "Aïr and Ténéré Natural Reserves",
@@ -927,16 +1041,19 @@
       "clues": [
         {
           "en": "Haeinsa Temple keeps Buddhist texts carved onto around 80,000 wooden blocks.",
-          "nl": "De Haeinsatempel bewaart boeddhistische teksten op ongeveer 80.000 houten blokken."
+          "nl": "De Haeinsatempel bewaart boeddhistische teksten op ongeveer 80.000 houten blokken.",
+          "es": "El templo de Haeinsa guarda textos budistas tallados en unos 80 000 bloques de madera."
         },
         {
           "en": "Its Haeinsa depositories were designed to preserve a medieval woodblock collection.",
-          "nl": "De bewaarplaatsen van Haeinsa zijn ontworpen om middeleeuwse houtblokken te beschermen."
+          "nl": "De bewaarplaatsen van Haeinsa zijn ontworpen om middeleeuwse houtblokken te beschermen.",
+          "es": "Sus depósitos de Haeinsa se diseñaron para conservar una colección medieval de xilografías."
         }
       ],
       "explanation": {
         "en": "The Tripitaka Koreana was carved in the thirteenth century. Purpose-built depositories at Haeinsa have helped preserve this enormous collection of wooden printing blocks.",
-        "nl": "De Tripitaka Koreana werd in de dertiende eeuw uitgehouwen. Speciaal ontworpen bewaarplaatsen in Haeinsa hielpen deze enorme verzameling houten drukblokken te bewaren."
+        "nl": "De Tripitaka Koreana werd in de dertiende eeuw uitgehouwen. Speciaal ontworpen bewaarplaatsen in Haeinsa hielpen deze enorme verzameling houten drukblokken te bewaren.",
+        "es": "La Tripitaka Koreana se talló en el siglo XIII. Los depósitos de Haeinsa, construidos para ello, han ayudado a conservar esta enorme colección de bloques de impresión de madera."
       },
       "source": {
         "title": "Haeinsa Temple Janggyeong Panjeon, the Depositories for the Tripitaka Koreana Woodblocks",
@@ -951,16 +1068,19 @@
       "clues": [
         {
           "en": "Its Gothic cathedral at Burgos was begun in the 13th century and took centuries to complete.",
-          "nl": "De gotische kathedraal van Burgos werd in de 13e eeuw begonnen en eeuwenlang uitgebreid."
+          "nl": "De gotische kathedraal van Burgos werd in de 13e eeuw begonnen en eeuwenlang uitgebreid.",
+          "es": "Su catedral gótica de Burgos empezó a construirse en el siglo XIII y tardó siglos en completarse."
         },
         {
           "en": "Burgos Cathedral brings together several centuries of Gothic architecture here.",
-          "nl": "De kathedraal van Burgos verenigt hier verschillende eeuwen gotische architectuur."
+          "nl": "De kathedraal van Burgos verenigt hier verschillende eeuwen gotische architectuur.",
+          "es": "La catedral de Burgos reúne varios siglos de arquitectura gótica."
         }
       ],
       "explanation": {
         "en": "Construction of Burgos Cathedral began in the thirteenth century. Later additions in the fifteenth and sixteenth centuries made it a record of changing Gothic styles.",
-        "nl": "De bouw van de kathedraal van Burgos begon in de dertiende eeuw. Toevoegingen in de vijftiende en zestiende eeuw laten veranderende gotische stijlen zien."
+        "nl": "De bouw van de kathedraal van Burgos begon in de dertiende eeuw. Toevoegingen in de vijftiende en zestiende eeuw laten veranderende gotische stijlen zien.",
+        "es": "La construcción de la catedral de Burgos comenzó en el siglo XIII. Las ampliaciones de los siglos XV y XVI la convirtieron en testimonio de la evolución del gótico."
       },
       "source": {
         "title": "Burgos Cathedral",

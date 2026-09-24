@@ -47,6 +47,7 @@ export type Room = {
     startAt: number;
     deadline: number;
     revealUntil: number;
+    answersCompleteAt?: number;
     matchId: string;
     answers: Record<string, {
         value: unknown;
@@ -59,6 +60,7 @@ export type Room = {
     events: string[];
 };
 export type Solo = {
+    competition?: import('../lib/daily-scoring').Competition;
     practice?: boolean;
     reviewOf?: string;
     cluesShown?: Record<number, number>;

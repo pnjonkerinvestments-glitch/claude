@@ -1,101 +1,75 @@
-# Game rules
+# Game rules — Roviko 1.11.0
 
-Questions come from deterministic templates over the licensed catalog. Seven regions, four difficulty choices and 5/10/15/20 rounds are supported. Easy favours familiar countries; hard favours less familiar countries where the regional pool allows. Distractors remain unique and plausible.
+These are the current rules. Documents for 1.9/v3 and earlier are historical. The requested daily competition replaces the earlier no-points policy **only for official daily games**.
 
-## Solo discoveries
+## Official daily competition
 
-All singleplayer modes, practice and the daily expedition are untimed. There is no question deadline, game-age cutoff, score, speed bonus or XP award. Correct-answer counts, accuracy, streaks and concepts to review are saved. Existing unfinished sessions also adopt these rules; old stored records are retained, but solo points are excluded from active rankings and point aggregates.
+Five games are published once per UTC date. Everyone receives the same frozen content for that edition. Each game is worth at most 1,000 points, with a combined maximum of 5,000 per day. There is no timer, time limit, speed bonus or XP. The first completed result for each player/date/mode is immutable. Reopening resumes the same game or shows the saved result; it never creates extra points.
 
-The current solo question carries its own solution for immediate on-click learning feedback. No future questions are sent. The browser submits only its answer; the server independently validates and records it. If a player presses Next while saving, that action waits for persistence. The same pure evaluator handles typed aliases, options, ordering and map distance on both sides.
+| Game | Rounds | Daily points |
+| --- | --- | --- |
+| World Trip | 5: flag, capital, map, border, area ordering | 200 per correct round; map credit is proportional to accuracy |
+| Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
+| Side by Side | 10 comparisons | Correct: 100; wrong: 0 |
+| Country Mosaic | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |
+| Rank Radar | 6 countries | `round(correctAnswers / 6 * 1000)`, rounded once for the total |
 
-## Multiplayer competition
+A player can always finish Mosaic and learn after a mistake; a solved forfeited group earns 0. The same named country must anchor a paid hint. Mistakes/hints do not remove points already earned for other solved countries. Shuffle, changing an unsubmitted selection and reordering countries cost nothing.
 
-Multiplayer retains 5/10/15/30-second or host-managed untimed rounds. A correct categorical or fully ordered answer earns 1,000 base points, up to 500 speed points and up to 250 streak points (50 per additional consecutive answer). Untimed multiplayer earns no speed bonus. Incorrect or late answers earn zero. All points and deadlines are server-authoritative; clients never receive solutions until reveal.
+After completion, each game shows its score and `#rank of participant count`. Only completed results count, including zero scores. Ties share a competition rank (`1 + number of strictly greater scores`). Homepage totals sum completed daily games; cumulative totals sum all dates. Rankings can move as others finish. The date is the game's starting UTC date, including when it is finished after midnight. Players with blocked accounts are excluded; non-discoverable names are masked.
 
-Multiplayer results award `round(score / 25) + 10 * rounds` XP. Level is `1 + floor(sqrt(XP / 100))`. Wins, points and XP leaderboards include multiplayer only. No knowledge advantage is purchasable.
+The new ledger begins with the 1.11 competitive edition. Previously played unranked games are preserved without retroactive points. Guests can compete using their saved browser session. Verified account linking transfers non-duplicate progress; an account's existing daily session/result remains canonical. Guests are not verified unique humans, and resetting an anonymous identity cannot be fully prevented.
 
-## Maps, typed answers and question selection
+## Practice and legacy editions
 
-New Pinpoint games accept the chosen country geometry, source islands and a disclosed 25 km boundary tolerance. Outside pins report distance to the nearest boundary. Solo gives no points. Multiplayer awards normal correctness points for accepted pins; misses earn at most 900 distance-based points, with no speed bonus. Legacy frozen sessions retain their original reference-coordinate rule of less than 700 km and display that rule before play.
+The six classic modes, fresh puzzle/rank practice, personal retries and the Mystery Country bonus warm-up are unranked, untimed and earn no daily points or XP. They retain correct-answer counts, accuracy, learning history, knowledge seals and sourced explanations. Immediate local feedback is allowed because these sessions never enter the points ledger. Daily competition waits for server confirmation and does not send solutions in advance.
 
-Typed capital matching ignores case, accents and punctuation, accepts configured aliases and allows one edit for responses of at least five characters. Short answers require an exact normalized match.
+Older native clients use their existing unranked daily edition. The website explicitly requests `competition:true`; a future native update must add the competitive result/hint/serialization handling before opting in. Native app compilation/signing is a separate release gate.
 
-Repeated targets are avoided where possible. Very small regional pools can revisit targets using distinct round IDs and varied distractors rather than inventing neighbours or failing.
+## Clue Trail
 
-## Daily and progress
+The order is (1) continent, (2) a land neighbour or lack of land borders, (3) capital, (4) flag. Four choices contain the target, one other country from its continent and two outside it. Answer options do not show flags. Capitals whose names disclose the country are excluded. One answer per country; more clues can be revealed before committing. Clue use survives reload and cannot be refunded. In daily competition only already revealed hints are delivered, and the flag asset is inaccessible before clue 4. Multiplayer shows all four clues and uses its match scoring.
 
-The UTC date seeds five shared rounds: flags, capitals, map, borders and order. The first result of each daily game is retained per user/date/kind; completing any daily game counts toward one daily streak entry for that UTC date. Daily results show discoveries, accuracy and streak, with an answer-free share summary. There is no daily points leaderboard or percentile competition. Guest identities are not a strong identity boundary.
+## Maps, capitals, ordering and borders
 
-Thirty achievements track games, knowledge, streaks and multiplayer milestones. Practice prioritizes previously missed country/concept pairs. XP achievements require multiplayer XP.
+Pinpoint accepts the chosen country's source geometry/islands with a declared 25 km touch/simplification tolerance. An outside pin reports distance to the nearest country boundary. Raw map accuracy is 1,000 for a correct pin, otherwise `round(900 * exp(-boundaryDistanceKm / 1600))`; invalid/missing pins get 0. In World Trip, the round earns `round(rawAccuracy / 5)`, capped at 200. A nearer miss never earns less than a farther miss. Neighbour/continent labels explain proximity without inconsistent fixed bonuses. Practice displays distance and correctness, not points. Legacy reference-point games retain their original frozen rules.
 
+The map supports two-finger zoom, pan, buttons, wheel input and keyboard interaction. A pinch/pan does not accidentally submit a pin. Pin placement is confirmed before answering.
+
+Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
+
+Size Shuffle orders four countries by total area. Dragging or accessible move buttons only change the draft; **Confirm order** submits it. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A daily ordering round is all-or-nothing (200/0).
 
 ## Side by Side
 
-Ten pairs of countries share one comparison subject. Choose the country with the greater value (or the more northerly latitude). Both figures and the metric definition appear immediately. All ten comparisons can be reviewed after completion. No lives, timer, points, XP or competitive ranking apply.
+Choose the greater figure (or more northerly latitude). The left country moves right on the next round regardless of which answer was chosen; a fresh country arrives left, and the old right country retires. Source years, units and values are explained after submission. Practice may show the already learned carried value; daily answers still require server validation.
 
-The daily subject rotates through 14 topics using a deterministic shuffled 14-day cycle anchored in UTC. The UTC date seeds the ten questions; practice accepts any of the 14 subjects and uses a fresh session seed. Statistical observations are pinned to 2023. Stable catalog comparisons state that they use a source snapshot. Missing values and exact/display-rounded ties are excluded. No future pairs are sent during the game.
+Fourteen topics rotate on a deterministic UTC cycle. WDI observations use the pinned 2023 snapshot. Missing observations, exact ties and display-rounded ties are excluded. All comparisons can be reviewed after finishing. Automatic advance is optional, only follows correct answers and imposes no deadline.
 
 ## Country Mosaic
 
-Four countries each contribute a flag, a name and a silhouette. Four-clue games add a fact; five-clue games also add the country’s capital(s). That produces 12, 16 or 20 shuffled tiles. A correct set contains exactly the chosen number of distinct tiles belonging to one country. Solved tiles leave the board and reveal the country. Facts are chosen to be distinct among the four board countries; shared languages or currencies cannot create an ambiguous set.
+The daily board contains 16 tiles: four flags, four names, four silhouettes and four numerical facts. Practice allows 3/4/5 clue types (12/16/20 tiles); the fifth type is capital. Select one of each type for one country. Selecting another clue of the same type replaces its slot. Solved tiles stay in their positions. Country shapes are simplified north-up main landmasses.
 
-There is no mistake limit. An incorrect set stays selected so individual tiles can be swapped. A set with all but one tile belonging together receives a gentle near-match hint. Shuffle changes only visual order. The optional hint selects two correct tiles from an unsolved country. All four solved sets finish the game, after which the full country/clue combinations can be reviewed. Accuracy reflects successful sets divided by submitted sets; hints carry no points or penalties because this is unranked learning.
+The name is the feedback anchor. Incorrect clues are red with cross icons and “Does not match”; matching clues are green. Competitive feedback does not disclose the wrong tile's other country while its group remains unsolved. Practice can show that extra explanation. Changing the selection clears the prior verdict. Solving a group reveals its sourced fact explanation; finishing reveals all groups.
 
-The daily board has four clue types and is identical for the UTC date. Practice allows three, four or five. Country shapes are north-up simplified main landmasses, not exhaustive sovereignty claims. Current board solutions are available to the browser for immediate feedback, but every submitted set and result is validated independently on the server. Repeated/unknown tiles and attempts to reuse solved tiles are rejected. Server revision checks prevent duplicate submissions. Saved daily sessions resume even after their original UTC date ends.
+One dated numerical observation is selected per country each UTC day. Subjects include highest point, mean elevation, coastline, median age, area and WDI indicators. Units, source years and estimate labels are explicit. Missing data are never invented, and equal displayed clues are avoided within a board. A practice board keeps its creation date; a daily board keeps its published date. The earlier clue-only compatibility projection into `metrics-v2` preserves tile IDs, country matches, solved sets and version/history; old raw snapshots remain auditable.
 
+## Rank Radar
 
-### Side by Side, rolling comparisons (1.3)
-A fresh country appears on the left, then becomes the right baseline next round, regardless of the selected answer. The previous right baseline retires. Values reveal immediately; the carried value stays visible. Automatic continuation can be disabled and never imposes a deadline. Resumed legacy sessions retain their answered history and regenerate only the remaining comparisons.
+Six distinct countries, four subject choices each and six different winning subjects. Choose the subject where the country has the strongest relative position among countries with observations. Fifteen subjects: population, forest share, area, life expectancy, urban share, GDP/person, internet use, fertility, agricultural land share, GDP, exports/GDP, highest point, mean elevation, coastline and median age.
 
-### Mosaic selection (1.3)
-Select one clue per category. Selecting another clue of the same category replaces the existing selection, even when all slots are filled. Solved clues stay in place. Hints progressively complete a single group. No lives, timer, or points.
+Higher numerical values rank first. Ties share a rank. Relative position is `(rank-1)/(coverage-1)`; displayed top percentage is `ceil(rank/coverage*100)`. Missing observations do not become zero. Questions require at least eight percentage points' separation from the winner plus a strictly better absolute rank, avoiding contradictory-looking results with unequal coverage. WDI figures use 2023; median ages use the 2025 estimate; archived geographic figures declare their source limitations. Numeric rank does not express a country's worth.
 
+A selection remains editable until **Confirm choice**. Daily rank/metric solutions stay on the server until submission. Feedback shows all four values/ranks, with the wrong choice red and correct choice green, supported by text and icons. The final recap preserves definitions, coverage and source years.
 
-### Error explanations (1.4)
-Mosaic uses the selected country-name tile as the feedback anchor. After checking a mixed set, each selected clue from another country is marked red and labelled with its actual country. Matching clues are green. Changing the selection clears the prior verdict. Side by Side continues automatically only after a correct answer; a wrong answer remains visible until Next. Ordered-country answers show each misplaced row in red with its correct rank, followed by the correct ordering.
+## Multiplayer
 
-## 1.5 rules
+The host chooses 5/10/15/20 questions, region, difficulty, timer and included mixed-mode categories. All six are enabled by default and at least one must remain. Timers are 5/10/15/30 seconds or untimed. When every currently active player has answered, reveal is scheduled for one second after the last answer; an earlier deadline still closes the round. A returning unanswered player cancels a premature early reveal.
 
-Clue Trail saves revealed clues (region, neighbour/isolation, flag, capital). One guess per question; clue count has no score penalty in untimed solo play. Multiplayer shows all clues. Historical 1.5 Mosaic facts used subregions; the current numeric edition is specified below. Side by Side excludes ties and displayed rounding ties and preserves its local auto-next preference. Daily snapshots and completed results are immutable across deployments. See `docs/RELEASE_1_5.md` for merging, editorial exclusions and practice rules.
+Correct answers earn 1,000 base + up to 500 speed + up to 250 streak points (50 per extra consecutive correct answer). Untimed rooms have no speed bonus. Incorrect categorical/ordering answers earn 0. Incorrect map pins use the raw distance curve; correct pins retain normal match bonuses. Server timestamps, answer locks and scores are authoritative. Clients cannot submit points or see other choices before reveal.
 
+Match XP is `round(score/25)+10*rounds`; level is `1+floor(sqrt(XP/100))`. These multiplayer scores/XP/wins have their own leaderboards and never enter daily or cumulative daily-game totals. No paid knowledge advantage exists.
 
-## Follow-up practice and passport (1.6)
+## Learning and saved progress
 
-A finished game offers one optional next step. Personal retries contain at most five missed knowledge points, have no timer or points and cannot alter the official daily result. Targeted comparison retries revisit selected missed pairs without the normal carry-forward chain. Other companion rounds contain five questions. Repeating a follow-up request resumes that same follow-up.
-
-A country stamp requires one recorded correct answer. A knowledge seal requires correct answers in the same mode in three distinct sessions. A region stamp requires five different discovered countries. Awards are derived from immutable answer records and are not lost through inactivity. Reloading cannot multiply awards.
-
-### Mosaic fact edition (1.7)
-New standard 4/5-clue boards use curated, bilingual facts about 40 countries, with two fact variants selected deterministically per country and seed. At least two countries share a continent when an eligible companion exists. No universal one-country-per-region rule remains. Solving a group unlocks a sourced learning explanation; it is never required to proceed. Three-clue boards contain flags, names and outlines only. Legacy targeted practice may use a country-catalogue area/border clue outside the curated pool. Published daily snapshots and existing sessions retain their original content.
-
-
-### Mosaic numerical fact edition (1.8)
-
-Four/five-clue boards now use one numerical observation per country, selected from the country's available subjects by UTC date. The 15 subject categories include highest point, average terrain elevation, coastline, median age, area and the ten existing WDI indicators. Reference years and estimate labels remain visible; definitions and source links are revealed after matching. Missing data are not filled with guesses. Equally displayed clues are avoided within a board. A practice board keeps its creation date; an official daily keeps its UTC date.
-
-**Clue-only compatibility upgrade:** a saved board lacking `factEdition: metrics-v2` is projected into the new numerical presentation on the server. Tile IDs, country IDs, tile order, solved groups, answer history, session date and optimistic concurrency version remain unchanged. No saved answer is rescored. This deliberate exception fixes old “Find me in” hints that otherwise persisted after content updates. Other daily questions and scoring remain frozen. The old raw snapshot is retained for audit; existing results stay valid.
-
-The interface adds an explicit clue-type checklist, structured number cards and a dated freshness line. Wrong selected clues retain the existing red outline, cross icon and actual-country explanation. No timer or point system has been reintroduced for solo play.
-
-
-## Rank Radar (1.9)
-
-Each daily contains six distinct countries, four subjects per country and six different winning subjects. The user chooses the subject where the country has the strongest relative position. Subject pool: population, forest percentage, total area, life expectancy, urban percentage, GDP/person, internet use, fertility, agricultural land percentage, total GDP, exports/GDP, highest point, mean elevation, coastline and median age.
-
-Higher numeric values rank first. Competition ranks are `1 + count(values strictly greater)`, so ties share a place. Comparison position is `(rank - 1) / (coverage - 1)`, lower being closer to the top; displayed “top %” is `ceil(rank / coverage * 100)`. Missing observations never become zero. Coverage is restricted to the existing 195-country catalogue and actual observations, and is displayed for every option. Questions require at least an eight-percentage-point separation from the winning option, as well as a strictly lower absolute rank, avoiding contradictory-looking answers across unequal coverage. Winner categories vary within a set, and politically sensitive question targets follow the central policy. Numeric ranking expresses no judgment about a country's worth.
-
-Each World Bank indicator uses only the 2023 snapshot. Median ages all use the 2025 estimate. Geographic records without a stated source year say so. The archived status and full source links remain visible. Source corrections, such as Germany's mountain height, keep their own attribution.
-
-The server generates and freezes a set once per UTC day. A player resumes their first daily session; practice uses a new seed. Only the current question is sent before completion; its solution is included for instant unranked feedback, as in the other learning games. After a choice, all four values and ranks are shown. An incorrect choice is specifically marked red with a cross; the strongest subject is green with a check. Both ranks are explained in words. The final recap is available only after all six reveals. Shares contain a result trail, never country/subject answers.
-
-Graded feedback (round 5): every choice earns a medal for its place among the four subjects of that country: 🥇 best, 🥈 second, 🥉 third, ⚪ weakest. Place is `1 + count(options with a strictly better comparison position)`, so ties share a medal. The medal trail, result summary (`n× best · n× 2nd · n× 3rd`) and share text (`🥇🥈…`) use these places; a share never contains countries or subjects. `GET /api/ranks/:id` returns `places` for answered rounds so medals survive a reload. "Correct" still means the best choice; medals add nuance, not points.
-
-Server validation, session ownership, optimistic version checks and immutable answer rows protect the record. A lost response triggers state reconciliation, not an automatic repeated guess. No timer, points, XP or competitive leaderboard is attached. Completed games contribute to personal accuracy, stamps and daily attendance. The native SwiftUI client uses the same `/api/ranks` contract.
-
-## World Duel (Wereldduel)
-
-The player holds five country cards. Each of five rounds shows one subject from the Rank Radar pool and one country played by Roviko; the player picks an unused card from their hand, and the higher value wins the duel. Each card is played once. Boards are generated deterministically per seed (`roviko:duel:v1:<UTC date>` for the daily, a random nonce for practice) from the same sourced observations as Rank Radar. The generator only accepts boards where every card–round pairing differs by at least 12%, exactly one assignment wins all five rounds, and at least three rounds can be won by more than one card. After every play both values, world ranks, the subject explanation, source and reference year are shown; a lost round names the card that would have won it. The result screen shows the unique perfect route. No timer, points or XP. Progress is kept per board in the browser; results are not yet stored on the server or counted toward streaks and stamps.
-
-## How to play (uitleg)
-
-Every game mode has a three-step explanation with one tip, in English and Dutch (`lib/how-to-play.ts`). It opens automatically the first time a player starts that game (once per game, remembered in the browser), except in mixed practice and multiplayer rooms, where it would interrupt play. A "?" button in every game header reopens it. `/how-to-play` lists all modes, grouped as daily games, extras, classic games and rooms, with a button to start each one. While the explanation is open, the game's number-key shortcuts are ignored.
+Completing at least one daily game on a UTC date adds one daily streak entry. Thirty achievements cover learning and multiplayer milestones. Personal retries revisit up to five misses without altering the official result. A passport stamp requires one correct country answer; a knowledge seal requires correct answers in a concept across three distinct sessions. Reloading cannot multiply awards. Shared daily snapshots and scored answers are not regenerated after a deployment.

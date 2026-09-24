@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
 
 type T = (key: string) => string;
-type Loc = 'en' | 'nl';
+type Loc = 'en' | 'nl' | 'es';
 const seenKey = (mode: string) => 'roviko:howto:' + mode;
 function hasSeen(mode: string) { try { return localStorage.getItem(seenKey(mode)) === '1'; } catch { return true; } }
 function markSeen(mode: string) { try { localStorage.setItem(seenKey(mode), '1'); } catch { /* the guide simply shows again next time */ } }

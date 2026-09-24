@@ -5,21 +5,23 @@ const BorderMap = lazy(() => import('./BorderMap'));
 const WorldMap = lazy(() => import('./WorldMap'));
 export function Question({ question: q, feedback, locked, onAnswer, t, locale, onReport, busy, competitive = true, onHint }: {
     question: any; feedback: any; locked: boolean; onAnswer: (answer: any) => void;
-    t: (k: string) => string; locale: 'en' | 'nl'; onReport: () => void; busy?: boolean; competitive?: boolean; onHint?: (count: number) => void;
+    t: (k: string) => string; locale: 'en' | 'nl' | 'es'; onReport: () => void; busy?: boolean; competitive?: boolean; onHint?: (count: number) => void | Promise<any>;
 }) {
     const [cluesShown, setCluesShown] = useState(q?.cluesShown ?? 1);
+    const [hintPending,setHintPending]=useState(false);
+    useEffect(()=>{if(q?.dailyPoints)setCluesShown(q.cluesShown??1);},[q?.cluesShown,q?.id]);
     const [answer, setAnswer] = useState<any>(null);
     const [order, setOrder] = useState<any[]>(q?.options ?? []);
     const [drag, setDrag] = useState<number | null>(null);
     useEffect(() => { setAnswer(null); setOrder(q?.options ?? []); setCluesShown(q?.cluesShown ?? 1); }, [q?.id]);
     useEffect(() => {
-        if (!q || locked || q.typed || ['pinpoint', 'order'].includes(q.mode)) return;
+        if (!q || locked || busy || hintPending || q.typed || ['pinpoint', 'order'].includes(q.mode)) return;
         const handler = (e: KeyboardEvent) => {
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes((e.target as HTMLElement).tagName) || document.querySelector('[role=dialog]')) return;
             const n = Number(e.key); if (n >= 1 && n <= q.options.length) { setAnswer(q.options[n - 1].id); onAnswer(q.options[n - 1].id); }
         };
         window.addEventListener('keydown', handler); return () => window.removeEventListener('keydown', handler);
-    }, [q, locked, onAnswer]);
+    }, [q, locked, busy, hintPending, onAnswer]);
     if (!q) return null;
     const chosen = feedback?.value ?? answer;
     const shownOrder = feedback && Array.isArray(chosen) ? chosen.map((id: string) => q.options.find((o: any) => o.id === id)).filter(Boolean) : order;
@@ -30,13 +32,13 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         if (to < 0 || to >= order.length || locked) return;
         setOrder(prev => { const a = [...prev]; a.splice(to, 0, a.splice(from, 1)[0]); return a; });
     };
-    const submit = (value: any) => { if (locked || busy) return; setAnswer(value); onAnswer(value); };
-    const countryLabel = (o: any) => <span className="option-country">{o.flag && (q.mode !== 'flags' || feedback) && <img src={o.flag} alt=""/>}<span>{o[locale]}</span></span>;
+    const submit = (value: any) => { if (locked || busy || hintPending) return; setAnswer(value); onAnswer(value); };
+    const countryLabel = (o: any) => <span className="option-country">{o.flag && q.mode!=='trail' && (q.mode!=='flags' || feedback) && <img src={o.flag} alt=""/>}<span>{o[locale]}</span></span>;
     return <div className="question-content">
         <div className="question-heading"><span className="eyebrow">{t(q.mode + 'Hint')}</span><h1>{q.prompt[locale]}</h1>{q.country && <span className="question-country"><img src={q.country.flag} alt=""/>{q.country[locale]}</span>}</div>
-        {q.clues && <section className="trail-clues" aria-label={t('trailClues')}><p>{t(competitive ? 'trailMultiplayerRule' : 'trailRule')}</p><ol>{q.clues.slice(0, competitive || feedback ? 4 : cluesShown).map((clue: any, i: number) => <li key={i}><span>{i+1}</span>{clue[locale]}</li>)}</ol>{!competitive && !locked && cluesShown < q.clues.length && <button className="btn secondary" onClick={() => { const n = cluesShown + 1; setCluesShown(n); onHint?.(n); }}>{t('trailNextClue')} · {cluesShown}/{q.clues.length}</button>}{feedback && <small>{t('trailUsed').replace('{n}', String(feedback.cluesUsed ?? cluesShown))}</small>}</section>}
-        {q.mode === 'pinpoint' && <p className="map-rule">{t(q.mapRule === 'country-v1' ? 'mapCountryRule' : 'mapLegacyRule')}</p>}
-        {q.flag && (q.mode !== 'trail' || competitive || feedback || cluesShown >= 3) && <div className="flag-stage"><img src={'/api/flag/' + encodeURIComponent(q.flag)} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
+        {q.clues && <section className="trail-clues" aria-label={t('trailClues')}><p>{t(competitive ? 'trailMultiplayerRule' : q.dailyPoints?'competitionTrail':'trailRule')}</p><ol>{q.clues.slice(0, competitive || feedback ? 4 : cluesShown).map((clue: any, i: number) => <li key={i}><span>{i+1}</span>{clue[locale]}</li>)}</ol>{!competitive && !locked && cluesShown < (q.clueCount??q.clues.length) && <button className="btn secondary" disabled={hintPending||busy} onClick={async () => { const n = cluesShown + 1; if(!q.dailyPoints)setCluesShown(n); setHintPending(true); try{await onHint?.(n);}finally{setHintPending(false);} }}>{t('trailNextClue')} · {cluesShown}/{q.clueCount??q.clues.length}</button>}{!feedback && q.dailyPoints && <strong className="trail-available">{t('competitionAvailable').replace('{n}',String(q.availablePoints))}</strong>}{feedback && <small>{t('trailUsed').replace('{n}', String(feedback.cluesUsed ?? cluesShown))}</small>}</section>}
+        {q.mode === 'pinpoint' && <p className="map-rule">{t(q.mapRule === 'country-v1' ? 'mapCountryRule' : 'mapLegacyRule')} {q.dailyPoints?t('competitionDaily'):competitive?t('mapPointsRule'):null}</p>}
+        {q.flag && (q.mode !== 'trail' || competitive || feedback || cluesShown >= 4) && <div className="flag-stage"><img src={q.flagUrl??('/api/flag/' + encodeURIComponent(q.flag))} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
         {q.mode === 'pinpoint' ? <>
             <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct}/></Suspense>
             {!locked && <><p className="question-help">{t('mapHint')}</p><button className="btn primary answer-submit" disabled={!answer || busy} onClick={() => submit(answer)}><Navigation size={17}/>{t('lockAnswer')}</button></>}
@@ -50,23 +52,24 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
                     {feedback ? <span className={'order-verdict ' + (right ? 'right' : 'wrong')}>{right ? <Check size={18}/> : <X size={18}/>}<span>{right ? t('rightPlace') : t('correctPlace').replace('{n}', String(place))}</span></span> : <div className="order-controls"><button className="icon-btn" aria-label={t('moveUp') + ' ' + o[locale]} disabled={locked || i === 0} onClick={() => move(i, i - 1)}><ArrowUp size={18}/></button><button className="icon-btn" aria-label={t('moveDown') + ' ' + o[locale]} disabled={locked || i === order.length - 1} onClick={() => move(i, i + 1)}><ArrowDown size={18}/></button></div>}
                 </div>;
             })}</div>
-            {!locked && <button className="btn primary answer-submit" disabled={busy} onClick={() => submit(order.map(o => o.id))}>{t('lockAnswer')}<Check size={18}/></button>}
+            {!locked && <button className="btn primary answer-submit" disabled={busy} onClick={() => submit(order.map(o => o.id))}>{t('confirmOrder')}<Check size={18}/></button>}
         </> : q.typed ? <form className="typed-form" onSubmit={e => { e.preventDefault(); submit(answer); }}>
             <label className="sr-only" htmlFor="capital-answer">{t('capital')}</label><input id="capital-answer" className={'text-input' + (feedback ? feedback.correct ? ' input-correct' : ' input-wrong' : '')} aria-invalid={feedback ? !feedback.correct : undefined} aria-describedby={feedback ? 'answer-explanation' : undefined} placeholder={t('capitalPlaceholder')} autoComplete="off" autoFocus disabled={locked} value={chosen ?? ''} onChange={e => setAnswer(e.target.value)} maxLength={100}/>{!locked && <button className="btn primary" disabled={!answer || busy}>{t('lockAnswer')}</button>}
         </form> : <div className="answer-grid">{q.options.map((o: any, i: number) => {
             const right = feedback?.correctAnswer === o.id, picked = chosen === o.id;
-            return <button className={'answer-option ' + (feedback ? right ? 'is-correct ' : picked ? 'is-wrong ' : '' : '') + (picked ? 'is-selected' : '')} key={o.id} onClick={() => submit(o.id)} disabled={locked || busy}>
+            return <button className={'answer-option ' + (feedback ? right ? 'is-correct ' : picked ? 'is-wrong ' : '' : '') + (picked ? 'is-selected' : '')} key={o.id} onClick={() => submit(o.id)} disabled={locked || busy || hintPending}>
                 <span className="answer-key">{right ? <Check size={17}/> : feedback && picked ? <X size={17}/> : i + 1}</span>{countryLabel(o)}
                 {picked && !feedback && <LockKeyhole className="answer-lock" size={15}/>}{feedback && (picked || right) && <span className="answer-status">{t(right ? 'correctAnswerLabel' : 'yourAnswer')}</span>}
             </button>;
         })}</div>}
         {locked && !feedback && <div className="locked-note" role="status"><LockKeyhole size={17}/>{t(busy ? 'answerSending' : 'answerLocked')}</div>}
         {feedback && <div id="answer-explanation" className={'answer-feedback ' + (feedback.correct ? 'good' : 'bad')} role="status">
-            <div className="feedback-heading">{feedback.correct ? <span aria-hidden="true">🎉</span> : <X size={22}/>}<strong>{t(feedback.correct ? 'correct' : 'incorrect')}</strong>{competitive && <span>+{feedback.points.toLocaleString()} {t('points')}</span>}</div>
+            <div className="feedback-heading">{feedback.correct ? <span aria-hidden="true">🎉</span> : <X size={22}/>}<strong>{t(feedback.correct ? 'correct' : 'incorrect')}</strong>{(competitive || q.dailyPoints) && <span>+{(feedback.points??0).toLocaleString(locale)} {t('points')}</span>}</div>
             {q.mode === 'order' ? <><p>{feedback.correct ? t('orderAllRight') : t('orderWrongCount').replace('{n}', String(misplaced))}</p><strong className="correction-label">{t('correctOrder')}</strong><ol className="correct-order">{correctOrder.map((id: string) => { const o = q.options.find((o: any) => o.id === id); return o ? <li key={id}>{countryLabel(o)}</li> : null; })}</ol></> : <>
                 {!feedback.correct && pickedLabel && <p className="your-answer-copy">{t('yourAnswer')}: <strong>{pickedLabel}</strong></p>}
                 <small className="correction-label">{t('correctAnswerLabel')}</small><p className="correct-answer">{feedback.answerLabel[locale]}</p>
             </>}
+            {q.mode === 'pinpoint' && <p>{t(feedback.mapRelation ?? (feedback.correct ? 'mapExact' : 'mapDistanceCredit'))}</p>}
             {typeof feedback.distance === 'number' && <p>{t(feedback.mapRule === 'country-v1' ? 'mapBoundaryDistance' : 'mapDistanceExplanation').replace('{n}', feedback.distance.toLocaleString(locale))}</p>}
             <p className="fact">{feedback.fact[locale]}</p>
         </div>}

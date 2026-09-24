@@ -1,3 +1,4 @@
+import { competitionSummary } from './competition';
 import { startRank, rankAction } from './ranks';
 import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
@@ -13,13 +14,13 @@ import { startSolo, soloAction, recordSolo } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket } from './multiplayer';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
-import { BRAND, DEFAULT_SETTINGS, REGIONS } from '../lib/config';
+import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
 // Duel boards are deterministic per seed; generating one takes up to ~1s, so keep recent ones in memory.
 const duelCache = new Map<string, DuelBoard>();
 function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) { board = generateDuel(seed); if (duelCache.size > 64) duelCache.clear(); duelCache.set(seed, board); } return board; }
-const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania']), typed: z.boolean().optional() });
-const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: v?.mode === 'daily' ? 'mixed' : v?.mode ?? 'mixed' });
+const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
+const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: ['daily','daily-trail'].includes(v?.mode) ? 'mixed' : v?.mode ?? 'mixed' });
 function json(data: any, status = 200, headers: Record<string, string> = {}) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } }); }
 async function body(req: Request) { if (Number(req.headers.get('Content-Length') ?? 0) > 8192)
     throw new AppError('REQUEST_TOO_LARGE', 413); const raw = await req.text(); if (raw.length > 8192)
@@ -115,8 +116,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             const b = z.object({ event: z.enum(['shared_result_opened','room_connection_failed','room_reconnected','answer_save_failed']), mode: z.enum(['daily','compare','mosaic','rank','flags','capitals','trail','pinpoint','borders','order','mixed','multiplayer']), context: z.string().max(100).default('') }).parse(await body(req));
             await limit(env, 'metrics:' + user.id, 20); await measure(req, env, user, b.event, b.mode, new Date().toISOString().slice(0,10) + ':' + b.context); return json({ ok:true });
         }
+        if(path[0]==='competition' && method==='GET') return json(await competitionSummary(env,user,url.searchParams.get('date')??new Date().toISOString().slice(0,10),url.searchParams.get('mode')??undefined));
         if (path[0] === 'export') {
-            const data = { profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
+            const data = { dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
             return json(data, 200, { 'Content-Disposition': 'attachment; filename="roviko-account.json"' });
         }
         if (path[0] === 'ranks') {
@@ -132,7 +134,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             throw new AppError('METHOD_NOT_ALLOWED',405);
         }
         if (path[0] === 'puzzles') {
-            if (method === 'GET' && path[1] === 'today') return json(await puzzleToday(env, user));
+            if (method === 'GET' && path[1] === 'today') return json(await puzzleToday(env, user, url.searchParams.get('competition')==='1'));
             if (method === 'POST' && !path[1]) {
                 await limit(env, 'puzzles:' + user.id, 30);
                 const game = await startPuzzle(env, user, await body(req)); await measureStart(req, env, user, game.mode, game.id); return json(game);
@@ -148,12 +150,22 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             const game = await startSolo(env, user, { ...DEFAULT_SETTINGS, mode: review.mode, timer:0, count:5 }, false, review.country_id);
             return json({ href: '/game/' + game.id });
         }
+        if(path[0]==='game-asset' && method==='GET') {
+            const row=await one(env,'SELECT state FROM game_sessions WHERE id=? AND user_id=?',path[1],user.id);
+            if(!row) throw new AppError('NOT_FOUND',404);
+            const s=JSON.parse(row.state); let flag:string|undefined;
+            if(s.board) { const tile=s.board.tiles.find((t:any)=>t.id===decodeURIComponent(path[2]??'')&&t.kind==='flag'); flag=tile?.image; }
+            else { const round=Number(path[2]),q=s.questions[round]; if(!Number.isInteger(round)||round<0||round>s.round||!q?.flag||(q.mode==='trail'&&(s.cluesShown?.[round]??1)<4&&round===s.round&&s.phase==='question'))throw new AppError('NOT_FOUND',404); flag=COUNTRIES.find(c=>c.iso2===q.flag)?.flag; }
+            if(!flag) throw new AppError('NOT_FOUND',404);
+            const request=new Request(new URL(flag,req.url)); const asset=env.ASSETS?await env.ASSETS.fetch(request):await fetch(request);
+            return new Response(asset.body,{status:asset.status,headers:{'Content-Type':'image/svg+xml','Cache-Control':'private,no-store','X-Content-Type-Options':'nosniff'}});
+        }
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {
                 await limit(env, 'games:' + user.id, 30);
                 const b = await body(req);
                 const settings = settingsSchema.parse({ ...DEFAULT_SETTINGS, ...b.settings });
-                const game = await startSolo(env, user, settings, !!b.practice); await measureStart(req, env, user, game.settings.mode, game.id); return json(game);
+                const game = await startSolo(env, user, settings, !!b.practice, undefined, b.competition===true); await measureStart(req, env, user, game.settings.mode, game.id); return json(game);
             }
             if (path[1]) {
                 const result = await soloAction(env, user, path[1], method === 'GET' ? 'get' : path[2], method === 'GET' ? {} : await body(req));

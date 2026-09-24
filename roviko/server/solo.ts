@@ -1,7 +1,9 @@
+import { dailyScore, dailyRoundPoints, COMPETITION_SUFFIX } from '../lib/daily-scoring';
+import { recordCompetition } from './competition';
 import { validAnswer } from '../lib/game-engine/validate-answer';
 import { reviewSession } from './reviews';
 import { dailyContent } from './daily-content';
-import { prepareGeography } from './geography';
+import { prepareGeography, enrichMapFeedback } from './geography';
 import { one, rows, run, batch } from './db';
 import { AppError } from './auth';
 import { generateQuestions, publicQuestion, type Settings } from '../lib/game-engine/questions';
@@ -9,40 +11,53 @@ import { learningSolution, evaluateLearning } from '../lib/game-engine/learning'
 import { resultStatement } from './stats';
 import type { Solo, Env, User } from './types';
 function learningState(s: Solo): Solo {
+    if (s.competition) return {...s, score:dailyScore(s)};
     return { ...s, settings: { ...s.settings, timer: 0 }, score: 0, xp: 0, personalBest: 0, answers: s.answers.map(a => ({ ...a, points: 0, risk: 0 })) };
 }
 export function soloView(stored: Solo) {
     const s = learningState(stored), q = s.questions[s.round];
-    return { id: s.id, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, score: 0, streak: s.streak, bestStreak: s.bestStreak, question: s.phase === 'finished' ? null : { ...publicQuestion(q), cluesShown: s.cluesShown?.[s.round] ?? 1, solution: learningSolution(q) }, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
+    const cluesShown = s.cluesShown?.[s.round] ?? 1;
+    const question: any = s.phase === 'finished' ? null : { ...publicQuestion(q,s.phase === 'reveal'), cluesShown, solution: learningSolution(q) };
+    if(question && q.flag && (s.competition || /^[a-z]+:[0-9a-f-]{36}$/.test(q.id))) question.flagUrl='/api/game-asset/'+s.id+'/'+s.round;
+    if (question && s.competition) {
+        delete question.solution;
+        question.dailyPoints = true;
+        if (q.clues) { question.clueCount = q.clues.length; question.clues = q.clues.slice(0,s.phase === 'reveal' ? 4 : cluesShown); question.availablePoints = dailyRoundPoints('trail',{correct:true,cluesUsed:cluesShown}); }
+        if (q.flag) { question.flag = 'private'; question.flagUrl = '/api/game-asset/' + s.id + '/' + s.round; }
+    }
+    return { id: s.id, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, competition:s.competition, score:s.score, streak: s.streak, bestStreak: s.bestStreak, question, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
 }
-export async function startSolo(env: Env, user: User, settings: Settings, practice = false, focus?: string) {
+export async function startSolo(env: Env, user: User, settings: Settings, practice = false, focus?: string, competition = false) {
     settings = { ...settings, timer: 0 };
-    const daily = settings.mode === 'daily' ? new Date().toISOString().slice(0, 10) : null;
+    const trail = settings.mode === 'daily-trail';
+    const daily = settings.mode === 'daily' || trail ? new Date().toISOString().slice(0, 10) : null;
+    const ranked = !!daily && competition;
+    const kind = (trail ? 'daily-trail' : settings.mode) + (ranked ? COMPETITION_SUFFIX : '');
     if (daily) {
-        settings = { mode: 'daily', count: 5, timer: 0, difficulty: 'medium', region: 'World' };
-        const existing = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind='daily' ORDER BY created_at DESC LIMIT 1", user.id, daily);
+        settings = { mode: trail ? 'trail' : 'daily', count: 5, timer: 0, difficulty: 'medium', region: 'World' };
+        const existing = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=? ORDER BY created_at DESC LIMIT 1", user.id, daily, kind);
         if (existing)
             return soloView(JSON.parse(existing.state));
     }
     const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
     const weak = practice ? (await rows(env, 'SELECT country_id FROM concept_performance WHERE user_id=? AND correct<attempts ORDER BY (1.0*correct/attempts) LIMIT 20', user.id)).map((x: any) => x.country_id) : [];
     const id = crypto.randomUUID();
-    const content = daily ? await dailyContent(env, daily, 'daily', seed => ({ questions: prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled)), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled)), settings, datasetVersion: undefined };
+    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled)).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled)), settings, datasetVersion: undefined };
     if (content.questions.some((q:any) => disabled.includes(q.id))) throw new AppError('QUESTION_UNAVAILABLE',503);
-    const s: Solo = { id, datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
-    const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, settings.mode, daily, JSON.stringify(s), Date.now());
+    const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
+    const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
     if (!inserted.meta.changes && daily) {
-        const saved = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind='daily'", user.id, daily);
+        const saved = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=?", user.id, daily, kind);
         return soloView(JSON.parse(saved.state));
     }
     return soloView(s);
 }
 export async function soloAction(env: Env, user: User, id: string, action: string, body: any) {
     const row = await one(env, 'SELECT * FROM game_sessions WHERE id=? AND user_id=?', id, user.id);
-    if (!row || row.kind.startsWith('puzzle:') || row.kind === 'rank')
+    if (!row || row.kind.startsWith('puzzle:') || row.kind.startsWith('rank'))
         throw new AppError('GAME_NOT_FOUND', 404);
     const s: Solo = learningState(JSON.parse(row.state));
-    if (action === 'get') { await reviewSession(env, user, s, row.created_at); return soloView(s); }
+    if (action === 'get') { await reviewSession(env, user, s, row.created_at); if(s.phase==='finished') await recordSolo(env,user,s); return soloView(s); }
     if (action === 'hint') {
         if (s.phase !== 'question' || body.round !== s.round || !s.questions[s.round].clues || !Number.isInteger(body.count) || body.count < 1 || body.count > 4) throw new AppError('INVALID_INPUT');
         s.cluesShown ??= {}; s.cluesShown[s.round] = Math.max(s.cluesShown[s.round] ?? 1, body.count);
@@ -55,8 +70,9 @@ export async function soloAction(env: Env, user: User, id: string, action: strin
             throw new AppError('ROUND_NOT_STARTED', 409);
         const value = body.answer;
         if (!validAnswer(s.questions[s.round], value)) throw new AppError('INVALID_INPUT');
-        const result = { ...evaluateLearning(s.questions[s.round], value, s.streak), responseTime: Math.max(0, elapsed) };
+        const result = enrichMapFeedback(s.questions[s.round], value, { ...evaluateLearning(s.questions[s.round], value, s.streak), responseTime: Math.max(0, elapsed) });
         s.answers.push({ ...result, value, at: Date.now(), cluesUsed: s.questions[s.round].clues ? s.cluesShown?.[s.round] ?? 1 : undefined, questionId: s.questions[s.round].id });
+        if(s.competition) { const a=s.answers.at(-1)!; a.points=dailyRoundPoints(s.competition.mode,a); s.score=dailyScore(s); }
         s.streak = result.streak;
         s.bestStreak = Math.max(s.bestStreak, s.streak);
         s.phase = 'reveal';
@@ -93,6 +109,7 @@ export async function recordSolo(env: Env, user: User, stored: Solo) {
     if (s.daily)
         statements.push({ sql: 'INSERT OR IGNORE INTO daily_challenge_results(user_id,date,result_id,score) VALUES (?,?,?,?)', args: [user.id, s.daily, s.id, s.score] });
     await batch(env, statements);
+    await recordCompetition(env,user,s);
     // Derive practice aggregates from immutable answers, so retried completion is idempotent.
     for (const key of new Set(s.answers.map(a => a.countryId + ':' + a.mode))) {
         const [country, mode] = key.split(':');

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { withSpanish, spanishCountry } from '../../i18n/content';
 import { Check, Lightbulb, X } from 'lucide-react';
 import { mysteryOfTheDay, type MysteryCountryData, type MysteryFact } from '@/lib/daily-loop';
 import { ResetCountdown } from './ResetCountdown';
@@ -16,17 +17,17 @@ function readSaved(key: string): Saved | null { try { return JSON.parse(localSto
 function writeSaved(key: string, value: Saved) { try { localStorage.setItem(key, JSON.stringify(value)); } catch { /* storage may be unavailable; the puzzle still works */ } }
 
 /** A small daily curiosity puzzle on the homepage: guess the country behind a sourced heritage fact. */
-export function MysteryCountry({ date, t, locale }: { date: string; t: (k: string) => string; locale: 'en' | 'nl' }) {
+export function MysteryCountry({ date, t, locale }: { date: string; t: (k: string) => string; locale: 'en' | 'nl' | 'es' }) {
   // Rendered only after the data has loaded in the browser, so reading saved progress up front cannot mismatch SSR.
   const key = 'roviko:mystery:' + date;
   const [data, setData] = useState<MysteryData | null>(null), [failed, setFailed] = useState(false);
   const [hints, setHints] = useState(() => typeof window === 'undefined' ? 1 : readSaved(key)?.hints ?? 1);
   const [picked, setPicked] = useState<string | null>(() => typeof window === 'undefined' ? null : readSaved(key)?.picked ?? null);
-  useEffect(() => { let active = true; loadData().then(d => { if (active) setData(d); }).catch(() => { if (active) setFailed(true); }); return () => { active = false; }; }, []);
+  useEffect(() => { let active = true; loadData().then(d => { if (active) setData(withSpanish(d)); }).catch(() => { if (active) setFailed(true); }); return () => { active = false; }; }, []);
   const puzzle = useMemo(() => data ? mysteryOfTheDay(date, data[0].facts, data[1]) : null, [data, date]);
   if (failed || !puzzle) return null;
   const { fact, answer, options } = puzzle;
-  const name = (c: MysteryCountryData) => locale === 'nl' ? c.nl : c.name;
+  const name = (c: MysteryCountryData) => locale === 'es' ? spanishCountry(c.name) : locale === 'nl' ? c.nl : c.name;
   const clues = [fact.clues[0]?.[locale], fact.clues[1]?.[locale], t('mysteryRegionClue').replace('{region}', t(answer.region))].filter(Boolean) as string[];
   const answered = picked !== null, correct = picked === answer.id;
   const pickedCountry = options.find(o => o.id === picked);
@@ -35,7 +36,7 @@ export function MysteryCountry({ date, t, locale }: { date: string; t: (k: strin
   return <section className={'mystery-card' + (answered ? correct ? ' is-right' : ' is-wrong' : '')} aria-labelledby="mystery-title">
     <div className="mystery-head">
       <span className="mystery-badge" aria-hidden="true">{answered ? <img src={answer.flag} alt=""/> : '❓'}</span>
-      <div><span className="mystery-kicker">{CATEGORY_EMOJI[fact.category] ?? '🌍'} {t('mysteryKicker')}</span><h2 id="mystery-title">{t('mysteryTitle')}</h2></div>
+      <div><span className="mystery-kicker">{CATEGORY_EMOJI[fact.category] ?? '🌍'} {t('competitionWarmup')}</span><h2 id="mystery-title">{t('mysteryTitle')}</h2></div>
       <HowToPlayButton mode="mystery" t={t} locale={locale}/>
     </div>
     <ol className="mystery-clues">{clues.slice(0, answered ? clues.length : hints).map((clue, i) => <li key={i}><span aria-hidden="true">{i + 1}</span>{clue}</li>)}</ol>

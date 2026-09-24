@@ -1,7 +1,7 @@
 import { reviewStatement } from './reviews';
 import { measure } from './telemetry';
 import { validAnswer } from '../lib/game-engine/validate-answer';
-import { prepareGeography } from './geography';
+import { prepareGeography, enrichMapFeedback } from './geography';
 import { one, rows, run, batch } from './db';
 import { AppError, requireUser, checkOrigin, nameSchema } from './auth';
 import { roomCode, random } from '../lib/game-engine/scoring';
@@ -24,7 +24,7 @@ export async function createRoom(env: Env, user: User, settings: Settings) { for
             throw e;
     }
 } throw new AppError('ROOM_UNAVAILABLE', 503); }
-function tick(r: Room, now: number) {
+export function tick(r: Room, now: number) {
     let changed = false;
     const active = r.players.filter(p => now - p.lastSeen < 45000 || p.bot);
     const host = r.players.find(p => p.id === r.host);
@@ -46,9 +46,17 @@ function tick(r: Room, now: number) {
                 r.answers[p.id] = { value: rng() < .7 ? q.correct : q.options[0]?.id ?? null, at: now };
                 changed = true;
             }
-        if ((r.deadline && now >= r.deadline) || (!r.deadline && active.length > 0 && active.every(p => r.answers[p.id]))) {
+        const everyoneAnswered = active.length > 0 && active.every(p => r.answers[p.id]);
+        if (everyoneAnswered && !r.answersCompleteAt) {
+            r.answersCompleteAt = Math.max(...active.map(p => r.answers[p.id].at)) + 1000;
+            changed = true;
+        } else if (!everyoneAnswered && r.answersCompleteAt) {
+            r.answersCompleteAt = undefined;
+            changed = true;
+        }
+        if (r.answersCompleteAt ? now >= r.answersCompleteAt : (r.deadline && now >= r.deadline)) {
             const before = [...r.players].sort((a, b) => b.score - a.score);
-            r.players.forEach(p => { const q = r.questions[r.round], a = r.answers[p.id]; const result = evaluate(q, a?.value ?? null, a ? Math.max(0, a.at - r.startAt) : r.settings.timer * 1000, r.settings.timer * 1000, p.streak); p.previousRank = before.findIndex(x => x.id === p.id) + 1; p.delta = result.points; p.score += result.points; p.streak = result.streak; p.bestStreak = Math.max(p.bestStreak, p.streak); p.correct += +result.correct; p.results.push({ ...result, at:now, questionId: q.id, value: a?.value ?? null }); });
+            r.players.forEach(p => { const q = r.questions[r.round], a = r.answers[p.id]; const result = enrichMapFeedback(q, a?.value ?? null, evaluate(q, a?.value ?? null, a ? Math.max(0, a.at - r.startAt) : r.settings.timer * 1000, r.settings.timer * 1000, p.streak)); p.previousRank = before.findIndex(x => x.id === p.id) + 1; p.delta = result.points; p.score += result.points; p.streak = result.streak; p.bestStreak = Math.max(p.bestStreak, p.streak); p.correct += +result.correct; p.results.push({ ...result, at:now, questionId: q.id, value: a?.value ?? null }); });
             r.phase = 'reveal';
             r.revealUntil = now + 3500;
             r.events = ['round_finished', 'leaderboard_updated'];
@@ -66,6 +74,7 @@ function tick(r: Room, now: number) {
             r.startAt = now + 3000;
             r.deadline = r.settings.timer ? r.startAt + r.settings.timer * 1000 : 0;
             r.answers = {};
+            r.answersCompleteAt = undefined;
             r.events = ['countdown'];
         }
         changed = true;
@@ -73,7 +82,7 @@ function tick(r: Room, now: number) {
     return changed;
 }
 export function roomView(r: Room, userId: string) { const p = r.players.find(p => p.id === userId); if (!p)
-    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot })), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round]) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, answered: !!r.answers[userId], score: p.score }; }
+    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot })), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, answered: !!r.answers[userId], score: p.score }; }
 async function saveMatch(env: Env, r: Room) {
     if (r.phase !== 'finished') return;
     if (!savingMatches.has(r.matchId)) { const task = writeMatch(env,r).finally(() => savingMatches.delete(r.matchId)); savingMatches.set(r.matchId,task); }
@@ -181,6 +190,7 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     r.phase = 'countdown';
                     r.round = 0;
                     r.answers = {};
+                    r.answersCompleteAt = undefined;
                     r.startAt = Date.now() + 3000;
                     r.deadline = r.settings.timer ? r.startAt + r.settings.timer * 1000 : 0;
                     r.players.forEach(x => { x.score = 0; x.streak = 0; x.bestStreak = 0; x.results = []; x.correct = 0; });
@@ -193,6 +203,7 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     r.previousQuestions = r.questions.map(q => q.id);
                     r.questions = [];
                     r.phase = 'lobby';
+                    r.answersCompleteAt = undefined;
                     r.players.forEach(x => { x.ready = false; x.score = 0; x.delta = 0; });
                     r.events = ['lobby'];
                     changed = true;
@@ -215,6 +226,8 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     throw new AppError('INVALID_ACTION');
             }
         }
+        // Re-evaluate after the last submitted answer, not only on the next heartbeat.
+        changed = tick(r, Date.now()) || changed;
         if (!changed) {
             await saveMatch(env, r);
             return { state: r, version: row.version };
@@ -247,6 +260,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     server.accept();
     let closed = false, busy = false, lastVersion = -1, lastHeartbeat = 0;
     let chain = Promise.resolve();
+    let revealTimer: ReturnType<typeof setTimeout> | undefined;
     let messages = 0, windowStart = Date.now();
     const send = (x: any) => { if (!closed)
         try {
@@ -264,6 +278,8 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
             if (state.phase === 'finished') await measure(req, env, user, 'match_completed', state.settings.mode, state.matchId);
             send({ type: 'state', ...roomView(state, user.id) });
             lastVersion = version;
+            clearTimeout(revealTimer);
+            if (state.phase === 'question' && state.answersCompleteAt) revealTimer = setTimeout(pump, Math.max(1, state.answersCompleteAt - Date.now()));
             lastHeartbeat = Date.now();
         }
     }
@@ -275,7 +291,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     } };
     const interval = setInterval(pump, 750);
     function close() { if (closed)
-        return; closed = true; clearInterval(interval); try {
+        return; closed = true; clearInterval(interval); clearTimeout(revealTimer); try {
         server.close(1000, 'Disconnected');
     }
     catch { } const final = mutateRoom(env, code, user, 'disconnect', { connectionToken }).catch(() => { }); if (ctx)
@@ -299,6 +315,8 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
         const { state, version } = await mutateRoom(env, code, user, m.type, m);
         if (m.type === 'start') await measure(req, env, user, 'match_started', state.settings.mode, state.matchId);
         lastVersion = version;
+        clearTimeout(revealTimer);
+        if (state.phase === 'question' && state.answersCompleteAt) revealTimer = setTimeout(pump, Math.max(1, state.answersCompleteAt - Date.now()));
         send({ type: 'state', ...roomView(state, user.id) });
     }
     catch (e: any) {

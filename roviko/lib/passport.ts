@@ -1,4 +1,5 @@
-export type CountryStamp = { id: string; numeric: string; name: { en:string; nl:string }; flag:string; region:string; subjects:string[]; seals:string[] };
+import { spanishCountry } from '../i18n/content';
+export type CountryStamp = { id: string; numeric: string; name: { en:string; nl:string; es:string }; flag:string; region:string; subjects:string[]; seals:string[] };
 export const STAMP_REGIONS = ['Europe','Africa','Asia','North America','South America','Oceania'];
 /** Aggregates come from distinct persisted sessions, never client totals. */
 export function collectStamps(records: {country_id:string;mode:string;games:number}[], countries: any[]): CountryStamp[] {
@@ -6,7 +7,7 @@ export function collectStamps(records: {country_id:string;mode:string;games:numb
   const stamps = new Map<string,CountryStamp>();
   for (const record of records) {
     const country=catalog.get(record.country_id); if (!country || record.games < 1) continue;
-    const stamp:CountryStamp=stamps.get(country.id) ?? {id:country.id,numeric:country.numeric,name:{en:country.name,nl:country.nl},flag:country.flag,region:country.region,subjects:[],seals:[]};
+    const stamp:CountryStamp=stamps.get(country.id) ?? {id:country.id,numeric:country.numeric,name:{en:country.name,nl:country.nl,es:spanishCountry(country.name)},flag:country.flag,region:country.region,subjects:[],seals:[]};
     if (!stamp.subjects.includes(record.mode)) stamp.subjects.push(record.mode);
     if (record.games >= 3 && !stamp.seals.includes(record.mode)) stamp.seals.push(record.mode);
     stamps.set(country.id,stamp);

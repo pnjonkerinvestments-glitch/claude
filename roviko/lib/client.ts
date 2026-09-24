@@ -1,3 +1,4 @@
+import { withSpanish } from '../i18n/content';
 export async function api(path: string, options: RequestInit = {}) {
     const controller = new AbortController();
     const abort = () => controller.abort();
@@ -8,7 +9,7 @@ export async function api(path: string, options: RequestInit = {}) {
         const res = await fetch('/api' + path, { ...options, signal: controller.signal, headers: { 'Content-Type': 'application/json', ...options.headers } });
         const data = await res.json().catch(() => { throw new Error('SERVER_UNAVAILABLE'); });
         if (!res.ok) throw new Error(data.error ?? 'SERVER_UNAVAILABLE');
-        return data;
+        return withSpanish(data);
     } catch (error: any) {
         if (controller.signal.aborted) throw new Error('REQUEST_TIMEOUT');
         if (error instanceof TypeError) throw new Error('SERVER_UNAVAILABLE');
