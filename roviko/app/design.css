@@ -857,6 +857,59 @@ button.status-item:hover{background:var(--color-surface-2)}
 }
 @media (prefers-reduced-motion:reduce){.hero-globe{animation:none}}
 
+/* ───────── Game screens v2: one header, calm stage ───────── */
+.game-header{position:sticky;top:76px;z-index:20;display:grid;gap:10px;max-width:880px;margin:0 auto var(--space-5);padding:10px 12px 12px;border-radius:var(--radius-card);background:color-mix(in srgb,var(--color-surface) 94%,transparent);backdrop-filter:blur(10px);box-shadow:var(--shadow-card)}
+.game-header-row{display:flex;align-items:center;gap:10px}
+.game-title{flex:1;min-width:0;display:flex;align-items:center;gap:10px}
+.game-title span{display:grid;min-width:0;line-height:1.2}
+.game-title strong{font:600 1.125rem/1.2 var(--font-display);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.game-title small{color:var(--color-ink-soft);font-weight:600;font-size:.8125rem}
+.game-count{display:grid;justify-items:end;line-height:1.1}
+.game-count b{font:600 1.125rem var(--font-display);font-variant-numeric:tabular-nums}
+.game-count small{color:var(--color-ink-soft);font-size:.75rem;font-weight:700}
+.game-streak-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;background:#fde6d3;color:#b4541c;font-weight:800;font-size:.875rem}
+.game-streak-chip svg{fill:#f6b84b66}
+[data-theme=dark] .game-streak-chip{background:#3a2619;color:#ffb07a}
+.game-progress-bar{height:6px;border-radius:99px;background:var(--color-surface-2);overflow:hidden}
+.game-progress-bar i{display:block;height:100%;border-radius:inherit;background:var(--g,var(--color-brand));transition:width 400ms var(--ease)}
+.game-header .howto-button{width:40px;height:40px;min-height:40px}
+.puzzle-top,.solo-top{display:none!important}
+.game-main .puzzle-game,.game-main .solo-game,.game-main .duel-game{max-width:880px;margin:0 auto}
+.auto-next-wrap{display:flex!important;flex-direction:column;align-items:center!important;justify-content:center!important;text-align:center;width:100%;max-width:880px;margin:0 auto var(--space-3)!important}
+.auto-next{font-size:.8125rem!important;color:var(--color-ink-soft)!important}
+.game-region{justify-content:center;margin-bottom:var(--space-3)!important}
+.question-heading,.rank-heading,.mosaic-heading,.comparison-heading{text-align:center}
+.question-heading h1,.question-heading h2,.rank-heading h1,.comparison-heading h1,.mosaic-heading h1{font-size:clamp(1.5rem,1.2rem + 1.2vw,2.125rem)!important;letter-spacing:-.01em}
+.rank-eyebrow,.eyebrow{border-radius:99px!important;padding:4px 12px!important;font-size:.75rem!important;letter-spacing:.08em!important}
+.rank-trail{gap:6px!important;justify-content:center}
+.rank-trail li{border:0!important;background:var(--color-surface)!important;box-shadow:inset 0 0 0 1px var(--color-line-strong)!important;border-radius:12px!important}
+.rank-trail li.is-current{box-shadow:inset 0 0 0 2px var(--g,var(--color-brand))!important}
+.rank-option-emoji,.rank-option-metric{box-shadow:none!important}
+.answer-feedback,.rank-feedback,.comparison-review,.puzzle-review{border:0!important;border-radius:var(--radius-card)!important;box-shadow:var(--shadow-card)!important;background:var(--color-surface)!important}
+.answer-feedback.good,.rank-feedback[data-place="1"]{box-shadow:inset 4px 0 0 var(--correct-border),var(--shadow-card)!important}
+.answer-feedback.bad{box-shadow:inset 4px 0 0 var(--error-border),var(--shadow-card)!important}
+.result-mascot{display:block;margin:0 auto var(--space-2)}
+.learning-results,.puzzle-finished,.rank-finished,.duel-finished{max-width:760px;margin:0 auto;display:grid;gap:var(--space-4);justify-items:center;text-align:center}
+.learning-results h1,.puzzle-finished h1,.rank-finished h1,.duel-finished h1{margin:0;font-size:var(--text-h1)}
+.learning-results>*,.puzzle-finished>*,.rank-finished>*,.duel-finished>*{max-width:100%}
+.learning-total strong,.puzzle-result-facts strong{font-family:var(--font-display)!important;font-weight:600!important}
+.learning-highlights{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.learning-highlights span{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:99px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-line)}
+.learning-highlights svg{color:var(--link)}
+.puzzle-result-facts>div,.rank-medal-summary,.duel-solution{border:0!important;border-radius:var(--radius-card)!important;background:var(--color-surface)!important;box-shadow:var(--shadow-card)!important}
+.answer-trail span,.duel-trail span,.puzzle-answer-trail span{border:0!important;box-shadow:none!important;border-radius:10px!important}
+.answer-trail .found,.duel-trail .won,.puzzle-answer-trail .correct{background:var(--correct-bg)!important;color:var(--success)!important}
+.answer-trail .discovered,.duel-trail .lost{background:var(--error-bg)!important;color:var(--error-ink)!important}
+.review-section{width:100%;text-align:left}
+.review-section h2{display:flex;align-items:center;gap:8px;font-size:var(--text-h3)}
+.review-list>div{border:0!important;border-radius:18px!important;background:var(--color-surface)!important;box-shadow:var(--shadow-card)!important;align-items:center}
+.results-actions,.puzzle-results-actions,.duel-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.map-wrap,.world-map,.map-stage{border-radius:var(--radius-card)!important;overflow:hidden;box-shadow:var(--shadow-card)!important;border:0!important}
+.clue-list li,.trail-clue{border:0!important;border-radius:16px!important;background:var(--color-surface)!important;box-shadow:inset 0 0 0 1px var(--color-line)!important}
+.game-top{border:0!important;border-radius:var(--radius-card)!important;background:var(--color-surface)!important;box-shadow:var(--shadow-card)!important;padding:10px 14px!important}
+.game-timer.urgent{color:var(--error-ink)!important}
+@media (max-width:640px){.game-header{top:66px;margin-bottom:var(--space-4)}.game-title small{display:none}.game-count small{display:none}}
+
 /* ───────── Scoring ───────── */
 .fact-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--space-4);margin:0;padding:0;list-style:none}
 .fact-tiles li{display:grid;gap:4px;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}

@@ -8,6 +8,8 @@ import { formatMetric } from '@/lib/puzzles/topics';
 import { DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel';
 import { ResetCountdown } from '../atelier/ResetCountdown';
 import { HowToPlayButton } from '../atelier/HowToPlay';
+import { GameHeader, editionLabel } from '../game/GameHeader';
+import { Mascot } from '../ds/Mascot';
 import { notifyProgress } from '../atelier/DailyQuests';
 
 type Board = DuelBoard & { date: string | null };
@@ -61,13 +63,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
   const newPractice = () => { setBoard(null); setPlays([]); setStep(0); setCopied(false); setNonce(Math.random().toString(36).slice(2, 10)); };
 
   return <section className="puzzle-game duel-game" aria-labelledby="duel-title">
-    <div className="puzzle-top">
-      <button className="icon-btn" onClick={() => go('/')} aria-label={t('back')}><ArrowLeft size={20}/></button>
-      <div><strong><span aria-hidden="true">⚔️</span> {t('duel')}</strong><small>{board.date ?? t('duelPractice')}</small></div>
-      <span className="puzzle-count">{Math.min(step + 1, DUEL_ROUNDS)} / {DUEL_ROUNDS}<small>{t('duelRounds')}</small></span>
-      <HowToPlayButton mode="duel" t={t} locale={loc} auto={!finished}/>
-    </div>
-    <Progress className="puzzle-progress" value={(Math.min(plays.length, DUEL_ROUNDS) / DUEL_ROUNDS) * 100}/>
+    <GameHeader mode="duel" title={t('duel')} edition={editionLabel(board.date, loc, t('duelPractice'))} count={Math.min(step + 1, DUEL_ROUNDS) + ' / ' + DUEL_ROUNDS} unit={t('duelRounds')} progress={Math.min(plays.length, DUEL_ROUNDS) / DUEL_ROUNDS} onExit={() => go('/')} exitLabel={t('back')} help={<HowToPlayButton mode="duel" t={t} locale={loc} auto={!finished}/>}/>
 
     <ol className="duel-route" aria-label={t('duelRoute')}>
       {board.rounds.map((r, i) => <li key={r.category.id} className={(i < results.length ? results[i] ? 'is-won' : 'is-lost' : '') + (i === step && !finished ? ' is-current' : '')}>
@@ -79,7 +75,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     {!finished ? <>
       <div className="duel-arena">
         <div className="duel-side duel-roviko">
-          <img className="duel-mascot" src="/globe-logo.webp" alt="" width={64} height={64}/>
+          <Mascot mood="curious" size={64} className="duel-mascot"/>
           <span className="duel-label">{t('duelRovikoPlays')}</span>
           <div className={'duel-card is-roviko' + (revealed ? duelWon(round, played) ? ' is-beaten' : ' is-winner' : '')}>
             <img src={round.roviko.flag} alt=""/><strong>{name(round.roviko)}</strong>
@@ -118,7 +114,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
         <button className="btn hero-cta duel-next" onClick={() => setStep(s => s + 1)}>{t(step + 1 >= DUEL_ROUNDS ? 'duelResults' : 'duelNext')}<ArrowRight size={20}/></button>
       </div>}
     </> : <div className="duel-finished">
-      <img className="duel-mascot big" src="/globe-logo.webp" alt="" width={120} height={120}/>
+      <Mascot mood={wins === DUEL_ROUNDS ? 'cheer' : wins >= 3 ? 'happy' : 'wink'} size={132} className="result-mascot"/>
       <h1 id="duel-title">{wins === DUEL_ROUNDS ? t('duelPerfect') : t('duelResultTitle').replace('{n}', String(wins))}</h1>
       <div className="duel-trail" aria-label={t('duelResultTitle').replace('{n}', String(wins))}>{results.map((ok, i) => <span key={i} className={ok ? 'won' : 'lost'} aria-hidden="true">{ok ? '✓' : '✕'}</span>)}</div>
       <section className="duel-solution">
