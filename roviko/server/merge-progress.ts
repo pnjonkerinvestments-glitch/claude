@@ -9,11 +9,12 @@ export async function mergeProgress(env: Env, guest: User | null, accountId: str
     if (active.some((r:any) => { const s=JSON.parse(r.state); return !['lobby','finished'].includes(s.phase) && s.players.some((p:any) => p.id===guest.id && Date.now()-p.lastSeen<45000); })) throw new AppError('FINISH_MATCH_TO_SIGN_IN', 409);
     await batch(env, [
         // Keep both played sessions, but the established account's first daily stays canonical.
-        { sql: `UPDATE game_sessions SET date=NULL,state=json_set(state,'$.daily',NULL) WHERE user_id=? AND date IS NOT NULL AND EXISTS (SELECT 1 FROM game_sessions a WHERE a.user_id=? AND a.date=game_sessions.date AND a.kind=game_sessions.kind)`, args:[guest.id,accountId] },
+        { sql: `UPDATE game_sessions SET date=NULL,state=json_remove(json_set(state,'$.daily',NULL),'$.competition') WHERE user_id=? AND date IS NOT NULL AND EXISTS (SELECT 1 FROM game_sessions a WHERE a.user_id=? AND a.date=game_sessions.date AND a.kind=game_sessions.kind)`, args:[guest.id,accountId] },
         { sql: 'UPDATE game_sessions SET user_id=? WHERE user_id=?', args:[accountId,guest.id] },
         { sql: 'UPDATE game_results SET user_id=? WHERE user_id=?', args:[accountId,guest.id] },
         { sql: 'UPDATE OR IGNORE answers SET user_id=? WHERE user_id=?', args:[accountId,guest.id] },
         { sql: 'INSERT OR IGNORE INTO daily_challenge_results(user_id,date,result_id,score) SELECT ?,date,result_id,score FROM daily_challenge_results WHERE user_id=?', args:[accountId,guest.id] },
+        { sql: 'UPDATE OR IGNORE daily_scores SET user_id=? WHERE user_id=? AND EXISTS(SELECT 1 FROM game_sessions g WHERE g.id=daily_scores.session_id AND g.date IS NOT NULL)', args:[accountId,guest.id] },
         { sql: 'INSERT OR IGNORE INTO user_achievements(user_id,achievement_id,earned_at) SELECT ?,achievement_id,earned_at FROM user_achievements WHERE user_id=?', args:[accountId,guest.id] },
         { sql: `INSERT INTO learning_reviews(user_id,key,country_id,mode,topic,content,missed,resolved,updated_at) SELECT ?,key,country_id,mode,topic,content,missed,resolved,updated_at FROM learning_reviews WHERE user_id=? ON CONFLICT(user_id,key) DO UPDATE SET content=excluded.content,resolved=excluded.resolved,updated_at=excluded.updated_at WHERE excluded.updated_at>learning_reviews.updated_at`, args:[accountId,guest.id] },
         { sql: 'UPDATE question_reports SET user_id=? WHERE user_id=?', args:[accountId,guest.id] },

@@ -155,3 +155,29 @@ test('Mosaic reveals a sourced story only after its country is solved, and accep
   await act(async()=>r.unmount());
  }
 });
+
+test('ranked Mosaic waits for server feedback and marks only actual mismatches without exposing other countries',async()=>{
+ const full=generateMosaic(4,'competitive-ui'),anchor=full.countries[0].id;
+ const choices=full.tiles.filter(t=>t.countryId===anchor&&t.kind!=='flag').concat(full.tiles.find(t=>t.countryId!==anchor&&t.kind==='flag'));
+ const board={...full,countries:full.countries.map(c=>({...c,flag:''})),tiles:full.tiles.map(t=>({...t,countryId:t.kind==='name'?t.countryId:''}))};
+ let state={...clone(base),competition:{version:1,mode:'mosaic'},score:0,mode:'mosaic',board,question:null};
+ const response=deferred();let calls=0;
+ globalThis.transport={api:async()=>clone(state),post:async(path,body)=>{calls++;await response.promise;state={...state,version:1,answers:[{correct:false,value:body.answer}],mosaicReview:{countryId:anchor,tiles:choices.map(t=>({id:t.id,kind:t.kind,countryId:t.countryId===anchor?anchor:'',correct:t.countryId===anchor}))}};return clone(state);}};
+ let r;await act(async()=>{r=create(React.createElement(PuzzleGame,{id:'test',app}));});
+ for(const tile of choices)await act(async()=>buttons(r,'mosaic-tile')[full.tiles.findIndex(t=>t.id===tile.id)].props.onClick());
+ const check=()=>r.root.findAll(n=>n.type==='button'&&n.children.includes('puzzleConnect'))[0];
+ await act(async()=>{check().props.onClick();check().props.onClick();});assert.equal(calls,1);assert.equal(buttons(r,'clue-wrong').length,0);assert.ok(buttons(r,'mosaic-tile').every(t=>t.props.disabled));
+ await act(async()=>{response.resolve();await response.promise;});
+ assert.equal(buttons(r,'clue-wrong').length,1);assert.equal(buttons(r,'clue-correct').length,3);assert.ok(buttons(r,'clue-wrong')[0].props['aria-label'].includes('competitionNotFit'));
+ await act(async()=>r.unmount());
+});
+test('ranked comparison never reveals unverified local answers while its save is pending',async()=>{
+ const q=generateComparisons('area','competitive-compare')[0];
+ let state={...clone(base),competition:{version:1,mode:'compare'},score:0,mode:'compare',board:null,total:10,question:{...q,correct:undefined,countries:q.countries.map(({value,...c})=>c)}};
+ const response=deferred();globalThis.transport={api:async()=>clone(state),post:async(path,body)=>{await response.promise;state={...state,phase:'reveal',version:1,question:q,answers:[{correct:body.answer===q.correct,value:body.answer}]};return clone(state);}};
+ let r;await act(async()=>{r=create(React.createElement(PuzzleGame,{id:'test',app}));});
+ await act(async()=>buttons(r,'comparison-country')[0].props.onClick());
+ assert.equal(buttons(r,'winner').length,0);assert.equal(r.root.findAll(n=>n.props.className==='comparison-value'&&n.findAll(x=>x.type==='strong').length).length,0);
+ await act(async()=>{response.resolve();await response.promise;});assert.equal(buttons(r,'winner').length,1);
+ await act(async()=>r.unmount());
+});

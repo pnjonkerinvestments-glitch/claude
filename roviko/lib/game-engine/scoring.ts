@@ -22,3 +22,8 @@ export function shuffle<T>(a: T[], rng: () => number) { const b = [...a]; for (l
     const j = Math.floor(rng() * (i + 1));
     [b[i], b[j]] = [b[j], b[i]];
 } return b; }
+/** Untimed accuracy credit: every nearer miss earns at least as much as a farther miss. */
+export function mapAccuracyPoints(correct: boolean, distance: number | null) {
+    if (distance === null || !Number.isFinite(distance)) return 0;
+    return correct ? 1000 : Math.round(900 * Math.exp(-Math.max(0, distance) / 1600));
+}

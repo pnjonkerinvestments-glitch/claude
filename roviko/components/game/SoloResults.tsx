@@ -16,6 +16,7 @@ export function SoloResults({ result, t, locale, onAgain, onShare, onHome, follo
         <div className="answer-trail" aria-label={`${correct} / ${answers.length} ${t('correctAnswers')}`}>
             {answers.map((a: any, i: number) => <span key={i} className={a.correct ? 'found' : 'discovered'} title={`${i + 1}: ${t(a.correct ? 'correct' : 'incorrect')}`} aria-hidden="true">{a.correct ? '✓' : '✕'}</span>)}
         </div>
+
         {result.daily && <p className="muted">{t('streakRule')}</p>}
         <div className="learning-highlights"><span>🎯 <b>{answers.length ? Math.round(correct / answers.length * 100) : 0}%</b> {t('accuracy')}</span><span>🔥 <b>{result.bestStreak ?? 0}</b> {t('bestStreak')}</span>{result.daily && <span>☀️ <b>{dailyStreak}</b> {t('days')}</span>}</div>
         {result.practice && <p className="muted">{t('practiceSaved')}</p>}

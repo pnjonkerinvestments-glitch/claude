@@ -1,4 +1,4 @@
-import { haversine, matches } from './scoring';
+import { haversine, matches, mapAccuracyPoints } from './scoring';
 import { locateInCountry } from './geometry';
 import type { Question } from './questions';
 
@@ -18,5 +18,5 @@ export function evaluateLearning(q: LearningSolution, answer: unknown, streak = 
     } else {
         correct = q.typed && typeof answer === 'string' ? matches(answer, q.aliases ?? []) : Array.isArray(q.correct) ? Array.isArray(answer) && JSON.stringify(answer) === JSON.stringify(q.correct) : answer === q.correct;
     }
-    return { correct, distance, mapRule: q.mapRule, borderCountries: q.mode === 'borders' ? [q.countryId, q.correct] : undefined, streak: correct ? streak + 1 : 0, answerLabel: q.answerLabel, fact: q.fact, correctAnswer: q.correct, countryId: q.countryId, mode: q.mode, points: 0, risk: 0, responseTime: 0 };
+    return { correct, distance, ...(q.mode === 'pinpoint' ? { mapPoints: mapAccuracyPoints(correct, distance) } : {}), mapRule: q.mapRule, borderCountries: q.mode === 'borders' ? [q.countryId, q.correct] : undefined, streak: correct ? streak + 1 : 0, answerLabel: q.answerLabel, fact: q.fact, correctAnswer: q.correct, countryId: q.countryId, mode: q.mode, points: 0, risk: 0, responseTime: 0 };
 }

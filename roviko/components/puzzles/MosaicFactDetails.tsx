@@ -2,7 +2,7 @@ import React from 'react';
 import type { Tile } from '@/lib/puzzles/model';
 
 /** Render only for solved countries. Archived hints are projected to the current numeric edition on the server. */
-export function MosaicFactDetails({ tile, locale, t }: { tile?: Tile; locale: 'en' | 'nl'; t: (key: string) => string }) {
+export function MosaicFactDetails({ tile, locale, t }: { tile?: Tile; locale: 'en' | 'nl' | 'es'; t: (key: string) => string }) {
   if (!tile?.fact) return null;
   const { explanation, source } = tile.fact;
   return <details className="mosaic-fact-reveal">

@@ -1,4 +1,5 @@
-import { sqliteTable, text, integer, real, index, uniqueIndex, primaryKey } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
+import { sqliteTable, text, integer, real, index, uniqueIndex, primaryKey, check } from 'drizzle-orm/sqlite-core';
 export const users = sqliteTable('users', { id: text('id').primaryKey(), email: text('email'), password: text('password'), name: text('name').notNull(), avatar: integer('avatar').notNull().default(0), guest: integer('guest').notNull().default(1), discoverable: integer('discoverable').notNull().default(1), blocked: integer('blocked').notNull().default(0), createdAt: integer('created_at').notNull() }, t => [uniqueIndex('email_unique').on(t.email)]);
 export const sessions = sqliteTable('auth_sessions', { token: text('token').primaryKey(), userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), expiresAt: integer('expires_at').notNull() }, t => [index('auth_user').on(t.userId)]);
 export const games = sqliteTable('game_sessions', { id: text('id').primaryKey(), userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), kind: text('kind').notNull(), date: text('date'), state: text('state').notNull(), version: integer('version').notNull().default(0), score: integer('score').notNull().default(0), completed: integer('completed').notNull().default(0), createdAt: integer('created_at').notNull() }, t => [index('games_user_time').on(t.userId, t.createdAt), uniqueIndex('daily_game_unique').on(t.userId, t.date, t.kind)]);
@@ -21,3 +22,10 @@ export const limits = sqliteTable('rate_limits', { key: text('key').primaryKey()
 export const events = sqliteTable('analytics_events', { id: text('id').primaryKey(), event: text('event').notNull(), mode: text('mode'), createdAt: integer('created_at').notNull() });
 export const dailyContent = sqliteTable('daily_content', { date: text('date').notNull(), kind: text('kind').notNull(), datasetVersion: text('dataset_version').notNull(), content: text('content').notNull(), createdAt: integer('created_at').notNull() }, t => [primaryKey({ columns: [t.date, t.kind] })]);
 export const learningReviews = sqliteTable('learning_reviews', { userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), key: text('key').notNull(), countryId: text('country_id').notNull(), mode: text('mode').notNull(), topic: text('topic'), content: text('content').notNull(), missed: integer('missed').notNull().default(1), resolved: integer('resolved').notNull().default(0), updatedAt: integer('updated_at').notNull() }, t => [primaryKey({ columns: [t.userId, t.key] }), index('reviews_user_resolved').on(t.userId,t.resolved,t.updatedAt)]);
+
+export const dailyScores = sqliteTable('daily_scores', {
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  date: text('date').notNull(), mode: text('mode').notNull(),
+  sessionId: text('session_id').notNull().references(() => games.id, { onDelete: 'cascade' }),
+  score: integer('score').notNull(), scoringVersion: integer('scoring_version').notNull().default(1), createdAt: integer('created_at').notNull(),
+}, t => [primaryKey({columns:[t.userId,t.date,t.mode]}), uniqueIndex('daily_score_session').on(t.sessionId), index('daily_scores_ranking').on(t.date,t.mode,t.score), check('daily_score_bounds',sql`${t.score} BETWEEN 0 AND 1000`), check('daily_score_modes',sql`${t.mode} IN ('daily','trail','compare','mosaic','rank')`)]);

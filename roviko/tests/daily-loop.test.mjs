@@ -27,9 +27,9 @@ test('next daily resumes a started game first, then the first unplayed one, and 
   assert.equal(nextDailyMode([]), 'rank');
   assert.equal(nextDailyMode([{ mode: 'rank', completed: true }]), 'daily');
   assert.equal(nextDailyMode([{ mode: 'rank', completed: true }, { mode: 'mosaic' }]), 'mosaic');
-  const all = ['rank', 'daily', 'compare', 'mosaic'].map(mode => ({ mode, completed: true }));
+  const all = ['rank', 'daily', 'compare', 'mosaic', 'trail'].map(mode => ({ mode, completed: true }));
   assert.equal(nextDailyMode(all), null);
-  assert.equal(completedDailies(all), 4);
+  assert.equal(completedDailies(all), 5);
 });
 
 test('a streak is only at risk when it exists and nothing is finished today', () => {

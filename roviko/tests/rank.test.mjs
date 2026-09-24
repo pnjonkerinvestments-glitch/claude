@@ -14,6 +14,7 @@ const clone=x=>structuredClone(x);
 const app={t:k=>messages.en[k]??k,locale:'en',go(){},refresh(){},muted:true,copy(){},report(){}};
 function state(){return {id:'rank-ui',mode:'rank',daily:'2026-09-22',phase:'question',round:0,total:6,version:0,learning:true,answers:[],streak:0,bestStreak:0,question:generateRankRounds('rank-ui')[0]};}
 const cards=r=>r.root.findAll(n=>n.type==='button'&&n.props.className?.split(' ').includes('rank-option'));
+const confirm=r=>r.root.findAll(n=>n.type==='button'&&n.children.includes(messages.en.confirmChoice))[0];
 const next=r=>r.root.findAll(n=>n.type==='button'&&n.children.includes(messages.en.next))[0];
 function deferred(){let resolve;const promise=new Promise(a=>resolve=a);return {promise,resolve};}
 
@@ -45,7 +46,9 @@ test('wrong choice turns red immediately, identifies the winner and blocks dupli
  globalThis.transport={api:async()=>clone(saved),post:async(path,body)=>{writes++;await wait.promise;saved={...saved,phase:'reveal',version:1,answers:[{value:body.answer,correct:false}]};return clone(saved);}};
  let r;await act(async()=>{r=create(React.createElement(RankGame,{id:saved.id,app}));});
  const button=cards(r).find(c=>c.props['aria-label']===wrong.label.en);
- await act(async()=>{button.props.onClick();button.props.onClick();});
+ await act(async()=>{button.props.onClick();});
+ assert.equal(writes,0,'Selecting a card does not submit');assert.equal(confirm(r).props.disabled,false);
+ const submit=confirm(r).props.onClick;await act(async()=>{submit();submit();});
  assert.equal(writes,1);assert.equal(cards(r).filter(c=>c.props.className.includes('rank-wrong')).length,1);assert.equal(cards(r).filter(c=>c.props.className.includes('rank-best')).length,1);
  assert.ok(cards(r).every(c=>c.props.disabled));assert.equal(next(r).props.disabled,true);
  const feedback=r.root.find(n=>n.props.className==='rank-feedback is-wrong');assert.ok(feedback.findAll(n=>n.type==='p').some(n=>n.children.some(s=>typeof s==='string'&&s.includes(wrong.label.en))));
@@ -56,7 +59,7 @@ test('lost saved response reconciles once, while an unsaved guess requires expli
  for(const committed of [true,false]){
   let saved=state(),writes=0;
   globalThis.transport={api:async()=>clone(saved),post:async(path,body)=>{writes++;if(committed)saved={...saved,phase:'reveal',version:1,answers:[{value:body.answer,correct:body.answer===saved.question.correct}]};throw Error('network');}};
-  let r;await act(async()=>{r=create(React.createElement(RankGame,{id:saved.id,app}));});await act(async()=>{cards(r)[0].props.onClick();});assert.equal(writes,1);
+  let r;await act(async()=>{r=create(React.createElement(RankGame,{id:saved.id,app}));});await act(async()=>{cards(r)[0].props.onClick();});await act(async()=>{confirm(r).props.onClick();});assert.equal(writes,1);
   assert.equal(r.root.findAll(n=>n.props.role==='alert').length,committed?0:1);
   if(!committed){assert.ok(cards(r).every(c=>c.props.disabled));await act(async()=>{r.root.findAll(n=>n.type==='button'&&n.children.includes(messages.en.retry))[0].props.onClick();});assert.ok(cards(r).every(c=>!c.props.disabled));}
   await act(async()=>r.unmount());

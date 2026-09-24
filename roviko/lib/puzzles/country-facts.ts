@@ -1,3 +1,4 @@
+import { localized } from '../../i18n/content';
 import measurements from '../data/country-metrics.json';
 import worldbank from '../data/comparisons.json';
 import { COUNTRIES, type Country } from '../game-engine/questions';
@@ -6,7 +7,7 @@ import { TOPICS, type Localized } from './topics';
 import type { MosaicBoard, MosaicFact, Tile } from './model';
 
 export const FACT_EDITION = 'metrics-v2';
-const text = (en: string, nl: string): Localized => ({ en, nl });
+const text = localized;
 type Observation = { value: number; reference_year: number | null; estimated: boolean; source_id: string; source_url: string; raw: string; place?: string };
 const archive = measurements.records as unknown as Record<string, Record<string, Observation>>;
 const definitions: Record<string, { label: Localized; unit: string; explanation: Localized }> = {
@@ -39,9 +40,9 @@ function candidates(country: Country): Candidate[] {
 const catalogue = new Map(COUNTRIES.map(c => [c.id, candidates(c)]));
 export const factCoverage = () => Object.fromEntries([...catalogue].map(([id, facts]) => [id, facts.map(f => f.category)]));
 
-function display(value: number, unit: string, locale: 'en' | 'nl') {
+function display(value: number, unit: string, locale: 'en' | 'nl' | 'es') {
   const compact = (unit === 'dollars' || unit === 'number') && value >= 1e6;
-  const number = new Intl.NumberFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', { notation: compact ? 'compact' : 'standard', maximumFractionDigits: compact ? 2 : ['percent', 'years', 'births'].includes(unit) ? 1 : 0 }).format(value);
+  const number = new Intl.NumberFormat(locale === 'es' ? 'es-ES' : locale === 'nl' ? 'nl-NL' : 'en-GB', { notation: compact ? 'compact' : 'standard', maximumFractionDigits: compact ? 2 : ['percent', 'years', 'births'].includes(unit) ? 1 : 0 }).format(value);
   const units: Record<string, Localized> = { m: text('m above sea level', 'm boven zeeniveau'), km: text('km of coastline', 'km kust'), years: text('years', 'jaar'), area: text('km²', 'km²'), dollars: text('US dollars', 'Amerikaanse dollar'), percent: text('%', '%'), number: text('people', 'inwoners'), births: text('per woman', 'per vrouw') };
   return { number, unit: units[unit]?.[locale] ?? '' };
 }
@@ -55,15 +56,15 @@ export function numericCountryFact(countryId: string, date: string, used = new S
   const start = ((day + seedHash(countryId)) % pool.length + pool.length) % pool.length;
   for (let offset = 0; offset < pool.length; offset++) {
     const c = pool[(start + offset) % pool.length], d = definitions[c.category];
-    const en = display(c.value, d.unit, 'en'), nl = display(c.value, d.unit, 'nl');
+    const en = display(c.value, d.unit, 'en'), nl = display(c.value, d.unit, 'nl'), es = display(c.value, d.unit, 'es');
     const signature = c.category + ':' + en.number + ':' + c.referenceYear;
     if (used.has(signature)) continue;
     used.add(signature);
     const reference = c.referenceYear ? text(String(c.referenceYear) + (c.estimated ? ' estimate' : ''), String(c.referenceYear) + (c.estimated ? ' · schatting' : '')) : c.source.provider.startsWith('CIA') ? text('Archived source', 'Archiefbron') : text('Source catalogue', 'Broncatalogus');
-    const valueText = text(en.number + ' ' + en.unit, nl.number + ' ' + nl.unit);
+    const valueText = text(en.number + ' ' + en.unit, nl.number + ' ' + nl.unit, es.number + ' ' + es.unit);
     return {
-      text: text(d.label.en + ': ' + valueText.en + ' · ' + reference.en, d.label.nl + ': ' + valueText.nl + ' · ' + reference.nl),
-      fact: { id: FACT_EDITION + ':' + countryId + ':' + c.category + ':' + date, category: c.category, explanation: text((c.place ? c.place + ' · ' + valueText.en + '. ' : '') + d.explanation.en, (c.place ? c.place + ' · ' + valueText.nl + '. ' : '') + d.explanation.nl), source: c.source, checkedAt: measurements.imported_at, stat: { label: d.label, value: text(en.number, nl.number), unit: text(en.unit, nl.unit), reference, rawValue: c.value, referenceYear: c.referenceYear, estimated: c.estimated } },
+      text: text(d.label.en + ': ' + valueText.en + ' · ' + reference.en, d.label.nl + ': ' + valueText.nl + ' · ' + reference.nl, d.label.es + ': ' + valueText.es + ' · ' + reference.es),
+      fact: { id: FACT_EDITION + ':' + countryId + ':' + c.category + ':' + date, category: c.category, explanation: text((c.place ? c.place + ' · ' + valueText.en + '. ' : '') + d.explanation.en, (c.place ? c.place + ' · ' + valueText.nl + '. ' : '') + d.explanation.nl), source: c.source, checkedAt: measurements.imported_at, stat: { label: d.label, value: text(en.number, nl.number, es.number), unit: text(en.unit, nl.unit, es.unit), reference, rawValue: c.value, referenceYear: c.referenceYear, estimated: c.estimated } },
     };
   }
   throw new Error('QUESTION_UNAVAILABLE');

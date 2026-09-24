@@ -1,6 +1,7 @@
-export type Localized = { en: string; nl: string };
+import { localized } from '../../i18n/content';
+export type Localized = { en: string; nl: string; es?: string };
 export type Topic = { id: string; emoji: string; label: Localized; prompt: Localized; unit: string; explanation: Localized };
-const text = (en: string, nl: string): Localized => ({ en, nl });
+const text = localized;
 export const TOPICS: Topic[] = [
   { id: 'population', emoji: '👥', label: text('Population', 'Bevolking'), prompt: text('Which country has more people?', 'Welk land heeft meer inwoners?'), unit: 'number', explanation: text('Total resident population, including all ages.', 'De totale bevolking, van alle leeftijden.') },
   { id: 'forest', emoji: '🌲', label: text('Forest cover', 'Bosbedekking'), prompt: text('Which country has a larger share of forest?', 'Welk land is voor een groter deel bedekt met bos?'), unit: 'percent', explanation: text('Forest as a percentage of land area, not the total size of its forests.', 'Bos als percentage van het landoppervlak, niet de totale bosoppervlakte.') },
@@ -17,9 +18,9 @@ export const TOPICS: Topic[] = [
   { id: 'exports', emoji: '🚢', label: text('Exports', 'Export'), prompt: text('Where are exports a larger share of GDP?', 'Waar is export een groter deel van het bbp?'), unit: 'percent', explanation: text('Exports of goods and services relative to GDP. This can exceed 100% in trading economies.', 'Uitvoer van goederen en diensten ten opzichte van het bbp. Dit kan boven 100% liggen in handelseconomieën.') },
   { id: 'north', emoji: '🧭', label: text('Further north', 'Noordelijker'), prompt: text('Which country’s reference point is farther north?', 'Van welk land ligt het referentiepunt noordelijker?'), unit: 'latitude', explanation: text('Latitude of the catalog’s representative point, not the northernmost border.', 'Breedtegraad van het representatieve punt uit de catalogus, niet van de noordelijkste grens.') },
 ];
-export function formatMetric(value: number, unit: string, locale: 'en' | 'nl') {
-  if (unit === 'dollars' && value >= 1e9) return '$' + new Intl.NumberFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
-  const number = new Intl.NumberFormat(locale === 'nl' ? 'nl-NL' : 'en-GB', { maximumFractionDigits: ['percent', 'years', 'births', 'latitude'].includes(unit) ? 1 : 0 });
+export function formatMetric(value: number, unit: string, locale: 'en' | 'nl' | 'es') {
+  if (unit === 'dollars' && value >= 1e9) return '$' + new Intl.NumberFormat(locale === 'es' ? 'es-ES' : locale === 'nl' ? 'nl-NL' : 'en-GB', { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+  const number = new Intl.NumberFormat(locale === 'es' ? 'es-ES' : locale === 'nl' ? 'nl-NL' : 'en-GB', { maximumFractionDigits: ['percent', 'years', 'births', 'latitude'].includes(unit) ? 1 : 0 });
   const n = number.format(unit === 'latitude' ? Math.abs(value) : value);
-  return unit === 'percent' ? n + '%' : unit === 'area' ? n + ' km²' : unit === 'km' ? n + ' km' : unit === 'dollars' ? '$' + n : unit === 'years' ? n + (locale === 'nl' ? ' jaar' : ' years') : unit === 'births' ? n + (locale === 'nl' ? ' per vrouw' : ' per woman') : unit === 'latitude' ? n + '° ' + (value < 0 ? (locale === 'nl' ? 'Z' : 'S') : 'N') : n;
+  return unit === 'percent' ? n + '%' : unit === 'area' ? n + ' km²' : unit === 'km' ? n + ' km' : unit === 'dollars' ? '$' + n : unit === 'years' ? n + (locale === 'es' ? ' años' : locale === 'nl' ? ' jaar' : ' years') : unit === 'births' ? n + (locale === 'es' ? ' por mujer' : locale === 'nl' ? ' per vrouw' : ' per woman') : unit === 'latitude' ? n + '° ' + (value < 0 ? (locale === 'nl' ? 'Z' : 'S') : 'N') : n;
 }

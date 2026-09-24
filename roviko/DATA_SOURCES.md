@@ -111,3 +111,13 @@ The earlier UNESCO catalogue remains available under its original CC BY-SA 3.0 I
 Rank Radar derives ordered positions from the **existing** licensed country catalog, 2023 World Bank snapshot and Factbook archive described above. No competitor question bank, ranking dataset or assets were imported. The derivation filters to the 195-country roster, removes missing observations, assigns competition ranks, retains source years and displays observation coverage. Median age is consistently the 2025 estimate. Source-specific corrections (including the Zugspitze operator's numeric fact) retain their own source label and URL. Unknown geographic years are explicitly unstated. See `GAME_RULES.md` for normalization and tie handling.
 
 `public/art/rank-radar-{480,960}.webp` is original generated decorative artwork created for Roviko on 2026-09-22: a blue/white globe, ascending rounded columns and a small compass on an apricot background. It is not geographic quiz data and includes no competitor references, logos or assets. The native `Rank.imageset` is a resized PNG derivative. Creation prompt and review are recorded in `docs/ARTWORK_1_9.md`.
+
+## Spanish localization — 2026-09-23
+
+`i18n/countries-es.json` is derived from Spanish common names in the already licensed `world-countries` 5.1.0 snapshot (ODbL 1.0, Mohammed Le Doze and contributors). `i18n/terms-es.json` renders the existing ISO currency/language identifiers with the runtime’s Spanish ICU/CLDR display names. Capital exonyms and interface/template translations are authored for Roviko. No geographic observations or source years were changed.
+
+The 40 heritage records (80 clues plus explanations) in both copies of `mosaic-facts.json` now include Spanish adaptations by Roviko, 2026-09-23. These adaptations retain CC BY-SA 3.0 IGO, all original property URLs, attribution and no-endorsement notice. The `/sources` page is also available in Spanish.
+
+## 1.11 daily competition
+
+Daily scores/ranks use first-party gameplay records; no external leaderboard or competitor data is imported. Clue Trail reuses the existing licensed country/capital/border catalog. The Clue Trail card's compass-and-path SVG in `components/atelier/GameCover.tsx` was authored for Roviko in this release and uses no external image asset. Existing flag, geometry, metric, font and illustration attributions remain unchanged.

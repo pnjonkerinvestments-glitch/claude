@@ -1,7 +1,8 @@
+import { spanishContent } from '../i18n/content';
 // Pure helpers behind the daily return loop: streak milestones, the UTC reset countdown,
 // which daily game to suggest next, and the deterministic "mystery country" of the day.
 
-export const DAILY_MODES = ['rank', 'daily', 'compare', 'mosaic'] as const;
+export const DAILY_MODES = ['rank', 'daily', 'compare', 'mosaic', 'trail'] as const;
 export type DailyMode = typeof DAILY_MODES[number];
 export type DailyState = 'new' | 'active' | 'done';
 
@@ -44,14 +45,14 @@ export function streakAtRisk(streak: number, completedToday: number) {
   return streak > 0 && completedToday === 0;
 }
 
-type Achievement = { id: string; metric: string; target: number; en: string; nl: string };
+type Achievement = { id: string; metric: string; target: number; en: string; nl: string; es?: string };
 const SOLO_METRICS = ['games', 'correct', 'bestStreak', 'dailyCount', 'dailyStreak'];
 /** The locked solo achievement the player is relatively closest to, for an "almost there" nudge. */
 export function nearestAchievement(achievements: readonly Achievement[], stats: { achievements?: string[] } & Record<string, unknown>) {
   const unlocked = new Set<string>(stats.achievements ?? []);
   return achievements
     .filter(a => !unlocked.has(a.id) && SOLO_METRICS.includes(a.metric))
-    .map(a => { const value = Number(stats[a.metric] ?? 0); return { id: a.id, metric: a.metric, target: a.target, value, remaining: Math.max(0, a.target - value), progress: Math.min(1, value / a.target), name: { en: a.en, nl: a.nl } }; })
+    .map(a => { const value = Number(stats[a.metric] ?? 0); return { id: a.id, metric: a.metric, target: a.target, value, remaining: Math.max(0, a.target - value), progress: Math.min(1, value / a.target), name: { en: a.en, nl: a.nl, es: a.es ?? spanishContent(a.en) } }; })
     .sort((a, b) => b.progress - a.progress || a.remaining - b.remaining)[0] ?? null;
 }
 
@@ -64,8 +65,8 @@ function seeded(seed: number) {
   return () => { seed = (seed + 0x6d2b79f5) >>> 0; let t = seed; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
-export type MysteryCountryData = { id: string; name: string; nl: string; region: string; subregion?: string; flag: string };
-export type MysteryFact = { id: string; countryId: string; category: string; clues: { en: string; nl: string }[]; explanation: { en: string; nl: string }; source: { title: string; url: string } };
+export type MysteryCountryData = { id: string; name: string; nl: string; es?: string; region: string; subregion?: string; flag: string };
+export type MysteryFact = { id: string; countryId: string; category: string; clues: { en: string; nl: string; es?: string }[]; explanation: { en: string; nl: string; es?: string }; source: { title: string; url: string } };
 
 /** Same puzzle for everyone on a UTC date: one sourced fact, its country and three plausible alternatives. */
 export function mysteryOfTheDay(date: string, facts: MysteryFact[], countries: MysteryCountryData[]) {
