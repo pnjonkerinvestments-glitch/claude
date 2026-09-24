@@ -84,16 +84,16 @@ Zie `docs/QA_1_12.md` voor de testresultaten en wat nog op echte apparaten gecon
 
 ## Toegevoegd in 1.13.0
 
-**Reeksbevriezer**
-- Elke 7 speeldagen levert een bevriezer op, met maximaal 2 op voorraad. Mis je een dag, dan houdt een bevriezer automatisch je reeks in stand.
-- De bevriezers worden berekend uit de opgeslagen dagresultaten. Er is **geen migratie** nodig, het werkt op elk apparaat hetzelfde en je kunt ze niet kopen of opsparen.
+**Reeksschild**
+- Elke 7 speeldagen levert een schild op, met maximaal 2 op voorraad. Mis je een dag, dan houdt een schild automatisch je reeks in stand.
+- De schilden worden berekend uit de opgeslagen dagresultaten. Er is **geen migratie** nodig, het werkt op elk apparaat hetzelfde en je kunt ze niet kopen of opsparen.
 - Ze tellen pas vanaf 25 september 2026, zodat bestaande reeksen niet opeens veranderen.
 - Te zien in:
   - de reekskaart op de homepage;
   - een badge bij de reeksteller in de hero;
   - het "wat nu"-blok na een spel;
   - het weekoverzicht (❄ op geredde dagen);
-  - een tekstballon van Roviko als de bevriezer je reeks gisteren heeft gered.
+  - een tekstballon van Roviko als de schild je reeks gisteren heeft gered.
 
 **Eén tik is je antwoord**
 - In singleplayer is er geen bevestigknop meer bij Rank Radar en Pinpoint.

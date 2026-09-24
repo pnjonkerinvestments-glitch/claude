@@ -98,9 +98,9 @@ When a player has country/mode pairs they answered wrongly before, the homepage 
 
 In the native app only, the optional daily reminder is scheduled as seven weekly notifications at 18:00 local time, one per weekday, each with a different friendly line. Turning it off cancels all seven (and the earlier single reminder). The website never asks for notification permission.
 
-## Streak freezes (1.13)
+## Streak shields (1.13)
 
-The daily streak counts consecutive UTC dates with at least one completed daily game. From 25 September 2026 on, every 7 play days earn one streak freeze, with at most 2 in stock. A missed day automatically uses a freeze: the streak survives, but frozen days do not add to it. If more days are missed than there are freezes, the streak breaks and the stock is emptied. Everything is derived from the stored daily results (`lib/streak.ts`, used by `server/stats.ts`), so no extra storage is needed, the outcome is identical on every device and freezes cannot be bought or farmed. Days before the start date follow the old rule, so no existing streak changes retroactively. `stats.streakFreezes` exposes `available`, `nextIn` and the last 14 `frozenDates`.
+The daily streak counts consecutive UTC dates with at least one completed daily game. From 25 September 2026 on, every 7 play days earn one streak shield, with at most 2 in stock. A missed day automatically uses a freeze: the streak survives, but frozen days do not add to it. If more days are missed than there are freezes, the streak breaks and the stock is emptied. Everything is derived from the stored daily results (`lib/streak.ts`, used by `server/stats.ts`), so no extra storage is needed, the outcome is identical on every device and freezes cannot be bought or farmed. Days before the start date follow the old rule, so no existing streak changes retroactively. `stats.streakFreezes` exposes `available`, `nextIn` and the last 14 `frozenDates`.
 
 ## One tap answers in single player (1.13)
 

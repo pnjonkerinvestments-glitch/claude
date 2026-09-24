@@ -1,7 +1,7 @@
 'use client';
 import { CompetitionPanel } from '../atelier/Competition';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Flame, Map as MapIcon, Medal, Shuffle, Snowflake, Swords, Target, Trophy, Users } from 'lucide-react';
+import { ArrowRight, Check, Flame, Map as MapIcon, Medal, Shuffle, ShieldCheck, Swords, Target, Trophy, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -89,7 +89,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
         {!allDone && completed === 0 && <button className="text-link hero-howto" onClick={() => go('/how-to-play')}>{t('howToHomeLink')}<ArrowRight size={16}/></button>}
       </div>
       <ul className="play-hero-stats">
-        <li className={'stat-streak' + (atRisk ? ' at-risk' : '')}><span aria-hidden="true"><Flame size={22} strokeWidth={2.2}/></span><b>{streak}</b><small>{t('heroStatStreak')}</small>{!!freeze?.available && <span className="stat-freeze" title={t('freezeExplain')} aria-label={t('freezeReady').replace('{n}', String(freeze.available))}><Snowflake size={13} strokeWidth={2.6} aria-hidden="true"/>{freeze.available}</span>}<em className="stat-goal" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></em></li>
+        <li className={'stat-streak' + (atRisk ? ' at-risk' : '')}><span aria-hidden="true"><Flame size={22} strokeWidth={2.2}/></span><b>{streak}</b><small>{t('heroStatStreak')}</small>{!!freeze?.available && <span className="stat-freeze" title={t('freezeExplain')} aria-label={t('freezeReady').replace('{n}', String(freeze.available))}><ShieldCheck size={13} strokeWidth={2.6} aria-hidden="true"/>{freeze.available}</span>}<em className="stat-goal" aria-label={t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}><i style={{ width: goal.progress * 100 + '%' }}/></em></li>
         <li className="stat-today"><span aria-hidden="true"><Target size={22} strokeWidth={2.2}/></span><b>{today ? completed : 0}/{modes.length}</b><small>{t('heroStatToday')}</small></li>
         <li className="stat-countries"><button onClick={() => go('/profile')}><span aria-hidden="true"><MapIcon size={22} strokeWidth={2.2}/></span><b>{boot.stats.discovered ?? 0}</b><small>{t('heroStatCountries')}</small></button></li>
       </ul>
@@ -130,7 +130,7 @@ export function PuzzleDeck({ app, dailyPage = false, welcome = false }: { app: a
           <span className="streak-card-flame" aria-hidden="true"><Flame size={22} strokeWidth={2.2}/></span>
           <div><h2 id="streak-card-title"><b>{streak}</b> {t('heroStatStreak').toLowerCase()}</h2><p>{t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}</p></div>
           <div className={'streak-card-freeze' + (freeze?.available ? ' is-ready' : '')} title={t('freezeExplain')}>
-            <span aria-hidden="true"><Snowflake size={18} strokeWidth={2.4}/></span>
+            <span aria-hidden="true"><ShieldCheck size={18} strokeWidth={2.4}/></span>
             <div><strong>{freeze?.available ? t('freezeReady').replace('{n}', String(freeze.available)) : t('freezeName')}</strong><small>{freeze && !freeze.nextIn ? t('freezeFull') : t('freezeNext').replace('{n}', String(freeze?.nextIn ?? 7))}</small></div>
           </div>
           <p className="streak-card-note">{t('freezeExplain')}</p>

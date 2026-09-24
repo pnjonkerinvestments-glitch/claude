@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Flame, Snowflake } from 'lucide-react';
+import { ArrowRight, Check, Flame, ShieldCheck } from 'lucide-react';
 import { GameIcon } from './GameIcon';
 import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
@@ -36,7 +36,7 @@ export function DailyLoop({ app }: { app: any }) {
         {STREAK_MILESTONES.includes(streak) && boot.stats.dailyDone
           ? <span className="loop-milestone-hit">🏅 {t('loopMilestoneHit').replace('{n}', String(streak))}</span>
           : <span className="loop-goal"><span className="goal-bar" aria-hidden="true"><i style={{ width: goal.progress * 100 + '%' }}/></span>{t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target))}</span>}
-        {freeze && <span className="loop-freeze" title={t('freezeExplain')}><Snowflake size={14} strokeWidth={2.6} aria-hidden="true"/>{freeze.available ? t('freezeReady').replace('{n}', String(freeze.available)) + ' · ' : ''}{freeze.nextIn ? t('freezeNext').replace('{n}', String(freeze.nextIn)) : t('freezeFull')}</span>}
+        {freeze && <span className="loop-freeze" title={t('freezeExplain')}><ShieldCheck size={14} strokeWidth={2.6} aria-hidden="true"/>{freeze.available ? t('freezeReady').replace('{n}', String(freeze.available)) + ' · ' : ''}{freeze.nextIn ? t('freezeNext').replace('{n}', String(freeze.nextIn)) : t('freezeFull')}</span>}
       </div>
     </div>
     <h2 id="daily-loop-title">{!next ? t('loopAllDone') : left === 1 ? t('loopTitleOne') : t('loopTitle').replace('{n}', String(left))}</h2>

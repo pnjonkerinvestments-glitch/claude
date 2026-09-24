@@ -645,7 +645,7 @@ body{font-size:17px}
 /* Homepage teaser */
 
 /* ───────── Round 5: calm tiles, one look everywhere ─────────
-   Learned from Geotrivia: a warm, quiet page and big solid-colour game tiles where the whole
+   A warm, quiet page and big solid-colour game tiles where the whole
    tile is the button, with small same-colour actions underneath (practice + how to play). */
 body{background-image:none}
 
@@ -789,7 +789,7 @@ body{background-image:none}
   .howto-card{padding:16px}
 }
 
-/* ───────── Round 6: learned from Duolingo ─────────
+/* ───────── Round 6: daily quests, review and layout ─────────
    Daily quests with a crown chest, pressure-free review of missed countries, and the scorecard
    moved below the games so the first thing on the page is always something to play. */
 .day-panels{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.65fr);gap:20px;align-items:start;margin-top:28px}

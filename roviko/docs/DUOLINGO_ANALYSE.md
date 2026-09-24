@@ -41,7 +41,7 @@ Er is niets overgenomen: geen teksten, beelden, namen of vormgeving.
 
 ## Bewust (nog) niet gedaan, met advies
 
-1. **Reeksbevriezer (streak freeze).** Dit heeft de grootste impact op terugkeer. Omdat de reeks op de server wordt berekend, is er een kleine databasewijziging nodig: een tabel `streak_freezes` en een aanpassing in `stats.ts`. Advies: geef één bevriezer per 7 speeldagen, gratis, maximaal 2 tegelijk.
+1. **Reeksschild (streak freeze).** Dit heeft de grootste impact op terugkeer. Omdat de reeks op de server wordt berekend, is er een kleine databasewijziging nodig: een tabel `streak_freezes` en een aanpassing in `stats.ts`. Advies: geef één schild per 7 speeldagen, gratis, maximaal 2 tegelijk.
 2. **Weekcompetitie in kleine groepen.** De ranglijst uit 1.11 is wereldwijd. Voor kinderen is "#8 van 30 deze week" motiverender dan "#5.231 van 20.000". Dit vraagt server-werk: groepen van ongeveer 30 spelers en een wekelijkse reset. Doe dit pas als er genoeg dagelijkse spelers zijn.
 3. **Reeksen met vrienden.** Vriendschappen bestaan al. Een gedeelde reeks ("jullie spelen allebei elke dag") is een sterke sociale prikkel, maar vraagt server-opslag.
 4. **Een mascotte met emoties.** De tekstballon van Roviko reageert al (blij, of bezorgd bij een reeks in gevaar). Extra houdingen (juichen, slapen, bezorgd kijken) vragen nieuwe illustraties in de eigen Roviko-stijl.
