@@ -29,35 +29,32 @@ test("renders the playable branded homepage before hydration", async () => {
   const html = await response.text();
   assert.match(html, /<title>Roviko/);
   assert.doesNotMatch(html, /codex-preview/);
-  // One clear job above the fold: the heading, today's featured game and a single primary action.
+  // The hero: heading, one primary action, the globe with its five-arc ring, and the streak.
   assert.match(html, /Your daily detour/);
   assert.match(html, /Where shall we go today\?/);
   assert.equal((html.match(/<h1/g)||[]).length, 1);
-  assert.match(html, /class="trip-card trip-rank/);
-  assert.match(html, /Today(&#x27;|’|')s trip/);
   assert.match(html, /Start today(&#x27;|’|')s trip/);
-  assert.match(html, /Rank Radar/);
-  // Status space is reserved before hydration (skeleton), never filled with made-up zeros.
-  assert.match(html, /class="status-bar"/);
-  // More to explore: exactly three secondary cards and a way to all games.
-  assert.match(html, /More to explore/);
-  assert.equal((html.match(/class="game-card game-card-/g)||[]).length, 3);
-  assert.match(html, /World Duel/);
-  assert.match(html, /Mystery country/);
-  assert.match(html, /Classic games/);
-  assert.match(html, /href="\/daily"/);
-  // Today's journey: all five daily games as stops, in the official order.
-  assert.equal((html.match(/class="route-stop /g)||[]).length, 5);
-  for (const name of ['Rank Radar','World Trip','Side by Side','Country Mosaic','Daily Clue Trail']) assert.match(html, new RegExp(name));
-  assert.ok(html.indexOf('route-stop is-new is-next') < html.indexOf('World Trip'));
+  assert.match(html, /class="mascot mascot-happy/);
+  assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 5);
+  assert.match(html, /class="hero-stat stat-streak/);
+  assert.match(html, /Day streak|day streak/i);
+  // Today's trip is a mix: all five daily games as stops, in the official order.
+  assert.match(html, /Five stops, five different games/);
+  assert.equal((html.match(/class="tstop /g)||[]).length, 5);
+  const order=['Rank Radar','World Trip','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>html.indexOf(n));
+  assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'stops in order');
+  // Reasons to come back: quests and the week with the streak shield are visible on the homepage.
+  assert.match(html, /Daily quests/);
+  assert.match(html, /class="motivation-week"/);
   assert.match(html, /How scoring works/);
+  // More to explore: exactly three secondary cards and a way to all games.
+  assert.equal((html.match(/class="game-card game-card-/g)||[]).length, 3);
+  assert.match(html, /href="\/daily"/);
   // Play together, kept simple.
   assert.match(html, /Play together/);
-  assert.match(html, /One room code\. Up to 12 players\. A whole world to win\./);
   assert.match(html, /Create a room/);
-  // No rules, formulas or shield explanations on the homepage.
+  // No rules or formulas on the homepage.
   assert.doesNotMatch(html, /Your daily scorecard/);
-  assert.doesNotMatch(html, /streak shield/i);
   assert.doesNotMatch(html, /competition-rules/);
   // Shell: skip link, the three main destinations and the passport, brand assets.
   assert.match(html, /Skip to content/);
