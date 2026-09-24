@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.16.0",
-  "exported_at": "2026-09-24T13:34:35.003Z",
-  "source_commit": "9b560e244d818c199dbf83b87bac558fc9641b59",
+  "website_version": "1.17.0",
+  "exported_at": "2026-09-24T17:43:13.471Z",
+  "source_commit": "0461c0ad5c4ef38dfb0e4b108062c9ce55ca4376",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -25,7 +25,7 @@
   "validation": {
     "typecheck": "passed",
     "production_build": "passed",
-    "tests_passed": 127,
+    "tests_passed": 128,
     "tests_failed": 0,
     "eslint_source": "225 errors (was 228 in 1.14)",
     "browser_visual_qa": "local headless Chromium only (desktop and 390 px, light/dark, EN/NL); two-browser friends invite flow; no physical devices",
@@ -68,8 +68,8 @@
     },
     {
       "path": "DATA_SOURCES.md",
-      "bytes": 19986,
-      "sha256": "0dcbbdc4221f73e4a3b792f11136848b29c25a674e5aedc90cde3d67d5242d3b"
+      "bytes": 20782,
+      "sha256": "f3d8ac63015df798b733cd39a5620bc6901156cb7b06aec9def2796a255a977d"
     },
     {
       "path": "GAME_RULES.md",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 9543,
-      "sha256": "2160c9af954d7c4ffc195eadd9332d5a62bf83c7d9f13a028159eee42d8010a5"
+      "bytes": 10157,
+      "sha256": "a9ade121f5a16c64aac8ed97268567c68c1412636a894bf5a8d988c14d4a78a1"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -123,8 +123,8 @@
     },
     {
       "path": "app/design.css",
-      "bytes": 86782,
-      "sha256": "71eeb0281b981418be0aba2e19b3ea811f8a0425c6c72d3d1a239e2e39a0f134"
+      "bytes": 121503,
+      "sha256": "0351acc967a735adf2e66c0a55f8e018a0466431244ba8dcd91a8d849ed5c746"
     },
     {
       "path": "app/globals.css",
@@ -173,8 +173,8 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 51046,
-      "sha256": "3a2bfb19ed7f6dff3c8d6669af5130a8d78984c5334f70812e721dd4169e1143"
+      "bytes": 51632,
+      "sha256": "7a25789af3a7fa9a7c6b6207743d048751fde1ff8a4873212c25106f21e8e330"
     },
     {
       "path": "components/app/context.tsx",
@@ -198,8 +198,8 @@
     },
     {
       "path": "components/atelier/DailyQuests.tsx",
-      "bytes": 4579,
-      "sha256": "ad25152b9da3eefd46910c1f0d943982803dcd91f3b698fb521fec0fa4f82962"
+      "bytes": 5459,
+      "sha256": "6b58da7e8cbb14e5e2eaeee238638c9b37a8f2d525a7b9c85ead4a6bf733e568"
     },
     {
       "path": "components/atelier/DailyRhythm.tsx",
@@ -218,13 +218,13 @@
     },
     {
       "path": "components/atelier/GameIcon.tsx",
-      "bytes": 1003,
-      "sha256": "be58fed5bb0912929d184fb20bd598bb821988e2d94bb8af1fea383d19d11d78"
+      "bytes": 9347,
+      "sha256": "050969f2be77810b0aab3deedc73e508f813ab14c90fcabb850d590c65a6587f"
     },
     {
       "path": "components/atelier/HowToPlay.tsx",
-      "bytes": 7771,
-      "sha256": "8020189d6a3f670e3cb5a9b14d2ceb59d46b36077934484048799c98e9a4c052"
+      "bytes": 7843,
+      "sha256": "86d9d1f519dc5832363aea9e90d24ffe3026fb7b77f91379c812a38d72807273"
     },
     {
       "path": "components/atelier/MysteryCountry.tsx",
@@ -243,8 +243,8 @@
     },
     {
       "path": "components/atelier/PassportCollection.tsx",
-      "bytes": 4512,
-      "sha256": "85465cf011f0f645b4672b09992d32b9260ac11adc1f01e444c1fab1b7904086"
+      "bytes": 5459,
+      "sha256": "5d1aededfa6dfd59dc2a716870e8fb8f8e54fa14f024ea83fe0c094d9735fa35"
     },
     {
       "path": "components/atelier/ResetCountdown.tsx",
@@ -263,8 +263,8 @@
     },
     {
       "path": "components/ds/States.tsx",
-      "bytes": 4220,
-      "sha256": "4ab5e952d6ffcb8216816bf7a6c8f31131255e4776e68511e143d701836d5766"
+      "bytes": 4680,
+      "sha256": "9cf67285eb44f8efd6467a068c5a4c69788f4417a4c5414161468ab0e63e6615"
     },
     {
       "path": "components/friends/Friends.tsx",
@@ -313,8 +313,8 @@
     },
     {
       "path": "components/home/HomePage.tsx",
-      "bytes": 13883,
-      "sha256": "3e10fc14f4972477ccef66aad49b8be4d258586923a91a0277a511d528416471"
+      "bytes": 14484,
+      "sha256": "a2ac05713453d6497857fde914eb03009a33dcf0de64b251a1a3a4e3b4965d0c"
     },
     {
       "path": "components/home/useDay.ts",
@@ -323,23 +323,23 @@
     },
     {
       "path": "components/pages/ExplorePage.tsx",
-      "bytes": 11228,
-      "sha256": "2d1e4bd2ea59b22ca7e8a95086f097ed3640a01b0f9a025818cb29c14bb6d23d"
+      "bytes": 11420,
+      "sha256": "f34304c0b4dcd913f882500c4b5773c9e161886678c9a33e893e5f5f5cb01922"
     },
     {
       "path": "components/pages/InfoPages.tsx",
-      "bytes": 18628,
-      "sha256": "b09fb07a22af7d8cca268efb076873dba981017290cacfb3a04e92bc7521401c"
+      "bytes": 18672,
+      "sha256": "4bad18d37ace3a393548499268b0d9122235a7bf65fd6065da64dc5e9c2995b4"
     },
     {
       "path": "components/pages/MultiplayerPage.tsx",
-      "bytes": 5566,
-      "sha256": "c07e5b09c2314b5984a3f5b386ea48448275ba39b0f296a8f1d03cf20b6dc63e"
+      "bytes": 5672,
+      "sha256": "4574e3b0a0a9d7d5483dfcb9e0a497504711374e6f333fd473d00bc33e1408da"
     },
     {
       "path": "components/pages/PassportPage.tsx",
-      "bytes": 11725,
-      "sha256": "a8b584b9a41ad6325b1efb7a6342d9eb5a93a022dd2f17ab07785beb83e193f1"
+      "bytes": 11733,
+      "sha256": "9b76f2f058fa02b83cae974eb2df6a30530dbcd8627e6bcc8658c5f7672c8999"
     },
     {
       "path": "components/pages/RankingsPage.tsx",
@@ -348,8 +348,8 @@
     },
     {
       "path": "components/pages/ScoringPage.tsx",
-      "bytes": 3246,
-      "sha256": "be6199ff1cc6fad5d01159c3942d5c23a3b766fb694af90267cd5b993f3b134f"
+      "bytes": 3868,
+      "sha256": "34dfb0bbda99ed2f77380d21703b8634898ba0955599b18ca85960ec2c3cfcc0"
     },
     {
       "path": "components/puzzles/DuelGame.tsx",
@@ -368,8 +368,8 @@
     },
     {
       "path": "components/puzzles/PuzzleDeck.tsx",
-      "bytes": 10415,
-      "sha256": "1b47b758307e9c0155fc6d564c2ec579c69c54d1ffa89e2a5b222b9dd422f512"
+      "bytes": 8588,
+      "sha256": "41b9bf83af2dc5f86229e7b0510e8a83bfd7bdb49f45282092e28b8bbbcd43c4"
     },
     {
       "path": "components/puzzles/PuzzleGame.tsx",
@@ -728,8 +728,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 16902,
-      "sha256": "8aac19e1681faa0951eb613e1f50b7eaf0a20468adba46f815e3ac0f1106c221"
+      "bytes": 21209,
+      "sha256": "7a3d463945da04e855e60e5b5f62e4aa5c5ce7b73be41636533e71050af03d8e"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -780,6 +780,11 @@
       "path": "docs/QA_1_16.md",
       "bytes": 1600,
       "sha256": "639fb4110b05310712d5d6c631b081753226f71a4d387127af03f8df9f0f255c"
+    },
+    {
+      "path": "docs/QA_1_17.md",
+      "bytes": 1797,
+      "sha256": "e20131a05142b8f7499df8e439fd6edc04775642a2ec6dc0cd3c2ca26a3dd8db"
     },
     {
       "path": "docs/QA_1_6.md",
@@ -1048,8 +1053,8 @@
     },
     {
       "path": "i18n/quests.ts",
-      "bytes": 5361,
-      "sha256": "4af55aebce76f39b0376beaa49757ae5f7ce7220515f25f64c5068845d9dc3f4"
+      "bytes": 6133,
+      "sha256": "48b857b15d5afaf22ccc8adfc50f2c392278d0a91cf30d86c241cc0e877e27d8"
     },
     {
       "path": "i18n/rank.ts",
@@ -1058,8 +1063,8 @@
     },
     {
       "path": "i18n/redesign.ts",
-      "bytes": 31220,
-      "sha256": "9f0314c3f275b7bdfdad23a2442d74dd42034f085522220681cc02fe48b147fa"
+      "bytes": 31587,
+      "sha256": "e2e8ac675d059961643e70230167d10729b0b81d96560949b8f092558f17031b"
     },
     {
       "path": "i18n/terms-es.json",
@@ -1079,7 +1084,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "fd998691d9c0df215be3f878cb88c493c9c48a0b66785ad93368dd6628232d05"
+      "sha256": "98110ef40aa6e0d6e7744c372d8460eafea55e717e4f9f9078e1273ad1ee964b"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -1267,6 +1272,36 @@
       "sha256": "095fd2aaa899e2168d997a71982c06958f8d7ea9f4a2ceab70deb54f102c93a8"
     },
     {
+      "path": "public/art/banner-africa.webp",
+      "bytes": 13410,
+      "sha256": "bb6b90184b5897ede8defa660d01fc956b97562853af2daaa39b088078e8dcdb"
+    },
+    {
+      "path": "public/art/banner-asia.webp",
+      "bytes": 17514,
+      "sha256": "7d7be76995bb5fff0f3324844cae200e18bef4aa50f595dd28321b3d08df889a"
+    },
+    {
+      "path": "public/art/banner-europe.webp",
+      "bytes": 15222,
+      "sha256": "a4f3334faae911497d70fcf5d2b015cb6dc55eb05b46a7000721a3ed0d05c946"
+    },
+    {
+      "path": "public/art/banner-north-america.webp",
+      "bytes": 15646,
+      "sha256": "50c615e2ddf90a9f1524b12c734ce634af507d41528d105ab818868ea4d9df73"
+    },
+    {
+      "path": "public/art/banner-oceania.webp",
+      "bytes": 19014,
+      "sha256": "92e3071101639a6000db3c930b8239735d9d135784973369626a6fde7c518e0c"
+    },
+    {
+      "path": "public/art/banner-south-america.webp",
+      "bytes": 21122,
+      "sha256": "b2b5293d27dbc49c49f053f4c272dc8ad03e8041904607bbdb6ea89f3fbc51c0"
+    },
+    {
       "path": "public/art/classic-480.webp",
       "bytes": 6520,
       "sha256": "d004a7b5480eabd301e26eb1097c99af2e2e97bf8636f89d22536fb61ea216a0"
@@ -1275,6 +1310,36 @@
       "path": "public/art/classic-720.webp",
       "bytes": 10858,
       "sha256": "f4daf307252dfbfe3ef90c6b1add21da10a5ed42e1eec31ad5c34d7ac64da884"
+    },
+    {
+      "path": "public/art/classic-borders.webp",
+      "bytes": 15662,
+      "sha256": "f6d3982c059fffabf9138461026d330dad7d1465f88519bd182d0e9984ada959"
+    },
+    {
+      "path": "public/art/classic-capitals.webp",
+      "bytes": 24726,
+      "sha256": "c03dacf067068385d5419807201dfeafe0cf8d47bec845773d6f471bfc0ae0a8"
+    },
+    {
+      "path": "public/art/classic-flags.webp",
+      "bytes": 13202,
+      "sha256": "4229b2be48f5f875d57472c2fb8bdac32ad994578c879a4306c0903b78097078"
+    },
+    {
+      "path": "public/art/classic-order.webp",
+      "bytes": 10768,
+      "sha256": "ca9d88cd6129d5fab1d83f4c015082ee1a3c6225051283cbe049d85b36e2796c"
+    },
+    {
+      "path": "public/art/classic-pinpoint.webp",
+      "bytes": 16646,
+      "sha256": "e8f0eb9fcdf76dd5b779fa5db03ac5958ad68403a8d01f2668507c98cd2ba3f3"
+    },
+    {
+      "path": "public/art/classic-trail.webp",
+      "bytes": 18236,
+      "sha256": "6a23026e8cf64b86298a72e0be76668dd4bced760858c276bf040ea16964184d"
     },
     {
       "path": "public/art/clue-trail-480.webp",
@@ -1312,14 +1377,39 @@
       "sha256": "ffd02bb3eb7e624ce2e5d0a851e0f3cad318048503bb0f6bd9cde0b6178736ab"
     },
     {
+      "path": "public/art/fact-day.webp",
+      "bytes": 25110,
+      "sha256": "5cfadd130f636db9e9ed1e81362776e5c3014690721af5b1e73dea3681abc92e"
+    },
+    {
+      "path": "public/art/fact-once.webp",
+      "bytes": 17398,
+      "sha256": "ec4771300e01c9a5618c0b97a6a988c267b7de4509f512f7c898afe1b66c68e5"
+    },
+    {
+      "path": "public/art/fact-points.webp",
+      "bytes": 23210,
+      "sha256": "f4268c1a6dd6aaedcf6e13429f3701b88f21653f9c9029724764cbc5d7164250"
+    },
+    {
+      "path": "public/art/fact-timer.webp",
+      "bytes": 24916,
+      "sha256": "4681078621c0d97aec49eb4a9609d783b099234b5d18dd97c5fd65340ea1e241"
+    },
+    {
       "path": "public/art/friends-hero.webp",
-      "bytes": 96098,
-      "sha256": "136fa86ac879a7e4131b01de874b0af9daf0b8a5921cc742a83aed65711a36b8"
+      "bytes": 128934,
+      "sha256": "25c93d630bafa3e94357c010aa8030749cf1fe41b07a258e60010326806f4cab"
     },
     {
       "path": "public/art/friends-row.webp",
       "bytes": 47954,
       "sha256": "068b0411bce2157a1fbd642209f95d29f7b36108e0570baa4e57e28fe8996d3a"
+    },
+    {
+      "path": "public/art/howto-hero.webp",
+      "bytes": 20682,
+      "sha256": "31225dc374caa3d578e14eba91525d2db18d53df7e7639d7b7a091fb79819b15"
     },
     {
       "path": "public/art/howto-mascot.webp",
@@ -1332,9 +1422,14 @@
       "sha256": "7a06c7cda86c052cc145a0da859c4f4b5fdabdbe25939002547daefd44f1202f"
     },
     {
+      "path": "public/art/journey-scene.webp",
+      "bytes": 16296,
+      "sha256": "91e79e00575548f825cc7c4acadb93f3de2d578ab2e40419a04df69bdb673d5b"
+    },
+    {
       "path": "public/art/lobby-create.webp",
-      "bytes": 57640,
-      "sha256": "eab0cf3efc1537d5c74162eba7b79c1851b193906afe36bc24c10af451e93873"
+      "bytes": 91318,
+      "sha256": "06ff157ee335dc10354d24111cb7b4ae0031d28f86b1974d0f3db120b4eca1c2"
     },
     {
       "path": "public/art/mystery-480.webp",
@@ -1347,19 +1442,44 @@
       "sha256": "dd7d886b50e0b04466331cb687e5b0a7685ec01f1033adea10457a54e35576f4"
     },
     {
-      "path": "public/art/pick-harbour.webp",
-      "bytes": 23742,
-      "sha256": "64a3f255b15b35eff05530ad40683d377dfc2fee310ad6c2659aa3fc14d3d91a"
+      "path": "public/art/passport-stamps.webp",
+      "bytes": 45920,
+      "sha256": "bb9a4b1b66bb860dc89954e4d3d6cee789dde769179f4146094ad6f683de1b56"
     },
     {
-      "path": "public/art/pick-lake.webp",
-      "bytes": 21106,
-      "sha256": "8bc595b0504d722595734c94aac8fe6d7eccb3abdef40c436888fdb98636516f"
+      "path": "public/art/pick-africa.webp",
+      "bytes": 19806,
+      "sha256": "f0de0d5557399e4889b1ea53024799e6a72a17c15084a6d8cbcb14bc8841a3f7"
     },
     {
-      "path": "public/art/pick-tropical.webp",
-      "bytes": 24060,
-      "sha256": "6e19f786857485bade0e4e2840eae370d8ba5b01b9207645e9a338a7944da739"
+      "path": "public/art/pick-asia.webp",
+      "bytes": 33832,
+      "sha256": "b627fa08e2a7b422889e63c3ecad5f3dd720da9c67a283d16c64de8ca8bc1934"
+    },
+    {
+      "path": "public/art/pick-europe.webp",
+      "bytes": 25686,
+      "sha256": "64e7340f5dd8aec13cc2386d86e86b79c8af2b06b3aefd35cc6347d80a1fa7e1"
+    },
+    {
+      "path": "public/art/pick-north-america.webp",
+      "bytes": 23042,
+      "sha256": "8f8d6a4d9a2005ccaf1cd3d79cb091a80fbe0b29a274a397eb6664a6c59b1925"
+    },
+    {
+      "path": "public/art/pick-oceania.webp",
+      "bytes": 28446,
+      "sha256": "93205d1ba87a20e627627e71995dccc13b6edb1b752501bfee022311d19221fc"
+    },
+    {
+      "path": "public/art/pick-south-america.webp",
+      "bytes": 29842,
+      "sha256": "601ef3461107a35c42ed5a0624306eff6d12c97200f2be3cccc5ba482a344ee5"
+    },
+    {
+      "path": "public/art/quests-scene.webp",
+      "bytes": 16316,
+      "sha256": "ee5f4cdc20717833c63411b6f7ea68c68fa322d1892bf1de056eee9bdcf7e00b"
     },
     {
       "path": "public/art/rank-radar-480.webp",
@@ -1372,34 +1492,39 @@
       "sha256": "0d2c3b0acff554b9bd2900094747dfcc732055733f4ddf30f7a973daa08ac131"
     },
     {
-      "path": "public/art/region-africa.webp",
-      "bytes": 7062,
-      "sha256": "adf4ce1533f675185ec9c4a370b1e26d81a4309e69bb11f6c8edb13b90f03482"
+      "path": "public/art/scene-africa.webp",
+      "bytes": 31136,
+      "sha256": "b34757483ba47ecdf0322e85c97e4425189c594b92e803e658844f25a69af515"
     },
     {
-      "path": "public/art/region-asia.webp",
-      "bytes": 7128,
-      "sha256": "74f41d9375808b43f8a497567d630962b4df49f8f3afc80c6b23215553622d75"
+      "path": "public/art/scene-asia.webp",
+      "bytes": 45060,
+      "sha256": "20541f251eb08f31829c9db148b5e812db9da824c78ca570920c68702f948972"
     },
     {
-      "path": "public/art/region-europe.webp",
-      "bytes": 6582,
-      "sha256": "f495e9c8ae1b5f103ec04bf7303ec9d341db7f996003230ef51424baf90f0733"
+      "path": "public/art/scene-europe.webp",
+      "bytes": 37726,
+      "sha256": "0f677576af713e7e22578f5e5792725cbf4da4e792a6cc8c020be20b425c5863"
     },
     {
-      "path": "public/art/region-north-america.webp",
-      "bytes": 7088,
-      "sha256": "fce61c7cb320647e9ee89be402996220e4ae73fcef2c1da4171e11890b6d5b2b"
+      "path": "public/art/scene-north-america.webp",
+      "bytes": 34408,
+      "sha256": "9e7911de89963f9c2ef9ad0cb7a4da1afe6f54ef3aa3857e33d9f4579c7a4b37"
     },
     {
-      "path": "public/art/region-oceania.webp",
-      "bytes": 8196,
-      "sha256": "e380d6ab11aed1302801fe97fbd9b5ae68590c3997247558d28977bb650b92a9"
+      "path": "public/art/scene-oceania.webp",
+      "bytes": 37460,
+      "sha256": "7c4a434ff6bc311b06c0b7228ffc3d4443a1b2a3fb9d8f928d4e0559686a5908"
     },
     {
-      "path": "public/art/region-south-america.webp",
-      "bytes": 7012,
-      "sha256": "5fbb98f36d30512d705e9b20338d0372db3213863a6faeda1841bc67051c05d7"
+      "path": "public/art/scene-south-america.webp",
+      "bytes": 40932,
+      "sha256": "63f49e3f6cc61e2960da7e000b5e6afbf4d0ee16880f06a5ab850b1f0dc0a596"
+    },
+    {
+      "path": "public/art/scoring-hero.webp",
+      "bytes": 31174,
+      "sha256": "0a3155e8defd93a7a8535254d1767e28419f80be922547324b4a607c4d79c275"
     },
     {
       "path": "public/art/side-by-side-480.webp",
@@ -1410,16 +1535,6 @@
       "path": "public/art/side-by-side-960.webp",
       "bytes": 19816,
       "sha256": "318c3c982b05250c7ab30d3ad9e1537e128e0538fcf39a81c20a7b5a78e0820a"
-    },
-    {
-      "path": "public/art/spot-clue-trail.webp",
-      "bytes": 56350,
-      "sha256": "8404f70edf6726de1c4414864fa530aa6c5c7e2c40edf7d8aff3de1ef7e99395"
-    },
-    {
-      "path": "public/art/spot-country-mosaic.webp",
-      "bytes": 52836,
-      "sha256": "cca8d5bdc6470230db7cc22a25d0b56e4f493d97ce4803f4e94980e15d6d7496"
     },
     {
       "path": "public/art/spot-rank-radar.webp",
@@ -4509,7 +4624,7 @@
     {
       "path": "public/sw.js",
       "bytes": 906,
-      "sha256": "3acc5013b6d9b570a9fbb04d49d814e44b409c596947d6040ab79c7accf21c44"
+      "sha256": "b0b7935def4e163ccdfc1ada535ac4efd11d66d489d8417d0722212a86aded8f"
     },
     {
       "path": "scripts/build-verified.sh",
@@ -4678,8 +4793,8 @@
     },
     {
       "path": "tests/atelier.test.mjs",
-      "bytes": 7749,
-      "sha256": "5dbcd33c31114bdf67b8b3770f5bed7653661bc856a5f1bd107450c59070ccbf"
+      "bytes": 9698,
+      "sha256": "a1aa2d1fd38626f9d102938024622f1c344de7bbbac75e1fca78097fa2ab8b9c"
     },
     {
       "path": "tests/competition.test.mjs",
@@ -4753,8 +4868,8 @@
     },
     {
       "path": "tests/rendered-html.test.mjs",
-      "bytes": 4036,
-      "sha256": "1f421dc007a4f2100c33fcb2771f58b8e62fa322bf7f4103d2043901a806d413"
+      "bytes": 4039,
+      "sha256": "753154df940cce48400b52e6b633638985cc99ed223852cf23574f74d7be9f66"
     },
     {
       "path": "tests/streak.test.mjs",
