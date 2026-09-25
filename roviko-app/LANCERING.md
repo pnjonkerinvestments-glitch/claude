@@ -72,7 +72,7 @@ Met een Mac kan het ook: `cd roviko-app && npm ci && npx cap sync ios && npx cap
 ### Voor het indienen (1.20)
 
 - **Notes for reviewer:** plak de tekst uit `roviko/docs/APP_REVIEW_NOTES.md`.
-- **Privacylabels en leeftijd:** volg `roviko/docs/STORE_PRIVACY.md`. Voorstel 9+, omdat spelers de namen van onbekende tegenstanders zien. Kies niet de categorie "Kinderen".
+- **Privacylabels en leeftijd:** volg `roviko/docs/STORE_PRIVACY.md`. Apple kwam uit op 13+, omdat spelers de namen van onbekende tegenstanders zien. Kies niet de categorie "Kinderen".
 - **Moderatie:** meldingen moet je binnen 24 uur bekijken; zie `roviko/docs/MODERATIE.md`. Zet `ADMIN_USER_IDS` in Cloudflare, dan kan het via roviko.app/admin.
 
 ### Aandachtspunten bij Apple
