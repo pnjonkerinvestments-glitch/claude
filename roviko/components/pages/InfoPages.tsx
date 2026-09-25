@@ -16,7 +16,8 @@ type Section = { id: string; title: L; body: L[]; todo?: L };
 const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 
 /** Details given by the owner (September 2026). Change them here only; both documents use them. */
-const OPERATOR = { name: 'Roviko', address: 'Herengracht 584, 1018 CJ Amsterdam', email: 'support@roviko.app' };
+/** Roviko is run privately by Pepijn Jonker (no registered company yet); add a KvK number here once registered. */
+const OPERATOR = { name: 'Pepijn Jonker', project: 'Roviko', address: 'Herengracht 584, 1018 CJ Amsterdam', email: 'support@roviko.app' };
 /** Current hosting. Update this line when the site moves (for example to Cloudflare). */
 const HOSTING = l('OpenAI (ChatGPT hosting)', 'OpenAI (ChatGPT-hosting)', 'OpenAI (alojamiento de ChatGPT)');
 export const LEGAL_UPDATED = '2026-09-25';
@@ -53,9 +54,9 @@ const PRIVACY: Section[] = [
       `De website en de database worden gehost door ${HOSTING.nl}. Kies je ervoor om met Google in te loggen, dan bevestigt Google je e-mailadres aan ons. We verkopen geen gegevens en delen ze met niemand anders.`,
       `El sitio web y su base de datos están alojados por ${HOSTING.es}. Si decides iniciar sesión con Google, Google nos confirma tu correo electrónico. No vendemos datos ni los compartimos con nadie más.`)] },
   { id: 'controller', title: l('Who is responsible', 'Wie is verantwoordelijk', 'Quién es responsable'), body: [
-    l(`${OPERATOR.name}, ${OPERATOR.address}, is responsible for your data. Questions, requests to see or correct your data, or complaints: ${OPERATOR.email}. You may also complain to the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).`,
-      `${OPERATOR.name}, ${OPERATOR.address}, is verantwoordelijk voor je gegevens. Vragen, verzoeken om je gegevens in te zien of te verbeteren, of klachten: ${OPERATOR.email}. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.`,
-      `${OPERATOR.name}, ${OPERATOR.address}, es responsable de tus datos. Preguntas, solicitudes de acceso o rectificación, o quejas: ${OPERATOR.email}. También puedes reclamar ante la autoridad neerlandesa de protección de datos (Autoriteit Persoonsgegevens).`)] },
+    l(`${OPERATOR.project} is a private project of ${OPERATOR.name}, ${OPERATOR.address}, who is responsible for your data. Questions, requests to see or correct your data, or complaints: ${OPERATOR.email}. You may also complain to the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).`,
+      `${OPERATOR.project} is een privéproject van ${OPERATOR.name}, ${OPERATOR.address}, die verantwoordelijk is voor je gegevens. Vragen, verzoeken om je gegevens in te zien of te verbeteren, of klachten: ${OPERATOR.email}. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.`,
+      `${OPERATOR.project} es un proyecto personal de ${OPERATOR.name}, ${OPERATOR.address}, responsable de tus datos. Preguntas, solicitudes de acceso o rectificación, o quejas: ${OPERATOR.email}. También puedes reclamar ante la autoridad neerlandesa de protección de datos (Autoriteit Persoonsgegevens).`)] },
 ];
 
 const TERMS: Section[] = [
@@ -80,9 +81,9 @@ const TERMS: Section[] = [
       'Roviko is een gratis leerspel en wordt aangeboden zoals het is. We doen ons best om het beschikbaar en de feiten juist te houden, maar kunnen dat niet garanderen. We zijn niet aansprakelijk voor indirecte schade, behalve bij opzet of grove nalatigheid. Wijzigingen in deze voorwaarden maken we op deze pagina bekend, met de datum; belangrijke wijzigingen tonen we ook in het spel.',
       'Roviko es un juego educativo gratuito, ofrecido tal cual. Hacemos lo posible por mantenerlo disponible y los datos correctos, pero no podemos garantizarlo. No somos responsables de daños indirectos, salvo dolo o negligencia grave. Anunciamos los cambios de estas condiciones en esta página, con la fecha; los cambios importantes también se muestran en el juego.')] },
   { id: 'operator', title: l('Who runs Roviko', 'Wie Roviko aanbiedt', 'Quién ofrece Roviko'), body: [
-    l(`Roviko is offered by ${OPERATOR.name}, ${OPERATOR.address}. Contact: ${OPERATOR.email}. Dutch law applies to these terms.`,
-      `Roviko wordt aangeboden door ${OPERATOR.name}, ${OPERATOR.address}. Contact: ${OPERATOR.email}. Op deze voorwaarden is Nederlands recht van toepassing.`,
-      `Roviko lo ofrece ${OPERATOR.name}, ${OPERATOR.address}. Contacto: ${OPERATOR.email}. Estas condiciones se rigen por la legislación neerlandesa.`)] },
+    l(`Roviko is offered privately by ${OPERATOR.name}, ${OPERATOR.address}. Contact: ${OPERATOR.email}. Dutch law applies to these terms.`,
+      `Roviko wordt als privéproject aangeboden door ${OPERATOR.name}, ${OPERATOR.address}. Contact: ${OPERATOR.email}. Op deze voorwaarden is Nederlands recht van toepassing.`,
+      `Roviko lo ofrece a título personal ${OPERATOR.name}, ${OPERATOR.address}. Contacto: ${OPERATOR.email}. Estas condiciones se rigen por la legislación neerlandesa.`)] },
 ];
 
 type Dataset = { name: string; provider: string; year: string; licence: string; usedFor: L; href: string; downloads: { label: L; href: string }[]; licenceHref: string };

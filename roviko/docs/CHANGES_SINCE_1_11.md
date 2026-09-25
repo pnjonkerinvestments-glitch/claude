@@ -383,3 +383,7 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.19.1`.
 - Privacy en voorwaarden zijn ingevuld met de gegevens van de eigenaar: Roviko, Herengracht 584, 1018 CJ Amsterdam, support@roviko.app. Geen gele "nog in te vullen"-blokken meer.
 - Nieuw in de privacyverklaring: bewaartermijnen, hosting (nu OpenAI/ChatGPT-hosting), Google-login, de Autoriteit Persoonsgegevens. Nieuw in de voorwaarden: leeftijd (account vanaf 16, jonger met toestemming; gastspel voor iedereen), aansprakelijkheid, wijzigingen en Nederlands recht. Beide pagina's tonen de datum van de laatste wijziging.
 - Automatische opschoning (`server/retention.ts`, draait hooguit elke 6 uur mee met gewoon verkeer): gasten zonder spel en zonder geldige sessie in 12 maanden worden met hun gegevens verwijderd, verlopen sessies en kamers ook. Accounts worden alleen door de eigenaar zelf verwijderd. Getest in `tests/integration.test.mjs`.
+
+## 1.19.2: aanbieder als particulier
+
+Geen migratie. Cacheversie `roviko-shell-v1.19.2`. Roviko is (nog) geen ingeschreven bedrijf: privacy en voorwaarden noemen nu Pepijn Jonker als verantwoordelijke ("Roviko is een privéproject van Pepijn Jonker"), met hetzelfde adres en support@roviko.app. Na een KvK-inschrijving alleen `OPERATOR` in `components/pages/InfoPages.tsx` aanpassen.
