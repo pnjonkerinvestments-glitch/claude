@@ -23,6 +23,14 @@ Besluit van de eigenaar (P. Jonker), 25 september 2026: Roviko verhuist van de C
   (met cron-trigger, KV-namespace `roviko-state` en SMTP-/RUN_TOKEN-secrets). De volgende
   Roviko-deploy vervangt de code en wist de cron (`"triggers": {"crons": []}`). De
   secrets en de KV-namespace moet de eigenaar in het dashboard verwijderen.
+- Stap 1 gedaan: Roviko draait via GitHub Actions op workers.dev (PR #2, 25 september).
+- Stap 2, besluit van de eigenaar (25 september): **opnieuw beginnen**. De spelersgegevens
+  van de ChatGPT-hosting worden niet overgezet; Roviko op Cloudflare begint met de
+  bestaande `roviko-db` (alleen testgegevens). Google-login en ADMIN_USER_IDS waren niet
+  ingesteld en worden voorlopig niet ingesteld.
+- Stap 3: de eigenaar heeft akkoord gegeven en zet roviko.app zelf om in het dashboard
+  (custom domain op de worker `roviko`; MX/TXT blijven staan).
+- Stap 4: `HOSTING` staat op Cloudflare (`LEGAL_UPDATED` was al 2026-09-25).
 
 ## Stappen (in deze volgorde)
 
