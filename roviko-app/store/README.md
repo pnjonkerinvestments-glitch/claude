@@ -1,6 +1,6 @@
 # Winkelafbeeldingen
 
-Deze screenshots zijn gemaakt van de website 1.17, met een lokale ontwikkelserver als gast. Ze zijn gemaakt met Playwright:
+Deze screenshots zijn gemaakt van de website 1.18 (app-modus), met een lokale ontwikkelserver als gast. Ze zijn gemaakt met Playwright:
 
 1. Voor elk scherm en elke taal (NL, EN) wordt een ruwe screenshot gemaakt. Op de telefoon gebeurt dat met een viewport van 440×956 bij 3×, op de iPad met 1032×1376 bij 2×.
 2. Daarna komt er een kop in Fredoka en een ondertitel in Manrope boven, op een crème-mintachtergrond. De screenshot staat in een donkergroen kader.

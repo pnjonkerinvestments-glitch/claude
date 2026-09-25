@@ -96,3 +96,12 @@ test('1.17 explore and passport: region cards use cleaned scenes; the copy keeps
     assert.match(src, /scene-card/); assert.match(src, /banner-/); assert.doesNotMatch(src, /region-flags|region-stamp-grid/);
   }
 });
+
+test('1.18 daily results are one short card and games keep the way on in reach on phones', () => {
+ const result = fs.readFileSync('components/atelier/DailyResult.tsx', 'utf8');
+ assert.match(result, /resultBeaten/); assert.match(result, /competitionRank/);
+ for (const f of ['components/RovikoApp.tsx', 'components/puzzles/RankGame.tsx', 'components/puzzles/PuzzleGame.tsx']) { const s = fs.readFileSync(f, 'utf8'); assert.match(s, /<DailyResult /, f); assert.doesNotMatch(s, /<DailyLoop |<CompetitionPanel app=\{app\} date=/, f); }
+ const css = fs.readFileSync('app/design.css', 'utf8');
+ assert.match(css, /\.solo-next-row,\.rank-controls:has\(\.btn\.primary\),\.puzzle-bottom:has\(\.btn\.primary\),\.duel-next\{position:fixed!important/);
+ assert.match(css, /\.topbar\.is-game\{display:none\}/);
+});

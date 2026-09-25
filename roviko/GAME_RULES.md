@@ -8,7 +8,7 @@ Five games are published once per UTC date. Everyone receives the same frozen co
 
 | Game | Rounds | Daily points |
 | --- | --- | --- |
-| World Trip | 5: flag, capital, map, border, area ordering | 200 per correct round; map credit is proportional to accuracy |
+| Daily Detour (formerly World Trip) | 20: flags, capitals, map, borders and area ordering, four of each, shuffled, never the same type twice in a row | 50 per correct question; map credit is proportional to accuracy (map points ÷ 20). Editions saved before 1.18 keep five stops of 200 |
 | Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
 | Side by Side | 10 comparisons | Correct: 100; wrong: 0 |
 | Country Mosaic | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |

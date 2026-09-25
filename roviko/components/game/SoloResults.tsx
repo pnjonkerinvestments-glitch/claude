@@ -8,21 +8,21 @@ export function SoloResults({ result, t, locale, onAgain, onShare, onHome, follo
     const correct = answers.filter((a: any) => a.correct).length;
     const wrong = answers.filter((a: any) => !a.correct);
     const perfect = correct === answers.length;
-    return <div className="results-page learning-results">
+    const daily = !!result.competition;
+    return <div className={'results-page learning-results' + (daily ? ' is-daily' : '')}>
         <Mascot mood={perfect ? 'cheer' : correct / Math.max(1, answers.length) >= .5 ? 'happy' : 'wink'} size={132} className="result-mascot"/>
-        <span className="eyebrow">{t(result.daily ? 'daily' : result.settings?.mode ?? 'mixed')}</span>
+        <span className="eyebrow">{t(result.competition?.mode === 'trail' ? 'dailyTrail' : result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed')}</span>
         <h1>{t(perfect ? 'learningPerfectTitle' : 'learningResultTitle')}</h1>
-        <p className="results-subtitle">{t('learningResultCopy')}</p>
+        {!daily && <p className="results-subtitle">{t('learningResultCopy')}</p>}
         <div className="learning-total"><strong>{correct}<span> / {answers.length}</span></strong><p>{t('correctAnswers')}</p></div>
         <div className="answer-trail" aria-label={`${correct} / ${answers.length} ${t('correctAnswers')}`}>
             {answers.map((a: any, i: number) => <span key={i} className={a.correct ? 'found' : 'discovered'} title={`${i + 1}: ${t(a.correct ? 'correct' : 'incorrect')}`} aria-hidden="true">{a.correct ? '✓' : '✕'}</span>)}
         </div>
 
-        {result.daily && <p className="muted">{t('streakRule')}</p>}
-        <div className="learning-highlights"><span><Target size={17} aria-hidden="true"/><b>{answers.length ? Math.round(correct / answers.length * 100) : 0}%</b> {t('accuracy')}</span><span><Flame size={17} aria-hidden="true"/><b>{result.bestStreak ?? 0}</b> {t('bestStreak')}</span>{result.daily && <span><Sun size={17} aria-hidden="true"/><b>{dailyStreak}</b> {t('days')}</span>}</div>
+        {!daily && <div className="learning-highlights"><span><Target size={17} aria-hidden="true"/><b>{answers.length ? Math.round(correct / answers.length * 100) : 0}%</b> {t('accuracy')}</span><span><Flame size={17} aria-hidden="true"/><b>{result.bestStreak ?? 0}</b> {t('bestStreak')}</span>{result.daily && <span><Sun size={17} aria-hidden="true"/><b>{dailyStreak}</b> {t('days')}</span>}</div>}
         {result.practice && <p className="muted">{t('practiceSaved')}</p>}
         {followUp}
-        <div className="results-actions"><button className="btn secondary" onClick={onHome}>{t('finishForNow')}</button><button className="btn ghost" onClick={onShare}><Share2 size={17}/>{t('share')}</button><button className="btn ghost" onClick={onAgain}><RefreshCw size={18}/>{t('playAgain')}</button></div>
-        <section className="review-section"><h2>{wrong.length ? <><Sprout size={20} aria-hidden="true"/> {t('learningReview')}</> : <><Sparkles size={20} aria-hidden="true"/> {t('perfect')}</>}</h2>{wrong.length ? <><p>{t('learningReviewCopy')}</p><div className="review-list">{wrong.map((a: any, i: number) => <div key={i}><GameIcon mode={a.mode}/><div><strong>{a.answerLabel[locale]}</strong><p>{a.fact[locale]}</p></div><ArrowRight size={18}/></div>)}</div></> : <p>{t('learningPerfectCopy')}</p>}</section>
+        <div className="results-actions"><button className="btn secondary" onClick={onHome}>{t('finishForNow')}</button><button className="btn ghost" onClick={onShare}><Share2 size={17}/>{t('share')}</button>{!daily && <button className="btn ghost" onClick={onAgain}><RefreshCw size={18}/>{t('playAgain')}</button>}</div>
+        <details className="review-section result-review"><summary><h2>{wrong.length ? <><Sprout size={20} aria-hidden="true"/> {t('learningReview')}</> : <><Sparkles size={20} aria-hidden="true"/> {t('perfect')}</>}</h2></summary>{wrong.length ? <><p>{t('learningReviewCopy')}</p><div className="review-list">{wrong.map((a: any, i: number) => <div key={i}><GameIcon mode={a.mode}/><div><strong>{a.answerLabel[locale]}</strong><p>{a.fact[locale]}</p></div><ArrowRight size={18}/></div>)}</div></> : <p>{t('learningPerfectCopy')}</p>}</details>
     </div>;
 }

@@ -1,4 +1,4 @@
-import { dailyScore, dailyRoundPoints, COMPETITION_SUFFIX } from '../lib/daily-scoring';
+import { dailyScore, dailyRoundPoints, COMPETITION_SUFFIX, DETOUR_ROUNDS } from '../lib/daily-scoring';
 import { recordCompetition } from './competition';
 import { validAnswer } from '../lib/game-engine/validate-answer';
 import { reviewSession } from './reviews';
@@ -40,7 +40,7 @@ export async function startSolo(env: Env, user: User, settings: Settings, practi
     const ranked = !!daily && competition;
     const kind = (trail ? 'daily-trail' : settings.mode) + (ranked ? COMPETITION_SUFFIX : '');
     if (daily) {
-        settings = { mode: trail ? 'trail' : 'daily', count: 5, timer: 0, difficulty: 'medium', region: 'World' };
+        settings = { mode: trail ? 'trail' : 'daily', count: trail ? 5 : DETOUR_ROUNDS, timer: 0, difficulty: 'medium', region: 'World' };
         const existing = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=? ORDER BY created_at DESC LIMIT 1", user.id, daily, kind);
         if (existing)
             return soloView(JSON.parse(existing.state));
@@ -78,7 +78,7 @@ export async function soloAction(env: Env, user: User, id: string, action: strin
         if (!validAnswer(s.questions[s.round], value)) throw new AppError('INVALID_INPUT');
         const result = enrichMapFeedback(s.questions[s.round], value, { ...evaluateLearning(s.questions[s.round], value, s.streak), responseTime: Math.max(0, elapsed) });
         s.answers.push({ ...result, value, at: Date.now(), cluesUsed: s.questions[s.round].clues ? s.cluesShown?.[s.round] ?? 1 : undefined, questionId: s.questions[s.round].id });
-        if(s.competition) { const a=s.answers.at(-1)!; a.points=dailyRoundPoints(s.competition.mode,a); s.score=dailyScore(s); }
+        if(s.competition) { const a=s.answers.at(-1)!; a.points=dailyRoundPoints(s.competition.mode,a,s.questions.length); s.score=dailyScore(s); }
         s.streak = result.streak;
         s.bestStreak = Math.max(s.bestStreak, s.streak);
         s.phase = 'reveal';

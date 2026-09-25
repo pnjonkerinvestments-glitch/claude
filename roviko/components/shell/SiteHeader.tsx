@@ -44,7 +44,7 @@ export function SiteHeader({ path, hideTabs }: { path: string; hideTabs: boolean
   const streak = boot.stats.dailyStreak ?? 0;
   const passportActive = path === '/profile';
   return <>
-    <header className="topbar">
+    <header className={"topbar" + (hideTabs ? " is-game" : "")}>
       <div className="topbar-inner">
         <A href="/" className="topbar-logo" aria-label={BRAND.name}><Logo/></A>
         <nav className="topnav" aria-label={t('navigationLabel')}>

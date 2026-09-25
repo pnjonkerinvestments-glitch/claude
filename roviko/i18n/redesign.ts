@@ -2,11 +2,12 @@
 // Spread last in messages.ts, so these keys win over older ones with the same name.
 export const redesignMessages = {
   en: {
+    resultFirstPlayer: 'You are the first to finish today.', resultBeaten: 'Better than {n}% of today\u2019s players',
     scoringFiveTitle: 'The five daily games', scoringFiveLead: 'These are the only games that give points.', backLabel: 'Back',
     skipToContent: 'Skip to content',
     navFriends: 'Friends', navPassport: 'Passport', navSettings: 'Settings', navMore: 'More',
     settingsTitle: 'Settings', settingsLanguage: 'Language', settingsTheme: 'Appearance', settingsLight: 'Light', settingsDark: 'Dark', settingsSound: 'Sound effects',
-    homeKicker: 'Your daily detour', homeTitle: 'Where shall we go today?', homeLead: 'A few curious minutes. A little more of the world.',
+    homeKicker: 'Your daily trip', homeTitle: 'Where shall we go today?', homeLead: 'A few curious minutes. A little more of the world.',
     tripKicker: "Today's trip", tripStart: "Start today's trip", tripContinue: 'Continue: {game}', tripNextStop: 'Next stop: {game}',
     tripMeta: '5 short games · about 10 minutes', tripStopOf: 'Stop {n} of 5',
     tripDoneTitle: 'Trip complete. Nice work.', tripDoneCopy: 'New games in {time}.', tripDoneCta: 'See your results',
@@ -63,11 +64,12 @@ export const redesignMessages = {
     friendsOnlineNow: 'Online now', friendsOnline: 'Online', friendsOffline: 'Offline', friendsInRoom: 'In a room', friendsOnlineCount: '{n} online', friendsNobodyOnline: 'None of your friends is online right now. Invite them anyway: they see it as soon as they open Roviko.', friendsRequests: 'Friend requests', friendsAll: 'All friends', friendsAddTitle: 'Add a friend', friendsAddCopy: 'Share your code, or type theirs.', inviteToPlay: 'Invite to play', inviteOne: 'Invite', invited: 'Invited', joinFriend: 'Join', inviteSent: 'Invite sent to {name}', inviteFriendsTitle: 'Invite friends', inviteFriendsCopy: 'One tap: they get your invite, no code needed.', inviteNoFriends: 'No friends yet.', inviteAllHere: 'All your friends are already in this room.', inviteGuest: 'Create a free account to invite friends directly.', inviteIncoming: '{name} invites you to play', inviteIncomingCopy: 'A room is waiting for you.', inviteJoin: 'Join', inviteLater: 'Not now', heroStatPoints: 'Points today', mascotStart: 'Five games are packed. Shall we go?', mascotLeft: 'Only {n} to go! Next: {game}', mascotLeftOne: 'One more stop! {game} is waiting.', mascotDone: 'All five done. See you tomorrow!', mascotRisk: 'Your {n}-day journey needs one game today!', mascotFirst: 'New here? Start with the first stop.', beatYesterday: 'Yesterday you scored {n}. Can you beat it today?', beatBestDay: 'Your best day: {n} points. Go for a new record!', tripMixTitle: 'Five stops, five different games', tripUpNext: 'Up next', tripUpTo: 'Up to 1,000 points', streakStartCopy: 'Play one daily game to start your journey.', togetherOnline: '{names} can play right now.', showAll: 'Show all', bestPrevious: 'Your best so far: {n}', bestBeaten: 'New personal best! Previous: {n}', microNice: 'Nice catch.', microOneMore: 'One more stop?', microAlmost: 'So close.', microCurious: 'Curious? Read why.',
   },
   nl: {
+    resultFirstPlayer: 'Jij bent vandaag de eerste die klaar is.', resultBeaten: 'Beter dan {n}% van de spelers van vandaag',
     scoringFiveTitle: 'De vijf dagspellen', scoringFiveLead: 'Alleen deze spellen geven punten.', backLabel: 'Terug',
     skipToContent: 'Naar de inhoud',
     navFriends: 'Vrienden', navPassport: 'Paspoort', navSettings: 'Instellingen', navMore: 'Meer',
     settingsTitle: 'Instellingen', settingsLanguage: 'Taal', settingsTheme: 'Weergave', settingsLight: 'Licht', settingsDark: 'Donker', settingsSound: 'Geluidseffecten',
-    homeKicker: 'Je dagelijkse omweg', homeTitle: 'Waar gaan we vandaag heen?', homeLead: 'Een paar nieuwsgierige minuten. Een stukje meer van de wereld.',
+    homeKicker: 'Je dagelijkse reis', homeTitle: 'Waar gaan we vandaag heen?', homeLead: 'Een paar nieuwsgierige minuten. Een stukje meer van de wereld.',
     tripKicker: 'Reis van vandaag', tripStart: 'Begin de reis van vandaag', tripContinue: 'Verder: {game}', tripNextStop: 'Volgende stop: {game}',
     tripMeta: '5 korte spellen · ongeveer 10 minuten', tripStopOf: 'Stop {n} van 5',
     tripDoneTitle: 'Reis voltooid. Mooi gedaan.', tripDoneCopy: 'Nieuwe spellen over {time}.', tripDoneCta: 'Bekijk je resultaten',
@@ -124,11 +126,12 @@ export const redesignMessages = {
     friendsOnlineNow: 'Nu online', friendsOnline: 'Online', friendsOffline: 'Offline', friendsInRoom: 'In een kamer', friendsOnlineCount: '{n} online', friendsNobodyOnline: 'Er is nu geen vriend online. Nodig ze toch uit: ze zien het zodra ze Roviko openen.', friendsRequests: 'Vriendschapsverzoeken', friendsAll: 'Alle vrienden', friendsAddTitle: 'Vriend toevoegen', friendsAddCopy: 'Deel je code, of typ die van hen.', inviteToPlay: 'Uitnodigen', inviteOne: 'Uitnodigen', invited: 'Uitgenodigd', joinFriend: 'Meedoen', inviteSent: 'Uitnodiging verstuurd naar {name}', inviteFriendsTitle: 'Vrienden uitnodigen', inviteFriendsCopy: 'Eén tik: ze krijgen je uitnodiging, zonder code.', inviteNoFriends: 'Nog geen vrienden.', inviteAllHere: 'Al je vrienden zitten al in deze kamer.', inviteGuest: 'Maak een gratis account om vrienden direct uit te nodigen.', inviteIncoming: '{name} nodigt je uit om te spelen', inviteIncomingCopy: 'Er wacht een kamer op je.', inviteJoin: 'Meedoen', inviteLater: 'Niet nu', heroStatPoints: 'Punten vandaag', mascotStart: 'Vijf spellen staan klaar. Zullen we?', mascotLeft: 'Nog maar {n} te gaan! Volgende: {game}', mascotLeftOne: 'Nog één stop! {game} wacht op je.', mascotDone: 'Alle vijf klaar. Tot morgen!', mascotRisk: 'Je reis van {n} dagen heeft vandaag één spel nodig!', mascotFirst: 'Nieuw hier? Begin bij de eerste stop.', beatYesterday: 'Gisteren haalde je {n}. Versla je dat vandaag?', beatBestDay: 'Je beste dag: {n} punten. Ga voor een nieuw record!', tripMixTitle: 'Vijf stops, vijf verschillende spellen', tripUpNext: 'Nu aan de beurt', tripUpTo: 'Tot 1.000 punten', streakStartCopy: 'Speel één dagspel om je reis te beginnen.', togetherOnline: '{names} kan nu spelen.', showAll: 'Toon alles', bestPrevious: 'Je beste tot nu toe: {n}', bestBeaten: 'Nieuw persoonlijk record! Vorige: {n}', microNice: 'Goed gezien.', microOneMore: 'Nog één stop?', microAlmost: 'Bijna.', microCurious: 'Nieuwsgierig? Lees waarom.',
   },
   es: {
+    resultFirstPlayer: 'Eres el primero en terminar hoy.', resultBeaten: 'Mejor que el {n}% de los jugadores de hoy',
     scoringFiveTitle: 'Los cinco juegos diarios', scoringFiveLead: 'Solo estos juegos dan puntos.', backLabel: 'Volver',
     skipToContent: 'Ir al contenido',
     navFriends: 'Amigos', navPassport: 'Pasaporte', navSettings: 'Ajustes', navMore: 'Más',
     settingsTitle: 'Ajustes', settingsLanguage: 'Idioma', settingsTheme: 'Apariencia', settingsLight: 'Claro', settingsDark: 'Oscuro', settingsSound: 'Efectos de sonido',
-    homeKicker: 'Tu desvío diario', homeTitle: '¿Adónde vamos hoy?', homeLead: 'Unos minutos de curiosidad. Un poco más de mundo.',
+    homeKicker: 'Tu viaje diario', homeTitle: '¿Adónde vamos hoy?', homeLead: 'Unos minutos de curiosidad. Un poco más de mundo.',
     tripKicker: 'Viaje de hoy', tripStart: 'Empieza el viaje de hoy', tripContinue: 'Sigue: {game}', tripNextStop: 'Próxima parada: {game}',
     tripMeta: '5 juegos cortos · unos 10 minutos', tripStopOf: 'Parada {n} de 5',
     tripDoneTitle: 'Viaje completado. Buen trabajo.', tripDoneCopy: 'Nuevos juegos en {time}.', tripDoneCta: 'Ver tus resultados',

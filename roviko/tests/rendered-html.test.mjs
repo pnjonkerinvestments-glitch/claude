@@ -30,7 +30,7 @@ test("renders the playable branded homepage before hydration", async () => {
   assert.match(html, /<title>Roviko/);
   assert.doesNotMatch(html, /codex-preview/);
   // The hero: heading, one primary action, the globe with its five-arc ring, and the streak.
-  assert.match(html, /Your daily detour/);
+  assert.match(html, /Your daily trip/);
   assert.match(html, /Where shall we go today\?/);
   assert.equal((html.match(/<h1/g)||[]).length, 1);
   assert.match(html, /Start today(&#x27;|’|')s trip/);
@@ -41,7 +41,7 @@ test("renders the playable branded homepage before hydration", async () => {
   // Today's trip is a mix: all five daily games as stops, in the official order.
   assert.match(html, /Five stops, five different games/);
   assert.equal((html.match(/class="tstop /g)||[]).length, 5);
-  const order=['Rank Radar','World Trip','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>html.indexOf(n));
+  const order=['Rank Radar','Daily Detour','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>html.indexOf(n));
   assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'stops in order');
   // Reasons to come back: quests and the week with the streak shield are visible on the homepage.
   assert.match(html, /Daily quests/);
@@ -50,9 +50,8 @@ test("renders the playable branded homepage before hydration", async () => {
   // More to explore: exactly three secondary cards and a way to all games.
   assert.equal((html.match(/class="game-card game-card-/g)||[]).length, 3);
   assert.match(html, /href="\/daily"/);
-  // Play together, kept simple.
-  assert.match(html, /Play together/);
-  assert.match(html, /Create a room/);
+  // Friends and rooms live in their own tab; the homepage stays short.
+  assert.doesNotMatch(html, /class="together"/);
   // No rules or formulas on the homepage.
   assert.doesNotMatch(html, /Your daily scorecard/);
   assert.doesNotMatch(html, /competition-rules/);

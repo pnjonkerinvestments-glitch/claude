@@ -1340,3 +1340,162 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
 [data-theme=dark] .page-header-art{shape-outside:none!important}
 /* Modals open with the game's own logo. */
 .app-modal .game-icon.modal-logo{width:64px;height:64px;border-radius:18px;margin:0 auto var(--space-2)}
+
+/* ===== 1.18 · compact daily result: your points, how you compare today, one way on ===== */
+.daily-result{display:grid;gap:var(--space-4);width:100%;max-width:520px;margin:var(--space-2) auto 0;padding:var(--space-5);border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card);text-align:center}
+.daily-result-score{display:grid;justify-items:center;gap:2px}
+.daily-result-score strong{font:600 clamp(2.75rem,2rem + 3vw,3.5rem)/1 var(--font-display);color:var(--color-ink);font-variant-numeric:tabular-nums}
+.daily-result-score strong small{font-size:.4em;color:var(--color-ink-soft);font-weight:600}
+.daily-result-score>span{display:inline-flex;align-items:center;gap:8px;color:var(--color-ink-soft);font-weight:700}
+.daily-result-best{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;background:#fbeccb;color:#8a5a00;font-size:.8125rem}
+[data-theme=dark] .daily-result-best{background:#3a2e17;color:#f6c870}
+.daily-result-compare{display:grid;gap:8px;justify-items:center;padding:var(--space-4);border-radius:18px;background:var(--color-mint)}
+.daily-result-compare p{display:inline-flex;align-items:center;gap:8px;margin:0;font:600 1.0625rem/1.3 var(--font-display);color:var(--color-ink)}
+.daily-result-compare small{color:var(--color-ink-soft);font-weight:700;font-size:.875rem}
+.daily-result-bar{display:block;width:100%;max-width:320px;height:10px;border-radius:99px;background:color-mix(in srgb,var(--color-surface) 70%,transparent);overflow:hidden}
+.daily-result-bar i{display:block;height:100%;border-radius:99px;background:var(--color-brand)}
+.daily-result-next{width:100%;justify-content:center}
+.daily-result-done{display:grid;gap:4px;margin:0;font-weight:700;color:var(--color-ink)}
+.daily-result-done .reset-countdown{color:var(--color-ink-soft);font-weight:600}
+/* Daily result pages stay short: the review folds away. */
+.result-review{width:100%;border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card);padding:0 var(--space-5);text-align:left}
+.result-review>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;cursor:pointer;list-style:none;font:600 1.0625rem var(--font-display)}
+.result-review>summary::-webkit-details-marker{display:none}
+.result-review>summary::after{content:"";width:10px;height:10px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform var(--speed)}
+.result-review[open]>summary::after{transform:rotate(-135deg)}
+.result-review>summary h2{display:inline-flex;align-items:center;gap:8px;margin:0;font:inherit}
+.result-review[open]{padding-bottom:var(--space-5)}
+.is-daily .result-mascot{width:96px!important;height:96px!important}
+.is-daily h1{margin-block:4px!important}
+.learning-results.is-daily .learning-total{display:none}
+.learning-results.is-daily .answer-trail{margin-block:var(--space-2)}
+/* Touch screens have no keyboard focus ring to skip to; the skip link only confuses there. */
+@media (hover:none) and (pointer:coarse){.skip-link{display:none}}
+.is-daily>p:not([class]),.rank-finished.is-daily>h1+p{display:none}
+.rank-finished.is-daily .rank-medal-row{margin-block:var(--space-2)}
+
+/* ===== 1.18 · games on phones: one screen, no scrolling to continue ===== */
+@media (max-width:760px){
+  .topbar.is-game{display:none}
+  .game-main{padding-top:max(8px,env(safe-area-inset-top))!important;padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+  .game-header{top:max(6px,env(safe-area-inset-top))!important;margin-bottom:var(--space-3)!important;padding:8px 10px 10px!important}
+  /* Rules and settings live behind the ? button; the playing field gets the room. */
+  .game-main .auto-next-wrap,.game-main .auto-next,.game-main .daily-score-rule,.game-main .rank-trail,.game-main .game-rule-help,.game-main .puzzle-keyboard,.game-main .trail-clues>p,.game-main .comparison-heading>p,.game-main .rank-heading>p:not(.rank-eyebrow){display:none!important}
+  .game-main .save-status,.game-main .puzzle-save{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  /* The way on is always in reach: a bar fixed to the bottom of the screen. */
+  .solo-next-row,.rank-controls:has(.btn.primary),.puzzle-bottom:has(.btn.primary),.duel-next{position:fixed!important;left:0;right:0;bottom:0;z-index:45;margin:0!important;padding:12px 16px calc(12px + env(safe-area-inset-bottom))!important;background:color-mix(in srgb,var(--color-canvas) 94%,transparent);box-shadow:0 -8px 24px rgba(24,33,29,.08);display:flex!important;justify-content:center}
+  .solo-next-row .btn,.rank-controls .btn.primary,.puzzle-bottom .btn.primary{width:100%;max-width:520px;min-height:54px;justify-content:center;font-size:1.0625rem}
+  .puzzle-bottom:has(.btn.primary)>*:not(div),.puzzle-bottom:has(.btn.primary) .text-link{display:none}
+  .puzzle-bottom:has(.btn.primary)>div{display:flex;width:100%;max-width:520px}
+  .duel-next{border-radius:0!important;min-height:78px;font-size:1.0625rem}
+  .mosaic-dock{padding-bottom:calc(12px + env(safe-area-inset-bottom))!important}
+}
+
+/* ===== 1.18 · shorter pages on phones ===== */
+@media (max-width:760px){
+  /* Home: hero, today's five stops, today's quests and a small row of extras. Streak and shield sit in the hero stats; friends have their own tab. */
+  .home{gap:var(--space-6)!important}
+  .home-hero-v2 .lead,.home-hero-v2 .hero-actions .text-link{display:none}
+  .home .journey-card,.home .together{display:none!important}
+  .home .motivation{grid-template-columns:1fr}
+  .home .more-row{grid-template-columns:repeat(3,72%)}
+  .home .more-row .game-card-art{height:96px}
+  .home .more-row .game-card-tagline{display:none}
+  /* All games: the five daily games as compact rows instead of tall cards. */
+  .dgrid{grid-template-columns:1fr!important;gap:var(--space-3)!important}
+  .dcard,.dcard:nth-child(4),.dcard:nth-child(5){grid-column:auto!important;display:grid!important;grid-template-columns:92px minmax(0,1fr);align-items:stretch}
+  .dcard-art,.dcard:nth-child(5) .dcard-art{height:auto!important;min-height:100%}
+  .dcard-art .game-cover-image{object-fit:cover!important}
+  .dcard-help,.dcard-practice,.dcard p,.dcard-points,.game-icon.dcard-logo{display:none!important}
+  .dcard-state{top:6px!important;left:6px!important;padding:2px 7px!important;font-size:.6875rem!important}
+  .dcard-state i{width:6px;height:6px}
+  .dcard-body{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 10px!important;padding:14px 14px!important}
+  .dcard h3{font-size:1.0625rem!important;margin:0}
+  .dcard-start{width:auto!important;min-height:40px!important;margin:0!important;padding:0 14px!important;font-size:.875rem!important}
+  .dcard-start svg{display:inline-block!important}
+  .extras-row{grid-template-columns:1fr 1fr!important;gap:var(--space-3)!important}
+  .extras-row .game-card-art{height:88px!important}
+  .extras-row .game-card-tagline,.extras-row .game-card-meta{display:none}
+  .extras-row .game-card-body{padding:12px 14px 14px!important}
+  .extras-row .game-card-title{font-size:1.0625rem}
+  .deck-extras{margin-top:0!important}
+  .all-games .page-header-art{display:none}
+}
+@media (max-width:760px){
+  /* Footer on phones: the tab bar and settings menu already hold the main links; keep only the small print. */
+  .app-footer .footer-brand,.app-footer .footer-nav>div:not(:last-child),.app-footer .footer-nav h2{display:none!important}
+  .app-footer .footer-inner{padding-block:var(--space-4) 0!important;gap:0!important}
+  .app-footer .footer-nav{display:block!important}
+  .app-footer .footer-nav>div:last-child{display:flex!important;flex-wrap:wrap;justify-content:center;gap:4px 18px}
+  .app-footer .footer-nav a{min-height:36px;font-size:.875rem}
+  .app-footer .copyright{text-align:center;margin-top:4px!important}
+  .site-main{padding-bottom:var(--space-6)!important}
+  .hero-ring{width:200px!important;height:200px!important}
+}
+/* Room settings: pick the game by its logo, like everywhere else. */
+.mode-picker{border:0;margin:0;padding:0;display:grid;gap:8px}
+.mode-picker legend{padding:0;margin-bottom:8px;font-weight:700;font-size:.875rem}
+.mode-picker>div{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mode-pick{display:flex;align-items:center;gap:10px;min-height:52px;padding:6px 10px;border:1px solid var(--color-line-strong);border-radius:14px;background:var(--color-surface);color:var(--color-ink);font:700 .875rem/1.2 var(--font-sans);text-align:left;cursor:pointer}
+.mode-pick .game-icon{width:36px;height:36px;border-radius:11px;flex-shrink:0}
+.mode-pick[aria-pressed=true]{border-color:var(--color-brand);box-shadow:inset 0 0 0 1px var(--color-brand);background:var(--color-mint)}
+.mode-pick:disabled{opacity:.6;cursor:not-allowed}
+/* Same logo tile everywhere: rounded squares, never circles. */
+.howto-tab .game-icon{border-radius:11px!important;width:36px!important;height:36px!important}
+.howto-tab[aria-selected=true] .game-icon{background:#fff!important}
+.howto-tab{padding-left:7px!important}
+
+/* ===== 1.18 · app mode (App Store / Google Play, home-screen app) ===== */
+.is-app body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent}
+.is-app .app-footer,.is-app .skip-link{display:none!important}
+.is-app button,.is-app .tabbar a,.is-app .topbar{-webkit-user-select:none;user-select:none}
+.is-app .topbar{padding-top:env(safe-area-inset-top)}
+@media (max-width:760px){.is-app .site-main{padding-bottom:calc(96px + env(safe-area-inset-bottom))!important}.is-app .game-main{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}}
+@media (max-width:760px){
+  .duel-next{left:16px!important;right:16px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;width:auto!important;max-width:none!important;min-height:56px!important;padding:0 16px!important;border-radius:16px!important;box-shadow:0 10px 26px rgba(24,33,29,.18)!important}
+  .duel-game,.duel-page{padding-bottom:96px}
+}
+/* Daily results: the score card comes straight after the title, the rest follows. */
+.results-page.is-daily,.rank-finished.is-daily,.puzzle-finished.is-daily{display:flex!important;flex-direction:column;align-items:center;gap:var(--space-3)}
+.is-daily>.result-mascot{order:-4}.is-daily>.eyebrow,.is-daily>.rank-eyebrow{order:-3}.is-daily>h1{order:-2}.is-daily>.daily-result{order:-1}
+.is-daily>.result-review{order:5}
+@media (max-width:760px){
+  .game-main:has(.is-daily) .game-header{display:none}
+  .is-daily>.result-mascot{width:72px!important;height:72px!important}
+  .is-daily>h1{font-size:1.5rem!important;line-height:1.15}
+  .learning-results.is-daily .answer-trail span{width:22px;height:22px;font-size:.75rem}
+}
+
+/* ===== 1.18 · consistency: light cards everywhere, one primary colour for actions ===== */
+.passport-cover{background:var(--color-surface)!important;color:var(--color-ink)!important;box-shadow:var(--shadow-card)}
+.passport-cover::after{display:none}
+.passport-cover h2{color:var(--color-ink)!important}
+.passport-cover-id p,.passport-cover p{color:var(--color-ink-soft)!important}
+.passport-cover .avatar.large{box-shadow:0 0 0 4px var(--color-mint)!important}
+.passport-stats .passport-stat,.passport-stat{background:var(--color-surface-2)!important;color:var(--color-ink)!important;border:0!important}
+.passport-stat strong{color:var(--color-ink)!important}.passport-stat span{color:var(--color-ink-soft)!important}
+.passport-save{background:var(--color-mint)!important;color:var(--color-ink)!important;border:0!important}
+.passport-save h3,.passport-save p{color:var(--color-ink)!important}
+.passport-save .btn.gold{background:var(--color-brand)!important;color:#fff!important;box-shadow:none!important}
+.passport-save .text-link.on-dark,.passport-cover .btn.ghost.on-dark{color:var(--link)!important}
+.passport-preview{background:#fbeccb!important;color:#8a5a00!important}
+[data-theme=dark] .passport-save .btn.gold{color:var(--color-brand-ink)!important}
+/* Scoring: the rule cards already carry the logos, so the extra logo row goes. */
+.five-games{display:none!important}
+@media (max-width:760px){
+  .passport-collection .discovery-atlas .passport-map{display:none}
+  .scoring-page .rule-card p{font-size:.9375rem}
+}
+.passport-stats{background:var(--color-line)!important}
+@media (max-width:760px){
+  .passport-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .passport-stats .passport-stat:last-child{grid-column:auto!important}
+  .passport-stat{padding:10px 12px!important}
+  .passport-stat strong{font-size:1.25rem!important}
+  .passport-stat span{font-size:.75rem!important;line-height:1.25}
+  .passport-cover{gap:var(--space-4)!important}
+  .passport-save{padding:var(--space-4)!important}
+}
+/* Shorter pages on desktop too: friends live in the top navigation, daily cards get a lower picture. */
+.home .together{display:none!important}
+@media (min-width:761px){.dcard-art{height:150px}.dcard-body{padding-top:32px}}

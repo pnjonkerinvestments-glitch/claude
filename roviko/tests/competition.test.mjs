@@ -23,3 +23,12 @@ test('every Clue Trail has useful continent choices, a capital third, a flag las
   for(const q of questions){const c=COUNTRIES.find(c=>c.id===q.countryId);assert.equal(q.options.length,4);assert.equal(new Set(q.options.map(o=>o.id)).size,4);assert.ok(q.options.every(o=>!o.flag));assert.equal(q.options.filter(o=>COUNTRIES.find(c=>c.id===o.id).region!==c.region).length,2);assert.match(q.clues[2].en,/capital/);assert.match(q.clues[3].en,/flag/);assert.ok(!q.clues[2].en.includes(c.name));}
  }
 });
+
+test('Daily Detour: twenty questions share 1,000 points; older five-stop editions keep 200 per stop', () => {
+ assert.equal(dailyRoundPoints('daily',{mode:'flags',correct:true},20),50);
+ assert.equal(dailyRoundPoints('daily',{mode:'pinpoint',correct:false,mapPoints:500},20),25);
+ assert.equal(dailyRoundPoints('daily',{mode:'flags',correct:true}),200);
+ const answers=Array.from({length:20},()=>({mode:'capitals',correct:true}));
+ assert.equal(dailyScore({competition:{version:1,mode:'daily'},answers,questions:answers}),1000);
+ assert.equal(dailyScore({competition:{version:1,mode:'daily'},answers:answers.slice(0,5),questions:answers.slice(0,5)}),1000);
+});

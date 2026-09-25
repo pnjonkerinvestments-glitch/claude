@@ -312,3 +312,47 @@ De tekst en knoppen die in de ontwerpen waren ingetekend, zijn weggehaald met in
 - alle illustraties bestaan en zijn licht, en er zijn geen ongebruikte bestanden;
 - elke spelvorm heeft een eigen logo, en de logo's worden gebruikt;
 - de regiokaarten houden hun tekstruimte.
+
+## 1.18.0: Daily Detour, kort resultaat, spellen zonder scrollen
+
+**Geen nieuwe migratie.** De laatste blijft `0004_daffy_tusk.sql`. De cacheversie van de service worker is `roviko-shell-v1.18.0`.
+
+**Daily Detour (was Wereldreis).**
+- Het dagspel "Wereldreis" heet nu **Daily Detour** (NL: Dagelijkse Omweg, ES: Desvío diario).
+- Het zijn nu **20 vragen uit alle spelsoorten door elkaar**: vier keer vlaggen, hoofdsteden, de kaart, buurlanden en grootte. Ze zijn geschud, en hetzelfde type komt nooit twee keer achter elkaar.
+- Elke vraag is 50 punten waard; op de kaart telt de nauwkeurigheid. Het maximum blijft 1.000.
+- De punten per vraag zijn 1.000 gedeeld door het aantal vragen. Een editie die al met vijf stops is opgeslagen, houdt dus 200 per stop, en er verandert niets met terugwerkende kracht.
+- De vijf-stoppenroute boven het spel is weg; de voortgangsbalk in de spelkop toont "3 / 20".
+
+**Resultaat na een dagspel.** Eén kaart in Roviko-stijl:
+- je punten;
+- je plek tussen de spelers van vandaag ("#3 van 25 spelers") met een balk "Beter dan 88% van de spelers van vandaag";
+- één knop naar het volgende dagspel, of wanneer de nieuwe spellen komen.
+
+Het overzicht "nog x spellen", de dagdoelen, de reeks-uitleg en de lange scorekaart staan niet meer onder het resultaat. De terugblik op je antwoorden is ingeklapt.
+
+**Spellen op de telefoon (en in de app).**
+- De bovenbalk verdwijnt tijdens een spel.
+- De knop om verder te gaan staat altijd vast onderin; je hoeft nooit te scrollen om door te gaan.
+- Regels, puntenuitleg en "automatisch verder" staan achter de ?-knop, zodat het speelveld meer ruimte krijgt.
+- Getest met een script dat elk spel uitspeelt op 390×844 en 375×667: Rank Radar, Daily Detour, Side by Side, Clue Trail, Wereldduel en vier klassiekers.
+
+**Kortere pagina's.**
+- Homepage: het blok "Samen spelen" is weg, want Vrienden heeft een eigen tabblad. Op mobiel verdwijnen ook de reiskaart (reeks en schild staan al bovenin) en de extra tekst.
+- Alle spellen op mobiel: de dagspellen zijn compacte rijen met een Start-knop.
+- De voettekst op mobiel toont alleen nog de kleine lettertjes.
+- Paspoort: de kaart is lichter, met compacte statistieken; de wereldkaart is op mobiel weggelaten.
+
+**Consistentie.**
+- Het paspoort is een lichte kaart, zonder donker blok en zonder gouden knop.
+- De tabs van Hoe speel je gebruiken dezelfde vierkante logotegels als de rest van de site.
+- In de kamerinstellingen kies je het spel nu met logo's.
+- De naam "Dagelijkse expeditie" is overal vervangen door de nieuwe naam.
+- Op Punten stond de logorij dubbel met de regelkaarten; die rij is weg.
+
+**App-modus.** In de App Store- en Google Play-app (Capacitor) en als thuisscherm-app krijgt de pagina de class `is-app`: geen voettekst en geen skip-link. `?app=1` toont deze modus in een browser.
+
+**Tests:** 130/130. Nieuw:
+- detour-puntentelling (20 × 50, oude editie 5 × 200);
+- 20 gemengde vragen zonder herhaling na elkaar;
+- resultaatkaart en vaste actiebalk.

@@ -86,12 +86,20 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     if (pool.length < 4)
         throw new Error('Not enough countries for these settings');
     const result: Question[] = [];
+    // Daily Detour: every question type, four times over, shuffled per block of five and never the same type twice in a row.
+    const DETOUR = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
+    const detourOrder: string[] = [];
+    if (settings.mode === 'daily') while (detourOrder.length < settings.count) {
+        let block = shuffle([...DETOUR], rng);
+        if (block[0] === detourOrder.at(-1)) block = [...block.slice(1), block[0]];
+        detourOrder.push(...block);
+    }
     let used = new Set(exclude);
     let attempts = 0;
     while (result.length < settings.count && attempts++ < settings.count * 200) {
         const i = result.length;
         const daily = seed.startsWith('daily:');
-        const mode = settings.mode === 'daily' ? ['flags', 'capitals', 'pinpoint', 'borders', 'order'][i % 5] : settings.mode === 'mixed' ? enabled[i % enabled.length] : settings.mode;
+        const mode = settings.mode === 'daily' ? detourOrder[i] : settings.mode === 'mixed' ? enabled[i % enabled.length] : settings.mode;
         let candidates = pool.filter(c => !(mode === 'capitals' || mode === 'trail') || (!GEOGRAPHY_POLICY.excludeSensitiveCapitalQuestions.includes(c.id) && c.capitals.length));
         if (mode === 'capitals' || mode === 'trail') candidates = candidates.filter(c => ![...c.capitals,...c.capitals.map(spanishCapital)].some(cap => { const a = cap.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return [c.name,c.nl,spanishCountry(c.name)].some(n => { const b=n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return b.includes(a) || a.includes(b); }); }));
         if (mode === 'borders')

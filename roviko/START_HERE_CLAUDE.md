@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.17.0 · 24 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
+**Versie 1.18.0 · 25 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -18,6 +18,7 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Eigen Roviko-identiteit; geen code, vragen, illustraties of herkenbare creatieve uitwerking van concurrerende quizsites kopiëren.
 - **Alleen vijf officiële dagspellen leveren dagelijkse ranglijstpunten op.** Maximaal 1.000 per spel/5.000 per dag. Geen tijdsbonus of timer. Cumulatieve totalen zijn de som over alle dagen.
 - Practice, bonus-warm-up en persoonlijke herkansingen blijven zonder punten/timer. Multiplayer behoudt eigen matchpunten/XP, gescheiden van dagtotalen.
+- Daily Detour (1.18, was Wereldreis): 20 vragen, vier van elk type (vlag, hoofdstad, kaart, buren, grootte), geschud en nooit twee keer hetzelfde type na elkaar; 50 punten per vraag, kaart naar nauwkeurigheid. Punten per vraag = 1000 ÷ aantal vragen, zodat oudere edities met vijf stops (200 per stop) gelijk blijven.
 - Dagelijkse Clue Trail: vijf landen; hints continent, grens, hoofdstad, vlag; opties zonder vlaggen. Correct na 1/2/3/4 hints = 200/150/100/50, fout = 0.
 - Rank Radar: zes landen, vier onderwerpen per vraag; expliciet bevestigen, daarna alle cijfers/rangen uitleggen.
 - Mosaic: dagelijkse numerieke feiten, duidelijk geselecteerde categorieën, rood gemarkeerde mismatches; server-gevalideerde dagpunten en betaalde hints volgens GAME_RULES.md.
@@ -31,6 +32,7 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Visueel systeem in `app/design.css` (laatste laag, 1.14): tokens (canvas #F6F3E9, ink #18211D, forest #163B32, brand #1F806B, mint #DDEDE6, gold #F6B84B), alleen Fredoka + Manrope, vaste schalen, één schaduw. Nieuwe schermen gebruiken `components/ds` (States, Celebration) en de tokens, geen nieuwe losse kleuren. Eén primaire actie per scherm; scoreregels horen op `/scoring`, niet op de homepage. Lijniconen via `GameIcon` in plaats van emoji in de interface.
 - Vrienden (alleen accounts) zien elkaars online-status (heartbeat `/api/presence`, 90 s venster) en kunnen elkaar direct in een kamer uitnodigen (`/api/rooms/:code/invite`, `/api/invites/:id`). Online-status is alleen zichtbaar voor geaccepteerde vrienden; gasten schrijven geen presence.
 - Elke spelvorm heeft een eigen logo in `components/atelier/GameIcon.tsx` (getekende SVG, tweekleurig via `currentColor`); nieuwe spelvormen krijgen daar ook een logo. Gebruik altijd `<GameIcon mode=…/>` waar een spel genoemd wordt, geen emoji of losse iconen.
+- Na een dagspel toont het resultaat alleen je punten, je plek tussen de spelers van vandaag en één knop naar het volgende spel (`components/atelier/DailyResult.tsx`); de terugblik is ingeklapt. Tijdens een spel op de telefoon staat de knop om verder te gaan altijd vast onderin en verdwijnt de bovenbalk; houd dat zo bij nieuwe spellen.
 - Lay-out 1.17 volgt de ontwerpen van de eigenaar (ChatGPT, september 2026): veel witruimte, kleur in de illustraties en logo's, niet in achtergronden; lichte kaarten in plaats van donkere blokken; op mobiel een zwevende tabbalk. Nieuwe pagina's gebruiken dezelfde kaarttaal (illustratie boven, logo op de rand, titel, één regel, één actie).
 - Illustraties (1.16/1.17) zijn vlakke cartoons met Roviko de wereldbol, in `public/art/` (WebP). Nieuwe illustraties volgen die stijl; paginakoppen krijgen ze via `PageHeader art="..."`. Scènes zijn decoratie: vlaggen en vormen in vragen en antwoorden komen altijd uit de data, nooit uit een illustratie.
 - De homepage heeft de mascotte met ring (één boog per dagspel) en een tekstballon die zegt hoeveel spellen er nog zijn; de reeks, dagdoelen en week met reeksschild staan zichtbaar op de homepage. De mascotte-stemmingen staan in `components/ds/Mascot.tsx`.

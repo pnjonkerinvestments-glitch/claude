@@ -1,6 +1,6 @@
 'use client';
-import { CompetitionPanel, DailyScoreRule } from '../atelier/Competition';
-import { DailyLoop } from '../atelier/DailyLoop';
+import { DailyScoreRule } from '../atelier/Competition';
+import { DailyResult } from '../atelier/DailyResult';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 import { Mascot } from '../ds/Mascot';
@@ -59,15 +59,15 @@ export function RankGame({ id, app }: { id: string; app: any }) {
   const again=async()=>{if(lock.current)return;lock.current=true;setBusy(true);try{const fresh=await post('/ranks',{daily:false});go('/rank/'+fresh.id);}catch{setError('puzzleLoadError');}finally{lock.current=false;setBusy(false);}};
   return <section className="puzzle-game rank-game">
     <GameHeader mode="rank" title={t('rankRadar')} edition={editionLabel(game.daily,lang,t('puzzleStartPractice'))} count={Math.min(game.round+1,game.total)+' / '+game.total} unit={t('countries')} progress={game.answers.length/game.total} onExit={()=>backToStart?backToStart():go('/daily')} exitLabel={t('back')} help={<HowToPlayButton mode="rank" t={t} locale={lang} auto={game.phase!=='finished'}/>}/>
-    <ol className="rank-trail" aria-label={t('rankTrail')}>{Array.from({length:game.total},(_,i)=><li key={i} className={i<places.length?'is-done place-'+places[i]:i===game.round&&game.phase!=='finished'?'is-current':''}>{i<places.length?<span role="img" aria-label={t('rankPlace'+places[i])}>{medalFor(places[i])}</span>:<span aria-hidden="true">{i+1}</span>}</li>)}</ol>
+    {game.phase!=='finished'&&<ol className="rank-trail" aria-label={t('rankTrail')}>{Array.from({length:game.total},(_,i)=><li key={i} className={i<places.length?'is-done place-'+places[i]:i===game.round&&game.phase!=='finished'?'is-current':''}>{i<places.length?<span role="img" aria-label={t('rankPlace'+places[i])}>{medalFor(places[i])}</span>:<span aria-hidden="true">{i+1}</span>}</li>)}</ol>}
     {game.competition&&game.phase!=='finished'&&<DailyScoreRule t={t} mode="rank" score={game.score}/>}{error&&<div className="puzzle-error" role="alert"><span>{t(error)}</span><button className="btn secondary" onClick={load}>{t('retry')}</button></div>}
-    {game.phase==='finished'?<div className="rank-finished">
+    {game.phase==='finished'?<div className={'rank-finished'+(game.competition?' is-daily':'')}>
       <Mascot mood={medals[1]===game.total ? 'cheer' : 'happy'} size={132} className="result-mascot"/><p className="rank-eyebrow">{t('rankRadar')}</p><h1>{medals[1]===game.total?t('rankPerfectRun'):t('rankFinish')}</h1><p>{t('rankFinishCopy')}</p>
       <div className="rank-medal-row" aria-label={fill('rankMedalSummary',{gold:medals[1],silver:medals[2],bronze:medals[3]})}>{places.map((p,i)=><span key={i} className={'place-'+p} title={t('rankPlace'+p)} aria-hidden="true">{medalFor(p)}</span>)}</div>
       <p className="rank-medal-summary">{fill('rankMedalSummary',{gold:medals[1],silver:medals[2],bronze:medals[3]})} · {correct}/{game.total} {t('correctAnswers')}</p>
-      {game.competition&&<CompetitionPanel app={app} date={game.daily!} mode="rank"/>}{game.daily&&<DailyLoop app={app}/>}
-      <div className="rank-results-actions"><button className="btn primary" disabled={busy} onClick={again}>{t('rankMore')}<ArrowRight size={18}/></button><button className="btn secondary" onClick={share}><Share2 size={18}/>{t('share')}</button></div>
-      <h2>{t('rankReview')}</h2><div className="rank-review">{game.review?.map((r,i)=>{const best=r.options.find(o=>o.id===r.correct)!;return <div key={r.id}><img src={r.country.flag} alt=""/><div><strong>{r.country.name[lang]}</strong><span>{best.emoji} {best.label[lang]} · #{best.rank} / {best.coverage}</span></div><span className={'rank-review-medal place-'+places[i]} role="img" aria-label={t('rankPlace'+places[i])}>{medalFor(places[i])}</span></div>;})}</div>
+      {game.competition&&<DailyResult app={app} date={game.daily!} mode="rank"/>}
+      <div className="rank-results-actions"><button className={'btn '+(game.competition?'secondary':'primary')} disabled={busy} onClick={again}>{t('rankMore')}<ArrowRight size={18}/></button><button className="btn secondary" onClick={share}><Share2 size={18}/>{t('share')}</button></div>
+      <details className="result-review"><summary>{t('rankReview')}</summary><div className="rank-review">{game.review?.map((r,i)=>{const best=r.options.find(o=>o.id===r.correct)!;return <div key={r.id}><img src={r.country.flag} alt=""/><div><strong>{r.country.name[lang]}</strong><span>{best.emoji} {best.label[lang]} · #{best.rank} / {best.coverage}</span></div><span className={'rank-review-medal place-'+places[i]} role="img" aria-label={t('rankPlace'+places[i])}>{medalFor(places[i])}</span></div>;})}</div></details>
       <button className="text-link" onClick={()=>go('/daily')}>{t('finishForNow')}<ArrowRight size={16}/></button>
     </div>:q&&<>
       <header className="rank-heading"><div className="rank-country-flag"><img src={q.country.flag} alt=""/></div><p className="rank-eyebrow">{t(game.daily?'rankDay':'rankRadar')}</p><h1>{fill('rankQuestion',{country:q.country.name[lang] ?? q.country.name.en})}</h1><p>{t('rankIntro')}</p></header>

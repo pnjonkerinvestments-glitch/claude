@@ -1,16 +1,15 @@
 'use client';
 import React, { useRef, useState } from 'react';
-import { ArrowRight, CalendarDays, Check, ChevronRight, Flame, ShieldCheck, Star, Target, Trophy, Users } from 'lucide-react';
+import { ArrowRight, CalendarDays, Check, ChevronRight, Flame, ShieldCheck, Star, Target, Trophy } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DAILY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DailyMode } from '@/lib/daily-loop';
 import { useApp } from '../app/context';
-import { A, Avatar } from '../app/shared';
+import { A } from '../app/shared';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { DailyQuests, type Quest } from '../atelier/DailyQuests';
 import { MysteryCountry } from '../atelier/MysteryCountry';
 import { Mascot, type MascotMood } from '../ds/Mascot';
 import { SectionHeader, Skeleton } from '../ds/States';
-import { useFriends, inviteToPlay } from '../friends/Friends';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CoverArt } from './CoverArt';
 import { GameCard } from './GameCard';
@@ -38,10 +37,9 @@ function WeekDots({ week, frozen, locale }: { week: { date: string; completed: b
 }
 
 export function HomePage() {
-  const app = useApp(), { t, locale, boot, bootLoaded, go, fail, setModal } = app;
+  const app = useApp(), { t, locale, boot, bootLoaded, go, fail } = app;
   const { data: today, error: todayError, retry } = useToday(boot);
   const { data: competition } = useCompetition(boot, today?.date);
-  const { friends } = useFriends();
   const [fallbackDate] = useState(() => new Date().toISOString().slice(0, 10));
   const date = today?.date ?? fallbackDate;
   const [mysteryOpen, setMysteryOpen] = useState(false), [launching, setLaunching] = useState('');
@@ -66,7 +64,6 @@ export function HomePage() {
   const bestDay = competition?.bestDay ?? null;
   const scoreOf = (mode: string) => competition?.scores.find(s => s.mode === mode)?.score;
   const name = (mode: DailyMode) => t(dailyTitleKey(mode));
-  const online = (friends ?? []).filter(f => f.status === 'accepted' && f.online);
 
   // What the globe says, from most to least urgent.
   const [mood, bubble]: [MascotMood, string] = !ready ? ['happy', t('heroBubble')]
@@ -155,20 +152,6 @@ export function HomePage() {
       </div>
     </section>
 
-    <section className="together" aria-labelledby="together-title">
-      <div className="together-art" aria-hidden="true">{online.length ? <div className="avatar-stack">{online.slice(0, 4).map((f, i) => <Avatar key={i} id={f.avatar}/>)}</div> : <img className="together-friends" src="/art/friends-row.webp" alt="" width={407} height={88} loading="lazy" decoding="async"/>}</div>
-      <div className="together-copy">
-        <p className="kicker"><Users size={15} aria-hidden="true"/>{online.length ? t('friendsOnlineCount').replace('{n}', String(online.length)) : t('togetherKicker')}</p>
-        <h2 id="together-title">{t('togetherTitle')}</h2>
-        <p>{online.length ? t('togetherOnline').replace('{names}', online.slice(0, 3).map(f => f.name).join(', ')) : t('togetherCopy')}</p>
-      </div>
-      <div className="together-actions">
-        {online.length === 1
-          ? <button className="btn primary btn-lg" onClick={() => inviteToPlay(app, online[0]).catch(fail)}>{t('inviteToPlay')} {online[0].name}<ArrowRight size={19} aria-hidden="true"/></button>
-          : <button className="btn primary btn-lg" onClick={() => setModal('room')}>{t('createRoom')}<ArrowRight size={19} aria-hidden="true"/></button>}
-        <A href={online.length > 1 ? '/friends' : '/multiplayer'} className="text-link">{online.length > 1 ? t('friendsList') : t('togetherJoin') + ' ' + t('join')}</A>
-      </div>
-    </section>
 
     <Dialog open={mysteryOpen} onOpenChange={setMysteryOpen}>
       <DialogContent className="app-modal mystery-modal">
