@@ -60,7 +60,7 @@ export async function startSolo(env: Env, user: User, settings: Settings, practi
 }
 export async function soloAction(env: Env, user: User, id: string, action: string, body: any) {
     const row = await one(env, 'SELECT * FROM game_sessions WHERE id=? AND user_id=?', id, user.id);
-    if (!row || row.kind.startsWith('puzzle:') || row.kind.startsWith('rank'))
+    if (!row || row.kind.startsWith('puzzle:') || row.kind.startsWith('rank') || row.kind.startsWith('duel'))
         throw new AppError('GAME_NOT_FOUND', 404);
     const s: Solo = learningState(JSON.parse(row.state));
     if (action === 'get') { await reviewSession(env, user, s, row.created_at); if(s.phase==='finished') await recordSolo(env,user,s); return soloView(s); }

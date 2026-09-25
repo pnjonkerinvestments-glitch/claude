@@ -1,4 +1,4 @@
-import { DAILY_POINT_MODES, dailyScore, type Competition } from '../lib/daily-scoring';
+import { DAILY_POINT_MODES, DAILY_TOTAL_MAX, dailyScore, type Competition } from '../lib/daily-scoring';
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';
@@ -31,5 +31,5 @@ export async function competitionSummary(env: Env, user: User, date: string, mod
     one(env,'SELECT COALESCE(SUM(score),0) score,COUNT(*) games FROM daily_scores WHERE user_id=? AND date=?',user.id,yesterday),
   ]);
   const personalBest = Object.fromEntries(bests.map((b:any)=>[b.mode,{best:Number(b.best),plays:Number(b.plays)}]));
-  return {date,today,total,game,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0)},maxPerGame:1000,maxPerDay:5000};
+  return {date,today,total,game,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0)},maxPerGame:1000,maxPerDay:DAILY_TOTAL_MAX};
 }

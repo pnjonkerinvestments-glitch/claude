@@ -1,14 +1,15 @@
-# Game rules — Roviko 1.13.0
+# Game rules — Roviko 1.19.0
 
 These are the current rules. Documents for 1.9/v3 and earlier are historical. The requested daily competition replaces the earlier no-points policy **only for official daily games**.
 
 ## Official daily competition
 
-Five games are published once per UTC date. Everyone receives the same frozen content for that edition. Each game is worth at most 1,000 points, with a combined maximum of 5,000 per day. There is no timer, time limit, speed bonus or XP. The first completed result for each player/date/mode is immutable. Reopening resumes the same game or shows the saved result; it never creates extra points.
+Six games are published once per UTC date: the Daily Detour (the day's main trip, started from the homepage) and five daily games. Everyone receives the same frozen content for that edition. Each game is worth at most 1,000 points, with a combined maximum of 6,000 per day (5,000 before 1.19). There is no timer, time limit, speed bonus or XP. The first completed result for each player/date/mode is immutable. Reopening resumes the same game or shows the saved result; it never creates extra points.
 
 | Game | Rounds | Daily points |
 | --- | --- | --- |
 | Daily Detour (formerly World Trip) | 20: flags, capitals, map, borders and area ordering, four of each, shuffled, never the same type twice in a row | 50 per correct question; map credit is proportional to accuracy (map points ÷ 20). Editions saved before 1.18 keep five stops of 200 |
+| World Duel (daily since 1.19) | 5 duels, five cards, each card once | 200 per duel won. Values and the perfect route are only sent after a card is played |
 | Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
 | Side by Side | 10 comparisons | Correct: 100; wrong: 0 |
 | Country Mosaic | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |

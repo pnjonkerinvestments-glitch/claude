@@ -1,4 +1,5 @@
 'use client';
+import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Trophy } from 'lucide-react';
 import { api, formatScore } from '@/lib/client';
@@ -35,7 +36,7 @@ function DailyRankings() {
         <div className={'you-card' + (standing.place ? '' : ' is-unranked')}>
           <Avatar id={boot.user.avatar}/>
           <div><small>{t('rankingsYou')}</small><strong>{standing.place ? '#' + n(standing.place) : '—'}</strong>{!standing.place && <p>{t('rankingsNotRanked')}</p>}</div>
-          <div className="you-score"><strong>{n(standing.score)}</strong><small>{t('points')}{tab === 'today' ? ' / ' + n(5000) : ''}</small></div>
+          <div className="you-score"><strong>{n(standing.score)}</strong><small>{t('points')}{tab === 'today' ? ' / ' + n(DAILY_TOTAL_MAX) : ''}</small></div>
           {!standing.place && <A href="/" className="btn primary">{t('tripStart')}<ArrowRight size={18} aria-hidden="true"/></A>}
         </div>
         {standing.leaders.length ? <ol className="leader-list" aria-label={t('rankingsTop')}>

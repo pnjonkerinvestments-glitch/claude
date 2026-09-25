@@ -5,6 +5,7 @@ import { prepareGeography, enrichMapFeedback } from './geography';
 import { one, rows, run, batch } from './db';
 import { AppError, requireUser, checkOrigin, nameSchema } from './auth';
 import { roomCode, random } from '../lib/game-engine/scoring';
+import { BOT_LEVELS, BOT_NAMES, MAX_BOTS, botAnswer, botDelay, type BotLevel } from '../lib/game-engine/bots';
 import { generateQuestions, evaluate, publicQuestion, type Settings, type Question } from '../lib/game-engine/questions';
 import { resultStatement } from './stats';
 import type { Room, Player, Env, User } from './types';
@@ -12,9 +13,15 @@ const TTL = 30 * 60000;
 const savedMatches = new Set<string>();
 const savingMatches = new Map<string, Promise<void>>();
 function player(u: User): Player { return { id: u.id, name: u.name, avatar: u.avatar, ready: false, lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [] }; }
-export async function createRoom(env: Env, user: User, settings: Settings) { for (let i = 0; i < 8; i++) {
+/** A computer player of the chosen level, named so two bots in one room never share a name. */
+function botPlayer(r: Room, level: BotLevel): Player {
+    const taken = new Set(r.players.map(p => p.name));
+    const name = BOT_NAMES[level].find(n => !taken.has(n)) ?? BOT_NAMES[level][0] + ' ' + (r.players.length + 1);
+    return { ...player({ id: 'bot-' + crypto.randomUUID(), name, avatar: 100 + BOT_LEVELS.indexOf(level) } as User), bot: true, level, ready: true };
+}
+export async function createRoom(env: Env, user: User, settings: Settings, quick = false) { for (let i = 0; i < 8; i++) {
     const code = roomCode();
-    const r: Room = { code, name: user.name + "'s room", host: user.id, settings, players: [player(user)], phase: 'lobby', questions: [], round: 0, startAt: 0, deadline: 0, revealUntil: 0, matchId: crypto.randomUUID(), answers: {}, previousQuestions: [], createdAt: Date.now(), updatedAt: Date.now(), expiresAt: Date.now() + TTL, events: ['room_created'] };
+    const r: Room = { ...(quick ? { quick: 'open' as const } : {}), code, name: user.name + "'s room", host: user.id, settings, players: [player(user)], phase: 'lobby', questions: [], round: 0, startAt: 0, deadline: 0, revealUntil: 0, matchId: crypto.randomUUID(), answers: {}, previousQuestions: [], createdAt: Date.now(), updatedAt: Date.now(), expiresAt: Date.now() + TTL, events: ['room_created'] };
     try {
         await run(env, 'INSERT INTO multiplayer_rooms(code,state,updated_at,expires_at) VALUES (?,?,?,?)', code, JSON.stringify(r), r.updatedAt, r.expiresAt);
         return roomView(r, user.id);
@@ -39,13 +46,15 @@ export function tick(r: Room, now: number) {
         changed = true;
     }
     if (r.phase === 'question') {
-        for (const p of r.players.filter(p => p.bot && !r.answers[p.id]))
-            if (now - r.startAt > 2200) {
-                const rng = random(r.matchId + ':' + r.round + ':' + p.id);
-                const q = r.questions[r.round];
-                r.answers[p.id] = { value: rng() < .7 ? q.correct : q.options[0]?.id ?? null, at: now };
+        for (const p of r.players.filter(p => p.bot && !r.answers[p.id])) {
+            // Each bot's thinking time and answer follow from the match, round and bot, so every tick agrees.
+            const rng = random(r.matchId + ':' + r.round + ':' + p.id), level = p.level ?? 'medium';
+            const after = botDelay(level, rng, r.settings.timer * 1000);
+            if (now - r.startAt >= after) {
+                r.answers[p.id] = { value: botAnswer(r.questions[r.round], level, rng), at: r.startAt + after };
                 changed = true;
             }
+        }
         const everyoneAnswered = active.length > 0 && active.every(p => r.answers[p.id]);
         if (everyoneAnswered && !r.answersCompleteAt) {
             r.answersCompleteAt = Math.max(...active.map(p => r.answers[p.id].at)) + 1000;
@@ -95,7 +104,48 @@ function roundAnswers(r: Room, round: number) {
     return r.players.map(p => { const res = p.results[round]; return { id: p.id, name: p.name, avatar: p.avatar, answered: !!res && res.value !== null && res.value !== undefined, correct: !!res?.correct, points: res?.points ?? 0, distance: res?.distance ?? null, answer: res && q ? answerLabel(q, res.value) : null }; });
 }
 export function roomView(r: Room, userId: string) { const p = r.players.find(p => p.id === userId); if (!p)
-    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot })), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
+    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
+/** Generate the private questions and start the countdown for everyone in the room. */
+async function startMatch(env: Env, r: Room) {
+    const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
+    r.matchId = crypto.randomUUID();
+    r.questions = prepareGeography(generateQuestions(r.settings, r.matchId, [...r.previousQuestions, ...disabled], [], undefined, disabled));
+    r.phase = 'countdown';
+    r.round = 0;
+    r.answers = {};
+    r.answersCompleteAt = undefined;
+    r.startAt = Date.now() + 3000;
+    r.deadline = r.settings.timer ? r.startAt + r.settings.timer * 1000 : 0;
+    r.players.forEach(x => { x.score = 0; x.streak = 0; x.bestStreak = 0; x.results = []; x.correct = 0; });
+    r.events = ['game_started'];
+}
+/** How long a quick match searches before offering a computer opponent. */
+export const QUICK_SEARCH_MS = 3 * 60000;
+/**
+ * Quick match against a random player: join the oldest open search from someone else who is still
+ * connected and start at once, or open a new search. A search stays open until someone joins or
+ * the player chooses the computer.
+ */
+export async function quickMatch(env: Env, user: User, settings: Settings) {
+    const now = Date.now();
+    const open = await rows(env, `SELECT code,state,version FROM multiplayer_rooms WHERE expires_at>? AND instr(state,'"quick":"open"')>0 ORDER BY updated_at LIMIT 20`, now);
+    for (const row of open) {
+        const r: Room = JSON.parse(row.state);
+        if (r.quick !== 'open' || r.phase !== 'lobby') continue;
+        if (r.players.some(p => p.id === user.id)) return { code: r.code, waiting: true };
+        const host = r.players.find(p => p.id === r.host);
+        if (r.players.length !== 1 || !host || now - host.lastSeen > 25000) continue;
+        r.players.push(player(user));
+        r.quick = 'matched';
+        r.name = host.name + ' vs ' + user.name;
+        await startMatch(env, r);
+        r.updatedAt = now; r.expiresAt = now + TTL;
+        const updated = await run(env, 'UPDATE multiplayer_rooms SET state=?,version=version+1,updated_at=?,expires_at=? WHERE code=? AND version=?', JSON.stringify(r), r.updatedAt, r.expiresAt, r.code, row.version);
+        if (updated.meta.changes) return { code: r.code, waiting: false };
+    }
+    const room = await createRoom(env, user, settings, true);
+    return { code: room.code, waiting: true };
+}
 async function saveMatch(env: Env, r: Room) {
     if (r.phase !== 'finished') return;
     if (!savingMatches.has(r.matchId)) { const task = writeMatch(env,r).finally(() => savingMatches.delete(r.matchId)); savingMatches.set(r.matchId,task); }
@@ -105,7 +155,9 @@ async function writeMatch(env: Env, r: Room) { if (r.phase !== 'finished' || sav
     return; const best = Math.max(...r.players.map(p => p.score)); const people = r.players.filter(p => !p.bot); const statements: any[] = []; for (const p of people) {
     if (!await one(env, 'SELECT id FROM users WHERE id=?', p.id))
         continue;
-    statements.push(resultStatement(r.matchId + ':' + p.id, p.id, { ...p, settings: r.settings }, 1, r.players.length > 1 && p.score === best ? 1 : 0));
+    // Matches against the computer count as practice: saved for your stats, never for the rankings.
+    const ranked = !r.players.some(x => x.bot);
+    statements.push(resultStatement(r.matchId + ':' + p.id, p.id, { ...p, settings: r.settings }, ranked ? 1 : 0, ranked && r.players.length > 1 && p.score === best ? 1 : 0));
     for (let i = 0; i < p.results.length; i++) {
         const a = p.results[i], q = r.questions[i];
         statements.push(reviewStatement(p.id, { countryId:q.countryId,mode:q.mode,content:{...q,origin:r.matchId},correct:a.correct,at:a.at ?? r.updatedAt }));
@@ -197,17 +249,26 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                 else if (action === 'start') {
                     if (r.phase !== 'lobby')
                         throw new AppError('MATCH_IN_PROGRESS', 409);
-                    const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
-                    r.matchId = crypto.randomUUID();
-                    r.questions = prepareGeography(generateQuestions(r.settings, r.matchId, [...r.previousQuestions, ...disabled], [], undefined, disabled));
-                    r.phase = 'countdown';
-                    r.round = 0;
-                    r.answers = {};
-                    r.answersCompleteAt = undefined;
-                    r.startAt = Date.now() + 3000;
-                    r.deadline = r.settings.timer ? r.startAt + r.settings.timer * 1000 : 0;
-                    r.players.forEach(x => { x.score = 0; x.streak = 0; x.bestStreak = 0; x.results = []; x.correct = 0; });
-                    r.events = ['game_started'];
+                    await startMatch(env, r);
+                    changed = true;
+                }
+                else if (action === 'computer') {
+                    // "Play against the computer": add one bot of the chosen level and start straight away.
+                    if (r.phase !== 'lobby')
+                        throw new AppError('MATCH_IN_PROGRESS', 409);
+                    const level = BOT_LEVELS.find(l => l === body.level);
+                    if (!level || r.players.length >= 12)
+                        throw new AppError('INVALID_INPUT');
+                    r.players.push(botPlayer(r, level));
+                    if (r.quick === 'open') r.quick = 'computer';
+                    await startMatch(env, r);
+                    changed = true;
+                }
+                else if (action === 'removeBot') {
+                    if (r.phase !== 'lobby')
+                        throw new AppError('MATCH_IN_PROGRESS', 409);
+                    r.players = r.players.filter(x => !(x.bot && x.id === body.id));
+                    r.events = ['player_left'];
                     changed = true;
                 }
                 else if (action === 'rematch') {
@@ -228,11 +289,14 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     changed = true;
                 }
                 else if (action === 'bot') {
-                    if (env.ENVIRONMENT !== 'development' || env.DEV_MULTIPLAYER_BOTS !== 'true')
-                        throw new AppError('FORBIDDEN', 403);
-                    if (r.phase !== 'lobby' || r.players.length >= 12)
+                    const level = BOT_LEVELS.find(l => l === (body.level ?? 'medium'));
+                    if (!level)
+                        throw new AppError('INVALID_INPUT');
+                    if (r.phase !== 'lobby' || r.players.length >= 12 || r.players.filter(x => x.bot).length >= MAX_BOTS)
                         throw new AppError('INVALID_ACTION');
-                    r.players.push({ ...player({ id: 'bot-' + crypto.randomUUID(), name: 'Practice bot', avatar: 3 } as User), bot: true, ready: true });
+                    r.players.push(botPlayer(r, level));
+                    if (r.quick === 'open') r.quick = 'computer';
+                    r.events = ['player_joined'];
                     changed = true;
                 }
                 else

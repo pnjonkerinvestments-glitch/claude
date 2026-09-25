@@ -1,6 +1,8 @@
 import React from 'react';
 
-const covers = { daily: 'world-trip', compare: 'side-by-side', mosaic: 'country-mosaic', rank: 'rank-radar', trail:'clue-trail' } as const;
+const covers = { daily: 'world-trip', compare: 'side-by-side', mosaic: 'country-mosaic', rank: 'rank-radar', trail:'clue-trail', duel: 'duel' } as const;
+/** The duel artwork was made at 720 px wide; the others at 960. */
+const large = (name: string) => name === 'duel' ? '720' : '960';
 
 /** Original decorative artwork, separate from factual quiz flags and shapes. */
 export function GameCover({ mode }: { mode: keyof typeof covers }) {

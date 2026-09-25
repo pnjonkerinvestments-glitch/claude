@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, RefreshCw, Share2, X } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { api, copyText, sound } from '@/lib/client';
+import { api, post, copyText, sound } from '@/lib/client';
 import { BRAND } from '@/lib/config';
 import { formatMetric } from '@/lib/puzzles/topics';
 import { DUEL_ROUNDS, duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel-shared';
@@ -11,8 +11,11 @@ import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 import { Mascot } from '../ds/Mascot';
 import { notifyProgress } from '../atelier/DailyQuests';
+import { DailyResult } from '../atelier/DailyResult';
 
 type Board = DuelBoard & { date: string | null };
+/** The scored daily duel comes from a server session that reveals values only after each card is played. */
+type Session = Board & { id: string; version: number; plays: string[]; phase: string; competition?: unknown; score?: number };
 const storageKey = (board: Board) => 'roviko:duel:' + (board.date ?? board.seed);
 function readPlays(board: Board): string[] { try { const v = JSON.parse(localStorage.getItem(storageKey(board)) ?? '[]'); return Array.isArray(v) ? v.filter(x => typeof x === 'string').slice(0, DUEL_ROUNDS) : []; } catch { return []; } }
 function writePlays(board: Board, plays: string[]) { try { localStorage.setItem(storageKey(board), JSON.stringify(plays)); } catch { /* progress still works for this visit */ } notifyProgress(); }
@@ -26,11 +29,13 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
   const [plays, setPlays] = useState<string[]>([]), [step, setStep] = useState(0);
   const [nonce, setNonce] = useState<string | null>(() => practice ? Math.random().toString(36).slice(2, 10) : null);
   const [reload, setReload] = useState(0), [copied, setCopied] = useState(false);
+  const [session, setSession] = useState<Session | null>(null), [sending, setSending] = useState(false);
   useEffect(() => {
     let active = true;
-    api(nonce ? '/duel/practice/' + nonce : '/duel/today').then((b: Board) => {
+    (nonce ? api('/duel/practice/' + nonce) : post('/duels', { competition: true })).then((b: Board | Session) => {
       if (!active) return;
-      const saved = readPlays(b);
+      const saved = 'plays' in b ? b.plays : readPlays(b);
+      setSession('plays' in b ? b : null);
       setBoard(b); setPlays(saved); setStep(Math.min(saved.length, DUEL_ROUNDS)); setError(false);
     }).catch(() => active && setError(true));
     return () => { active = false; };
@@ -47,8 +52,17 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
   const revealed = !finished && played !== undefined;
   const wins = results.filter(Boolean).length;
   const cardOf = (id: string) => board.hand.find(c => c.id === id)!;
-  function play(cardId: string) {
-    if (!board || revealed || finished || plays.includes(cardId)) return;
+  async function play(cardId: string) {
+    if (!board || revealed || finished || sending || plays.includes(cardId)) return;
+    if (session) {
+      setSending(true);
+      try {
+        const next: Session = await post('/duels/' + session.id + '/play', { version: session.version, card: cardId });
+        setSession(next); setBoard(next); setPlays(next.plays); notifyProgress();
+        sound(next.rounds[step] && duelWon(next.rounds[step], cardId) ? 'correct' : 'incorrect');
+      } catch { setReload(n => n + 1); } finally { setSending(false); }
+      return;
+    }
     const next = [...plays, cardId];
     setPlays(next); writePlays(board, next);
     sound(duelWon(board.rounds[step], cardId) ? 'correct' : 'incorrect');
@@ -60,7 +74,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     try { if (navigator.share) { await navigator.share({ text }); return; } } catch { /* fall back to copying */ }
     await copyText(text); setCopied(true);
   }
-  const newPractice = () => { setBoard(null); setPlays([]); setStep(0); setCopied(false); setNonce(Math.random().toString(36).slice(2, 10)); };
+  const newPractice = () => { setSession(null); setBoard(null); setPlays([]); setStep(0); setCopied(false); setNonce(Math.random().toString(36).slice(2, 10)); };
 
   return <section className="puzzle-game duel-game" aria-labelledby="duel-title">
     <GameHeader mode="duel" title={t('duel')} edition={editionLabel(board.date, loc, t('duelPractice'))} count={Math.min(step + 1, DUEL_ROUNDS) + ' / ' + DUEL_ROUNDS} unit={t('duelRounds')} progress={Math.min(plays.length, DUEL_ROUNDS) / DUEL_ROUNDS} onExit={() => go('/')} exitLabel={t('back')} help={<HowToPlayButton mode="duel" t={t} locale={loc} auto={!finished}/>}/>
@@ -96,7 +110,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
         <h1 id="duel-title" className="duel-prompt">{t('duelPrompt').replace('{subject}', tr(round.category.label).toLowerCase())}</h1>
         <p className="duel-hint">{t(step === 0 ? 'duelIntro' : 'duelPlanAhead')}</p>
         <div className="duel-hand" role="group" aria-label={t('duelYourHand')}>
-          {board.hand.map(c => { const used = plays.includes(c.id); return <button key={c.id} className="duel-card duel-pick" disabled={used} onClick={() => play(c.id)}>
+          {board.hand.map(c => { const used = plays.includes(c.id); return  <button key={c.id} className="duel-card duel-pick" disabled={used || sending} onClick={() => play(c.id)}>
             <img src={c.flag} alt=""/><strong>{name(c)}</strong>{used && <small>{t('duelUsed')}</small>}
           </button>; })}
         </div>
@@ -117,6 +131,17 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
       <Mascot mood={wins === DUEL_ROUNDS ? 'cheer' : wins >= 3 ? 'happy' : 'wink'} size={132} className="result-mascot"/>
       <h1 id="duel-title">{wins === DUEL_ROUNDS ? t('duelPerfect') : t('duelResultTitle').replace('{n}', String(wins))}</h1>
       <div className="duel-trail" aria-label={t('duelResultTitle').replace('{n}', String(wins))}>{results.map((ok, i) => <span key={i} className={ok ? 'won' : 'lost'} aria-hidden="true">{ok ? '✓' : '✕'}</span>)}</div>
+      {session?.competition ? <DailyResult app={app} date={board.date!} mode="duel"/> : null}
+      {session?.competition ? <details className="result-review duel-review"><summary>{t('duelRoute')}</summary>
+      <section className="duel-solution">
+        <ol>{board.rounds.map((r, i) => { const best = cardOf(board.solution[i]), mine = plays[i]; return <li key={r.category.id} className={results[i] ? 'won' : 'lost'}>
+          <span className="duel-solution-subject"><span aria-hidden="true">{r.category.emoji}</span>{tr(r.category.label)}</span>
+          <span><img src={best.flag} alt=""/>{name(best)} <b>{value(r, r.hand[best.id].value)}</b></span>
+          <span className="duel-solution-vs">{t('duelVs')} <img src={r.roviko.flag} alt=""/>{name(r.roviko)} <b>{value(r, r.roviko.value)}</b></span>
+          {mine && mine !== best.id && <small className={results[i] ? 'also-won' : ''}>{t('duelYourPick')}: {name(cardOf(mine))} ({value(r, r.hand[mine].value)})</small>}
+        </li>; })}</ol>
+      </section>
+      </details> : <>
       <section className="duel-solution">
         <h2>{t('duelRoute')}</h2>
         <ol>{board.rounds.map((r, i) => { const best = cardOf(board.solution[i]), mine = plays[i]; return <li key={r.category.id} className={results[i] ? 'won' : 'lost'}>
@@ -126,11 +151,12 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
           {mine && mine !== best.id && <small className={results[i] ? 'also-won' : ''}>{t('duelYourPick')}: {name(cardOf(mine))} ({value(r, r.hand[mine].value)})</small>}
         </li>; })}</ol>
       </section>
-      <div className="duel-actions">
+      </>}
+      <div className={'duel-actions' + (session?.competition ? ' is-daily' : '')}>
         <button className="btn secondary" onClick={share}><Share2 size={18}/>{t(copied ? 'copied' : 'share')}</button>
-        <button className="btn primary" onClick={newPractice}><RefreshCw size={18}/>{t('duelNew')}</button>
+        <button className={'btn ' + (session?.competition ? 'secondary' : 'primary')} onClick={newPractice}><RefreshCw size={18}/>{t('duelNew')}</button>
       </div>
-      {board.date && <ResetCountdown label={t('duelNextDaily')} t={t}/>}
+      {board.date && !session?.competition && <ResetCountdown label={t('duelNextDaily')} t={t}/>}
     </div>}
   </section>;
 }

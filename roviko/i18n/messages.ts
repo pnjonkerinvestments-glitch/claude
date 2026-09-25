@@ -3,11 +3,12 @@ import { rankMessages } from './rank';
 import { howtoMessages } from './howto';
 import { questMessages } from './quests';
 import { redesignMessages } from './redesign';
+import { v119Messages } from './v119';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -503,7 +504,7 @@ export const messages = {
     "mosaicCardCopy": "Match the flags, shapes and country facts. New facts every day.",
     "journeyKinds": "Flags · cities · maps · more",
     "mosaicKinds": "Flag · name · shape · fact",
-    "todayCompleted": "Today: {n} of 5 complete",
+    "todayCompleted": "Today: {n} of 6 complete",
     "openPassport": "Your passport",
     "extraPractice": "More ways to practise",
     "atelierTitle": "Your daily detour.",
@@ -567,7 +568,7 @@ export const messages = {
     "loopMilestoneHit": "Milestone: {n} days!",
     "loopTitle": "{n} daily games left today",
     "loopTitleOne": "One daily game left today",
-    "loopAllDone": "All five done. See you tomorrow!",
+    "loopAllDone": "All done for today. See you tomorrow!",
     "loopNext": "Next: {game}",
     "loopTomorrow": "Tomorrow in Side by Side: {topic}",
     "goalNudge": "Next badge",
@@ -628,7 +629,8 @@ export const messages = {
     "autoNextExplain": "After 3 seconds. Incorrect answers stay open for you to review.",
     "joinHelp": "Enter the five-character code from your friend.",
     "practiceSaved": "Practice saved separately",
-    ...redesignMessages.en
+    ...redesignMessages.en,
+    ...v119Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1123,7 +1125,7 @@ export const messages = {
     "mosaicCardCopy": "Koppel vlaggen, vormen en landfeitjes. Elke dag andere feiten.",
     "journeyKinds": "Vlaggen · steden · kaarten · meer",
     "mosaicKinds": "Vlag · naam · vorm · weetje",
-    "todayCompleted": "Vandaag: {n} van 5 voltooid",
+    "todayCompleted": "Vandaag: {n} van 6 voltooid",
     "openPassport": "Je paspoort",
     "extraPractice": "Meer manieren om te oefenen",
     "atelierTitle": "Even de wereld in.",
@@ -1187,7 +1189,7 @@ export const messages = {
     "loopMilestoneHit": "Mijlpaal: {n} dagen!",
     "loopTitle": "Nog {n} dagspellen vandaag",
     "loopTitleOne": "Nog één dagspel vandaag",
-    "loopAllDone": "Alle vijf gedaan. Tot morgen!",
+    "loopAllDone": "Alles gedaan. Tot morgen!",
     "loopNext": "Volgende: {game}",
     "loopTomorrow": "Morgen in Side by Side: {topic}",
     "goalNudge": "Volgende badge",
@@ -1250,7 +1252,8 @@ export const messages = {
     "practiceSaved": "Oefening apart opgeslagen",
     "roomName": "Kamernaam",
     "lobby": "Wachtruimte",
-    ...redesignMessages.nl
+    ...redesignMessages.nl,
+    ...v119Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;

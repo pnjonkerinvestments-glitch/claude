@@ -60,7 +60,7 @@ const COVER: Record<string, CoverMode> = { rank: 'rank', daily: 'daily', compare
 
 /** The "How to play" page: pick a game from the tabs, see its goal, steps, scoring and a tip, then play it. */
 export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; locale: Loc; onPlay: (mode: string) => void; busy?: boolean }) {
-  const [mode, setMode] = useState<string>('rank');
+  const [mode, setMode] = useState<string>('daily');
   // Deep links such as /how-to-play#trail open that game's tab once mounted.
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash only exists in the browser; reading it after mount keeps SSR stable
   useEffect(() => { const hash = window.location.hash.slice(1); if (HOW_TO_PLAY[hash]) setMode(hash); }, []);

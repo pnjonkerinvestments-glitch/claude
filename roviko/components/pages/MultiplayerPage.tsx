@@ -8,6 +8,7 @@ import { A } from '../app/shared';
 import { EmptyState, PageHeader } from '../ds/States';
 import { CoverArt } from '../home/CoverArt';
 import { GameIcon } from '../atelier/GameIcon';
+import { PlayNow } from '../multiplayer/Computer';
 
 const CODE = /^[A-Z2-9]{5}$/;
 const ROOM_ERRORS: Record<string, [string, string]> = {
@@ -49,9 +50,10 @@ export function RoomProblem({ code, onRetry }: { code: string; onRetry: () => vo
 }
 
 export function MultiplayerPage() {
-  const { t, setModal } = useApp();
+  const { t, setModal, go, fail } = useApp();
   return <div className="page friends-lobby">
     <PageHeader art="friends-hero" kicker={t('friendsKicker')} title={t('friendsLobbyTitle')} lead={t('friendsLobbyLead')}/>
+    <PlayNow t={t} go={go} fail={fail}/>
     <div className="lobby-choice">
       <section className="lobby-card lobby-create" aria-labelledby="create-title">
         <div className="lobby-card-art" aria-hidden="true"><CoverArt mode="room"/></div>

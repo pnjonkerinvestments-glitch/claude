@@ -31,7 +31,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   ], tip: l('The fewer clues you need, the better you know the world.', 'Hoe minder hints je nodig hebt, hoe beter je de wereld kent.', 'Cuantas menos pistas necesites, mejor conoces el mundo.') },
   duel: { emoji: '⚔️', steps: [
     { icon: '🃏', text: l('You get five country cards. Each round Roviko plays a country on a subject.', 'Je krijgt vijf landenkaarten. Elke ronde speelt Roviko een land op een onderwerp.', 'Recibes cinco cartas de países. Cada ronda Roviko juega un país en un tema.') },
-    { icon: '👆', text: l('Pick a card from your hand that scores higher than Roviko\'s country.', 'Kies een kaart uit je hand die hoger scoort dan het land van Roviko.', 'Elige una carta de tu mano que supere al país de Roviko.') },
+    { icon: '👆', text: l('Pick a card from your hand that scores higher than Roviko\'s country. In the daily duel every win is worth 200 points.', 'Kies een kaart uit je hand die hoger scoort dan het land van Roviko. In het dagduel is elke winst 200 punten waard.', 'Elige una carta de tu mano que supere al país de Roviko. En el duelo diario cada victoria vale 200 puntos.') },
     { icon: '🧠', text: l('Every card only once! Save strong cards for the right subject. There is always one perfect route.', 'Elke kaart maar één keer! Bewaar sterke kaarten voor het juiste onderwerp. Er is altijd één perfecte route.', '¡Cada carta solo una vez! Guarda las fuertes para el tema adecuado. Siempre hay una ruta perfecta.') },
   ], tip: l('Look at all five subjects at the top first and plan which card goes where.', 'Bekijk eerst alle vijf onderwerpen bovenaan en bedenk welke kaart waar hoort.', 'Mira primero los cinco temas de arriba y planea qué carta va en cada uno.') },
   mystery: { emoji: '❓', steps: [
@@ -76,8 +76,8 @@ export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', da
 
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['rank', 'daily', 'compare', 'mosaic', 'trail'] },
-  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['duel', 'mystery'] },
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'] },
+  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mystery'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'order'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];

@@ -20,7 +20,7 @@ An original geography gaming platform: five competitive daily games, six untimed
 
 ## Daily competition and relaxed practice (1.11.0)
 
-The website offers five official UTC daily games, each worth up to **1,000 points**: Daily Detour (20 mixed questions), Daily Clue Trail, Side by Side, Country Mosaic and Rank Radar. The homepage shows today's total (maximum 5,000), cumulative points across all days, and real ranks/participant counts. Completed results are immutable, once per user/date/mode. Ties share places. There are no daily timers, speed bonuses or XP. See [GAME_RULES.md](GAME_RULES.md) for the exact scoring.
+The website offers six official UTC daily games, each worth up to **1,000 points**: the Daily Detour (20 mixed questions, the homepage's main trip) plus Rank Radar, World Duel, Side by Side, Country Mosaic and Daily Clue Trail. The homepage shows today's total (maximum 6,000), cumulative points across all days, and real ranks/participant counts. Completed results are immutable, once per user/date/mode. Ties share places. There are no daily timers, speed bonuses or XP. See [GAME_RULES.md](GAME_RULES.md) for the exact scoring.
 
 Practice earns no competition points. It retains immediate local learning feedback. Daily competition withholds solutions until a server-validated answer and uses a separate `daily_scores` ledger. Multiplayer retains its own match scores/XP and does not enter daily totals. The Mystery Country bonus is a warm-up without ranking points. Legacy clients/results remain unranked; the website explicitly requests the new competitive edition.
 

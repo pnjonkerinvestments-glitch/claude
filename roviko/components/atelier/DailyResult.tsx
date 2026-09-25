@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Star, Users } from 'lucide-react';
 import { api } from '@/lib/client';
 import type { PointMode } from '@/lib/daily-scoring';
-import { nextDailyMode, type DailyMode } from '@/lib/daily-loop';
+import { nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CountUp } from '../ds/Celebration';
 import { ResetCountdown } from './ResetCountdown';
@@ -18,7 +18,7 @@ type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => strin
  */
 export function DailyResult({ app, date, mode }: { app: ResultApp; date: string; mode: PointMode }) {
   const { t, locale, boot, fail } = app;
-  const [game, setGame] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DailyMode | null | undefined>(), [busy, setBusy] = useState(false);
+  const [game, setGame] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false);
   const lock = useRef(false);
   useEffect(() => {
     let active = true;

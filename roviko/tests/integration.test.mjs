@@ -489,3 +489,59 @@ test('the next flag can load while the answer is shown, but never early and neve
  if(daily.question.flagUrl){const own=await mf.dispatchFetch(origin+daily.question.flagUrl,{headers:{Cookie:a.cookie}});assert.equal(own.status,200);assert.match(own.headers.get('cache-control'),/private/);await own.arrayBuffer();}
  const priv=await privateGame(daily.id);const fr=priv.questions.findIndex(q=>q.mode==='flags');assert.ok(fr>=0,'the detour contains flag questions');
 });
+
+test('the daily World Duel is scored on the server, hides future values and counts once for 1,000 points',async()=>{
+ const a=await bootstrap();let g=(await request(a.cookie,'/duels','POST',{competition:true})).data;
+ assert.equal(g.total,5);assert.equal(g.hand.length,5);assert.deepEqual(g.solution,[]);assert.deepEqual(g.plays,[]);
+ for(const r of g.rounds){assert.deepEqual(r.hand,{});assert.equal(r.roviko.value,undefined);}
+ assert.equal((await request(a.cookie,'/duel/today')).status,404);
+ const cheat=await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:'not-a-card'});assert.equal(cheat.status,400);
+ // Win every round: the perfect route is only known after each play, so try cards until one wins.
+ while(g.phase!=='finished'){
+  const played=g.plays.length;
+  const res=await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand.find(c=>!g.plays.includes(c.id)).id});assert.equal(res.status,200,JSON.stringify(res.data));
+  g=res.data;assert.equal(g.plays.length,played+1);assert.ok(Number.isFinite(g.rounds[played].roviko.value));assert.equal(g.solution.length,played+1);
+  if(g.phase!=='finished')assert.deepEqual(g.rounds[played+1].hand,{});
+ }
+ const wins=g.answers.filter(x=>x.correct).length;assert.equal(g.score,wins*200);assert.equal(g.solution.length,5);
+ assert.equal((await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand[0].id})).status,409);
+ const again=(await request(a.cookie,'/duels','POST',{competition:true})).data;assert.equal(again.id,g.id);
+ const summary=(await request(a.cookie,'/competition?mode=duel')).data;assert.equal(summary.game.score,wins*200);assert.equal(summary.maxPerDay,6000);
+ const today=(await request(a.cookie,'/puzzles/today?competition=1')).data.sessions.find(s=>s.mode==='duel');assert.equal(today.completed,true);assert.equal(today.total,5);
+ const rows=await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE session_id=?').bind(g.id).first();assert.equal(rows.n,1);
+});
+
+test('quick match pairs two random players and starts at once; a lone player can switch to the computer',async()=>{
+ const a=await bootstrap(),b=await bootstrap(),c=await bootstrap();
+ const first=(await request(a.cookie,'/match/quick','POST',{})).data;assert.equal(first.waiting,true);assert.match(first.code,/^[A-Z2-9]{5}$/);
+ assert.equal((await request(a.cookie,'/match/quick','POST',{})).data.code,first.code,'searching again keeps the same search');
+ const lobby=(await request(a.cookie,'/rooms/'+first.code)).data;assert.equal(lobby.quick,'open');assert.ok(lobby.createdAt<=lobby.serverTime);
+ const second=(await request(b.cookie,'/match/quick','POST',{})).data;assert.equal(second.waiting,false);assert.equal(second.code,first.code);
+ const started=(await request(b.cookie,'/rooms/'+first.code)).data;assert.equal(started.phase,'countdown');assert.equal(started.players.length,2);assert.equal(started.quick,'matched');
+ // Nobody else is searching: the third player waits, then chooses a hard computer opponent.
+ const third=(await request(c.cookie,'/match/quick','POST',{})).data;assert.equal(third.waiting,true);assert.notEqual(third.code,first.code);
+ assert.equal((await request(c.cookie,'/rooms/'+third.code+'/computer','POST',{level:'impossible'})).status,400);
+ const vs=(await request(c.cookie,'/rooms/'+third.code+'/computer','POST',{level:'hard'})).data;assert.equal(vs.phase,'countdown');assert.equal(vs.quick,'computer');
+ const bot=vs.players.find(p=>p.bot);assert.equal(bot.level,'hard');assert.ok(bot.name);
+ // A search that became a computer match is never offered to another player.
+ const d=await bootstrap();assert.notEqual((await request(d.cookie,'/match/quick','POST',{})).data.code,third.code);
+ // The bot answers on its own once its thinking time has passed, and the round reveals.
+ await alter(third.code,r=>{r.phase='question';r.startAt=Date.now()-12000;r.deadline=Date.now()+3000;});
+ const q=(await request(c.cookie,'/rooms/'+third.code)).data;assert.equal(q.players.find(p=>p.bot).answered,true);
+ const answer=(await stored(third.code)).questions[0].correct;
+ await request(c.cookie,'/rooms/'+third.code+'/answer','POST',{round:0,matchId:q.matchId,answer});
+ await alter(third.code,r=>{if(r.answersCompleteAt)r.answersCompleteAt=Date.now()-1;});
+ const shown=(await request(c.cookie,'/rooms/'+third.code)).data;assert.equal(shown.phase,'reveal');assert.equal(shown.roundAnswers.length,2);
+});
+
+test('hosts can add and remove computer players of every level, at most five, never mid-match',async()=>{
+ const a=await bootstrap(),b=await bootstrap();const code=(await request(a.cookie,'/rooms','POST',{settings})).data.code;
+ await request(b.cookie,'/rooms/'+code+'/join','POST',{});
+ assert.equal((await request(b.cookie,'/rooms/'+code+'/bot','POST',{level:'easy'})).status,403);
+ for(const level of ['easy','medium','hard','easy','medium'])assert.equal((await request(a.cookie,'/rooms/'+code+'/bot','POST',{level})).status,200);
+ assert.equal((await request(a.cookie,'/rooms/'+code+'/bot','POST',{level:'hard'})).status,400);
+ let room=(await request(a.cookie,'/rooms/'+code)).data;const bots=room.players.filter(p=>p.bot);assert.equal(bots.length,5);assert.equal(new Set(bots.map(p=>p.name)).size,5);assert.deepEqual(bots.map(p=>p.level).sort(),['easy','easy','hard','medium','medium']);
+ room=(await request(a.cookie,'/rooms/'+code+'/removeBot','POST',{id:bots[0].id})).data;assert.equal(room.players.filter(p=>p.bot).length,4);
+ await request(a.cookie,'/rooms/'+code+'/start','POST',{});
+ assert.equal((await request(a.cookie,'/rooms/'+code+'/bot','POST',{level:'easy'})).status,400);
+});

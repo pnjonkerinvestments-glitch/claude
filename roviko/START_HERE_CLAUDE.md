@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.18.0 · 25 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
+**Versie 1.19.0 · 25 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -16,7 +16,7 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 ## Huidige productkeuzes — behouden
 
 - Eigen Roviko-identiteit; geen code, vragen, illustraties of herkenbare creatieve uitwerking van concurrerende quizsites kopiëren.
-- **Alleen vijf officiële dagspellen leveren dagelijkse ranglijstpunten op.** Maximaal 1.000 per spel/5.000 per dag. Geen tijdsbonus of timer. Cumulatieve totalen zijn de som over alle dagen.
+- **Alleen de Dagelijkse Omweg en de vijf dagspellen leveren dagelijkse ranglijstpunten op (1.19).** Maximaal 1.000 per spel/6.000 per dag. De Omweg is de hoofdreis op de homepage (de knop "Begin de reis van vandaag" start hem); de vijf dagspellen zijn in deze volgorde: Rank Radar, Wereldduel, Side by Side, Country Mosaic, Clue Trail (`DAILY_MODES` in `lib/daily-loop.ts`, `DAY_MODES` = Omweg + die vijf). Geen tijdsbonus of timer. Cumulatieve totalen zijn de som over alle dagen.
 - Practice, bonus-warm-up en persoonlijke herkansingen blijven zonder punten/timer. Multiplayer behoudt eigen matchpunten/XP, gescheiden van dagtotalen.
 - Daily Detour (1.18, was Wereldreis): 20 vragen, vier van elk type (vlag, hoofdstad, kaart, buren, grootte), geschud en nooit twee keer hetzelfde type na elkaar; 50 punten per vraag, kaart naar nauwkeurigheid. Punten per vraag = 1000 ÷ aantal vragen, zodat oudere edities met vijf stops (200 per stop) gelijk blijven.
 - Dagelijkse Clue Trail: vijf landen; hints continent, grens, hoofdstad, vlag; opties zonder vlaggen. Correct na 1/2/3/4 hints = 200/150/100/50, fout = 0.
@@ -36,7 +36,8 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Lay-out 1.17 volgt de ontwerpen van de eigenaar (ChatGPT, september 2026): veel witruimte, kleur in de illustraties en logo's, niet in achtergronden; lichte kaarten in plaats van donkere blokken; op mobiel een zwevende tabbalk. Nieuwe pagina's gebruiken dezelfde kaarttaal (illustratie boven, logo op de rand, titel, één regel, één actie).
 - Illustraties (1.16/1.17) zijn vlakke cartoons met Roviko de wereldbol, in `public/art/` (WebP). Nieuwe illustraties volgen die stijl; paginakoppen krijgen ze via `PageHeader art="..."`. Scènes zijn decoratie: vlaggen en vormen in vragen en antwoorden komen altijd uit de data, nooit uit een illustratie.
 - De homepage heeft de mascotte met ring (één boog per dagspel) en een tekstballon die zegt hoeveel spellen er nog zijn; de reeks, dagdoelen en week met reeksschild staan zichtbaar op de homepage. De mascotte-stemmingen staan in `components/ds/Mascot.tsx`.
-- Wereldduel en het mysterieland zijn extra's zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
+- Wereldduel is sinds 1.19 dagspel 2 met punten: 200 per gewonnen duel, server-gezaghebbend (`server/duel.ts`, `/api/duels`); de waarden en de perfecte route van een ronde gaan pas naar de browser nadat je een kaart hebt gespeeld. Oefenduels (`/duel/practice`) blijven lokaal en zonder punten. Het mysterieland is een extra zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
+- Multiplayer (1.19): snel spelen tegen een willekeurige speler (`POST /api/match/quick`); na 3 minuten zonder tegenstander krijgt de speler een knop om tegen de computer te spelen. Computerspelers (makkelijk/gemiddeld/moeilijk, `lib/game-engine/bots.ts`) kunnen ook in elke kamer worden toegevoegd (max. 5). Potjes met een computerspeler tellen nooit mee voor de ranglijsten.
 - Toon feedback zodra de server heeft bevestigd. Verstuur nooit dagspeloplossingen vooraf om feedback sneller te laten lijken. Ongescoord oefenen mag lokaal onmiddellijk reageren.
 - Behoud bronnen, meetjaren, licenties, opgeslagen voortgang en de oorspronkelijke v3-vormgeving.
 

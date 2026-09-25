@@ -8,7 +8,7 @@ import { useApp } from '../app/context';
 import { A, Avatar, Logo } from '../app/shared';
 
 const NAV = [
-  { href: '/', key: 'play', icon: Play, match: (p: string) => p === '/' || p === '/daily' || p === '/duel' || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
+  { href: '/', key: 'play', icon: Play, match: (p: string) => p === '/' || p === '/daily' || p.startsWith('/duel') || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
   { href: '/explore', key: 'explore', icon: Compass, match: (p: string) => p === '/explore' },
   { href: '/multiplayer', key: 'navFriends', icon: Users, match: (p: string) => p === '/multiplayer' || p === '/friends' || p.startsWith('/room') },
 ] as const;

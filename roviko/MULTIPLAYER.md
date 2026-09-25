@@ -33,9 +33,15 @@ The available Sites profile supplies Workers and D1 but no custom Durable Object
 
 This adapter targets small V1 rooms. Database read costs scale with connected players, and changed state can take one tick to reach another player. High concurrency needs a room-actor or dedicated WebSocket service before a broad public launch. A PostgreSQL backend would also need row locking/transactions or equivalent CAS and an explicit event fanout layer. Do not replace D1 with process-local arrays.
 
-## Development bots
+## Quick match and computer players (1.19)
 
-`POST /api/rooms/CODE/bot` requires the host and both `ENVIRONMENT=development` and `DEV_MULTIPLAYER_BOTS=true`. Production rejects it. Bots answer with a deterministic approximately 70% accuracy and are excluded from persisted account results. The automated tests use two real sessions instead of claiming bots demonstrate multiplayer.
+`POST /api/match/quick` joins the oldest open quick search of another player whose connection was seen in the last 25 seconds and starts the match at once (mixed, 10 questions, 15 seconds), or opens a new search (`quick: "open"` in the room state). Searching again returns the same search. The waiting screen shows the elapsed time; after three minutes (`QUICK_SEARCH_MS`) it offers a button to play against the computer instead, with a level choice. Waiting on stays possible. Open searches are found with a state scan, which is fine at the current scale.
+
+Computer players are ordinary room players with `bot: true` and a `level` (`easy`, `medium`, `hard`). The host adds them in the lobby (`POST /api/rooms/CODE/bot {level}`, at most five) or removes them (`removeBot {id}`); `computer {level}` adds one and starts immediately. Each bot's answer and thinking time follow deterministically from match, round and bot id (`lib/game-engine/bots.ts`): easy ≈45% right in 5.5–10 s, medium ≈68% in 3.5–7 s, hard ≈88% in 1.8–4.2 s, always before a timed deadline. Bots never persist results, and **a match with a computer player gives no ranking score, XP or wins**: it is saved as an unranked game for the players' own stats.
+
+## Development bots (before 1.19)
+
+Until 1.18, `POST /api/rooms/CODE/bot` required `ENVIRONMENT=development` and `DEV_MULTIPLAYER_BOTS=true`. Since 1.19 it is a host feature in production (see above). Bots answer with a deterministic approximately 70% accuracy and are excluded from persisted account results. The automated tests use two real sessions instead of claiming bots demonstrate multiplayer.
 
 ## 1.5 recovery
 

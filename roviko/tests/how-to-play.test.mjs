@@ -12,7 +12,7 @@ test('every game mode has a how-to-play guide', () => {
   for (const mode of [...DAILY_MODES, ...MODES, 'duel', 'mystery', 'room']) assert.ok(HOW_TO_PLAY[mode], 'missing guide for ' + mode);
   assert.deepEqual([...HOW_TO_PLAY_ORDER].sort(), Object.keys(HOW_TO_PLAY).sort());
   assert.equal(new Set(HOW_TO_PLAY_ORDER).size, HOW_TO_PLAY_ORDER.length);
-  assert.deepEqual(HOW_TO_PLAY_GROUPS[0].modes, DAILY_MODES);
+  assert.deepEqual(HOW_TO_PLAY_GROUPS[0].modes, ['daily', ...DAILY_MODES]);
 });
 
 test('guides are three short steps plus a tip, in English and Dutch', () => {
@@ -43,10 +43,10 @@ test('the overview offers every game as a tab and explains the chosen one in ful
   assert.equal((html.match(/aria-selected="true"/g) || []).length, 1);
   assert.equal((html.match(/role="tabpanel"/g) || []).length, 1);
   assert.ok(html.includes('Kies een spel'));
-  assert.ok(html.includes('Speel Rank Radar'));
-  for (const step of HOW_TO_PLAY.rank.steps) assert.ok(html.includes(step.text.nl));
-  assert.ok(html.includes(HOW_TO_PLAY.rank.tip.nl));
-  assert.ok(html.includes(messages.nl.competitionRankRule));
+  assert.ok(html.includes('Speel Dagelijkse Omweg'));
+  for (const step of HOW_TO_PLAY.daily.steps) assert.ok(html.includes(step.text.nl));
+  assert.ok(html.includes(HOW_TO_PLAY.daily.tip.nl));
+  assert.ok(html.includes(messages.nl.competitionDaily));
   const steps = renderToStaticMarkup(createElement(HowToSteps, { mode: 'duel', t, locale: 'en' }));
   assert.equal((steps.match(/<li>/g) || []).length, 3);
 });
@@ -56,5 +56,5 @@ test('every game has a worked example in English, Dutch and Spanish, shown on th
   const t = key => messages.en[key] ?? key;
   const html = renderToStaticMarkup(createElement(HowToPlayPage, { t, locale: 'en', onPlay() {} }));
   assert.ok(html.includes('Example'));
-  assert.ok(html.includes(HOW_TO_EXAMPLES.rank.en.slice(0, 30)));
+  assert.ok(html.includes(HOW_TO_EXAMPLES.daily.en.slice(0, 30)));
 });

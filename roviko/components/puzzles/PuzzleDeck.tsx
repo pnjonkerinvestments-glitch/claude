@@ -10,7 +10,7 @@ import { post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { TOPICS } from '@/lib/puzzles/topics';
 import type { PuzzleMode } from '@/lib/puzzles/model';
-import { DAILY_MODES, dailyStateOf, type DailyMode } from '@/lib/daily-loop';
+import { DAILY_MODES, dailyStateOf, type DailyMode, type DayMode } from '@/lib/daily-loop';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { MysteryCountry } from '../atelier/MysteryCountry';
 import { NativeReminder } from '../atelier/NativeReminder';
@@ -19,7 +19,7 @@ import { useToday } from '../home/useDay';
 import { ResetCountdown } from '../atelier/ResetCountdown';
 import { GameCard } from '../home/GameCard';
 
-const PRACTICE_LABELS: Record<DailyMode, string> = { rank: 'tilePracticeRank', daily: 'tilePracticeDaily', compare: 'puzzleBrowseTopics', mosaic: 'tilePracticeMosaic', trail: 'tilePracticeTrail' };
+const PRACTICE_LABELS: Record<DailyMode, string> = { rank: 'tilePracticeRank', duel: 'tilePracticeDuel', compare: 'puzzleBrowseTopics', mosaic: 'tilePracticeMosaic', trail: 'tilePracticeTrail' };
 
 /** Start (or resume) a daily or practice puzzle and open it. */
 type PuzzleLauncher = { boot: { user: { id: string } }; refresh: () => Promise<unknown>; go: (href: string) => void };
@@ -30,8 +30,9 @@ export async function openPuzzle(app: PuzzleLauncher, mode: PuzzleMode | 'rank',
 }
 
 /** Open one of today's five daily games: resumes it when it was started, shows the result when it is done. */
-export async function launchDaily(app: PuzzleLauncher & { start: (settings: Record<string, unknown>) => Promise<void> }, mode: DailyMode) {
+export async function launchDaily(app: PuzzleLauncher & { start: (settings: Record<string, unknown>) => Promise<void> }, mode: DayMode) {
   if (mode === 'daily' || mode === 'trail') return app.start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'daily-trail' : 'daily' });
+  if (mode === 'duel') return app.go('/duel');
   return openPuzzle(app, mode);
 }
 
@@ -50,11 +51,11 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
     } catch (e) { fail(e); } finally { launching.current = false; setBusy(''); }
   }
   const modes = DAILY_MODES;
-  const stateOf = (mode: DailyMode) => dailyStateOf(today?.sessions, mode);
-  const title = (mode: DailyMode) => t(dailyTitleKey(mode));
-  const launch = (mode: DailyMode) => mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode:mode==='trail'?'daily-trail':'daily' }) : play(mode);
+  const stateOf = (mode: DayMode) => dailyStateOf(today?.sessions, mode);
+  const title = (mode: DayMode) => t(dailyTitleKey(mode));
+  const launch = (mode: DayMode) => mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode:mode==='trail'?'daily-trail':'daily' }) : mode === 'duel' ? go('/duel') : play(mode);
   // Practice under each tile, like a "random" round: unranked, never touches today's shared puzzle.
-  const practiceFor = (mode: DailyMode) => mode === 'rank' ? play('rank', false) : mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'trail' : 'mixed', region: app.region ?? 'World' }) : setPractice(mode);
+  const practiceFor = (mode: DayMode) => mode === 'rank' ? play('rank', false) : mode === 'duel' ? go('/duel/practice') : mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'trail' : 'mixed', region: app.region ?? 'World' }) : setPractice(mode);
   const [mysteryOpen, setMysteryOpen] = useState(false);
   const stateLabel = (state: string) => t(!today ? 'dailyStatusPending' : state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState');
   return <><section className={'puzzle-deck-section deck-v3 ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
@@ -62,6 +63,19 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
       <div><h2 id="today-title">{t('allGamesDaily')}</h2><p className="muted">{t('allGamesDailyNote')}</p></div>
       {dailyPage && <ResetCountdown className="deck-reset" label={t('resetIn').split('{time}')[0].trim()} t={t}/>}
     </header>
+    {(() => { const state = stateOf('daily'); return <article className={'detour-banner is-' + state}>
+      <div className="detour-banner-art"><GameCover mode="daily"/></div>
+      <div className="detour-banner-body">
+        <p className="kicker"><GameIcon mode="daily" size="sm"/>{t('detourBannerKicker')}</p>
+        <h3>{title('daily')}</h3>
+        <p>{t('dailyCardCopy')}</p>
+        <small className="dcard-points"><Trophy size={14} strokeWidth={2.4} aria-hidden="true"/>{t('competitionGameMax')}</small>
+        <div className="detour-banner-actions">
+          <button className="btn primary" disabled={app.busy || !!busy} onClick={() => launch('daily')}>{app.busy ? t('loading') : t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'detourPlay')}<ArrowRight size={18} aria-hidden="true"/></button>
+          <span className="dcard-help"><HowToPlayButton mode="daily" t={t} locale={locale}/></span>
+        </div>
+      </div>
+    </article>; })()}
     <div className="dgrid">
       {modes.map(mode => {
         const state = stateOf(mode), name = title(mode);
@@ -87,7 +101,7 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
     {extras && <div className="deck-extras" id="extras">
       <header className="section-header"><div><h2>{t('allGamesExtras')}</h2><p className="muted">{t('allGamesExtrasNote')}</p></div></header>
       <div className="card-row extras-row">
-        <GameCard mode="duel" title={t('duel')} tagline={t('cardDuelTag')} meta={t('cardNoPoints')} cta={t('cardPlay')} onClick={() => go('/duel')}/>
+        <GameCard mode="room" title={t('cardRoomTitle')} tagline={t('cardRoomTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => go('/multiplayer')}/>
         <GameCard mode="mystery" title={t('cardMysteryTitle')} tagline={t('cardMysteryTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => setMysteryOpen(true)}/>
       </div>
       <Dialog open={mysteryOpen} onOpenChange={setMysteryOpen}>

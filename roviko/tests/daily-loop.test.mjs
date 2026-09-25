@@ -24,12 +24,15 @@ test('countdown reaches the next 00:00 UTC and formats as hh:mm:ss', () => {
 });
 
 test('next daily resumes a started game first, then the first unplayed one, and none when all are done', () => {
-  assert.equal(nextDailyMode([]), 'rank');
-  assert.equal(nextDailyMode([{ mode: 'rank', completed: true }]), 'daily');
+  // The Daily Detour comes first, then the five daily games with World Duel second.
+  assert.equal(nextDailyMode([]), 'daily');
+  assert.equal(nextDailyMode([{ mode: 'daily', completed: true }]), 'rank');
+  assert.equal(nextDailyMode([{ mode: 'daily', completed: true }, { mode: 'rank', completed: true }]), 'duel');
   assert.equal(nextDailyMode([{ mode: 'rank', completed: true }, { mode: 'mosaic' }]), 'mosaic');
-  const all = ['rank', 'daily', 'compare', 'mosaic', 'trail'].map(mode => ({ mode, completed: true }));
+  const all = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'].map(mode => ({ mode, completed: true }));
   assert.equal(nextDailyMode(all), null);
-  assert.equal(completedDailies(all), 5);
+  assert.equal(completedDailies(all), 6);
+  assert.equal(completedDailies(all, ['rank', 'duel', 'compare', 'mosaic', 'trail']), 5);
 });
 
 test('a streak is only at risk when it exists and nothing is finished today', () => {

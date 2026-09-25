@@ -1,5 +1,6 @@
 import { competitionSummary } from './competition';
 import { startRank, rankAction } from './ranks';
+import { startDuel, duelAction } from './duel';
 import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
 import { measure, measureStart } from './telemetry';
@@ -12,7 +13,7 @@ import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
 import { startSolo, soloAction, recordSolo } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
-import { createRoom, mutateRoom, roomView, connectSocket } from './multiplayer';
+import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
@@ -54,9 +55,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return new Response(asset.body, { status: asset.status, headers: { 'Content-Type': png ? 'image/png' : 'image/svg+xml', 'Cache-Control': 'public,max-age=86400', 'X-Content-Type-Options': 'nosniff' } });
         }
         if (path[0] === 'duel' && method === 'GET') {
-            // Public, deterministic boards: no session or database needed, safe to cache.
-            const today = new Date().toISOString().slice(0, 10);
-            if (path[1] === 'today') return json({ date: today, ...duelBoard('roviko:duel:v1:' + today) }, 200, { 'Cache-Control': 'public, max-age=300' });
+            // Practice boards are public and deterministic. The daily duel is scored and lives in /duels.
             if (path[1] === 'practice' && /^[a-z0-9]{4,16}$/.test(path[2] ?? '')) return json({ date: null, ...duelBoard('roviko:duel:practice:' + path[2]) }, 200, { 'Cache-Control': 'public, max-age=86400' });
             throw new AppError('NOT_FOUND', 404);
         }
@@ -134,6 +133,18 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
             throw new AppError('METHOD_NOT_ALLOWED',405);
         }
+        if (path[0] === 'duels') {
+            if (method === 'POST' && !path[1]) {
+                await limit(env, 'duels:' + user.id, 30);
+                const game = await startDuel(env, user, await body(req)); await measureStart(req, env, user, 'duel', game.id); return json(game);
+            }
+            if (path[1] && ['GET','POST'].includes(method)) {
+                const game = await duelAction(env, user, path[1], method === 'GET' ? 'get' : path[2], method === 'GET' ? {} : await body(req));
+                if (game.phase === 'finished' && game.daily) await measure(req, env, user, 'daily_completed', 'duel', game.id);
+                return json(game);
+            }
+            throw new AppError('METHOD_NOT_ALLOWED',405);
+        }
         if (path[0] === 'puzzles') {
             if (method === 'GET' && path[1] === 'today') return json(await puzzleToday(env, user, url.searchParams.get('competition')==='1'));
             if (method === 'POST' && !path[1]) {
@@ -185,6 +196,11 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return json(await answerInvite(env, user, z.string().max(64).parse(path[1]), z.object({ status: z.string().max(16) }).parse(await body(req)).status));
         if (path[0] === 'rooms' && path[2] === 'invite' && method === 'POST')
             return json(await inviteFriend(env, user, path[1]?.toUpperCase() ?? '', z.object({ friendId: z.string().max(64) }).parse(await body(req)).friendId));
+        if (path[0] === 'match' && path[1] === 'quick' && method === 'POST') {
+            await limit(env, 'quick:' + user.id, 20);
+            const match = await quickMatch(env, user, roomSettings({ ...DEFAULT_SETTINGS, mode: 'mixed' }));
+            await measure(req, env, user, match.waiting ? 'room_created' : 'room_joined', 'mixed', match.code); return json(match);
+        }
         if (path[0] === 'rooms') {
             if (method === 'POST' && !path[1]) {
                 await limit(env, 'rooms:' + user.id, 10);
@@ -192,7 +208,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
             const code = path[1]?.toUpperCase();
             const action = method === 'GET' ? 'get' : path[2];
-            if (!['get','join','leave','settings','ready','start','answer','rematch','advance','bot'].includes(action)) throw new AppError('INVALID_ACTION');
+            if (!['get','join','leave','settings','ready','start','answer','rematch','advance','bot','computer','removeBot'].includes(action)) throw new AppError('INVALID_ACTION');
             const b = method === 'GET' ? {} : await body(req);
             delete b.connectionToken;
             if (action === 'settings')

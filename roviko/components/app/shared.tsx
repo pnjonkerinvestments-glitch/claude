@@ -9,8 +9,9 @@ export { EmptyState as Empty, PageSkeleton as Loading } from '../ds/States';
 
 export const avatars = [Compass, Rocket, Mountain, Anchor, Leaf, Bird, Sunrise, Ship];
 export function Avatar({ id = 0, size = '', name }: { id?: number; size?: string; name?: string }) {
-    const emoji = ['🧭', '🚀', '🏔️', '⚓', '🌿', '🦜', '🌅', '⛵'][id % 8] ?? '🧭';
-    return <span className={'avatar avatar-' + id + ' ' + size} aria-label={name}><span className="avatar-emoji" aria-hidden="true">{emoji}</span></span>;
+    // Ids from 100 are computer players.
+    const emoji = id >= 100 ? '🤖' : ['🧭', '🚀', '🏔️', '⚓', '🌿', '🦜', '🌅', '⛵'][id % 8] ?? '🧭';
+    return <span className={'avatar avatar-' + (id >= 100 ? 'bot' : id) + ' ' + size} aria-label={name}><span className="avatar-emoji" aria-hidden="true">{emoji}</span></span>;
 }
 export function ModeEmoji({ mode }: { mode: string }) { return <GameIcon mode={mode} className="mode-emoji"/>; }
 export function Logo() { return <span className="logo"><img src="/globe-logo.webp" alt=""/><span>{BRAND.name.toLowerCase()}<span className="logo-period">.</span></span></span>; }

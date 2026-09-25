@@ -2,7 +2,8 @@
 import React, { useRef, useState } from 'react';
 import { ArrowRight, CalendarDays, Check, ChevronRight, Flame, ShieldCheck, Star, Target, Trophy } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { DAILY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DailyMode } from '@/lib/daily-loop';
+import { DAILY_MODES, DAY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DayMode } from '@/lib/daily-loop';
+import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import { useApp } from '../app/context';
 import { A } from '../app/shared';
 import { dailyTitleKey } from '../atelier/DailyLoop';
@@ -15,14 +16,14 @@ import { CoverArt } from './CoverArt';
 import { GameCard } from './GameCard';
 import { useCompetition, useResetLabel, useToday } from './useDay';
 
-/** The globe with one arc per daily game around it; finished games light up in their own colour. */
+/** The globe with one arc per scored game (the Daily Detour first); finished games light up in their own colour. */
 function MascotRing({ states, mood, bubble }: { states: ('new' | 'active' | 'done')[]; mood: MascotMood; bubble: string }) {
-  const ring = 2 * Math.PI * 46, arc = ring / DAILY_MODES.length;
+  const ring = 2 * Math.PI * 46, arc = ring / DAY_MODES.length;
   return <div className="hero-mascot" aria-hidden="true">
     <span className="hero-bubble" key={bubble}>{bubble}</span>
     <svg className="hero-ring" viewBox="0 0 100 100">
       <circle className="hero-ring-track" cx="50" cy="50" r="46"/>
-      {DAILY_MODES.map((mode, i) => <circle key={mode} className={'hero-ring-arc tone-' + mode + ' is-' + states[i]} cx="50" cy="50" r="46" strokeDasharray={`${arc - 7} ${ring - arc + 7}`} strokeDashoffset={-(arc * i) - 3.5}/>)}
+      {DAY_MODES.map((mode, i) => <circle key={mode} className={'hero-ring-arc tone-' + mode + ' is-' + states[i]} cx="50" cy="50" r="46" strokeDasharray={`${arc - 7} ${ring - arc + 7}`} strokeDashoffset={-(arc * i) - 3.5}/>)}
     </svg>
     <Mascot mood={mood} size={260} className="hero-globe"/>
   </div>;
@@ -49,10 +50,13 @@ export function HomePage() {
 
   const sessions = today?.sessions;
   const ready = bootLoaded && !!today;
-  const states = DAILY_MODES.map(m => dailyStateOf(sessions, m));
-  const completed = completedDailies(sessions), left = DAILY_MODES.length - completed;
-  const next = today ? nextDailyMode(sessions) : DAILY_MODES[0];
-  const allDone = !!today && completed === DAILY_MODES.length;
+  const states = DAY_MODES.map(m => dailyStateOf(sessions, m));
+  const completed = completedDailies(sessions), left = DAY_MODES.length - completed;
+  const next = today ? nextDailyMode(sessions) : 'daily';
+  const allDone = !!today && completed === DAY_MODES.length;
+  // The hero button is the Daily Detour until it is finished, then it leads on to the next daily game.
+  const detour = dailyStateOf(sessions, 'daily'), heroMode: DayMode | null = detour === 'done' ? next : 'daily';
+  const gamesDone = completedDailies(sessions, DAILY_MODES);
   const streak = boot.stats.dailyStreak ?? 0, goal = streakMilestone(streak);
   const freeze = boot.stats.streakFreezes as { available: number; nextIn: number; frozenDates: string[] } | undefined;
   const atRisk = !!today && streakAtRisk(streak, completed);
@@ -63,7 +67,7 @@ export function HomePage() {
   const yesterday = competition?.yesterday?.score ?? 0;
   const bestDay = competition?.bestDay ?? null;
   const scoreOf = (mode: string) => competition?.scores.find(s => s.mode === mode)?.score;
-  const name = (mode: DailyMode) => t(dailyTitleKey(mode));
+  const name = (mode: DayMode) => t(dailyTitleKey(mode));
 
   // What the globe says, from most to least urgent.
   const [mood, bubble]: [MascotMood, string] = !ready ? ['happy', t('heroBubble')]
@@ -74,13 +78,13 @@ export function HomePage() {
     : completed > 0 ? ['cheer', t(left === 1 ? 'mascotLeftOne' : 'mascotLeft').replace('{n}', String(left)).replace('{game}', next ? name(next) : '')]
     : ['happy', t('mascotStart')];
 
-  async function open(mode: DailyMode) {
+  async function open(mode: DayMode) {
     if (lock.current) return; lock.current = true; setLaunching(mode);
     try { await launchDaily(app, mode); } catch (e) { fail(e); } finally { lock.current = false; setLaunching(''); }
   }
   const busy = !ready || !!launching || app.busy;
-  const pickQuest = (q: Quest) => { if (busy) return; if (q.kind === 'mode' && q.mode) open(q.mode as DailyMode); else if (q.kind === 'mystery') setMysteryOpen(true); else if (q.kind === 'duel') go('/duel'); else if (next) open(next); };
-  const cta = allDone ? t('tripDoneCta') : completed === 0 && next && dailyStateOf(sessions, next) === 'new' ? t('tripStart') : t('tripContinue').replace('{game}', next ? name(next) : '');
+  const pickQuest = (q: Quest) => { if (busy) return; if (q.kind === 'mode' && q.mode) open(q.mode as DayMode); else if (q.kind === 'mystery') setMysteryOpen(true); else if (q.kind === 'detour') open('daily'); else if (next) open(next); };
+  const cta = allDone ? t('tripDoneCta') : detour === 'new' ? t('tripStart') : detour === 'active' ? t('heroDetourContinue') : t('tripContinue').replace('{game}', heroMode ? name(heroMode) : '');
   const pointsGoal = allDone ? '' : yesterday > 0 && pointsToday < yesterday ? t('beatYesterday').replace('{n}', n(yesterday)) : bestDay && pointsToday < bestDay ? t('beatBestDay').replace('{n}', n(bestDay)) : '';
 
   return <div className="home">
@@ -90,9 +94,10 @@ export function HomePage() {
         <h1 id="home-title">{t('homeTitle')}</h1>
         <p className="lead">{atRisk ? t('streakAtRiskNote') : allDone && reset ? t('tripDoneCopy').replace('{time}', reset) : t('homeLead')}</p>
         <div className="hero-actions">
-          <button className="btn primary btn-lg" disabled={busy} aria-busy={!!launching} onClick={() => allDone ? go('/leaderboard') : next && open(next)}>{cta}<ArrowRight size={20} aria-hidden="true"/></button>
-          {!allDone && <A href="/how-to-play" className="text-link">{t('howToLink')}</A>}
+          <button className="btn primary btn-lg" disabled={busy} aria-busy={!!launching} onClick={() => allDone ? go('/leaderboard') : heroMode && open(heroMode)}>{cta}<ArrowRight size={20} aria-hidden="true"/></button>
+          {!allDone && <A href="/how-to-play#daily" className="text-link">{t('howToLink')}</A>}
         </div>
+        {ready && detour !== 'done' && <p className="hero-detour-meta"><span aria-hidden="true">✈️</span>{t('dailyTitle')} · {t('heroDetourMeta')}</p>}
         {todayError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={retry}>{t('retry')}</button></p>}
         <ul className="hero-stats" aria-label={t('statusLabel')}>
           <li className={'hero-stat stat-streak' + (streak > 0 ? ' is-on' : '') + (atRisk ? ' is-at-risk' : '')}>
@@ -103,7 +108,7 @@ export function HomePage() {
           </li>
           <li className="hero-stat stat-today">
             <span className="hero-stat-icon" aria-hidden="true"><Target size={26} strokeWidth={2.2}/></span>
-            <span>{ready ? <b>{completed}/5</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatToday')}</small></span>
+            <span>{ready ? <b>{completed}/{DAY_MODES.length}</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatToday')}</small></span>
           </li>
           <li className="hero-stat stat-points">
             <button type="button" onClick={() => go('/leaderboard')}>
@@ -119,9 +124,9 @@ export function HomePage() {
 
     <section className="home-section trip-v2" aria-labelledby="trip-title">
       <SectionHeader id="trip-title" kicker={t('tripKicker')} title={t('tripMixTitle')} action={<A href="/scoring" className="text-link">{t('howScoring')}<ArrowRight size={16} aria-hidden="true"/></A>}/>
-      <p className="trip-summary"><span>{allDone && <Check size={17} strokeWidth={3} aria-hidden="true"/>}{t('journeyProgress').replace('{n}', String(completed))}</span><span className="trip-points"><Trophy size={16} aria-hidden="true"/>{n(pointsToday)}<small> / {n(5000)}</small></span></p>
+      <p className="trip-summary"><span>{gamesDone === DAILY_MODES.length && <Check size={17} strokeWidth={3} aria-hidden="true"/>}{t('journeyProgress').replace('{n}', String(gamesDone))}</span><span className="trip-points"><Trophy size={16} aria-hidden="true"/>{n(pointsToday)}<small> / {n(DAILY_TOTAL_MAX)}</small></span></p>
       <ol className="tstops">{DAILY_MODES.map((mode, i) => {
-        const state = states[i], isNext = !allDone && mode === next, points = scoreOf(mode);
+        const state = dailyStateOf(sessions, mode), isNext = !allDone && mode === next, points = scoreOf(mode);
         return <li key={mode} className={'tstop is-' + state + (isNext ? ' is-next' : '')}>
           <button type="button" onClick={() => open(mode)} disabled={busy} aria-label={`${i + 1}. ${name(mode)} · ${t(state === 'done' ? 'journeyStopDone' : state === 'active' ? 'journeyStopActive' : 'journeyStopNew')}`}>
             <span className="tstop-art"><CoverArt mode={mode}/><span className="tstop-num">{state === 'done' ? <Check size={15} strokeWidth={3}/> : i + 1}</span></span>
@@ -146,7 +151,7 @@ export function HomePage() {
     <section className="home-section" aria-labelledby="more-title">
       <SectionHeader id="more-title" title={t('moreTitle')} action={<A href="/daily" className="text-link">{t('viewAllGames')}<ArrowRight size={16} aria-hidden="true"/></A>}/>
       <div className="card-row more-row">
-        <GameCard mode="duel" title={t('duel')} tagline={t('cardDuelTag')} meta={t('cardNoPoints')} cta={t('cardPlay')} onClick={() => go('/duel')}/>
+        <GameCard mode="room" title={t('cardRoomTitle')} tagline={t('cardRoomTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => go('/multiplayer')}/>
         <GameCard mode="mystery" title={t('cardMysteryTitle')} tagline={t('cardMysteryTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => setMysteryOpen(true)}/>
         <GameCard mode="classic" title={t('cardClassicTitle')} tagline={t('cardClassicTag')} meta={t('cardNoPoints')} cta={t('cardOpen')} onClick={() => go('/daily#classic')}/>
       </div>

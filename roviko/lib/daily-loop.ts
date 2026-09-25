@@ -2,7 +2,10 @@ import { spanishContent } from '../i18n/content';
 // Pure helpers behind the daily return loop: streak milestones, the UTC reset countdown,
 // which daily game to suggest next, and the deterministic "mystery country" of the day.
 
-export const DAILY_MODES = ['rank', 'daily', 'compare', 'mosaic', 'trail'] as const;
+/** The five daily games. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
+export const DAILY_MODES = ['rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
+export const DAY_MODES = ['daily', ...DAILY_MODES] as const;
+export type DayMode = typeof DAY_MODES[number];
 export type DailyMode = typeof DAILY_MODES[number];
 export type DailyState = 'new' | 'active' | 'done';
 
@@ -26,18 +29,19 @@ export function formatCountdown(ms: number) {
   return [h, m, s].map(n => String(n).padStart(2, '0')).join(':');
 }
 
-export function dailyStateOf(sessions: { mode: string; completed?: boolean }[] | undefined, mode: DailyMode): DailyState {
+export function dailyStateOf(sessions: { mode: string; completed?: boolean }[] | undefined, mode: DayMode): DailyState {
   const saved = sessions?.find(s => s.mode === mode);
   return saved?.completed ? 'done' : saved ? 'active' : 'new';
 }
 
-/** Resume a started game first, otherwise the first one not yet played today. */
-export function nextDailyMode(sessions: { mode: string; completed?: boolean }[] | undefined): DailyMode | null {
-  return DAILY_MODES.find(m => dailyStateOf(sessions, m) === 'active') ?? DAILY_MODES.find(m => dailyStateOf(sessions, m) === 'new') ?? null;
+/** Resume a started game first, otherwise the first one not yet played today (the Daily Detour comes first). */
+export function nextDailyMode(sessions: { mode: string; completed?: boolean }[] | undefined): DayMode | null {
+  return DAY_MODES.find(m => dailyStateOf(sessions, m) === 'active') ?? DAY_MODES.find(m => dailyStateOf(sessions, m) === 'new') ?? null;
 }
 
-export function completedDailies(sessions: { mode: string; completed?: boolean }[] | undefined) {
-  return DAILY_MODES.filter(m => dailyStateOf(sessions, m) === 'done').length;
+/** Finished scored games today: the Daily Detour plus the five daily games (pass DAILY_MODES for the five only). */
+export function completedDailies(sessions: { mode: string; completed?: boolean }[] | undefined, modes: readonly DayMode[] = DAY_MODES) {
+  return modes.filter(m => dailyStateOf(sessions, m) === 'done').length;
 }
 
 /** The streak only needs one finished daily game; it is at risk when it exists but today has none yet. */

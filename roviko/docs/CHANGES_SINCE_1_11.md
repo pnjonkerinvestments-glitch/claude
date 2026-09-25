@@ -356,3 +356,22 @@ Het overzicht "nog x spellen", de dagdoelen, de reeks-uitleg en de lange scoreka
 - detour-puntentelling (20 × 50, oude editie 5 × 200);
 - 20 gemengde vragen zonder herhaling na elkaar;
 - resultaatkaart en vaste actiebalk.
+
+## 1.19.0: Daily Detour als hoofdreis, Wereldduel met punten, spelen tegen de computer
+
+**Nieuwe migratie: `drizzle/0005_wonderful_ikaris.sql`.** Die bouwt `daily_scores` opnieuw op met `duel` in de toegestane spellen (SQLite kan een CHECK niet aanpassen). Bestaande scores worden overgenomen. Zonder deze migratie worden duelpunten stil genegeerd. De cacheversie van de service worker is `roviko-shell-v1.19.0`.
+
+**Dagspellen.**
+- De Dagelijkse Omweg is de hoofdreis van de dag. De homeknop "Begin de reis van vandaag" start hem; daarna wijst dezelfde knop naar het volgende dagspel. Op Alle spellen staat hij als brede kaart boven de vijf dagspellen.
+- Wereldduel is dagspel 2 (Rank Radar, Wereldduel, Side by Side, Country Mosaic, Clue Trail) en telt mee: 200 punten per gewonnen duel.
+- Maximaal 6.000 punten per dag (Omweg + vijf dagspellen). De ring rond de mascotte heeft zes bogen; "Vandaag" telt tot 6.
+- Het dagduel draait nu op de server (`POST /api/duels`, `POST /api/duels/:id/play`, `GET /api/duels/:id`). De browser krijgt de waarden en de perfecte route van een ronde pas na het spelen van een kaart. `GET /api/duel/today` is vervallen (gaf de oplossing vooraf). Oefenduels: `/duel/practice`, lokaal en zonder punten.
+- Dagdoelen: het bonusdoel wisselt tussen het mysterieland en de Dagelijkse Omweg.
+
+**Multiplayer.**
+- Nu meteen spelen op `/multiplayer`: tegen een willekeurige speler (`POST /api/match/quick`) of tegen de computer (makkelijk, gemiddeld, moeilijk).
+- Wie zoekt, ziet hoe lang het al duurt. Na 3 minuten zonder tegenstander verschijnt de knop "Speel tegen de computer" met een niveaukeuze; blijven wachten kan ook.
+- In elke kamer kan de host computerspelers toevoegen en weghalen (max. 5).
+- Potjes met een computerspeler tellen nooit mee voor de ranglijsten (geen matchscore, XP of winst), wel voor je eigen statistieken.
+
+**Tests.** Nieuw: het gescoorde dagduel (verborgen waarden, eenmalig, 6.000 max), quick match en computer-na-wachten, computerspelers toevoegen/verwijderen, en `tests/bots.test.mjs` (geldige antwoorden voor elk vraagtype, moeilijker = vaker goed en sneller).

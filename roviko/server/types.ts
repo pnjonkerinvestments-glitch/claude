@@ -34,6 +34,8 @@ export type Player = {
     previousRank?: number;
     results: any[];
     bot?: boolean;
+    /** Computer opponent skill; only set on bots. */
+    level?: import('../lib/game-engine/bots').BotLevel;
 };
 export type Room = {
     code: string;
@@ -58,6 +60,8 @@ export type Room = {
     updatedAt: number;
     expiresAt: number;
     events: string[];
+    /** Quick match against a random player: 'open' while searching, 'matched' once someone joined, 'computer' when the player chose a bot. */
+    quick?: 'open' | 'matched' | 'computer';
 };
 export type Solo = {
     competition?: import('../lib/daily-scoring').Competition;

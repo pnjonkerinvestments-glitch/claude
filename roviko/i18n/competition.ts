@@ -1,5 +1,5 @@
 const en = {
-  competitionTitle:'Your daily scorecard', competitionIntro:'Five games. One daily climb. How far will you go?',
+  competitionTitle:'Your daily scorecard', competitionIntro:'Six games. One daily climb. How far will you go?',
   competitionToday:'Today’s total', competitionAllTime:'All-time points', competitionGame:'Your game score',
   competitionRank:'#{rank} of {count} players', competitionNoRank:'Finish a daily game to join the ranking.',
   competitionParticipants:'{count} players have finished', competitionRules:'How daily points work',
@@ -20,7 +20,7 @@ const en = {
 export const competitionMessages = {
   en,
   nl: {
-    competitionTitle:'Jouw dagelijkse scorekaart', competitionIntro:'Vijf spellen. Eén dagranglijst. Hoe hoog kom jij?',
+    competitionTitle:'Jouw dagelijkse scorekaart', competitionIntro:'Zes spellen. Eén dagranglijst. Hoe hoog kom jij?',
     competitionToday:'Dagtotaal', competitionAllTime:'Punten aller tijden', competitionGame:'Jouw spelscore',
     competitionRank:'#{rank} van {count} spelers', competitionNoRank:'Rond een dagspel af om in de ranglijst te komen.',
     competitionParticipants:'{count} spelers zijn klaar', competitionRules:'Zo werken de dagpunten',
@@ -39,7 +39,7 @@ export const competitionMessages = {
     dailyTrail:'Dagelijkse Clue Trail', trailCardCopy:'Vijf verborgen landen. Minder hints, meer punten.',
   } satisfies Record<keyof typeof en,string>,
   es: {
-    competitionTitle:'Tu marcador diario', competitionIntro:'Cinco juegos. Una clasificación diaria. ¿Hasta dónde llegarás?',
+    competitionTitle:'Tu marcador diario', competitionIntro:'Seis juegos. Una clasificación diaria. ¿Hasta dónde llegarás?',
     competitionToday:'Total de hoy', competitionAllTime:'Puntos acumulados', competitionGame:'Tu puntuación',
     competitionRank:'#{rank} de {count} jugadores', competitionNoRank:'Completa un juego diario para entrar en la clasificación.',
     competitionParticipants:'{count} jugadores han terminado', competitionRules:'Cómo funcionan los puntos diarios',

@@ -1,7 +1,8 @@
 /** Versioned, untimed daily competition. Practice and multiplayer never enter this ledger. */
 export const COMPETITION_VERSION = 1;
 export const COMPETITION_SUFFIX = ':competitive-v1';
-export const DAILY_POINT_MODES = ['daily', 'trail', 'compare', 'mosaic', 'rank'] as const;
+/** The Daily Detour plus the five daily games; each gives up to 1,000 points (6,000 per day since 1.19). */
+export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
 export type PointMode = typeof DAILY_POINT_MODES[number];
 export type Competition = { version: 1; mode: PointMode };
 export const DAILY_GAME_MAX = 1000;
@@ -15,6 +16,7 @@ export function dailyRoundPoints(mode: PointMode, answer: any, rounds = 5) {
   if (mode === 'trail') return trailPoints(answer.correct, answer.cluesUsed);
   if (mode === 'daily') { const n = Math.max(1, rounds); return answer.mode === 'pinpoint' ? Math.round(Math.max(0, Math.min(1000, answer.mapPoints ?? 0)) / n) : answer.correct ? Math.round(1000 / n) : 0; }
   if (mode === 'compare') return answer.correct ? 100 : 0;
+  if (mode === 'duel') return answer.correct ? 200 : 0;
   return 0;
 }
 export function dailyScore(s: { competition?: Competition; answers: any[]; questions?: unknown[]; mosaicAid?: Record<string, { wrong: boolean; hints: number }> }) {
