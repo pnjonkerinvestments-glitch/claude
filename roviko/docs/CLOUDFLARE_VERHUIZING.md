@@ -31,7 +31,7 @@ Besluit van de eigenaar (P. Jonker), 25 september 2026: Roviko verhuist van de C
   van de ChatGPT-hosting worden niet overgezet; Roviko op Cloudflare begint met de
   bestaande `roviko-db` (alleen testgegevens). Google-login en ADMIN_USER_IDS waren niet
   ingesteld en worden voorlopig niet ingesteld.
-- Stap 3 gedaan, met akkoord van de eigenaar: hij heeft roviko.app in het dashboard als
+- Stap 3 gedaan, de eigenaar heeft roviko.app in het dashboard als
   custom domain aan de worker `roviko` gekoppeld (MX/TXT zijn blijven staan).
   Gecontroleerd: roviko.app/privacy noemt Cloudflare, `/api/me` antwoordt.
 - Stap 4: `HOSTING` staat op Cloudflare (`LEGAL_UPDATED` was al 2026-09-25).
