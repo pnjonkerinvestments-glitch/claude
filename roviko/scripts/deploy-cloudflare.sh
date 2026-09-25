@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Optie B: Roviko publiceren naar het eigen Cloudflare-account (zie docs/PUBLICEREN.md).
 # Bouwt, test, past nieuwe D1-migraties toe en deployt de worker "roviko" naar workers.dev.
-# Raakt roviko.app NIET aan: wrangler.cloudflare.jsonc bevat geen routes of custom domains.
+# roviko.app is in het dashboard als custom domain aan deze worker gekoppeld: dit is de live site.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
@@ -28,6 +28,6 @@ version="$(node -e "console.log(require('./EXPORT_MANIFEST.json').website_versio
 npx wrangler deploy -c "$config" --message "Roviko ${version} (${commit})"
 
 echo
-echo "Klaar: https://roviko.pnjonkerinvestments.workers.dev"
-echo "Controleren: npm run smoke -- https://roviko.pnjonkerinvestments.workers.dev"
+echo "Klaar: https://roviko.app (ook op https://roviko.pnjonkerinvestments.workers.dev)"
+echo "Controleren: open https://roviko.app. De rooktest schrijft in de live database; alleen met akkoord."
 echo "Terugdraaien: npx wrangler rollback -c $config   (zie docs/PUBLICEREN.md)"
