@@ -1,0 +1,26 @@
+{
+  "name": "roviko-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Roviko native shell for the App Store and Google Play",
+  "scripts": {
+    "assets": "node scripts/make-icon.mjs && capacitor-assets generate --iconBackgroundColor '#F6F3E9' --iconBackgroundColorDark '#163B32' --splashBackgroundColor '#F6F3E9' --splashBackgroundColorDark '#163B32'",
+    "sync": "cap sync",
+    "check": "node scripts/check-config.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/local-notifications": "^8.3.1",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2",
+    "sharp": "^0.35.4"
+  }
+}
