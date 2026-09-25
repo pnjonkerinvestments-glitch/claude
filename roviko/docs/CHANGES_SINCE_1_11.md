@@ -395,3 +395,43 @@ Het adres Herengracht 584 is niet van de eigenaar en is weggehaald. Privacy en v
 ## 1.19.4: initiaal in plaats van volledige naam
 
 Op verzoek van de eigenaar noemen privacy en voorwaarden "P. Jonker" in plaats van de volledige naam.
+
+## 1.20.0: multiplayer-fixes, snellere vlaggen, sitecontrole
+
+Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api/version`.
+
+**Multiplayer**
+- Landen op grootte (en de kaart): liep de tijd af voordat je op "Bevestig volgorde" drukte, dan telde de ronde als fout, terwijl het scherm jouw lijst met groene vinkjes liet zien. Nu wordt een lijst die je hebt gesorteerd (of een pin die je hebt gezet) vlak voor het einde automatisch verstuurd. Zonder antwoord toont de onthulling de juiste volgorde, met de uitleg dat de tijd om was.
+- Clue Trail: elke hint heeft vanaf het begin een vaste plek en de vlag staat als vierde hint klein in de lijst. De antwoorden schuiven daardoor niet meer omlaag (gemeten: 0 px verschuiving op telefoon en desktop).
+- De vlag van de volgende vraag wordt al tijdens het aftellen geladen.
+
+**Snelheid**
+- `/api/flag` zoekt het land op in een vooraf gemaakte tabel, zet het antwoord in de Cloudflare-edgecache en laat browsers het een jaar bewaren (`immutable`). De vlag in een vraag laadt met voorrang.
+
+**Sitecontrole (uit VERBETERPLAN_1.20, alleen wat klopte)**
+- Scoring- en uitlegpagina: Wereldduel werd nog als "geen punten" genoemd; nu klopt het overal (200 per duel). Uitlegpagina toont bij Wereldduel de eigen puntenregel.
+- Homepage-reis: zes stops (Omweg + vijf dagspellen), "0 van 6", "Zes stops, tot 6.000 punten".
+- Omweg-omschrijving: "20 gemengde vragen: vlaggen, hoofdsteden, de kaart en meer" (was "uit alle spellen").
+- Teksten: "five-character code", "Play against a random player", "Gets about two in three right", "in een paar korte regels" in plaats van "in drie stappen".
+- Wereldduel past op een kleine telefoon (375×667): compacte arena, alle kaarten in beeld.
+- Eigen meta-omschrijving per pagina, deelafbeelding 1200×630 (`/og/roviko-1200x630.png`), Open Graph en Twitter-card op alle pagina's, canonical altijd naar roviko.app, geen canonical op privépagina's, robots.txt met sitemap, sitemap met absolute roviko.app-URL's.
+- Onbekende routes geven HTTP 404 met de vriendelijke pagina.
+- Service worker was al in orde (pagina's altijd van het netwerk, oude caches worden verwijderd).
+- Secrets-scan over de hele git-historie: niets gevonden.
+
+### 1.20.0 (vervolg): melden en blokkeren, stabiele verbinding, klaar voor Apple
+
+**Nieuwe migratie: `drizzle/0006_gifted_psylocke.sql`** (tabellen `player_blocks` en `player_reports`). Het deployscript past die toe.
+
+- **Verbinding in multiplayer:** een kamer-verbinding is één lange Worker-aanroep, en Cloudflare staat per aanroep een beperkt aantal databasevragen toe (50 op het gratis plan). Na 20 tot 40 seconden bleef het daarom stil, tot de browser na 22 seconden opnieuw verbond. Nu telt de server zijn vragen (`countingDB`) en geeft hij de speler vóór de grens door aan een nieuwe verbinding (`{type:'reconnect'}`). De browser verbindt stil opnieuw; wat je in die tussentijd verstuurt, gaat mee.
+  - Gemeten: 7 overdrachten in 90 seconden spelen, 0 seconden "opnieuw verbinden" in beeld, alle antwoorden geteld.
+- **Melden en blokkeren (Apple 1.2):**
+  - namenfilter EN/NL/ES op de server (`lib/name-filter.ts`);
+  - knop ⋯ bij spelers in de wachtruimte, de eindstand en de vriendenlijst, met vier meldredenen en blokkeren;
+  - blokkades gelden op de server: geen gedeelde kamer, geen koppeling bij een willekeurige tegenstander, geen vriendschap, uitnodigingen of online-status;
+  - lijst met geblokkeerde spelers in het Paspoort;
+  - gemelde spelers staan in `/admin`, met reset van de naam en blokkeren van het account. Zie `docs/MODERATIE.md`.
+- **Voorwaarden en privacy:** regels tegen aanstootgevende namen, opvolging binnen 24 uur, en wat er bij melden of blokkeren wordt bewaard.
+- **Contact:** support@roviko.app in de footer en in het Paspoort, met ook een link naar de privacyverklaring.
+- **Wachtruimte van een kamer op de telefoon:** liep rechts buiten beeld. Opgelost en gecontroleerd op 320 en 390 px.
+- **Documenten voor de stores:** `docs/APP_REVIEW_NOTES.md` (tekst voor de reviewer) en `docs/STORE_PRIVACY.md` (privacylabels, Data safety, leeftijd).

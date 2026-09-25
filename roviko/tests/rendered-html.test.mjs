@@ -36,14 +36,14 @@ test("renders the playable branded homepage before hydration", async () => {
   assert.match(html, /Start today(&#x27;|’|')s trip/);
   assert.match(html, /class="mascot mascot-happy/);
   assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 6);
-  assert.match(html, /20 questions from every game/);
+  assert.match(html, /20 mixed questions/);
   assert.match(html, /class="hero-stat stat-streak/);
   assert.match(html, /Day streak|day streak/i);
-  // Today's trip is a mix: all five daily games as stops, in the official order.
-  assert.match(html, /Five stops, five different games/);
-  assert.equal((html.match(/class="tstop /g)||[]).length, 5);
-  const trip=html.slice(html.indexOf('Five stops, five different games'));
-  const order=['Rank Radar','World Duel','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>trip.indexOf(n));
+  // Today's trip: the Daily Detour and the five daily games as stops, in the official order.
+  assert.match(html, /Six stops, up to 6,000 points/);
+  assert.equal((html.match(/class="tstop /g)||[]).length, 6);
+  const trip=html.slice(html.indexOf('Six stops, up to 6,000 points'));
+  const order=['Daily Detour','Rank Radar','World Duel','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>trip.indexOf(n));
   assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'stops in order');
   // Reasons to come back: quests and the week with the streak shield are visible on the homepage.
   assert.match(html, /Daily quests/);

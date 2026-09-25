@@ -22,6 +22,7 @@ export async function pruneExpired(env: Env, now = Date.now(), force = false) {
   await run(env, `DELETE FROM users WHERE guest=1 AND created_at<?
     AND NOT EXISTS (SELECT 1 FROM game_sessions g WHERE g.user_id=users.id AND g.created_at>=?)
     AND NOT EXISTS (SELECT 1 FROM auth_sessions s WHERE s.user_id=users.id AND s.expires_at>=?)`, cutoff, cutoff, now);
+  await run(env, 'DELETE FROM player_reports WHERE reported_id NOT IN (SELECT id FROM users)');
   await run(env, 'DELETE FROM auth_sessions WHERE expires_at<?', now);
   await run(env, 'DELETE FROM multiplayer_rooms WHERE expires_at<?', now - 86400000);
 }

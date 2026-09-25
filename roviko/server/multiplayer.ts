@@ -2,17 +2,23 @@ import { reviewStatement } from './reviews';
 import { measure } from './telemetry';
 import { validAnswer } from '../lib/game-engine/validate-answer';
 import { prepareGeography, enrichMapFeedback } from './geography';
-import { one, rows, run, batch } from './db';
+import { one, rows, run, batch, countingDB } from './db';
 import { AppError, requireUser, checkOrigin, nameSchema } from './auth';
 import { roomCode, random } from '../lib/game-engine/scoring';
+import { nameAllowed } from '../lib/name-filter';
+import { blockedIds } from './moderation';
 import { BOT_LEVELS, BOT_NAMES, MAX_BOTS, botAnswer, botDelay, type BotLevel } from '../lib/game-engine/bots';
 import { generateQuestions, evaluate, publicQuestion, type Settings, type Question } from '../lib/game-engine/questions';
 import { resultStatement } from './stats';
 import type { Room, Player, Env, User } from './types';
 const TTL = 30 * 60000;
+/** Hand a socket over to a fresh connection after this many D1 queries (the Free plan allows 50 per invocation). */
+export const ROTATE_AFTER_QUERIES = 34;
 const savedMatches = new Set<string>();
 const savingMatches = new Map<string, Promise<void>>();
-function player(u: User): Player { return { id: u.id, name: u.name, avatar: u.avatar, ready: false, lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [] }; }
+/** Names from before the 1.20 filter are shown as "Explorer" if they do not pass it. */
+const shownName = (name: string) => nameAllowed(name) ? name : 'Explorer';
+function player(u: User): Player { return { id: u.id, name: shownName(u.name), avatar: u.avatar, ready: false, lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [] }; }
 /** A computer player of the chosen level, named so two bots in one room never share a name. */
 function botPlayer(r: Room, level: BotLevel): Player {
     const taken = new Set(r.players.map(p => p.name));
@@ -103,8 +109,13 @@ function roundAnswers(r: Room, round: number) {
     const q = r.questions[round];
     return r.players.map(p => { const res = p.results[round]; return { id: p.id, name: p.name, avatar: p.avatar, answered: !!res && res.value !== null && res.value !== undefined, correct: !!res?.correct, points: res?.points ?? 0, distance: res?.distance ?? null, answer: res && q ? answerLabel(q, res.value) : null }; });
 }
+/** The flag of the question about to start, so every browser can load it during the countdown or reveal (never trail, whose flag is a clue). */
+function upcomingFlag(r: Room) {
+    const next = r.phase === 'countdown' ? r.questions[r.round] : r.phase === 'reveal' ? r.questions[r.round + 1] : undefined;
+    return next?.flag && next.mode === 'flags' ? '/api/flag/' + encodeURIComponent(next.id) : undefined;
+}
 export function roomView(r: Room, userId: string) { const p = r.players.find(p => p.id === userId); if (!p)
-    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
+    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, preloadFlag: upcomingFlag(r), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
 /** Generate the private questions and start the countdown for everyone in the room. */
 async function startMatch(env: Env, r: Room) {
     const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
@@ -129,12 +140,13 @@ export const QUICK_SEARCH_MS = 3 * 60000;
 export async function quickMatch(env: Env, user: User, settings: Settings) {
     const now = Date.now();
     const open = await rows(env, `SELECT code,state,version FROM multiplayer_rooms WHERE expires_at>? AND instr(state,'"quick":"open"')>0 ORDER BY updated_at LIMIT 20`, now);
+    const blocked = await blockedIds(env, user.id);
     for (const row of open) {
         const r: Room = JSON.parse(row.state);
         if (r.quick !== 'open' || r.phase !== 'lobby') continue;
         if (r.players.some(p => p.id === user.id)) return { code: r.code, waiting: true };
         const host = r.players.find(p => p.id === r.host);
-        if (r.players.length !== 1 || !host || now - host.lastSeen > 25000) continue;
+        if (r.players.length !== 1 || !host || now - host.lastSeen > 25000 || blocked.has(host.id)) continue;
         r.players.push(player(user));
         r.quick = 'matched';
         r.name = host.name + ' vs ' + user.name;
@@ -184,11 +196,15 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     throw new AppError('MATCH_IN_PROGRESS', 409);
                 if (r.players.length >= 12)
                     throw new AppError('ROOM_FULL', 409);
+                // Blocked players never end up in the same room; say nothing about who blocked whom.
+                const blocked = await blockedIds(env, user.id);
+                if (r.players.some(x => !x.bot && blocked.has(x.id)))
+                    throw new AppError('ROOM_UNAVAILABLE', 409);
                 r.players.push(player(user));
             }
             else {
                 p.lastSeen = Date.now();
-                p.name = user.name;
+                p.name = shownName(user.name);
                 p.avatar = user.avatar;
             }
             r.events = ['player_joined'];
@@ -324,6 +340,10 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     waitUntil: (p: Promise<any>) => void;
 }) {
     checkOrigin(req);
+    // Count D1 queries for this socket; see countingDB. Leave room for the final disconnect write.
+    let queries = 0;
+    const base = env;
+    env = { ...base, DB: countingDB(base.DB, n => { queries += n; }) } as Env;
     const user = await requireUser(req, env);
     const code = new URL(req.url).pathname.split('/')[3]?.toUpperCase();
     if (!code)
@@ -335,7 +355,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     const pair = new Pair();
     const client = pair[0], server = pair[1];
     server.accept();
-    let closed = false, busy = false, lastVersion = -1, lastHeartbeat = 0;
+    let closed = false, busy = false, lastVersion = -1, lastHeartbeat = 0, lastPhase = '', inFlight = 0;
     let chain = Promise.resolve();
     let revealTimer: ReturnType<typeof setTimeout> | undefined;
     let messages = 0, windowStart = Date.now();
@@ -347,12 +367,17 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
             close();
         } };
     const pump = async () => { if (busy || closed)
-        return; busy = true; try {
+        return;
+    // Close to the per-invocation query cap: ask the browser to reconnect now, quietly, instead of going silent.
+    if (queries >= ROTATE_AFTER_QUERIES && inFlight === 0) { send({ type: 'reconnect' }); close(true); return; }
+    busy = true; try {
         const { state, version } = await mutateRoom(env, code, null, 'get');
         if (state.players.find(p => p.id === user.id)?.connectionToken !== connectionToken) { send({ type: 'error', code: 'DUPLICATE_SESSION' }); close(); return; }
         if (version !== lastVersion || Date.now() - lastHeartbeat > 8000) {
-            if (state.phase !== 'lobby' && state.phase !== 'finished') await measure(req, env, user, 'match_started', state.settings.mode, state.matchId);
-            if (state.phase === 'finished') await measure(req, env, user, 'match_completed', state.settings.mode, state.matchId);
+            // Measure once per phase change, not on every update, to keep the query budget for the game itself.
+            if (state.phase !== lastPhase && lastPhase === 'lobby' && state.phase === 'countdown') await measure(req, env, user, 'match_started', state.settings.mode, state.matchId);
+            if (state.phase !== lastPhase && state.phase === 'finished') await measure(req, env, user, 'match_completed', state.settings.mode, state.matchId);
+            lastPhase = state.phase;
             send({ type: 'state', ...roomView(state, user.id) });
             lastVersion = version;
             clearTimeout(revealTimer);
@@ -367,15 +392,18 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
         busy = false;
     } };
     const interval = setInterval(pump, 750);
-    function close() { if (closed)
+    function close(handover = false) { if (closed)
         return; closed = true; clearInterval(interval); clearTimeout(revealTimer); try {
-        server.close(1000, 'Disconnected');
+        server.close(handover ? 4001 : 1000, handover ? 'Reconnect' : 'Disconnected');
     }
-    catch { } const final = mutateRoom(env, code, user, 'disconnect', { connectionToken }).catch(() => { }); if (ctx)
+    catch { }
+    // A handover is not a real disconnect: the same player reconnects within a second.
+    if (handover) return;
+    const final = mutateRoom(env, code, user, 'disconnect', { connectionToken }).catch(() => { }); if (ctx)
         ctx.waitUntil(final); }
-    server.addEventListener('close', close);
-    server.addEventListener('error', close);
-    server.addEventListener('message', (event: any) => { chain = chain.then(async () => { try {
+    server.addEventListener('close', () => close());
+    server.addEventListener('error', () => close());
+    server.addEventListener('message', (event: any) => { inFlight++; chain = chain.then(async () => { try {
         if (typeof event.data !== 'string' || event.data.length > 2048)
             throw new AppError('INVALID_MESSAGE');
         if (Date.now() - windowStart > 60000) {
@@ -390,7 +418,6 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
         if (!['answer', 'ready', 'ping', 'start', 'rematch', 'advance'].includes(m.type))
             throw new AppError('INVALID_ACTION');
         const { state, version } = await mutateRoom(env, code, user, m.type, m);
-        if (m.type === 'start') await measure(req, env, user, 'match_started', state.settings.mode, state.matchId);
         lastVersion = version;
         clearTimeout(revealTimer);
         if (state.phase === 'question' && state.answersCompleteAt) revealTimer = setTimeout(pump, Math.max(1, state.answersCompleteAt - Date.now()));
@@ -398,7 +425,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     }
     catch (e: any) {
         send({ type: 'error', code: e.code ?? 'INVALID_MESSAGE' });
-    } }); });
+    } finally { inFlight--; } }); });
     await pump();
     return new Response(null, { status: 101, webSocket: client } as any);
 }

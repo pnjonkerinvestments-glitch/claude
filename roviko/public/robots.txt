@@ -3,5 +3,10 @@ Allow: /
 Disallow: /api/
 Disallow: /room/
 Disallow: /game/
+Disallow: /rank/
+Disallow: /puzzle/
 Disallow: /profile
+Disallow: /friends
 Disallow: /admin
+
+Sitemap: https://roviko.app/sitemap.xml

@@ -58,3 +58,14 @@ test('every game has a worked example in English, Dutch and Spanish, shown on th
   assert.ok(html.includes('Example'));
   assert.ok(html.includes(HOW_TO_EXAMPLES.daily.en.slice(0, 30)));
 });
+
+test('every scored game shows its own points rule, never the "no points" text', () => {
+  const t = key => messages.en[key] ?? key;
+  for (const mode of ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail']) {
+    const html = renderToStaticMarkup(createElement(HowToPlayPage, { t, locale: 'en', onPlay() {}, initialMode: mode }));
+    const panel = html.slice(html.indexOf('role="tabpanel"'));
+    assert.ok(!panel.includes(messages.en.scoringExtrasCopy), mode + ' says it gives no points');
+  }
+  assert.doesNotMatch(messages.en.scoringExtrasCopy, /World Duel,/);
+  for (const l of ['en', 'nl', 'es']) assert.ok(messages[l].competitionDuel, 'duel rule ' + l);
+});

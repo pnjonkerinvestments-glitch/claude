@@ -39,17 +39,41 @@ Deze checklist hoort bij versie 1.19 van de website. Wat klaarstaat, staat boven
    - Privacybeleid-URL: `https://roviko.app/privacy`.
 5. **Upload** `app-release.aab` bij *Gesloten testen*, en na de testperiode bij *Productie*. Een beoordeling duurt meestal 1 tot 7 dagen.
 
-## App Store (iPhone en iPad)
+## App Store (iPhone en iPad), zonder eigen Mac
 
-1. **Apple Developer Program:** <https://developer.apple.com/programs/>, €99 per jaar. Voor een bedrijfsnaam heb je een D-U-N-S-nummer nodig.
-2. **Een Mac met Xcode,** of een cloud-Mac-dienst zoals Codemagic. In deze omgeving is geen Mac beschikbaar, dus de iOS-build en het ondertekenen kan ik niet voor je doen.
-3. **Op de Mac:** `cd roviko-app && npm ci && npx cap sync ios && npx cap open ios`. Kies je *Team* bij *Signing & Capabilities* en kies daarna *Product → Archive → Distribute App*.
-4. **In App Store Connect:**
-   - Naam, ondertitel, promotietekst, beschrijving en trefwoorden: `store-listing.md`.
-   - Screenshots: `store/ios-iphone-6.9/` en `store/ios-ipad-13/`.
-   - Privacylabels volgens de tabel in `store-listing.md`, leeftijd 4+ en categorie *Onderwijs*. Kies **niet** de categorie "Kinderen".
-   - Privacybeleid-URL `https://roviko.app/privacy`, plus je support-URL.
-5. **Test eerst via TestFlight** en dien de app daarna in. De beoordeling duurt meestal 1 tot 3 dagen.
+GitHub bouwt, ondertekent en uploadt de app voor je (workflow **Roviko app**, taak `ios-release`).
+
+1. **Apple Developer Program** (persoonlijk account, €99 per jaar).
+2. **App-ID registreren:** developer.apple.com → Certificates, Identifiers & Profiles → Identifiers → **+** → App IDs → App. Beschrijving `Roviko`, Bundle ID (explicit) `com.roviko.app`. Geen extra capabilities.
+3. **App aanmaken in App Store Connect:** Apps → **+** → Nieuwe app.
+   - Platform iOS, naam `Roviko – Aardrijkskunde quiz`, taal Nederlands.
+   - Bundle ID `com.roviko.app`, SKU `roviko`.
+4. **API-sleutel maken:** App Store Connect → Gebruikers en toegang → Integraties → App Store Connect API → Teamsleutels → **+**.
+   - Naam `GitHub`, rol **Admin** (nodig om automatisch certificaten te maken).
+   - Download het `.p8`-bestand; dat kan maar één keer.
+   - Noteer de **Key ID** en de **Issuer ID** (die staat boven de lijst).
+5. **Team ID opzoeken:** developer.apple.com → Account → Membership details (10 tekens).
+6. **Vier GitHub-secrets zetten:** repository → Settings → Secrets and variables → Actions → New repository secret.
+   - `APPSTORE_KEY_P8`: de volledige inhoud van het `.p8`-bestand (open het met Kladblok en kopieer alles, inclusief de BEGIN- en END-regels).
+   - `APPSTORE_KEY_ID`
+   - `APPSTORE_ISSUER_ID`
+   - `APPLE_TEAM_ID`
+7. **Bouwen:** GitHub → Actions → *Roviko app* → *Run workflow*. Kies bij "Use workflow from" de branch waarop de nieuwste Roviko staat (nu `claude/upbeat-sagan-8igsaj`). Na ongeveer 15 tot 30 minuten staat de build in App Store Connect onder **TestFlight**.
+8. **Testen via TestFlight** op je eigen iPhone (TestFlight-app, jezelf toevoegen als interne tester).
+9. **Winkelpagina invullen** in App Store Connect:
+   - teksten uit `store-listing.md` (versie 1.19);
+   - screenshots uit `store/ios-iphone-6.9/` en `store/ios-ipad-13/`;
+   - privacylabels volgens de tabel, leeftijd 4+, categorie Onderwijs;
+   - privacy-URL `https://roviko.app/privacy`, support-URL `https://roviko.app` (contact `support@roviko.app`);
+   - kies bij de build de TestFlight-build en dien de app in.
+
+Met een Mac kan het ook: `cd roviko-app && npm ci && npx cap sync ios && npx cap open ios`, daarna in Xcode *Product → Archive → Distribute App*.
+
+### Voor het indienen (1.20)
+
+- **Notes for reviewer:** plak de tekst uit `roviko/docs/APP_REVIEW_NOTES.md`.
+- **Privacylabels en leeftijd:** volg `roviko/docs/STORE_PRIVACY.md`. Voorstel 9+, omdat spelers de namen van onbekende tegenstanders zien. Kies niet de categorie "Kinderen".
+- **Moderatie:** meldingen moet je binnen 24 uur bekijken; zie `roviko/docs/MODERATIE.md`. Zet `ADMIN_USER_IDS` in Cloudflare, dan kan het via roviko.app/admin.
 
 ### Aandachtspunten bij Apple
 

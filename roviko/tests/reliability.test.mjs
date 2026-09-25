@@ -54,3 +54,17 @@ test('UTC boundaries and share/title content contain the correct mode and no pri
  const shared=lib.shareResult({mode:'compare',label:'Side by Side',date:'2026-09-10',correct:7,total:10,answers:[true,false,true],origin:'https://example.test'});assert.match(shared,/Side by Side · 2026-09-10/);assert.match(shared,/7\/10/);assert.match(shared,/https:\/\/example.test\/daily\?shared=compare/);assert.doesNotMatch(shared,/France|Japan|Paris|solution|puzzle\//);
  for(const locale of ['en','nl']){const t=k=>lib.messages[locale][k]??k;assert.ok(!lib.pageTitle('/puzzle/private-uuid-123',t).includes('private'));assert.match(lib.pageTitle('/profile',t),/Roviko/);}
 });
+
+test('a server handover reconnects quietly: no offline status, and an answer sent meanwhile is delivered',async()=>{
+ let joins=0,statuses=[],sockets=[];
+ const c=lib.createRoomClient({join:async()=>{joins++;return snapshot;},open:()=>{const s=wire();sockets.push(s);return s;},state(){},status:(ok,e)=>statuses.push({ok,e}),rejected(){},timing:{join:50,handshake:50,heartbeat:500,stale:500,retry:2}});
+ try{
+  await c.start();sockets[0].onmessage({data:JSON.stringify({type:'state',...snapshot})});assert.equal(statuses.at(-1).ok,true);const before=statuses.length;
+  sockets[0].onmessage({data:JSON.stringify({type:'reconnect'})});
+  assert.equal(c.send('answer',{answer:'NLD',round:0}),true,'an answer during the handover is kept');
+  await until(()=>sockets.length===2);await pause(1);
+  sockets[1].onmessage({data:JSON.stringify({type:'state',...snapshot})});
+  assert.equal(statuses.length,before,'the room never shows as disconnected');
+  assert.deepEqual(sockets[1].sent,[{type:'answer',answer:'NLD',round:0}]);assert.equal(joins,2);assert.equal(sockets[0].readyState,3);
+ }finally{c.stop();}
+});
