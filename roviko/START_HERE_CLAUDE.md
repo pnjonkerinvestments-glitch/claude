@@ -6,6 +6,8 @@ De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
 ## Eerst lezen
 
+0. **Lopend (25 september 2026): verhuizing naar het eigen Cloudflare-account.** Lees `docs/CLOUDFLARE_VERHUIZING.md` voordat je iets met hosting, DNS of publiceren doet.
+
 1. `docs/CHANGES_SINCE_1_11.md`: wat 1.12 toevoegt aan 1.11 (geen nieuwe migratie). Daarna `docs/CHANGES_SINCE_V3.md` voor 1.10/1.11.
 2. `GAME_RULES.md`: actuele regels en puntentelling, leidend boven oude releasedocumenten.
 3. `ARCHITECTURE.md`, `SECURITY.md`, `DATA_SOURCES.md`, `MULTIPLAYER.md`.
