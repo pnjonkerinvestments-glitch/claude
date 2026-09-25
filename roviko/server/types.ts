@@ -87,6 +87,8 @@ export type Solo = {
     answers: any[];
     phase: 'question' | 'reveal' | 'finished';
     daily: string | null;
+    /** UTC date of a bonus-tour game (the classic games as a daily edition, no ranking points). */
+    bonus?: string;
     xp: number;
     personalBest: number;
 };

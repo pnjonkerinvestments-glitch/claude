@@ -8,6 +8,8 @@ import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CountUp } from '../ds/Celebration';
 import { ResetCountdown } from './ResetCountdown';
 import { dailyTitleKey } from './DailyLoop';
+import { nextBonusMode, type BonusMode } from '@/lib/bonus';
+import { useBonusLaunch } from '../home/BonusTour';
 
 type Standing = { score: number; place?: number; participants: number; next?: { name: string; gap: number; place: number } | null };
 type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; boot: { user?: { guest?: boolean }; stats: { dailyCount?: number } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
@@ -22,12 +24,13 @@ const writeFlag = () => { try { localStorage.setItem(SAVE_KEY, 'done'); } catch 
  */
 export function DailyResult({ app, date, mode }: { app: ResultApp; date: string; mode: PointMode }) {
   const { t, locale, boot, fail } = app;
-  const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false);
+  const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
+  const bonusLaunch = useBonusLaunch({ go: app.go, fail });
   const lock = useRef(false);
   useEffect(() => {
     let active = true;
     api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); } }).catch(() => {});
-    api('/puzzles/today?competition=1').then(r => { if (active) setNext(nextDailyMode(r.sessions)); }).catch(() => { if (active) setNext(null); });
+    api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions)); setBonusNext(nextBonusMode(r.bonus)); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
   }, [date, mode, boot.stats.dailyCount]);
   const fmt = (n: number) => n.toLocaleString(locale);
@@ -56,6 +59,8 @@ export function DailyResult({ app, date, mode }: { app: ResultApp; date: string;
     </aside>}
     {next === undefined ? null : next
       ? <button className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} onClick={go}>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}<ArrowRight size={19} aria-hidden="true"/></button>
-      : <p className="daily-result-done">{t('loopAllDone')} <ResetCountdown label={t('heroResetIn')} t={t}/></p>}
+      : bonusNext
+        ? <div className="daily-result-bonus"><p>{t('bonusAfterDaily')}</p><button className="btn primary btn-lg daily-result-next" disabled={!!bonusLaunch.launching || app.busy} onClick={() => bonusLaunch.open(bonusNext)}>{bonusLaunch.launching ? t('loading') : t('bonusCta').replace('{game}', t(bonusNext))}<ArrowRight size={19} aria-hidden="true"/></button></div>
+        : <p className="daily-result-done">{t('loopAllDone')} <ResetCountdown label={t('heroResetIn')} t={t}/></p>}
   </section>;
 }

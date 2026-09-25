@@ -14,7 +14,7 @@ import { seedHash } from '../lib/game-engine/scoring';
 import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin } from './auth';
 import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
-import { startSolo, soloAction, recordSolo } from './solo';
+import { startSolo, soloAction, recordSolo, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
@@ -203,12 +203,13 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             // Each address belongs to one session and one round, so the image never changes: the browser may keep it privately.
             return new Response(asset.body,{status:asset.status,headers:{'Content-Type':'image/svg+xml','Cache-Control':asset.ok?'private,max-age=86400,immutable':'no-store','X-Content-Type-Options':'nosniff'}});
         }
+        if (path[0] === 'bonus' && path[1] === 'standing' && method === 'GET') return json(await bonusStanding(env, user, String(url.searchParams.get('mode') ?? '')));
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {
                 await limit(env, 'games:' + user.id, 30);
                 const b = await body(req);
                 const settings = settingsSchema.parse({ ...DEFAULT_SETTINGS, ...b.settings });
-                const game = await startSolo(env, user, settings, !!b.practice, undefined, b.competition===true); await measureStart(req, env, user, game.settings.mode, game.id); return json(game);
+                const game = await startSolo(env, user, settings, !!b.practice, undefined, b.competition===true, b.bonus===true); await measureStart(req, env, user, game.settings.mode, game.id); return json(game);
             }
             if (path[1]) {
                 const result = await soloAction(env, user, path[1], method === 'GET' ? 'get' : path[2], method === 'GET' ? {} : await body(req));

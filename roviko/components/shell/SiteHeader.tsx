@@ -36,6 +36,7 @@ function AppMenu() {
         {item('/settings', Settings2, t('settingsTitle'), t('menuSettingsNote'))}
         <hr/>
         {item('/leaderboard', Trophy, t('leaderboard'))}
+        <A href="/" onClick={() => { close(); try { sessionStorage.setItem('roviko:tour-open', '1'); } catch { /* ignore */ } window.dispatchEvent(new Event('roviko:tour')); }}><Compass size={19} aria-hidden="true"/><span><strong>{t('menuTour')}</strong><small>{t('menuTourNote')}</small></span><ChevronRight size={17} aria-hidden="true" className="menu-chevron"/></A>
         {item('/how-to-play', HelpCircle, t('howToLink'))}
         {item('/scoring', Sparkles, t('scoringLink'))}
       </nav>

@@ -57,6 +57,13 @@
       "when": 1790371864920,
       "tag": "0007_yummy_dragon_lord",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1790375106582,
+      "tag": "0008_rainy_amphibian",
+      "breakpoints": true
     }
   ]
 }
