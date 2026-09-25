@@ -1,11 +1,12 @@
-// Deployconfiguratie voor Roviko op het EIGEN Cloudflare-account (optie B in docs/PUBLICEREN.md).
+// Deployconfiguratie voor Roviko op het eigen Cloudflare-account (zie docs/PUBLICEREN.md).
 //
 // Bewust NIET "wrangler.jsonc" genoemd: de Cloudflare Vite-plugin leest een wrangler.jsonc in de
-// projectmap automatisch in, en dat zou de build voor de ChatGPT-hosting (optie A) veranderen.
+// projectmap automatisch in, en dat verandert de build.
 // Gebruik dit bestand altijd expliciet: `wrangler ... -c wrangler.cloudflare.jsonc`
 // (de npm-scripts doen dat al). `npm run build` moet eerst gedraaid hebben.
 //
-// Alleen workers.dev: er staan hier bewust GEEN routes of custom domains voor roviko.app.
+// Er staan hier bewust GEEN routes: roviko.app is in het dashboard als custom domain gekoppeld
+// (25 september 2026) en wrangler laat dat staan zolang deze config geen routes noemt.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "roviko",
