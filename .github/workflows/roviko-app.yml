@@ -1,0 +1,69 @@
+name: Roviko app
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "roviko-app/**"
+      - ".github/workflows/roviko-app.yml"
+
+defaults:
+  run:
+    working-directory: roviko-app
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    env:
+      HAS_KEYSTORE: ${{ secrets.ROVIKO_KEYSTORE_BASE64 != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: roviko-app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npx cap sync android
+      - name: Test build (APK to install on a phone)
+        run: cd android && ./gradlew assembleDebug --no-daemon
+      - name: Signed release for Google Play (AAB)
+        if: env.HAS_KEYSTORE == 'true'
+        env:
+          KEYSTORE: ${{ secrets.ROVIKO_KEYSTORE_BASE64 }}
+          ROVIKO_KEYSTORE_PASSWORD: ${{ secrets.ROVIKO_KEYSTORE_PASSWORD }}
+          ROVIKO_KEY_ALIAS: ${{ secrets.ROVIKO_KEY_ALIAS }}
+          ROVIKO_KEY_PASSWORD: ${{ secrets.ROVIKO_KEY_PASSWORD }}
+          ROVIKO_VERSION_CODE: ${{ github.run_number }}
+        run: |
+          echo "$KEYSTORE" | base64 --decode > "$RUNNER_TEMP/upload.jks"
+          export ROVIKO_KEYSTORE_PATH="$RUNNER_TEMP/upload.jks"
+          cd android && ./gradlew bundleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: roviko-android
+          path: |
+            roviko-app/android/app/build/outputs/apk/debug/*.apk
+            roviko-app/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: warn
+
+  ios:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: roviko-app/package-lock.json
+      - run: npm ci
+      - run: npx cap sync ios
+      - name: Compile for the iOS simulator (no signing needed)
+        run: |
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO build

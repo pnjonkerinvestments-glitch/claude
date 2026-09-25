@@ -1,0 +1,37 @@
+{
+  "appId": "com.roviko.app",
+  "appName": "Roviko",
+  "webDir": "www",
+  "server": {
+    "url": "https://roviko.app",
+    "errorPath": "offline.html",
+    "androidScheme": "https"
+  },
+  "backgroundColor": "#F6F3E9",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#F6F3E9"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#F6F3E9"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#F6F3E9",
+      "showSpinner": false,
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "overlaysWebView": false,
+      "style": "LIGHT",
+      "backgroundColor": "#F6F3E9"
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_roviko",
+      "iconColor": "#1F806B"
+    }
+  }
+}

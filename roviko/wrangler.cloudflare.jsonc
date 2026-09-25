@@ -1,0 +1,46 @@
+// Deployconfiguratie voor Roviko op het EIGEN Cloudflare-account (optie B in docs/PUBLICEREN.md).
+//
+// Bewust NIET "wrangler.jsonc" genoemd: de Cloudflare Vite-plugin leest een wrangler.jsonc in de
+// projectmap automatisch in, en dat zou de build voor de ChatGPT-hosting (optie A) veranderen.
+// Gebruik dit bestand altijd expliciet: `wrangler ... -c wrangler.cloudflare.jsonc`
+// (de npm-scripts doen dat al). `npm run build` moet eerst gedraaid hebben.
+//
+// Alleen workers.dev: er staan hier bewust GEEN routes of custom domains voor roviko.app.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "roviko",
+  "account_id": "d3e59f712dc36fea587bc5be0ebf58ec",
+  // Gelijk aan de datum die de Vinext-build in dist/server/wrangler.json zet.
+  "compatibility_date": "2026-05-15",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // De Vinext-build levert een al gebundelde worker (dist/server/index.js + chunks);
+  // wrangler moet die ongewijzigd uploaden, inclusief de losse modules ernaast.
+  "main": "dist/server/index.js",
+  "no_bundle": true,
+  "find_additional_modules": true,
+  "base_dir": "dist/server",
+  "rules": [{ "type": "ESModule", "globs": ["**/*.js", "**/*.mjs"] }],
+
+  // Statische bestanden (public/ + clientbundle). _headers en .assetsignore komen uit de build.
+  // html_handling "none": anders stuurt Cloudflare /offline.html door naar /offline, en dan kan de
+  // service worker de offlinepagina niet als navigatie-antwoord gebruiken.
+  "assets": { "directory": "dist/client", "binding": "ASSETS", "html_handling": "none" },
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "roviko-db",
+      "database_id": "846202e3-4f55-4149-978b-44a39e439d74",
+      "migrations_dir": "drizzle"
+    }
+  ],
+
+  // Roviko heeft geen cron-triggers. Een lege lijst wist expliciet eventuele oude triggers;
+  // zonder deze regel laat wrangler ze staan.
+  "triggers": { "crons": [] },
+
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true }
+}

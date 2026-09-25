@@ -1,0 +1,14 @@
+import React from 'react';
+
+export function MosaicSources({ locale }: { locale: 'en' | 'nl' | 'es' }) {
+  const nl = locale === 'nl';
+  return <div className="source-card">
+    <h2>{nl ? 'Mosaic · cijfers over landen' : 'Mosaic · country numbers'}</h2>
+    <p>{nl ? 'Elke feitentegel toont één gegeven: bijvoorbeeld een hoogtepunt, kustlengte, mediane leeftijd of bbp. Het onderwerp wisselt elke UTC-dag. Ontbrekende gegevens worden niet verzonnen. Cijfers zijn afgerond voor leesbaarheid; referentiejaren en schattingen staan bij de tegel.' : 'Each fact tile shows one observation, such as a high point, coastline length, median age or GDP. Subjects rotate every UTC day. Missing observations are omitted. Display values are rounded for readability; reference years and estimates appear on each tile.'}</p>
+    <p>{nl ? 'Hoogte, kustlengte en mediane leeftijd: CIA World Factbook, via het vastgelegde CC0-archief factbook.json. Het Factbook is sinds februari 2026 stopgezet: deze gegevens zijn een archief, geen live meting. Overige statistieken: het hierboven vermelde World Bank-bestand uit 2023. Oppervlakte: de landencatalogus onder ODbL.' : 'Elevation, coastline and median age: CIA World Factbook, via a pinned CC0 factbook.json archive. The Factbook was discontinued in February 2026: these are archived observations, not live measurements. Other statistics use the 2023 World Bank snapshot credited above. Area uses the ODbL country catalogue.'}</p>
+    <a href="/data/country-metrics.json" download>{nl ? 'Gegevens, bronlinks en uitzonderingen' : 'Observations, source links and exceptions'} ↓</a>
+    <a href="/licenses/factbook-CC0.txt">CC0 1.0</a>
+    <p>{nl ? 'Kustlengte hangt af van de meetmethode. Mediane leeftijd betekent dat de helft van de bevolking jonger is en de helft ouder; het is geen levensverwachting. Hoogtemetingen met bekende tegenstrijdigheden zijn weggelaten of apart gecorrigeerd met een controleerbare bron.' : 'Coastline length depends on the measuring method. Median age divides the population into equally sized younger and older halves; it is not life expectancy. Known conflicting heights are omitted or separately corrected with a verifiable source.'}</p>
+    <details><summary>{nl ? 'Oudere erfgoedhints' : 'Earlier heritage clues'}</summary><p>{nl ? 'De eerdere UNESCO-hints blijven als download beschikbaar onder CC BY-SA 3.0 IGO. Het zijn ingekorte en vertaalde bewerkingen; UNESCO onderschrijft Roviko niet.' : 'The earlier UNESCO clues remain downloadable under CC BY-SA 3.0 IGO. They are shortened and translated adaptations; UNESCO does not endorse Roviko.'}</p><a href="/data/mosaic-facts.json" download>UNESCO World Heritage Centre · CC BY-SA 3.0 IGO ↓</a><a href="https://creativecommons.org/licenses/by-sa/3.0/igo/" target="_blank" rel="noreferrer">CC BY-SA 3.0 IGO ↗</a></details>
+  </div>;
+}
