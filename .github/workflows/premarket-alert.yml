@@ -1,11 +1,9 @@
-name: Premarket alert
+name: Premarket alert (GitHub, handmatig)
 
+# De geplande runs zijn verhuisd naar Cloudflare (zie worker/). Deze workflow is
+# alleen nog een handmatige noodroute; zet hem niet weer op een schema zolang de
+# Worker draait, anders krijg je elke melding twee keer.
 on:
-  schedule:
-    # Elke 5 minuten tussen 08:00 en 14:55 UTC op werkdagen. Dat dekt 04:00-09:30 ET
-    # in zowel zomer- (UTC-4) als wintertijd (UTC-5); het script zelf bepaalt of het
-    # echt premarket is en stopt anders meteen.
-    - cron: "*/5 8-14 * * 1-5"
   workflow_dispatch:
     inputs:
       dry_run:
