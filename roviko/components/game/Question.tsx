@@ -1,11 +1,13 @@
 'use client';
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { ArrowUp, ArrowDown, Check, X, LockKeyhole, Flag, GripVertical, Navigation } from 'lucide-react';
 const BorderMap = lazy(() => import('./BorderMap'));
 const WorldMap = lazy(() => import('./WorldMap'));
-export function Question({ question: q, feedback, locked, onAnswer, t, locale, onReport, busy, competitive = true, onHint }: {
+export function Question({ question: q, feedback, locked, onAnswer, t, locale, onReport, busy, competitive = true, onHint, deadline }: {
     question: any; feedback: any; locked: boolean; onAnswer: (answer: any) => void;
     t: (k: string) => string; locale: 'en' | 'nl' | 'es'; onReport: () => void; busy?: boolean; competitive?: boolean; onHint?: (count: number) => void | Promise<any>;
+    /** Timed rounds: when the round closes, in this device's clock. A sorted list or placed pin is then sent for you. */
+    deadline?: number | null;
 }) {
     const [cluesShown, setCluesShown] = useState(q?.cluesShown ?? 1);
     // Multiplayer: clues appear one by one, every 2 seconds, so fast readers don't see everything at once.
@@ -17,6 +19,10 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         return () => clearInterval(timer);
     }, [competitive, clueTotal, feedback, q?.id]);
     const liveClues = live.id === q?.id ? live.n : 1;
+    // Every clue has a fixed slot from the start, so answers never move down while clues appear.
+    const clueSlots = q?.clueCount ?? q?.clues?.length ?? 0;
+    const openClues = feedback ? clueSlots : competitive ? liveClues : cluesShown;
+    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag)) : '';
     const [hintPending,setHintPending]=useState(false);
     useEffect(()=>{if(q?.dailyPoints)setCluesShown(q.cluesShown??1);},[q?.cluesShown,q?.id]);
     const [answer, setAnswer] = useState<any>(null);
@@ -31,23 +37,40 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         };
         window.addEventListener('keydown', handler); return () => window.removeEventListener('keydown', handler);
     }, [q, locked, busy, hintPending, onAnswer]);
+    // Timed rounds: a list you sorted or a pin you placed still counts if the time runs out before you confirm.
+    const touched = useRef(false), latest = useRef({ order, answer, locked, busy });
+    latest.current = { order, answer, locked, busy };
+    useEffect(() => { touched.current = false; }, [q?.id]);
+    useEffect(() => {
+        if (!competitive || !deadline || locked || !q || !['order', 'pinpoint'].includes(q.mode)) return;
+        const timer = setTimeout(() => {
+            const now = latest.current;
+            if (now.locked || now.busy) return;
+            if (q.mode === 'order' && touched.current) onAnswer(now.order.map((o: any) => o.id));
+            else if (q.mode === 'pinpoint' && Array.isArray(now.answer)) onAnswer(now.answer);
+        }, Math.max(0, deadline - Date.now() - 700));
+        return () => clearTimeout(timer);
+    }, [competitive, deadline, locked, q, onAnswer]);
     if (!q) return null;
     const chosen = feedback?.value ?? answer;
-    const shownOrder = feedback && Array.isArray(chosen) ? chosen.map((id: string) => q.options.find((o: any) => o.id === id)).filter(Boolean) : order;
+    const unanswered = !!feedback && (chosen === null || chosen === undefined);
     const correctOrder = q.mode === 'order' && Array.isArray(feedback?.correctAnswer) ? feedback.correctAnswer : [];
+    // Without an answer the reveal shows the right order, never the unconfirmed list as if it had counted.
+    const shownOrder = feedback ? (Array.isArray(chosen) ? chosen : correctOrder).map((id: string) => q.options.find((o: any) => o.id === id)).filter(Boolean) : order;
     const misplaced = shownOrder.filter((o: any, i: number) => correctOrder[i] !== o.id).length;
     const pickedLabel = q.typed ? chosen : q.options?.find((o: any) => o.id === chosen)?.[locale];
     const move = (from: number, to: number) => {
         if (to < 0 || to >= order.length || locked) return;
+        touched.current = true;
         setOrder(prev => { const a = [...prev]; a.splice(to, 0, a.splice(from, 1)[0]); return a; });
     };
     const submit = (value: any) => { if (locked || busy || hintPending) return; setAnswer(value); onAnswer(value); };
     const countryLabel = (o: any) => <span className="option-country">{o.flag && q.mode!=='trail' && (q.mode!=='flags' || feedback) && <img src={o.flag} alt=""/>}<span>{o[locale]}</span></span>;
     return <div className="question-content">
         <div className="question-heading"><span className="eyebrow">{t(q.mode + 'Hint')}</span><h1>{q.prompt[locale]}</h1>{q.country && <span className="question-country"><img src={q.country.flag} alt=""/>{q.country[locale]}</span>}</div>
-        {q.clues && <section className="trail-clues" aria-label={t('trailClues')}><p>{t(competitive ? 'trailMultiplayerRule' : q.dailyPoints?'competitionTrail':'trailRule')}</p><ol>{q.clues.slice(0, feedback ? 4 : competitive ? liveClues : cluesShown).map((clue: any, i: number) => <li key={i}><span>{i+1}</span>{clue[locale]}</li>)}</ol>{!competitive && !locked && cluesShown < (q.clueCount??q.clues.length) && <button className="btn secondary" disabled={hintPending||busy} onClick={async () => { const n = cluesShown + 1; if(!q.dailyPoints)setCluesShown(n); setHintPending(true); try{await onHint?.(n);}finally{setHintPending(false);} }}>{t('trailNextClue')} · {cluesShown}/{q.clueCount??q.clues.length}</button>}{!feedback && q.dailyPoints && <strong className="trail-available">{t('competitionAvailable').replace('{n}',String(q.availablePoints))}</strong>}{feedback && <small>{t('trailUsed').replace('{n}', String(feedback.cluesUsed ?? cluesShown))}</small>}</section>}
+        {q.clues && <section className="trail-clues" aria-label={t('trailClues')}><p>{t(competitive ? 'trailMultiplayerRule' : q.dailyPoints?'competitionTrail':'trailRule')}</p><ol className="clue-slots">{Array.from({ length: clueSlots }, (_, i) => { const clue = q.clues[i], open = !!clue && i < openClues; return <li key={i} className={open ? 'is-open' : 'is-pending'} aria-hidden={open ? undefined : true}><span>{i + 1}</span>{open ? <>{clue[locale]}{i === 3 && q.flag && <img className="clue-flag" src={flagSrc} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/>}</> : <em>{t('trailCluePending')}</em>}</li>; })}</ol>{!competitive && !locked && <button className="btn secondary trail-more" disabled={hintPending||busy||cluesShown >= clueSlots} onClick={async () => { const n = cluesShown + 1; if(!q.dailyPoints)setCluesShown(n); setHintPending(true); try{await onHint?.(n);}finally{setHintPending(false);} }}>{t('trailNextClue')} · {cluesShown}/{q.clueCount??q.clues.length}</button>}{!feedback && q.dailyPoints && <strong className="trail-available">{t('competitionAvailable').replace('{n}',String(q.availablePoints))}</strong>}{feedback && <small>{t('trailUsed').replace('{n}', String(feedback.cluesUsed ?? cluesShown))}</small>}</section>}
         {q.mode === 'pinpoint' && <p className="map-rule">{t(q.mapRule === 'country-v1' ? 'mapCountryRule' : 'mapLegacyRule')} {q.dailyPoints?t('competitionDaily'):competitive?t('mapPointsRule'):null}</p>}
-        {q.flag && (q.mode !== 'trail' || feedback || (competitive ? liveClues >= 4 : cluesShown >= 4)) && <div className="flag-stage"><img src={q.flagUrl??('/api/flag/' + encodeURIComponent(q.flag))} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
+        {q.flag && q.mode !== 'trail' && <div className="flag-stage"><img fetchPriority="high" decoding="async" src={flagSrc} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
         {q.mode === 'pinpoint' ? <>
             <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} onTap={competitive ? undefined : submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct}/></Suspense>
             {!locked && <><p className="question-help">{t(competitive ? 'mapHint' : 'mapTapHint')}</p>{competitive && <button className="btn primary answer-submit" disabled={!answer || busy} onClick={() => submit(answer)}><Navigation size={17}/>{t('lockAnswer')}</button>}</>}
@@ -56,9 +79,9 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
             <div className="order-list">{shownOrder.map((o: any, i: number) => {
                 const right = !!feedback && correctOrder[i] === o.id;
                 const place = correctOrder.indexOf(o.id) + 1;
-                return <div className={'order-item' + (feedback ? right ? ' order-correct' : ' order-wrong' : '')} key={o.id} draggable={!locked} onDragStart={() => setDrag(i)} onDragOver={e => e.preventDefault()} onDrop={() => { if (drag !== null) move(drag, i); setDrag(null); }}>
+                return <div className={'order-item' + (feedback ? unanswered ? ' order-solution' : right ? ' order-correct' : ' order-wrong' : '')} key={o.id} draggable={!locked} onDragStart={() => setDrag(i)} onDragOver={e => e.preventDefault()} onDrop={() => { if (drag !== null) move(drag, i); setDrag(null); }}>
                     <span className="order-num">{i + 1}</span>{!feedback && <GripVertical size={17}/>}{countryLabel(o)}
-                    {feedback ? <span className={'order-verdict ' + (right ? 'right' : 'wrong')}>{right ? <Check size={18}/> : <X size={18}/>}<span>{right ? t('rightPlace') : t('correctPlace').replace('{n}', String(place))}</span></span> : <div className="order-controls"><button className="icon-btn" aria-label={t('moveUp') + ' ' + o[locale]} disabled={locked || i === 0} onClick={() => move(i, i - 1)}><ArrowUp size={18}/></button><button className="icon-btn" aria-label={t('moveDown') + ' ' + o[locale]} disabled={locked || i === order.length - 1} onClick={() => move(i, i + 1)}><ArrowDown size={18}/></button></div>}
+                    {feedback ? unanswered ? null : <span className={'order-verdict ' + (right ? 'right' : 'wrong')}>{right ? <Check size={18}/> : <X size={18}/>}<span>{right ? t('rightPlace') : t('correctPlace').replace('{n}', String(place))}</span></span> : <div className="order-controls"><button className="icon-btn" aria-label={t('moveUp') + ' ' + o[locale]} disabled={locked || i === 0} onClick={() => move(i, i - 1)}><ArrowUp size={18}/></button><button className="icon-btn" aria-label={t('moveDown') + ' ' + o[locale]} disabled={locked || i === order.length - 1} onClick={() => move(i, i + 1)}><ArrowDown size={18}/></button></div>}
                 </div>;
             })}</div>
             {!locked && <button className="btn primary answer-submit" disabled={busy} onClick={() => submit(order.map(o => o.id))}>{t('confirmOrder')}<Check size={18}/></button>}
@@ -74,7 +97,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         {locked && !feedback && <div className="locked-note" role="status"><LockKeyhole size={17}/>{t(busy ? 'answerSending' : 'answerLocked')}</div>}
         {feedback && <div id="answer-explanation" className={'answer-feedback ' + (feedback.correct ? 'good' : 'bad')} role="status">
             <div className="feedback-heading">{feedback.correct ? <span aria-hidden="true">🎉</span> : <X size={22}/>}<strong>{t(feedback.correct ? 'correct' : 'incorrect')}</strong>{(competitive || q.dailyPoints) && <span>+{(feedback.points??0).toLocaleString(locale)} {t('points')}</span>}</div>
-            {q.mode === 'order' ? <><p>{feedback.correct ? t('orderAllRight') : t('orderWrongCount').replace('{n}', String(misplaced))}</p><strong className="correction-label">{t('correctOrder')}</strong><ol className="correct-order">{correctOrder.map((id: string) => { const o = q.options.find((o: any) => o.id === id); return o ? <li key={id}>{countryLabel(o)}</li> : null; })}</ol></> : <>
+            {q.mode === 'order' ? <><p>{unanswered ? t('noAnswerInTime') : feedback.correct ? t('orderAllRight') : t('orderWrongCount').replace('{n}', String(misplaced))}</p><strong className="correction-label">{t('correctOrder')}</strong><ol className="correct-order">{correctOrder.map((id: string) => { const o = q.options.find((o: any) => o.id === id); return o ? <li key={id}>{countryLabel(o)}</li> : null; })}</ol></> : <>
                 {!feedback.correct && pickedLabel && <p className="your-answer-copy">{t('yourAnswer')}: <strong>{pickedLabel}</strong></p>}
                 <small className="correction-label">{t('correctAnswerLabel')}</small><p className="correct-answer">{feedback.answerLabel[locale]}</p>
             </>}

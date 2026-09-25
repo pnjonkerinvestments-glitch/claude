@@ -13,7 +13,7 @@ Alles hieronder klopt met de website (versie 1.19). De tekenlimieten staan erbij
 Maak elke dag een kleine reis rond de wereld! Roviko is een vrolijk aardrijkskundespel met elke dag zes korte spellen. Een paar nieuwsgierige minuten, een beetje meer wereld. Voor iedereen die nieuwsgierig is, van jong tot oud.
 
 🌍 ELKE DAG NIEUWE SPELLEN
-• Dagelijkse Omweg: 20 vragen uit alle spellen: vlaggen, hoofdsteden, de kaart, buren en grootte
+• Dagelijkse Omweg: 20 gemengde vragen: vlaggen, hoofdsteden, de kaart, buren en grootte
 • Rank Radar: waar staat een land het hoogst?
 • Wereldduel: vijf landkaarten tegen Roviko, kies per onderwerp de juiste
 • Side by Side: welk land heeft er meer van?
@@ -49,7 +49,7 @@ Het mysterieland van de dag en klassiekers als vlaggen, hoofdsteden, kaarten, bu
 Take a small trip around the world every day! Roviko is a cheerful geography game with six short games daily. A few curious minutes, a little more of the world. For curious minds of every age.
 
 🌍 NEW GAMES EVERY DAY
-• Daily Detour: 20 questions from every game: flags, capitals, the map, neighbours and size
+• Daily Detour: 20 mixed questions: flags, capitals, the map, neighbours and size
 • Rank Radar: where does a country rank highest?
 • World Duel: five country cards against Roviko, pick the right one for each subject
 • Side by Side: which country has more?
@@ -85,7 +85,7 @@ The mystery country of the day and classics like flags, capitals, maps, neighbou
 ¡Haz cada día un pequeño viaje por el mundo! Roviko es un alegre juego de geografía con seis juegos cortos al día. Unos minutos de curiosidad, un poco más de mundo.
 
 🌍 JUEGOS NUEVOS CADA DÍA
-• Desvío diario: 20 preguntas de todos los juegos: banderas, capitales, el mapa, vecinos y tamaño
+• Desvío diario: 20 preguntas variadas: banderas, capitales, el mapa, vecinos y tamaño
 • Rank Radar: ¿en qué destaca más un país?
 • Duelo mundial: cinco cartas de países contra Roviko, elige la adecuada para cada tema
 • Side by Side: ¿qué país tiene más?

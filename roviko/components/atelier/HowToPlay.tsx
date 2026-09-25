@@ -55,12 +55,12 @@ export function HowToPlayButton({ mode, t, locale, auto = false, link = false }:
   </>;
 }
 
-const RULE_KEYS: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail' };
+const RULE_KEYS: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail', duel: 'competitionDuel' };
 const COVER: Record<string, CoverMode> = { rank: 'rank', daily: 'daily', compare: 'compare', mosaic: 'mosaic', trail: 'trail', duel: 'duel', mystery: 'mystery', room: 'room' };
 
 /** The "How to play" page: pick a game from the tabs, see its goal, steps, scoring and a tip, then play it. */
-export function HowToPlayPage({ t, locale, onPlay, busy = false }: { t: T; locale: Loc; onPlay: (mode: string) => void; busy?: boolean }) {
-  const [mode, setMode] = useState<string>('daily');
+export function HowToPlayPage({ t, locale, onPlay, busy = false, initialMode = 'daily' }: { t: T; locale: Loc; onPlay: (mode: string) => void; busy?: boolean; initialMode?: string }) {
+  const [mode, setMode] = useState<string>(initialMode);
   // Deep links such as /how-to-play#trail open that game's tab once mounted.
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the hash only exists in the browser; reading it after mount keeps SSR stable
   useEffect(() => { const hash = window.location.hash.slice(1); if (HOW_TO_PLAY[hash]) setMode(hash); }, []);

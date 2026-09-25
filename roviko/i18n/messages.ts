@@ -4,11 +4,12 @@ import { howtoMessages } from './howto';
 import { questMessages } from './quests';
 import { redesignMessages } from './redesign';
 import { v119Messages } from './v119';
+import { v120Messages } from './v120';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -499,7 +500,7 @@ export const messages = {
     "journeyExtent": "5 stages",
     "compareExtent": "10 comparisons",
     "mosaicExtent": "4 countries",
-    "dailyCardCopy": "Twenty questions from every game, mixed.",
+    "dailyCardCopy": "20 mixed questions: flags, capitals, the map and more.",
     "compareCardCopy": "Two countries. Which one comes out on top?",
     "mosaicCardCopy": "Match the flags, shapes and country facts. New facts every day.",
     "journeyKinds": "Flags · cities · maps · more",
@@ -630,7 +631,8 @@ export const messages = {
     "joinHelp": "Enter the five-character code from your friend.",
     "practiceSaved": "Practice saved separately",
     ...redesignMessages.en,
-    ...v119Messages.en
+    ...v119Messages.en,
+    ...v120Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1120,7 +1122,7 @@ export const messages = {
     "journeyExtent": "5 etappes",
     "compareExtent": "10 vergelijkingen",
     "mosaicExtent": "4 landen",
-    "dailyCardCopy": "Twintig vragen uit alle spellen door elkaar.",
+    "dailyCardCopy": "20 gemengde vragen: vlaggen, hoofdsteden, de kaart en meer.",
     "compareCardCopy": "Twee landen. Welk land komt bovenaan?",
     "mosaicCardCopy": "Koppel vlaggen, vormen en landfeitjes. Elke dag andere feiten.",
     "journeyKinds": "Vlaggen · steden · kaarten · meer",
@@ -1253,7 +1255,8 @@ export const messages = {
     "roomName": "Kamernaam",
     "lobby": "Wachtruimte",
     ...redesignMessages.nl,
-    ...v119Messages.nl
+    ...v119Messages.nl,
+    ...v120Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;

@@ -2,7 +2,7 @@
 import React, { useRef, useState } from 'react';
 import { ArrowRight, CalendarDays, Check, ChevronRight, Flame, ShieldCheck, Star, Target, Trophy } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { DAILY_MODES, DAY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DayMode } from '@/lib/daily-loop';
+import { DAY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, streakMilestone, type DayMode } from '@/lib/daily-loop';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import { useApp } from '../app/context';
 import { A } from '../app/shared';
@@ -56,7 +56,6 @@ export function HomePage() {
   const allDone = !!today && completed === DAY_MODES.length;
   // The hero button is the Daily Detour until it is finished, then it leads on to the next daily game.
   const detour = dailyStateOf(sessions, 'daily'), heroMode: DayMode | null = detour === 'done' ? next : 'daily';
-  const gamesDone = completedDailies(sessions, DAILY_MODES);
   const streak = boot.stats.dailyStreak ?? 0, goal = streakMilestone(streak);
   const freeze = boot.stats.streakFreezes as { available: number; nextIn: number; frozenDates: string[] } | undefined;
   const atRisk = !!today && streakAtRisk(streak, completed);
@@ -124,8 +123,8 @@ export function HomePage() {
 
     <section className="home-section trip-v2" aria-labelledby="trip-title">
       <SectionHeader id="trip-title" kicker={t('tripKicker')} title={t('tripMixTitle')} action={<A href="/scoring" className="text-link">{t('howScoring')}<ArrowRight size={16} aria-hidden="true"/></A>}/>
-      <p className="trip-summary"><span>{gamesDone === DAILY_MODES.length && <Check size={17} strokeWidth={3} aria-hidden="true"/>}{t('journeyProgress').replace('{n}', String(gamesDone))}</span><span className="trip-points"><Trophy size={16} aria-hidden="true"/>{n(pointsToday)}<small> / {n(DAILY_TOTAL_MAX)}</small></span></p>
-      <ol className="tstops">{DAILY_MODES.map((mode, i) => {
+      <p className="trip-summary"><span>{allDone && <Check size={17} strokeWidth={3} aria-hidden="true"/>}{t('journeyProgress').replace('{n}', String(completed))}</span><span className="trip-points"><Trophy size={16} aria-hidden="true"/>{n(pointsToday)}<small> / {n(DAILY_TOTAL_MAX)}</small></span></p>
+      <ol className="tstops">{DAY_MODES.map((mode, i) => {
         const state = dailyStateOf(sessions, mode), isNext = !allDone && mode === next, points = scoreOf(mode);
         return <li key={mode} className={'tstop is-' + state + (isNext ? ' is-next' : '')}>
           <button type="button" onClick={() => open(mode)} disabled={busy} aria-label={`${i + 1}. ${name(mode)} · ${t(state === 'done' ? 'journeyStopDone' : state === 'active' ? 'journeyStopActive' : 'journeyStopNew')}`}>

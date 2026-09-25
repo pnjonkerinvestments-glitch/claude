@@ -114,3 +114,25 @@ test('flag and trail choices cannot give away the matching flag and capitals exc
   if(mode==='borders')assert.ok(!q.prompt.en.includes(q.answerLabel.en));
  }
 });
+
+test('timed rounds send a sorted list when time runs out, and a missed round never looks correct',async()=>{
+ const raw=lib.generateQuestions({...settings,mode:'order',count:1},'deadline-order')[0];const q=lib.withSpanish(lib.publicQuestion(raw));let renderer;const answers=[];
+ await act(async()=>{renderer=create(React.createElement(lib.Question,{question:q,feedback:null,locked:false,onAnswer:a=>answers.push(a),t,locale:'en',onReport(){},deadline:Date.now()+750}));});
+ const down=renderer.root.findAll(n=>n.type==='button'&&n.props['aria-label']?.startsWith(t('moveDown')))[0];await act(async()=>down.props.onClick());
+ await act(async()=>{await new Promise(r=>setTimeout(r,200));});
+ assert.deepEqual(answers[0],[q.options[1].id,q.options[0].id,...q.options.slice(2).map(o=>o.id)],'the sorted list is sent just before the deadline');
+ await act(async()=>renderer.unmount());
+ // A player who never touched the list sends nothing; the reveal then shows the solution, with no green "right place" marks.
+ const untouched=[];await act(async()=>{renderer=create(React.createElement(lib.Question,{question:q,feedback:null,locked:false,onAnswer:a=>untouched.push(a),t,locale:'en',onReport(){},deadline:Date.now()+750}));});
+ await act(async()=>{await new Promise(r=>setTimeout(r,200));});assert.equal(untouched.length,0);await act(async()=>renderer.unmount());
+ const feedback={...lib.evaluate(raw,null,15000,15000,0),value:null};
+ const html=renderToStaticMarkup(React.createElement(lib.Question,{question:q,feedback,locked:true,onAnswer(){},t,locale:'en',onReport(){}}));
+ assert.match(html,/Time ran out before you confirmed/);assert.doesNotMatch(html,/order-correct/);assert.match(html,/order-solution/);
+});
+
+test('trail clues keep a fixed slot each, so the answers never move while clues appear',()=>{
+ const q=lib.withSpanish(lib.publicQuestion(lib.generateQuestions({...settings,mode:'trail',count:1},'slots')[0]));
+ const html=renderToStaticMarkup(React.createElement(lib.Question,{question:q,feedback:null,locked:false,onAnswer(){},t,locale:'en',onReport(){}}));
+ assert.equal((html.match(/<li class="is-(open|pending)"/g)||[]).length,4);assert.equal((html.match(/class="is-pending"/g)||[]).length,3);
+ assert.doesNotMatch(html,/flag-stage/,'the flag is the fourth clue, not a large image that appears later');assert.doesNotMatch(html,/api\/flag/,'no flag before clue four');
+});

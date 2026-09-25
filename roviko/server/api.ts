@@ -20,6 +20,12 @@ import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
 // Duel boards are deterministic per seed; generating one takes up to ~1s, so keep recent ones in memory.
+/** Opaque flag tokens (see publicQuestion) mapped to their country, built once instead of hashing every country per request. */
+let flagTokens: Map<string, typeof COUNTRIES[number]> | undefined;
+function flagCountry(token: string) {
+    if (!flagTokens) { flagTokens = new Map(); for (const c of COUNTRIES) for (const mode of ['flags', 'trail']) flagTokens.set(mode + ':' + seedHash('roviko-v1:' + mode + ':' + c.id).toString(36), c); }
+    return flagTokens.get(token);
+}
 const duelCache = new Map<string, DuelBoard>();
 function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) { board = generateDuel(seed); if (duelCache.size > 64) duelCache.clear(); duelCache.set(seed, board); } return board; }
 const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
@@ -46,20 +52,28 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return await connectSocket(req, env, ctx);
         }
         if (path[0] === 'flag') {
-            const c = COUNTRIES.find(c => ['flags','trail'].some(mode => mode + ':' + seedHash('roviko-v1:' + mode + ':' + c.id).toString(36) === decodeURIComponent(path[1] ?? '').split('-')[0]));
+            const c = flagCountry(decodeURIComponent(path[1] ?? '').split('-')[0]);
             if (!c)
                 throw new AppError('NOT_FOUND', 404);
             const png = url.searchParams.get('format') === 'png';
+            // Opaque flag URLs never change, so browsers and Cloudflare's edge may keep them for a year.
+            const cache = (globalThis as any).caches?.default as Cache | undefined;
+            const hit = method === 'GET' && cache ? await cache.match(req).catch(() => undefined) : undefined;
+            if (hit) return hit;
             const assetRequest = new Request(new URL(png ? '/flags/png/' + c.iso2 + '.png' : c.flag, req.url));
             // Local Vite dev has no ASSETS binding; the dev server serves public/ on the same origin.
             const asset = env.ASSETS ? await env.ASSETS.fetch(assetRequest) : await fetch(assetRequest);
-            return new Response(asset.body, { status: asset.status, headers: { 'Content-Type': png ? 'image/png' : 'image/svg+xml', 'Cache-Control': 'public,max-age=86400', 'X-Content-Type-Options': 'nosniff' } });
+            const response = new Response(asset.body, { status: asset.status, headers: { 'Content-Type': png ? 'image/png' : 'image/svg+xml', 'Cache-Control': asset.ok ? 'public, max-age=31536000, immutable' : 'no-store', 'X-Content-Type-Options': 'nosniff' } });
+            if (asset.ok && cache && method === 'GET') { const put = cache.put(req, response.clone()).catch(() => { /* edge cache is best effort */ }); if (ctx) ctx.waitUntil(put); }
+            return response;
         }
         if (path[0] === 'duel' && method === 'GET') {
             // Practice boards are public and deterministic. The daily duel is scored and lives in /duels.
             if (path[1] === 'practice' && /^[a-z0-9]{4,16}$/.test(path[2] ?? '')) return json({ date: null, ...duelBoard('roviko:duel:practice:' + path[2]) }, 200, { 'Cache-Control': 'public, max-age=86400' });
             throw new AppError('NOT_FOUND', 404);
         }
+        if (path[0] === 'version' && method === 'GET')
+            return json({ version: BRAND.version }, 200, { 'Cache-Control': 'no-store' });
         if (path[0] === 'health')
             return json({ ok: !!(await one(env, 'SELECT 1 ok')) });
         if (path[0] === 'auth' && path[1] === 'google')

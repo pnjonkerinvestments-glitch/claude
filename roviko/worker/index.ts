@@ -31,8 +31,8 @@ const worker = {
     const url = new URL(request.url);
 
     if (url.pathname === "/sitemap.xml") {
-      const paths=['/','/daily','/multiplayer','/leaderboard','/explore','/how-to-play','/duel','/world-geography-quiz','/flags-quiz','/capitals-quiz','/country-map-quiz','/europe-geography-quiz','/africa-geography-quiz'];
-      return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+paths.map(p=>'<url><loc>'+url.origin+p+'</loc></url>').join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'public,max-age=3600'}});
+      const paths=['/','/daily','/multiplayer','/leaderboard','/explore','/how-to-play','/scoring','/duel','/sources','/privacy','/terms','/world-geography-quiz','/flags-quiz','/capitals-quiz','/country-map-quiz','/europe-geography-quiz','/africa-geography-quiz'];
+      return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+paths.map(p=>'<url><loc>https://roviko.app'+p+'</loc></url>').join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'public,max-age=3600'}});
     }
     if (url.pathname.startsWith("/api/")) return handleApi(request, env as any, ctx);
 

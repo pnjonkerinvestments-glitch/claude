@@ -2,7 +2,7 @@
 export const howtoMessages = {
   en: {
     howTo: 'How to play', howToTitle: 'How to play {game}', howToOpen: 'How does {game} work?', howToGotIt: 'Got it, let’s play!', howToTip: 'Tip', howToSteps: 'Three steps',
-    howToPageTitle: 'How every game works', howToPageIntro: 'Every game in three simple steps. When you play alone there is never a timer. The Daily Detour and the five daily games give points (up to 1,000 each); practice and extras never do. After every answer you see if it was right, and why.',
+    howToPageTitle: 'How every game works', howToPageIntro: 'Every game explained in a few short lines. When you play alone there is never a timer. The Daily Detour and the five daily games give points (up to 1,000 each); practice and extras never do. After every answer you see if it was right, and why.',
     howToJump: 'Jump to a game', howToPlay: 'Play {game}', howToHomeLink: 'New here? See how every game works',
     howToDaily: 'Daily games', howToDailyNote: 'The same games for everyone, new every day at midnight (UTC): the Daily Detour plus five daily games. Each one is worth up to 1,000 points.',
     howToExtras: 'Extras', howToExtrasNote: 'Bonus games for curious minds, also new every day. No points, just fun.',
@@ -13,7 +13,7 @@ export const howtoMessages = {
   },
   nl: {
     howTo: 'Uitleg', howToTitle: 'Zo speel je {game}', howToOpen: 'Hoe werkt {game}?', howToGotIt: 'Snap ik, spelen!', howToTip: 'Tip', howToSteps: 'Drie stappen',
-    howToPageTitle: 'Zo werkt elk spel', howToPageIntro: 'Elk spel in drie simpele stappen. Speel je alleen, dan loopt er nooit een timer. De Dagelijkse Omweg en de vijf dagspellen leveren punten op (elk tot 1.000); oefenen en extra’s nooit. Na elk antwoord zie je of het goed was, en waarom.',
+    howToPageTitle: 'Zo werkt elk spel', howToPageIntro: 'Elk spel in een paar korte regels uitgelegd. Speel je alleen, dan loopt er nooit een timer. De Dagelijkse Omweg en de vijf dagspellen leveren punten op (elk tot 1.000); oefenen en extra’s nooit. Na elk antwoord zie je of het goed was, en waarom.',
     howToJump: 'Kies een spel', howToPlay: 'Speel {game}', howToHomeLink: 'Nieuw hier? Zo werkt elk spel',
     howToDaily: 'Dagspellen', howToDailyNote: 'Voor iedereen dezelfde spellen, elke dag nieuw om middernacht (UTC): de Dagelijkse Omweg plus vijf dagspellen. Elk spel is tot 1.000 punten waard.',
     howToExtras: 'Extra’s', howToExtrasNote: 'Bonusspellen voor nieuwsgierige spelers, ook elke dag nieuw. Geen punten, gewoon voor de lol.',
@@ -24,7 +24,7 @@ export const howtoMessages = {
   },
   es: {
     howTo: 'Cómo se juega', howToTitle: 'Cómo jugar a {game}', howToOpen: '¿Cómo funciona {game}?', howToGotIt: '¡Entendido, a jugar!', howToTip: 'Consejo', howToSteps: 'Tres pasos',
-    howToPageTitle: 'Así funciona cada juego', howToPageIntro: 'Cada juego en tres pasos sencillos. Si juegas solo, nunca hay reloj. El Desvío diario y los cinco juegos diarios dan puntos (hasta 1.000 cada uno); la práctica y los extras nunca. Tras cada respuesta ves si acertaste y por qué.',
+    howToPageTitle: 'Así funciona cada juego', howToPageIntro: 'Cada juego explicado en pocas líneas. Si juegas solo, nunca hay reloj. El Desvío diario y los cinco juegos diarios dan puntos (hasta 1.000 cada uno); la práctica y los extras nunca. Tras cada respuesta ves si acertaste y por qué.',
     howToJump: 'Elige un juego', howToPlay: 'Jugar a {game}', howToHomeLink: '¿Eres nuevo? Mira cómo funciona cada juego',
     howToDaily: 'Juegos diarios', howToDailyNote: 'Los mismos juegos para todos, nuevos cada día a medianoche (UTC): el Desvío diario y cinco juegos diarios. Cada uno vale hasta 1.000 puntos.',
     howToExtras: 'Extras', howToExtrasNote: 'Juegos extra para mentes curiosas, también nuevos cada día. Sin puntos, solo por diversión.',
