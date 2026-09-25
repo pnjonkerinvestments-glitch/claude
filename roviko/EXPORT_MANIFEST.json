@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.18.0",
-  "exported_at": "2026-09-25T06:00:21.505Z",
-  "source_commit": "62d844396eb95dc879e998d5d42e256ce6a48280",
+  "website_version": "1.19.0",
+  "exported_at": "2026-09-25T06:41:08.811Z",
+  "source_commit": "c37d51bed12bda2a5c14d6e9d317b7e62162e98e",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -25,13 +25,13 @@
   "validation": {
     "typecheck": "passed",
     "production_build": "passed",
-    "tests_passed": 130,
+    "tests_passed": 135,
     "tests_failed": 0,
     "eslint_source": "225 errors (was 228 in 1.14)",
     "browser_visual_qa": "local headless Chromium only (desktop and 390 px, light/dark, EN/NL); two-browser friends invite flow; no physical devices",
     "native_ios_build": "not performed"
   },
-  "required_latest_migration": "drizzle/0004_daffy_tusk.sql",
+  "required_latest_migration": "drizzle/0005_wonderful_ikaris.sql",
   "new_migrations_since_1_11": [
     "drizzle/0004_daffy_tusk.sql (1.15: user_presence, room_invites; additive)"
   ],
@@ -73,18 +73,18 @@
     },
     {
       "path": "GAME_RULES.md",
-      "bytes": 15807,
-      "sha256": "1bfbd811ea1b22b6f4fa7b62ba49454439f917ce0c88dca65ac265af680e1b7f"
+      "bytes": 16072,
+      "sha256": "6fb42b8a92163c18a6c19d91afeafa2d2713466b6af2a5d804f9837504f0b67e"
     },
     {
       "path": "MULTIPLAYER.md",
-      "bytes": 5510,
-      "sha256": "8262ca5caadb04ba3f1119e06a68a83cbfee8089d71f253de99bdb05dfc01400"
+      "bytes": 6833,
+      "sha256": "4f91bfcc00c6a38d121d99e33036700913fb6aad03541f2d079e0dc9750e2153"
     },
     {
       "path": "README.md",
-      "bytes": 13107,
-      "sha256": "e47bf2d048e27f6e21bdca2c755fff5223ae3f95014e6a968855cfa61192410a"
+      "bytes": 13152,
+      "sha256": "90aa6189e464a21162f28f06faa14cfea1f78fbce553ab4071873bae5bb94e95"
     },
     {
       "path": "SECURITY.md",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 10817,
-      "sha256": "c3f1d17a0edee3d3a5e455502dced304e22ebc237069559a5029c45de57de4b9"
+      "bytes": 11762,
+      "sha256": "6d0090e4740ec300e97c9d675c8371de1ccd39e0f26bc68bbabdf93a8b2aca51"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -123,8 +123,8 @@
     },
     {
       "path": "app/design.css",
-      "bytes": 134516,
-      "sha256": "6c5cd6cbc211f118e0aaee23182862e99669428999e08bbdcc2b9d255a064bd7"
+      "bytes": 140479,
+      "sha256": "a30819baad649a6dace34b8c5f19f2027522e3b6844e012d7e0e75cbc17c2dea"
     },
     {
       "path": "app/globals.css",
@@ -173,8 +173,8 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 52278,
-      "sha256": "f93413c147ac00244e42337fb41801c1bfb796182c1ce0b4d5fbfdcb73810f57"
+      "bytes": 53420,
+      "sha256": "6d80400209c05c86a93926e39a12028bd08c92f76d13529ce11e8886db7d0b34"
     },
     {
       "path": "components/app/context.tsx",
@@ -183,28 +183,28 @@
     },
     {
       "path": "components/app/shared.tsx",
-      "bytes": 2558,
-      "sha256": "d124f50104a414bf9b106ac87b746623c9b72ffa0acba681c4b93e9876bfeff0"
+      "bytes": 2643,
+      "sha256": "75c58d039951b80c707f2d816a5c353f0e114b256671e17057a04dfa63b51c05"
     },
     {
       "path": "components/atelier/Competition.tsx",
-      "bytes": 6493,
-      "sha256": "7827d0ff3f1739fc7c75d89919b4f705fa9b7d046bb3443c7cbbb14931ea73c1"
+      "bytes": 6535,
+      "sha256": "3cc523ce82b7be8553539b2ef5311bf63ac4dee7344064cd8bc8f850819d4140"
     },
     {
       "path": "components/atelier/DailyLoop.tsx",
-      "bytes": 4720,
-      "sha256": "82a32f30176cea6c92ccf79670153efd3dbf37b8546c63a42b359be57d4bd9e4"
+      "bytes": 4794,
+      "sha256": "f1bc09640bf50fe58892411ceb36f298ccf694173bbdf56d46b1eadea1a24b7b"
     },
     {
       "path": "components/atelier/DailyQuests.tsx",
-      "bytes": 5459,
-      "sha256": "6b58da7e8cbb14e5e2eaeee238638c9b37a8f2d525a7b9c85ead4a6bf733e568"
+      "bytes": 5381,
+      "sha256": "0fd8809ae24b423509fae40de3373303e668a2bb58fc157502ad02d2c09c2a4a"
     },
     {
       "path": "components/atelier/DailyResult.tsx",
-      "bytes": 3638,
-      "sha256": "ecebe75cafe2cfc3eddec7d2f3e9546f8a5ac713212b356515c593ca8f5bf7d5"
+      "bytes": 3634,
+      "sha256": "9e4f3bfb779971a28f3da5bba1a12378dae7cfc9afde83c0e996067a85485bd3"
     },
     {
       "path": "components/atelier/DailyRhythm.tsx",
@@ -218,8 +218,8 @@
     },
     {
       "path": "components/atelier/GameCover.tsx",
-      "bytes": 595,
-      "sha256": "589bb261d3c3aefcdaa47dd9fd6444c21ffca4a00a373a5cf0230655d003ca07"
+      "bytes": 742,
+      "sha256": "ae760c4bd794d9077200c60248b9a8ca5e5f559a0f063304212b3fdb51167c60"
     },
     {
       "path": "components/atelier/GameIcon.tsx",
@@ -228,8 +228,8 @@
     },
     {
       "path": "components/atelier/HowToPlay.tsx",
-      "bytes": 7843,
-      "sha256": "86d9d1f519dc5832363aea9e90d24ffe3026fb7b77f91379c812a38d72807273"
+      "bytes": 7844,
+      "sha256": "7150b6196688a4dd1a0bf631a8a573404ad8551d73ff0b3b081cc2324e175a57"
     },
     {
       "path": "components/atelier/MysteryCountry.tsx",
@@ -313,13 +313,18 @@
     },
     {
       "path": "components/home/HomePage.tsx",
-      "bytes": 12858,
-      "sha256": "7c0e93c54b7c5b7f9964f84b7b0e0895f7dda5c677b0411e57202739b4bde84a"
+      "bytes": 13454,
+      "sha256": "36f12338bc7dfc5d855593ffa958ea3e71845be1f1969ef57c05339e99e15553"
     },
     {
       "path": "components/home/useDay.ts",
       "bytes": 3294,
       "sha256": "dd8206792a29bfefbd5262d1c1d2379a557e35e8c796bb08450e4e682e4867b5"
+    },
+    {
+      "path": "components/multiplayer/Computer.tsx",
+      "bytes": 7131,
+      "sha256": "0585c6b5e7e4a6dd55f11a4cadb69405980f8c061e5049017c63b3d1dc289be7"
     },
     {
       "path": "components/pages/ExplorePage.tsx",
@@ -333,8 +338,8 @@
     },
     {
       "path": "components/pages/MultiplayerPage.tsx",
-      "bytes": 5672,
-      "sha256": "4574e3b0a0a9d7d5483dfcb9e0a497504711374e6f333fd473d00bc33e1408da"
+      "bytes": 5774,
+      "sha256": "07cabc3d42f6f44c0bd5c5ad6d09cdb9355c81d49070c2d1870fb01da9e64f4f"
     },
     {
       "path": "components/pages/PassportPage.tsx",
@@ -343,18 +348,18 @@
     },
     {
       "path": "components/pages/RankingsPage.tsx",
-      "bytes": 5964,
-      "sha256": "76dcd13c1bfaa8d76f9d5e40f923dca6dbe7e71e5eeb6c35eec222cb7b5cf2a7"
+      "bytes": 6030,
+      "sha256": "163fea6aa260cf60753c6833e96ac9d7c7538806add941eed688ce7950b9f1e1"
     },
     {
       "path": "components/pages/ScoringPage.tsx",
-      "bytes": 3868,
-      "sha256": "34dfb0bbda99ed2f77380d21703b8634898ba0955599b18ca85960ec2c3cfcc0"
+      "bytes": 3953,
+      "sha256": "f68a80d2ca6df549e3013a7f57aab96547a496b553ee84a9ba6b6714ad4e9ead"
     },
     {
       "path": "components/puzzles/DuelGame.tsx",
-      "bytes": 10036,
-      "sha256": "852b519f641cc214da287e51286d2be2de6426ce1ac01f3d35628abaf62d7d50"
+      "bytes": 12203,
+      "sha256": "eb5dd9b54f99283e9346dcaa6ba489c68858fd82a2b273a7e43038da4faeab77"
     },
     {
       "path": "components/puzzles/MosaicFactDetails.tsx",
@@ -368,8 +373,8 @@
     },
     {
       "path": "components/puzzles/PuzzleDeck.tsx",
-      "bytes": 8588,
-      "sha256": "41b9bf83af2dc5f86229e7b0510e8a83bfd7bdb49f45282092e28b8bbbcd43c4"
+      "bytes": 9714,
+      "sha256": "6b6fa9dfe915d8e662606a9c4493c165b4dcfb82c3964fec122b31eeb176b40f"
     },
     {
       "path": "components/puzzles/PuzzleGame.tsx",
@@ -383,8 +388,8 @@
     },
     {
       "path": "components/shell/SiteHeader.tsx",
-      "bytes": 5153,
-      "sha256": "140f9c31771b0c2e1da84c58dd7bd72b15417b8d5bc4d75a3c4ab4b2b61ae7b2"
+      "bytes": 5161,
+      "sha256": "a4fd697e8084823ab2a6d07b11bbeb93a0d7941993615aa7eedea502478ec0c2"
     },
     {
       "path": "components/ui/accordion.tsx",
@@ -698,8 +703,8 @@
     },
     {
       "path": "db/schema.ts",
-      "bytes": 9646,
-      "sha256": "cdbbed21e84caea4df267cf9bbbb1c6bdee9da7bc7c52b83e893255663389b5c"
+      "bytes": 9653,
+      "sha256": "4eaef8bf36d2849183ff8fb8bb28cad1fc45f876d7e8e88dba55ee586a3f84f4"
     },
     {
       "path": "db/seed.sql",
@@ -728,8 +733,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 24203,
-      "sha256": "40be354c30d0d73ce98cf9a5a00916c4c65898e10d5b8f1aa9bcaff8c71977c7"
+      "bytes": 26322,
+      "sha256": "d57d1c8d91a7a56f1755eac30ef55117fb1c2b66e4767ee0512d2e740d331805"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -790,6 +795,11 @@
       "path": "docs/QA_1_18.md",
       "bytes": 1610,
       "sha256": "e46c51d93da1df69fb618dcfbac47c6ed71e7a31c55c6c7ea81166072cd06c7a"
+    },
+    {
+      "path": "docs/QA_1_19.md",
+      "bytes": 1267,
+      "sha256": "b84bff07c7eb1265f32ecae5c3bb1d3e01234943055b7d5f3cb1f781d063ba28"
     },
     {
       "path": "docs/QA_1_6.md",
@@ -972,6 +982,11 @@
       "sha256": "710cf9f911825f334b11ef6d6e9c625f6fa50da3a7ef865ffebf4388bf64138b"
     },
     {
+      "path": "drizzle/0005_wonderful_ikaris.sql",
+      "bytes": 1382,
+      "sha256": "9baea07a5354c695231d046c483dbc124f05264c58dd4d452f1cdf0b798b6bae"
+    },
+    {
       "path": "drizzle/meta/0000_snapshot.json",
       "bytes": 33287,
       "sha256": "1f5b5f37e58f222fef6b789a0ad509536e17a1fab56174a186c489d4f54d4164"
@@ -997,9 +1012,14 @@
       "sha256": "2e2ef571ac14caa8a2594f6c819d9c57050c21006af4cd6eee9d5c115195eced"
     },
     {
+      "path": "drizzle/meta/0005_snapshot.json",
+      "bytes": 44923,
+      "sha256": "914bf3b76de594a92411082d7704ef2ca1c9e495f5309bd8c9a9e5596016f376"
+    },
+    {
       "path": "drizzle/meta/_journal.json",
-      "bytes": 788,
-      "sha256": "777aa17e374f6c8dfd93626e6986a35b444cd23ca57d3f86c5b9acf02e613377"
+      "bytes": 932,
+      "sha256": "371b53a0f4e94619db60d35061cf68858985ddf010ee8bae9333b0eaa46e7b82"
     },
     {
       "path": "eslint.config.mjs",
@@ -1023,8 +1043,8 @@
     },
     {
       "path": "i18n/competition.ts",
-      "bytes": 7457,
-      "sha256": "7996c5b304035f170c074fec954bf41cd90e9f6523b935492631c6f617be1be7"
+      "bytes": 7454,
+      "sha256": "f8768fab1e48d3ae101762261b75e6fd157e690405a156ab560a429098ce487f"
     },
     {
       "path": "i18n/content.ts",
@@ -1043,23 +1063,23 @@
     },
     {
       "path": "i18n/es.ts",
-      "bytes": 28230,
-      "sha256": "3c539160df7372087575979f88dfca52100a4c8bf485b6c97a736afc366bd0d4"
+      "bytes": 28224,
+      "sha256": "70c512966967756bc5fce3dbb9b1f7c6dbc6bb992731a695e3471c1cd4a22479"
     },
     {
       "path": "i18n/howto.ts",
-      "bytes": 4329,
-      "sha256": "4a831753fe5aaa8c2ec822941549fbefd203474d965ee9db823a61e99658f4f0"
+      "bytes": 4501,
+      "sha256": "e67ab99add59e247b48e49bd5f61faa325f3266b45fbca3efdd63ef8e7762286"
     },
     {
       "path": "i18n/messages.ts",
-      "bytes": 64507,
-      "sha256": "188b13262f62b111743578cc339ac18d9fedcfe1bd0da1b81f307ec0b7ce4520"
+      "bytes": 64614,
+      "sha256": "394062764517bbefb102f7ac3e2074e75bfa178037ef548cc4aeedbb67bbb842"
     },
     {
       "path": "i18n/quests.ts",
-      "bytes": 6133,
-      "sha256": "48b857b15d5afaf22ccc8adfc50f2c392278d0a91cf30d86c241cc0e877e27d8"
+      "bytes": 6117,
+      "sha256": "732c3ecfbc14ed4d5de4d1d282c5a05c2806bf170d91d80c043b8d957631e5f5"
     },
     {
       "path": "i18n/rank.ts",
@@ -1068,13 +1088,18 @@
     },
     {
       "path": "i18n/redesign.ts",
-      "bytes": 31945,
-      "sha256": "c8f51e704d232a17df57eceeff4a29a0efa6372a01de9060bc442fd295de6b22"
+      "bytes": 32133,
+      "sha256": "816ded81c95abac1355f1eb9c760ae03bcbdc24b4eb59fb1f0c735809381e32e"
     },
     {
       "path": "i18n/terms-es.json",
       "bytes": 9828,
       "sha256": "fc5a4ced2e3efdbefee81e6adb95ab30a1e822a23a6fa9c424a219aec57ce4fb"
+    },
+    {
+      "path": "i18n/v119.ts",
+      "bytes": 6641,
+      "sha256": "fa5eab34950b97f184afc0a60b8113fda61efcbca9e9763b17bec190b437ae1d"
     },
     {
       "path": "lib/achievements.ts",
@@ -1089,22 +1114,22 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "c7cc8721576b9cd3455c9a238480319e563922e86fb1b65b64c1106fc3d41cea"
+      "sha256": "dad73b793f24a79d6d8ae3946643b7d8507136227921d35f1c63965155a1bfc3"
     },
     {
       "path": "lib/daily-loop.ts",
-      "bytes": 5588,
-      "sha256": "376bb89a4c1fc9512d1f700db82c89c85a211478d6848950b2add0a4b2c57c59"
+      "bytes": 5992,
+      "sha256": "5d2461d8437327343cd727674114272b9e7bbcd364b551a647e27aea16964594"
     },
     {
       "path": "lib/daily-quests.ts",
-      "bytes": 2123,
-      "sha256": "f8fb2e40dabd60409533032d261c4cd940f89aa2c6b68bb56910e389ba219d35"
+      "bytes": 2139,
+      "sha256": "076779f4c9c6e83baaaf2d61cce4ef1159ffb864cc592a2037e4c2486968ffb4"
     },
     {
       "path": "lib/daily-scoring.ts",
-      "bytes": 1961,
-      "sha256": "a60bc0466e873d479dc7e8539817b9b4c147a8d37a3e88313715bc91bac05c7a"
+      "bytes": 2134,
+      "sha256": "fefc0e4c56f98f73b88dba5dde1b9bca1e5bfd9a63d555f91cbfd1178aa42f52"
     },
     {
       "path": "lib/data/comparisons.json",
@@ -1130,6 +1155,11 @@
       "path": "lib/data/silhouettes.json",
       "bytes": 336721,
       "sha256": "0a026b3899285b88b30d9e60fe0418c74c8d624c2525fb67e7aa823fef00caaf"
+    },
+    {
+      "path": "lib/game-engine/bots.ts",
+      "bytes": 2589,
+      "sha256": "19951669f808106a8418c7f270b33a91c744773e95ef8549929c3edebbe117e5"
     },
     {
       "path": "lib/game-engine/geometry.ts",
@@ -1163,8 +1193,8 @@
     },
     {
       "path": "lib/how-to-play.ts",
-      "bytes": 18858,
-      "sha256": "60769c651d294562e44e5475b93b066dbe5ec47e6016b695a45d9b1fe026dd67"
+      "bytes": 19004,
+      "sha256": "0f33e3ecec85b2f11a050503268e8880318b6c93dff64b8a9e2267790a5497b8"
     },
     {
       "path": "lib/navigation.ts",
@@ -1263,8 +1293,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 2866,
-      "sha256": "966e1b4651e7e0779a64ca2d9d64a18663e32ec09b0bfe19921550bc910d26df"
+      "bytes": 2886,
+      "sha256": "af57b70c217a4089aff39234376d67eb856dc541102dfe933d64ddbe8a07a493"
     },
     {
       "path": "postcss.config.mjs",
@@ -4629,7 +4659,7 @@
     {
       "path": "public/sw.js",
       "bytes": 906,
-      "sha256": "65b31521c9768cc18ff439253377e1aa15f6480b87cef9bead11a6c922826eb8"
+      "sha256": "c4b1ebbacb64ef90aa7c7c2a36597d33a3f796aa1f6d5d799deb74875d4fbe62"
     },
     {
       "path": "scripts/build-verified.sh",
@@ -4708,8 +4738,8 @@
     },
     {
       "path": "server/api.ts",
-      "bytes": 25309,
-      "sha256": "a3a876a43ae1c78288360b74de3c339192f7b6f284ca1163be595a15644ceb0a"
+      "bytes": 26323,
+      "sha256": "115967a1cc80b0ce1599951d55d958510bdd68d029dc912abc6df33d673847d9"
     },
     {
       "path": "server/auth.ts",
@@ -4723,8 +4753,8 @@
     },
     {
       "path": "server/competition.ts",
-      "bytes": 3510,
-      "sha256": "89230dc6ddbbe003d2754e15b78454dd70b76c123ada2febbd6ca611b07bb470"
+      "bytes": 3538,
+      "sha256": "f8c02397000875b89afb582a9ead414cac35f04af1c6269013bb5036eb05e0dc"
     },
     {
       "path": "server/daily-content.ts",
@@ -4735,6 +4765,11 @@
       "path": "server/db.ts",
       "bytes": 699,
       "sha256": "6180b7d2f9cd7f1d6ec976ca07813d937803c90795cc5b19653f596e8e590cf7"
+    },
+    {
+      "path": "server/duel.ts",
+      "bytes": 5682,
+      "sha256": "ebce7f3c8d9228f5fa6f60cf5b52a953ebea7ec30734b7e1852fa2fffcafabde"
     },
     {
       "path": "server/follow-up.ts",
@@ -4753,8 +4788,8 @@
     },
     {
       "path": "server/multiplayer.ts",
-      "bytes": 20428,
-      "sha256": "a6dcdb3a3f62557289193e027f73e955f73f27d3541e27ad32f5ebd43e5641f9"
+      "bytes": 24283,
+      "sha256": "dc24288fdb10102564b3a84dfadc3fa216c2b7b3683e0f6d6100e5ffd1f3ecfa"
     },
     {
       "path": "server/presence.ts",
@@ -4763,8 +4798,8 @@
     },
     {
       "path": "server/puzzles.ts",
-      "bytes": 11330,
-      "sha256": "5e003a46f8e56fef437f0931f411f62ff278ca84c3d2fec77e2ed6879d543542"
+      "bytes": 11354,
+      "sha256": "c09a4922c8b07beb728636b8fa9edf83b399f2b64939f053d44c5a19c2ea22ef"
     },
     {
       "path": "server/ranks.ts",
@@ -4778,8 +4813,8 @@
     },
     {
       "path": "server/solo.ts",
-      "bytes": 10132,
-      "sha256": "ffecfe277b6cef44a5dbb891e8403ced4cf233fa68813d031f6141b903e772e8"
+      "bytes": 10163,
+      "sha256": "8d25d78d4fcc8c2ac0dd79d390bed399ac6700cb82904bfceba2febd567f3784"
     },
     {
       "path": "server/stats.ts",
@@ -4793,13 +4828,18 @@
     },
     {
       "path": "server/types.ts",
-      "bytes": 1921,
-      "sha256": "7a6a2a843f4f44bffb7be0fe1d4dff04a46c9529db31ccbe2e3d5a5ec4726523"
+      "bytes": 2219,
+      "sha256": "1c296abeb7616434ed45b081f8ff9bafd3ca73cb19a7267e85ed8d580a22ff9f"
     },
     {
       "path": "tests/atelier.test.mjs",
       "bytes": 10503,
       "sha256": "e5d8a8edd0b0f21b25654b1ab052421909e8c73faa78aa2632316a014022fc20"
+    },
+    {
+      "path": "tests/bots.test.mjs",
+      "bytes": 2257,
+      "sha256": "a0f51b6f720e3f3f632ff62c7a26906835edbf4c23f80d5d51c78c26cf412cb7"
     },
     {
       "path": "tests/competition.test.mjs",
@@ -4813,13 +4853,13 @@
     },
     {
       "path": "tests/daily-loop.test.mjs",
-      "bytes": 3420,
-      "sha256": "254d46213fda2edfec70df247039174d8e423a42438bc37f06e913c18a5c02ef"
+      "bytes": 3716,
+      "sha256": "70d9eb97f42b65fbe3ccf36193b6471047ac7de0b9b88b5ff9bc48b046337dab"
     },
     {
       "path": "tests/daily-quests.test.mjs",
-      "bytes": 3358,
-      "sha256": "0dd46fe2053d0701228ea2d97044b7c12d6e8d42372638a1e28b5c088148a37d"
+      "bytes": 3313,
+      "sha256": "1a6090559213b6be70eaac268c91ac06250c49d9238f7153be9c24aabfeaa9e8"
     },
     {
       "path": "tests/duel.test.mjs",
@@ -4833,13 +4873,13 @@
     },
     {
       "path": "tests/how-to-play.test.mjs",
-      "bytes": 4188,
-      "sha256": "f3d135f125787e0d3b0a2842b7e2cd19d97b82cc48eb7cb10d3526aa1aada5cf"
+      "bytes": 4208,
+      "sha256": "aaefa9a2fe72af5ed702ec3484c5c0fd2b26c6309d4d903d2e0fc7bba4674116"
     },
     {
       "path": "tests/integration.test.mjs",
-      "bytes": 68101,
-      "sha256": "2ab29e8ceb635da5559cb5cdbf9bdbf05ceba2e777bdfd9ce4d47aa66308f624"
+      "bytes": 73745,
+      "sha256": "b64eb591f517f37eecfda93f18578fc1fb830a667ccd0c5536c747a73300aa02"
     },
     {
       "path": "tests/learning-ui.test.mjs",
@@ -4873,8 +4913,8 @@
     },
     {
       "path": "tests/rendered-html.test.mjs",
-      "bytes": 4049,
-      "sha256": "0a44b41c24ef8cc5274cbe17b1f001219b985f621ab475b4b285202f4cd87fb0"
+      "bytes": 4201,
+      "sha256": "67e3e0b505079a70f8190e36d55e7026ce039a1ef6ac5182ae41083b996681ea"
     },
     {
       "path": "tests/streak.test.mjs",
@@ -4931,6 +4971,7 @@
     "drizzle/0001_mighty_madame_masque.sql",
     "drizzle/0002_mute_phantom_reporter.sql",
     "drizzle/0003_gorgeous_arachne.sql",
-    "drizzle/0004_daffy_tusk.sql"
+    "drizzle/0004_daffy_tusk.sql",
+    "drizzle/0005_wonderful_ikaris.sql"
   ]
 }
