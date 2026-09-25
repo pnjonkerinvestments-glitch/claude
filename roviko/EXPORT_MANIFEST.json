@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.17.0",
-  "exported_at": "2026-09-24T17:43:13.471Z",
-  "source_commit": "0461c0ad5c4ef38dfb0e4b108062c9ce55ca4376",
+  "website_version": "1.18.0",
+  "exported_at": "2026-09-25T06:00:21.505Z",
+  "source_commit": "62d844396eb95dc879e998d5d42e256ce6a48280",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -25,7 +25,7 @@
   "validation": {
     "typecheck": "passed",
     "production_build": "passed",
-    "tests_passed": 128,
+    "tests_passed": 130,
     "tests_failed": 0,
     "eslint_source": "225 errors (was 228 in 1.14)",
     "browser_visual_qa": "local headless Chromium only (desktop and 390 px, light/dark, EN/NL); two-browser friends invite flow; no physical devices",
@@ -73,8 +73,8 @@
     },
     {
       "path": "GAME_RULES.md",
-      "bytes": 15644,
-      "sha256": "47d17e636d036afd53470155d802799d314c044b805d64e1f7435f58d1937188"
+      "bytes": 15807,
+      "sha256": "1bfbd811ea1b22b6f4fa7b62ba49454439f917ce0c88dca65ac265af680e1b7f"
     },
     {
       "path": "MULTIPLAYER.md",
@@ -83,8 +83,8 @@
     },
     {
       "path": "README.md",
-      "bytes": 13084,
-      "sha256": "a32295a343179cf63abc99dc079cc7a2c3e30cdb5417a84fe31d754159fe5395"
+      "bytes": 13107,
+      "sha256": "e47bf2d048e27f6e21bdca2c755fff5223ae3f95014e6a968855cfa61192410a"
     },
     {
       "path": "SECURITY.md",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 10157,
-      "sha256": "a9ade121f5a16c64aac8ed97268567c68c1412636a894bf5a8d988c14d4a78a1"
+      "bytes": 10817,
+      "sha256": "c3f1d17a0edee3d3a5e455502dced304e22ebc237069559a5029c45de57de4b9"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -123,8 +123,8 @@
     },
     {
       "path": "app/design.css",
-      "bytes": 121503,
-      "sha256": "0351acc967a735adf2e66c0a55f8e018a0466431244ba8dcd91a8d849ed5c746"
+      "bytes": 134516,
+      "sha256": "6c5cd6cbc211f118e0aaee23182862e99669428999e08bbdcc2b9d255a064bd7"
     },
     {
       "path": "app/globals.css",
@@ -173,8 +173,8 @@
     },
     {
       "path": "components/RovikoApp.tsx",
-      "bytes": 51632,
-      "sha256": "7a25789af3a7fa9a7c6b6207743d048751fde1ff8a4873212c25106f21e8e330"
+      "bytes": 52278,
+      "sha256": "f93413c147ac00244e42337fb41801c1bfb796182c1ce0b4d5fbfdcb73810f57"
     },
     {
       "path": "components/app/context.tsx",
@@ -200,6 +200,11 @@
       "path": "components/atelier/DailyQuests.tsx",
       "bytes": 5459,
       "sha256": "6b58da7e8cbb14e5e2eaeee238638c9b37a8f2d525a7b9c85ead4a6bf733e568"
+    },
+    {
+      "path": "components/atelier/DailyResult.tsx",
+      "bytes": 3638,
+      "sha256": "ecebe75cafe2cfc3eddec7d2f3e9546f8a5ac713212b356515c593ca8f5bf7d5"
     },
     {
       "path": "components/atelier/DailyRhythm.tsx",
@@ -282,19 +287,14 @@
       "sha256": "cb25dc6f3b7afe250baadbd90f6d8adb63ce11ce0fdb68072c3514d08064de12"
     },
     {
-      "path": "components/game/JourneyRoute.tsx",
-      "bytes": 924,
-      "sha256": "94252010189f31054b52c56e1e6e240cd87a0e8e83fe8205fdf9ec53e9cb98a0"
-    },
-    {
       "path": "components/game/Question.tsx",
       "bytes": 10958,
       "sha256": "611cca6e400242e94014b9bc8df82a5f1a1110fb318fd89fe29e324f9281124b"
     },
     {
       "path": "components/game/SoloResults.tsx",
-      "bytes": 2851,
-      "sha256": "eee4d11279e7a006a0b70b7eadb0cc0129efaacf118e45e3e630fb0b9e236ba9"
+      "bytes": 2981,
+      "sha256": "bf5640b8614cc8c22a352eb52b65eb677dd42904288c040cb01664081a9282fe"
     },
     {
       "path": "components/game/WorldMap.tsx",
@@ -313,8 +313,8 @@
     },
     {
       "path": "components/home/HomePage.tsx",
-      "bytes": 14484,
-      "sha256": "a2ac05713453d6497857fde914eb03009a33dcf0de64b251a1a3a4e3b4965d0c"
+      "bytes": 12858,
+      "sha256": "7c0e93c54b7c5b7f9964f84b7b0e0895f7dda5c677b0411e57202739b4bde84a"
     },
     {
       "path": "components/home/useDay.ts",
@@ -373,18 +373,18 @@
     },
     {
       "path": "components/puzzles/PuzzleGame.tsx",
-      "bytes": 24099,
-      "sha256": "3267db9b4ece2fd16cb76c2e245a5f084d0032fe9906939d1b92e546352c0bdc"
+      "bytes": 24085,
+      "sha256": "6cf485797a4c21b19691c7cf78b62ea4ef0b69e1daa5dcd4d10ccdfbead50539"
     },
     {
       "path": "components/puzzles/RankGame.tsx",
-      "bytes": 11733,
-      "sha256": "da35fdf60b2dfddee545aa4af9e48bbdf6427b2ea367f59a2734be2847c6ea61"
+      "bytes": 11832,
+      "sha256": "e19976c8b14eba7144dc82d58e80f1a4ef45f0470d9688f549b9739cc82c1977"
     },
     {
       "path": "components/shell/SiteHeader.tsx",
-      "bytes": 5120,
-      "sha256": "798c8cd74707b33c42df73738d4157e1ad0cfa618af9ad07964b1c89b73830bc"
+      "bytes": 5153,
+      "sha256": "140f9c31771b0c2e1da84c58dd7bd72b15417b8d5bc4d75a3c4ab4b2b61ae7b2"
     },
     {
       "path": "components/ui/accordion.tsx",
@@ -728,8 +728,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 21209,
-      "sha256": "7a3d463945da04e855e60e5b5f62e4aa5c5ce7b73be41636533e71050af03d8e"
+      "bytes": 24203,
+      "sha256": "40be354c30d0d73ce98cf9a5a00916c4c65898e10d5b8f1aa9bcaff8c71977c7"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -785,6 +785,11 @@
       "path": "docs/QA_1_17.md",
       "bytes": 1797,
       "sha256": "e20131a05142b8f7499df8e439fd6edc04775642a2ec6dc0cd3c2ca26a3dd8db"
+    },
+    {
+      "path": "docs/QA_1_18.md",
+      "bytes": 1610,
+      "sha256": "e46c51d93da1df69fb618dcfbac47c6ed71e7a31c55c6c7ea81166072cd06c7a"
     },
     {
       "path": "docs/QA_1_6.md",
@@ -1018,8 +1023,8 @@
     },
     {
       "path": "i18n/competition.ts",
-      "bytes": 7448,
-      "sha256": "75d1cd672cca03fc301bcaa2cd7bd9bca85421c1a06a551fb8965ab7fd024afc"
+      "bytes": 7457,
+      "sha256": "7996c5b304035f170c074fec954bf41cd90e9f6523b935492631c6f617be1be7"
     },
     {
       "path": "i18n/content.ts",
@@ -1038,8 +1043,8 @@
     },
     {
       "path": "i18n/es.ts",
-      "bytes": 28240,
-      "sha256": "ace9e0210a62aafa9835992a20d777b4a752d443669e129e40dfcdfdb2e93d36"
+      "bytes": 28230,
+      "sha256": "3c539160df7372087575979f88dfca52100a4c8bf485b6c97a736afc366bd0d4"
     },
     {
       "path": "i18n/howto.ts",
@@ -1048,8 +1053,8 @@
     },
     {
       "path": "i18n/messages.ts",
-      "bytes": 64525,
-      "sha256": "77373374c9d4c1697c5e9d4f47361dbe80ef61b6f0d1c9c0983f2fff13f0475d"
+      "bytes": 64507,
+      "sha256": "188b13262f62b111743578cc339ac18d9fedcfe1bd0da1b81f307ec0b7ce4520"
     },
     {
       "path": "i18n/quests.ts",
@@ -1063,8 +1068,8 @@
     },
     {
       "path": "i18n/redesign.ts",
-      "bytes": 31587,
-      "sha256": "e2e8ac675d059961643e70230167d10729b0b81d96560949b8f092558f17031b"
+      "bytes": 31945,
+      "sha256": "c8f51e704d232a17df57eceeff4a29a0efa6372a01de9060bc442fd295de6b22"
     },
     {
       "path": "i18n/terms-es.json",
@@ -1084,7 +1089,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "98110ef40aa6e0d6e7744c372d8460eafea55e717e4f9f9078e1273ad1ee964b"
+      "sha256": "c7cc8721576b9cd3455c9a238480319e563922e86fb1b65b64c1106fc3d41cea"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -1098,8 +1103,8 @@
     },
     {
       "path": "lib/daily-scoring.ts",
-      "bytes": 1708,
-      "sha256": "b7d779a1610b50f01c6765a38391a872bbc699f362ae1dfd436d5f9d26996d28"
+      "bytes": 1961,
+      "sha256": "a60bc0466e873d479dc7e8539817b9b4c147a8d37a3e88313715bc91bac05c7a"
     },
     {
       "path": "lib/data/comparisons.json",
@@ -1143,8 +1148,8 @@
     },
     {
       "path": "lib/game-engine/questions.ts",
-      "bytes": 13816,
-      "sha256": "9624b382fe8bd54316697355ff10c0acdd4f58c66d822eb942eb4267859e7b50"
+      "bytes": 14262,
+      "sha256": "569c80a55ecebfe8f8efbb7a9c3c38a7bdda011c5fdb7972c2fb9b43544dbe8d"
     },
     {
       "path": "lib/game-engine/scoring.ts",
@@ -1158,8 +1163,8 @@
     },
     {
       "path": "lib/how-to-play.ts",
-      "bytes": 18800,
-      "sha256": "5be67dc8885b9cf42f32519561eb7908763d9c2a0c26205503f6d9cb18ab3848"
+      "bytes": 18858,
+      "sha256": "60769c651d294562e44e5475b93b066dbe5ec47e6016b695a45d9b1fe026dd67"
     },
     {
       "path": "lib/navigation.ts",
@@ -4624,7 +4629,7 @@
     {
       "path": "public/sw.js",
       "bytes": 906,
-      "sha256": "b0b7935def4e163ccdfc1ada535ac4efd11d66d489d8417d0722212a86aded8f"
+      "sha256": "65b31521c9768cc18ff439253377e1aa15f6480b87cef9bead11a6c922826eb8"
     },
     {
       "path": "scripts/build-verified.sh",
@@ -4773,8 +4778,8 @@
     },
     {
       "path": "server/solo.ts",
-      "bytes": 10074,
-      "sha256": "f16d44339ad47f0c04c626cfd66e79346d586cec348a35f28ec15a9147883151"
+      "bytes": 10132,
+      "sha256": "ffecfe277b6cef44a5dbb891e8403ced4cf233fa68813d031f6141b903e772e8"
     },
     {
       "path": "server/stats.ts",
@@ -4793,18 +4798,18 @@
     },
     {
       "path": "tests/atelier.test.mjs",
-      "bytes": 9698,
-      "sha256": "a1aa2d1fd38626f9d102938024622f1c344de7bbbac75e1fca78097fa2ab8b9c"
+      "bytes": 10503,
+      "sha256": "e5d8a8edd0b0f21b25654b1ab052421909e8c73faa78aa2632316a014022fc20"
     },
     {
       "path": "tests/competition.test.mjs",
-      "bytes": 2198,
-      "sha256": "2107e5a90eaa5b0e5d0cb25b2cae86058b093c54b7d1762dcda8020c68df87f7"
+      "bytes": 2860,
+      "sha256": "19562d515b3183b18baeb67ca07ac37705db4ebf9e639419fdcfd8287bda2b44"
     },
     {
       "path": "tests/core.test.mjs",
-      "bytes": 5979,
-      "sha256": "13aca522d85f00027a34dde5ead47d93541c5f149baea5847c4d9a40951c035d"
+      "bytes": 6230,
+      "sha256": "c2cd012f26a58be9aba64e33a558d369ce3fcf2f7791946906795127f0d340e4"
     },
     {
       "path": "tests/daily-loop.test.mjs",
@@ -4833,8 +4838,8 @@
     },
     {
       "path": "tests/integration.test.mjs",
-      "bytes": 67740,
-      "sha256": "01b3c42a41fdb9db6adb30447818730c866d440b8d06a0fb4d73416d49225693"
+      "bytes": 68101,
+      "sha256": "2ab29e8ceb635da5559cb5cdbf9bdbf05ceba2e777bdfd9ce4d47aa66308f624"
     },
     {
       "path": "tests/learning-ui.test.mjs",
@@ -4868,8 +4873,8 @@
     },
     {
       "path": "tests/rendered-html.test.mjs",
-      "bytes": 4039,
-      "sha256": "753154df940cce48400b52e6b633638985cc99ed223852cf23574f74d7be9f66"
+      "bytes": 4049,
+      "sha256": "0a44b41c24ef8cc5274cbe17b1f001219b985f621ab475b4b285202f4cd87fb0"
     },
     {
       "path": "tests/streak.test.mjs",
