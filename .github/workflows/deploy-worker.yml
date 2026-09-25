@@ -1,0 +1,81 @@
+name: Deploy naar Cloudflare
+
+# Zet de Worker (map worker/) live. Draait bij elke push naar de standaardbranch
+# die iets in worker/ verandert, en met de hand via "Run workflow".
+#
+# Nodig als repository secrets:
+#   CLOUDFLARE_API_TOKEN   token met "Workers Scripts: Edit" en "Workers KV Storage: Edit"
+#   CLOUDFLARE_ACCOUNT_ID  staat rechts op het Workers-overzicht in het Cloudflare-dashboard
+#
+# De bestaande mail-secrets (SMTP_*, MAIL_*, POLYGON_API_KEY) en een eventuele RUN_TOKEN
+# worden bij elke deploy naar de Worker gekopieerd; lege secrets worden overgeslagen.
+# Filters die je als repository variable hebt gezet, overschrijven wrangler.jsonc.
+
+on:
+  push:
+    paths:
+      - "worker/**"
+      - ".github/workflows/deploy-worker.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-worker
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+      - name: Deployen
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          RUN_TOKEN: ${{ secrets.RUN_TOKEN }}
+          VARS_JSON: ${{ toJSON(vars) }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::error::Zet de repository secrets CLOUDFLARE_API_TOKEN en CLOUDFLARE_ACCOUNT_ID"
+            exit 1
+          fi
+
+          secrets_file="$RUNNER_TEMP/secrets.json"
+          jq -n 'env | with_entries(select(
+                   (.key | IN("SMTP_HOST","SMTP_PORT","SMTP_USER","SMTP_PASSWORD","MAIL_FROM","MAIL_TO","POLYGON_API_KEY","RUN_TOKEN"))
+                   and .value != ""))' > "$secrets_file"
+          echo "Secrets naar de Worker: $(jq -r 'keys | join(", ")' "$secrets_file")"
+
+          var_args=()
+          for name in PROVIDER THRESHOLD_PCT MIN_PRICE MAX_PRICE MIN_PREMARKET_VOLUME MIN_DOLLAR_VOLUME \
+                      EXCHANGES INSTRUMENT_TYPES MAX_RESULTS RE_ALERT_STEP_PCT SUBJECT_PREFIX; do
+            value=$(jq -r --arg n "$name" '.[$n] // empty' <<<"$VARS_JSON")
+            if [ -n "$value" ]; then
+              echo "Variable $name=$value overschrijft wrangler.jsonc"
+              var_args+=(--var "$name:$value")
+            fi
+          done
+
+          npx wrangler deploy --secrets-file "$secrets_file" "${var_args[@]}"
+          rm -f "$secrets_file"
