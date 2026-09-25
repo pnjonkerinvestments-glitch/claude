@@ -561,3 +561,32 @@ test('guests without any game for a year are deleted with their data; accounts a
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM users WHERE id=?').bind(ids[1]).first()).n,1,'a guest who played recently stays');
  assert.equal((await request(active.cookie,'/bootstrap')).data.user.id,ids[1]);
 });
+
+test('room sockets count their D1 queries so they can hand over before the per-invocation cap',async()=>{
+ await build({stdin:{contents:"export {countingDB} from './server/db';export {ROTATE_AFTER_QUERIES} from './server/multiplayer';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/counting.mjs',format:'esm',platform:'node',logLevel:'error'});
+ const {countingDB,ROTATE_AFTER_QUERIES}=await import('../.test-runtime/counting.mjs');
+ let n=0;const counted=countingDB(db,k=>{n+=k;});
+ await counted.prepare('SELECT 1 ok').first();await counted.prepare('SELECT ? v').bind(2).all();await counted.batch([counted.prepare('SELECT 1'),counted.prepare('SELECT 2')]);
+ assert.equal(n,4);assert.ok(ROTATE_AFTER_QUERIES<50,'below the Free plan cap of 50 queries per invocation');
+});
+
+test('players can report and block each other; blocks keep them out of the same room and quick match',async()=>{
+ const a=await bootstrap(),b=await bootstrap();
+ const idA=(await request(a.cookie,'/bootstrap')).data.user.id,idB=(await request(b.cookie,'/bootstrap')).data.user.id;
+ assert.equal((await request(a.cookie,'/profile','PATCH',{name:'K4nk3r',avatar:1,discoverable:true})).data.error,'NAME_INVALID');
+ assert.equal((await request(a.cookie,'/players/'+idB+'/report','POST',{reason:'name'})).status,200);
+ assert.equal((await request(a.cookie,'/players/'+idB+'/report','POST',{reason:'free text'})).status,400);
+ assert.equal((await request(a.cookie,'/players/'+idA+'/report','POST',{reason:'name'})).status,400,'not yourself');
+ const rep=await db.prepare('SELECT * FROM player_reports WHERE reported_id=?').bind(idB).first();assert.equal(rep.reason,'name');assert.equal(rep.reporter_id,idA);
+ // Block: B cannot join A's room, and quick match never pairs them.
+ const room=(await request(a.cookie,'/rooms','POST',{settings})).data.code;
+ assert.equal((await request(a.cookie,'/players/'+idB+'/block','POST',{})).status,200);
+ assert.equal((await request(b.cookie,'/rooms/'+room+'/join','POST',{})).data.error,'ROOM_UNAVAILABLE');
+ const list=(await request(a.cookie,'/blocks')).data.blocked;assert.equal(list.length,1);assert.equal(list[0].id,idB);
+ await db.prepare(`UPDATE multiplayer_rooms SET state=replace(state,'"quick":"open"','"quick":"computer"')`).run();
+ const q1=(await request(a.cookie,'/match/quick','POST',{})).data;const q2=(await request(b.cookie,'/match/quick','POST',{})).data;
+ assert.equal(q1.waiting,true);assert.notEqual(q2.code,q1.code,'blocked players are not matched');
+ // Unblock restores it.
+ assert.equal((await request(a.cookie,'/players/'+idB+'/block','DELETE')).status,200);
+ assert.equal((await request(b.cookie,'/rooms/'+room+'/join','POST',{})).status,200);
+});

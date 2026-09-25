@@ -418,3 +418,20 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
 - Onbekende routes geven HTTP 404 met de vriendelijke pagina.
 - Service worker was al in orde (pagina's altijd van het netwerk, oude caches worden verwijderd).
 - Secrets-scan over de hele git-historie: niets gevonden.
+
+### 1.20.0 (vervolg): melden en blokkeren, stabiele verbinding, klaar voor Apple
+
+**Nieuwe migratie: `drizzle/0006_gifted_psylocke.sql`** (tabellen `player_blocks` en `player_reports`). Het deployscript past die toe.
+
+- **Verbinding in multiplayer:** een kamer-verbinding is één lange Worker-aanroep, en Cloudflare staat per aanroep een beperkt aantal databasevragen toe (50 op het gratis plan). Na 20 tot 40 seconden bleef het daarom stil, tot de browser na 22 seconden opnieuw verbond. Nu telt de server zijn vragen (`countingDB`) en geeft hij de speler vóór de grens door aan een nieuwe verbinding (`{type:'reconnect'}`). De browser verbindt stil opnieuw; wat je in die tussentijd verstuurt, gaat mee.
+  - Gemeten: 7 overdrachten in 90 seconden spelen, 0 seconden "opnieuw verbinden" in beeld, alle antwoorden geteld.
+- **Melden en blokkeren (Apple 1.2):**
+  - namenfilter EN/NL/ES op de server (`lib/name-filter.ts`);
+  - knop ⋯ bij spelers in de wachtruimte, de eindstand en de vriendenlijst, met vier meldredenen en blokkeren;
+  - blokkades gelden op de server: geen gedeelde kamer, geen koppeling bij een willekeurige tegenstander, geen vriendschap, uitnodigingen of online-status;
+  - lijst met geblokkeerde spelers in het Paspoort;
+  - gemelde spelers staan in `/admin`, met reset van de naam en blokkeren van het account. Zie `docs/MODERATIE.md`.
+- **Voorwaarden en privacy:** regels tegen aanstootgevende namen, opvolging binnen 24 uur, en wat er bij melden of blokkeren wordt bewaard.
+- **Contact:** support@roviko.app in de footer en in het Paspoort, met ook een link naar de privacyverklaring.
+- **Wachtruimte van een kamer op de telefoon:** liep rechts buiten beeld. Opgelost en gecontroleerd op 320 en 390 px.
+- **Documenten voor de stores:** `docs/APP_REVIEW_NOTES.md` (tekst voor de reviewer) en `docs/STORE_PRIVACY.md` (privacylabels, Data safety, leeftijd).

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { useApp } from '../app/context';
+import { PlayerActions } from '../multiplayer/PlayerActions';
 import { A, Avatar } from '../app/shared';
 import { EmptyState, PageHeader, SectionHeader, Skeleton } from '../ds/States';
 
@@ -57,12 +58,13 @@ function presenceLabel(f: Friend, t: (k: string) => string) {
 }
 
 /** One friend row: who, online or not, and one action. */
-function FriendRow({ friend, action }: { friend: Friend; action?: React.ReactNode }) {
+function FriendRow({ friend, action, onBlocked }: { friend: Friend; action?: React.ReactNode; onBlocked?: () => void }) {
   const { t } = useApp();
   return <li className={'friend-row' + (friend.online ? ' is-online' : '')}>
     <span className="friend-avatar"><Avatar id={friend.avatar}/><span className="presence-dot" aria-hidden="true"/></span>
     <span className="friend-info"><strong>{friend.name}</strong><small>{friend.status === 'accepted' ? presenceLabel(friend, t) : friend.status === 'pending' ? t('pending') : ''}</small></span>
     {action}
+    <PlayerActions player={{ id: friend.user_id, name: friend.name }} t={t} onBlocked={onBlocked}/>
   </li>;
 }
 
@@ -132,11 +134,11 @@ export function FriendsPage() {
       <form className="friend-form" onSubmit={add}><label className="sr-only" htmlFor="friend-code">{t('friendCode')}</label><input className="code-input" id="friend-code" placeholder={t('friendPlaceholder')} maxLength={8} minLength={8} value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-F0-9]/g, ''))} autoCapitalize="characters" autoComplete="off" spellCheck={false} required/><button className="btn primary" disabled={busy || code.length !== 8}><Plus size={18} aria-hidden="true"/>{t('addFriend')}</button></form>
     </section>
     {friends === null ? <div className="sk-list">{[0, 1, 2].map(i => <Skeleton key={i} className="sk-block sk-list-row"/>)}</div> : <>
-      {requests.length > 0 && <section className="page-section"><SectionHeader title={t('friendsRequests')}/><ul className="friend-list-v2">{requests.map(f => <FriendRow key={f.id} friend={f} action={<span className="row-actions"><button className="btn primary btn-sm" onClick={() => act(f.id, 'accepted')}>{t('accept')}</button><button className="btn ghost btn-sm" onClick={() => act(f.id, 'rejected')}>{t('decline')}</button></span>}/>)}</ul></section>}
+      {requests.length > 0 && <section className="page-section"><SectionHeader title={t('friendsRequests')}/><ul className="friend-list-v2">{requests.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={<span className="row-actions"><button className="btn primary btn-sm" onClick={() => act(f.id, 'accepted')}>{t('accept')}</button><button className="btn ghost btn-sm" onClick={() => act(f.id, 'rejected')}>{t('decline')}</button></span>}/>)}</ul></section>}
       <section className="page-section" aria-labelledby="friends-online"><SectionHeader id="friends-online" title={t('friendsOnlineNow')} action={<span className="muted">{t('friendsOnlineCount').replace('{n}', String(online.length))}</span>}/>
-        {online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} action={playAction(f)}/>)}</ul> : <div className="soft-note"><p>{accepted.length ? t('friendsNobodyOnline') : t('friendsEmptyCopy')}</p><button className="text-link" onClick={() => setModal('room')}>{t('createRoom')}<ArrowRight size={16} aria-hidden="true"/></button></div>}
+        {online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={playAction(f)}/>)}</ul> : <div className="soft-note"><p>{accepted.length ? t('friendsNobodyOnline') : t('friendsEmptyCopy')}</p><button className="text-link" onClick={() => setModal('room')}>{t('createRoom')}<ArrowRight size={16} aria-hidden="true"/></button></div>}
       </section>
-      {(offline.length > 0 || sentRequests.length > 0) && <section className="page-section"><SectionHeader title={t('friendsAll')}/><ul className="friend-list-v2">{[...offline, ...sentRequests].map(f => <FriendRow key={f.id} friend={f} action={f.status === 'accepted' ? <span className="row-actions">{playAction(f)}<button className="text-link muted" onClick={() => act(f.id, 'blocked')}>{t('block')}</button></span> : undefined}/>)}</ul></section>}
+      {(offline.length > 0 || sentRequests.length > 0) && <section className="page-section"><SectionHeader title={t('friendsAll')}/><ul className="friend-list-v2">{[...offline, ...sentRequests].map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.status === 'accepted' ? <span className="row-actions">{playAction(f)}<button className="text-link muted" onClick={() => act(f.id, 'blocked')}>{t('block')}</button></span> : undefined}/>)}</ul></section>}
     </>}
   </div>;
 }

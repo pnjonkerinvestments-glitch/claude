@@ -40,3 +40,16 @@ export const roomInvites = sqliteTable('room_invites', {
   toId: text('to_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   roomCode: text('room_code').notNull(), status: text('status').notNull().default('pending'), createdAt: integer('created_at').notNull(),
 }, t => [index('room_invites_to').on(t.toId, t.status, t.createdAt), uniqueIndex('room_invite_pair').on(t.fromId, t.toId, t.roomCode)]);
+// 1.20: players can report and block each other (App Store guideline 1.2 for user-generated names).
+export const playerBlocks = sqliteTable('player_blocks', {
+  blockerId: text('blocker_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  blockedId: text('blocked_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  createdAt: integer('created_at').notNull(),
+}, t => [primaryKey({ columns: [t.blockerId, t.blockedId] }), index('player_blocks_blocked').on(t.blockedId)]);
+export const playerReports = sqliteTable('player_reports', {
+  id: text('id').primaryKey(),
+  reporterId: text('reporter_id').references(() => users.id, { onDelete: 'set null' }),
+  reportedId: text('reported_id').notNull(), reportedName: text('reported_name').notNull(),
+  reason: text('reason').notNull(), roomCode: text('room_code'),
+  status: text('status').notNull().default('open'), createdAt: integer('created_at').notNull(),
+}, t => [index('player_reports_status').on(t.status, t.createdAt)]);

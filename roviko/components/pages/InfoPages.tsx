@@ -41,7 +41,10 @@ const PRIVACY: Section[] = [
       'Los nombres y las puntuaciones aparecen en salas y clasificaciones. En tu pasaporte puedes ocultarte de las solicitudes de amistad; quien no es visible aparece como «Explorer» en la clasificación diaria.'),
     l('Friends you have accepted can see whether you have Roviko open right now (online in the last 90 seconds) and can invite you to their room. Guests never share an online status.',
       'Vrienden die je hebt geaccepteerd zien of je Roviko nu open hebt (online in de afgelopen 90 seconden) en kunnen je uitnodigen in hun kamer. Gasten delen nooit een online-status.',
-      'Los amigos que has aceptado ven si tienes Roviko abierto ahora (en línea en los últimos 90 segundos) y pueden invitarte a su sala. Los invitados nunca comparten su estado en línea.')] },
+      'Los amigos que has aceptado ven si tienes Roviko abierto ahora (en línea en los últimos 90 segundos) y pueden invitarte a su sala. Los invitados nunca comparten su estado en línea.'),
+    l('If you report a player, we store who reported whom, the reason, the room code and the time, to review it. If you block a player, we store that block so you are never matched again. The reported player never sees who reported them. Reports about you are deleted with your account.',
+      'Meld je een speler, dan bewaren we wie wie meldde, de reden, de kamercode en het tijdstip, om de melding te bekijken. Blokkeer je een speler, dan bewaren we die blokkade zodat jullie nooit meer aan elkaar gekoppeld worden. De gemelde speler ziet nooit wie de melding deed. Meldingen over jou worden verwijderd samen met je account.',
+      'Si denuncias a un jugador, guardamos quién denunció a quién, el motivo, el código de sala y la hora, para revisarlo. Si bloqueas a un jugador, guardamos ese bloqueo para que nunca más os emparejemos. El jugador denunciado nunca ve quién lo denunció. Las denuncias sobre ti se eliminan con tu cuenta.')] },
   { id: 'choices', title: l('Your choices', 'Jouw keuzes', 'Tus decisiones'), body: [
     l('In your passport you can download your data and delete your account. Guest progress is tied to the session cookie. Sessions expire after 30 days. Rooms expire after 30 minutes without active players.',
       'In je paspoort kun je je gegevens downloaden en je account verwijderen. Gastvoortgang is verbonden aan de sessiecookie. Sessies verlopen na 30 dagen. Rooms verlopen na 30 minuten zonder actieve spelers.',
@@ -62,9 +65,9 @@ const PRIVACY: Section[] = [
 
 const TERMS: Section[] = [
   { id: 'fair-play', title: l('Play fairly', 'Speel eerlijk', 'Juega limpio'), body: [
-    l('Choose a friendly display name. Do not manipulate scores, automate ranking entries or disrupt other players’ rooms. Serious abuse may result in an account being blocked.',
-      'Gebruik een vriendelijke spelersnaam. Manipuleer geen scores, automatiseer geen ranglijstinzendingen en verstoor geen rooms van anderen. Accounts bij ernstige overtredingen kunnen worden geblokkeerd.',
-      'Elige un nombre respetuoso. No manipules puntuaciones, automatices envíos a clasificaciones ni interrumpas salas ajenas. El abuso grave puede conllevar el bloqueo de la cuenta.')] },
+    l('Choose a friendly display name. Offensive names, cheating and disrupting other players’ rooms are not allowed. Names are filtered, every player can report or block another player, and we review reports within 24 hours. Offensive names are reset and serious abuse leads to a blocked account.',
+      'Gebruik een vriendelijke spelersnaam. Aanstootgevende namen, valsspelen en het verstoren van kamers van anderen zijn niet toegestaan. Namen worden gefilterd, elke speler kan een andere speler melden of blokkeren, en we bekijken meldingen binnen 24 uur. Aanstootgevende namen worden gereset en bij ernstig misbruik wordt een account geblokkeerd.',
+      'Elige un nombre respetuoso. No se permiten nombres ofensivos, trampas ni interrumpir salas ajenas. Los nombres se filtran, cualquier jugador puede denunciar o bloquear a otro y revisamos las denuncias en menos de 24 horas. Los nombres ofensivos se restablecen y el abuso grave conlleva el bloqueo de la cuenta.')] },
   { id: 'open-mind', title: l('Learn with an open mind', 'Leer met een open blik', 'Aprende con mente abierta'), body: [
     l('Geographic knowledge can change. Report a question if you spot an error. Maps are simplified and boundaries do not express a position on sovereignty.',
       'Geografische kennis kan veranderen. Meld een vraag als je een fout ziet. Kaarten zijn vereenvoudigd; landsgrenzen geven geen standpunt over soevereiniteit weer.',

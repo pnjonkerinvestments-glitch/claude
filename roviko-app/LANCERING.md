@@ -69,6 +69,12 @@ GitHub bouwt, ondertekent en uploadt de app voor je (workflow **Roviko app**, ta
 
 Met een Mac kan het ook: `cd roviko-app && npm ci && npx cap sync ios && npx cap open ios`, daarna in Xcode *Product → Archive → Distribute App*.
 
+### Voor het indienen (1.20)
+
+- **Notes for reviewer:** plak de tekst uit `roviko/docs/APP_REVIEW_NOTES.md`.
+- **Privacylabels en leeftijd:** volg `roviko/docs/STORE_PRIVACY.md`. Voorstel 9+, omdat spelers de namen van onbekende tegenstanders zien. Kies niet de categorie "Kinderen".
+- **Moderatie:** meldingen moet je binnen 24 uur bekijken; zie `roviko/docs/MODERATIE.md`. Zet `ADMIN_USER_IDS` in Cloudflare, dan kan het via roviko.app/admin.
+
 ### Aandachtspunten bij Apple
 
 - **Richtlijn 4.2 (minimale functionaliteit):** Apple wijst soms apps af die "alleen een website" zijn. Roviko heeft een eigen icoon en opstartscherm, een offline-scherm, dagelijkse herinneringen en opent externe links buiten de app. Dat helpt, maar goedkeuring is niet gegarandeerd. Wordt de app afgewezen, dan zijn de volgende stappen haptische feedback bij antwoorden en een widget met je reeks.

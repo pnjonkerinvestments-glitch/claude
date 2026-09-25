@@ -110,7 +110,7 @@ Mira qué amigos están en línea e invítalos a tu sala con un toque, o compart
 ## Categorie en leeftijd
 
 - **Categorie:** Onderwijs (hoofdcategorie), Spellen → Trivia (extra)
-- **Leeftijd:** Apple 4+; Google: vragenlijst invullen. Er is geen geweld, geen gebruikerschat, geen aankopen en geen advertenties.
+- **Leeftijd:** Apple 9+ (spelers zien namen van onbekende tegenstanders; namen worden gefilterd, melden en blokkeren kan). Google: vragenlijst invullen. Er is geen geweld, geen chat, geen aankopen en geen advertenties. Zie `roviko/docs/STORE_PRIVACY.md`.
 - **Privacybeleid-URL:** `https://roviko.app/privacy`
 - **Support-URL:** `https://roviko.app/` (of een e-mailadres voor support)
 

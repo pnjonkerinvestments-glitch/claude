@@ -1614,3 +1614,34 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
   .duel-game .duel-pick small{font-size:.625rem}
   .duel-game .duel-route{margin-bottom:10px}
 }
+
+/* ───────── 1.20: report and block ───────── */
+.player-actions-btn{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;border:0;border-radius:10px;background:transparent;color:var(--color-ink-soft);cursor:pointer}
+.player-actions-btn:hover{background:var(--color-surface-2);color:var(--color-ink)}
+.player-actions-btn:focus-visible{box-shadow:var(--focus-ring);outline:none}
+.player-actions .report-reasons{border:0;margin:0;padding:0;display:grid;gap:8px}
+.player-actions .report-reasons legend{display:flex;align-items:center;gap:6px;margin-bottom:6px}
+.report-reason{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border:2px solid var(--color-line);border-radius:12px;cursor:pointer;font-weight:600}
+.report-reason input{accent-color:var(--color-brand)}
+.report-reason.is-selected{border-color:var(--color-brand);background:var(--color-mint)}
+.player-actions .block-box{display:grid;gap:10px;padding-top:14px;border-top:1px solid var(--color-line)}
+.player-actions .block-box p{display:flex;gap:8px;margin:0;color:var(--color-ink-soft);font-size:.875rem;line-height:1.45}
+.player-actions .block-box p svg{flex-shrink:0;margin-top:2px}
+.blocked-list{list-style:none;margin:0;padding:6px;display:grid;gap:4px;border-radius:var(--radius-card);background:var(--color-surface);box-shadow:var(--shadow-card)}
+.blocked-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 10px}
+.section-title-small{font:600 1.25rem/1.2 var(--font-display);margin:0 0 12px}
+.live-rank-row .player-actions-btn{width:32px;height:32px;margin-left:2px}
+.friend-row .player-actions-btn{margin-left:4px}
+/* 1.20: the room lobby never grows wider than a phone (long buttons wrap instead). */
+.lobby-grid>*{min-width:0}
+@media (max-width:760px){
+  .lobby-grid{grid-template-columns:minmax(0,1fr)!important}
+  .lobby-players .btn,.lobby-computer .btn{white-space:normal;text-align:center}
+  .lobby-controls{flex-wrap:wrap}.lobby-controls .btn{flex:1 1 140px}
+}
+@media (max-width:760px){
+  .room-settings{min-width:0;padding:18px!important}
+  .room-settings .settings-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+  .room-settings .settings-grid>*{min-width:0}
+  .room-settings .mode-picker,.room-settings .enabled-modes{min-width:0;max-width:100%}
+}

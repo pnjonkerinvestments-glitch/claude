@@ -1,6 +1,7 @@
 'use client';
+import { BlockedPlayers } from '../multiplayer/PlayerActions';
 import React, { useState, useSyncExternalStore } from 'react';
-import { ArrowRight, Check, Copy, Download, LockKeyhole, LogOut, Settings2, Trash2, Users } from 'lucide-react';
+import { ArrowRight, Check, Copy, Download, LockKeyhole, LogOut, Mail, Settings2, ShieldCheck, Trash2, Users } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
 import { Switch } from '@/components/ui/switch';
@@ -108,9 +109,13 @@ export function PassportPage() {
         <div className="settings-card-row"><span className="row-icon" aria-hidden="true"/><label htmlFor="metrics-choice"><strong>{t('optionalMetrics')}</strong><small>{t('optionalMetricsCopy')}</small></label><Switch id="metrics-choice" checked={measurement} onCheckedChange={setMeasurement}/></div>
         <a href="/api/export" className="settings-card-row" download><Download size={19} aria-hidden="true"/><span><strong>{t('export')}</strong></span></a>
         {!u.guest && <button className="settings-card-row" onClick={async () => { try { await post('/auth/logout'); await refresh(); go('/'); } catch (e) { fail(e); } }}><LogOut size={19} aria-hidden="true"/><span><strong>{t('logout')}</strong></span></button>}
+        <a href="mailto:support@roviko.app" className="settings-card-row"><Mail size={19} aria-hidden="true"/><span><strong>{t('contact')}</strong><small>{t('contactCopy')} support@roviko.app</small></span></a>
+        <A href="/privacy" className="settings-card-row"><ShieldCheck size={19} aria-hidden="true"/><span><strong>{t('privacy')}</strong></span><ArrowRight size={17} aria-hidden="true"/></A>
         <button className="settings-card-row is-danger" onClick={() => setDeleting(true)}><Trash2 size={19} aria-hidden="true"/><span><strong>{t('deleteAccount')}</strong></span></button>
       </div>
     </section>
+
+    <BlockedPlayers t={t}/>
 
     <Dialog open={edit} onOpenChange={setEdit}><DialogContent className="app-modal"><DialogTitle className="modal-title">{t('editProfile')}</DialogTitle><DialogDescription>{t('nameHint')}</DialogDescription><form onSubmit={save} className="form-stack"><label className="field"><span>{t('displayName')}</span><input className="text-input" value={name} onChange={e => setName(e.target.value)} minLength={2} maxLength={24} required/></label><AvatarPicker value={avatar} onChange={setAvatar}/><div className="switch-field"><label htmlFor="discoverable">{t('discoverable')}</label><Switch id="discoverable" checked={discoverable} onCheckedChange={setDiscoverable}/></div><button className="btn primary" disabled={busy}>{t('save')}<Check size={17}/></button></form></DialogContent></Dialog>
     <AlertDialog open={deleting} onOpenChange={setDeleting}><AlertDialogContent className="app-modal"><AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle><AlertDialogDescription>{t('deleteCopy')}</AlertDialogDescription><AlertDialogFooter><AlertDialogCancel>{t('cancel')}</AlertDialogCancel><AlertDialogAction className="delete-button" onClick={async () => { try { await api('/profile', { method: 'DELETE' }); await refresh(); go('/'); } catch (e) { fail(e); } }}>{t('deleteConfirm')}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>

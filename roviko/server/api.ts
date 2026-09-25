@@ -2,6 +2,7 @@ import { competitionSummary } from './competition';
 import { startRank, rankAction } from './ranks';
 import { startDuel, duelAction } from './duel';
 import { pruneExpired } from './retention';
+import { blockPlayer, unblockPlayer, listBlocks, reportPlayer, blockedBetween } from './moderation';
 import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
 import { measure, measureStart } from './telemetry';
@@ -125,6 +126,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                     await run(env, 'UPDATE multiplayer_rooms SET state=?,version=version+1 WHERE code=? AND version=?', JSON.stringify(r), row.code, row.version);
                 }
                 await run(env, 'DELETE FROM question_reports WHERE user_id=?', user.id);
+                await run(env, 'DELETE FROM player_reports WHERE reported_id=?', user.id);
                 await run(env, 'DELETE FROM users WHERE id=?', user.id);
                 return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(req, '', 0) });
             }
@@ -244,6 +246,14 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await run(env, 'INSERT INTO question_reports(id,user_id,question_id,template,category,detail,app_version,created_at) VALUES (?,?,?,?,?,?,?,?)', crypto.randomUUID(), user.id, b.questionId, b.template, b.category, b.detail ?? '', BRAND.version, Date.now());
             return json({ ok: true });
         }
+        if (path[0] === 'blocks' && method === 'GET')
+            return json(await listBlocks(env, user));
+        if (path[0] === 'players' && path[1] && path[2] === 'block' && method === 'POST')
+            return json(await blockPlayer(env, user, path[1]));
+        if (path[0] === 'players' && path[1] && path[2] === 'block' && method === 'DELETE')
+            return json(await unblockPlayer(env, user, path[1]));
+        if (path[0] === 'players' && path[1] && path[2] === 'report' && method === 'POST')
+            return json(await reportPlayer(env, user, path[1], await body(req)));
         if (path[0] === 'friends') {
             if (user.guest)
                 throw new AppError('ACCOUNT_REQUIRED', 403);
@@ -265,7 +275,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await limit(env, 'friend:' + user.id, 20, 3600000);
             const code = z.string().regex(/^[A-Fa-f0-9]{8}$/).parse(b.code);
             const matches = await rows(env, 'SELECT * FROM users WHERE lower(substr(id,1,8))=? AND guest=0 AND discoverable=1 AND blocked=0', code.toLowerCase());
-            if (matches.length !== 1 || matches[0].id === user.id)
+            if (matches.length !== 1 || matches[0].id === user.id || await blockedBetween(env, user.id, matches[0].id))
                 throw new AppError('FRIEND_NOT_FOUND', 404);
             const target = matches[0];
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
@@ -279,12 +289,16 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'admin') {
             admin(env, user);
             if (method === 'GET')
-                return json({ dailyContent: (await rows(env, 'SELECT * FROM daily_content ORDER BY date DESC LIMIT 6')).map((row:any) => ({...row, content:JSON.parse(row.content)})), funnel: await rows(env, 'SELECT event,COUNT(*) count FROM analytics_events WHERE created_at>=? GROUP BY event', Date.now()-30*86400000), reports: await rows(env, 'SELECT * FROM question_reports ORDER BY created_at DESC LIMIT 100'), disabled: await rows(env, 'SELECT * FROM disabled_questions'), suspicious: await rows(env, 'SELECT r.id,u.id user_id,u.name,r.score,r.risk FROM game_results r JOIN users u ON u.id=r.user_id WHERE r.risk>=3 ORDER BY r.created_at DESC LIMIT 100'), countryCount: COUNTRIES.length, dailySeed: 'daily:' + new Date().toISOString().slice(0, 10) });
+                return json({ dailyContent: (await rows(env, 'SELECT * FROM daily_content ORDER BY date DESC LIMIT 6')).map((row:any) => ({...row, content:JSON.parse(row.content)})), funnel: await rows(env, 'SELECT event,COUNT(*) count FROM analytics_events WHERE created_at>=? GROUP BY event', Date.now()-30*86400000), reports: await rows(env, 'SELECT * FROM question_reports ORDER BY created_at DESC LIMIT 100'), playerReports: await rows(env, "SELECT r.id,r.reported_id,r.reported_name,u.name current_name,u.blocked,r.reason,r.room_code,r.created_at,(SELECT COUNT(*) FROM player_reports x WHERE x.reported_id=r.reported_id AND x.status='open') open_count FROM player_reports r LEFT JOIN users u ON u.id=r.reported_id WHERE r.status='open' ORDER BY r.created_at DESC LIMIT 100"), disabled: await rows(env, 'SELECT * FROM disabled_questions'), suspicious: await rows(env, 'SELECT r.id,u.id user_id,u.name,r.score,r.risk FROM game_results r JOIN users u ON u.id=r.user_id WHERE r.risk>=3 ORDER BY r.created_at DESC LIMIT 100'), countryCount: COUNTRIES.length, dailySeed: 'daily:' + new Date().toISOString().slice(0, 10) });
             const b = await body(req);
             if (b.action === 'resolve')
                 await run(env, "UPDATE question_reports SET status='resolved' WHERE id=?", z.string().parse(b.id));
             else if (b.action === 'disable')
                 await run(env, 'INSERT OR REPLACE INTO disabled_questions(question_id,reason,created_at) VALUES (?,?,?)', z.string().max(100).parse(b.id), z.string().max(300).parse(b.reason ?? 'Under review'), Date.now());
+            else if (b.action === 'resolvePlayer')
+                await run(env, "UPDATE player_reports SET status='resolved' WHERE id=?", z.string().parse(b.id));
+            else if (b.action === 'resetName')
+                await run(env, 'UPDATE users SET name=? WHERE id=?', 'Explorer ' + Math.floor(1000 + Math.random() * 9000), z.string().parse(b.id));
             else if (b.action === 'block')
                 await run(env, 'UPDATE users SET blocked=1 WHERE id=?', z.string().parse(b.id));
             else
@@ -294,6 +308,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         throw new AppError('NOT_FOUND', 404);
     }
     catch (e: any) {
+        if (e instanceof z.ZodError && e.errors.some(x => x.message === 'NAME_INVALID'))
+            return json({ error: 'NAME_INVALID' }, 400);
         if (e instanceof z.ZodError)
             return json({ error: 'INVALID_INPUT', details: e.errors.map(x => ({ path: x.path.join('.'), message: x.message })) }, 400);
         if (e instanceof AppError)
