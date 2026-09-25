@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.19.0",
-  "exported_at": "2026-09-25T06:41:08.811Z",
-  "source_commit": "c37d51bed12bda2a5c14d6e9d317b7e62162e98e",
+  "website_version": "1.19.1",
+  "exported_at": "2026-09-25T09:31:21.830Z",
+  "source_commit": "b5c9508504184876e99888f40c93525b5695c9d1",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -25,7 +25,7 @@
   "validation": {
     "typecheck": "passed",
     "production_build": "passed",
-    "tests_passed": 135,
+    "tests_passed": 136,
     "tests_failed": 0,
     "eslint_source": "225 errors (was 228 in 1.14)",
     "browser_visual_qa": "local headless Chromium only (desktop and 390 px, light/dark, EN/NL); two-browser friends invite flow; no physical devices",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 11762,
-      "sha256": "6d0090e4740ec300e97c9d675c8371de1ccd39e0f26bc68bbabdf93a8b2aca51"
+      "bytes": 12178,
+      "sha256": "30a75a484efc92db377003d4463e463fe4ef7dfdd2e694b2fef5da17c047cf31"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -333,8 +333,8 @@
     },
     {
       "path": "components/pages/InfoPages.tsx",
-      "bytes": 18672,
-      "sha256": "4bad18d37ace3a393548499268b0d9122235a7bf65fd6065da64dc5e9c2995b4"
+      "bytes": 22940,
+      "sha256": "b2fe0a10813ed16fc8ec233b37dd3e087f7fbfec84f30d0030f949ac36aeca71"
     },
     {
       "path": "components/pages/MultiplayerPage.tsx",
@@ -733,8 +733,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 26322,
-      "sha256": "d57d1c8d91a7a56f1755eac30ef55117fb1c2b66e4767ee0512d2e740d331805"
+      "bytes": 27282,
+      "sha256": "0e2d7274ae0d2ce4e74cebd53608173d33fa432cd464d0a96775d80f38daa736"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -1098,8 +1098,8 @@
     },
     {
       "path": "i18n/v119.ts",
-      "bytes": 6641,
-      "sha256": "fa5eab34950b97f184afc0a60b8113fda61efcbca9e9763b17bec190b437ae1d"
+      "bytes": 6782,
+      "sha256": "706721a214558b8b45335dc5ee592c63a781a363ce65aa53a660c62493838170"
     },
     {
       "path": "lib/achievements.ts",
@@ -1114,7 +1114,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "dad73b793f24a79d6d8ae3946643b7d8507136227921d35f1c63965155a1bfc3"
+      "sha256": "db0855fecf61e36abf33f00fbe5b991bdad76de417aeb3f2da2750eebe906832"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -4659,7 +4659,7 @@
     {
       "path": "public/sw.js",
       "bytes": 906,
-      "sha256": "c4b1ebbacb64ef90aa7c7c2a36597d33a3f796aa1f6d5d799deb74875d4fbe62"
+      "sha256": "9f1984a18062f4e515b6fd558eecaec9226553b261425632d4a4f9fef9b6c068"
     },
     {
       "path": "scripts/build-verified.sh",
@@ -4738,8 +4738,8 @@
     },
     {
       "path": "server/api.ts",
-      "bytes": 26323,
-      "sha256": "115967a1cc80b0ce1599951d55d958510bdd68d029dc912abc6df33d673847d9"
+      "bytes": 26536,
+      "sha256": "4bb3889712bf600ee279c7d1a1c2193ab83a72cb23f1a3127792f99646c8a7c3"
     },
     {
       "path": "server/auth.ts",
@@ -4805,6 +4805,11 @@
       "path": "server/ranks.ts",
       "bytes": 5579,
       "sha256": "df1a0f60989a3aafe57a9d459f4177979fb578b99729d665014565b3ac0368c8"
+    },
+    {
+      "path": "server/retention.ts",
+      "bytes": 1581,
+      "sha256": "9ded6ca1a90e363c4c357946ae46f3b0fc8eaf19908d157dee853e73de5dc9d6"
     },
     {
       "path": "server/reviews.ts",
@@ -4878,8 +4883,8 @@
     },
     {
       "path": "tests/integration.test.mjs",
-      "bytes": 73745,
-      "sha256": "b64eb591f517f37eecfda93f18578fc1fb830a667ccd0c5536c747a73300aa02"
+      "bytes": 75279,
+      "sha256": "f6a3d1807ec870cc6a8e36203f0577ce064a23980a1ab497326903ac121987bd"
     },
     {
       "path": "tests/learning-ui.test.mjs",
