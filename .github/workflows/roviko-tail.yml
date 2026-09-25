@@ -1,0 +1,28 @@
+# Read-only diagnosis: follows the live roviko worker for a few minutes and prints
+# every request that did not end "ok" (for example exceededCpu or exceededMemory).
+# It deploys nothing. Only the outcome, method, path and error text are printed.
+name: Roviko logs
+
+on:
+  workflow_dispatch:
+  # A new workflow can only be started by hand once it is on the default branch; until then a push starts it.
+  push:
+    branches: [claude/upbeat-sagan-8igsaj]
+    paths: [.github/workflows/roviko-tail.yml]
+
+jobs:
+  tail:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Listen to the live worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          timeout 240 npx --yes wrangler@4 tail roviko --format json > tail.jsonl 2> tail.err || true
+          echo "Requests seen: $(grep -c '"outcome"' tail.jsonl || true)"
+          echo "Outcomes:"; jq -r '.outcome' tail.jsonl 2>/dev/null | sort | uniq -c || true
+          echo "Not ok:"
+          jq -c 'select(.outcome != "ok") | {outcome, method: .event.request.method, path: (.event.request.url | sub("^https?://[^/]+"; "") | sub("\\?.*$"; "")), colo: .event.request.cf.colo, exceptions: [.exceptions[]? | .message], logs: [.logs[]? | .message | tostring | .[0:300]]}' tail.jsonl 2>/dev/null | head -40 || true
+          grep -i -m5 "error" tail.err || true
