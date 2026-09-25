@@ -36,6 +36,10 @@
     }
   ],
 
+  // Roviko heeft geen cron-triggers. Een lege lijst wist expliciet eventuele oude triggers;
+  // zonder deze regel laat wrangler ze staan.
+  "triggers": { "crons": [] },
+
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true }

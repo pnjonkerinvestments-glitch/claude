@@ -4,7 +4,7 @@ Bij elke nieuwe versie kies je zelf hoe Roviko live gaat:
 
 | | **Optie A — ChatGPT** | **Optie B — eigen Cloudflare** |
 |---|---|---|
-| Wie publiceert | Jij, door een zip bij ChatGPT te uploaden | Claude (of jij) met één commando |
+| Wie publiceert | Jij, door een zip bij ChatGPT te uploaden | GitHub Actions, na een merge door Claude |
 | Adres | https://roviko.app (de live site) | https://roviko.pnjonkerinvestments.workers.dev (testadres) |
 | Spelersdata | De echte, bestaande spelers | Eigen, aparte database `roviko-db` (begon leeg) |
 | Commando | `npm run export:chatgpt` | `npm run deploy:cloudflare` |
@@ -42,7 +42,23 @@ Belangrijk: `.openai/hosting.json` hoort bij de ChatGPT-hosting en moet blijven 
 - Worker `roviko` gedeployed naar https://roviko.pnjonkerinvestments.workers.dev.
 - Configuratie: `wrangler.cloudflare.jsonc`. Die heet bewust **niet** `wrangler.jsonc`, omdat de bouwstap dat bestand anders automatisch oppakt en daarmee de ChatGPT-build zou veranderen.
 
-### Nodig
+### Normale route: via GitHub (geen token in de Claude-sessie nodig)
+
+Sinds 25 september 2026 publiceert GitHub Actions automatisch
+(`.github/workflows/roviko-deploy.yml`):
+
+1. Claude werkt op een eigen branch en opent een pull request naar de standaardbranch.
+2. Na akkoord van de eigenaar mergt Claude de PR.
+3. De workflow **Roviko naar Cloudflare** draait dan vanzelf: `npm ci`, typecheck en
+   `npm run deploy:cloudflare` (bouwen, testen, migraties, deploy). Faalt een test,
+   dan wordt er niets gepubliceerd.
+4. Met de hand opnieuw deployen: *Actions → Roviko naar Cloudflare → Run workflow*.
+
+De workflow gebruikt de repository secrets `CLOUDFLARE_API_TOKEN` en
+`CLOUDFLARE_ACCOUNT_ID`. Het token moet *Workers Scripts: Edit*, *D1: Edit* en
+*Account Settings: Read* hebben.
+
+### Nodig (alleen voor publiceren vanaf je eigen computer)
 
 - Een Cloudflare API-token als omgevingsvariabele `CLOUDFLARE_API_TOKEN` (nooit in een bestand of in git), met: *Workers Scripts: Edit*, *D1: Edit*, *Account Settings: Read*.
 - `CLOUDFLARE_ACCOUNT_ID=d3e59f712dc36fea587bc5be0ebf58ec` (staat ook in de config).

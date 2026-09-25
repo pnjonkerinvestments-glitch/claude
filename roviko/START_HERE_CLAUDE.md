@@ -77,7 +77,7 @@ De volledige testsuite gebruikt de buildoutput: daarom eerst bouwen. `npm run de
 
 ## Publiceren: ChatGPT of eigen Cloudflare
 
-De eigenaar kiest per release. **Optie A** (`npm run export:chatgpt`): exportzip voor de ChatGPT-hosting, die roviko.app bedient. **Optie B** (`npm run deploy:cloudflare`): bouwen, testen, nieuwe migraties en deploy naar het eigen Cloudflare-account op https://roviko.pnjonkerinvestments.workers.dev (eigen database `roviko-db`, zonder de live spelersdata). Config: `wrangler.cloudflare.jsonc` — bewust niet `wrangler.jsonc`, anders pakt de Vite-plugin hem op en verandert de ChatGPT-build. Zonder uitdrukkelijke toestemming geen DNS, routes of custom domains voor roviko.app. Alles stap voor stap in `docs/PUBLICEREN.md`.
+De eigenaar kiest per release. **Optie A** (`npm run export:chatgpt`): exportzip voor de ChatGPT-hosting, die roviko.app bedient. **Optie B** (`npm run deploy:cloudflare`): bouwen, testen, nieuwe migraties en deploy naar het eigen Cloudflare-account op https://roviko.pnjonkerinvestments.workers.dev (eigen database `roviko-db`, zonder de live spelersdata). Config: `wrangler.cloudflare.jsonc` — bewust niet `wrangler.jsonc`, anders pakt de Vite-plugin hem op en verandert de ChatGPT-build. Zonder uitdrukkelijke toestemming geen DNS, routes of custom domains voor roviko.app. Alles stap voor stap in `docs/PUBLICEREN.md`. Optie B loopt sinds 25 september 2026 via GitHub Actions (`.github/workflows/roviko-deploy.yml`): na een merge naar de standaardbranch met wijzigingen in `roviko/` deployt de workflow vanzelf. Een Cloudflare-token in de sessie is daarvoor niet nodig.
 
 ## Native compatibiliteit
 

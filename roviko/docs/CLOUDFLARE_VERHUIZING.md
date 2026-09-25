@@ -13,6 +13,17 @@ Besluit van de eigenaar (P. Jonker), 25 september 2026: Roviko verhuist van de C
   - Controleer eerst met `curl https://api.cloudflare.com/client/v4/user/tokens/verify` of het token wordt meegestuurd. Verwacht: `"status":"active"`.
   - Test daarna of wrangler zijn eigen `Authorization`-header laat vervangen.
 
+## Stand van zaken (25 september 2026)
+
+- Het API-token in de omgeving werkte niet ("Invalid API Token"). Deployen gaat daarom via
+  GitHub Actions (`.github/workflows/roviko-deploy.yml`) met de repository secrets
+  `CLOUDFLARE_API_TOKEN` en `CLOUDFLARE_ACCOUNT_ID`. Dat token is gemaakt met de template
+  "Edit Cloudflare Workers"; *D1: Edit* moet er apart bij.
+- Op 25 september stond per ongeluk een premarket-alert onder de workernaam `roviko`
+  (met cron-trigger, KV-namespace `roviko-state` en SMTP-/RUN_TOKEN-secrets). De volgende
+  Roviko-deploy vervangt de code en wist de cron (`"triggers": {"crons": []}`). De
+  secrets en de KV-namespace moet de eigenaar in het dashboard verwijderen.
+
 ## Stappen (in deze volgorde)
 
 1. **Deploy naar workers.dev.** Gebruik de huidige versie (1.19.3 of nieuwer): `npm run deploy:cloudflare`. Dit raakt roviko.app niet. Controleer met `npm run smoke -- https://roviko.pnjonkerinvestments.workers.dev`. Laat de eigenaar het tijdelijke adres testen.
