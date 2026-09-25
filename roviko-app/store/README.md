@@ -8,7 +8,9 @@ Deze screenshots zijn gemaakt van de website 1.18 (app-modus), met een lokale on
 | Map | Formaat | Voor |
 | --- | --- | --- |
 | `ios-iphone-6.9/` | 1320×2868 | App Store, 6,9" iPhone |
+| `ios-iphone-6.5/` | 1284×2778 | App Store, 6,5" iPhone (from the 6,9" set) |
 | `ios-ipad-13/` | 2064×2752 | App Store, 13" iPad |
+| `ios-screenshots-en.zip` | | English iPhone 6,9", 6,5" and iPad sets in one download |
 | `google-play-phone/` | 1080×1920 | Google Play, telefoon |
 | `google-play-feature-graphic-*.png` | 1024×500 | Google Play-banner |
 | `app-store-icon-1024.png`, `google-play-icon-512.png` | 1024 / 512 | Winkeliconen (ondoorzichtig) |
