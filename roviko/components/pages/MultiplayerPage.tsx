@@ -52,7 +52,7 @@ export function RoomProblem({ code, onRetry }: { code: string; onRetry: () => vo
 export function MultiplayerPage() {
   const { t, setModal, go, fail } = useApp();
   return <div className="page friends-lobby mp-page">
-    <PageHeader kicker={t('mpKicker')} title={t('navMultiplayer')} lead={t('mpLead')}/>
+    <PageHeader art="friends-hero" kicker={t('mpKicker')} title={t('navMultiplayer')} lead={t('mpLead')}/>
     <FriendsOnlinePanel/>
     <PlayNow t={t} go={go} fail={fail}/>
     <section className="mp-private" aria-labelledby="mp-private-title">
@@ -62,6 +62,7 @@ export function MultiplayerPage() {
       </div>
       <div className="mp-private-join"><JoinForm compact/></div>
     </section>
+    <A href="/how-to-play" className="soft-link soft-link-help"><img className="soft-link-mascot" src="/art/howto-mascot.webp" alt="" aria-hidden="true" width={185} height={191} decoding="async"/><span><strong>{t('howToLink')}</strong><small>{t('scoringFriendsCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
     <p className="center-note"><ShieldCheck size={16} aria-hidden="true"/>{t('guestNote')}</p>
   </div>;
 }

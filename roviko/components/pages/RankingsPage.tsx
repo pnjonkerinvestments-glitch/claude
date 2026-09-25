@@ -18,15 +18,17 @@ function Place({ place }: { place: number }) {
 
 function DailyRankings() {
   const { t, locale, boot } = useApp();
-  const [tab, setTab] = useState<'today' | 'total'>('today');
+  const [tab, setTab] = useState<'today' | 'week' | 'friends' | 'total'>('today');
   const { data, error, retry } = useCompetition(boot);
+  const tabs = (['today', 'week', 'friends', 'total'] as const).filter(k => k !== 'friends' || !!data?.friends);
+  const tabLabel: Record<string, string> = { today: 'rankingsToday', week: 'rankingsWeek', friends: 'rankingsFriends', total: 'rankingsAllTime' };
   const n = (v: number) => v.toLocaleString(locale);
   const standing = data?.[tab];
   return <section className="page-section" aria-labelledby="daily-rankings">
     <div className="rank-head">
       <h2 id="daily-rankings" className="sr-only">{t('rankingsKicker')}</h2>
       <div className="segmented rank-tabs" role="tablist" aria-label={t('rankingsKicker')}>
-        {(['today', 'total'] as const).map(k => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(k === 'today' ? 'rankingsToday' : 'rankingsAllTime')}</button>)}
+        {tabs.map(k => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(tabLabel[k])}</button>)}
       </div>
       {standing && <span className="muted">{t('rankingsPlayers').replace('{n}', n(standing.participants))}</span>}
     </div>
@@ -36,9 +38,10 @@ function DailyRankings() {
         <div className={'you-card' + (standing.place ? '' : ' is-unranked')}>
           <Avatar id={boot.user.avatar}/>
           <div><small>{t('rankingsYou')}</small><strong>{standing.place ? '#' + n(standing.place) : '—'}</strong>{!standing.place && <p>{t('rankingsNotRanked')}</p>}</div>
-          <div className="you-score"><strong>{n(standing.score)}</strong><small>{t('points')}{tab === 'today' ? ' / ' + n(DAILY_TOTAL_MAX) : ''}</small></div>
+          <div className="you-score"><strong>{n(standing.score)}</strong><small>{t('points')}{tab === 'today' || tab === 'friends' ? ' / ' + n(DAILY_TOTAL_MAX) : ''}</small></div>
           {!standing.place && <A href="/" className="btn primary">{t('tripStart')}<ArrowRight size={18} aria-hidden="true"/></A>}
         </div>
+        {standing.place ? <p className="rank-target">{standing.next ? t('rankTarget').replace('{n}', n(standing.next.gap + 1)).replace('{name}', standing.next.name).replace('{place}', n(standing.next.place)) : t('rankLeading')}</p> : null}
         {standing.leaders.length ? <ol className="leader-list" aria-label={t('rankingsTop')}>
           {standing.leaders.map((p: Leader, i: number) => <li key={i} className={p.me ? 'is-you' : ''}>
             <Place place={p.place}/><Avatar id={p.avatar}/><span className="leader-name">{p.me ? t('competitionYou') : p.name}</span><strong>{n(p.score)}</strong>

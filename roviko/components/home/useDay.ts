@@ -4,8 +4,8 @@ import { api } from '@/lib/client';
 
 export type DaySession = { id?: string; mode: string; completed?: boolean; round?: number; total?: number };
 export type TodayState = { date: string; sessions: DaySession[]; week?: { date: string; completed: boolean }[]; tomorrowTopic?: { emoji: string; label: Record<'en' | 'nl' | 'es', string> } };
-type Standing = { participants: number; score: number; place: number | null; games: number; leaders: { name: string; avatar: number; score: number; place: number; me: number | boolean }[] };
-export type CompetitionState = { date: string; today: Standing; total: Standing; scores: { mode: string; score: number }[]; personalBest?: Record<string, { best: number; plays: number }>; bestDay?: number | null; yesterday?: { score: number; games: number }; maxPerGame: number; maxPerDay: number };
+type Standing = { participants: number; score: number; place: number | null; games: number; next?: { name: string; score: number; place: number; gap: number } | null; leaders: { name: string; avatar: number; score: number; place: number; me: number | boolean }[] };
+export type CompetitionState = { date: string; today: Standing; total: Standing; week?: Standing; weekStart?: string; friends?: Standing | null; scores: { mode: string; score: number }[]; personalBest?: Record<string, { best: number; plays: number }>; bestDay?: number | null; yesterday?: { score: number; games: number }; maxPerGame: number; maxPerDay: number };
 type Player = { user: { id: string } };
 
 const untilReset = () => 86400000 - Date.now() % 86400000 + 600;

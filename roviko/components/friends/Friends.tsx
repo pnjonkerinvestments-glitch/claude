@@ -153,6 +153,7 @@ export function FriendsOnlinePanel() {
   const [code, setCode] = useState(''), [busy, setBusy] = useState(false), [inviting, setInviting] = useState('');
   if (boot.user.guest) return <section className="mp-friends is-guest" aria-labelledby="mp-friends-title">
     <div className="mp-friends-head"><Users size={22} aria-hidden="true"/><div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{t('mpFriendsGuest')}</p></div></div>
+    <img className="mp-friends-art" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/>
     <div className="mp-friends-actions"><button className="btn primary" onClick={() => setModal('signup')}>{t('passportSave')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></div>
   </section>;
   const accepted = (friends ?? []).filter(f => f.status === 'accepted');

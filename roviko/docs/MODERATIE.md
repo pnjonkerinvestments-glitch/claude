@@ -24,7 +24,7 @@ Spelers vinden **Melden / Blokkeren** via de knop **⋯** bij een speler:
 - in de eindstand van een potje;
 - in de vriendenlijst.
 
-Hun blokkades beheren ze in het Paspoort, onder "Geblokkeerde spelers".
+Hun blokkades beheren ze in het Paspoort (vanaf 1.21: menu ☰ → Mijn account), onder "Geblokkeerde spelers".
 
 ## Wat jij doet: binnen 24 uur reageren
 

@@ -1,6 +1,9 @@
 // Copy for 1.21: navigation (Multiplayer tab, menu), account and settings pages, game fixes. Spread last in messages.ts.
 export const v121Messages = {
   en: {
+    savePromptTitle: 'Keep your streak', savePromptCopy: 'Play as a guest anytime. Save a free account if you want this streak on your other devices.', savePromptCta: 'Save my progress', savePromptLater: 'Not now',
+    homeTitle: 'A small geography trip. Every day.', homeLead: 'Five quiet minutes. Flags, capitals, the map. No account needed.', heroFirstTrip: 'Your first trip is waiting.',
+    rankingsWeek: 'This week', rankingsFriends: 'Friends', rankTarget: '{n} points to pass {name} (#{place})', rankLeading: 'You lead. Keep it that way!', resultDayRank: 'Today #{rank} of {count}',
     howToDailyNote: 'The same games for everyone, new every day: the Daily Detour plus five daily games. Each one is worth up to 1,000 points.', mapTapHint: 'Tap the country. Pinch to zoom first if you need to.', mapZoomedNote: 'Zoomed in to help you find it.',
     mpKicker: 'Play together', mpLead: 'Friends, a random player or the computer. Every match is ten quick questions.', mpFriendsTitle: 'Friends online', mpFriendsGuest: 'Create a free account to add friends, see who is online and invite them with one tap.', mpFriendRequests: '{n} friend request(s) waiting', mpFriendsNone: 'No friends yet. Share your code or add a friend below.', mpYourCode: 'Your code', mpAddFriend: 'Add', mpPrivateTitle: 'Private room',
     backHome: 'Back to home',
@@ -22,6 +25,9 @@ export const v121Messages = {
     mailUnavailable: 'Email is not available yet. Contact support@roviko.app.', mailFailed: 'The email could not be sent. Try again in a minute.',
   },
   nl: {
+    savePromptTitle: 'Bewaar je reeks', savePromptCopy: 'Je kunt altijd als gast spelen. Maak een gratis account als je deze reeks ook op je andere apparaten wilt hebben.', savePromptCta: 'Bewaar mijn voortgang', savePromptLater: 'Niet nu',
+    homeTitle: 'Elke dag een kleine aardrijkskundereis.', homeLead: 'Vijf rustige minuten. Vlaggen, hoofdsteden, de kaart. Geen account nodig.', heroFirstTrip: 'Je eerste reis staat klaar.',
+    rankingsWeek: 'Deze week', rankingsFriends: 'Vrienden', rankTarget: 'Nog {n} punten om {name} in te halen (#{place})', rankLeading: 'Jij staat bovenaan. Houd het zo!', resultDayRank: 'Vandaag #{rank} van {count}',
     howToDailyNote: 'Voor iedereen dezelfde spellen, elke dag nieuw: de Dagelijkse Omweg plus vijf dagspellen. Elk spel is tot 1.000 punten waard.', mapTapHint: 'Tik op het land. Zoom eerst in als dat nodig is.', mapZoomedNote: 'Ingezoomd om je te helpen het te vinden.',
     mpKicker: 'Samen spelen', mpLead: 'Vrienden, een willekeurige speler of de computer. Elk potje is tien snelle vragen.', mpFriendsTitle: 'Vrienden online', mpFriendsGuest: 'Maak een gratis account om vrienden toe te voegen, te zien wie er online is en ze met één tik uit te nodigen.', mpFriendRequests: '{n} vriendschapsverzoek(en) wachten', mpFriendsNone: 'Nog geen vrienden. Deel je code of voeg hieronder een vriend toe.', mpYourCode: 'Jouw code', mpAddFriend: 'Toevoegen', mpPrivateTitle: 'Eigen kamer',
     backHome: 'Terug naar home',
@@ -43,6 +49,9 @@ export const v121Messages = {
     mailUnavailable: 'E-mail is nog niet beschikbaar. Mail support@roviko.app.', mailFailed: 'De mail kon niet worden verstuurd. Probeer het over een minuut opnieuw.',
   },
   es: {
+    savePromptTitle: 'Guarda tu racha', savePromptCopy: 'Puedes jugar como invitado siempre. Crea una cuenta gratis si quieres esta racha en tus otros dispositivos.', savePromptCta: 'Guardar mi progreso', savePromptLater: 'Ahora no',
+    homeTitle: 'Un pequeño viaje de geografía. Cada día.', homeLead: 'Cinco minutos tranquilos. Banderas, capitales, el mapa. Sin cuenta.', heroFirstTrip: 'Tu primer viaje te espera.',
+    rankingsWeek: 'Esta semana', rankingsFriends: 'Amigos', rankTarget: '{n} puntos para superar a {name} (#{place})', rankLeading: 'Vas en cabeza. ¡Sigue así!', resultDayRank: 'Hoy #{rank} de {count}',
     howToDailyNote: 'Los mismos juegos para todos, nuevos cada día: el Desvío diario y cinco juegos diarios. Cada uno vale hasta 1.000 puntos.', mapTapHint: 'Toca el país. Si lo necesitas, acerca primero el mapa.', mapZoomedNote: 'Hemos acercado el mapa para ayudarte.',
     mpKicker: 'Jugar juntos', mpLead: 'Amigos, un jugador al azar o el ordenador. Cada partida son diez preguntas rápidas.', mpFriendsTitle: 'Amigos conectados', mpFriendsGuest: 'Crea una cuenta gratis para añadir amigos, ver quién está conectado e invitarlos con un toque.', mpFriendRequests: '{n} solicitud(es) de amistad pendientes', mpFriendsNone: 'Aún no tienes amigos. Comparte tu código o añade uno abajo.', mpYourCode: 'Tu código', mpAddFriend: 'Añadir', mpPrivateTitle: 'Sala privada',
     backHome: 'Volver al inicio',

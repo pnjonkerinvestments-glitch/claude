@@ -16,7 +16,7 @@ import { checkMosaic, selectMosaicTile, mosaicHint, reviewMosaic, type PuzzleVie
 import { formatMetric } from '@/lib/puzzles/topics';
 
 export function PuzzleGame({ id, app }: { id: string; app: any }) {
-  const { t, locale, go, refresh, muted, copy, report, fail, backToStart } = app;
+  const { t, locale, go, refresh, muted, copy, share: shareOut, report, fail, backToStart } = app;
   const [game, setGame] = useState<PuzzleView | null>(null), [selected, setSelected] = useState<string[]>([]);
   const [saving, setSaving] = useState(false), [moving, setMoving] = useState(false), [error, setError] = useState('');
   const [notice, setNotice] = useState<{ key: string; value?: string; good?: boolean } | null>(null);
@@ -87,7 +87,7 @@ export function PuzzleGame({ id, app }: { id: string; app: any }) {
   const displayTiles = board ? [...board.tiles].sort((a, b) => order.length ? order.indexOf(a.id) - order.indexOf(b.id) : 0) : [];
   const saveState = <span className="puzzle-save" role="status">{saving ? t('saving') : error ? '' : '✓ ' + t('saved')}</span>;
   function share() {
-    copy(shareResult({ mode: game!.mode, label: t(game!.mode), date: game!.daily, correct: game!.mode === 'mosaic' ? game!.solved.length : correct, total: game!.mode === 'mosaic' ? 4 : game!.total, answers: game!.answers.map(a => a.correct), origin: window.location.origin, detail: game!.competition ? (game!.score??0).toLocaleString(locale)+' '+t('points') : game!.mode === 'mosaic' ? game!.answers.length + ' ' + t('puzzleAttempts') : undefined }));
+    (shareOut ?? copy)(shareResult({ mode: game!.mode, label: t(game!.mode), date: game!.daily, correct: game!.mode === 'mosaic' ? game!.solved.length : correct, total: game!.mode === 'mosaic' ? 4 : game!.total, answers: game!.answers.map(a => a.correct), origin: window.location.origin, detail: game!.competition ? (game!.score??0).toLocaleString(locale)+' '+t('points') : game!.mode === 'mosaic' ? game!.answers.length + ' ' + t('puzzleAttempts') : undefined }));
   }
   async function again() { if(nextLock.current)return;nextLock.current=true;setMoving(true); try { const g = await post('/puzzles', { mode: game!.mode, daily: false, ...game!.settings }); go('/puzzle/' + g.id); } catch { setError('puzzleLoadError'); } finally { nextLock.current=false;setMoving(false); } }
   return <div className={'puzzle-game puzzle-' + game.mode}>

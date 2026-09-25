@@ -15,7 +15,7 @@ Roviko is a daily geography game: every day there is a 20-question "Daily Detour
 - Every other player has a "⋯" button (in the room lobby, the end-of-match ranking and the friends list) to **report** the player (four fixed reasons) or **block** them. Blocked players are never matched or put in the same room again.
 - Reports are reviewed within 24 hours. The terms (roviko.app/terms) forbid offensive names and cheating.
 
-**Privacy, contact and account deletion:** Passport tab (bottom right) → "Account and privacy":
+**Privacy, contact and account deletion:** Passport tab (bottom right) → "Account and privacy" (from version 1.21 also via the menu ☰ → "My account"):
 - Contact (support@roviko.app)
 - Privacy policy
 - Download my data

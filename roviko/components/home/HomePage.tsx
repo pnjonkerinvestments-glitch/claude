@@ -84,6 +84,9 @@ export function HomePage() {
   const busy = !ready || !!launching || app.busy;
   const pickQuest = (q: Quest) => { if (busy) return; if (q.kind === 'mode' && q.mode) open(q.mode as DayMode); else if (q.kind === 'mystery') setMysteryOpen(true); else if (q.kind === 'detour') open('daily'); else if (next) open(next); };
   const cta = allDone ? t('tripDoneCta') : detour === 'new' ? t('tripStart') : detour === 'active' ? t('heroDetourContinue') : t('tripContinue').replace('{game}', heroMode ? name(heroMode) : '');
+  // Competitive nudge once you have points today: your place and the next player to pass.
+  const standing = competition?.today;
+  const rankLine = standing?.place ? t('resultDayRank').replace('{rank}', n(standing.place)).replace('{count}', n(standing.participants)) + ' · ' + (standing.next ? t('rankTarget').replace('{n}', n(standing.next.gap + 1)).replace('{name}', standing.next.name).replace('{place}', n(standing.next.place)) : t('rankLeading')) : '';
   const pointsGoal = allDone ? '' : yesterday > 0 && pointsToday < yesterday ? t('beatYesterday').replace('{n}', n(yesterday)) : bestDay && pointsToday < bestDay ? t('beatBestDay').replace('{n}', n(bestDay)) : '';
 
   return <div className="home">
@@ -98,7 +101,7 @@ export function HomePage() {
         </div>
         {detour !== 'done' && <p className="hero-detour-meta"><span aria-hidden="true">✈️</span>{t('dailyTitle')} · {t('heroDetourMeta')}</p>}
         {todayError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={retry}>{t('retry')}</button></p>}
-        <ul className="hero-stats" aria-label={t('statusLabel')}>
+        {firstVisit ? <p className="hero-first">{t('heroFirstTrip')}</p> : <ul className="hero-stats" aria-label={t('statusLabel')}>
           <li className={'hero-stat stat-streak' + (streak > 0 ? ' is-on' : '') + (atRisk ? ' is-at-risk' : '')}>
             <span className="hero-stat-icon" aria-hidden="true"><Flame size={26} strokeWidth={2}/></span>
             <span>{ready ? <b>{streak}</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatStreak')}</small></span>
@@ -115,8 +118,8 @@ export function HomePage() {
               <span>{competition ? <b>{n(pointsToday)}</b> : <Skeleton className="sk-num"/>}<small>{t('heroStatPoints')}</small></span>
             </button>
           </li>
-        </ul>
-        {ready && pointsGoal && <p className="hero-nudge"><Trophy size={16} aria-hidden="true"/>{pointsGoal}</p>}
+        </ul>}
+        {ready && (rankLine || pointsGoal) && <p className="hero-nudge"><Trophy size={16} aria-hidden="true"/>{rankLine || pointsGoal}</p>}
       </div>
       <MascotRing states={states} mood={mood} bubble={bubble}/>
     </section>
