@@ -2,6 +2,8 @@
 
 Alles hieronder klopt met de website (versie 1.19). De tekenlimieten staan erbij. Plaatjes staan in `store/` (zie `LANCERING.md`).
 
+> App Store Connect weigert emoji in de beschrijving ("invalid characters"); gebruik alleen gewone tekens en •.
+
 ## Nederlands
 
 **Naam (max. 30):** Roviko – Aardrijkskunde quiz
@@ -12,7 +14,7 @@ Alles hieronder klopt met de website (versie 1.19). De tekenlimieten staan erbij
 **Beschrijving:**
 Maak elke dag een kleine reis rond de wereld! Roviko is een vrolijk aardrijkskundespel met elke dag zes korte spellen. Een paar nieuwsgierige minuten, een beetje meer wereld. Voor iedereen die nieuwsgierig is, van jong tot oud.
 
-🌍 ELKE DAG NIEUWE SPELLEN
+ELKE DAG NIEUWE SPELLEN
 • Dagelijkse Omweg: 20 gemengde vragen: vlaggen, hoofdsteden, de kaart, buren en grootte
 • Rank Radar: waar staat een land het hoogst?
 • Wereldduel: vijf landkaarten tegen Roviko, kies per onderwerp de juiste
@@ -22,19 +24,19 @@ Maak elke dag een kleine reis rond de wereld! Roviko is een vrolijk aardrijkskun
 
 Iedereen speelt dezelfde puzzels, zonder timer. Om middernacht staan er nieuwe klaar.
 
-🔥 KOM ELKE DAG TERUG
+KOM ELKE DAG TERUG
 Bouw je reeks op en verdien reeksschilden die een gemiste dag opvangen. Haal drie dagdoelen voor de kroonkist, verbeter je persoonlijk record en kijk hoe je ervoor staat in de ranglijst. Roviko de wereldbol vertelt je hoeveel spellen je nog te gaan hebt.
 
-🛂 VERZAMEL JE PASPOORT
+VERZAMEL JE PASPOORT
 Een stempel voor elk land dat je leert kennen (195 in totaal), kennis-zegels en 30 prestaties.
 
-👫 SAMEN SPELEN
+SAMEN SPELEN
 Zie welke vrienden online zijn en nodig ze met één tik uit in je kamer, of deel een code: tot 12 spelers per kamer. Speel tegen een willekeurige speler, of tegen de computer op makkelijk, gemiddeld of moeilijk.
 
-🎮 NOG MEER SPELEN
+NOG MEER SPELEN
 Het mysterieland van de dag en klassiekers als vlaggen, hoofdsteden, kaarten, buurlanden en landen op grootte, op je eigen tempo.
 
-✅ Gratis • Geen advertenties • Geen account nodig • Nederlands, Engels en Spaans • Licht en donker thema
+Gratis • Geen advertenties • Geen account nodig • Nederlands, Engels en Spaans • Licht en donker thema
 
 **Trefwoorden iOS (max. 100):** aardrijkskunde,vlaggen,hoofdsteden,landen,quiz,wereld,kaart,topografie,trivia,leren,dagelijks
 
@@ -48,7 +50,7 @@ Het mysterieland van de dag en klassiekers als vlaggen, hoofdsteden, kaarten, bu
 **Description:**
 Take a small trip around the world every day! Roviko is a cheerful geography game with six short games daily. A few curious minutes, a little more of the world. For curious minds of every age.
 
-🌍 NEW GAMES EVERY DAY
+NEW GAMES EVERY DAY
 • Daily Detour: 20 mixed questions: flags, capitals, the map, neighbours and size
 • Rank Radar: where does a country rank highest?
 • World Duel: five country cards against Roviko, pick the right one for each subject
@@ -58,19 +60,19 @@ Take a small trip around the world every day! Roviko is a cheerful geography gam
 
 Everyone plays the same puzzles, with no timer. New ones arrive at midnight.
 
-🔥 COME BACK EVERY DAY
+COME BACK EVERY DAY
 Build your streak and earn streak shields that cover a missed day. Finish three daily quests for the crown chest, beat your personal best and see where you stand in the rankings. Roviko the globe tells you how many games are left.
 
-🛂 FILL YOUR PASSPORT
+FILL YOUR PASSPORT
 A stamp for every country you get to know (195 in all), knowledge seals and 30 achievements.
 
-👫 PLAY TOGETHER
+PLAY TOGETHER
 See which friends are online and invite them to your room in one tap, or share a code: up to 12 players per room. Play a random player, or the computer on easy, medium or hard.
 
-🎮 EVEN MORE TO PLAY
+EVEN MORE TO PLAY
 The mystery country of the day and classics like flags, capitals, maps, neighbours and country sizes, at your own pace.
 
-✅ Free • No ads • No account needed • English, Dutch and Spanish • Light and dark mode
+Free • No ads • No account needed • English, Dutch and Spanish • Light and dark mode
 
 **Keywords (max. 100):** geography,flags,capitals,countries,quiz,world,map,trivia,learn,daily,puzzle
 
@@ -84,7 +86,7 @@ The mystery country of the day and classics like flags, capitals, maps, neighbou
 **Descripción:**
 ¡Haz cada día un pequeño viaje por el mundo! Roviko es un alegre juego de geografía con seis juegos cortos al día. Unos minutos de curiosidad, un poco más de mundo.
 
-🌍 JUEGOS NUEVOS CADA DÍA
+JUEGOS NUEVOS CADA DÍA
 • Desvío diario: 20 preguntas variadas: banderas, capitales, el mapa, vecinos y tamaño
 • Rank Radar: ¿en qué destaca más un país?
 • Duelo mundial: cinco cartas de países contra Roviko, elige la adecuada para cada tema
@@ -94,16 +96,16 @@ The mystery country of the day and classics like flags, capitals, maps, neighbou
 
 Todos juegan los mismos retos, sin temporizador. Cada medianoche llegan nuevos.
 
-🔥 VUELVE CADA DÍA
+VUELVE CADA DÍA
 Mantén tu racha y gana escudos que cubren un día perdido. Completa tres misiones diarias para abrir el cofre de la corona, supera tu récord y mira tu puesto en la clasificación.
 
-🛂 LLENA TU PASAPORTE
+LLENA TU PASAPORTE
 Un sello por cada país que conoces (195 en total), sellos de conocimiento y 30 logros.
 
-👫 JUEGA CON AMIGOS
+JUEGA CON AMIGOS
 Mira qué amigos están en línea e invítalos a tu sala con un toque, o comparte un código: hasta 12 jugadores por sala. Juega contra alguien al azar o contra el ordenador en fácil, medio o difícil.
 
-✅ Gratis • Sin anuncios • Sin cuenta • Español, inglés y neerlandés • Modo claro y oscuro
+Gratis • Sin anuncios • Sin cuenta • Español, inglés y neerlandés • Modo claro y oscuro
 
 **Palabras clave (máx. 100):** geografía,banderas,capitales,países,quiz,mundo,mapa,trivia,aprender,diario
 

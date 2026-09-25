@@ -71,7 +71,8 @@ jobs:
   # Signed App Store build, uploaded straight to App Store Connect (TestFlight), without a Mac of your own.
   # Needs four repository secrets (Settings → Secrets and variables → Actions); see roviko-app/LANCERING.md.
   ios-release:
-    runs-on: macos-15
+    # App Store Connect only accepts builds made with Xcode 26 (iOS 26 SDK) or later.
+    runs-on: macos-26
     if: github.event_name == 'workflow_dispatch'
     env:
       HAS_KEY: ${{ secrets.APPSTORE_KEY_P8 != '' }}
@@ -82,6 +83,10 @@ jobs:
           echo "::notice::No App Store key set up yet: skipping the signed iOS build. See roviko-app/LANCERING.md."
       - uses: actions/checkout@v4
         if: env.HAS_KEY == 'true'
+      - uses: maxim-lobanov/setup-xcode@v1
+        if: env.HAS_KEY == 'true'
+        with:
+          xcode-version: latest-stable
       - uses: actions/setup-node@v4
         if: env.HAS_KEY == 'true'
         with:
@@ -103,11 +108,28 @@ jobs:
         run: |
           set -euo pipefail
           KEY_PATH="$RUNNER_TEMP/AuthKey_${KEY_ID}.p8"
-          printf '%s' "$KEY_P8" > "$KEY_PATH"
+          # Rebuild the .p8 in clean PEM form: pasting often loses line breaks or adds \r, quotes or spaces.
+          # Also accepts the whole file base64-encoded. Never prints the key.
+          KEY_PATH="$KEY_PATH" python3 - <<'PY'
+          import base64, binascii, os, re, sys
+          raw = os.environ['KEY_P8'].strip().strip('"\'')
+          if not raw.startswith('-----') and raw.startswith('LS0t'):
+              raw = base64.b64decode(re.sub(r'\s+', '', raw)).decode()
+          body = re.sub(r'-----[A-Z ]+-----', '', raw.replace('\\n', '\n'))
+          body = re.sub(r'[^A-Za-z0-9+/=]', '', body)
+          try:
+              der = base64.b64decode(body, validate=True)
+          except (binascii.Error, ValueError):
+              der = b''
+          if not 100 <= len(der) <= 200:
+              print('::error::APPSTORE_KEY_P8 is not a valid App Store Connect key. Paste the full contents of AuthKey_XXXXXXXXXX.p8, including the BEGIN and END lines.'); sys.exit(1)
+          lines = [body[i:i + 64] for i in range(0, len(body), 64)]
+          open(os.environ['KEY_PATH'], 'w').write('-----BEGIN PRIVATE KEY-----\n' + '\n'.join(lines) + '\n-----END PRIVATE KEY-----\n')
+          PY
           AUTH=(-allowProvisioningUpdates -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID")
           xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
             -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/Roviko.xcarchive" \
-            DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGN_STYLE=Automatic CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+            DEVELOPMENT_TEAM="$TEAM_ID" CODE_SIGNING_ALLOWED=NO CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
             "${AUTH[@]}" archive
           cat > "$RUNNER_TEMP/export.plist" <<PLIST
           <?xml version="1.0" encoding="UTF-8"?>
