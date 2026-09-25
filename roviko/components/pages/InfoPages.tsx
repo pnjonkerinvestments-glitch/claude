@@ -20,7 +20,7 @@ const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 // No postal address yet: add one as ', <street>, <postcode> <city>' in `at` once it is really in use.
 const OPERATOR = { name: 'P. Jonker', project: 'Roviko', at: '', email: 'support@roviko.app' };
 /** Current hosting. Update this line when the site moves (for example to Cloudflare). */
-const HOSTING = l('OpenAI (ChatGPT hosting)', 'OpenAI (ChatGPT-hosting)', 'OpenAI (alojamiento de ChatGPT)');
+const HOSTING = l('Cloudflare', 'Cloudflare', 'Cloudflare');
 export const LEGAL_UPDATED = '2026-09-25';
 
 const PRIVACY: Section[] = [

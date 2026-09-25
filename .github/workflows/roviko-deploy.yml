@@ -1,0 +1,50 @@
+name: Roviko naar Cloudflare
+
+# Publiceert de Roviko-website (map roviko/) naar het eigen Cloudflare-account:
+# bouwen, testen, nieuwe D1-migraties toepassen en de worker "roviko" deployen.
+# Draait bij elke push naar de standaardbranch die iets in roviko/ verandert,
+# en met de hand via "Run workflow". Zie roviko/docs/PUBLICEREN.md.
+#
+# Nodig als repository secrets:
+#   CLOUDFLARE_API_TOKEN   met Workers Scripts: Edit, D1: Edit, Account Settings: Read
+#   CLOUDFLARE_ACCOUNT_ID  d3e59f712dc36fea587bc5be0ebf58ec (staat ook in wrangler.cloudflare.jsonc)
+#
+# Dit is de live site: roviko.app is in het dashboard als custom domain aan de worker gekoppeld.
+
+on:
+  push:
+    paths:
+      - "roviko/**"
+      - ".github/workflows/roviko-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: roviko-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: roviko
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: roviko/package-lock.json
+
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+
+      # Bouwt, test, past migraties toe en deployt; stopt zonder te publiceren als een test faalt.
+      - name: Publiceren
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npm run deploy:cloudflare

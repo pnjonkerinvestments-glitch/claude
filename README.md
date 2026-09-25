@@ -1,10 +1,22 @@
+# Repo-overzicht
+
+- **[`roviko/`](roviko/)**: de Roviko-website (roviko.app). Begin bij
+  [`roviko/START_HERE_CLAUDE.md`](roviko/START_HERE_CLAUDE.md). Publiceren gaat via
+  GitHub Actions naar Cloudflare, zie [`roviko/docs/PUBLICEREN.md`](roviko/docs/PUBLICEREN.md).
+- **[`roviko-app/`](roviko-app/)**: de App Store-/Google Play-app (Capacitor).
+- De rest van deze README gaat over een ouder, los zijproject: de premarket-alert.
+  Die staat stil (geen schema meer) en draait niet op Cloudflare.
+
+---
+
 # Premarket alert
 
 Mailt je zodra een Amerikaans aandeel in de premarket (04:00–09:30 ET) meer dan
 50% stijgt ten opzichte van de vorige slotkoers.
 
 Draait op GitHub Actions, kost niets, en heeft geen dependencies buiten de
-Python-standaardbibliotheek.
+Python-standaardbibliotheek. **Staat uit:** de workflow heeft geen schema meer en
+draait alleen als je hem met de hand start.
 
 ```
 [Premarket] ABCD +87% premarket

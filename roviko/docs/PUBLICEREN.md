@@ -1,19 +1,22 @@
-# Roviko publiceren — kiezen per release
+# Roviko publiceren
 
-Bij elke nieuwe versie kies je zelf hoe Roviko live gaat:
+**Sinds 25 september 2026 draait roviko.app op het eigen Cloudflare-account.** Publiceren
+gaat via GitHub Actions (zie *Normale route* hieronder). De ChatGPT-hosting (optie A) wordt
+niet meer gebruikt en blijft alleen nog een paar dagen bestaan als terugvaloptie.
 
-| | **Optie A — ChatGPT** | **Optie B — eigen Cloudflare** |
-|---|---|---|
-| Wie publiceert | Jij, door een zip bij ChatGPT te uploaden | Claude (of jij) met één commando |
-| Adres | https://roviko.app (de live site) | https://roviko.pnjonkerinvestments.workers.dev (testadres) |
-| Spelersdata | De echte, bestaande spelers | Eigen, aparte database `roviko-db` (begon leeg) |
-| Commando | `npm run export:chatgpt` | `npm run deploy:cloudflare` |
+| | |
+|---|---|
+| Live adres | https://roviko.app (custom domain op de worker `roviko`) |
+| Zelfde site, ander adres | https://roviko.pnjonkerinvestments.workers.dev |
+| Database | `roviko-db`: de **live** spelersdata, voor beide adressen |
+| Publiceren | merge naar de standaardbranch → workflow *Roviko naar Cloudflare* |
 
-Zolang roviko.app naar ChatGPT wijst, is **optie A de live site** en is optie B een testomgeving. Je kunt ze ook allebei doen: eerst B om te testen, daarna A om live te zetten.
+Er is geen aparte testomgeving meer: het workers.dev-adres gebruikt dezelfde worker en
+database als roviko.app.
 
 ---
 
-## Optie A — ChatGPT (zoals tot nu toe)
+## Optie A — ChatGPT (vervallen sinds 25 september 2026)
 
 1. Zorg dat alle wijzigingen gecommit zijn.
 2. Maak de zip:
@@ -42,7 +45,23 @@ Belangrijk: `.openai/hosting.json` hoort bij de ChatGPT-hosting en moet blijven 
 - Worker `roviko` gedeployed naar https://roviko.pnjonkerinvestments.workers.dev.
 - Configuratie: `wrangler.cloudflare.jsonc`. Die heet bewust **niet** `wrangler.jsonc`, omdat de bouwstap dat bestand anders automatisch oppakt en daarmee de ChatGPT-build zou veranderen.
 
-### Nodig
+### Normale route: via GitHub (geen token in de Claude-sessie nodig)
+
+Sinds 25 september 2026 publiceert GitHub Actions automatisch
+(`.github/workflows/roviko-deploy.yml`):
+
+1. Claude werkt op een eigen branch en opent een pull request naar de standaardbranch.
+2. Na akkoord van de eigenaar mergt Claude de PR.
+3. De workflow **Roviko naar Cloudflare** draait dan vanzelf: `npm ci`, typecheck en
+   `npm run deploy:cloudflare` (bouwen, testen, migraties, deploy). Faalt een test,
+   dan wordt er niets gepubliceerd.
+4. Met de hand opnieuw deployen: *Actions → Roviko naar Cloudflare → Run workflow*.
+
+De workflow gebruikt de repository secrets `CLOUDFLARE_API_TOKEN` en
+`CLOUDFLARE_ACCOUNT_ID`. Het token moet *Workers Scripts: Edit*, *D1: Edit* en
+*Account Settings: Read* hebben.
+
+### Nodig (alleen voor publiceren vanaf je eigen computer)
 
 - Een Cloudflare API-token als omgevingsvariabele `CLOUDFLARE_API_TOKEN` (nooit in een bestand of in git), met: *Workers Scripts: Edit*, *D1: Edit*, *Account Settings: Read*.
 - `CLOUDFLARE_ACCOUNT_ID=d3e59f712dc36fea587bc5be0ebf58ec` (staat ook in de config).
@@ -60,15 +79,15 @@ Dat doet in deze volgorde:
 3. `wrangler d1 migrations apply roviko-db --remote` — past alleen **nieuwe** migraties toe; wat al gedaan is wordt overgeslagen
 4. `wrangler deploy` naar workers.dev, met versie en commit als omschrijving
 
-Daarna controleren (vanaf een computer die het testadres kan bereiken):
+Daarna controleren: open https://roviko.app in de browser.
 
-```sh
-npm run smoke -- https://roviko.pnjonkerinvestments.workers.dev
-```
+De rooktest (`npm run smoke -- <adres>`) schrijft in de database. Omdat workers.dev en
+roviko.app sinds 25 september dezelfde live database delen, draai je hem alleen nog na
+uitdrukkelijk akkoord van de eigenaar.
 
 De rooktest opent de homepage, /daily, /explore en /friends, controleert service worker, offlinepagina, vlaggen en afbeeldingen, speelt een volledige Rank Radar als gast, maakt een multiplayerkamer aan en opent die via WebSocket.
 
-Let op: de rooktest speelt echt een dagspel met een gastaccount, dus op de testdatabase komt één gastresultaat bij. Draai hem daarom **niet** tegen roviko.app.
+Let op: de rooktest speelt echt een dagspel met een gastaccount, dus in de live database komt één gastresultaat bij, ook als je hem op het workers.dev-adres draait.
 
 ### Optionele instellingen
 
@@ -80,7 +99,7 @@ npx wrangler secret put GOOGLE_CLIENT_ID -c wrangler.cloudflare.jsonc
 npx wrangler secret put GOOGLE_CLIENT_SECRET -c wrangler.cloudflare.jsonc
 ```
 
-Voor Google-inloggen moet het testadres ook als toegestane redirect in de Google-console staan.
+Voor Google-inloggen moet `https://roviko.app/api/auth/google` als toegestane redirect in de Google-console staan.
 
 ### Terugdraaien
 
@@ -98,17 +117,23 @@ Let op: een rollback zet alleen de **code** terug, niet de database. Migraties z
 
 ---
 
-## Later: roviko.app overzetten naar Cloudflare (NOG NIET UITGEVOERD)
+## roviko.app overgezet naar Cloudflare (25 september 2026)
 
-Dit is een aparte stap die alleen gebeurt als jij dat uitdrukkelijk vraagt. Er is nu **niets** aan roviko.app, de DNS of routes veranderd.
+Zo is het gedaan, met akkoord van de eigenaar:
 
-1. **Spelersdata ophalen bij ChatGPT.** De echte accounts, reeksen en punten staan in de database van de ChatGPT-hosting. Vraag ChatGPT om een volledige SQL-export (D1 `export` / SQLite-dump) van die database. Zonder die export begint iedereen op Cloudflare opnieuw.
-2. **Token uitbreiden** met rechten op de zone roviko.app:
-   - *Zone: Workers Routes: Edit*
-   - *Zone: DNS: Edit*
-3. **Onderhoudsmoment kiezen.** Tussen export en overstap mogen er geen nieuwe spelresultaten bij ChatGPT bijkomen, anders gaan die verloren. Kies een rustig moment (bijv. vlak na middernacht UTC).
-4. **Data importeren** in `roviko-db` (of een nieuwe, lege productiedatabase) met `wrangler d1 execute roviko-db --remote --file=export.sql`, daarna controleren dat aantallen spelers en resultaten kloppen.
-5. **Domein koppelen**: in `wrangler.cloudflare.jsonc` `"routes": [{ "pattern": "roviko.app", "custom_domain": true }]` toevoegen en deployen. Cloudflare past dan zelf de DNS aan. Zet ook `APPLICATION_URL=https://roviko.app` als variabele.
-6. **Controleren** met de browser (niet met de rooktest, die schrijft data).
+1. **Spelersdata:** niet overgezet. De eigenaar koos ervoor opnieuw te beginnen; de
+   accounts en scores van de ChatGPT-hosting zijn niet meegenomen.
+2. **Domein:** de eigenaar heeft in het dashboard de oude A/AAAA/CNAME-records van
+   roviko.app verwijderd en `roviko.app` als *custom domain* aan de worker `roviko` gekoppeld
+   (Workers & Pages → roviko → Settings → Domains & Routes). MX- en TXT-records voor de
+   e-mail zijn blijven staan.
+   - `wrangler.cloudflare.jsonc` bevat bewust geen `routes`: het token heeft geen
+     zonerechten, en wrangler laat een in het dashboard gekoppeld domein staan zolang de
+     config geen routes noemt.
+3. **Privacy:** `HOSTING` in `components/pages/InfoPages.tsx` staat op Cloudflare.
+4. **Controle:** roviko.app/privacy noemt Cloudflare en `/api/me` antwoordt.
 
-**Terugschakelen naar ChatGPT:** de route/custom domain in Cloudflare verwijderen (Workers & Pages → roviko → Settings → Domains & Routes) en de DNS-records van roviko.app terugzetten naar wat ChatGPT voorschrijft. Maak **vóór** stap 5 een schermafdruk of export van de huidige DNS-records van roviko.app, zodat terugzetten precies kan. Let op: spelresultaten die in de tussentijd op Cloudflare zijn gemaakt, staan dan niet in de ChatGPT-database.
+**Terugschakelen naar ChatGPT** (alleen zolang die hosting nog bestaat): het custom domain
+verwijderen en de DNS-records van roviko.app terugzetten volgens de schermafdruk die de
+eigenaar vóór de overstap heeft gemaakt. Spelresultaten die intussen op Cloudflare zijn
+gemaakt, gaan dan niet mee.

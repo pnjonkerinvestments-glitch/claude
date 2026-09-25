@@ -1,12 +1,12 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
 **Versie 1.19.4 · 25 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
-Hostingadres: https://roviko.info960133.chatgpt.site
+Hosting: eigen Cloudflare-account (worker `roviko`, database `roviko-db`), sinds 25 september 2026. De oude ChatGPT-hosting (https://roviko.info960133.chatgpt.site) is alleen nog een tijdelijke terugvaloptie.
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
 ## Eerst lezen
 
-0. **Lopend (25 september 2026): verhuizing naar het eigen Cloudflare-account.** Lees `docs/CLOUDFLARE_VERHUIZING.md` voordat je iets met hosting, DNS of publiceren doet.
+0. **Afgerond (25 september 2026): roviko.app draait op het eigen Cloudflare-account.** Publiceren: `docs/PUBLICEREN.md`. Achtergrond: `docs/CLOUDFLARE_VERHUIZING.md`.
 
 1. `docs/CHANGES_SINCE_1_11.md`: wat 1.12 toevoegt aan 1.11 (geen nieuwe migratie). Daarna `docs/CHANGES_SINCE_V3.md` voor 1.10/1.11.
 2. `GAME_RULES.md`: actuele regels en puntentelling, leidend boven oude releasedocumenten.
@@ -75,9 +75,9 @@ De volledige testsuite gebruikt de buildoutput: daarom eerst bouwen. `npm run de
 
 `.openai/hosting.json` hoort bij de bestaande site en moet behouden blijven. Het project-ID is geen deploymentcredential. Een andere Cloudflare-omgeving vereist eigen hostingrechten/database/configuratie. Een code-ZIP geeft op zichzelf geen rechten om de live site te wijzigen.
 
-## Publiceren: ChatGPT of eigen Cloudflare
+## Publiceren: via GitHub naar Cloudflare
 
-De eigenaar kiest per release. **Optie A** (`npm run export:chatgpt`): exportzip voor de ChatGPT-hosting, die roviko.app bedient. **Optie B** (`npm run deploy:cloudflare`): bouwen, testen, nieuwe migraties en deploy naar het eigen Cloudflare-account op https://roviko.pnjonkerinvestments.workers.dev (eigen database `roviko-db`, zonder de live spelersdata). Config: `wrangler.cloudflare.jsonc` — bewust niet `wrangler.jsonc`, anders pakt de Vite-plugin hem op en verandert de ChatGPT-build. Zonder uitdrukkelijke toestemming geen DNS, routes of custom domains voor roviko.app. Alles stap voor stap in `docs/PUBLICEREN.md`.
+roviko.app draait sinds 25 september 2026 op het eigen Cloudflare-account (worker `roviko`, database `roviko-db`, custom domain roviko.app). Publiceren gaat via GitHub Actions (`.github/workflows/roviko-deploy.yml`): werk op een branch, open een pull request naar de standaardbranch en merge na akkoord van de eigenaar. De workflow bouwt, test, past nieuwe migraties toe en deployt. Er is geen aparte testomgeving: https://roviko.pnjonkerinvestments.workers.dev is dezelfde live site en database. Draai de rooktest daarom niet zonder akkoord, want die schrijft in de live database. Config: `wrangler.cloudflare.jsonc` — bewust niet `wrangler.jsonc`, anders pakt de Vite-plugin hem op. Zet geen routes in die config (het domein is in het dashboard gekoppeld). De ChatGPT-export (`npm run export:chatgpt`) is vervallen. Details in `docs/PUBLICEREN.md`.
 
 ## Native compatibiliteit
 

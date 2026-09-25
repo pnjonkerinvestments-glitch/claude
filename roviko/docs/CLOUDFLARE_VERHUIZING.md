@@ -1,5 +1,8 @@
 # Verhuizing roviko.app naar het eigen Cloudflare-account
 
+**Afgerond op 25 september 2026.** roviko.app draait op de worker `roviko`. Dit document is
+nu achtergrond; hoe je publiceert staat in `PUBLICEREN.md`.
+
 Besluit van de eigenaar (P. Jonker), 25 september 2026: Roviko verhuist van de ChatGPT-hosting naar zijn eigen Cloudflare-account ("optie 1": Claude voert het uit).
 
 ## Toegang
@@ -12,6 +15,27 @@ Besluit van de eigenaar (P. Jonker), 25 september 2026: Roviko verhuist van de C
 - `scripts/deploy-cloudflare.sh` eist `CLOUDFLARE_API_TOKEN`. Met een credential in de proxy moet dat mogelijk een plaatshouder zijn.
   - Controleer eerst met `curl https://api.cloudflare.com/client/v4/user/tokens/verify` of het token wordt meegestuurd. Verwacht: `"status":"active"`.
   - Test daarna of wrangler zijn eigen `Authorization`-header laat vervangen.
+
+## Stand van zaken (25 september 2026)
+
+- Het API-token in de omgeving werkte niet ("Invalid API Token"). Deployen gaat daarom via
+  GitHub Actions (`.github/workflows/roviko-deploy.yml`) met de repository secrets
+  `CLOUDFLARE_API_TOKEN` en `CLOUDFLARE_ACCOUNT_ID`. Dat token is gemaakt met de template
+  "Edit Cloudflare Workers"; *D1: Edit* moet er apart bij.
+- Op 25 september stond per ongeluk een premarket-alert onder de workernaam `roviko`
+  (met cron-trigger, KV-namespace `roviko-state` en SMTP-/RUN_TOKEN-secrets). De volgende
+  Roviko-deploy vervangt de code en wist de cron (`"triggers": {"crons": []}`). De
+  secrets en de KV-namespace moet de eigenaar in het dashboard verwijderen.
+- Stap 1 gedaan: Roviko draait via GitHub Actions op workers.dev (PR #2, 25 september).
+- Stap 2, besluit van de eigenaar (25 september): **opnieuw beginnen**. De spelersgegevens
+  van de ChatGPT-hosting worden niet overgezet; Roviko op Cloudflare begint met de
+  bestaande `roviko-db` (alleen testgegevens). Google-login en ADMIN_USER_IDS waren niet
+  ingesteld en worden voorlopig niet ingesteld.
+- Stap 3 gedaan, de eigenaar heeft roviko.app in het dashboard als
+  custom domain aan de worker `roviko` gekoppeld (MX/TXT zijn blijven staan).
+  Gecontroleerd: roviko.app/privacy noemt Cloudflare, `/api/me` antwoordt.
+- Stap 4: `HOSTING` staat op Cloudflare (`LEGAL_UPDATED` was al 2026-09-25).
+- Stap 5 (nazorg): ChatGPT-hosting nog een paar dagen laten staan als terugvaloptie.
 
 ## Stappen (in deze volgorde)
 
