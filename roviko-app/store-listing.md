@@ -112,7 +112,7 @@ Gratis • Sin anuncios • Sin cuenta • Español, inglés y neerlandés • M
 ## Categorie en leeftijd
 
 - **Categorie:** Onderwijs (hoofdcategorie), Spellen → Trivia (extra)
-- **Leeftijd:** Apple 9+ (spelers zien namen van onbekende tegenstanders; namen worden gefilterd, melden en blokkeren kan). Google: vragenlijst invullen. Er is geen geweld, geen chat, geen aankopen en geen advertenties. Zie `roviko/docs/STORE_PRIVACY.md`.
+- **Leeftijd:** Apple 13+ (berekend door Apple; spelers zien namen van onbekende tegenstanders; namen worden gefilterd, melden en blokkeren kan). Google: vragenlijst invullen. Er is geen geweld, geen chat, geen aankopen en geen advertenties. Zie `roviko/docs/STORE_PRIVACY.md`.
 - **Privacybeleid-URL:** `https://roviko.app/privacy`
 - **Support-URL:** `https://roviko.app/` (of een e-mailadres voor support)
 

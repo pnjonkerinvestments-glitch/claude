@@ -55,4 +55,4 @@ Afgeleid uit de code van versie 1.20.0: `db/schema.ts`, `server/*.ts`, `server/t
 - **Aankopen of in-game valuta:** nee. **Advertenties:** nee.
 - **Locatie delen:** nee.
 - **Onbeperkte webtoegang:** nee. Externe links (bronnen, licenties) openen buiten de app.
-- **Voorstel:** App Store 9+ (om de namen van onbekende spelers), IARC volgens de vragenlijst, meestal 3 of 7. Kies bij Apple **niet** de categorie "Kinderen".
+- **Uitkomst bij Apple (1.0):** 13+, omdat "User-Generated Content" op Yes staat (spelersnamen), en "Contests" op Frequent. Niet verkocht in Afghanistan en Marokko (lokale regels), IARC volgens de vragenlijst, meestal 3 of 7. Kies bij Apple **niet** de categorie "Kinderen".
