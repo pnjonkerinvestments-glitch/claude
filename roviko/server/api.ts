@@ -1,3 +1,4 @@
+import { changePassword, mailEnabled, requestReset, resetPassword, sendVerification, verifyEmail } from './account';
 import { competitionSummary } from './competition';
 import { startRank, rankAction } from './ranks';
 import { startDuel, duelAction } from './duel';
@@ -79,6 +80,12 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return json({ ok: !!(await one(env, 'SELECT 1 ok')) });
         if (path[0] === 'auth' && path[1] === 'google')
             return await googleAuth(req, env);
+        if (path[0] === 'auth' && path[1] === 'verify' && !path[2] && method === 'GET')
+            return await verifyEmail(env, url);
+        if (path[0] === 'auth' && path[1] === 'forgot' && method === 'POST')
+            return json(await requestReset(req, env, await body(req)));
+        if (path[0] === 'auth' && path[1] === 'reset' && method === 'POST')
+            return json(await resetPassword(req, env, await body(req)));
         if (path[0] === 'bootstrap') {
             await ensureCatalog(env);
             const cleanup = pruneExpired(env).catch(() => { /* housekeeping never blocks a visit */ });
@@ -91,7 +98,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
             const community = await one(env, 'SELECT COUNT(*) games,COUNT(DISTINCT user_id) players FROM game_results');
             const latest = await leaderboard(env, 'all', 'wins');
-            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
+            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
             const result = await auth(req, env, await body(req), path[1] === 'signup');
@@ -99,6 +106,10 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         }
         const user = await requireUser(req, env);
         await limit(env, 'api:' + user.id, 240);
+        if (path[0] === 'auth' && path[1] === 'verify' && path[2] === 'send' && method === 'POST')
+            return json(await sendVerification(req, env, user));
+        if (path[0] === 'auth' && path[1] === 'password' && method === 'POST')
+            return json(await changePassword(req, env, user, await body(req)));
         if (path[0] === 'auth' && path[1] === 'logout') {
             if (method !== 'POST')
                 throw new AppError('METHOD_NOT_ALLOWED', 405);
@@ -350,10 +361,12 @@ async function googleAuth(req: Request, env: Env) {
         throw new AppError('EMAIL_UNVERIFIED', 403);
     let u = await one(env, 'SELECT * FROM users WHERE email=?', profile.email.toLowerCase());
     if (!u) {
-        await run(env, 'UPDATE users SET email=?,guest=0 WHERE id=?', profile.email.toLowerCase(), current.id);
+        await run(env, 'UPDATE users SET email=?,guest=0,email_verified=1 WHERE id=?', profile.email.toLowerCase(), current.id);
         u = current;
     }
     if (u.blocked) throw new AppError('ACCOUNT_BLOCKED', 403);
+    // Google has checked this address, so it counts as verified.
+    await run(env, 'UPDATE users SET email_verified=1 WHERE id=? AND email=?', u.id, profile.email.toLowerCase());
     await mergeProgress(env, current, u.id);
     return new Response(null, { status: 302, headers: { Location: '/profile', 'Set-Cookie': await newSession(req, env, u.id) } });
 }

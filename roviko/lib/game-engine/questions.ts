@@ -62,9 +62,23 @@ export type Question = {
     mapRule?: 'country-v1';
     toleranceKm?: number;
     geometry?: Polygons;
+    /** Pinpoint on a small country: the map opens on this [south, west, north, east] box around its subregion. */
+    zoom?: [number, number, number, number];
 };
 const familiar = ['USA', 'CAN', 'MEX', 'BRA', 'ARG', 'PER', 'CHL', 'COL', 'GBR', 'FRA', 'ESP', 'ITA', 'DEU', 'NLD', 'BEL', 'GRC', 'PRT', 'SWE', 'NOR', 'CHE', 'AUT', 'POL', 'RUS', 'CHN', 'JPN', 'IND', 'IDN', 'THA', 'KOR', 'TUR', 'SAU', 'AUS', 'NZL', 'FJI', 'EGY', 'ZAF', 'MAR', 'KEN', 'NGA', 'GHA'];
 const aliases: Record<string, string[]> = { CHN: ['Peking'], UKR: ['Kiev', 'Kyiv'], MEX: ['Mexico City', 'Mexico-stad', 'Ciudad de Mexico'], CZE: ['Prague', 'Praag', 'Praha'], RUS: ['Moscow', 'Moskou', 'Moskva'], EGY: ['Cairo', 'Caïro'], ITA: ['Rome', 'Roma'], AUT: ['Vienna', 'Wenen', 'Wien'], BEL: ['Brussels', 'Brussel', 'Bruxelles'], DNK: ['Copenhagen', 'Kopenhagen'], GRC: ['Athens', 'Athene'], POL: ['Warsaw', 'Warschau'], PRT: ['Lisbon', 'Lissabon', 'Lisboa'], SWE: ['Stockholm'], HUN: ['Budapest', 'Boedapest'], ROU: ['Bucharest', 'Boekarest'], SRB: ['Belgrade', 'Belgrado'], ESP: ['Madrid'], KOR: ['Seoul'], THA: ['Bangkok', 'Krung Thep'] };
+/** Pin questions only use countries a player can realistically find and tap on a phone-sized world map:
+ *  at least 10,000 km², and in Oceania only the three large countries (no scattered island states). */
+const PIN_MIN_AREA = 10000, PIN_OCEANIA = ['AUS', 'NZL', 'PNG'];
+export function pinnable(c: Country) { return c.area >= PIN_MIN_AREA && (c.region !== 'Oceania' || PIN_OCEANIA.includes(c.id)); }
+/** Below this size the map opens zoomed in on the country's subregion, and the Daily Detour keeps it out of its first five questions. */
+export const PIN_SMALL_AREA = 50000;
+function subregionBox(c: Country): [number, number, number, number] {
+    const pts = COUNTRIES.filter(x => x.subregion === c.subregion).map(x => x.latlng);
+    const lat = pts.map(p => p[0]), lng = pts.map(p => p[1]);
+    const pad = 4;
+    return [Math.max(-85, Math.min(...lat) - pad), Math.max(-180, Math.min(...lng) - pad), Math.min(85, Math.max(...lat) + pad), Math.min(180, Math.max(...lng) + pad)];
+}
 function namesOverlap(a: Country, b: Country) { return [a.name, a.nl, spanishCountry(a.name)].some((name,i) => name.toLocaleLowerCase().includes([b.name,b.nl,spanishCountry(b.name)][i].toLocaleLowerCase())); }
 function nameOption(c: Country): Option { return { id: c.id, en: c.name, nl: c.nl, flag: c.flag }; }
 function capitalOption(c: Country): Option { return { id: c.id, en: c.capitals[0], nl: c.capitals[0] }; }
@@ -89,6 +103,8 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     // Daily Detour: every question type, four times over, shuffled per block of five and never the same type twice in a row.
     const DETOUR = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
     const detourOrder: string[] = [];
+    // The trip opens gently: a flag and a capital first, the map and the harder types after that.
+    if (settings.mode === 'daily') detourOrder.push('flags', 'capitals', ...shuffle(['pinpoint', 'borders', 'order'], rng));
     if (settings.mode === 'daily') while (detourOrder.length < settings.count) {
         let block = shuffle([...DETOUR], rng);
         if (block[0] === detourOrder.at(-1)) block = [...block.slice(1), block[0]];
@@ -105,7 +121,9 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         if (mode === 'borders')
             candidates = candidates.filter(c => c.borders.some(id => COUNTRIES.some(n => n.id === id && !namesOverlap(c,n))) && !['PSE', 'ISR', 'RUS', 'UKR'].includes(c.id));
         if (mode === 'pinpoint')
-            candidates = candidates.filter(c => c.area > 25 && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id));
+            candidates = candidates.filter(c => pinnable(c) && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id) && (settings.mode !== 'daily' || i >= 5 || c.area >= PIN_SMALL_AREA));
+        // The first three Detour questions are about well-known countries.
+        if (settings.mode === 'daily' && i < 3) { const known = candidates.filter(c => familiar.includes(c.id)); if (known.length) candidates = known; }
         if (!candidates.length)
             throw new Error('Question unavailable');
         const weighted = focus && i === 0 ? candidates.filter(c => c.id === focus) : !daily && weak.length && rng() < .45 ? candidates.filter(c => weak.includes(c.id)) : [];
@@ -158,6 +176,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.prompt = { en: `Drop a pin in ${c.name}.`, nl: `Zet een pin in ${c.nl}.` };
             q.correct = c.latlng;
             q.fact = { en: `The target is a representative point in ${c.name}. Distance is measured to this point.`, nl: `Het doel is een representatief punt in ${c.nl}. De afstand wordt tot dit punt gemeten.` };
+            if (c.area < PIN_SMALL_AREA) q.zoom = subregionBox(c);
         }
         else if (mode === 'borders') {
             const n = shuffle(COUNTRIES.filter(x => c.borders.includes(x.id) && !namesOverlap(c,x)), rng)[0];

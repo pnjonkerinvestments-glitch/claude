@@ -1,3 +1,4 @@
+import { effect, type Effect } from './audio';
 import { withSpanish } from '../i18n/content';
 export async function api(path: string, options: RequestInit = {}) {
     const controller = new AbortController();
@@ -28,21 +29,7 @@ export async function copyText(text: string) { if (navigator.clipboard)
     await navigator.clipboard.writeText(text);
 else
     throw new Error('CLIPBOARD_UNAVAILABLE'); }
-let context: AudioContext | undefined;
-export function sound(type: 'correct' | 'incorrect' | 'countdown' | 'win') { try {
-    context ??= new AudioContext();
-    void context.resume();
-    const oscillator = context.createOscillator(), gain = context.createGain();
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(type === 'correct' ? 620 : type === 'win' ? 780 : type === 'countdown' ? 420 : 220, context.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(type === 'incorrect' ? 150 : 1000, context.currentTime + .16);
-    gain.gain.setValueAtTime(.045, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(.001, context.currentTime + .22);
-    oscillator.start();
-    oscillator.stop(context.currentTime + .24);
-}
-catch { } }
+/** Sound effects live in lib/audio.ts; this name stays for the existing callers. */
+export function sound(type: Effect) { effect(type); }
 
 export function metric(event: string, mode: string, context = '') { if (readPreference('rv_metrics','off') === 'on') void post('/metrics',{ event,mode,context }).catch(() => {}); }

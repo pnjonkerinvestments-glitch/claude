@@ -1,17 +1,14 @@
 'use client';
-import { BlockedPlayers } from '../multiplayer/PlayerActions';
+import { ProfileEditDialog } from './AccountPage';
 import React, { useState, useSyncExternalStore } from 'react';
-import { ArrowRight, Check, Copy, Download, LockKeyhole, LogOut, Mail, Settings2, ShieldCheck, Trash2, Users } from 'lucide-react';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
-import { Switch } from '@/components/ui/switch';
+import { ArrowRight, Check, LockKeyhole, Settings2, UserRound, Users } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { ACHIEVEMENTS } from '@/lib/achievements';
 import { DEFAULT_SETTINGS } from '@/lib/config';
-import { api, post, formatScore } from '@/lib/client';
+import { post, formatScore } from '@/lib/client';
 import type { Locale } from '@/i18n/messages';
 import { useApp } from '../app/context';
-import { A, Avatar, AvatarPicker, ModeEmoji } from '../app/shared';
+import { A, Avatar, ModeEmoji } from '../app/shared';
 import { PassportCollection } from '../atelier/PassportCollection';
 import { EmptyState, PageHeader, SectionHeader } from '../ds/States';
 
@@ -30,13 +27,12 @@ function PassportStat({ value, label }: { value: React.ReactNode; label: string 
 
 /** The Roviko Passport: who you are, where you have been, what you collected. Guests see a preview and can save it, never forced. */
 export function PassportPage() {
-  const { t, boot, refresh, setModal, fail, go, start, copy, locale, measurement, setMeasurement } = useApp();
+  const { t, boot, setModal, fail, go, start, locale } = useApp();
   const s = boot.stats, u = boot.user;
   const crowns = useSyncExternalStore(subscribeCrowns, crownsSnapshot, () => 0);
-  const [edit, setEdit] = useState(false), [name, setName] = useState(u.name), [avatar, setAvatar] = useState(u.avatar), [discoverable, setDiscoverable] = useState(u.discoverable), [deleting, setDeleting] = useState(false), [busy, setBusy] = useState(false);
+  const [edit, setEdit] = useState(false);
   const levelName = t(s.level >= 100 ? 'master' : s.level >= 50 ? 'cartographer' : s.level >= 25 ? 'navigator' : s.level >= 10 ? 'explorerLevel' : 'beginner');
-  const openEdit = () => { setName(u.name); setAvatar(u.avatar); setDiscoverable(u.discoverable); setEdit(true); };
-  const save = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await api('/profile', { method: 'PATCH', body: JSON.stringify({ name, avatar, discoverable }) }); await refresh(); setEdit(false); } catch (err) { fail(err); } finally { setBusy(false); } };
+  const openEdit = () => setEdit(true);
   const reviews: Review[] = s.reviews ?? [];
   const recent: Recent[] = s.recent ?? [];
   const L = locale as Locale;
@@ -104,20 +100,11 @@ export function PassportPage() {
     <section className="page-section" aria-labelledby="passport-account">
       <SectionHeader id="passport-account" title={t('passportSettings')}/>
       <div className="settings-card">
+        <A href="/account" className="settings-card-row"><UserRound size={19} aria-hidden="true"/><span><strong>{t('accountAndPrivacy')}</strong><small>{t('accountAndPrivacyNote')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
         <A href="/friends" className="settings-card-row"><Users size={19} aria-hidden="true"/><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
-        {!u.guest && <button className="settings-card-row" onClick={() => copy(u.friendCode)}><Copy size={19} aria-hidden="true"/><span><strong>{t('friendCode')}</strong><small>{u.friendCode}</small></span></button>}
-        <div className="settings-card-row"><span className="row-icon" aria-hidden="true"/><label htmlFor="metrics-choice"><strong>{t('optionalMetrics')}</strong><small>{t('optionalMetricsCopy')}</small></label><Switch id="metrics-choice" checked={measurement} onCheckedChange={setMeasurement}/></div>
-        <a href="/api/export" className="settings-card-row" download><Download size={19} aria-hidden="true"/><span><strong>{t('export')}</strong></span></a>
-        {!u.guest && <button className="settings-card-row" onClick={async () => { try { await post('/auth/logout'); await refresh(); go('/'); } catch (e) { fail(e); } }}><LogOut size={19} aria-hidden="true"/><span><strong>{t('logout')}</strong></span></button>}
-        <a href="mailto:support@roviko.app" className="settings-card-row"><Mail size={19} aria-hidden="true"/><span><strong>{t('contact')}</strong><small>{t('contactCopy')} support@roviko.app</small></span></a>
-        <A href="/privacy" className="settings-card-row"><ShieldCheck size={19} aria-hidden="true"/><span><strong>{t('privacy')}</strong></span><ArrowRight size={17} aria-hidden="true"/></A>
-        <button className="settings-card-row is-danger" onClick={() => setDeleting(true)}><Trash2 size={19} aria-hidden="true"/><span><strong>{t('deleteAccount')}</strong></span></button>
       </div>
     </section>
 
-    <BlockedPlayers t={t}/>
-
-    <Dialog open={edit} onOpenChange={setEdit}><DialogContent className="app-modal"><DialogTitle className="modal-title">{t('editProfile')}</DialogTitle><DialogDescription>{t('nameHint')}</DialogDescription><form onSubmit={save} className="form-stack"><label className="field"><span>{t('displayName')}</span><input className="text-input" value={name} onChange={e => setName(e.target.value)} minLength={2} maxLength={24} required/></label><AvatarPicker value={avatar} onChange={setAvatar}/><div className="switch-field"><label htmlFor="discoverable">{t('discoverable')}</label><Switch id="discoverable" checked={discoverable} onCheckedChange={setDiscoverable}/></div><button className="btn primary" disabled={busy}>{t('save')}<Check size={17}/></button></form></DialogContent></Dialog>
-    <AlertDialog open={deleting} onOpenChange={setDeleting}><AlertDialogContent className="app-modal"><AlertDialogTitle>{t('deleteTitle')}</AlertDialogTitle><AlertDialogDescription>{t('deleteCopy')}</AlertDialogDescription><AlertDialogFooter><AlertDialogCancel>{t('cancel')}</AlertDialogCancel><AlertDialogAction className="delete-button" onClick={async () => { try { await api('/profile', { method: 'DELETE' }); await refresh(); go('/'); } catch (e) { fail(e); } }}>{t('deleteConfirm')}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+    <ProfileEditDialog open={edit} onOpenChange={setEdit}/>
   </div>;
 }

@@ -1645,3 +1645,122 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
   .room-settings .settings-grid>*{min-width:0}
   .room-settings .mode-picker,.room-settings .enabled-modes{min-width:0;max-width:100%}
 }
+
+/* ===== 1.21 · a way home from every game screen on phones ===== */
+.game-home-fab{display:none}
+@media (max-width:760px){
+  .game-home-fab{display:grid;place-items:center;position:fixed;z-index:60;top:max(10px,env(safe-area-inset-top));left:12px;width:44px;height:44px;border-radius:999px;background:var(--color-surface,#fff);color:var(--color-ink);box-shadow:0 4px 14px rgba(24,33,29,.14);border:1px solid color-mix(in srgb,var(--color-ink) 10%,transparent)}
+  body:has(.game-header) .game-home-fab{display:none}
+  .game-main:not(:has(.game-header)){padding-top:calc(64px + env(safe-area-inset-top))!important}
+}
+
+/* ===== 1.21 · menu, account and settings ===== */
+.app-menu{width:min(92vw,340px);padding:10px}
+.app-menu-user{display:flex;align-items:center;gap:12px;padding:10px 10px 14px;border-bottom:1px solid var(--color-line);margin-bottom:6px}
+.app-menu-user>span{display:flex;flex-direction:column;min-width:0;flex:1}
+.app-menu-user strong{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-menu-user small{color:var(--color-ink-soft);font-size:.8125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-menu-links a{display:flex!important;align-items:center;gap:12px;padding:11px 10px!important;border-radius:12px}
+.app-menu-links a>span{display:flex;flex-direction:column;flex:1;min-width:0}
+.app-menu-links a small{color:var(--color-ink-soft);font-size:.8125rem;font-weight:500}
+.app-menu-links a:hover{background:color-mix(in srgb,var(--color-mint) 60%,transparent)}
+.app-menu-links .menu-chevron{color:var(--color-ink-soft)}
+.app-menu-links hr{border:0;border-top:1px solid var(--color-line);margin:6px 4px}
+.account-page,.settings-page{max-width:720px}
+.account-card{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:20px;border-radius:24px;background:var(--color-surface);border:1px solid var(--color-line)}
+.account-id{display:flex;flex-direction:column;flex:1;min-width:160px}
+.account-id strong{font-family:Fredoka,sans-serif;font-size:1.5rem;font-weight:600}
+.account-id small{color:var(--color-ink-soft)}
+.account-actions{display:flex;gap:8px;flex-wrap:wrap}
+.settings-card .is-verified{color:var(--color-brand)}
+.settings-card-pad{padding:6px 18px 18px}
+.settings-card-pad .settings-label{display:flex;align-items:center;gap:8px;margin:14px 0 8px;font-weight:800}
+.forgot-link{align-self:flex-end;margin-top:6px;font-size:.875rem}
+
+/* ===== 1.21 · Multiplayer page ===== */
+.mp-page{display:grid;gap:22px}
+.mp-friends,.mp-private{padding:18px;border-radius:24px;background:var(--color-surface);border:1px solid var(--color-line)}
+.mp-friends-head{display:flex;align-items:flex-start;gap:12px}
+.mp-friends-head>svg{flex:none;margin-top:4px;color:var(--color-brand)}
+.mp-friends-head>div{flex:1;min-width:0}
+.mp-friends-head h2{margin:0;font-size:1.25rem}
+.mp-friends-head p{margin:2px 0 0}
+.mp-friends-all{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-weight:700}
+.mp-friends-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.mp-friends .friend-list-v2{margin:12px 0 0}
+.mp-friends-empty{margin:12px 0 0;padding:12px 14px;border-radius:14px;background:color-mix(in srgb,var(--color-mint) 55%,transparent);color:var(--color-ink-soft)}
+.mp-friends-requests{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding:10px 14px;border-radius:14px;background:color-mix(in srgb,var(--color-gold) 25%,transparent);font-weight:700}
+.mp-friend-add{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--color-line)}
+.mp-friend-add .friend-code{flex:none}
+.mp-friend-add .code-input{flex:1;min-width:120px}
+.mp-private{display:grid;gap:14px;grid-template-columns:1fr}
+.mp-private-create{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mp-private-create h2{margin:0;font-size:1.125rem}
+@media (min-width:760px){.mp-private{grid-template-columns:1fr 1fr;align-items:center}}
+@media (max-width:520px){
+  .mp-friend-add .friend-code{flex:1 1 100%;justify-content:space-between}
+  .mp-friend-add .code-input{font-size:1rem;letter-spacing:.12em}
+}
+.map-zoom-note{margin:0 auto 8px;padding:6px 12px;border-radius:999px;background:color-mix(in srgb,var(--color-mint) 70%,transparent);color:var(--color-brand-ink,var(--color-forest));font-size:.875rem;font-weight:700;width:fit-content}
+
+/* ===== 1.21 · Country Mosaic as one compact 4×4 board =====
+   Like a connections grid: small square tiles, solved countries become a coloured bar above the
+   board and leave it, and the actions sit right under the tiles. The whole puzzle fits one phone screen. */
+.puzzle-mosaic .mosaic-heading{margin:10px auto 12px!important}
+.puzzle-mosaic .mosaic-heading h1{font-size:clamp(1.25rem,5vw,1.75rem)!important;margin:0 0 4px!important}
+.puzzle-mosaic .mosaic-heading>p:not(.mosaic-edition-line){font-size:.9375rem!important;margin:0!important;color:var(--color-ink-soft)}
+.puzzle-mosaic .mosaic-edition-line{margin:6px 0 0!important;font-size:.8125rem!important}
+.puzzle-mosaic .mosaic-overview{display:none!important}
+.puzzle-mosaic .mosaic-solved{display:grid!important;grid-template-columns:1fr!important;gap:6px!important;margin:0 0 6px!important}
+.puzzle-mosaic .mosaic-group{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;min-height:0!important;padding:10px 14px!important;border-radius:16px!important;border:0!important;text-align:left}
+.puzzle-mosaic .mosaic-group img{width:34px;height:24px;object-fit:cover;border-radius:4px}
+.puzzle-mosaic .mosaic-group-text{display:flex;flex-direction:column;min-width:0}
+.puzzle-mosaic .mosaic-group-text strong{font-family:Fredoka,sans-serif;font-size:1.0625rem;font-weight:600;line-height:1.2}
+.puzzle-mosaic .mosaic-group-text small{font-size:.75rem;line-height:1.3;color:inherit;opacity:.85}
+.puzzle-mosaic .mosaic-group>details,.puzzle-mosaic .mosaic-group .fact-details{grid-column:1/-1}
+.puzzle-mosaic .mosaic-group.group-0{background:#DDEDE6!important;color:#163B32!important}
+.puzzle-mosaic .mosaic-group.group-1{background:#FBE7B8!important;color:#5C4210!important}
+.puzzle-mosaic .mosaic-group.group-2{background:#DCE6F7!important;color:#1E3A6B!important}
+.puzzle-mosaic .mosaic-group.group-3{background:#EEDDF3!important;color:#4B2360!important}
+.puzzle-mosaic .mosaic-board{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:7px!important}
+.puzzle-mosaic .mosaic-board[data-clues="3"]{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile{min-height:0!important;aspect-ratio:1/1.08;padding:6px 4px!important;border-radius:14px!important;border-bottom-width:3px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;overflow:hidden}
+.puzzle-mosaic .mosaic-board .mosaic-tile.solved{display:none!important}
+.puzzle-mosaic .mosaic-board .tile-kind{position:static!important;font-size:.5625rem!important;letter-spacing:.08em!important;line-height:1!important}
+.puzzle-mosaic .mosaic-board .tile-text{font-size:clamp(.75rem,3.3vw,1rem)!important;line-height:1.12!important;font-weight:800!important;overflow-wrap:anywhere;hyphens:auto}
+.puzzle-mosaic .mosaic-board .tile-flag{width:86%!important;height:auto!important;max-height:52%}
+.puzzle-mosaic .mosaic-board .tile-shape{width:82%!important;height:auto!important;max-height:62%}
+.puzzle-mosaic .mosaic-board .tile-stat{gap:1px!important}
+.puzzle-mosaic .mosaic-board .tile-stat .stat-label{font-size:clamp(.5625rem,2.4vw,.75rem)!important;line-height:1.1!important;font-weight:700}
+.puzzle-mosaic .mosaic-board .tile-stat strong{font-size:clamp(.8125rem,3.6vw,1.125rem)!important;line-height:1.1!important}
+.puzzle-mosaic .mosaic-board .tile-stat .stat-unit{font-size:clamp(.5625rem,2.3vw,.6875rem)!important;line-height:1.1!important}
+.puzzle-mosaic .mosaic-board .tile-stat small{display:none}
+.puzzle-mosaic .mosaic-board .tile-tick{top:4px!important;right:4px!important;transform:scale(.8)}
+.puzzle-mosaic .mosaic-board .tile-verdict{font-size:.625rem!important}
+.puzzle-mosaic .mosaic-dock{position:static!important;margin-top:10px!important;padding:0!important;box-shadow:none!important;background:transparent!important}
+.puzzle-mosaic .mosaic-selection-status{justify-content:center;margin:0 0 6px!important;font-size:.8125rem}
+.puzzle-mosaic .mosaic-notice{min-height:0!important;margin:0 0 8px!important;font-size:.875rem;text-align:center;justify-content:center}
+.puzzle-mosaic .mosaic-dock .mosaic-toolbar{display:grid!important;grid-template-columns:auto 1fr;gap:8px!important;padding:0!important;border:0!important}
+.puzzle-mosaic .mosaic-dock .mosaic-toolbar>div{display:flex;gap:4px;align-items:center}
+.puzzle-mosaic .mosaic-dock .mosaic-check{order:0!important;flex:none!important;width:100%;min-height:50px}
+@media (min-width:761px){
+  .puzzle-mosaic{max-width:620px;margin-inline:auto}
+  .puzzle-mosaic .mosaic-board{gap:10px!important}
+  .puzzle-mosaic .mosaic-board .mosaic-tile{aspect-ratio:1/1}
+}
+@media (max-width:760px){
+  .puzzle-mosaic{padding-bottom:24px!important}
+  .game-main .puzzle-mosaic .mosaic-dock{position:static!important;left:auto;right:auto;bottom:auto}
+}
+.puzzle-mosaic .mosaic-board .tile-text{overflow-wrap:normal!important;word-break:normal!important;hyphens:manual}
+.puzzle-mosaic .mosaic-board .tile-text.is-long{font-size:clamp(.625rem,2.7vw,.875rem)!important}
+.puzzle-mosaic .mosaic-board .tile-text.is-longer{font-size:clamp(.5625rem,2.35vw,.8125rem)!important;overflow-wrap:anywhere!important}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal{grid-column:1/-1;margin:0!important;padding:0!important;border:0!important;background:transparent!important}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal summary{font-size:.75rem!important;font-weight:700;padding:0!important;min-height:0!important;opacity:.8;cursor:pointer}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal p{font-size:.8125rem;margin:6px 0 0}
+@media (min-width:761px){
+  .puzzle-game.puzzle-mosaic{max-width:600px!important;margin-inline:auto!important}
+  .puzzle-mosaic .mosaic-board .tile-kind{font-size:.625rem!important}
+  .puzzle-mosaic .mosaic-board .tile-text{font-size:1rem!important}
+  .puzzle-mosaic .mosaic-board .tile-text.is-long{font-size:.875rem!important}
+}

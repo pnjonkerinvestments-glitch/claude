@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer, real, index, uniqueIndex, primaryKey, check } from 'drizzle-orm/sqlite-core';
-export const users = sqliteTable('users', { id: text('id').primaryKey(), email: text('email'), password: text('password'), name: text('name').notNull(), avatar: integer('avatar').notNull().default(0), guest: integer('guest').notNull().default(1), discoverable: integer('discoverable').notNull().default(1), blocked: integer('blocked').notNull().default(0), createdAt: integer('created_at').notNull() }, t => [uniqueIndex('email_unique').on(t.email)]);
+export const users = sqliteTable('users', { id: text('id').primaryKey(), email: text('email'), password: text('password'), name: text('name').notNull(), avatar: integer('avatar').notNull().default(0), guest: integer('guest').notNull().default(1), discoverable: integer('discoverable').notNull().default(1), blocked: integer('blocked').notNull().default(0), emailVerified: integer('email_verified').notNull().default(0), createdAt: integer('created_at').notNull() }, t => [uniqueIndex('email_unique').on(t.email)]);
 export const sessions = sqliteTable('auth_sessions', { token: text('token').primaryKey(), userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), expiresAt: integer('expires_at').notNull() }, t => [index('auth_user').on(t.userId)]);
 export const games = sqliteTable('game_sessions', { id: text('id').primaryKey(), userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), kind: text('kind').notNull(), date: text('date'), state: text('state').notNull(), version: integer('version').notNull().default(0), score: integer('score').notNull().default(0), completed: integer('completed').notNull().default(0), createdAt: integer('created_at').notNull() }, t => [index('games_user_time').on(t.userId, t.createdAt), uniqueIndex('daily_game_unique').on(t.userId, t.date, t.kind)]);
 export const results = sqliteTable('game_results', { id: text('id').primaryKey(), userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }), mode: text('mode').notNull(), score: integer('score').notNull(), xp: integer('xp').notNull(), correct: integer('correct').notNull(), total: integer('total').notNull(), duration: integer('duration').notNull(), bestStreak: integer('best_streak').notNull(), win: integer('win').notNull().default(0), multiplayer: integer('multiplayer').notNull().default(0), risk: integer('risk').notNull().default(0), createdAt: integer('created_at').notNull() }, t => [index('results_leaderboard').on(t.createdAt, t.score), index('results_user').on(t.userId)]);
@@ -53,3 +53,13 @@ export const playerReports = sqliteTable('player_reports', {
   reason: text('reason').notNull(), roomCode: text('room_code'),
   status: text('status').notNull().default('open'), createdAt: integer('created_at').notNull(),
 }, t => [index('player_reports_status').on(t.status, t.createdAt)]);
+
+/** One-time links sent by email: verify the address or reset the password. Only a hash of the token is stored. */
+export const emailTokens = sqliteTable('email_tokens', {
+  token: text('token').primaryKey(),
+  userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  kind: text('kind').notNull(),
+  email: text('email').notNull(),
+  expiresAt: integer('expires_at').notNull(),
+  createdAt: integer('created_at').notNull(),
+}, t => [index('email_tokens_user').on(t.userId)]);

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { initialCamera, zoomCamera, panCamera, type MapCamera } from '@/lib/game-engine/map-camera';
+import { cameraForBox, initialCamera, zoomCamera, panCamera, type MapCamera } from '@/lib/game-engine/map-camera';
 import { Plus, Minus, RotateCcw, MapPin } from 'lucide-react';
 type Props = {
     value: number[] | null;
@@ -12,13 +12,19 @@ type Props = {
     /** Called only when a pin is placed with a tap or click (not with the arrow keys), so solo games can answer in one step. */
     onTap?: (v: number[]) => void;
     t: (key: string) => string;
+    /** Open zoomed in on this [south, west, north, east] box (small countries); reset returns here. */
+    focus?: [number, number, number, number];
 };
-export default function WorldMap({ value, onChange, disabled, target, t, onConfirm, onTap, correct }: Props) {
-    const [paths, setPaths] = useState<any[]>([]), [failed, setFailed] = useState(false), [camera, setCamera] = useState<MapCamera>(initialCamera);
+export default function WorldMap({ value, onChange, disabled, target, t, onConfirm, onTap, correct, focus }: Props) {
+    const start = focus ? cameraForBox(focus) : initialCamera;
+    const [paths, setPaths] = useState<any[]>([]), [failed, setFailed] = useState(false), [camera, setCamera] = useState<MapCamera>(start);
     const [detailPaths, setDetailPaths] = useState<any[] | null>(null);
     const zoom = camera.zoom;
     const cameraRef = useRef(camera);
     const update = (next: MapCamera) => { cameraRef.current = next; setCamera(next); };
+    // A new question can bring a different focus box: open on it.
+    const focusKey = focus ? focus.join(',') : '';
+    useEffect(() => { update(focus ? cameraForBox(focus) : initialCamera); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [focusKey]);
     const detailed = zoom > 2;
     useEffect(() => {
         if (!detailed || detailPaths) return;
@@ -80,7 +86,7 @@ export default function WorldMap({ value, onChange, disabled, target, t, onConfi
     const marker = (v: number[], color: string, key: string) => <g key={key} transform={`translate(${(v[1] + 180) / 360 * 1000} ${(90 - v[0]) / 180 * 500})`}><circle r={13 / zoom} fill={color} opacity=".18"/><circle r={5 / zoom} fill={color} stroke="#111622" strokeWidth={2 / zoom}/><path d={`M0 ${-5 / zoom}V${-24 / zoom}`} stroke={color} strokeWidth={3 / zoom}/><circle cy={-24 / zoom} r={6 / zoom} fill={color}/></g>;
     if (failed)
         return <div className="empty-state"><MapPin /><p>{t('mapFailed')}</p><button className="btn secondary" onClick={load}>{t('retry')}</button></div>;
-    return <div className="map-wrap"><div className="map-tools"><button className="icon-btn" aria-label={t('mapZoomIn')} onClick={() => changeZoom(zoom * 1.5)}><Plus size={18}/></button><button className="icon-btn" aria-label={t('mapZoomOut')} onClick={() => changeZoom(zoom / 1.5)}><Minus size={18}/></button><button className="icon-btn" aria-label={t('mapReset')} onClick={() => { update(initialCamera); }}><RotateCcw size={17}/></button></div><svg ref={ref} className="world-map" viewBox={viewBox} role="application" aria-label={t('mapHint') + ' ' + t('mapKeyboard')} tabIndex={disabled ? -1 : 0} style={{touchAction:"none"}} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd} onKeyDown={e => { if (['+','=','-','0'].includes(e.key)) { e.preventDefault(); if(e.key==='0')update(initialCamera);else changeZoom(cameraRef.current.zoom*(e.key==='-'?1/1.5:1.5)); return; } if (disabled)
+    return <div className="map-wrap"><div className="map-tools"><button className="icon-btn" aria-label={t('mapZoomIn')} onClick={() => changeZoom(zoom * 1.5)}><Plus size={18}/></button><button className="icon-btn" aria-label={t('mapZoomOut')} onClick={() => changeZoom(zoom / 1.5)}><Minus size={18}/></button><button className="icon-btn" aria-label={t('mapReset')} onClick={() => { update(start); }}><RotateCcw size={17}/></button></div><svg ref={ref} className="world-map" viewBox={viewBox} role="application" aria-label={t('mapHint') + ' ' + t('mapKeyboard')} tabIndex={disabled ? -1 : 0} style={{touchAction:"none"}} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd} onKeyDown={e => { if (['+','=','-','0'].includes(e.key)) { e.preventDefault(); if(e.key==='0')update(initialCamera);else changeZoom(cameraRef.current.zoom*(e.key==='-'?1/1.5:1.5)); return; } if (disabled)
         return; if (e.key === 'Enter' && value) {
         e.preventDefault();
         onConfirm?.(value);

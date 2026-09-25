@@ -7,6 +7,10 @@ export type Env = {
     ENVIRONMENT?: string;
     GOOGLE_CLIENT_ID?: string;
     GOOGLE_CLIENT_SECRET?: string;
+    /** Optional: sends verification and password-reset emails through Resend. Without it those emails are unavailable. */
+    RESEND_API_KEY?: string;
+    /** Sender for those emails, for example "Roviko <hello@roviko.app>" (the domain must be verified at Resend). */
+    MAIL_FROM?: string;
 };
 export type User = {
     id: string;
@@ -16,6 +20,8 @@ export type User = {
     guest: number;
     discoverable: number;
     blocked: number;
+    email_verified?: number;
+    password?: string | null;
     created_at: number;
 };
 export type Player = {
