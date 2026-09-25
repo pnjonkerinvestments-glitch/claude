@@ -29,19 +29,21 @@ test("renders the playable branded homepage before hydration", async () => {
   const html = await response.text();
   assert.match(html, /<title>Roviko/);
   assert.doesNotMatch(html, /codex-preview/);
-  // The hero: heading, one primary action, the globe with its five-arc ring, and the streak.
+  // The hero: heading, one primary action (the Daily Detour), the globe with one arc per scored game, and the streak.
   assert.match(html, /Your daily trip/);
   assert.match(html, /Where shall we go today\?/);
   assert.equal((html.match(/<h1/g)||[]).length, 1);
   assert.match(html, /Start today(&#x27;|’|')s trip/);
   assert.match(html, /class="mascot mascot-happy/);
-  assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 5);
+  assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 6);
+  assert.match(html, /20 questions from every game/);
   assert.match(html, /class="hero-stat stat-streak/);
   assert.match(html, /Day streak|day streak/i);
   // Today's trip is a mix: all five daily games as stops, in the official order.
   assert.match(html, /Five stops, five different games/);
   assert.equal((html.match(/class="tstop /g)||[]).length, 5);
-  const order=['Rank Radar','Daily Detour','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>html.indexOf(n));
+  const trip=html.slice(html.indexOf('Five stops, five different games'));
+  const order=['Rank Radar','World Duel','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>trip.indexOf(n));
   assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'stops in order');
   // Reasons to come back: quests and the week with the streak shield are visible on the homepage.
   assert.match(html, /Daily quests/);

@@ -97,7 +97,7 @@ export function HomePage() {
           <button className="btn primary btn-lg" disabled={busy} aria-busy={!!launching} onClick={() => allDone ? go('/leaderboard') : heroMode && open(heroMode)}>{cta}<ArrowRight size={20} aria-hidden="true"/></button>
           {!allDone && <A href="/how-to-play#daily" className="text-link">{t('howToLink')}</A>}
         </div>
-        {ready && detour !== 'done' && <p className="hero-detour-meta"><span aria-hidden="true">✈️</span>{t('dailyTitle')} · {t('heroDetourMeta')}</p>}
+        {detour !== 'done' && <p className="hero-detour-meta"><span aria-hidden="true">✈️</span>{t('dailyTitle')} · {t('heroDetourMeta')}</p>}
         {todayError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={retry}>{t('retry')}</button></p>}
         <ul className="hero-stats" aria-label={t('statusLabel')}>
           <li className={'hero-stat stat-streak' + (streak > 0 ? ' is-on' : '') + (atRisk ? ' is-at-risk' : '')}>
