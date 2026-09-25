@@ -22,7 +22,7 @@ Deze checklist hoort bij versie 1.19 van de website. Wat klaarstaat, staat boven
 ## ⚠️ Eerst
 
 1. **Zet 1.19.1 live op roviko.app** (privacy en voorwaarden zijn daarin compleet). De app laadt de live website.
-2. ✅ Privacyverklaring en voorwaarden: ingevuld (privéproject van Pepijn Jonker, Herengracht 584, 1018 CJ Amsterdam). Publiceer via een persoonlijk (Individual) Apple Developer-account: geen KvK of D-U-N-S nodig.
+2. ✅ Privacyverklaring en voorwaarden: ingevuld (privéproject van Pepijn Jonker, contact support@roviko.app; postadres volgt). Publiceer via een persoonlijk (Individual) Apple Developer-account: geen KvK of D-U-N-S nodig.
 3. ✅ Support-adres: `support@roviko.app` (Cloudflare Email Routing, doorgestuurd naar de eigenaar).
 4. Werk de winkelteksten en screenshots bij naar 1.19 (Dagelijkse Omweg + vijf dagspellen, 6.000 punten) voordat je indient.
 
