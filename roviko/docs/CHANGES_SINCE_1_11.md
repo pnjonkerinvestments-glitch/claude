@@ -386,8 +386,12 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.19.1`.
 
 ## 1.19.2: aanbieder als particulier
 
-Geen migratie. Cacheversie `roviko-shell-v1.19.2`. Roviko is (nog) geen ingeschreven bedrijf: privacy en voorwaarden noemen nu Pepijn Jonker als verantwoordelijke ("Roviko is een privéproject van Pepijn Jonker"), met hetzelfde adres en support@roviko.app. Na een KvK-inschrijving alleen `OPERATOR` in `components/pages/InfoPages.tsx` aanpassen.
+Geen migratie. Cacheversie `roviko-shell-v1.19.2`. Roviko is (nog) geen ingeschreven bedrijf: privacy en voorwaarden noemen nu P. Jonker als verantwoordelijke ("Roviko is een privéproject van P. Jonker"), met hetzelfde adres en support@roviko.app. Na een KvK-inschrijving alleen `OPERATOR` in `components/pages/InfoPages.tsx` aanpassen.
 
 ## 1.19.3: geen postadres
 
-Het adres Herengracht 584 is niet van de eigenaar en is weggehaald. Privacy en voorwaarden noemen Pepijn Jonker en support@roviko.app. Voeg een adres pas toe (veld `at` in `OPERATOR`) als het echt in gebruik is.
+Het adres Herengracht 584 is niet van de eigenaar en is weggehaald. Privacy en voorwaarden noemen P. Jonker en support@roviko.app. Voeg een adres pas toe (veld `at` in `OPERATOR`) als het echt in gebruik is.
+
+## 1.19.4: initiaal in plaats van volledige naam
+
+Op verzoek van de eigenaar noemen privacy en voorwaarden "P. Jonker" in plaats van de volledige naam.

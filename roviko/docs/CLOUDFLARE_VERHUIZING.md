@@ -1,6 +1,6 @@
 # Verhuizing roviko.app naar het eigen Cloudflare-account
 
-Besluit van de eigenaar (Pepijn Jonker), 25 september 2026: Roviko verhuist van de ChatGPT-hosting naar zijn eigen Cloudflare-account ("optie 1": Claude voert het uit).
+Besluit van de eigenaar (P. Jonker), 25 september 2026: Roviko verhuist van de ChatGPT-hosting naar zijn eigen Cloudflare-account ("optie 1": Claude voert het uit).
 
 ## Toegang
 

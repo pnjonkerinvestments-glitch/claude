@@ -16,9 +16,9 @@ type Section = { id: string; title: L; body: L[]; todo?: L };
 const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 
 /** Details given by the owner (September 2026). Change them here only; both documents use them. */
-/** Roviko is run privately by Pepijn Jonker (no registered company yet); add a KvK number here once registered. */
+/** Roviko is run privately by P. Jonker (owner's choice to show initials) (no registered company yet); add a KvK number here once registered. */
 // No postal address yet: add one as ', <street>, <postcode> <city>' in `at` once it is really in use.
-const OPERATOR = { name: 'Pepijn Jonker', project: 'Roviko', at: '', email: 'support@roviko.app' };
+const OPERATOR = { name: 'P. Jonker', project: 'Roviko', at: '', email: 'support@roviko.app' };
 /** Current hosting. Update this line when the site moves (for example to Cloudflare). */
 const HOSTING = l('OpenAI (ChatGPT hosting)', 'OpenAI (ChatGPT-hosting)', 'OpenAI (alojamiento de ChatGPT)');
 export const LEGAL_UPDATED = '2026-09-25';
