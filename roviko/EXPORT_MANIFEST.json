@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.19.1",
-  "exported_at": "2026-09-25T09:31:21.830Z",
-  "source_commit": "b5c9508504184876e99888f40c93525b5695c9d1",
+  "website_version": "1.19.2",
+  "exported_at": "2026-09-25T09:40:57.189Z",
+  "source_commit": "8f708ff54b073b09231b751647100b9dd52277c2",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 12178,
-      "sha256": "30a75a484efc92db377003d4463e463fe4ef7dfdd2e694b2fef5da17c047cf31"
+      "bytes": 12222,
+      "sha256": "338ab06788035d4ab0149824496a1bba0b228c5571b150389f973e4a3d05a5a6"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -333,8 +333,8 @@
     },
     {
       "path": "components/pages/InfoPages.tsx",
-      "bytes": 22940,
-      "sha256": "b2fe0a10813ed16fc8ec233b37dd3e087f7fbfec84f30d0030f949ac36aeca71"
+      "bytes": 23270,
+      "sha256": "cda75e14fb4f4760ece54743d6af38675677d764f6a7d43b94d7b694d72687e9"
     },
     {
       "path": "components/pages/MultiplayerPage.tsx",
@@ -733,8 +733,8 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 27282,
-      "sha256": "0e2d7274ae0d2ce4e74cebd53608173d33fa432cd464d0a96775d80f38daa736"
+      "bytes": 27667,
+      "sha256": "b5443aacf764ba0b2c3e4525bbe24ab8d705b2bfab307d3dc2bf519671a14757"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
@@ -1114,7 +1114,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "db0855fecf61e36abf33f00fbe5b991bdad76de417aeb3f2da2750eebe906832"
+      "sha256": "27fce162efdee15016aad4078a1864217bb4b3c2df679add6e76a9a8efd06198"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -4659,7 +4659,7 @@
     {
       "path": "public/sw.js",
       "bytes": 906,
-      "sha256": "9f1984a18062f4e515b6fd558eecaec9226553b261425632d4a4f9fef9b6c068"
+      "sha256": "1abedd6d919d51e70663387796cc9e7908e596b8b975f6c5af4241de0b333add"
     },
     {
       "path": "scripts/build-verified.sh",
