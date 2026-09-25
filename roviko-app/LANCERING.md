@@ -58,7 +58,7 @@ GitHub bouwt, ondertekent en uploadt de app voor je (workflow **Roviko app**, ta
    - `APPSTORE_KEY_ID`
    - `APPSTORE_ISSUER_ID`
    - `APPLE_TEAM_ID`
-7. **Bouwen:** GitHub → Actions → *Roviko app* → *Run workflow*. Na ongeveer 15 tot 30 minuten staat de build in App Store Connect onder **TestFlight**.
+7. **Bouwen:** GitHub → Actions → *Roviko app* → *Run workflow*. Kies bij "Use workflow from" de branch waarop de nieuwste Roviko staat (nu `claude/upbeat-sagan-8igsaj`). Na ongeveer 15 tot 30 minuten staat de build in App Store Connect onder **TestFlight**.
 8. **Testen via TestFlight** op je eigen iPhone (TestFlight-app, jezelf toevoegen als interne tester).
 9. **Winkelpagina invullen** in App Store Connect:
    - teksten uit `store-listing.md` (versie 1.19);
