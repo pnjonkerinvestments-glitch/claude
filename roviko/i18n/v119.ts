@@ -2,6 +2,7 @@
 // computer opponents and quick matches. Spread last in messages.ts.
 export const v119Messages = {
   en: {
+    legalUpdated: 'Last updated: {date}',
     playNowTitle: 'Play right now', playNowLead: 'No friends online? Play a random player or the computer.',
     quickTitle: 'Play a random player', quickCopy: 'We match you with someone who is searching too. Ten mixed questions, 15 seconds each.', quickStart: 'Find a player',
     quickSearching: 'Looking for a player\u2026', quickSearchingCopy: 'Keep this screen open. The game starts as soon as someone joins.', quickElapsed: 'Searching for {time}',
@@ -20,6 +21,7 @@ export const v119Messages = {
     cardRoomTitle: 'Play together', cardRoomTag: 'Friends, a random player or the computer.',
   },
   nl: {
+    legalUpdated: 'Laatst bijgewerkt: {date}',
     playNowTitle: 'Nu meteen spelen', playNowLead: 'Geen vrienden online? Speel tegen een willekeurige speler of tegen de computer.',
     quickTitle: 'Speel tegen een willekeurige speler', quickCopy: 'We koppelen je aan iemand die ook zoekt. Tien gemengde vragen, 15 seconden per vraag.', quickStart: 'Zoek een speler',
     quickSearching: 'We zoeken een tegenstander\u2026', quickSearchingCopy: 'Houd dit scherm open. Het spel begint zodra iemand meedoet.', quickElapsed: 'Al {time} aan het zoeken',
@@ -38,6 +40,7 @@ export const v119Messages = {
     cardRoomTitle: 'Samen spelen', cardRoomTag: 'Met vrienden, een willekeurige speler of de computer.',
   },
   es: {
+    legalUpdated: 'Última actualización: {date}',
     playNowTitle: 'Juega ahora', playNowLead: '¿No hay amigos en línea? Juega contra alguien al azar o contra el ordenador.',
     quickTitle: 'Juega contra alguien al azar', quickCopy: 'Te emparejamos con alguien que también busca. Diez preguntas mixtas, 15 segundos cada una.', quickStart: 'Buscar jugador',
     quickSearching: 'Buscando un rival\u2026', quickSearchingCopy: 'Deja esta pantalla abierta. El juego empieza en cuanto alguien se une.', quickElapsed: 'Buscando desde hace {time}',

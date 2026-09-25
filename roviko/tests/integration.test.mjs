@@ -545,3 +545,19 @@ test('hosts can add and remove computer players of every level, at most five, ne
  await request(a.cookie,'/rooms/'+code+'/start','POST',{});
  assert.equal((await request(a.cookie,'/rooms/'+code+'/bot','POST',{level:'easy'})).status,400);
 });
+
+test('guests without any game for a year are deleted with their data; accounts and active guests stay',async()=>{
+ await build({stdin:{contents:"export {pruneExpired,GUEST_RETENTION_MS} from './server/retention';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/retention.mjs',format:'esm',platform:'node',logLevel:'error'});
+ const {pruneExpired,GUEST_RETENTION_MS}=await import('../.test-runtime/retention.mjs');
+ const old=await bootstrap(),active=await bootstrap();
+ const ids=[];for(const u of [old,active]){const me=(await request(u.cookie,'/bootstrap')).data.user;ids.push(me.id);await request(u.cookie,'/ranks','POST',{});}
+ const now=Date.now(),long=now-GUEST_RETENTION_MS-86400000;
+ await db.prepare('UPDATE users SET created_at=? WHERE id IN (?,?)').bind(long,ids[0],ids[1]).run();
+ await db.prepare('UPDATE game_sessions SET created_at=? WHERE user_id=?').bind(long,ids[0]).run();
+ await db.prepare('UPDATE auth_sessions SET expires_at=? WHERE user_id=?').bind(long,ids[0]).run();
+ await pruneExpired({DB:db},now,true);
+ assert.equal((await db.prepare('SELECT COUNT(*) n FROM users WHERE id=?').bind(ids[0]).first()).n,0,'inactive guest removed');
+ assert.equal((await db.prepare('SELECT COUNT(*) n FROM game_sessions WHERE user_id=?').bind(ids[0]).first()).n,0,'their games go too');
+ assert.equal((await db.prepare('SELECT COUNT(*) n FROM users WHERE id=?').bind(ids[1]).first()).n,1,'a guest who played recently stays');
+ assert.equal((await request(active.cookie,'/bootstrap')).data.user.id,ids[1]);
+});

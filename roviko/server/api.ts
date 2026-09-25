@@ -1,6 +1,7 @@
 import { competitionSummary } from './competition';
 import { startRank, rankAction } from './ranks';
 import { startDuel, duelAction } from './duel';
+import { pruneExpired } from './retention';
 import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
 import { measure, measureStart } from './telemetry';
@@ -65,6 +66,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return await googleAuth(req, env);
         if (path[0] === 'bootstrap') {
             await ensureCatalog(env);
+            const cleanup = pruneExpired(env).catch(() => { /* housekeeping never blocks a visit */ });
+            if (ctx) ctx.waitUntil(cleanup); else await cleanup;
             let user = await getUser(req, env), cookie = '';
             if (!user) {
                 const g = await guest(req, env);

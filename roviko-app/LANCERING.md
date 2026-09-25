@@ -1,6 +1,6 @@
 # Roviko lanceren in de App Store en Google Play
 
-Deze checklist hoort bij versie 1.17 van de website. Wat klaarstaat, staat bovenaan. Wat alleen jij kunt doen (accounts, betalingen, juridische gegevens, ondertekenen), staat daaronder, in de volgorde waarin je het doet.
+Deze checklist hoort bij versie 1.19 van de website. Wat klaarstaat, staat bovenaan. Wat alleen jij kunt doen (accounts, betalingen, juridische gegevens, ondertekenen), staat daaronder, in de volgorde waarin je het doet.
 
 ## ✅ Klaar in deze map
 
@@ -19,11 +19,12 @@ Deze checklist hoort bij versie 1.17 van de website. Wat klaarstaat, staat boven
 | Account verwijderen in de app (verplicht bij Apple en Google) | Paspoort → "Verwijder mijn account" |
 | Dagelijkse herinnering (lokale melding, geen server nodig) | Website: `components/atelier/NativeReminder.tsx` |
 
-## ⚠️ Eerst: drie dingen die de lancering tegenhouden
+## ⚠️ Eerst
 
-1. **Zet 1.17 live op roviko.app.** De app laadt de live website. De screenshots tonen 1.17. Staat roviko.app nog op een oudere versie, dan ziet de reviewer iets anders dan de screenshots. Publiceer dus eerst 1.17 (via de ChatGPT-zip of via Cloudflare, zie `../roviko/docs/PUBLICEREN.md`).
-2. **Vul de privacyverklaring en de voorwaarden aan.** Apple en Google eisen een privacybeleid met contactgegevens. Op `/privacy` en `/terms` staan nog gele blokken "nog in te vullen". Het gaat om je naam of bedrijfsnaam, een adres, een contact-e-mail, bewaartermijnen, de hostingpartij en de minimumleeftijd. Die gegevens kan alleen jij aanleveren. Ik verzin ze niet. Geef ze door, dan zet ik ze erin.
-3. **Een support-e-mailadres of supportpagina.** Beide winkels vragen erom. Bijvoorbeeld `support@roviko.app` of een contactpagina.
+1. **Zet 1.19.1 live op roviko.app** (privacy en voorwaarden zijn daarin compleet). De app laadt de live website.
+2. ✅ Privacyverklaring en voorwaarden: ingevuld (Roviko, Herengracht 584, 1018 CJ Amsterdam).
+3. ✅ Support-adres: `support@roviko.app` (Cloudflare Email Routing, doorgestuurd naar de eigenaar).
+4. Werk de winkelteksten en screenshots bij naar 1.19 (Dagelijkse Omweg + vijf dagspellen, 6.000 punten) voordat je indient.
 
 ## Google Play (Android)
 

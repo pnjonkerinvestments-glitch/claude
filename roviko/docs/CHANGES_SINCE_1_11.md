@@ -375,3 +375,11 @@ Het overzicht "nog x spellen", de dagdoelen, de reeks-uitleg en de lange scoreka
 - Potjes met een computerspeler tellen nooit mee voor de ranglijsten (geen matchscore, XP of winst), wel voor je eigen statistieken.
 
 **Tests.** Nieuw: het gescoorde dagduel (verborgen waarden, eenmalig, 6.000 max), quick match en computer-na-wachten, computerspelers toevoegen/verwijderen, en `tests/bots.test.mjs` (geldige antwoorden voor elk vraagtype, moeilijker = vaker goed en sneller).
+
+## 1.19.1: privacyverklaring en voorwaarden compleet
+
+Geen nieuwe migratie. Cacheversie `roviko-shell-v1.19.1`.
+
+- Privacy en voorwaarden zijn ingevuld met de gegevens van de eigenaar: Roviko, Herengracht 584, 1018 CJ Amsterdam, support@roviko.app. Geen gele "nog in te vullen"-blokken meer.
+- Nieuw in de privacyverklaring: bewaartermijnen, hosting (nu OpenAI/ChatGPT-hosting), Google-login, de Autoriteit Persoonsgegevens. Nieuw in de voorwaarden: leeftijd (account vanaf 16, jonger met toestemming; gastspel voor iedereen), aansprakelijkheid, wijzigingen en Nederlands recht. Beide pagina's tonen de datum van de laatste wijziging.
+- Automatische opschoning (`server/retention.ts`, draait hooguit elke 6 uur mee met gewoon verkeer): gasten zonder spel en zonder geldige sessie in 12 maanden worden met hun gegevens verwijderd, verlopen sessies en kamers ook. Accounts worden alleen door de eigenaar zelf verwijderd. Getest in `tests/integration.test.mjs`.

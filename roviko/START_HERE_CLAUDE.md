@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.19.0 · 25 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
+**Versie 1.19.1 · 25 september 2026** (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
 Hostingadres: https://roviko.info960133.chatgpt.site
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -39,6 +39,7 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Wereldduel is sinds 1.19 dagspel 2 met punten: 200 per gewonnen duel, server-gezaghebbend (`server/duel.ts`, `/api/duels`); de waarden en de perfecte route van een ronde gaan pas naar de browser nadat je een kaart hebt gespeeld. Oefenduels (`/duel/practice`) blijven lokaal en zonder punten. Het mysterieland is een extra zonder punten. Houd het aantal zichtbare spelvormen klein; voeg liever uitleg of variatie toe dan nieuwe modi.
 - Multiplayer (1.19): snel spelen tegen een willekeurige speler (`POST /api/match/quick`); na 3 minuten zonder tegenstander krijgt de speler een knop om tegen de computer te spelen. Computerspelers (makkelijk/gemiddeld/moeilijk, `lib/game-engine/bots.ts`) kunnen ook in elke kamer worden toegevoegd (max. 5). Potjes met een computerspeler tellen nooit mee voor de ranglijsten.
 - Toon feedback zodra de server heeft bevestigd. Verstuur nooit dagspeloplossingen vooraf om feedback sneller te laten lijken. Ongescoord oefenen mag lokaal onmiddellijk reageren.
+- Privacy en voorwaarden (1.19.1): aanbieder Roviko, Herengracht 584, 1018 CJ Amsterdam, support@roviko.app; account vanaf 16 jaar (jonger met toestemming), gastspel voor iedereen; Nederlands recht. Gegevens staan in `OPERATOR` en `HOSTING` in `components/pages/InfoPages.tsx`. Gastvoortgang wordt na 12 maanden zonder spel automatisch verwijderd (`server/retention.ts`); pas de hostingregel aan bij een verhuizing.
 - Behoud bronnen, meetjaren, licenties, opgeslagen voortgang en de oorspronkelijke v3-vormgeving.
 
 ## Stack en bestanden

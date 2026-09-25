@@ -8,12 +8,18 @@ import { MosaicSources } from '../puzzles/MosaicSources';
 
 /**
  * Privacy, terms and data credits. Facts only come from how Roviko actually works today.
- * Anything the owner still has to decide (legal entity, contact, retention, subprocessors,
- * governing law) is shown as a visible "to be completed" note instead of being invented.
+ * Owner-supplied details live in OPERATOR and HOSTING. A section can still carry a visible
+ * "to be completed" note (todo) for anything not yet decided, instead of inventing it.
  */
 type L = { en: string; nl: string; es: string };
 type Section = { id: string; title: L; body: L[]; todo?: L };
 const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
+
+/** Details given by the owner (September 2026). Change them here only; both documents use them. */
+const OPERATOR = { name: 'Roviko', address: 'Herengracht 584, 1018 CJ Amsterdam', email: 'support@roviko.app' };
+/** Current hosting. Update this line when the site moves (for example to Cloudflare). */
+const HOSTING = l('OpenAI (ChatGPT hosting)', 'OpenAI (ChatGPT-hosting)', 'OpenAI (alojamiento de ChatGPT)');
+export const LEGAL_UPDATED = '2026-09-25';
 
 const PRIVACY: Section[] = [
   { id: 'what-we-keep', title: l('What we keep', 'Wat we bewaren', 'Qué guardamos'), body: [
@@ -38,10 +44,18 @@ const PRIVACY: Section[] = [
     l('In your passport you can download your data and delete your account. Guest progress is tied to the session cookie. Sessions expire after 30 days. Rooms expire after 30 minutes without active players.',
       'In je paspoort kun je je gegevens downloaden en je account verwijderen. Gastvoortgang is verbonden aan de sessiecookie. Sessies verlopen na 30 dagen. Rooms verlopen na 30 minuten zonder actieve spelers.',
       'Desde tu pasaporte puedes descargar tus datos y eliminar la cuenta. El progreso de invitado está vinculado a la cookie de sesión. Las sesiones caducan a los 30 días y las salas tras 30 minutos sin jugadores activos.')] },
-  { id: 'controller', title: l('Who is responsible', 'Wie is verantwoordelijk', 'Quién es responsable'), body: [],
-    todo: l('Name and address of the data controller, a contact email for privacy questions, retention periods for results and accounts, the hosting provider and any other subprocessors, and the supervisory authority.',
-      'Naam en adres van de verwerkingsverantwoordelijke, een contactadres voor privacyvragen, bewaartermijnen voor resultaten en accounts, de hostingpartij en eventuele andere subverwerkers, en de toezichthouder.',
-      'Nombre y dirección del responsable del tratamiento, un correo de contacto para privacidad, plazos de conservación de resultados y cuentas, el proveedor de alojamiento y otros encargados, y la autoridad de control.') },
+  { id: 'retention', title: l('How long we keep it', 'Hoe lang we het bewaren', 'Cuánto tiempo lo guardamos'), body: [
+    l('Accounts and their results stay until you delete your account in your passport; everything is then removed at once. Guest progress is deleted automatically after 12 months without a game. Sign-in sessions expire after 30 days, game rooms 30 minutes after the last player leaves, and optional measurement events after 90 days.',
+      'Accounts en hun resultaten blijven bewaard tot je je account verwijdert in je paspoort; dan verdwijnt alles in één keer. Gastvoortgang wordt automatisch verwijderd na 12 maanden zonder spel. Inlogsessies verlopen na 30 dagen, spelkamers 30 minuten nadat de laatste speler weg is, en optionele meetgegevens na 90 dagen.',
+      'Las cuentas y sus resultados se conservan hasta que elimines la cuenta desde tu pasaporte; entonces se borra todo a la vez. El progreso de invitado se elimina automáticamente tras 12 meses sin jugar. Las sesiones caducan a los 30 días, las salas 30 minutos después de que salga el último jugador y las mediciones opcionales a los 90 días.')] },
+  { id: 'hosting', title: l('Where it is stored', 'Waar het wordt opgeslagen', 'Dónde se guarda'), body: [
+    l(`The website and its database are hosted by ${HOSTING.en}. If you choose to sign in with Google, Google confirms your email address to us. We do not sell data and share it with no one else.`,
+      `De website en de database worden gehost door ${HOSTING.nl}. Kies je ervoor om met Google in te loggen, dan bevestigt Google je e-mailadres aan ons. We verkopen geen gegevens en delen ze met niemand anders.`,
+      `El sitio web y su base de datos están alojados por ${HOSTING.es}. Si decides iniciar sesión con Google, Google nos confirma tu correo electrónico. No vendemos datos ni los compartimos con nadie más.`)] },
+  { id: 'controller', title: l('Who is responsible', 'Wie is verantwoordelijk', 'Quién es responsable'), body: [
+    l(`${OPERATOR.name}, ${OPERATOR.address}, is responsible for your data. Questions, requests to see or correct your data, or complaints: ${OPERATOR.email}. You may also complain to the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).`,
+      `${OPERATOR.name}, ${OPERATOR.address}, is verantwoordelijk voor je gegevens. Vragen, verzoeken om je gegevens in te zien of te verbeteren, of klachten: ${OPERATOR.email}. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.`,
+      `${OPERATOR.name}, ${OPERATOR.address}, es responsable de tus datos. Preguntas, solicitudes de acceso o rectificación, o quejas: ${OPERATOR.email}. También puedes reclamar ante la autoridad neerlandesa de protección de datos (Autoriteit Persoonsgegevens).`)] },
 ];
 
 const TERMS: Section[] = [
@@ -57,10 +71,18 @@ const TERMS: Section[] = [
     l('The current games are free. There are no payments or purchasable answer advantages. Source licences continue to apply to geographic data and open assets.',
       'De huidige spellen zijn gratis. Er zijn geen betalingen of koopbare kennisvoordelen. Bronlicenties blijven van toepassing op de geografische data en gebruikte open assets.',
       'Los juegos actuales son gratuitos. No hay pagos ni ventajas de conocimiento comprables. Las licencias de las fuentes siguen aplicándose a los datos geográficos y recursos abiertos.')] },
-  { id: 'operator', title: l('Who runs Roviko', 'Wie Roviko aanbiedt', 'Quién ofrece Roviko'), body: [],
-    todo: l('The operator’s legal name and address, a contact email, minimum age or parental consent rules, liability limits, governing law and how changes to these terms are announced.',
-      'De juridische naam en het adres van de aanbieder, een contactadres, een minimumleeftijd of regels voor toestemming van ouders, aansprakelijkheid, toepasselijk recht en hoe wijzigingen worden aangekondigd.',
-      'Nombre legal y dirección del titular, un correo de contacto, edad mínima o consentimiento parental, límites de responsabilidad, ley aplicable y cómo se anuncian los cambios.') },
+  { id: 'age', title: l('Age', 'Leeftijd', 'Edad'), body: [
+    l('Anyone can play as a guest. You need to be 16 or older to create an account; younger players need permission from a parent or guardian.',
+      'Iedereen kan als gast spelen. Voor een account moet je 16 jaar of ouder zijn; jongere spelers hebben toestemming nodig van een ouder of verzorger.',
+      'Cualquiera puede jugar como invitado. Para crear una cuenta debes tener 16 años o más; los menores necesitan permiso de un padre, madre o tutor.')] },
+  { id: 'liability', title: l('Liability and changes', 'Aansprakelijkheid en wijzigingen', 'Responsabilidad y cambios'), body: [
+    l('Roviko is a free learning game, offered as it is. We do our best to keep it available and the facts correct, but cannot guarantee either. We are not liable for indirect damage, except in case of intent or gross negligence. We announce changes to these terms on this page, with the date; important changes are also shown in the game.',
+      'Roviko is een gratis leerspel en wordt aangeboden zoals het is. We doen ons best om het beschikbaar en de feiten juist te houden, maar kunnen dat niet garanderen. We zijn niet aansprakelijk voor indirecte schade, behalve bij opzet of grove nalatigheid. Wijzigingen in deze voorwaarden maken we op deze pagina bekend, met de datum; belangrijke wijzigingen tonen we ook in het spel.',
+      'Roviko es un juego educativo gratuito, ofrecido tal cual. Hacemos lo posible por mantenerlo disponible y los datos correctos, pero no podemos garantizarlo. No somos responsables de daños indirectos, salvo dolo o negligencia grave. Anunciamos los cambios de estas condiciones en esta página, con la fecha; los cambios importantes también se muestran en el juego.')] },
+  { id: 'operator', title: l('Who runs Roviko', 'Wie Roviko aanbiedt', 'Quién ofrece Roviko'), body: [
+    l(`Roviko is offered by ${OPERATOR.name}, ${OPERATOR.address}. Contact: ${OPERATOR.email}. Dutch law applies to these terms.`,
+      `Roviko wordt aangeboden door ${OPERATOR.name}, ${OPERATOR.address}. Contact: ${OPERATOR.email}. Op deze voorwaarden is Nederlands recht van toepassing.`,
+      `Roviko lo ofrece ${OPERATOR.name}, ${OPERATOR.address}. Contacto: ${OPERATOR.email}. Estas condiciones se rigen por la legislación neerlandesa.`)] },
 ];
 
 type Dataset = { name: string; provider: string; year: string; licence: string; usedFor: L; href: string; downloads: { label: L; href: string }[]; licenceHref: string };
@@ -96,6 +118,7 @@ function LegalPage({ kind }: { kind: 'privacy' | 'terms' }) {
     <div className="doc-layout">
       <Toc sections={sections} t={t} locale={L}/>
       <article className="doc-body">
+        <p className="doc-updated muted">{t('legalUpdated').replace('{date}', new Date(LEGAL_UPDATED + 'T12:00:00Z').toLocaleDateString(L, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }))}</p>
         {sections.map(s => <section key={s.id} id={s.id} aria-labelledby={s.id + '-title'}>
           <h2 id={s.id + '-title'}>{s.title[L]}</h2>
           {s.body.map((p, i) => <p key={i}>{p[L]}</p>)}
