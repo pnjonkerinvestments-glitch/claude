@@ -1,8 +1,8 @@
 {
   "product": "Roviko",
-  "website_version": "1.19.3",
-  "exported_at": "2026-09-25T09:46:29.337Z",
-  "source_commit": "d233cd9124f38d2fa116c82cd239d44f142b8144",
+  "website_version": "1.19.4",
+  "exported_at": "2026-09-25T10:02:13.569Z",
+  "source_commit": "e99c8c719d7bd815854216e1de5fc3ec112047b1",
   "based_on": {
     "chatgpt_1_11_source_commit": "55047534f1fa2d5e783912fcf99f0c1761bbc50e",
     "v3_baseline_commit": "65890864ca0bfdebe0da9481d3f8bbbe3c8bdc29",
@@ -98,8 +98,8 @@
     },
     {
       "path": "START_HERE_CLAUDE.md",
-      "bytes": 12255,
-      "sha256": "a9a6c94115f47d34933f8067c0ffd79d1bc016eb0de097e5b716127aa90ec2dc"
+      "bytes": 12452,
+      "sha256": "dc284c7d469dd4dafc1be12b374aa651f0cf9fbc9b6e7da2bc13c29e54caf33d"
     },
     {
       "path": "app/[...slug]/page.tsx",
@@ -333,8 +333,8 @@
     },
     {
       "path": "components/pages/InfoPages.tsx",
-      "bytes": 23292,
-      "sha256": "759ededef99b09f4a850c88581d59f0706af53f879865e5d252da2d3ca239f99"
+      "bytes": 23318,
+      "sha256": "37de88cc32e9b9d6c59b78e840533e00107a747fc121b77aca744f7fb7017a95"
     },
     {
       "path": "components/pages/MultiplayerPage.tsx",
@@ -733,13 +733,18 @@
     },
     {
       "path": "docs/CHANGES_SINCE_1_11.md",
-      "bytes": 27907,
-      "sha256": "a9ad4548f0061ae7b7f123d3d97eaed1b6b6720b1e40a10fc1adf8fd2fa33983"
+      "bytes": 28048,
+      "sha256": "fb568f1d1763d15e704c6d128102980f9d3f95008b399a1b5193192a3d14f110"
     },
     {
       "path": "docs/CHANGES_SINCE_V3.md",
       "bytes": 3891,
       "sha256": "a9f812f2bf366ff2a804205f2fb1c24f3ac48918b9415c6fcaeaef21bad131c4"
+    },
+    {
+      "path": "docs/CLOUDFLARE_VERHUIZING.md",
+      "bytes": 2718,
+      "sha256": "91abdcc0edc15f04deb67acfb1b06af913bfd3da630715ac878ecdacb378944b"
     },
     {
       "path": "docs/DUOLINGO_ANALYSE.md",
@@ -1114,7 +1119,7 @@
     {
       "path": "lib/config.ts",
       "bytes": 1146,
-      "sha256": "4ffdacba8075ace45b6cdf90e5186e2a3f8a0b2858d7753ef9aded4506787fc2"
+      "sha256": "b032fd98d9f3741de3bc42af749c57b2bdbd37c6b794b0666b782bc602441c37"
     },
     {
       "path": "lib/daily-loop.ts",
@@ -4659,7 +4664,7 @@
     {
       "path": "public/sw.js",
       "bytes": 906,
-      "sha256": "09a0abb07679994edef57c76b6dbc4c65e3cd1021d4e120858218131a22afce4"
+      "sha256": "df308a41066714a91b66e314c513160bee4fdf77b98d8b4dac00b1171a31f923"
     },
     {
       "path": "scripts/build-verified.sh",
