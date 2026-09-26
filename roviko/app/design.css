@@ -1837,3 +1837,6 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
 .tour-art img[src*="join-mascot"]{object-fit:contain;padding:12px}
 @media (min-width:900px){.bonus-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.bonus-body .game-icon{display:none}}
 .guest-banner{margin-top:var(--space-5)}
+/* iOS zooms into any focused field under 16px and, in the app, stays zoomed in afterwards. Touch screens
+   therefore always get 16px text in fields (the big room-code fields keep their own, larger size). */
+@media (hover:none) and (pointer:coarse){.text-input:not(.code-input),textarea,select,input:not(.code-input):not([type=checkbox]):not([type=radio]):not([type=range]){font-size:16px!important}}
