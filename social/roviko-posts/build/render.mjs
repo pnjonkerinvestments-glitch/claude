@@ -1,4 +1,4 @@
-// Screenshots every <section data-out> in build/slides.html (feed posts) and build/stories.html to PNG.
+// Screenshots every <section data-out> in build/slides.html (feed), stories.html and x.html to PNG.
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -9,9 +9,9 @@ const { chromium } = createRequire(import.meta.url)('playwright');
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
+const page = await browser.newPage({ viewport: { width: 1600, height: 1350 } });
 const only = process.argv[2];
-for (const html of ['slides.html', 'stories.html']) {
+for (const html of ['slides.html', 'stories.html', 'x.html']) {
   if (!existsSync(resolve(here, html))) continue;
   await page.goto(pathToFileURL(resolve(here, html)).href, { waitUntil: 'load' });
   await page.evaluate(() => document.fonts.ready);

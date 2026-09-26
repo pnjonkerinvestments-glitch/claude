@@ -216,3 +216,13 @@ Regenerate: `python3 build/stories.py && node build/render.mjs stories/`.
 **Covers:** when you add a Highlight, pick "Edit cover" and choose the matching `covers/*.png`. Instagram crops it to the centred circle.
 
 **Checked against the site:** the six daily games, the How to Play steps, "up to 1,000 points per game", no timer in solo play, 2 to 12 players per room, computer at three levels without ranking points (`MULTIPLAYER.md`), and 195 countries with their region counts (`public/data/countries.json`). The Estonia and Chile answers also appear in the stories, so avoid posting the feed version of post 3 on the same day. The same goes for post 8 if it uses the same shape.
+
+---
+
+# X (Twitter)
+
+Folder `x/`: nine image posts at **1600 × 900 (16:9)**, which X shows uncropped. Post 4 has a separate answer image, and post 8 has three shape versions (pick one). There is also a profile header (1500 × 500) and a profile picture (the app icon).
+
+**All texts are in [`x/POSTS.md`](x/POSTS.md):** bio, pinned post, the text per image post (with character count and alt text), replies with the answers, and five text-only posts to go in between (a question, a poll and so on). The texts live in `build/post_copy.py`.
+
+Regenerate: `python3 build/x.py && node build/render.mjs x/`, then `python3 build/package.py` for `x/POSTS.md` and the zip with everything ready to post (every image next to its caption and alt text).
