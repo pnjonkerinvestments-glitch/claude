@@ -30,3 +30,25 @@ The privacy policy is also at https://roviko.app/privacy, the terms at https://r
 ## Demo account (optional)
 
 Not needed: everything works as a guest. If Apple still asks for one, create an account in the app beforehand (Passport → sign in → create account) and enter its email and password in "Sign-in information". Never put that password in this repository.
+
+## Answer to Guideline 2.1 "Information Needed" (26 September 2026)
+
+Apple asked for a screen recording plus the answers below. Paste them in the reply in App Store Connect and also in the Notes field (for future submissions). Attach the screen recording (made on an iPhone, see the Dutch checklist in the chat history / below).
+
+---
+
+Hello App Review team, thank you for the review. Here is the requested information. A screen recording from a physical iPhone is attached.
+
+**1. Screen recording.** Attached. It starts with launching the app and shows: the daily geography trip and a daily game, a multiplayer match against the computer, reporting and blocking another player, creating an account, signing out and in again, and deleting the account in the app (Passport tab → Account and privacy → Delete my account).
+
+**2. Purpose and audience.** Roviko is a free daily geography game. Every day there is a 20-question "Daily Detour" (flags, capitals, the map, neighbouring countries, sizes) and five short puzzle games, the same for everyone, with points and a daily ranking. It helps people learn world geography in a few minutes a day in a playful way, and gives a reason to come back every day (a streak, rankings, friends). It is for anyone who enjoys geography: casual players, students and quiz fans. Everyone can play as a guest; an optional account is for ages 16 and up (younger with parental consent). There are no ads and no in-app purchases.
+
+**3. How to access the features.** No login is needed: the app creates a guest profile automatically and every feature can be tested as a guest. Play tab: "Start today's trip" starts the Daily Detour; the five daily games follow below it. Friends tab: "Play against the computer" → pick a level → "Play now" starts a full multiplayer match with one device. An account is optional (Passport tab → Sign in → Create account, email and password); it adds the friends list. Account deletion: Passport tab → Account and privacy → Delete my account (also works for guests, deletes all data immediately). No demo account or sample files are needed.
+
+**4. External services.** Cloudflare (hosting of the app's web service and its database). No third-party sign-in, payment, analytics, advertising or AI services are used. The game content is built from openly licensed data that is bundled with the app, not fetched live from third parties: country data from the world-countries project (ODbL), map data from Natural Earth (public domain), flags from flag-icons (MIT) and statistics from the World Bank World Development Indicators (CC BY 4.0). Attribution is shown at https://roviko.app/sources. Daily reminders are local notifications on the device.
+
+**5. Regional differences.** None. The app works the same in all regions. The interface is available in English, Dutch and Spanish, and the daily puzzles and rankings are global.
+
+**6. Regulated industry or protected material.** Not applicable. Roviko is a game and does not operate in a regulated industry. It uses no protected third-party material: all data and artwork are either original or used under open licences, listed with attribution at https://roviko.app/sources.
+
+Contact: support@roviko.app. Thank you!
