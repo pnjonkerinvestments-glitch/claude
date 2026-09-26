@@ -31,7 +31,7 @@ test('180 daily seeds produce six distinct countries and unambiguous, varied fou
   assert.equal(new Set(rounds.map(r=>r.correct)).size,6);
   for(const q of rounds){assert.equal(q.options.length,4);assert.equal(new Set(q.options.map(o=>o.id)).size,4);assert.ok(!['RUS','UKR','ISR','PSE'].includes(q.country.id));
    const winner=q.options.find(o=>o.id===q.correct);winners.add(winner.id);
-   for(const o of q.options){assert.ok(Number.isFinite(o.value));assert.ok(o.rank>=1&&o.rank<=o.coverage);assert.ok(o.coverage>=150);assert.ok(o.source&&o.sourceUrl);assert.ok(o.explanation.en&&o.explanation.nl);if(o.id==='age')assert.equal(o.referenceYear,2025);if(['population','income','forest'].includes(o.id))assert.equal(o.referenceYear,2023);if(o.id!==winner.id){assert.ok(o.rank>winner.rank);assert.ok(o.position-winner.position>=.08);assert.ok(o.topPercent-winner.topPercent>=8);}}
+   for(const o of q.options){assert.ok(Number.isFinite(o.value));assert.ok(o.rank>=1&&o.rank<=o.coverage);assert.ok(o.coverage>=150);assert.ok(o.source&&o.sourceUrl);assert.ok(o.explanation.en&&o.explanation.nl);if(o.id==='age')assert.equal(o.referenceYear,2025);if(['population','income','forest'].includes(o.id))assert.ok(o.referenceYear>=2023);if(o.id!==winner.id){assert.ok(o.rank>winner.rank);assert.ok(o.position-winner.position>=.08);assert.ok(o.topPercent-winner.topPercent>=8);}}
   }
  }
  assert.equal(winners.size,15);assert.equal(RANK_CATEGORIES.length,15);assert.notDeepEqual(generateRankRounds('today'),generateRankRounds('tomorrow'));

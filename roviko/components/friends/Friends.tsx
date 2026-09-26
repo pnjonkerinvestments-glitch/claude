@@ -142,3 +142,43 @@ export function FriendsPage() {
     </>}
   </div>;
 }
+
+/**
+ * Top of the Multiplayer page: friends who are online right now, one tap to invite or join them,
+ * and adding a friend by code without leaving the page. Guests see how to unlock friends.
+ */
+export function FriendsOnlinePanel() {
+  const app = useApp(), { t, boot, setModal, fail, copy, go } = app;
+  const { friends, reload } = useFriends();
+  const [code, setCode] = useState(''), [busy, setBusy] = useState(false), [inviting, setInviting] = useState('');
+  if (boot.user.guest) return <section className="mp-friends is-guest" aria-labelledby="mp-friends-title">
+    <div className="mp-friends-head"><Users size={22} aria-hidden="true"/><div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{t('mpFriendsGuest')}</p></div></div>
+    <img className="mp-friends-art" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/>
+    <div className="mp-friends-actions"><button className="btn primary" onClick={() => setModal('signup')}>{t('passportSave')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></div>
+  </section>;
+  const accepted = (friends ?? []).filter(f => f.status === 'accepted');
+  const online = accepted.filter(f => f.online);
+  const requests = (friends ?? []).filter(f => f.status === 'pending' && f.to_id === boot.user.id);
+  const add = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await post('/friends', { code }); setCode(''); toast.success(t('friendSaved')); reload(); } catch (err) { fail(err); } finally { setBusy(false); } };
+  const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
+  const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
+  return <section className="mp-friends" aria-labelledby="mp-friends-title">
+    <div className="mp-friends-head">
+      <Users size={22} aria-hidden="true"/>
+      <div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{friends === null ? t('loading') : t('friendsOnlineCount').replace('{n}', String(online.length))}</p></div>
+      <A href="/friends" className="text-link mp-friends-all">{t('friendsAll')}<ArrowRight size={15} aria-hidden="true"/></A>
+    </div>
+    {requests.length > 0 && <A href="/friends" className="mp-friends-requests">{t('mpFriendRequests').replace('{n}', String(requests.length))}<ArrowRight size={15} aria-hidden="true"/></A>}
+    {friends === null ? <div className="sk-list"><Skeleton className="sk-block sk-list-row"/></div>
+      : online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.room_code
+        ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
+        : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
+      : <p className="mp-friends-empty">{accepted.length ? t('friendsNobodyOnline') : t('mpFriendsNone')}</p>}
+    <form className="mp-friend-add" onSubmit={add}>
+      <button type="button" className="friend-code" onClick={() => copy(boot.user.friendCode)} aria-label={t('friendCode') + ' ' + boot.user.friendCode}><small>{t('mpYourCode')}</small><b>{boot.user.friendCode}</b><Copy size={15} aria-hidden="true"/></button>
+      <label className="sr-only" htmlFor="mp-friend-code">{t('friendCode')}</label>
+      <input className="code-input" id="mp-friend-code" placeholder={t('friendPlaceholder')} maxLength={8} minLength={8} value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} autoComplete="off" autoCapitalize="characters"/>
+      <button className="btn secondary" disabled={busy || code.length !== 8}><UserPlus size={17} aria-hidden="true"/>{t('mpAddFriend')}</button>
+    </form>
+  </section>;
+}

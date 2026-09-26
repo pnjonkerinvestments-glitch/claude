@@ -13,7 +13,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '🧳', text: l('Twenty questions from every kind of game, mixed: flags, capitals, the map, neighbours and sizes.', 'Twintig vragen uit alle soorten spellen door elkaar: vlaggen, hoofdsteden, de kaart, buurlanden en grootte.', 'Veinte preguntas de todos los tipos de juego, mezcladas: banderas, capitales, el mapa, vecinos y tamaños.') },
     { icon: '👆', text: l('Tap the answer you think is right. There is no timer, take your time.', 'Tik op het antwoord dat jij denkt. Er is geen tijdsdruk, neem je tijd.', 'Toca la respuesta que creas correcta. No hay reloj, tómate tu tiempo.') },
     { icon: '💡', text: l('After every answer you see if it was right, with a fun fact. Each question is worth up to 50 points.', 'Na elk antwoord zie je of het goed was, met een weetje. Elke vraag is tot 50 punten waard.', 'Después de cada respuesta ves si acertaste, con un dato curioso. Cada pregunta vale hasta 50 puntos.') },
-  ], tip: l('Everyone gets the same detour today. A new one starts at midnight (UTC).', 'Iedereen krijgt vandaag dezelfde omweg. Om middernacht (UTC) begint een nieuwe.', 'Hoy todos hacen el mismo desvío. Uno nuevo empieza a medianoche (UTC).') },
+  ], tip: l('Everyone gets the same trip today. A new one every day: come back tomorrow.', 'Iedereen krijgt vandaag dezelfde reis. Elke dag een nieuwe: kom morgen terug.', 'Hoy todos hacen el mismo viaje. Cada día uno nuevo: vuelve mañana.') },
   compare: { emoji: '⚖️', steps: [
     { icon: '🌎', text: l('Two countries and one subject of the day, for example land neighbours.', 'Twee landen en één onderwerp van de dag, bijvoorbeeld het aantal buurlanden.', 'Dos países y un tema del día, por ejemplo los países vecinos.') },
     { icon: '👆', text: l('Tap the country with the higher value.', 'Tik op het land met de hoogste waarde.', 'Toca el país con el valor más alto.') },
@@ -52,7 +52,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   pinpoint: { emoji: '🗺️', steps: [
     { icon: '📍', text: l('You get the name of a country.', 'Je krijgt de naam van een land.', 'Recibes el nombre de un país.') },
     { icon: '👆', text: l('Tap the country on the world map: your tap is your answer. Pinch or use + and − to zoom in first.', 'Tik op het land op de wereldkaart: je tik is je antwoord. Zoom eerst in met knijpen of + en −.', 'Toca el país en el mapa: tu toque es tu respuesta. Antes, pellizca o usa + y − para acercar.') },
-    { icon: '📏', text: l('You see how far away you were and where the country really is.', 'Je ziet hoe ver je ernaast zat en waar het land echt ligt.', 'Ves a qué distancia quedaste y dónde está realmente el país.') },
+    { icon: '📏', text: l('A tap inside the country, or within 25 km of its border, is right. Otherwise the closer your pin, the more points, and you see where the country really is.', 'Een tik in het land, of binnen 25 km van de grens, is goed. Anders geldt: hoe dichterbij je pin, hoe meer punten, en je ziet waar het land echt ligt.', 'Un toque dentro del país, o a menos de 25 km de su frontera, es correcto. Si no, cuanto más cerca tu marca, más puntos, y ves dónde está realmente el país.') },
   ], tip: l('Start with the continent, then zoom in.', 'Begin bij het werelddeel en zoom dan in.', 'Empieza por el continente y luego acércate.') },
   borders: { emoji: '🤝', steps: [
     { icon: '🌍', text: l('You see a country.', 'Je ziet een land.', 'Ves un país.') },

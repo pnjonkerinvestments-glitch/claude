@@ -17,7 +17,7 @@ test('all 14 topics generate ten reproducible, unambiguous comparisons from date
       assert.equal(q.correct, [...q.countries].sort((a, b) => b.value - a.value)[0].id);
       assert.notEqual(formatMetric(q.countries[0].value, topic.unit, 'en'), formatMetric(q.countries[1].value, topic.unit, 'en'));
       assert.ok(q.countries.every(c => Number.isFinite(c.value) && c.name.en && c.name.nl && fs.existsSync('public' + c.flag)));
-      assert.equal(q.referenceYear, ['area','borders','equator','north'].includes(topic.id) ? null : 2023);
+      { const y = q.referenceYear; if (['area','borders','equator','north'].includes(topic.id)) assert.equal(y, null); else assert.ok(y >= 2023 && y <= new Date().getUTCFullYear()); }
       assert.ok(q.sourceUrl.startsWith('https://data.worldbank.org/indicator/') || q.sourceUrl === '/sources');
     }
   }
@@ -67,11 +67,12 @@ test('matching rejects duplicate and unknown tiles, and identifies a near match 
 test('statistical snapshots retain indicator attribution, licences and real reference years', () => {
   const source = JSON.parse(fs.readFileSync('lib/data/comparisons.json'));
   assert.equal(Object.keys(source.topics).length, 10);
-  assert.equal(source.reference_year, 2023);
+  // One reference year per indicator: the newest with near-full coverage, never older than 2023.
+  assert.ok(source.reference_year >= 2023);
   assert.equal(fs.readFileSync('lib/data/comparisons.json','utf8'), fs.readFileSync('public/data/comparisons.json','utf8'));
   for (const t of Object.values(source.topics)) {
     assert.ok(Object.keys(t.values).length >= 160);
-    assert.equal(t.license, 'CC BY-4.0'); assert.ok(t.provider); assert.equal(t.reference_year, 2023);
+    assert.equal(t.license, 'CC BY-4.0'); assert.ok(t.provider); assert.ok(t.reference_year >= 2023 && t.reference_year <= source.reference_year);
     assert.equal(t.license_metadata_url, 'https://data.worldbank.org/indicator/' + t.indicator);
   }
   assert.equal(Object.keys(JSON.parse(fs.readFileSync('public/data/silhouettes.json'))).length, 195);

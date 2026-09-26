@@ -13,7 +13,7 @@
     "url": "https://www.naturalearthdata.com/about/terms-of-use/",
     "license": "Public domain (data); ISC (world-atlas)",
     "importedAt": "2026-09-08",
-    "attribution": "Made with Natural Earth; world-atlas \u00a9 Michael Bostock."
+    "attribution": "Made with Natural Earth; world-atlas © Michael Bostock."
   },
   {
     "id": "flags",
@@ -21,15 +21,7 @@
     "url": "https://github.com/lipis/flag-icons",
     "license": "MIT",
     "importedAt": "2026-09-08",
-    "attribution": "flag-icons \u00a9 Panayiotis Lipiridis."
-  },
-  {
-    "id": "worldbank-wdi-2023",
-    "name": "The World Bank: World Development Indicators (2023 snapshot)",
-    "url": "https://datacatalog.worldbank.org/search/dataset/0037712/world-development-indicators",
-    "license": "CC BY 4.0 with World Bank additional terms",
-    "importedAt": "2026-09-09",
-    "attribution": "The World Bank: World Development Indicators. Original providers are retained for every indicator in /data/comparisons.json. Filtered to 2023 and the Roviko roster; display values rounded."
+    "attribution": "flag-icons © Panayiotis Lipiridis."
   },
   {
     "id": "factbook-archive",
@@ -38,5 +30,13 @@
     "license": "CC0 1.0; separately attributed factual correction for Germany",
     "importedAt": "2026-09-21",
     "attribution": "CIA World Factbook, archived by factbook/factbook.json. Archived observations; reference years and estimates retained. The CIA discontinued the Factbook in February 2026. Filtered and mapped to the 195-country roster; ambiguous values omitted."
+  },
+  {
+    "id": "worldbank-wdi",
+    "name": "The World Bank: World Development Indicators (2023–2025)",
+    "url": "https://datacatalog.worldbank.org/search/dataset/0037712/world-development-indicators",
+    "license": "CC BY 4.0 with World Bank additional terms",
+    "importedAt": "2026-09-25",
+    "attribution": "The World Bank: World Development Indicators. Original providers are retained for every indicator in /data/comparisons.json. Filtered to the Roviko roster, one reference year per indicator (the newest with near-full coverage); display values rounded."
   }
 ]

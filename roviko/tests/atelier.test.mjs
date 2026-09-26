@@ -56,7 +56,7 @@ test('text contrast meets 4.5:1 for both themes, all daily card surfaces and red
 });
 
 test('1.17 illustrations: every artwork the interface references exists and stays light', () => {
-  const files = ['components/home/CoverArt.tsx', 'components/atelier/GameCover.tsx', 'components/pages/ExplorePage.tsx', 'components/pages/MultiplayerPage.tsx', 'components/home/HomePage.tsx', 'components/atelier/HowToPlay.tsx', 'components/atelier/PassportCollection.tsx', 'components/atelier/DailyQuests.tsx', 'components/pages/ScoringPage.tsx', 'components/RovikoApp.tsx'];
+  const files = ['components/home/CoverArt.tsx', 'components/atelier/GameCover.tsx', 'components/pages/ExplorePage.tsx', 'components/pages/MultiplayerPage.tsx', 'components/home/HomePage.tsx', 'components/atelier/HowToPlay.tsx', 'components/atelier/PassportCollection.tsx', 'components/atelier/DailyQuests.tsx', 'components/pages/ScoringPage.tsx', 'components/RovikoApp.tsx', 'components/friends/Friends.tsx'];
   const src = files.map(f => fs.readFileSync(f, 'utf8')).join('\n');
   const direct = [...src.matchAll(/\/art\/([a-z0-9-]+\.webp)/g)].map(m => m[1]);
   const regions = ['europe', 'africa', 'asia', 'north-america', 'south-america', 'oceania'];

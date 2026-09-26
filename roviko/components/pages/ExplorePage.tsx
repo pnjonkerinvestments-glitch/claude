@@ -12,6 +12,10 @@ import { EmptyState, ErrorState, PageHeader, SectionHeader, Skeleton } from '../
 type Country = { id: string; name: string; nl: string; official: string; capitals: string[]; region: string; subregion?: string; area: number; languages: string[]; currencies: string[]; borders: string[]; flag: string };
 const RECENT = 'roviko:explore:recent';
 const REGION_ART: Record<string, string> = { Europe: 'europe', Africa: 'africa', Asia: 'asia', 'North America': 'north-america', 'South America': 'south-america', Oceania: 'oceania' };
+/** Some region scenes show one country's landmark (Mount Fuji, the Statue of Liberty, Machu Picchu). A country
+ *  card only uses such a scene for that country; others get a neutral card, so no country shows another's landmark. */
+const LANDMARK_OF: Record<string, string> = { asia: 'JPN', 'north-america': 'USA', 'south-america': 'PER' };
+const pickScene = (c: { id: string; region: string }) => { const art = REGION_ART[c.region] ?? 'europe'; return LANDMARK_OF[art] && LANDMARK_OF[art] !== c.id ? null : art; };
 
 function readRecent(): string[] { try { const v = JSON.parse(localStorage.getItem(RECENT) ?? '[]'); return Array.isArray(v) ? v.slice(0, 8) : []; } catch { return []; } }
 function hash(text: string) { let h = 2166136261; for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
@@ -82,7 +86,7 @@ export function ExplorePage() {
         <section className="page-section" aria-labelledby="explore-picks">
           <SectionHeader id="explore-picks" title={t('explorePicks')} kicker={new Date(today + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', timeZone: 'UTC' })}/>
           <div className="pick-row">{picks.map((c, i) => <button key={c.id} type="button" className={'pick-card' + (picks.slice(0, i).filter(p => p.region === c.region).length % 2 ? '' : ' is-mirrored')} onClick={() => open(c)}>
-            <span className="pick-flag"><img className="pick-scene" src={'/art/pick-' + (REGION_ART[c.region] ?? 'europe') + '.webp'} alt="" width={815} height={406} loading="lazy" decoding="async"/><span className="pick-postcard"><img src={c.flag} alt="" width={120} height={84} loading="lazy"/></span></span>
+            <span className={'pick-flag' + (pickScene(c) ? '' : ' is-neutral region-' + (REGION_ART[c.region] ?? 'europe'))}>{pickScene(c) && <img className="pick-scene" src={'/art/pick-' + pickScene(c) + '.webp'} alt="" width={815} height={406} loading="lazy" decoding="async"/>}<span className="pick-postcard"><img src={c.flag} alt="" width={120} height={84} loading="lazy"/></span></span>
             <span className="pick-copy"><small>{t(c.region)}</small><strong>{name(c)}</strong><span>{capital(c)}</span></span>
             <span className="round-go" aria-hidden="true"><ArrowRight size={17}/></span>
           </button>)}</div>
