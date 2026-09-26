@@ -13,7 +13,7 @@ A = '../assets/'
 FOREST, GREEN, MINT, GOLD, CREAM = '#163B32', '#1F806B', '#DDEDE6', '#F6B84B', '#F6F3E9'
 TONES = {  # game icon colours from roviko/app/design.css
     'rank': ('#c4553a', '#f9e4dc'), 'daily': ('#1f806b', '#ddede6'), 'compare': ('#a8650f', '#f7e8ce'),
-    'mosaic': ('#4b5fa8', '#e3e7f6'), 'duel': ('#9a4470', '#f4dde7'), 'capitals': ('#4b5fa8', '#e3e7f6'),
+    'mosaic': ('#4b5fa8', '#e3e7f6'), 'trail': ('#1e7a8c', '#daeef1'), 'duel': ('#9a4470', '#f4dde7'), 'capitals': ('#4b5fa8', '#e3e7f6'),
     'flags': ('#c4553a', '#f9e4dc'), 'pinpoint': ('#1f806b', '#ddede6'), 'borders': ('#a8650f', '#f7e8ce'),
     'order': ('#9a4470', '#f4dde7'), 'mixed': ('#163b32', '#ddede6'), 'room': ('#8a5a00', '#fbeccb'),
     'mystery': ('#6b5aa8', '#e7e2f6'),
@@ -28,6 +28,8 @@ _CHEEKS = '<g fill="#ff8fa3" opacity=".55"><ellipse cx="86" cy="142" rx="9" ry="
 FACES = {  # the same moods as roviko/components/ds/Mascot.tsx
     'cheer': _happy_eye(100) + _happy_eye(156) + _CHEEKS + f'<path d="M110 138q18 22 36 0z" fill="{INK}"/><path d="M118 146q10 6 20 0" fill="#ff8fa3"/>',
     'wink': _eye(100) + _happy_eye(156) + _CHEEKS + f'<path d="M114 139q14 11 28 0" stroke="{INK}" stroke-width="5" stroke-linecap="round" fill="none"/>',
+    'worried': _eye(100, 128, 9) + _eye(156, 128, 9) + f'<path d="M88 112l20 -5M168 112l-20 -5" stroke="{INK}" stroke-width="4.5" stroke-linecap="round"/><path d="M116 146q6 -6 12 0t12 0" stroke="{INK}" stroke-width="4.5" stroke-linecap="round" fill="none"/>',
+    'sleepy': ''.join(f'<path d="M{x-10} 124q10 9 20 0" stroke="{INK}" stroke-width="5" stroke-linecap="round" fill="none"/>' for x in (100, 156)) + f'<ellipse cx="128" cy="143" rx="6" ry="5" fill="{INK}"/><g fill="{INK}" font-family="Fredoka" font-weight="700"><text x="196" y="70" font-size="22">z</text><text x="214" y="48" font-size="16">z</text></g>',
     'curious': _eye(100, 126, 10) + _eye(156, 124, 12) + f'<path d="M150 106l18 -4" stroke="{INK}" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="130" cy="143" rx="7" ry="6" fill="{INK}"/>',
 }
 

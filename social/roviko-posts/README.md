@@ -187,3 +187,32 @@ To add another country: put its ISO3 code in `KEEP` in `build/data.py`, run `pyt
 **Alt text:** Roviko multiplayer illustration showing ways to play geography games with friends, another player or the computer.
 
 Slide 2 says "2 to 12 players", taken from the site's How to Play. Slide 3 shows the Quick match. Slide 4 shows the World Duel illustration.
+
+---
+
+# Instagram Stories for Highlights
+
+Folder `stories/`: 28 stories at **1080 × 1920 (9:16)**, split over six Highlights, plus a cover per Highlight. Overview: `stories/overview.png`.
+
+All text sits between y=250 and y=1600, so Instagram's own header and reply bar never cover it. Places marked "↓" are empty on purpose, for an Instagram sticker.
+
+Regenerate: `python3 build/stories.py && node build/render.mjs stories/`.
+
+| Highlight | Cover | Stories | Contents |
+|---|---|---|---|
+| **Start** | `covers/1-start.png` | `1-start/01-04` | Hi, I'm Roviko · six games, new every day · no timer · link to roviko.app |
+| **Games** | `covers/2-games.png` | `2-games/01-07` | Today's trip (six stops) + one story per daily game, in the site's order: Daily Detour, Rank Radar, World Duel, Side by Side, Country Mosaic, Clue Trail |
+| **Quiz** | `covers/3-quiz.png` | `3-quiz/01-06` | Three question + answer pairs: flag (Estonia), Canada or Australia, shape (Chile) |
+| **Facts** | `covers/4-facts.png` | `4-facts/01-03` | Lesotho inside South Africa (question + map), Canada vs Australia population |
+| **Explore** | `covers/5-explore.png` | `5-explore/01-03` | 195 countries · browse by region (with country counts) · link |
+| **Friends** | `covers/6-friends.png` | `6-friends/01-05` | Better together · rooms with friends · quick match · against the computer · link |
+
+**Stickers to add when posting**
+- Link sticker (roviko.app) on `1-start/04`, `3-quiz/06`, `5-explore/03`, `6-friends/05`, under "Tap the link ↓" or the pill.
+- Quiz sticker on `3-quiz/01` (Estonia / Latvia / Austria / Lithuania, for example) and `3-quiz/05` (Chile / Argentina / Peru / Norway, for example), under "Your guess ↓".
+- Poll sticker on `3-quiz/03` (Canada / Australia), under "Vote ↓".
+- Post the answer story right after the question story, or the next day.
+
+**Covers:** when you add a Highlight, pick "Edit cover" and choose the matching `covers/*.png`. Instagram crops it to the centred circle.
+
+**Checked against the site:** the six daily games, the How to Play steps, "up to 1,000 points per game", no timer in solo play, 2 to 12 players per room, computer at three levels without ranking points (`MULTIPLAYER.md`), and 195 countries with their region counts (`public/data/countries.json`). The Estonia and Chile answers also appear in the stories, so avoid posting the feed version of post 3 on the same day. The same goes for post 8 if it uses the same shape.
