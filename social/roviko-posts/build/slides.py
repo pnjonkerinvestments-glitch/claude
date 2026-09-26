@@ -91,7 +91,7 @@ def card(inner, style=''):
     return f'<div class="card" style="{style}">{inner}</div>'
 
 def art(name, style=''):
-    return f'<img src="{A}art/{name}.png" style="display:block;{style}">'
+    return f'<img src="{A}art/{name}.webp" style="display:block;{style}">'
 
 # ---------------------------------------------------------------- slides
 
