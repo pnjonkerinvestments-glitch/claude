@@ -1,0 +1,56 @@
+<!doctype html><meta charset="utf-8">
+<style>@font-face{font-family:Fredoka;src:url(../fonts/fredoka-latin-wght-normal.woff2) format('woff2');font-weight:300 700}
+html,body{margin:0;background:#FBE3E6}svg{display:block}</style>
+<!-- World Duel, redrawn as vector after 04-spelillustraties/world-duel.png so it stays sharp at any size. -->
+<svg id="art" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 960 640" width="1440" height="960">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="75%"><stop offset="0" stop-color="#FDEEF0"/><stop offset="1" stop-color="#F9DDE2"/></radialGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E4F5DC"/><stop offset="1" stop-color="#CDEBC4"/></linearGradient>
+    <linearGradient id="navy" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E3585"/><stop offset="1" stop-color="#1D2263"/></linearGradient>
+    <radialGradient id="planet" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#9DA3F4"/><stop offset=".6" stop-color="#7A7FE6"/><stop offset="1" stop-color="#6168D6"/></radialGradient>
+    <radialGradient id="gold" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#FFD37A"/><stop offset="1" stop-color="#F3AD35"/></radialGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#B2567A" flood-opacity=".18"/></filter>
+  </defs>
+  <rect width="960" height="640" fill="url(#bg)"/>
+  <!-- motion marks -->
+  <g stroke="#F4A9B8" stroke-width="16" stroke-linecap="round" fill="none">
+    <path d="M150 470 196 522"/><path d="M118 540 176 590"/>
+    <path d="M818 470 772 522"/><path d="M850 540 792 590"/>
+  </g>
+  <!-- left card: Roviko -->
+  <g transform="rotate(-9 330 420)" filter="url(#soft)">
+    <rect x="160" y="250" width="340" height="340" rx="34" fill="#FFF9EF"/>
+    <rect x="182" y="272" width="296" height="296" rx="22" fill="url(#green)"/>
+    <rect x="182" y="272" width="296" height="296" rx="22" fill="none" stroke="#9FCB95" stroke-width="4" opacity=".6"/>
+  </g>
+  <g transform="translate(206 300) scale(0.95)">
+    <image href="../roviko-globe.svg" width="256" height="256"/>
+    <!-- wink face over the logo's own face -->
+    <ellipse cx="128" cy="126" rx="56" ry="32" fill="#33b3fa"/>
+    <path d="M89 130q11 -14 22 0" stroke="#06224f" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <circle cx="156" cy="126" r="10" fill="#06224f"/><circle cx="159" cy="122" r="3.2" fill="#fff"/>
+    <path d="M114 139q14 11 28 0" stroke="#06224f" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <g fill="#ff8fa3" opacity=".55"><ellipse cx="86" cy="142" rx="9" ry="5"/><ellipse cx="170" cy="142" rx="9" ry="5"/></g>
+  </g>
+  <!-- right card: the computer's planet -->
+  <g transform="rotate(8 640 410)" filter="url(#soft)">
+    <rect x="470" y="240" width="340" height="340" rx="34" fill="#FFFFFF"/>
+    <rect x="492" y="262" width="296" height="296" rx="22" fill="url(#navy)"/>
+  </g>
+  <g transform="translate(640 410)">
+    <circle r="112" fill="url(#planet)"/>
+    <g fill="#5A60C9" opacity=".45"><ellipse cx="-44" cy="-50" rx="26" ry="16"/><ellipse cx="50" cy="44" rx="30" ry="18"/><circle cx="58" cy="-40" r="10"/></g>
+    <path d="M-50 -2q13 -15 26 0M24 -2q13 -15 26 0" stroke="#1D2263" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <path d="M-20 18q20 18 40 0" stroke="#1D2263" stroke-width="7" stroke-linecap="round" fill="none"/>
+    <g fill="#E58BC6" opacity=".6"><ellipse cx="-62" cy="22" rx="12" ry="7"/><ellipse cx="62" cy="22" rx="12" ry="7"/></g>
+  </g>
+  <!-- sparkle -->
+  <path d="M845 170C850 205 863 218 898 223 863 228 850 241 845 276 840 241 827 228 792 223 827 218 840 205 845 170Z" fill="#FFFFFF"/>
+  <path d="M770 120C772 134 777 139 791 141 777 143 772 148 770 162 768 148 763 143 749 141 763 139 768 134 770 120Z" fill="#FFFFFF" opacity=".85"/>
+  <!-- VS badge -->
+  <g transform="translate(486 452)" filter="url(#soft)">
+    <circle r="66" fill="#FFFFFF"/>
+    <circle r="56" fill="url(#gold)"/>
+    <text y="17" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="52" fill="#163B32">VS</text>
+  </g>
+</svg>
