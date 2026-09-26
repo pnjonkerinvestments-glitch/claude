@@ -35,7 +35,7 @@ Deze checklist hoort bij versie 1.19 van de website. Wat klaarstaat, staat boven
    - Naam, korte en volledige beschrijving: `store-listing.md`.
    - Icoon 512 px, banner 1024×500 en telefoonscreenshots uit `store/`.
    - Categorie: *Onderwijs* (of *Spellen → Trivia*).
-   - Invullen: **Data safety** (tabel in `store-listing.md`), **inhoudsclassificatie** (geen geweld, geen chat, geen aankopen, geen advertenties), **doelgroep** en **advertenties: nee**.
+   - Invullen: **Data safety** (tabel in `store-listing.md`), **inhoudsclassificatie** (geen geweld, geen chat, geen aankopen), **doelgroep** en **advertenties** (nu nog *nee*; zodra er advertenties in de app zitten *ja*, zie de opmerking over advertenties in `store-listing.md`).
    - Privacybeleid-URL: `https://roviko.app/privacy`.
 5. **Upload** `app-release.aab` bij *Gesloten testen*, en na de testperiode bij *Productie*. Een beoordeling duurt meestal 1 tot 7 dagen.
 
