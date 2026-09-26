@@ -9,7 +9,7 @@ Alles hieronder klopt met de website (versie 1.19). De tekenlimieten staan erbij
 **Naam (max. 30):** Roviko – Aardrijkskunde quiz
 **Ondertitel iOS (max. 30):** Elke dag 6 wereldspellen
 **Promotietekst iOS (max. 170):** Een kleine dagelijkse wereldreis: de Dagelijkse Omweg en vijf korte spellen over landen, vlaggen en kaarten. Speel alleen, met vrienden of tegen de computer.
-**Korte beschrijving Google (max. 80):** Elke dag zes vrolijke aardrijkskundespellen. Gratis en zonder advertenties.
+**Korte beschrijving Google (max. 80):** Elke dag zes vrolijke aardrijkskundespellen. Gratis te spelen.
 
 **Beschrijving:**
 Maak elke dag een kleine reis rond de wereld! Roviko is een vrolijk aardrijkskundespel met elke dag zes korte spellen. Een paar nieuwsgierige minuten, een beetje meer wereld. Voor iedereen die nieuwsgierig is, van jong tot oud.
@@ -36,7 +36,7 @@ Zie welke vrienden online zijn en nodig ze met één tik uit in je kamer, of dee
 NOG MEER SPELEN
 Het mysterieland van de dag en klassiekers als vlaggen, hoofdsteden, kaarten, buurlanden en landen op grootte, op je eigen tempo.
 
-Gratis • Geen advertenties • Geen account nodig • Nederlands, Engels en Spaans • Licht en donker thema
+Gratis • Geen account nodig • Nederlands, Engels en Spaans • Licht en donker thema
 
 **Trefwoorden iOS (max. 100):** aardrijkskunde,vlaggen,hoofdsteden,landen,quiz,wereld,kaart,topografie,trivia,leren,dagelijks
 
@@ -45,7 +45,7 @@ Gratis • Geen advertenties • Geen account nodig • Nederlands, Engels en Sp
 **Name (max. 30):** Roviko – Geography Quiz
 **Subtitle (max. 30):** 6 world games every day
 **Promotional text (max. 170):** A small daily trip around the world: the Daily Detour plus five short games about countries, flags and maps. Play solo, with friends or vs the computer.
-**Short description (max. 80):** Six cheerful geography games every day. Free, with no ads.
+**Short description (max. 80):** Six cheerful geography games every day. Free to play.
 
 **Description:**
 Take a small trip around the world every day! Roviko is a cheerful geography game with six short games daily. A few curious minutes, a little more of the world. For curious minds of every age.
@@ -72,7 +72,7 @@ See which friends are online and invite them to your room in one tap, or share a
 EVEN MORE TO PLAY
 The mystery country of the day and classics like flags, capitals, maps, neighbours and country sizes, at your own pace.
 
-Free • No ads • No account needed • English, Dutch and Spanish • Light and dark mode
+Free • No account needed • English, Dutch and Spanish • Light and dark mode
 
 **Keywords (max. 100):** geography,flags,capitals,countries,quiz,world,map,trivia,learn,daily,puzzle
 
@@ -81,7 +81,7 @@ Free • No ads • No account needed • English, Dutch and Spanish • Light a
 **Nombre (máx. 30):** Roviko – Quiz de geografía
 **Subtítulo (máx. 30):** 6 juegos del mundo cada día
 **Texto promocional (máx. 170):** Un pequeño viaje diario por el mundo: el Desvío diario y cinco juegos cortos sobre países, banderas y mapas. Solo, con amigos o contra el ordenador.
-**Descripción corta (máx. 80):** Seis alegres juegos de geografía cada día. Gratis y sin anuncios.
+**Descripción corta (máx. 80):** Seis alegres juegos de geografía cada día. Gratis.
 
 **Descripción:**
 ¡Haz cada día un pequeño viaje por el mundo! Roviko es un alegre juego de geografía con seis juegos cortos al día. Unos minutos de curiosidad, un poco más de mundo.
@@ -105,14 +105,14 @@ Un sello por cada país que conoces (195 en total), sellos de conocimiento y 30 
 JUEGA CON AMIGOS
 Mira qué amigos están en línea e invítalos a tu sala con un toque, o comparte un código: hasta 12 jugadores por sala. Juega contra alguien al azar o contra el ordenador en fácil, medio o difícil.
 
-Gratis • Sin anuncios • Sin cuenta • Español, inglés y neerlandés • Modo claro y oscuro
+Gratis • Sin cuenta • Español, inglés y neerlandés • Modo claro y oscuro
 
 **Palabras clave (máx. 100):** geografía,banderas,capitales,países,quiz,mundo,mapa,trivia,aprender,diario
 
 ## Categorie en leeftijd
 
 - **Categorie:** Onderwijs (hoofdcategorie), Spellen → Trivia (extra)
-- **Leeftijd:** Apple 13+ (berekend door Apple; spelers zien namen van onbekende tegenstanders; namen worden gefilterd, melden en blokkeren kan). Google: vragenlijst invullen. Er is geen geweld, geen chat, geen aankopen en geen advertenties. Zie `roviko/docs/STORE_PRIVACY.md`.
+- **Leeftijd:** Apple 13+ (berekend door Apple; spelers zien namen van onbekende tegenstanders; namen worden gefilterd, melden en blokkeren kan). Google: vragenlijst invullen. Er is geen geweld, geen chat en geen aankopen. De huidige build heeft nog geen advertenties; zie de opmerking onder de privacytabel. Zie `roviko/docs/STORE_PRIVACY.md`.
 - **Privacybeleid-URL:** `https://roviko.app/privacy`
 - **Support-URL:** `https://roviko.app/` (of een e-mailadres voor support)
 
@@ -128,6 +128,8 @@ Gratis • Sin anuncios • Sin cuenta • Español, inglés y neerlandés • M
 | Gebruiksstatistieken | Alleen als de speler "Help Roviko verbeteren" aanzet; pseudoniem, zonder externe analysedienst | Analyse | Nee |
 | Advertentie-ID, locatie, contacten, foto's | Nee | – | – |
 
-Er zijn geen trackers of advertentie-SDK's. Gegevens gaan niet naar derden. Spelers kunnen hun gegevens downloaden en hun account verwijderen in de app.
+Er zijn (nog) geen trackers of advertentie-SDK's. Gegevens gaan niet naar derden. Spelers kunnen hun gegevens downloaden en hun account verwijderen in de app.
+
+> **Advertenties (september 2026):** de eigenaar wil advertenties gaan tonen. Beloof daarom nergens meer "geen advertenties". De huidige build bevat nog geen advertenties of advertentie-SDK. Zolang dat zo is, klopt "nee" in de formulieren hieronder. Zodra er advertenties in de app komen, moeten mee: dit formulier (advertenties: **ja**; advertentie-ID en gegevens die de advertentie-SDK deelt), het privacybeleid op roviko.app/privacy, de App Store-privacylabels, Google Play *Data safety* en *Bevat advertenties*, en de leeftijds- en doelgroepkeuze (voor kinderen onder 13 gelden strengere advertentieregels).
 
 > Controleer deze tabel vóór het indienen tegen het actuele privacybeleid op de site. Dit is een samenvatting van de code, geen juridisch advies.

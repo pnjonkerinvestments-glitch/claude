@@ -4,7 +4,7 @@ Copy the text below into the "Notes" field. It is in English because the reviewe
 
 ---
 
-Roviko is a daily geography game: every day there is a 20-question "Daily Detour" and five short puzzle games (Rank Radar, World Duel, Side by Side, Country Mosaic, Clue Trail) with points and a daily ranking, plus classic flag, capital and map games. It is free, has no ads and no in-app purchases.
+Roviko is a daily geography game: every day there is a 20-question "Daily Detour" and five short puzzle games (Rank Radar, World Duel, Side by Side, Country Mosaic, Clue Trail) with points and a daily ranking, plus classic flag, capital and map games. It is free and has no in-app purchases.
 
 **No login is needed.** The app creates a guest profile automatically. You can play everything as a guest. An account (email + password) is optional and only needed for the friends list.
 

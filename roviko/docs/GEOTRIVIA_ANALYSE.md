@@ -59,7 +59,7 @@ Op volgorde van verwachte impact voor het terugkeren van spelers:
 6. **Spelers laten meebeslissen:** onderwerpen van de dag beoordelen met sterren, en een nieuw onderwerp voorstellen. Dat geeft betrokkenheid en gratis productfeedback.
 7. **Een eigen kleurenspel** als tegenhanger van GeoPaint, met een andere invalshoek. Bijvoorbeeld: "Welke kleur ontbreekt er in deze vlag?", met kleurvlakken om uit te kiezen in plaats van schuifjes. Dat is makkelijker voor kinderen.
 
-**Waar Roviko al sterker is dan Geotrivia:** geen advertenties, één duidelijke dagroute met voortgangsring, een mascotte, Nederlands en Engels, bronnen bij elk getal, samen spelen in kamers, en een native app met dagelijkse herinnering.
+**Waar Roviko al sterker is dan Geotrivia:** één duidelijke dagroute met voortgangsring, een mascotte, Nederlands en Engels, bronnen bij elk getal, samen spelen in kamers, en een native app met dagelijkse herinnering.
 
 ## Ronde 5: wat we visueel van Geotrivia leerden
 

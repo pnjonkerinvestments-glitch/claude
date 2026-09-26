@@ -14,7 +14,7 @@
 - **Hero-tekst:** *"A small daily trip around the world."* / *"A few curious minutes. A little more of the world."*
 - **Afsluiter (in de app):** *"Stay curious. Play together."*
 - **Talen:** Engels, Nederlands, Spaans
-- **Prijs:** gratis. Geen betaalmuur, geen advertenties.
+- **Prijs:** gratis. Geen betaalmuur. Beloof geen "geen advertenties": er komen advertenties.
 - **Account:** niet nodig. *"No account needed. Just a curious mind."* Spelen kan als gast. Met een account bewaar je je voortgang en speel je met vrienden.
 
 ### Wat voor soort product is het?
@@ -44,7 +44,7 @@ Roviko voelt als **Wordle, maar dan voor de wereld**. Het is een klein dagelijks
 | **Dagelijkse puzzelaars (25–45)**, fans van Wordle, Connections en GeoGuessr | Een nieuw kort dagritueel om te delen |
 | **Reizigers & wereldliefhebbers** | Herken vlaggen, steden en landen van je volgende reis |
 | **Quizfans & vriendengroepen** | Live rooms met vrienden, tot 12 spelers |
-| **Ouders & gezinnen / leergierige tieners** | Leerzaam en veilig: geen advertenties, geen aankopen |
+| **Ouders & gezinnen / leergierige tieners** | Leerzaam en veilig: geen aankopen, bronnen bij elk getal |
 | **Mensen die "iets nuttigs" willen doen met 3 minuten** | In plaats van scrollen: even je hoofd trainen |
 
 ---
@@ -124,7 +124,7 @@ Elke dag speel je 5 spellen. Elk spel levert **max. 1.000 punten** op, dus **max
 ## 10. Unieke verkoopargumenten (USP's)
 
 1. **Een paar minuten per dag**, met een compleet wereldrondje in 5 mini-spellen.
-2. **Gratis, zonder advertenties en zonder account** om te beginnen.
+2. **Gratis en zonder account** om te beginnen.
 3. **Iedereen dezelfde puzzels**, dus je kunt je score echt vergelijken met vrienden.
 4. **Leerzaam en leuk:** vlaggen, hoofdsteden, kaarten en landenfeitjes.
 5. **Speel live met tot 12 vrienden** en zie wie er online is.
@@ -141,7 +141,7 @@ Elke dag speel je 5 spellen. Elk spel levert **max. 1.000 punten** op, dus **max
 - ❌ Niet zeggen dat het een officieel onderwijsprogramma is, of dat het is goedgekeurd door scholen of organisaties.
 - ❌ Geen spelmodi of functies die hierboven niet staan (bijv. geen chat, geen AR, geen offline-multiplayer).
 - ❌ Geen logo's of merken van anderen (Wordle, GeoGuessr enz.) in beeld. Een vergelijking in gesproken tekst ("zoals Wordle, maar…") kan, maar gebruik die met mate.
-- ✅ Wel toegestaan: "gratis", "geen account nodig", "elke dag nieuw", "5 spellen per dag", "speel met vrienden", "zonder advertenties".
+- ✅ Wel toegestaan: "gratis", "geen account nodig", "elke dag nieuw", "5 spellen per dag", "speel met vrienden". Niet: "zonder advertenties" of "geen ads" (er komen advertenties).
 
 ---
 
@@ -237,7 +237,7 @@ Motivatie: streak, streak-schild (per 7 speeldagen, max 2), 3 dagelijkse opdrach
 Mascotte: Roviko, een lachende cartoon-wereldbol die zegt hoeveel spellen je nog moet spelen
 Stijl: zacht klei-3D, crème #F6F3E9, bosgroen #163B32, merkgroen #1F806B, mint #DDEDE6, goud #F6B84B; fonts Fredoka + Manrope
 Toon: rustig, nieuwsgierig, warm, speels
-Prijs: gratis, geen advertenties, geen account nodig (gast-modus)
+Prijs: gratis, geen account nodig (gast-modus)
 Talen: EN / NL / ES
 CTA: "Speel gratis op roviko.app"
 NIET beweren: App Store/Play-download, gebruikersaantallen, reviews, geldprijzen, officiële onderwijsstatus

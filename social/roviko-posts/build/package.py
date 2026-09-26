@@ -53,4 +53,6 @@ if __name__ == '__main__':
             z.write(f, 'X/' + os.path.basename(f))
         z.write('x/POSTS.md', 'X/POSTS.md')
         z.write('README.md', 'README.md')
+        # Share image without "no ads" (replaces 01-logo/deelafbeelding-1200x630.png in the brand kit).
+        z.write('../../roviko/public/og/roviko-1200x630.png', 'Brand-kit-update/deelafbeelding-1200x630.png')
     print(out, sum(1 for _ in zipfile.ZipFile(out).namelist()), 'files')

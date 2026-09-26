@@ -52,7 +52,7 @@ Afgeleid uit de code van versie 1.20.0: `db/schema.ts`, `server/*.ts`, `server/t
 - **Geweld, seks, drugs, gokken, grof taalgebruik:** geen.
 - **Chat of vrije tekst tussen spelers:** nee. Wel ziet een speler de namen van medespelers en van willekeurige tegenstanders; die namen worden gefilterd.
 - **Spelers kunnen met elkaar spelen:** ja (kamers met code, willekeurige tegenstander). Melden en blokkeren is aanwezig.
-- **Aankopen of in-game valuta:** nee. **Advertenties:** nee.
+- **Aankopen of in-game valuta:** nee. **Advertenties:** nee, in de huidige build. De eigenaar wil advertenties gaan tonen; werk dan deze pagina, het privacybeleid en de store-formulieren bij (zie `roviko-app/store-listing.md`).
 - **Locatie delen:** nee.
 - **Onbeperkte webtoegang:** nee. Externe links (bronnen, licenties) openen buiten de app.
 - **Uitkomst bij Apple (1.0):** 13+, omdat "User-Generated Content" op Yes staat (spelersnamen), en "Contests" op Frequent. Niet verkocht in Afghanistan en Marokko (lokale regels), IARC volgens de vragenlijst, meestal 3 of 7. Kies bij Apple **niet** de categorie "Kinderen".
