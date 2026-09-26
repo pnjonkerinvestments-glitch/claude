@@ -2,6 +2,7 @@
 
 Visuals for the first nine Roviko posts. They are built from the brand kit (`Roviko-visuals.zip`) and the styling of roviko.app.
 
+- Overview of all slides: `overview.png`.
 - Format: **1080 × 1350 px (4:5)**, PNG, no metadata. Carousels are numbered `01.png`, `02.png`, and so on, in posting order.
 - Style: cream `#F6F3E9`, forest green `#163B32`, Roviko green `#1F806B`, mint `#DDEDE6`, gold `#F6B84B`. Fredoka for headings, Manrope for body text. The globe mascot uses the site's own moods (`Mascot.tsx`).
 - Art: the illustrations come from the zip (`assets/art/`). The mascot is the vector logo (`assets/roviko-globe.svg`), so it stays sharp at any size. Country shapes come from `roviko/public/data/silhouettes.json`, the same data the site uses.
