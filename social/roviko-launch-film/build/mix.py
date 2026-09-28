@@ -7,7 +7,7 @@
   a `rate` resamples it (pitch and length), shifting the peak accordingly.
 * Balance: every effect is set relative to the music playing under it. For each event the
   RMS of the effect around its peak is compared with the music's RMS in the same window
-  (both high-passed at 200 Hz, where masking happens) and the gain is chosen so the effect
+  (both high-passed at 200 Hz, where masking happens; the bed over 0.4 s around the peak) and the gain is chosen so the effect
   sits TARGET dB above (or below) the bed. The event's own `gain` nudges that result.
 * Loudness: two-pass ffmpeg loudnorm (linear) to -14 LUFS integrated, true peak -1 dBTP.
 """
@@ -23,12 +23,13 @@ from scipy.ndimage import minimum_filter1d
 SR = 48000
 ROOT = Path(__file__).resolve().parent.parent
 A = ROOT / 'audio'
-DUR = 15.0
+DUR = 25.637        # film length (47 beats at 110 BPM)
 
 # effect-over-music level in the 150 ms around its peak (dB). Positive = on top of the bed.
 TARGET = {'key': -3, 'pop': -4, 'land': 1, 'tap': 3, 'correct': 4, 'pin': 4, 'coin': 2, 'tick': 1, 'morph': -2,
           'impact': 2, 'swoosh': 1, 'reorder': 1, 'levelup': 2, 'collapse': 0, 'streak': 3, 'cheer': 2, 'open': 0,
-          'join': 2, 'whoosh': 3, 'send': 0, 'sparkle': 4, 'expand': -1}
+          'join': 2, 'whoosh': 3, 'send': 0, 'sparkle': 4, 'expand': -1,
+          'full': 3, 'start': 3, 'snap': -5, 'win': 4}
 PAN = {'coin': 0.15, 'key': -0.05, 'swoosh': 0.0, 'whoosh': 0.0}
 MUSIC_GAIN_DB = -3.0
 
@@ -93,8 +94,10 @@ def limit(x, ceiling, look=0.002, rel=0.06):
 def main():
     events = json.loads((A / 'events.json').read_text())
     peaks = json.loads((A / 'sfx' / 'peaks.json').read_text())
-    music = read_wav(A / 'music' / 'small-trip-130.wav')[:, :int(DUR * SR)] * 10 ** (MUSIC_GAIN_DB / 20)
+    music = read_wav(A / 'music' / 'score-edit.wav')[:, :int(DUR * SR)] * 10 ** (MUSIC_GAIN_DB / 20)
     n = int(DUR * SR)
+    if music.shape[1] < n:
+        music = np.pad(music, ((0, 0), (0, n - music.shape[1])))
     sfx_bus = np.zeros((2, n + SR * 2))
     cache = {}
     report = []
@@ -111,7 +114,8 @@ def main():
         peak = peaks[name]['peak_s'] / rate
         start = int(round((e['t'] - peak) * SR))
         # balance against the bed around the peak
-        w0, w1 = int((e['t'] - 0.05) * SR), int((e['t'] + 0.10) * SR)
+        hw = 0.5 if name == 'key' else 0.2                             # typing is a run: judge it against a steadier bed
+        w0, w1 = int((e['t'] - hw) * SR), int((e['t'] + hw) * SR)
         bed = rms_db(music[:, max(0, w0):max(w0 + 1, min(n, w1))])
         pk = int(peak * SR)
         own = rms_db(x[:, max(0, pk - int(0.05 * SR)):pk + int(0.10 * SR)])

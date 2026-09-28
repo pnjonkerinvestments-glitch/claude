@@ -16,3 +16,7 @@ out/mix-wave.png
 audio/mix-pre.wav
 out/zoom-*.png
 out/zooms*.png
+# the Mixkit song itself is not redistributed here (Mixkit licence); build/README downloads it
+audio/music/mixkit-*.mp3
+audio/music/score-edit.wav
+out/v2-stills*/

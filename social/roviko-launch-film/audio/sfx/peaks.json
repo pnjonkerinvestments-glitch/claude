@@ -130,7 +130,35 @@
   "peak_s": 0.0148,
   "duration_s": 0.519,
   "source": "uisfx 0.4.0, pack \"soft\", cue \"expand\" (CC0 1.0)",
-  "use": "wordmark wiping out"
+  "use": "wordmark wiping out, lobby opening"
+ },
+ "full": {
+  "file": "full.wav",
+  "peak_s": 0.156,
+  "duration_s": 1.035,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"bonus\" (CC0 1.0)",
+  "use": "the room is full: 12/12"
+ },
+ "start": {
+  "file": "start.wav",
+  "peak_s": 0.1358,
+  "duration_s": 0.615,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"start\" (CC0 1.0)",
+  "use": "the live round starts"
+ },
+ "snap": {
+  "file": "snap.wav",
+  "peak_s": 0.0138,
+  "duration_s": 0.264,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"snap\" (CC0 1.0)",
+  "use": "a player locking in an answer"
+ },
+ "win": {
+  "file": "win.wav",
+  "peak_s": 0.3956,
+  "duration_s": 1.5,
+  "source": "uisfx 0.4.0, pack \"glass\", cue \"achievement\" (CC0 1.0)",
+  "use": "you win the round"
  },
  "coin": {
   "file": "coin.wav",

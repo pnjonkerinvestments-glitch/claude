@@ -42,7 +42,11 @@ UISFX = {  # name: (pack, cue, why)
     'join': ('soft', 'receive', 'Emma joined'),
     'send': ('soft', 'send', 'paper plane taking off'),
     'sparkle': ('glass', 'achievement', 'pin becoming the mascot'),
-    'expand': ('soft', 'expand', 'wordmark wiping out'),
+    'expand': ('soft', 'expand', 'wordmark wiping out, lobby opening'),
+    'full': ('soft', 'bonus', 'the room is full: 12/12'),
+    'start': ('soft', 'start', 'the live round starts'),
+    'snap': ('soft', 'snap', 'a player locking in an answer'),
+    'win': ('glass', 'achievement', 'you win the round'),
 }
 
 

@@ -15,13 +15,14 @@ from pathlib import Path
 
 import numpy as np
 
-BPM, FPS = 130, 60
+BPM, FPS = 110, 60
 B = 60 / BPM
 FAST = {  # name: (first beat, last beat)
-    'tap + pull-back': (5.95, 7.35), 'pin drop': (7.8, 8.3), 'answer montage': (8.45, 11.2),
-    'gold flood': (11.9, 12.5), 'cards burst': (12.1, 13.0), 'climb + swap': (14.1, 15.2),
-    'gold -> flame chip': (15.7, 16.7), 'click + room card': (19.9, 20.9), 'button -> page': (21.2, 22.6),
-    'plane + pin -> mascot': (27.4, 28.6), 'cream flood + wordmark': (28.1, 29.4),
+    'tap + pull-back': (5.95, 7.8), 'pin drop': (8.8, 9.3), 'answer montage': (10.2, 15.2),
+    'gold flood': (15.9, 16.6), 'cards burst': (16.1, 17.0), 'climb + swap': (18.1, 19.2),
+    'gold -> flame chip': (19.7, 20.7), 'click + room card': (23.9, 24.9), 'lobby fills to 12': (24.95, 27.8),
+    'live round': (28.4, 30.6), 'win + play again': (31.0, 33.2), 'button -> page': (33.2, 34.6),
+    'plane + pin -> mascot': (39.4, 40.6), 'cream flood + wordmark': (40.1, 41.4),
 }
 
 
