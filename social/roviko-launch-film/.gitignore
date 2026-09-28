@@ -1,0 +1,18 @@
+node_modules/
+build/tmp/
+# lossless masters, scratch renders and chunk folders stay local
+out/*.mkv
+out/.chunks-*/
+out/stills*/
+out/trans*/
+out/syntax/
+out/qa-test/
+out/checkpoint/cand/
+out/timing*
+out/*.log
+out/spring-sheet.png
+out/music-*.png
+out/mix-wave.png
+audio/mix-pre.wav
+out/zoom-*.png
+out/zooms*.png

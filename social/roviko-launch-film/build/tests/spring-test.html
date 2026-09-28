@@ -1,0 +1,31 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; width: 1920px; height: 1080px; overflow: hidden; background: #F6F3E9; }
+  #shape { position: absolute; background: #111; }
+</style></head>
+<body><div id="shape"></div>
+<script>
+// Closed-form step response of a damped spring: 0 at t<=0, settles at 1.
+// f = natural frequency (Hz), z = damping ratio (<1 overshoots).
+function spring(t, f = 2.2, z = 0.55) {
+  if (t <= 0) return 0;
+  const w = 2 * Math.PI * f;
+  if (z >= 1) return 1 - Math.exp(-w * t) * (1 + w * t);
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * t) * (Math.cos(wd * t) + (z * w / wd) * Math.sin(wd * t));
+}
+const el = document.getElementById('shape');
+function seek(t) {
+  const d = 28 + (150 - 28) * spring(t - 0.10, 2.4, 0.5);        // dot -> circle
+  const w = d + (620 - 150) * spring(t - 0.62, 1.9, 0.62);       // circle -> pill
+  el.style.width = w + 'px';
+  el.style.height = d + 'px';
+  el.style.borderRadius = d / 2 + 'px';
+  el.style.left = (960 - w / 2) + 'px';
+  el.style.top = (540 - d / 2) + 'px';
+}
+window.seek = seek;
+seek(0);
+window.filmReady = Promise.resolve();
+</script></body></html>

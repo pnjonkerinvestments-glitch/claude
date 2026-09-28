@@ -1,0 +1,109 @@
+{
+ "file": "out/master-9x16.mkv",
+ "size": "1080x1920",
+ "fps": "60/1",
+ "frames": 900,
+ "duration_s": 15.0,
+ "single_frame_pops": [
+  {
+   "frame": 196,
+   "time_s": 3.267,
+   "beat": 7.08,
+   "score": 6.02
+  },
+  {
+   "frame": 197,
+   "time_s": 3.283,
+   "beat": 7.11,
+   "score": 7.06
+  },
+  {
+   "frame": 198,
+   "time_s": 3.3,
+   "beat": 7.15,
+   "score": 11.72
+  },
+  {
+   "frame": 199,
+   "time_s": 3.317,
+   "beat": 7.19,
+   "score": 4.15
+  },
+  {
+   "frame": 200,
+   "time_s": 3.333,
+   "beat": 7.22,
+   "score": 4.53
+  },
+  {
+   "frame": 213,
+   "time_s": 3.55,
+   "beat": 7.69,
+   "score": 7.19
+  },
+  {
+   "frame": 214,
+   "time_s": 3.567,
+   "beat": 7.73,
+   "score": 10.08
+  },
+  {
+   "frame": 215,
+   "time_s": 3.583,
+   "beat": 7.76,
+   "score": 11.35
+  },
+  {
+   "frame": 216,
+   "time_s": 3.6,
+   "beat": 7.8,
+   "score": 6.93
+  },
+  {
+   "frame": 229,
+   "time_s": 3.817,
+   "beat": 8.27,
+   "score": 10.4
+  },
+  {
+   "frame": 230,
+   "time_s": 3.833,
+   "beat": 8.31,
+   "score": 6.13
+  },
+  {
+   "frame": 255,
+   "time_s": 4.25,
+   "beat": 9.21,
+   "score": 4.38
+  },
+  {
+   "frame": 256,
+   "time_s": 4.267,
+   "beat": 9.24,
+   "score": 7.42
+  },
+  {
+   "frame": 283,
+   "time_s": 4.717,
+   "beat": 10.22,
+   "score": 6.64
+  },
+  {
+   "frame": 311,
+   "time_s": 5.183,
+   "beat": 11.23,
+   "score": 5.53
+  },
+  {
+   "frame": 401,
+   "time_s": 6.683,
+   "beat": 14.48,
+   "score": 4.71
+  }
+ ],
+ "jumps": [],
+ "max_pop_score": 11.72,
+ "max_frame_change": 28.25,
+ "max_change_at_s": 13.05
+}

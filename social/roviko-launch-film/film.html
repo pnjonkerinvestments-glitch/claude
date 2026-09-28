@@ -1,0 +1,1167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko launch film</title>
+<!--
+  Roviko launch film. 15 s, 130 BPM, one continuous take.
+  Every style is a pure function of time: window.seek(t) sets the whole frame.
+  No CSS transitions, no timers, no state between frames.
+    film.html                  1920x1080
+    film.html?format=vertical  1080x1920
+    film.html?t=5.6            open paused on a time (preview)
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #F6F3E9; }
+.a { position: absolute; left: 0; top: 0; }
+.fx { font-family: Fredoka, sans-serif; }
+.mask { position: absolute; overflow: hidden; }
+.mask > span { position: absolute; left: 0; top: 0; white-space: pre; display: block; }
+.tnum { font-variant-numeric: tabular-nums; }
+svg { overflow: visible; }
+</style>
+<script src="assets/map.js"></script>
+<script src="assets/mascot.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+'use strict';
+// ------------------------------------------------------------------ format & time
+const Q = new URLSearchParams(location.search);
+const V = Q.get('format') === 'vertical';
+const W = V ? 1080 : 1920, H = V ? 1920 : 1080;
+const BPM = 130, BEAT = 60 / BPM, DURATION = 15;
+const T = b => b * BEAT;                       // beats -> seconds
+const C = {
+  forest: '#163B32', green: '#1F806B', mint: '#DDEDE6', gold: '#F6B84B', cream: '#F6F3E9', white: '#FFFFFF',
+  ocean: '#36B3F5', water: '#BFE4F8', ink: '#06224F', red: '#E5484D', chip: '#EEF5F1', globe: '#33B3FB', land: '#5ED34F',
+};
+
+// ------------------------------------------------------------------ timeline (beats)
+const TL = {
+  type0: 0.1, peek: 0.45, flag: 3.0, pills: [3.5, 4.0, 4.5, 5.0], cur1In: 4.35, cur1At: 5.8, tap: 6.0,
+  duck: 6.55, toMap: 6.55, mapZoom: [7.5, 7.98], pin: 8.0,
+  q3: 8.5, g3: 9.0, q4: 9.5, g4: 10.0, q5: 10.5, g5: 11.0,
+  drop: 12.0, cards: 12.15, pass: 13.25, climb: 14.0, swap: 14.28, today: 15.0,
+  shrink: 15.75, shrinkEnd: 16.5, flip: 17.0, mascotUp: 16.9, text1: 18.0, text2: 18.5, pill1: 19.0, pill2: 19.25,
+  cur2In: 18.9, cur2At: 19.85, click: 20.0, room: 20.1, join: 20.75,
+  grow: 21.25, growEnd: 22.4, labelOut: 22.2, line1: 22.55, line2: 24.25, linesOut: 25.85,
+  mapIn: 25.85, pin2: 26.05, plane0: 26.35, plane1: 27.7, pop: 28.0, cream: 28.12,
+  wordmark: 28.7, tagline: 29.45, url: 29.95, final: 30.0, blink: 30.55, wink: 31.0,
+};
+
+// ------------------------------------------------------------------ math
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const inv = (a, b, x) => clamp((x - a) / (b - a));
+const E = {
+  lin: t => t,
+  inQuad: t => t * t, outQuad: t => 1 - (1 - t) * (1 - t),
+  inCubic: t => t * t * t, outCubic: t => 1 - (1 - t) ** 3,
+  inOutCubic: t => t < .5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2,
+  outQuart: t => 1 - (1 - t) ** 4, inOutQuart: t => t < .5 ? 8 * t ** 4 : 1 - (-2 * t + 2) ** 4 / 2,
+  outQuint: t => 1 - (1 - t) ** 5, inOutQuint: t => t < .5 ? 16 * t ** 5 : 1 - (-2 * t + 2) ** 5 / 2,
+  inOutSine: t => -(Math.cos(Math.PI * t) - 1) / 2,
+  inBack: t => 2.2 * t * t * t - 1.2 * t * t,
+};
+// progress of an eased segment between two beats
+const segB = (t, b0, b1, e = E.inOutCubic) => e(inv(T(b0), T(b1), t));
+// Closed-form step response of a damped spring (0 before start, settles at 1).
+function spring(dt, f = 2.2, z = 0.62) {
+  if (dt <= 0) return 0;
+  const w = 2 * Math.PI * f;
+  if (z >= 1) return 1 - Math.exp(-w * dt) * (1 + w * dt);
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * dt) * (Math.cos(wd * dt) + (z * w / wd) * Math.sin(wd * dt));
+}
+const spB = (t, b0, f, z) => spring(t - T(b0), f, z);        // spring started at beat b0
+function hex(c) { const n = parseInt(c.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+function mixc(a, b, t) { const x = hex(a), y = hex(b); t = clamp(t); return `rgb(${x.map((v, i) => Math.round(lerp(v, y[i], t))).join(',')})`; }
+const fmt = n => Math.round(n).toLocaleString('en-US');
+// seeded random for the typing rhythm
+function rng(seed) { return () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }; }
+
+// ------------------------------------------------------------------ DOM helpers
+const stage = document.getElementById('stage');
+const UNITLESS = new Set(['opacity', 'zIndex', 'fontWeight', 'lineHeight', 'flex']);
+function S(e, o) {
+  for (const k in o) { const v = o[k]; e.style[k] = (typeof v === 'number' && !UNITLESS.has(k)) ? v + 'px' : v; }
+  return e;
+}
+function el(parent, css = {}, html = '', cls = 'a', tag = 'div') {
+  const e = document.createElement(tag);
+  e.className = cls;
+  if (html) e.innerHTML = html;
+  S(e, css);
+  parent.appendChild(e);
+  return e;
+}
+const NS = 'http://www.w3.org/2000/svg';
+function svgEl(parent, tag, attrs = {}) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+}
+function tf({ x = 0, y = 0, s = 1, sx, sy, r = 0 } = {}) {
+  return `translate(${x}px,${y}px) rotate(${r}deg) scale(${sx ?? s},${sy ?? s})`;
+}
+const show = (e, on) => { const d = on ? '' : 'none'; if (e.style.display !== d) e.style.display = d; };
+
+// Text that rises out of a mask line. Returns {box, span}; set p in [0,1] (in) and q in [0,1] (out).
+function maskText(parent, text, css, spanCss = {}) {
+  const box = el(parent, Object.assign({ overflow: 'hidden' }, css), '', 'a');
+  const span = el(box, Object.assign({ whiteSpace: 'pre' }, spanCss), '', 'a', 'span');
+  span.textContent = text;
+  const h = parseFloat(css.height);
+  return { box, span, set(pIn, pOut = 0, dy = 1.15) {
+    S(span, { transform: `translateY(${(1 - pIn) * h * dy - pOut * h * dy}px)` });
+    show(box, pIn > 0 && pOut < 1);
+  } };
+}
+
+// Number that rolls: old value slides up, new rises from below.
+function roller(parent, css, spanCss) {
+  const box = el(parent, Object.assign({ overflow: 'hidden' }, css));
+  const a = el(box, spanCss, '', 'a', 'span'), b = el(box, spanCss, '', 'a', 'span');
+  return { box, set(oldText, newText, p) {
+    const h = parseFloat(css.height);
+    a.textContent = oldText; b.textContent = newText;
+    S(a, { transform: `translateY(${-p * h}px)` });
+    S(b, { transform: `translateY(${(1 - p) * h}px)` });
+    show(a, p < 1); show(b, p > 0);
+  } };
+}
+
+// ------------------------------------------------------------------ icons (24 px line icons)
+const ICON = {
+  play: '<circle cx="12" cy="12" r="9"/><path d="M10 8.6v6.8l5.6-3.4z" fill="currentColor" stroke-linejoin="round"/>',
+  explore: '<circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z" stroke-linejoin="round"/>',
+  multi: '<circle cx="9" cy="9" r="3.2"/><path d="M3.5 19c.6-3 2.8-4.6 5.5-4.6s4.9 1.6 5.5 4.6"/><circle cx="16.5" cy="9.6" r="2.6"/><path d="M15.8 14.5c2.3.1 4.1 1.5 4.7 4.2"/>',
+  passport: '<rect x="5" y="3" width="14" height="18" rx="2.5"/><circle cx="12" cy="11" r="3.3"/><path d="M9 17h6"/>',
+  close: '<path d="M7 7l10 10M17 7L7 17"/>',
+  check: '<path d="M5.5 12.5l4.2 4.2L18.5 8"/>',
+};
+const icon = (name, size, color, sw = 2) => `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${sw}" stroke-linecap="round" style="color:${color};display:block">${ICON[name]}</svg>`;
+const FLAME = '<svg viewBox="0 0 24 24" width="22" height="22" style="display:block"><path d="M12.6 2.2c.5 3.1-1.1 4.9-2.6 6.6C8.6 10.4 7 12 7 14.7 7 18 9.3 21 12.3 21S17.5 18.4 17.5 15c0-2.2-1-3.8-2-4.9.1 1.4-.4 2.6-1.5 3 .9-3.9-.7-7.9-1.4-10.9z" fill="#163B32"/><path d="M12.4 13.6c.2 1.4-.8 2.2-1.3 2.9-.4.5-.6 1-.6 1.6 0 1.1.8 2 1.9 2s1.9-.9 1.9-2.1c0-1.6-1.1-2.9-1.9-4.4z" fill="#F6B84B"/></svg>';
+
+// ------------------------------------------------------------------ the mascot (globe with arms and legs)
+// Local units: globe radius 100 at the origin. Face redrawn from the artwork's geometry.
+const MK = 100 / 873.8;
+function Mascot(parent, px) {
+  const svg = svgEl(parent, 'svg', { width: px, height: px, viewBox: '-170 -170 340 340' });
+  svg.style.position = 'absolute';
+  const back = svgEl(svg, 'g');
+  const body = svgEl(svg, 'g');
+  const id = 'mg' + Math.random().toString(36).slice(2, 8);
+  const defs = svgEl(body, 'defs');
+  const cp = svgEl(defs, 'clipPath', { id });
+  svgEl(cp, 'circle', { r: 100 });
+  svgEl(body, 'circle', { r: 100, fill: C.globe });
+  const lg = svgEl(body, 'g', { 'clip-path': `url(#${id})` });
+  svgEl(lg, 'path', { d: window.MASCOT_LAND, fill: C.land, transform: `scale(${MK}) translate(-1023.2 -1031.3)` });
+  const face = svgEl(body, 'g');
+  const iris = svgEl(body, 'circle', { r: 0, fill: C.red });   // pin head that opens into the globe
+  const front = svgEl(svg, 'g');
+  return { svg, back, body, face, front, iris, px };
+}
+const INK = C.ink;
+function limbPath(ax, ay, bx, by, bend) {
+  const mx = (ax + bx) / 2, my = (ay + by) / 2, dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1;
+  return `M${ax.toFixed(1)} ${ay.toFixed(1)}Q${(mx - dy / L * bend).toFixed(1)} ${(my + dx / L * bend).toFixed(1)} ${bx.toFixed(1)} ${by.toFixed(1)}`;
+}
+// state: look [dx,dy], blink 0..1, happy 0..1 (^^ eyes), mouth 'smile'|'open'|'o', brow 0..1, cheeks 0..1, wink 0..1,
+// arms: [[hx,hy,bend],[hx,hy,bend]] or null, legs: 0..1 length, feet spread, hop (y offset of body)
+function drawMascot(m, st) {
+  const look = st.look || [0, 0];
+  const ex = look[0] * 4, ey = look[1] * 3;
+  const eye = (cx, closed, happy) => {
+    const x = cx + ex, y = -5.7 + ey;
+    if (happy > 0.5) return `<path d="M${x - 11} ${y + 3}q11 -13 22 0" stroke="${INK}" stroke-width="5.4" stroke-linecap="round" fill="none"/>`;
+    const ry = 11 * (1 - 0.9 * closed);
+    return `<ellipse cx="${x}" cy="${y}" rx="11" ry="${ry.toFixed(2)}" fill="${INK}"/>` +
+      (closed < 0.5 ? `<ellipse cx="${x - 3.5}" cy="${y - 4.5 * (ry / 11)}" rx="3.6" ry="${(3.4 * ry / 11).toFixed(2)}" fill="#fff"/>` : '');
+  };
+  let f = eye(-30.4, st.blink || 0, st.happy || 0) + eye(30.9, Math.max(st.blink || 0, 0), Math.max(st.happy || 0, st.wink || 0));
+  if (st.brow) f += `<path d="M${20 + ex} ${-24 + ey - 5 * st.brow}l19 ${-3 - 2 * st.brow}" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/>`;
+  if (st.cheeks) f += `<g fill="#FF8FA3" opacity="${(0.55 * st.cheeks).toFixed(2)}"><ellipse cx="${-45 + ex}" cy="${10 + ey}" rx="9" ry="5"/><ellipse cx="${46 + ex}" cy="${10 + ey}" rx="9" ry="5"/></g>`;
+  const mx = ex * 0.7, my = ey * 0.6;
+  if (st.mouth === 'open') f += `<path d="M${-12 + mx} ${7 + my}q12 17 24 0z" fill="${INK}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/><path d="M${-6 + mx} ${14.5 + my}q6 4 12 0" fill="#FF8FA3"/>`;
+  else if (st.mouth === 'o') f += `<ellipse cx="${1 + mx}" cy="${12 + my}" rx="5.2" ry="6" fill="${INK}"/>`;
+  else if (st.mouth !== 'none') f += `<path d="M${-11.3 + mx} ${7.7 + my}Q${mx} ${18.4 + my} ${11.3 + mx} ${7.7 + my}" stroke="${INK}" stroke-width="5.2" stroke-linecap="round" fill="none"/>`;
+  m.face.innerHTML = f;
+  // limbs
+  let b = '', fr = '';
+  const hop = st.hop || 0;
+  if (st.legs > 0) {
+    const L = st.legs, spread = st.spread ?? 1;
+    for (const s of [-1, 1]) {
+      const hx = 30 * s, hy = 90 + hop, fx = (36 + 6 * spread) * s, fy = hy + 58 * L - (st.tuck || 0) * 20;
+      b += `<path d="${limbPath(hx, hy, fx, fy, -6 * s)}" stroke="${INK}" stroke-width="8.5" stroke-linecap="round" fill="none"/>`;
+      b += `<ellipse cx="${fx + 7 * s}" cy="${fy + 3}" rx="${14 * L}" ry="${8 * L}" fill="${INK}"/>`;
+    }
+  }
+  if (st.arms) {
+    st.arms.forEach(([hx, hy, bend, hr = 9], i) => {
+      const s = i ? 1 : -1, sx = 86 * s, sy = 26 + hop;
+      b += `<path d="${limbPath(sx, sy, hx, hy + hop, bend * s)}" stroke="${INK}" stroke-width="8.5" stroke-linecap="round" fill="none"/>`;
+      fr += `<circle cx="${hx}" cy="${hy + hop}" r="${hr}" fill="${INK}"/>`;
+    });
+  }
+  m.back.innerHTML = b;
+  m.front.innerHTML = fr;
+  m.body.setAttribute('transform', `translate(0 ${hop}) scale(${st.sx ?? 1} ${st.sy ?? 1})`);
+  m.iris.setAttribute('r', (st.iris || 0).toFixed(2));
+}
+
+// ------------------------------------------------------------------ stage layers
+S(document.body, { width: W, height: H });
+S(stage, { width: W, height: H });
+const world = el(stage, { width: 3000, height: 3000, transformOrigin: '0 0', zIndex: 1 });
+const floodL = el(stage, { width: W, height: H, zIndex: 10, pointerEvents: 'none' });
+const lbWrap = el(stage, { width: W, height: H, zIndex: 11 });
+const lbWorld = el(lbWrap, { width: 3000, height: 3000, transformOrigin: '0 0' });
+const pageL = el(stage, { width: W, height: H, zIndex: 20, background: C.forest });
+const outro = el(stage, { width: W, height: H, zIndex: 21, transformOrigin: `${W / 2}px ${H / 2}px` });
+
+// ------------------------------------------------------------------ camera
+// keys: [beat, zoom, x, y, ease into this key]; zoom interpolates in log space
+const PULL = t => E.inOutCubic(t);
+const CAM = V ? [
+  [0, 2.36, 960, 432],
+  [5.9, 2.56, 960, 470, E.inOutSine],
+  [6.0, 2.56, 960, 470],
+  [7.75, 1.76, 960, 540, PULL],
+  [12, 1.8, 960, 540, E.inOutSine],
+  [16, 1.9, 960, 540, E.inOutSine],
+  [21.25, 1.99, 960, 566, E.inOutSine],
+  [22.7, 3.6, 960, 711, E.inOutCubic],
+] : [
+  [0, 2.86, 990, 296],
+  [2.3, 2.92, 984, 318, E.inOutSine],
+  [5.85, 3.08, 960, 612, E.inOutCubic],
+  [6.0, 3.08, 960, 612],
+  [7.75, 1.1, 960, 526, PULL],
+  [12, 1.14, 960, 526, E.inOutSine],
+  [16, 1.24, 960, 526, E.inOutSine],
+  [21.25, 1.3, 960, 548, E.inOutSine],
+  [22.7, 3.2, 960, 711, E.inOutCubic],
+];
+function cam(t) {
+  const b = t / BEAT;
+  if (b <= CAM[0][0]) return { z: CAM[0][1], x: CAM[0][2], y: CAM[0][3] };
+  for (let i = 1; i < CAM.length; i++) {
+    if (b <= CAM[i][0]) {
+      const [b0, z0, x0, y0] = CAM[i - 1], [b1, z1, x1, y1, e = E.inOutCubic] = CAM[i];
+      const p = e(inv(b0, b1, b));
+      return { z: Math.exp(lerp(Math.log(z0), Math.log(z1), p)), x: lerp(x0, x1, p), y: lerp(y0, y1, p) };
+    }
+  }
+  const k = CAM[CAM.length - 1];
+  return { z: k[1], x: k[2], y: k[3] };
+}
+const camCss = c => `translate(${W / 2}px,${H / 2}px) scale(${c.z}) translate(${-c.x}px,${-c.y}px)`;
+const toScreen = (c, wx, wy) => [(wx - c.x) * c.z + W / 2, (wy - c.y) * c.z + H / 2];
+
+// ------------------------------------------------------------------ world: halo + phone
+const PX = 746, PY = 90, SW = 428, SH = 900;              // phone screen, world coords
+// sunrise halo: a conic gradient blurred once into an image at boot, then only rotated per frame
+const halo = el(world, { left: 960 - 760, top: 540 - 760, width: 1520, height: 1520, opacity: 0.34, zIndex: 0 }, '', 'a', 'img');
+function paintHalo() {
+  const cv = document.createElement('canvas'); cv.width = cv.height = 1520;
+  const g = cv.getContext('2d');
+  const grad = g.createConicGradient(0, 760, 760);
+  [C.mint, C.gold, C.ocean, C.green, C.mint].forEach((c, i) => grad.addColorStop(i / 4, c));
+  g.filter = 'blur(110px)';
+  g.beginPath(); g.arc(760, 760, 520, 0, Math.PI * 2); g.fillStyle = grad; g.fill();
+  halo.src = cv.toDataURL('image/png');
+  return halo.decode();
+}
+const bezel = el(world, { left: PX - 11, top: PY - 11, width: SW + 22, height: SH + 22, borderRadius: 56, background: C.forest, zIndex: 1,
+  boxShadow: '0 50px 90px rgba(22,59,50,.16), 0 14px 30px rgba(22,59,50,.12)' });
+for (const [x, y, h] of [[-3, 150, 34], [-3, 206, 58], [-3, 276, 58], [SW + 22, 220, 92]]) el(bezel, { left: x, top: y, width: 4, height: h, borderRadius: 2, background: C.forest });
+const scr = el(world, { left: PX, top: PY, width: SW, height: SH, borderRadius: 45, overflow: 'hidden', background: C.cream, zIndex: 2 });
+
+// status bar
+el(scr, { left: 34, top: 15, fontWeight: 700, fontSize: 16, letterSpacing: '-0.01em', zIndex: 2 }, '9:41');
+el(scr, { left: 318, top: 18, zIndex: 2 }, `<svg width="80" height="14" viewBox="0 0 80 14"><g fill="${C.forest}"><rect x="0" y="9" width="3.4" height="4.5" rx="1"/><rect x="5" y="6.5" width="3.4" height="7" rx="1"/><rect x="10" y="4" width="3.4" height="9.5" rx="1"/><rect x="15" y="1.5" width="3.4" height="12" rx="1"/></g><path d="M27 5.2a10 10 0 0 1 13.6 0M29.4 8a6.4 6.4 0 0 1 8.8 0" stroke="${C.forest}" stroke-width="1.9" fill="none" stroke-linecap="round"/><circle cx="33.8" cy="11.2" r="1.7" fill="${C.forest}"/><rect x="48" y="1.5" width="25" height="12" rx="3.6" fill="none" stroke="${C.forest}" stroke-opacity=".45" stroke-width="1.3"/><rect x="50.2" y="3.7" width="18" height="7.6" rx="2" fill="${C.forest}"/><path d="M75 5.6v3.8" stroke="${C.forest}" stroke-opacity=".45" stroke-width="1.6" stroke-linecap="round"/></svg>`);
+
+// tab bar
+const tabbar = el(scr, { left: 16, top: 812, width: 396, height: 70, borderRadius: 35, background: C.white, zIndex: 30,
+  boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 10px 28px rgba(22,59,50,.10)' });
+[['play', 'Play'], ['explore', 'Explore'], ['multi', 'Multiplayer'], ['passport', 'Passport']].forEach(([ic, label], i) => {
+  const on = i === 0, cx = 49.5 + i * 99;
+  if (on) el(tabbar, { left: cx - 26, top: 9, width: 52, height: 32, borderRadius: 16, background: C.mint });
+  el(tabbar, { left: cx - 12, top: 13 }, icon(ic, 24, on ? C.green : 'rgba(22,59,50,.55)', 2));
+  el(tabbar, { left: cx - 45, top: 45, width: 90, textAlign: 'center', fontSize: 11, fontWeight: 700, color: on ? C.green : 'rgba(22,59,50,.55)' }, label);
+});
+
+// ------------------------------------------------------------------ Detour header (scenes 1-3)
+const hdr = el(scr, { width: SW, height: 110, zIndex: 3 });
+el(hdr, { left: 20, top: 56, width: 40, height: 40, borderRadius: 20, background: C.mint, display: 'grid', placeItems: 'center' }, icon('close', 20, C.forest, 2.4));
+el(hdr, { left: 76, top: 72, width: 212, height: 8, borderRadius: 4, background: C.mint });
+const progFill = el(hdr, { left: 76, top: 72, width: 0, height: 8, borderRadius: 4, background: C.green });
+const counter = el(scr, { left: 302, top: 56, width: 106, height: 40, borderRadius: 20, background: C.white, zIndex: 3,
+  boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 6px 16px rgba(22,59,50,.08)', transformOrigin: '24px 20px' });
+const coin = el(counter, { left: 10, top: 8, width: 24, height: 24, borderRadius: 12, background: C.gold, boxShadow: 'inset 0 0 0 3px #E9A53A' });
+const cntRoll = roller(counter, { left: 40, top: 7, width: 56, height: 26 }, { width: 56, textAlign: 'right', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 21, lineHeight: '26px', color: C.forest });
+const COUNTER_C = [302 + 22, 56 + 20];                     // coin centre, screen-local
+
+// ------------------------------------------------------------------ the question card
+const CX = 16, CY = 116, CW = 396;
+const card = el(scr, { left: CX, top: CY, width: CW, height: 564, borderRadius: 22, background: C.white, overflow: 'hidden', zIndex: 5,
+  boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 12px 32px rgba(22,59,50,.09)' });
+const lblA = el(card, { left: 22, top: 22, height: 18, fontSize: 13, fontWeight: 800, letterSpacing: '0.02em', color: C.green, whiteSpace: 'pre' }, 'Daily Detour · ');
+const lblRoll = roller(card, { left: 22 + 118, top: 22, width: 44, height: 18 }, { fontSize: 13, fontWeight: 800, letterSpacing: '0.02em', color: C.green, lineHeight: '18px', whiteSpace: 'pre' });
+const HL = { fontFamily: 'Fredoka', fontWeight: 600, fontSize: 28, lineHeight: '34px', color: C.forest };
+// Q1 typed headline, two fixed lines
+const typeL1 = el(card, Object.assign({ left: 22, top: 50, height: 34, whiteSpace: 'pre' }, HL));
+const typeL2 = el(card, Object.assign({ left: 22, top: 84, height: 34, whiteSpace: 'pre' }, HL));
+const caret = el(card, { width: 2.5, height: 28, borderRadius: 2, background: C.green, top: 53 });
+const Q1A = 'Which country flies', Q1B = 'this flag?';
+const typeMaskA = el(card, { left: 22, top: 50, width: 360, height: 34, overflow: 'hidden' });
+const typeMaskB = el(card, { left: 22, top: 84, width: 360, height: 34, overflow: 'hidden' });
+typeMaskA.appendChild(typeL1); typeMaskB.appendChild(typeL2);
+S(typeL1, { left: 0, top: 0 }); S(typeL2, { left: 0, top: 0 });
+const headQ = ['Where is Japan?', 'Capital of Australia?', 'Whose flag is this?', 'Which is bigger?'].map(s => maskText(card, s, { left: 22, top: 50, width: 360, height: 36 }, HL));
+const HSWAP = [TL.toMap + 0.08, TL.q3, TL.q4, TL.q5];          // headline i+1 replaces headline i
+const hswap = (t, i) => segB(t, HSWAP[i], HSWAP[i] + 0.42, E.inOutQuart);
+
+// keystroke schedule: fast bursts inside words, a beat longer after spaces and at the line break
+const KEYS = (() => {
+  const r = rng(42), out = [];
+  let t = T(TL.type0);
+  const all = Q1A + '\n' + Q1B;
+  for (let i = 0; i < all.length; i++) {
+    const ch = all[i];
+    if (ch === '\n') { t += 0.08; continue; }
+    out.push({ t, i: out.length, ch });
+    let d = 0.03 + r() * 0.017;
+    if (ch === ' ') d += 0.022 + r() * 0.014;
+    if (all[i + 1] === ' ') d += 0.006;
+    t += d;
+  }
+  return out;
+})();
+
+// flag (Portugal 3:2)
+const FLAG_PT = { x: 108, y: 132, w: 180, h: 120 };
+const flagPT = el(card, { left: FLAG_PT.x, top: FLAG_PT.y, width: FLAG_PT.w, height: FLAG_PT.h, borderRadius: 8, overflow: 'hidden',
+  boxShadow: '0 0 0 1px rgba(22,59,50,.10), 0 8px 18px rgba(22,59,50,.12)' }, '<img src="assets/flags/pt.svg" style="width:100%;height:100%;display:block">');
+const flagShadow = el(card, { left: FLAG_PT.x + 20, top: FLAG_PT.y + FLAG_PT.h + 2, width: FLAG_PT.w - 40, height: 10, borderRadius: '50%', background: 'rgba(22,59,50,.10)', filter: 'blur(4px)' });
+
+// answer pills: circle -> pill on a spring
+function Pill(parent, label, x, y, w, h, fontSize = 20) {
+  const box = el(parent, { left: x, top: y, width: w, height: h, borderRadius: h / 2, background: C.chip, overflow: 'hidden' });
+  const fill = el(box, { borderRadius: '50%', background: C.green });
+  const txt = el(box, { left: 0, top: 0, width: w, height: h, lineHeight: h + 'px', textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 500, fontSize, color: C.forest, whiteSpace: 'pre' }, label);
+  const cs = w < 200 ? 22 : 30;
+  const chk = el(box, { left: w - h + 6, top: (h - cs) / 2, width: cs, height: cs }, icon('check', cs, C.white, 3.2));
+  return { box, fill, txt, chk, x, y, w, h, label, cs };
+}
+const PILL_Y = [280, 348, 416, 484];
+const pills = ['Spain', 'Portugal', 'Italy', 'Morocco'].map((s, i) => Pill(card, s, 22, PILL_Y[i], 352, 56));
+// pill geometry for a state: grow p (circle->pill), shrink out q
+function pillShape(P, p, q = 0, press = 0) {
+  const cx = P.x + P.w / 2, cy = P.y + P.h / 2;
+  const d = P.h * E.outCubic(clamp(p / 0.3));                  // a dot grows into a circle...
+  const wide = lerp(d, P.w, Math.max(0, (p - 0.15) / 0.85));     // ...then stretches into the pill
+  const ww = Math.max(0, q > 0 ? lerp(wide, 0, q) : wide);
+  const hgt = q > 0 ? d * (1 - q) : d;
+  const s = 1 - 0.045 * press;
+  S(P.box, { left: cx - ww / 2, top: cy - hgt / 2, width: ww, height: hgt, borderRadius: hgt / 2, transform: `scale(${s})` });
+  S(P.txt, { left: (ww - P.w) / 2, top: (hgt - P.h) / 2 });
+  S(P.chk, { left: P.cs < 30 ? ww - P.cs - 14 : ww - P.h + 10, top: (hgt - P.cs) / 2 });
+}
+// green ripple inside a pill, from point (px, py) in pill-local coordinates
+function pillFill(P, p, px = P.w / 2, py = P.h / 2, drain = 0) {
+  const r = p * Math.hypot(Math.max(px, P.w - px), P.h) * 1.05;
+  S(P.fill, { left: px - r, top: py - r, width: 2 * r, height: 2 * r, background: mixc(C.green, C.chip, drain) });
+  P.txt.style.color = mixc(C.forest, C.white, inv(0.25, 0.6, p) * (1 - drain));
+}
+
+// map panel (Q2): the green Portugal pill grows into it
+const PANEL = { x: 22, y: 104, w: 352, h: 300 };
+const panel = el(card, { overflow: 'hidden', background: C.water, borderRadius: 16 });
+const mapSvg = svgEl(panel, 'svg', { width: PANEL.w, height: PANEL.h, viewBox: `0 0 ${PANEL.w} ${PANEL.h}` });
+mapSvg.style.position = 'absolute';
+svgEl(mapSvg, 'rect', { x: -400, y: -400, width: PANEL.w + 800, height: PANEL.h + 800, fill: C.water });
+const mapG = svgEl(mapSvg, 'g');
+const mapCountries = svgEl(mapG, 'g', { fill: '#E4F2EB', stroke: '#B5D6C8', 'stroke-width': 0.7, 'stroke-linejoin': 'round' });
+let japanD = '';
+for (const c of window.MAP_COUNTRIES) { svgEl(mapCountries, 'path', { d: c.d, 'vector-effect': 'non-scaling-stroke' }); if (c.id === '392') japanD = c.d; }
+const jpClipId = 'jpclip';
+const jpClip = svgEl(svgEl(mapG, 'defs'), 'clipPath', { id: jpClipId });
+const jpClipCircle = svgEl(jpClip, 'circle', { r: 0 });
+svgEl(mapG, 'path', { d: japanD, fill: C.green, 'clip-path': `url(#${jpClipId})` });
+const mapFx = svgEl(mapSvg, 'g');                               // pin + ripples, panel pixels
+const JAPAN = { u: (138.4 + 180) / 360 * 1000, v: (90 - 36.3) / 180 * 500 };   // central Honshu
+const MAPV0 = { s: PANEL.w / 1000, u: 500, v: 250 }, MAPV1 = { s: 2.05, u: 856, v: 160 };
+const mapView = p => ({ s: Math.exp(lerp(Math.log(MAPV0.s), Math.log(MAPV1.s), p)), u: lerp(MAPV0.u, MAPV1.u, p), v: lerp(MAPV0.v, MAPV1.v, p) });
+const mapToPanel = (mv, u, v) => [(u - mv.u) * mv.s + PANEL.w / 2, (v - mv.v) * mv.s + PANEL.h / 2];
+const PIN_SVG = (x, y, sx = 1, sy = 1, s = 1) => `<g transform="translate(${x} ${y}) scale(${s * sx} ${s * sy})"><path d="M0 0C-3 -8 -13 -15 -13 -26A13 13 0 1 1 13 -26C13 -15 3 -8 0 0Z" fill="${C.red}"/><circle cy="-26" r="5.2" fill="#fff"/></g>`;
+
+// Q3-Q5 chips
+const chipL = Pill(card, 'Sydney', 22, 104, 170, 56, 19);
+const chipR = Pill(card, 'Canberra', 204, 104, 170, 56, 19);
+const flagAU = el(card, { left: 123, top: 104, width: 150, height: 75, borderRadius: 6, overflow: 'hidden', boxShadow: '0 0 0 1px rgba(22,59,50,.10), 0 6px 14px rgba(22,59,50,.12)' },
+  '<img src="assets/flags/au.svg" style="position:absolute;left:0;top:0;width:150px;height:75px;display:block">');
+const flagAUimg = flagAU.firstChild;
+
+// ------------------------------------------------------------------ mascot peeking over the card (scene 1)
+const PEEK = { x: CX + 322, y: CY };                         // globe centre x, card top edge (screen-local)
+const peekBox = el(scr, { left: PEEK.x - 60, top: PEEK.y - 120, width: 120, height: 120, overflow: 'hidden', zIndex: 4 });
+const peek = Mascot(peekBox, 120);
+S(peek.svg, { left: 0, top: 0 });
+const peekHands = el(scr, { left: PEEK.x - 60, top: PEEK.y - 12, width: 120, height: 24, zIndex: 6 },
+  `<svg width="120" height="24" viewBox="0 0 120 24"><g fill="${INK}">${[33, 87].map(x => `<ellipse cx="${x}" cy="10" rx="9.5" ry="7"/><circle cx="${x - 5.5}" cy="15.5" r="2.9"/><circle cx="${x}" cy="16.5" r="2.9"/><circle cx="${x + 5.5}" cy="15.5" r="2.9"/>`).join('')}</g></svg>`);
+
+// +50 chips
+function mkChip() {
+  return el(scr, { width: 64, height: 32, borderRadius: 16, background: C.gold, zIndex: 45, textAlign: 'center', lineHeight: '32px',
+    fontFamily: 'Fredoka', fontWeight: 600, fontSize: 18, color: C.forest, boxShadow: '0 6px 14px rgba(22,59,50,.16)' }, '+50');
+}
+// pop beat, fly start, arrive beat, pop position (screen-local)
+const CHIPS = [
+  { pop: 6.05, fly: 6.95, at: 7.5, x: 356, y: 452 },
+  { pop: 8.08, fly: 8.12, at: 8.5, x: 0, y: 0 },          // position set from the pin
+  { pop: 9.02, fly: 9.06, at: 9.5, x: 360, y: 216 },
+  { pop: 10.02, fly: 10.06, at: 10.5, x: 360, y: 309 },
+  { pop: 11.02, fly: 11.06, at: 11.5, x: 360, y: 216 },
+].map(c => Object.assign(c, { e: mkChip() }));
+{ const [jx, jy] = mapToPanel(MAPV1, JAPAN.u, JAPAN.v); CHIPS[1].x = CX + PANEL.x + jx; CHIPS[1].y = CY + PANEL.y + jy - 50; }
+
+// cursor (round pointer)
+const cursor = el(world, { width: 22, height: 22, borderRadius: 11, background: 'rgba(22,59,50,.34)', boxShadow: '0 0 0 2px rgba(255,255,255,.9), 0 3px 10px rgba(22,59,50,.25)', zIndex: 60 });
+const cursorRing = el(world, { borderRadius: '50%', border: '2px solid rgba(22,59,50,.4)', zIndex: 59 });
+
+// ------------------------------------------------------------------ streak scene (scene 5), inside the phone
+const st = el(scr, { width: SW, height: SH, zIndex: 8 });
+const flame = el(st, { height: 42, borderRadius: 21, background: C.gold, overflow: 'hidden', zIndex: 3 });
+const flameIcon = el(flame, { left: 12, top: 10 }, FLAME);
+const flameRoll = roller(flame, { left: 38, top: 8, width: 18, height: 26 }, { width: 18, textAlign: 'left', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 22, lineHeight: '26px', color: C.forest });
+const flameTxt = el(flame, { left: 52, top: 8, height: 26, lineHeight: '26px', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 20, color: C.forest, whiteSpace: 'pre' }, '-day streak');
+const FL = { cx: 214, cy: 77, w0: 70, w1: 190 };
+const cheerBox = el(st, { left: 214 - 110, top: 280 - 110, width: 220, height: 220, zIndex: 2 });
+const cheer = Mascot(cheerBox, 220);
+S(cheer.svg, { left: 0, top: 0 });
+const cheerShadow = el(st, { left: 214 - 44, top: 382, width: 88, height: 12, borderRadius: '50%', background: 'rgba(22,59,50,.12)', filter: 'blur(3px)', zIndex: 1 });
+const TXT = { fontFamily: 'Fredoka', fontWeight: 600, fontSize: 31, lineHeight: '38px', color: C.forest, textAlign: 'center', width: SW };
+const nice1 = maskText(st, 'Nice trip.', { left: 0, top: 410, width: SW, height: 40 }, TXT);
+const nice2 = maskText(st, 'Same time tomorrow?', { left: 0, top: 448, width: SW, height: 40 }, TXT);
+const bonus = Pill(st, 'Bonus tour', 44, 530, 340, 58, 20);
+S(bonus.box, { background: C.green }); bonus.txt.style.color = C.white; bonus.txt.style.fontWeight = 600;
+const chal = Pill(st, 'Challenge a friend', 44, 602, 340, 58, 20);
+chal.box.style.zIndex = 3; bonus.box.style.zIndex = 3;
+S(chal.box, { background: C.cream, boxShadow: `inset 0 0 0 2px ${C.green}` }); chal.txt.style.color = C.green; chal.txt.style.fontWeight = 600;
+// room card
+const ROOM = { x: 44, y: 492, w: 340, h: 96 };
+const room = el(st, { left: ROOM.x, top: ROOM.y, width: ROOM.w, height: ROOM.h, borderRadius: 22, background: C.white, overflow: 'hidden', zIndex: 1,
+  boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 12px 30px rgba(22,59,50,.10)' });
+const roomIn = el(room, { width: ROOM.w, height: ROOM.h });
+el(roomIn, { left: 20, top: 16, fontSize: 11.5, fontWeight: 800, letterSpacing: '0.08em', color: C.green }, 'ROOM CODE');
+el(roomIn, { left: 19, top: 30, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 34, lineHeight: '40px', letterSpacing: '0.14em', color: C.forest }, 'K7QMA');
+const joined = maskText(roomIn, '', { left: 20, top: 70, width: 160, height: 20 }, { fontSize: 13.5, fontWeight: 700, color: C.green, lineHeight: '20px' });
+joined.span.innerHTML = `<span style="display:inline-block;vertical-align:-3px;margin-right:4px">${icon('check', 16, C.green, 3)}</span>Emma joined`;
+const avYou = el(roomIn, { left: 236, top: 28, width: 42, height: 42, borderRadius: 21, background: C.gold, color: C.forest, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 18, lineHeight: '42px', textAlign: 'center', boxShadow: '0 0 0 3px #fff' }, 'Y');
+const avEmma = el(roomIn, { left: 270, top: 28, width: 42, height: 42, borderRadius: 21, background: C.mint, color: C.forest, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 18, lineHeight: '42px', textAlign: 'center', boxShadow: '0 0 0 3px #fff' }, 'E');
+
+// the "Challenge a friend" button escaping the phone and growing into the page (world layer, above the phone)
+const growPill = el(world, { zIndex: 70, overflow: 'hidden', background: C.green });
+const growMask = el(growPill, { overflow: 'hidden' });
+const growLabel = el(growMask, { whiteSpace: 'pre', fontFamily: 'Fredoka', fontWeight: 600, color: C.white, textAlign: 'center' }, 'Challenge a friend');
+
+// ------------------------------------------------------------------ drop: gold flood + leaderboard
+const flood = el(floodL, { background: C.gold });
+const PLAYERS = [
+  { name: 'Lucas', pts: 5420, av: C.mint },
+  { name: 'Amara', pts: 5180, av: C.cream },
+  { name: 'Emma', pts: 4960, av: C.mint },
+  { name: 'You', pts: 4880, av: C.gold, you: true },
+  { name: 'Yuki', pts: 4610, av: C.cream },
+];
+const LB = { x: 960, y: 540, w: 330, h: 120, gap: 18 };
+const slotY = i => LB.y + (i - 2) * (LB.h + LB.gap);
+const ranks = [1, 2, 3, 4, 5].map((n, i) => maskText(lbWorld, String(n), { left: LB.x - LB.w / 2 - 84, top: slotY(i) - 30, width: 56, height: 60 },
+  { width: 56, textAlign: 'right', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 46, lineHeight: '60px', color: 'rgba(22,59,50,.55)' }));
+const lbCards = PLAYERS.map(p => {
+  const e = el(lbWorld, { width: LB.w, height: LB.h, borderRadius: 22, background: p.you ? C.green : C.forest,
+    boxShadow: p.you ? `0 0 0 3px ${C.cream}, 0 18px 40px rgba(120,70,0,.22)` : '0 14px 30px rgba(120,70,0,.16)', transformOrigin: '50% 50%' });
+  el(e, { left: 22, top: 28, width: 64, height: 64, borderRadius: 32, background: p.av, color: C.forest, textAlign: 'center', lineHeight: '64px', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 28 }, p.name[0]);
+  el(e, { left: 102, top: 22, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 32, lineHeight: '40px', color: C.cream }, p.name);
+  const pts = el(e, { left: 102, top: 64, fontFamily: 'Manrope', fontWeight: 800, fontSize: 24, lineHeight: '30px', color: C.gold, whiteSpace: 'pre' }, fmt(p.pts));
+  pts.classList.add('tnum');
+  return { e, pts, p };
+});
+const passLine = maskText(lbWorld, '', { left: LB.x + LB.w / 2 + 26, top: slotY(3) - 18, width: 320, height: 36 },
+  { fontFamily: 'Manrope', fontWeight: 800, fontSize: 24, lineHeight: '36px', color: C.forest });
+passLine.span.innerHTML = '<b style="font-weight:800">+81</b> to pass Emma';
+const today = el(lbWorld, { width: 128, height: 40, borderRadius: 20, background: C.gold, color: C.forest, textAlign: 'center', lineHeight: '40px',
+  fontFamily: 'Fredoka', fontWeight: 600, fontSize: 20, boxShadow: '0 0 0 3px #163B32', zIndex: 30 }, 'Today #3');
+
+// ------------------------------------------------------------------ outro (screen space)
+const OL = V ? {
+  size: 92, lines1: ['The world,', 'one trip at a time.'], lines2: ['Five minutes.', 'Every day.'], y1: 700, lh: 108, gap: 70,
+  mascot: { x: 540, y: 640, r: 150 }, wm: 250, tag: 46, url: 32,
+} : {
+  size: 92, lines1: ['The world, one trip at a time.'], lines2: ['Five minutes. Every day.'], y1: 404, lh: 112, gap: 30,
+  mascot: { x: 0, y: 452, r: 118 }, wm: 214, tag: 44, url: 30,
+};
+// word-by-word lines
+const words = [];
+{
+  let y = OL.y1;
+  const addLine = (text, startBeat, group) => {
+    const ws = text.split(' ');
+    const meas = document.createElement('canvas').getContext('2d');
+    meas.font = `600 ${OL.size}px Fredoka`;
+    const spaceW = OL.size * 0.26;
+    const box = el(outro, { left: 0, top: y, width: W, height: OL.lh });
+    words.push({ box, ws, startBeat, group, y, meas, spaceW, spans: [] });
+    y += OL.lh;
+  };
+  OL.lines1.forEach((l, i) => addLine(l, 0, 1));
+  y += OL.gap;
+  OL.lines2.forEach((l, i) => addLine(l, 0, 2));
+}
+// map, route, plane, pin, lockup
+const omap = svgEl(outro, 'svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}` });
+omap.style.position = 'absolute';
+const omapG = svgEl(omap, 'g');
+const omapClip = svgEl(svgEl(omap, 'defs'), 'clipPath', { id: 'omclip' });
+const omapClipC = svgEl(omapClip, 'circle', { r: 0 });
+const omapLand = svgEl(omapG, 'path', { d: window.MAP_COUNTRIES.map(c => c.d).join(''), fill: '#1C4539', stroke: 'rgba(221,237,230,.42)', 'stroke-width': 1.3, 'vector-effect': 'non-scaling-stroke', 'clip-path': 'url(#omclip)' });
+const routeG = svgEl(omap, 'g');
+const plane = el(outro, { width: 60, height: 60, zIndex: 5 },
+  `<svg width="60" height="60" viewBox="-30 -30 60 60"><path d="M26 0L-22 -18L-12 0L-22 18Z" fill="${C.cream}"/><path d="M26 0L-12 0L-22 18Z" fill="#D9D3C0"/><path d="M26 0L-12 0" stroke="#BFB8A2" stroke-width="1.2"/></svg>`);
+const pin2 = el(outro, { width: 60, height: 80, zIndex: 6 });
+const creamFlood = el(outro, { borderRadius: '50%', background: C.cream, zIndex: 7 });
+const wmMask = el(outro, { overflow: 'hidden', zIndex: 8 });
+const wordmark = el(wmMask, { fontFamily: 'Fredoka', fontWeight: 700, color: C.forest, whiteSpace: 'pre', letterSpacing: '-0.01em' }, 'roviko');
+const endBox = el(outro, { zIndex: 11, width: 600, height: 600 });
+const endMascot = Mascot(endBox, 600);
+S(endMascot.svg, { left: 0, top: 0 });
+const endShadow = el(outro, { borderRadius: '50%', background: 'rgba(22,59,50,.12)', filter: 'blur(4px)', zIndex: 9 });
+const tagline = maskText(outro, 'A small geography trip. Every day.', { left: 0, top: 0, width: W, height: 60 },
+  { width: W, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 500, fontSize: OL.tag, lineHeight: '60px', color: C.forest });
+const urlT = maskText(outro, 'roviko.app', { left: 0, top: 0, width: W, height: 44 },
+  { width: W, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: OL.url, lineHeight: '44px', color: C.green, letterSpacing: '0.01em' });
+S(tagline.box, { zIndex: 12 }); S(urlT.box, { zIndex: 12 });
+
+// Geometry that needs real font metrics (filled in once fonts are loaded)
+const G = {};
+function layoutText() {
+  const cx = document.createElement('canvas').getContext('2d');
+  cx.font = `700 ${OL.wm}px Fredoka`;
+  G.wmW = cx.measureText('roviko').width;
+  const r = OL.mascot.r;
+  if (!V) {
+    const gap = 44, groupW = 2 * r + gap + G.wmW;
+    G.mx = W / 2 - groupW / 2 + r; G.my = OL.mascot.y;
+    G.wmX = G.mx + r + gap; G.wmY = G.my - OL.wm * 0.62;
+    G.tagY = G.my + r + 92; G.urlY = G.tagY + 64;
+  } else {
+    G.mx = OL.mascot.x; G.my = OL.mascot.y;
+    G.wmX = W / 2 - G.wmW / 2; G.wmY = G.my + r + 118;
+    G.tagY = G.wmY + OL.wm * 1.05 + 10; G.urlY = G.tagY + 70;
+  }
+  S(wordmark, { fontSize: OL.wm, lineHeight: OL.wm * 1.2 + 'px', left: 0, top: 0 });
+  cx.font = '600 22px Fredoka'; G.sevenW = cx.measureText('7').width;
+  cx.font = '600 20px Fredoka'; G.streakW = cx.measureText('-day streak').width;
+  cx.font = '800 13px Manrope'; cx.letterSpacing = '0.26px';
+  S(lblRoll.box, { left: 22 + cx.measureText('Daily Detour · ').width + 0.26 * 15 });
+  // map: Lisbon under the pin that becomes the mascot
+  const s = V ? 2.3 : 2.2;
+  const lis = { u: (-9.14 + 180) / 360 * 1000, v: (90 - 38.72) / 180 * 500 };
+  const nyc = { u: (-74.0 + 180) / 360 * 1000, v: (90 - 40.71) / 180 * 500 };
+  G.pinTip = [G.mx, G.my + 26 * 1.4];                      // pin head centre sits where the mascot will be
+  G.mapT = { s, ox: G.pinTip[0] - lis.u * s, oy: G.pinTip[1] - lis.v * s };
+  omapG.setAttribute('transform', `translate(${G.mapT.ox} ${G.mapT.oy}) scale(${s})`);
+  G.lis = G.pinTip;
+  G.nyc = [G.mapT.ox + nyc.u * s, G.mapT.oy + nyc.v * s];
+  // route: quadratic arc, bulging north
+  const mx = (G.nyc[0] + G.lis[0]) / 2, my = Math.min(G.nyc[1], G.lis[1]) - (V ? 150 : 120);
+  G.ctrl = [mx, my];
+  // words: measured positions, centred
+  for (const w of words) {
+    const widths = w.ws.map(x => w.meas.measureText(x).width);
+    const total = widths.reduce((a, b) => a + b, 0) + w.spaceW * (w.ws.length - 1);
+    let x = W / 2 - total / 2;
+    w.box.innerHTML = '';
+    w.spans = w.ws.map((txt, i) => {
+      const m = el(w.box, { left: x - 6, top: 0, width: widths[i] + 12, height: OL.lh, overflow: 'hidden' });
+      const sp = el(m, { left: 6, top: 0, fontFamily: 'Fredoka', fontWeight: 600, fontSize: OL.size, lineHeight: OL.lh + 'px', color: C.cream, whiteSpace: 'pre' }, '', 'a', 'span');
+      sp.textContent = txt;
+      x += widths[i] + w.spaceW;
+      return { m, sp };
+    });
+  }
+  // schedule the words: line 1 words every quaver-ish from TL.line1, line 2 from TL.line2
+  let i1 = 0, i2 = 0;
+  for (const w of words) for (const s2 of w.spans) {
+    if (w.group === 1) { s2.b = TL.line1 + i1 * 0.25; i1++; } else { s2.b = TL.line2 + i2 * 0.32; i2++; }
+  }
+}
+const quad = (a, c, b, t) => [(1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
+const quadD = (a, c, b, t) => [2 * (1 - t) * (c[0] - a[0]) + 2 * t * (b[0] - c[0]), 2 * (1 - t) * (c[1] - a[1]) + 2 * t * (b[1] - c[1])];
+
+// ------------------------------------------------------------------ sound events (read by build/mix.py)
+// t: seconds, the moment the effect's measured peak must land on.
+const EVENTS = [];
+const ev = (b, sfx, gain = 0, extra = {}) => EVENTS.push(Object.assign({ t: +T(b).toFixed(4), beat: +b.toFixed(3), sfx, gain }, extra));
+{
+  const r = rng(7);
+  KEYS.forEach(k => EVENTS.push({ t: +k.t.toFixed(4), beat: +(k.t / BEAT).toFixed(3), sfx: 'key', gain: -9 + r() * 3, rate: 0.94 + r() * 0.12 }));
+  ev(TL.peek + 0.2, 'pop', -14, { rate: 1.1 });
+  ev(TL.flag, 'land', -6);
+  TL.pills.forEach((b, i) => ev(b + 0.04, 'pop', -10, { rate: 0.94 + i * 0.05 }));
+  ev(TL.tap, 'tap', -4);
+  ev(TL.tap + 0.44, 'correct', -6);
+  ev(6.12, 'pop', -12, { rate: 1.12 });
+  ev(TL.toMap + 0.3, 'morph', -9);
+  ev(TL.pin, 'pin', -3);
+  [TL.g3, TL.g4, TL.g5].forEach((b, i) => ev(b, 'tick', -7, { rate: 1 + i * 0.06 }));
+  [TL.q3, TL.q4, TL.q5].forEach(b => ev(b + 0.05, 'morph', -12));
+  CHIPS.forEach((c, i) => ev(c.at, 'coin', -8, { rate: [1, 1.122, 1.26, 1.335, 1.498][i] }));
+  ev(TL.drop, 'impact', -1);
+  ev(TL.cards + 0.12, 'swoosh', -6);
+  ev(TL.pass + 0.1, 'pop', -14, { rate: 1.2 });
+  ev(TL.swap + 0.3, 'reorder', -6);
+  ev(TL.today, 'levelup', -7);
+  ev(TL.shrink + 0.3, 'collapse', -6);
+  ev(TL.flip, 'streak', -6);
+  ev(TL.mascotUp + 0.35, 'cheer', -8);
+  ev(TL.pill1 + 0.04, 'pop', -11); ev(TL.pill2 + 0.04, 'pop', -11, { rate: 1.06 });
+  ev(TL.click, 'tap', -4);
+  ev(TL.room + 0.05, 'open', -8);
+  ev(TL.join + 0.1, 'join', -8);
+  ev(TL.grow + 1.0, 'whoosh', -5);
+  ev(TL.pin2 + 0.3, 'pin', -7);
+  ev(TL.plane0 + 0.12, 'send', -9);
+  ev(TL.pop + 0.3, 'sparkle', -6);
+  ev(TL.wordmark + 0.05, 'expand', -10);
+}
+window.EVENTS = EVENTS;
+
+// ------------------------------------------------------------------ seek(t): the whole frame from t
+function seek(t) {
+  t = clamp(t, 0, DURATION);
+  const b = t / BEAT;
+  const c = cam(t);
+  world.style.transform = camCss(c);
+  lbWorld.style.transform = camCss(c);
+
+  // halo: slow rotation
+  S(halo, { transform: `rotate(${20 + t * 14}deg) scale(${1 + 0.03 * Math.sin(t * 0.9)})` });
+
+  // ---------------- header: progress, counter, label
+  const answered = [TL.tap, TL.pin, TL.g3, TL.g4, TL.g5];
+  let prog = 0;
+  answered.forEach(ab => { prog += spB(t, ab + 0.05, 2.4, 0.75); });
+  S(progFill, { width: 212 * prog / 20 });
+  show(progFill, prog > 0.001);
+  // counter value rolls when each chip arrives
+  let cv = 0, rollP = 1, prev = 0;
+  CHIPS.forEach(ch => { if (b >= ch.at) { prev = cv; cv += 50; rollP = clamp((t - T(ch.at)) / 0.14); } });
+  if (cv === 0) { cntRoll.set('0', '0', 1); } else { cntRoll.set(String(prev), String(cv), E.outCubic(rollP)); }
+  let bump = 0;
+  CHIPS.forEach(ch => { const d = t - T(ch.at); if (d > 0 && d < 0.6) bump = Math.max(bump, Math.exp(-d * 9) * Math.sin(Math.min(d * 30, Math.PI))); });
+  const swell = segB(t, 11.55, 12.0, E.inCubic) * 0.12;
+  S(counter, { transform: `scale(${1 + 0.1 * bump + swell})` });
+  // the coin becomes the flood: hide it once the flood has left
+  show(coin, b < TL.drop);
+  // label n/20
+  const qi = b < TL.toMap ? 1 : b < TL.q3 ? 2 : b < TL.q4 ? 3 : b < TL.q5 ? 4 : 5;
+  const qStart = [0, 0, TL.toMap + 0.2, TL.q3 + 0.1, TL.q4 + 0.1, TL.q5 + 0.1][qi];
+  lblRoll.set(`${qi - 1}/20`, `${qi}/20`, qi === 1 ? 1 : E.outCubic(clamp((t - T(qStart)) / 0.16)));
+
+  // ---------------- scene 1: typing
+  let nTyped = 0;
+  for (const k of KEYS) if (t >= k.t) nTyped = k.i + 1;
+  const nA = Math.min(nTyped, Q1A.length), nB = Math.max(0, nTyped - Q1A.length);
+  typeL1.textContent = Q1A.slice(0, nA);
+  typeL2.textContent = Q1B.slice(0, nB);
+  const outQ1 = hswap(t, 0);
+  S(typeL1, { transform: `translateY(${-outQ1 * 41}px)` });
+  S(typeL2, { transform: `translateY(${-outQ1 * 41 * 2}px)` });
+  show(typeMaskA, outQ1 < 1); show(typeMaskB, outQ1 < 1);
+  // caret: follows the typing on its fixed line, blinks when idle, gone after typing
+  const typingDone = KEYS[KEYS.length - 1].t;
+  const meas = measureCaret(nA, nB);
+  const idle = t < KEYS[0].t || t > typingDone + 0.05;
+  const blinkOn = idle ? (Math.floor(t / 0.265) % 2 === 0) : true;
+  S(caret, { left: 22 + meas.x + 2, top: meas.line ? 87 : 53 });
+  show(caret, blinkOn && t < typingDone + 0.62);
+
+  // Q2..Q5 headlines
+  headQ.forEach((h, i) => h.set(hswap(t, i), i < 3 ? hswap(t, i + 1) : 0, 1.15));
+
+  // flag lands on a spring
+  {
+    const land = T(TL.flag);
+    const pop = spring(t - (land - 0.16), 2.4, 0.58);
+    const fall = clamp((t - (land - 0.16)) / 0.16);
+    let y = -18 * (1 - fall * fall), sx = 1, sy = 1;
+    if (t >= land) { const d = t - land; const k = Math.exp(-d * 9) * Math.sin(d * 34); sy = 1 - 0.08 * k; sx = 1 + 0.05 * k; y = 0; }
+    const out = segB(t, TL.toMap, TL.toMap + 0.3, E.inBack);
+    const s = pop * (1 - out);
+    S(flagPT, { transform: `translateY(${y}px) scale(${sx * s},${sy * s})`, transformOrigin: '50% 60%' });
+    show(flagPT, s > 0.001);
+    S(flagShadow, { transform: `scale(${fall * s})` }); show(flagShadow, fall * s > 0.001);
+  }
+
+  // answer pills
+  pills.forEach((P, i) => {
+    const pIn = spB(t, TL.pills[i], 2.1, 0.62);
+    const isAns = i === 1;
+    let q = 0;
+    if (!isAns) q = segB(t, TL.toMap + i * 0.04, TL.toMap + 0.3 + i * 0.04, E.inCubic);
+    const press = isAns ? Math.exp(-Math.max(0, t - T(TL.tap)) * 18) * (t >= T(TL.tap) - 0.04 ? 1 : 0) : 0;
+    show(P.box, pIn > 0.001 && q < 1 && !(isAns && b >= TL.toMap + 0.12));
+    if (P.box.style.visibility === 'hidden') return;
+    pillShape(P, clamp(pIn, 0, 1.2), q, press);
+    if (isAns) {
+      const f = E.outCubic(clamp((t - T(TL.tap)) / 0.32));
+      pillFill(P, f, 206, 28);
+      const away = 1 - segB(t, TL.toMap - 0.05, TL.toMap + 0.12, E.inBack);
+      const ck = spB(t, TL.tap + 0.18, 3, 0.55) * away;
+      S(P.chk, { transform: `scale(${ck})` });
+      S(P.txt, { transform: `scale(${away})` });
+      show(P.chk, ck > 0.01);
+    } else { pillFill(P, 0); show(P.chk, false); }
+  });
+
+  // cursor 1: enters, moves to Portugal, taps
+  {
+    const tgt = [PX + CX + 22 + 176 + 30, PY + CY + PILL_Y[1] + 28];
+    const start = [tgt[0] + 95, tgt[1] + 115];
+    const p = segB(t, TL.cur1In + 0.1, TL.cur1At, E.inOutCubic);
+    const bow = Math.sin(p * Math.PI) * 22;
+    const x = lerp(start[0], tgt[0], p) + bow, y = lerp(start[1], tgt[1], p);
+    const s = spB(t, TL.cur1In, 3, 0.6) * (1 - segB(t, TL.toMap - 0.1, TL.toMap + 0.15, E.inCubic));
+    const press = t >= T(TL.tap) - 0.05 ? Math.exp(-Math.max(0, t - T(TL.tap) + 0.05) * 14) : 0;
+    // cursor 2 (scene 5)
+    const tgt2 = [PX + 214 + 40, PY + 602 + 29];
+    const st2 = [tgt2[0] + 80, tgt2[1] + 100];
+    const p2 = segB(t, TL.cur2In + 0.1, TL.cur2At, E.inOutCubic);
+    const s2 = spB(t, TL.cur2In, 3, 0.6) * (1 - segB(t, TL.click + 0.35, TL.click + 0.6, E.inCubic));
+    const press2 = t >= T(TL.click) - 0.05 ? Math.exp(-Math.max(0, t - T(TL.click) + 0.05) * 14) : 0;
+    const two = b > 18;
+    const cx = two ? lerp(st2[0], tgt2[0], p2) + Math.sin(p2 * Math.PI) * 16 : x;
+    const cy = two ? lerp(st2[1], tgt2[1], p2) : y;
+    const sc = (two ? s2 : s) * (1 - 0.28 * (two ? press2 : press));
+    S(cursor, { left: cx - 11, top: cy - 11, transform: `scale(${sc})` });
+    show(cursor, sc > 0.01);
+    const tapT = T(two ? TL.click : TL.tap), rp = clamp((t - tapT) / 0.4);
+    const rr = 12 + 26 * E.outCubic(rp);
+    S(cursorRing, { left: cx - rr, top: cy - rr, width: 2 * rr, height: 2 * rr, borderWidth: (2.4 * (1 - rp)) + 'px' });
+    show(cursorRing, t > tapT && rp < 1);
+  }
+
+  // mascot peeking over the card
+  {
+    const up = spB(t, TL.peek, 1.6, 0.58);
+    const duck = segB(t, TL.duck, TL.duck + 0.45, E.inBack);
+    const rise = 62 * up * (1 - duck);
+    S(peek.svg, { top: 120 - rise - 12 });
+    // look at the typing, then at the flag, then the pills; happy at the answer
+    let look = [-0.8, 0.4];
+    if (b > 3) look = [-0.5, 1];
+    if (b > 4.6) look = [-0.2, 1];
+    const happy = b > 6.05 ? 1 : 0;
+    const blink = blinkAt(t, [1.7, 4.2]);
+    drawMascot(peek, { look, blink, happy, brow: b < 6 ? 1 : 0, mouth: 'none', legs: 0, arms: null });
+    show(peekBox, up > 0.001 && duck < 1);
+    const hands = clamp((up - 0.55) / 0.4) * (1 - clamp((duck - 0.5) / 0.3));
+    S(peekHands, { transform: `translateY(${(1 - hands) * 10}px) scaleY(${hands})`, transformOrigin: '50% 100%' });
+    show(peekHands, hands > 0.01);
+  }
+
+  // ---------------- card: height morphs through the questions
+  {
+    const hs = [[0, 564], [TL.toMap + 0.1, 426], [TL.q3, 182], [TL.q4, 275], [TL.q5, 182]];
+    let h = 564;
+    for (let i = 1; i < hs.length; i++) h = lerp(h, hs[i][1], spB(t, hs[i][0], 2.0, 0.7));
+    S(card, { height: h });
+    show(card, b < TL.drop + 2);
+    show(hdr, b < TL.drop + 2);
+    show(counter, b < TL.drop + 2);
+  }
+
+  // Portugal pill -> map panel -> Canberra chip
+  {
+    const P = pills[1];
+    const g = spB(t, TL.toMap + 0.12, 1.9, 0.72);                   // pill -> panel
+    const k = spB(t, TL.q3, 2.9, 0.78);                              // panel -> Canberra chip
+    const rectPill = { x: P.x, y: P.y, w: P.w, h: P.h, r: 28 };
+    const rectChip = { x: chipR.x, y: chipR.y, w: chipR.w, h: chipR.h, r: 28 };
+    const R = (a, bb, p) => ({ x: lerp(a.x, bb.x, p), y: lerp(a.y, bb.y, p), w: lerp(a.w, bb.w, p), h: lerp(a.h, bb.h, p), r: lerp(a.r, bb.r, p) });
+    let r = R(rectPill, Object.assign({ r: 16 }, PANEL), g);
+    r = R(r, rectChip, k);
+    const on = b >= TL.toMap + 0.12 && b < TL.q3 + 0.45;
+    show(panel, on);
+    if (on) {
+      S(panel, { left: r.x, top: r.y, width: Math.max(0, r.w), height: Math.max(0, r.h), borderRadius: r.r });
+      panel.style.background = b < TL.q3 ? C.green : C.chip;
+      // the map floods out of the centre of the growing shape, and drains back as it collapses
+      const cxm = r.x + r.w / 2 - PANEL.x, cym = r.y + r.h / 2 - PANEL.y;
+      const full = Math.hypot(PANEL.w, PANEL.h) * 0.6;
+      const reveal = full * E.inOutSine(inv(T(TL.toMap + 0.28), T(TL.toMap + 0.72), t)) * (1 - E.inOutCubic(clamp(k * 1.7)));
+      S(mapSvg, { left: PANEL.x - r.x, top: PANEL.y - r.y, clipPath: `circle(${reveal.toFixed(2)}px at ${cxm.toFixed(1)}px ${cym.toFixed(1)}px)` });
+      const mv = mapView(segB(t, TL.mapZoom[0], TL.mapZoom[1], E.inOutCubic));
+      mapG.setAttribute('transform', `translate(${PANEL.w / 2} ${PANEL.h / 2}) scale(${mv.s}) translate(${-mv.u} ${-mv.v})`);
+      // pin drop + ripple + Japan turning green from the pin
+      const [jx, jy] = mapToPanel(mv, JAPAN.u, JAPAN.v);
+      const tp = T(TL.pin);
+      let fx = '';
+      const rp = clamp((t - tp) / 0.55);
+      if (t > tp) for (const [dl, sc] of [[0, 1], [0.12, 0.7]]) {
+        const q = clamp((t - tp - dl) / 0.5);
+        if (q > 0 && q < 1) fx += `<ellipse cx="${jx}" cy="${jy}" rx="${6 + 34 * sc * E.outCubic(q)}" ry="${(6 + 34 * sc * E.outCubic(q)) * 0.42}" fill="none" stroke="${C.red}" stroke-width="${2.6 * (1 - q)}"/>`;
+      }
+      const fall = clamp((t - (tp - 0.22)) / 0.22);
+      if (fall > 0) {
+        let py = jy - 70 * (1 - fall * fall), sx = 1, sy = 1;
+        if (t >= tp) { const d = t - tp; const kk = Math.exp(-d * 10) * Math.sin(d * 36); sy = 1 - 0.18 * kk; sx = 1 + 0.12 * kk; py = jy; }
+        fx += `<ellipse cx="${jx}" cy="${jy}" rx="${7 * fall}" ry="${2.6 * fall}" fill="rgba(22,59,50,.25)"/>` + PIN_SVG(jx, py, sx, sy, 1);
+      }
+      mapFx.innerHTML = fx;
+      const jr = t > tp ? 60 * E.outCubic(clamp((t - tp) / 0.4)) : 0;
+      jpClipCircle.setAttribute('cx', JAPAN.u); jpClipCircle.setAttribute('cy', JAPAN.v + 0.5); jpClipCircle.setAttribute('r', jr / mv.s * 1.0 + (jr > 0 ? 1 : 0));
+    }
+  }
+
+  // Q3-Q5 chips
+  {
+    // left chip: Sydney (Q3) -> New Zealand (Q4) -> Mexico (Q5)
+    const inL3 = spB(t, TL.q3 + 0.24, 2.3, 0.62), outL3 = segB(t, TL.q4, TL.q4 + 0.22, E.inCubic);
+    const inL4 = spB(t, TL.q4 + 0.2, 2.3, 0.62);
+    const moveUp = spB(t, TL.q5 + 0.12, 2.3, 0.72);
+    // right chip: shows from Q3 end (panel became it) -> Australia flag window (Q4) ; new right chip Australia (Q4) -> Argentina (Q5)
+    const L = chipL, Rr = chipR;
+    if (b < TL.q4) {
+      L.txt.textContent = 'Sydney'; L.y = 104; pillShape(L, clamp(inL3, 0, 1.2), outL3); show(L.box, inL3 > 0.001 && outL3 < 1); pillFill(L, 0); show(L.chk, false);
+    } else {
+      L.txt.textContent = b < TL.q5 + 0.08 ? 'New Zealand' : 'Mexico';
+      L.y = lerp(197, 104, moveUp);
+      pillShape(L, clamp(inL4, 0, 1.2), 0); show(L.box, inL4 > 0.001 && b < TL.drop + 1); pillFill(L, 0); show(L.chk, false);
+      if (b >= TL.q5 && b < TL.q5 + 0.16) { const p = inv(T(TL.q5), T(TL.q5 + 0.16), t); S(L.txt, { transform: `translateY(${-Math.sin(p * Math.PI) * 6}px) scaleY(${1 - Math.sin(p * Math.PI) * 0.5})` }); } else S(L.txt, { transform: 'none' });
+    }
+    // right chip
+    const Rin = b >= TL.q3 + 0.45 && b < TL.q4 + 0.02;                  // Canberra (after the panel collapses into it)
+    if (b < TL.q4) {
+      Rr.txt.textContent = 'Canberra'; Rr.y = 104;
+      pillShape(Rr, 1, 0, 0); show(Rr.box, Rin);
+      const lr = segB(t, TL.q3 + 0.45, TL.q3 + 0.8, E.outQuint);
+      S(Rr.txt, { transform: `translateY(${(1 - lr) * 40}px)` });
+      pillFill(Rr, E.outCubic(clamp((t - T(TL.g3)) / 0.3)), 85, 28);
+      const ck = spB(t, TL.g3 + 0.12, 3, 0.55); S(Rr.chk, { transform: `scale(${ck})` }); show(Rr.chk, ck > 0.01);
+      Rr.txt.style.color = mixc(C.forest, C.white, clamp((t - T(TL.g3)) / 0.15));
+    } else {
+      const inR4 = spB(t, TL.q4 + 0.28, 2.3, 0.62);
+      Rr.txt.textContent = b < TL.q5 + 0.08 ? 'Australia' : 'Argentina';
+      Rr.y = lerp(197, 104, moveUp);
+      pillShape(Rr, clamp(inR4, 0, 1.2), 0); show(Rr.box, inR4 > 0.001 && b < TL.drop + 1);
+      const gOn = E.outCubic(clamp((t - T(TL.g4)) / 0.3));
+      const drain = E.inOutCubic(clamp((t - T(TL.q5)) / 0.14));
+      if (b < TL.g5) pillFill(Rr, gOn, 85, 28, drain);
+      else pillFill(Rr, E.outCubic(clamp((t - T(TL.g5)) / 0.3)), 85, 28);
+      const ck = b < TL.q5 ? spB(t, TL.g4 + 0.12, 3, 0.55) : spB(t, TL.g5 + 0.12, 3, 0.55);
+      S(Rr.chk, { transform: `scale(${ck * (b < TL.q5 ? 1 - clamp((t - T(TL.q5)) / 0.12) : 1)})` }); show(Rr.chk, ck > 0.01);
+      if (b >= TL.q5 && b < TL.q5 + 0.16) { const p = inv(T(TL.q5), T(TL.q5 + 0.16), t); S(Rr.txt, { transform: `translateY(${-Math.sin(p * Math.PI) * 6}px) scaleY(${1 - Math.sin(p * Math.PI) * 0.5})` }); } else S(Rr.txt, { transform: 'none' });
+    }
+    // Canberra chip -> Australia flag window
+    const fw = spB(t, TL.q4, 2.2, 0.72), fo = segB(t, TL.q5 - 0.04, TL.q5 + 0.2, E.inCubic);
+    const fr = { x: lerp(chipR.x, 123, fw), y: lerp(104, 104, fw), w: lerp(170, 150, fw), h: lerp(56, 75, fw), r: lerp(28, 6, fw) };
+    const onF = b >= TL.q4 && fo < 1;
+    show(flagAU, onF);
+    if (onF) {
+      const s = 1 - fo;
+      S(flagAU, { left: fr.x, top: fr.y, width: fr.w, height: fr.h, borderRadius: fr.r, transform: `scale(${s})` });
+      S(flagAUimg, { left: (fr.w - 150) / 2, top: (fr.h - 75) / 2 });
+      const ir = E.inOutSine(clamp((t - T(TL.q4) - 0.03) / 0.2)) * 90;
+      flagAU.style.background = C.green;
+      S(flagAUimg, { clipPath: `circle(${ir.toFixed(2)}px at 75px 37.5px)` });
+    }
+  }
+
+  // +50 chips: pop, then fly into the counter
+  CHIPS.forEach((ch, i) => {
+    const pop = spB(t, ch.pop, 2.8, 0.55);
+    const fp = segB(t, ch.fly, ch.at, E.inOutCubic);
+    const on = b >= ch.pop && b < ch.at;
+    show(ch.e, on);
+    if (!on) return;
+    const a = [ch.x, ch.y], z = COUNTER_C, ctl = [lerp(a[0], z[0], 0.3) - 40, Math.min(a[1], z[1]) - 70];
+    const [x, y] = quad(a, ctl, z, fp);
+    const s = pop * (1 - fp);
+    S(ch.e, { left: x - 32, top: y - 16, transform: `scale(${s})` });
+  });
+
+  // ---------------- scene 4: the gold flood + leaderboard
+  {
+    // counter coin centre in screen space at the drop
+    const cd = cam(T(TL.drop));
+    const o = toScreen(cd, PX + COUNTER_C[0], PY + COUNTER_C[1]);
+    const r0 = 12 * cd.z * (1 + 0.12);
+    const far = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot(x - o[0], y - o[1]))) + 20;
+    const fp = inv(T(TL.drop), T(TL.drop) + 0.36, t);
+    const rr = lerp(r0, far, E.inOutSine(fp) * 0.35 + E.outCubic(fp) * 0.65);
+    // shrink into the flame chip (screen rect of the chip in the phone)
+    const sp0 = T(TL.shrink), sp1 = T(TL.shrinkEnd);
+    const sk = E.inOutQuart(inv(sp0, sp1, t));
+    const cs = cam(t);
+    const [fcx, fcy] = toScreen(cs, PX + FL.cx, PY + FL.cy);
+    const fw = FL.w0 * cs.z, fh = 42 * cs.z;
+    const cx = lerp(o[0], fcx, sk), cy = lerp(o[1], fcy, sk);
+    const w = lerp(2 * rr, fw, sk), h = lerp(2 * rr, fh, sk);
+    const onF = b >= TL.drop && t < sp1;
+    show(flood, onF);
+    if (onF) S(flood, { left: cx - w / 2, top: cy - h / 2, width: w, height: h, borderRadius: Math.min(w, h) / 2 });
+    // leaderboard clipped by the flood shape
+    const onL = b >= TL.drop && t < sp1;
+    show(lbWrap, onL);
+    if (onL) lbWrap.style.clipPath = `inset(${cy - h / 2}px ${W - (cx + w / 2)}px ${H - (cy + h / 2)}px ${cx - w / 2}px round ${Math.min(w, h) / 2}px)`;
+    // cards burst from the centre, middle first
+    const order = [2, 1, 3, 0, 4];
+    const climb = clamp((t - T(TL.climb)) / 0.34);
+    const youPts = lerp(4880, 5130, E.inOutCubic(climb));
+    const sw = spB(t, TL.swap, 1.7, 0.66);
+    lbCards.forEach((cd2, i) => {
+      const k = order.indexOf(i);
+      const p = spB(t, TL.cards + k * 0.12, 1.9, 0.64);
+      let slot = i;
+      if (i === 3) slot = lerp(3, 2, sw);
+      if (i === 2) slot = lerp(2, 3, sw);
+      const x = LB.x, y = lerp(LB.y, slotY(slot), p);
+      const lift = i === 3 ? (Math.sin(clamp(sw) * Math.PI) * 0.06 + 0.035 * spB(t, TL.today, 2.2, 0.5)) : 0;
+      const s = lerp(0.2, 1, p) * (1 + lift);
+      S(cd2.e, { left: x - LB.w / 2, top: y - LB.h / 2, transform: `scale(${s})`, zIndex: i === 3 ? 20 : 10 - Math.abs(i - 2) });
+      show(cd2.e, p > 0.001);
+      if (cd2.p.you) cd2.pts.textContent = fmt(youPts);
+    });
+    ranks.forEach((r, i) => r.set(segB(t, TL.cards + 0.3 + i * 0.06, TL.cards + 0.75 + i * 0.06, E.outQuint)));
+    passLine.set(segB(t, TL.pass, TL.pass + 0.45, E.outQuint), segB(t, TL.swap, TL.swap + 0.3, E.inCubic));
+    const tp = spB(t, TL.today, 2.6, 0.5);
+    const youY = slotY(lerp(3, 2, sw));
+    S(today, { left: LB.x + LB.w / 2 - 128 + 14, top: youY - LB.h / 2 - 26, transform: `scale(${tp}) rotate(${-4 * tp}deg)` });
+    show(today, tp > 0.001);
+  }
+
+  // ---------------- scene 5: streak + friends
+  {
+    const on = b >= TL.drop + 1;
+    show(st, on);
+    if (on) {
+      // flame chip: arrives from the gold, flips 6 -> 7, widens to "7-day streak"
+      const arrived = t >= T(TL.shrinkEnd);
+      const settle = spB(t, TL.shrinkEnd, 3, 0.45);
+      const widen = spB(t, TL.flip + 0.1, 2.2, 0.7);
+      const w = lerp(FL.w0, FL.w1, widen);
+      S(flame, { left: FL.cx - w / 2, top: FL.cy - 21, width: w, transform: `scale(${arrived ? lerp(1.12, 1, settle) : 1})` });
+      show(flame, arrived);
+      flameRoll.set('6', '7', E.outCubic(clamp((t - T(TL.flip)) / 0.16)));
+      S(flameTxt, { left: 38 + G.sevenW + 1 });
+      flameTxt.style.clipPath = `inset(0 ${Math.max(0, (1 - widen) * (G.streakW + 4))}px 0 0)`;
+      // mascot pops up cheering and bops on the beat
+      const up = spB(t, TL.mascotUp, 1.8, 0.55);
+      const arm = spB(t, TL.mascotUp + 0.25, 2.4, 0.5);
+      let hop = 0, tuck = 0;
+      const jb = b - (TL.mascotUp + 0.4);
+      if (jb > 0 && b < TL.grow) { const ph = (b % 1); hop = -Math.max(0, Math.sin(ph * Math.PI)) * 14; tuck = Math.max(0, Math.sin(ph * Math.PI)) * 0.4; }
+      const arms = [[lerp(-112, -118, arm), lerp(60, -92, arm), lerp(8, -22, arm), 10], [lerp(112, 118, arm), lerp(60, -92, arm), lerp(8, -22, arm), 10]];
+      const wiggle = Math.sin(t * 13) * 6 * arm;
+      arms[0][0] += wiggle; arms[1][0] -= wiggle;
+      drawMascot(cheer, { look: [0, -0.1], happy: arm > 0.4 ? 1 : 0, mouth: arm > 0.4 ? 'open' : 'smile', cheeks: arm, legs: 1, tuck, hop, arms,
+        blink: blinkAt(t, [19.4]) });
+      S(cheerBox, { transform: `translateY(${(1 - up) * 90}px) scale(${lerp(0.3, 1, up)})`, transformOrigin: '50% 80%' });
+      show(cheerBox, up > 0.001);
+      S(cheerShadow, { transform: `scale(${up * (1 + hop / 40)})` }); show(cheerShadow, up > 0.001);
+      nice1.set(segB(t, TL.text1, TL.text1 + 0.45, E.outQuint));
+      nice2.set(segB(t, TL.text2, TL.text2 + 0.45, E.outQuint));
+      // pills
+      const pb = spB(t, TL.pill1, 2.1, 0.62), pbOut = segB(t, TL.click, TL.click + 0.24, E.inCubic);
+      pillShape(bonus, clamp(pb, 0, 1.2), pbOut); show(bonus.box, pb > 0.001 && pbOut < 1); show(bonus.chk, false); bonus.txt.style.color = C.white;
+      const pc = spB(t, TL.pill2, 2.1, 0.62);
+      const press = t >= T(TL.click) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.click)) * 18) : 0;
+      const growing = b >= TL.grow;
+      pillShape(chal, clamp(pc, 0, 1.2), 0, press); show(chal.box, pc > 0.001 && !growing); show(chal.chk, false);
+      const cf = E.outCubic(clamp((t - T(TL.click)) / 0.32));
+      pillFill(chal, cf, 210, 29);
+      chal.txt.style.color = mixc(C.green, C.white, clamp((t - T(TL.click)) / 0.16));
+      // room card + Emma joining
+      const rp = spB(t, TL.room, 1.9, 0.66);
+      const rr = { x: ROOM.x, y: lerp(602, ROOM.y, rp), w: ROOM.w, h: lerp(58, ROOM.h, rp), r: lerp(29, 22, clamp(rp)) };
+      S(room, { left: rr.x, top: rr.y, width: rr.w, height: rr.h, borderRadius: rr.r });
+      S(roomIn, { top: 0 });
+      show(room, rp > 0.001);
+      const je = spB(t, TL.join, 2.8, 0.5);
+      S(avEmma, { transform: `scale(${je})` }); show(avEmma, je > 0.001);
+      S(avYou, { transform: `scale(${spB(t, TL.room + 0.15, 2.8, 0.55)})` });
+      joined.set(segB(t, TL.join + 0.1, TL.join + 0.5, E.outQuint));
+    }
+  }
+
+  // ---------------- scene 6: the button grows into the page
+  {
+    const g0 = T(TL.grow), g1 = T(TL.growEnd);
+    const pageT = T(TL.labelOut + 0.42);                 // the page takes over once the label has left
+    const on = t >= g0 && t < pageT + 0.05;
+    show(growPill, on);
+    const p = E.inOutCubic(inv(g0, g1, t));
+    const x0 = PX + 44, y0 = PY + 602, w0 = 340, h0 = 58;
+    const wEnd = V ? 700 : 940, hEnd = V ? 700 : 470;
+    const cxw = x0 + w0 / 2, cyw = y0 + h0 / 2;
+    const w = lerp(w0, wEnd, p), h = lerp(h0, hEnd, p);
+    if (on) {
+      S(growPill, { left: cxw - w / 2, top: cyw - h / 2, width: w, height: h, borderRadius: h / 2 });
+      growPill.style.background = mixc(C.green, C.forest, inv(0.15, 0.85, p));
+      const zEnd = CAM[CAM.length - 1][1];
+      const fs = lerp(20, OL.size / zEnd, E.inOutCubic(inv(g0, g1 - 0.05, t)));
+      const lo = segB(t, TL.labelOut, TL.labelOut + 0.32, E.inCubic);
+      const lh = fs * 1.3;
+      S(growMask, { left: 0, top: h / 2 - lh / 2, width: w, height: lh });
+      S(growLabel, { left: 0, top: -lo * lh * 1.05, width: w, fontSize: fs, lineHeight: lh + 'px' });
+      growLabel.style.color = mixc(C.white, C.cream, p);
+      show(growMask, lo < 1);
+    }
+    const pageOn = t >= pageT;
+    show(pageL, pageOn);
+    show(world, !pageOn);
+  }
+
+  // ---------------- outro
+  {
+    const on = t >= T(TL.growEnd) - 0.02;
+    show(outro, on);
+    if (on) {
+      const push = segB(t, TL.line1 - 0.3, 32, E.inOutSine);
+      S(outro, { transform: `scale(${1 + 0.05 * push})` });
+      // label out -> words in
+      for (const w of words) for (const s2 of w.spans) {
+        const pin = segB(t, s2.b, s2.b + 0.42, E.outQuint);
+        const pout = segB(t, TL.linesOut + (w.group === 1 ? 0 : 0.06), TL.linesOut + 0.34 + (w.group === 1 ? 0 : 0.06), E.inCubic);
+        S(s2.sp, { transform: `translateY(${(1 - pin) * OL.lh * 1.05 - pout * OL.lh * 1.05}px)` });
+        show(s2.m, pin > 0 && pout < 1);
+      }
+      // map reveal from Lisbon
+      const mr = segB(t, TL.mapIn, TL.mapIn + 0.95, E.inOutCubic) * Math.hypot(W, H) * 1.1;
+      omapClipC.setAttribute('cx', (G.lis[0] - G.mapT.ox) / G.mapT.s); omapClipC.setAttribute('cy', (G.lis[1] - G.mapT.oy) / G.mapT.s);
+      omapClipC.setAttribute('r', mr / G.mapT.s);
+      show(omap, mr > 0 && t < T(TL.cream) + 0.4);
+      // route dashes appear as the plane passes
+      const pp = segB(t, TL.plane0 + 0.12, TL.plane1, E.inOutSine);
+      let dash = '';
+      const N = 26;
+      for (let i = 0; i < N; i++) {
+        const a = i / N, bb = (i + 0.45) / N;
+        if (a >= pp - 0.02) break;
+        const e2 = Math.min(bb, pp - 0.02);
+        const p1 = quad(G.nyc, G.ctrl, G.lis, a), p2 = quad(G.nyc, G.ctrl, G.lis, Math.max(a, e2));
+        dash += `<path d="M${p1[0].toFixed(1)} ${p1[1].toFixed(1)}L${p2[0].toFixed(1)} ${p2[1].toFixed(1)}" stroke="${C.cream}" stroke-width="4" stroke-linecap="round" opacity=".75"/>`;
+      }
+      dash += `<circle cx="${G.nyc[0]}" cy="${G.nyc[1]}" r="${7 * spB(t, TL.plane0, 3, 0.6)}" fill="${C.gold}"/>`;
+      routeG.innerHTML = t < T(TL.cream) + 0.4 ? dash : '';
+      // plane
+      const ps = spB(t, TL.plane0, 3, 0.6) * (1 - segB(t, TL.plane1 - 0.12, TL.plane1 + 0.05, E.inCubic));
+      const [qx, qy] = quad(G.nyc, G.ctrl, G.lis, pp), [dx, dy] = quadD(G.nyc, G.ctrl, G.lis, Math.max(0.001, pp));
+      const ang = Math.atan2(dy, dx) * 180 / Math.PI;
+      S(plane, { left: qx - 30, top: qy - 30, transform: `rotate(${ang}deg) scale(${ps})` });
+      show(plane, ps > 0.001);
+      // pin at Lisbon: drops, then its head opens into the mascot
+      const tp2 = T(TL.pin2);
+      const fall = clamp((t - (tp2 - 0.22)) / 0.22);
+      let sy = 1, sx = 1, py = 0;
+      if (t < tp2) py = -90 * (1 - fall * fall);
+      else { const d = t - tp2; const kk = Math.exp(-d * 10) * Math.sin(d * 36); sy = 1 - 0.18 * kk; sx = 1 + 0.12 * kk; }
+      const popT = T(TL.pop);
+      const popped = t >= popT;
+      const pinS = V ? 2.0 : 1.4;
+      pin2.innerHTML = `<svg width="60" height="80" viewBox="-30 -60 60 80"><ellipse cx="0" cy="0" rx="${8 * fall}" ry="3" fill="rgba(0,0,0,.25)"/>${PIN_SVG(0, py, sx, sy, 1)}</svg>`;
+      S(pin2, { left: G.lis[0] - 30, top: G.lis[1] - 60, transform: `scale(${pinS})`, transformOrigin: '30px 60px' });
+      show(pin2, fall > 0 && !popped);
+      // the mascot: pin head (r=13*pinS) grows into the globe
+      const r = OL.mascot.r;
+      const g = spB(t, TL.pop, 1.9, 0.52);
+      const headR = 13 * pinS, headY = G.lis[1] - 26 * pinS;
+      const curR = lerp(headR, r, g);
+      const cy = lerp(headY, G.my, spB(t, TL.pop, 2.2, 0.8));
+      // svg viewBox 340 wide for 600px: 1 unit = 600/340 px
+      const unit = 600 / 340;
+      const scale = curR / (100 * unit);
+      S(endBox, { left: G.mx - 300, top: cy - 300, transform: `scale(${scale})`, transformOrigin: '300px 300px' });
+      show(endBox, popped);
+      const legs = spB(t, TL.pop + 0.2, 2.4, 0.6);
+      const armsIn = spB(t, TL.pop + 0.3, 2.4, 0.6);
+      const wave = t > T(TL.final) ? Math.sin((t - T(TL.final)) * 11) : 0;
+      const waveAmt = spB(t, TL.final - 0.1, 2, 0.7);
+      const hopE = t > T(TL.final) && t < T(TL.final) + 0.5 ? -Math.sin(inv(T(TL.final), T(TL.final) + 0.4, t) * Math.PI) * 14 : 0;
+      const arms = [
+        [-lerp(90, 118 + 6 * wave * waveAmt, armsIn), lerp(30, lerp(70, -86, waveAmt), armsIn), lerp(10, -18, waveAmt), 10 * armsIn],
+        [lerp(90, 112, armsIn), lerp(30, 76, armsIn), 10, 10 * armsIn],
+      ];
+      const blink = Math.max(blinkAt(t, [TL.blink]), 1 - clamp((t - popT - 0.25) / 0.12));
+      drawMascot(endMascot, { look: [0, 0], blink, wink: segB(t, TL.wink, TL.wink + 0.1) * (1 - segB(t, TL.wink + 0.9, TL.wink + 1.0)),
+        mouth: g > 0.5 ? 'smile' : 'none', cheeks: segB(t, TL.wink, TL.wink + 0.15), legs, arms: armsIn > 0.02 ? arms : null, hop: hopE, iris: (1 - E.inOutCubic(clamp((t - popT) / 0.22))) * 102 });
+      const shw = r * 1.1 * legs;
+      S(endShadow, { left: G.mx - shw / 2, top: G.my + r + 64 * (V ? 1.28 : 1) , width: shw, height: 16 });
+      show(endShadow, popped && legs > 0.05);
+      // cream flood out of the mascot
+      const cf = inv(T(TL.cream), T(TL.cream) + 0.36, t);
+      const far = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot(x - G.mx, y - G.my))) + 30;
+      const cr = lerp(r * 0.9, far, E.inOutSine(cf) * 0.35 + E.outCubic(cf) * 0.65);
+      S(creamFlood, { left: G.mx - cr, top: G.my - cr, width: 2 * cr, height: 2 * cr });
+      show(creamFlood, cf > 0);
+      // wordmark wipes out from behind the mascot
+      const wp = segB(t, TL.wordmark, TL.wordmark + 1.05, E.outCubic);
+      if (!V) {
+        S(wmMask, { left: G.mx, top: G.wmY, width: (G.wmX - G.mx) + wp * (G.wmW + 40), height: OL.wm * 1.3 });
+        S(wordmark, { left: (G.wmX - G.mx) - (1 - wp) * 70, top: 0 });
+      } else {
+        S(wmMask, { left: 0, top: G.my, width: W, height: (G.wmY - G.my) + wp * OL.wm * 1.3 });
+        S(wordmark, { left: G.wmX, top: (G.wmY - G.my) - (1 - wp) * 60 });
+      }
+      show(wmMask, wp > 0);
+      S(tagline.box, { top: G.tagY }); S(urlT.box, { top: G.urlY });
+      tagline.set(segB(t, TL.tagline, TL.tagline + 0.5, E.outQuint));
+      urlT.set(segB(t, TL.url, TL.url + 0.5, E.outQuint));
+    }
+  }
+}
+
+// blink helper: quick close/open around given beats
+function blinkAt(t, beats) {
+  let v = 0;
+  for (const bb of beats) { const d = t - T(bb); if (d > 0 && d < 0.18) v = Math.max(v, Math.sin(d / 0.18 * Math.PI)); }
+  return v;
+}
+// caret x from measured typed text
+const _mc = document.createElement('canvas').getContext('2d');
+function measureCaret(nA, nB) {
+  _mc.font = '600 28px Fredoka';
+  if (nB > 0) return { x: _mc.measureText(Q1B.slice(0, nB)).width, line: 1 };
+  return { x: _mc.measureText(Q1A.slice(0, nA)).width, line: 0 };
+}
+
+// ------------------------------------------------------------------ boot
+window.seek = seek;
+window.DURATION = DURATION;
+window.filmReady = (async () => {
+  const fonts = ['500 20px Fredoka', '600 28px Fredoka', '700 40px Fredoka', '600 13px Manrope', '700 13px Manrope', '800 13px Manrope'];
+  await Promise.all(fonts.map(f => document.fonts.load(f)));
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+  await paintHalo();
+  layoutText();
+  seek(+(Q.get('t') || 0));
+  return true;
+})();
+</script>
+</body>
+</html>

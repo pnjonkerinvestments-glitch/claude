@@ -1,0 +1,156 @@
+{
+ "key": {
+  "file": "key.wav",
+  "peak_s": 0.0121,
+  "duration_s": 0.104,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"typing\" (CC0 1.0)",
+  "use": "one keystroke"
+ },
+ "tap": {
+  "file": "tap.wav",
+  "peak_s": 0.0141,
+  "duration_s": 0.267,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"press\" (CC0 1.0)",
+  "use": "finger taps an answer or button"
+ },
+ "correct": {
+  "file": "correct.wav",
+  "peak_s": 0.206,
+  "duration_s": 1.033,
+  "source": "uisfx 0.4.0, pack \"glass\", cue \"success\" (CC0 1.0)",
+  "use": "soft correct chime"
+ },
+ "pop": {
+  "file": "pop.wav",
+  "peak_s": 0.006,
+  "duration_s": 0.29,
+  "source": "uisfx 0.4.0, pack \"rubber\", cue \"select\" (CC0 1.0)",
+  "use": "answer pills and chips springing in"
+ },
+ "land": {
+  "file": "land.wav",
+  "peak_s": 0.0826,
+  "duration_s": 0.417,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"drop\" (CC0 1.0)",
+  "use": "the flag landing on the card"
+ },
+ "tick": {
+  "file": "tick.wav",
+  "peak_s": 0.014,
+  "duration_s": 0.402,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"check\" (CC0 1.0)",
+  "use": "an answer turning green"
+ },
+ "pin": {
+  "file": "pin.wav",
+  "peak_s": 0.0714,
+  "duration_s": 0.448,
+  "source": "uisfx 0.4.0, pack \"organic\", cue \"drop\" (CC0 1.0)",
+  "use": "map pin dropping onto Japan"
+ },
+ "morph": {
+  "file": "morph.wav",
+  "peak_s": 0.0376,
+  "duration_s": 0.498,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"swipe\" (CC0 1.0)",
+  "use": "question card changing type"
+ },
+ "swoosh": {
+  "file": "swoosh.wav",
+  "peak_s": 0.0408,
+  "duration_s": 0.686,
+  "source": "uisfx 0.4.0, pack \"cinematic\", cue \"swipe\" (CC0 1.0)",
+  "use": "leaderboard cards bursting in"
+ },
+ "reorder": {
+  "file": "reorder.wav",
+  "peak_s": 0.2216,
+  "duration_s": 0.474,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"reorder\" (CC0 1.0)",
+  "use": "You climbing past Emma"
+ },
+ "levelup": {
+  "file": "levelup.wav",
+  "peak_s": 0.4183,
+  "duration_s": 1.102,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"level-up\" (CC0 1.0)",
+  "use": "Today #3 pill"
+ },
+ "collapse": {
+  "file": "collapse.wav",
+  "peak_s": 0.1352,
+  "duration_s": 0.496,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"collapse\" (CC0 1.0)",
+  "use": "gold shrinking into the flame chip"
+ },
+ "streak": {
+  "file": "streak.wav",
+  "peak_s": 0.3476,
+  "duration_s": 0.876,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"streak\" (CC0 1.0)",
+  "use": "streak number flipping 6 to 7"
+ },
+ "cheer": {
+  "file": "cheer.wav",
+  "peak_s": 0.4121,
+  "duration_s": 1.058,
+  "source": "uisfx 0.4.0, pack \"glass\", cue \"badge\" (CC0 1.0)",
+  "use": "mascot popping up, cheering"
+ },
+ "open": {
+  "file": "open.wav",
+  "peak_s": 0.0167,
+  "duration_s": 0.488,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"open\" (CC0 1.0)",
+  "use": "room code card springing in"
+ },
+ "join": {
+  "file": "join.wav",
+  "peak_s": 0.1466,
+  "duration_s": 0.615,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"receive\" (CC0 1.0)",
+  "use": "Emma joined"
+ },
+ "send": {
+  "file": "send.wav",
+  "peak_s": 0.0146,
+  "duration_s": 0.542,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"send\" (CC0 1.0)",
+  "use": "paper plane taking off"
+ },
+ "sparkle": {
+  "file": "sparkle.wav",
+  "peak_s": 0.3956,
+  "duration_s": 1.5,
+  "source": "uisfx 0.4.0, pack \"glass\", cue \"achievement\" (CC0 1.0)",
+  "use": "pin becoming the mascot"
+ },
+ "expand": {
+  "file": "expand.wav",
+  "peak_s": 0.0148,
+  "duration_s": 0.519,
+  "source": "uisfx 0.4.0, pack \"soft\", cue \"expand\" (CC0 1.0)",
+  "use": "wordmark wiping out"
+ },
+ "coin": {
+  "file": "coin.wav",
+  "peak_s": 0.0605,
+  "duration_s": 0.45,
+  "source": "synthesised for this film (build/sfx.py), no samples",
+  "use": "each +50 chip arriving in the points counter"
+ },
+ "whoosh": {
+  "file": "whoosh.wav",
+  "peak_s": 0.5551,
+  "duration_s": 0.9,
+  "source": "synthesised for this film (build/sfx.py), no samples",
+  "use": "the button filling the page"
+ },
+ "impact": {
+  "file": "impact.wav",
+  "peak_s": 0.0521,
+  "duration_s": 1.3,
+  "source": "synthesised for this film (build/sfx.py), no samples",
+  "use": "the drop: gold flood"
+ }
+}

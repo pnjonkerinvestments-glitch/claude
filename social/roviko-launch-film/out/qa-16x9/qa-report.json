@@ -1,0 +1,43 @@
+{
+ "file": "out/master-16x9.mkv",
+ "size": "1920x1080",
+ "fps": "60/1",
+ "frames": 900,
+ "duration_s": 15.0,
+ "single_frame_pops": [
+  {
+   "frame": 194,
+   "time_s": 3.233,
+   "beat": 7.01,
+   "score": 5.41
+  },
+  {
+   "frame": 199,
+   "time_s": 3.317,
+   "beat": 7.19,
+   "score": 9.73
+  },
+  {
+   "frame": 215,
+   "time_s": 3.583,
+   "beat": 7.76,
+   "score": 5.73
+  },
+  {
+   "frame": 229,
+   "time_s": 3.817,
+   "beat": 8.27,
+   "score": 4.0
+  },
+  {
+   "frame": 284,
+   "time_s": 4.733,
+   "beat": 10.26,
+   "score": 4.26
+  }
+ ],
+ "jumps": [],
+ "max_pop_score": 9.73,
+ "max_frame_change": 27.03,
+ "max_change_at_s": 13.067
+}
