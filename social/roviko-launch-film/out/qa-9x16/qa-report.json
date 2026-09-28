@@ -2,8 +2,8 @@
  "file": "out/master-9x16.mkv",
  "size": "1080x1920",
  "fps": "60/1",
- "frames": 1538,
- "duration_s": 25.633,
+ "frames": 2193,
+ "duration_s": 36.55,
  "single_frame_pops": [
   {
    "frame": 233,
@@ -66,266 +66,332 @@
    "score": 5.53
   },
   {
-   "frame": 941,
-   "time_s": 15.683,
-   "beat": 28.75,
-   "score": 4.21
-  },
-  {
-   "frame": 947,
-   "time_s": 15.783,
-   "beat": 28.94,
-   "score": 6.43
-  },
-  {
-   "frame": 949,
-   "time_s": 15.817,
-   "beat": 29.0,
-   "score": 5.32
-  },
-  {
-   "frame": 950,
-   "time_s": 15.833,
-   "beat": 29.03,
-   "score": 5.22
-  },
-  {
-   "frame": 951,
-   "time_s": 15.85,
-   "beat": 29.06,
-   "score": 4.55
-  },
-  {
-   "frame": 952,
-   "time_s": 15.867,
-   "beat": 29.09,
-   "score": 39.64
-  },
-  {
-   "frame": 953,
-   "time_s": 15.883,
-   "beat": 29.12,
-   "score": 7.36
-  },
-  {
-   "frame": 960,
-   "time_s": 16.0,
-   "beat": 29.33,
-   "score": 4.63
-  },
-  {
-   "frame": 961,
-   "time_s": 16.017,
-   "beat": 29.36,
-   "score": 6.85
-  },
-  {
-   "frame": 962,
-   "time_s": 16.033,
-   "beat": 29.39,
-   "score": 7.23
-  },
-  {
-   "frame": 963,
-   "time_s": 16.05,
-   "beat": 29.43,
-   "score": 12.98
-  },
-  {
-   "frame": 965,
-   "time_s": 16.083,
-   "beat": 29.49,
-   "score": 6.02
-  },
-  {
-   "frame": 966,
-   "time_s": 16.1,
-   "beat": 29.52,
-   "score": 7.92
-  },
-  {
-   "frame": 967,
-   "time_s": 16.117,
-   "beat": 29.55,
-   "score": 13.75
-  },
-  {
-   "frame": 968,
-   "time_s": 16.133,
-   "beat": 29.58,
-   "score": 17.62
-  },
-  {
-   "frame": 969,
-   "time_s": 16.15,
-   "beat": 29.61,
-   "score": 11.21
-  },
-  {
-   "frame": 970,
-   "time_s": 16.167,
-   "beat": 29.64,
-   "score": 14.58
-  },
-  {
-   "frame": 971,
-   "time_s": 16.183,
-   "beat": 29.67,
-   "score": 19.02
-  },
-  {
-   "frame": 972,
-   "time_s": 16.2,
-   "beat": 29.7,
-   "score": 13.06
-  },
-  {
-   "frame": 973,
-   "time_s": 16.217,
-   "beat": 29.73,
-   "score": 12.16
-  },
-  {
-   "frame": 974,
-   "time_s": 16.233,
-   "beat": 29.76,
-   "score": 16.41
-  },
-  {
-   "frame": 975,
-   "time_s": 16.25,
-   "beat": 29.79,
-   "score": 11.98
-  },
-  {
-   "frame": 976,
-   "time_s": 16.267,
-   "beat": 29.82,
-   "score": 20.67
-  },
-  {
-   "frame": 977,
-   "time_s": 16.283,
-   "beat": 29.85,
-   "score": 11.24
-  },
-  {
-   "frame": 978,
-   "time_s": 16.3,
-   "beat": 29.88,
-   "score": 8.73
-  },
-  {
-   "frame": 979,
-   "time_s": 16.317,
-   "beat": 29.91,
-   "score": 9.44
-  },
-  {
-   "frame": 980,
-   "time_s": 16.333,
-   "beat": 29.94,
-   "score": 4.18
-  },
-  {
-   "frame": 981,
-   "time_s": 16.35,
-   "beat": 29.98,
-   "score": 4.39
-  },
-  {
-   "frame": 982,
-   "time_s": 16.367,
-   "beat": 30.01,
-   "score": 5.6
-  },
-  {
-   "frame": 984,
-   "time_s": 16.4,
-   "beat": 30.07,
-   "score": 4.78
-  },
-  {
-   "frame": 985,
-   "time_s": 16.417,
-   "beat": 30.1,
-   "score": 4.35
-  },
-  {
-   "frame": 986,
-   "time_s": 16.433,
-   "beat": 30.13,
-   "score": 7.13
-  },
-  {
-   "frame": 987,
-   "time_s": 16.45,
-   "beat": 30.16,
-   "score": 5.91
-  },
-  {
-   "frame": 988,
-   "time_s": 16.467,
-   "beat": 30.19,
-   "score": 5.66
-  },
-  {
-   "frame": 989,
-   "time_s": 16.483,
-   "beat": 30.22,
-   "score": 6.24
-  },
-  {
-   "frame": 990,
-   "time_s": 16.5,
-   "beat": 30.25,
-   "score": 5.26
-  },
-  {
-   "frame": 1028,
-   "time_s": 17.133,
-   "beat": 31.41,
+   "frame": 1095,
+   "time_s": 18.25,
+   "beat": 33.46,
    "score": 5.84
   },
   {
-   "frame": 1029,
-   "time_s": 17.15,
-   "beat": 31.44,
-   "score": 6.04
+   "frame": 1097,
+   "time_s": 18.283,
+   "beat": 33.52,
+   "score": 13.89
   },
   {
-   "frame": 1033,
-   "time_s": 17.217,
-   "beat": 31.56,
-   "score": 4.54
+   "frame": 1099,
+   "time_s": 18.317,
+   "beat": 33.58,
+   "score": 7.46
   },
   {
-   "frame": 1037,
-   "time_s": 17.283,
-   "beat": 31.69,
-   "score": 12.37
+   "frame": 1101,
+   "time_s": 18.35,
+   "beat": 33.64,
+   "score": 6.27
   },
   {
-   "frame": 1112,
-   "time_s": 18.533,
-   "beat": 33.98,
-   "score": 12.62
+   "frame": 1103,
+   "time_s": 18.383,
+   "beat": 33.7,
+   "score": 6.5
   },
   {
-   "frame": 1115,
-   "time_s": 18.583,
-   "beat": 34.07,
+   "frame": 1104,
+   "time_s": 18.4,
+   "beat": 33.73,
+   "score": 5.71
+  },
+  {
+   "frame": 1105,
+   "time_s": 18.417,
+   "beat": 33.76,
+   "score": 4.33
+  },
+  {
+   "frame": 1106,
+   "time_s": 18.433,
+   "beat": 33.79,
+   "score": 4.27
+  },
+  {
+   "frame": 1108,
+   "time_s": 18.467,
+   "beat": 33.86,
+   "score": 32.43
+  },
+  {
+   "frame": 1135,
+   "time_s": 18.917,
+   "beat": 34.68,
+   "score": 7.04
+  },
+  {
+   "frame": 1136,
+   "time_s": 18.933,
+   "beat": 34.71,
+   "score": 6.28
+  },
+  {
+   "frame": 1137,
+   "time_s": 18.95,
+   "beat": 34.74,
+   "score": 13.58
+  },
+  {
+   "frame": 1138,
+   "time_s": 18.967,
+   "beat": 34.77,
+   "score": 6.36
+  },
+  {
+   "frame": 1140,
+   "time_s": 19.0,
+   "beat": 34.83,
+   "score": 5.89
+  },
+  {
+   "frame": 1141,
+   "time_s": 19.017,
+   "beat": 34.86,
+   "score": 10.13
+  },
+  {
+   "frame": 1142,
+   "time_s": 19.033,
+   "beat": 34.89,
+   "score": 14.81
+  },
+  {
+   "frame": 1143,
+   "time_s": 19.05,
+   "beat": 34.93,
+   "score": 9.8
+  },
+  {
+   "frame": 1144,
+   "time_s": 19.067,
+   "beat": 34.96,
+   "score": 6.27
+  },
+  {
+   "frame": 1145,
+   "time_s": 19.083,
+   "beat": 34.99,
+   "score": 14.69
+  },
+  {
+   "frame": 1146,
+   "time_s": 19.1,
+   "beat": 35.02,
+   "score": 17.91
+  },
+  {
+   "frame": 1147,
+   "time_s": 19.117,
+   "beat": 35.05,
+   "score": 11.68
+  },
+  {
+   "frame": 1148,
+   "time_s": 19.133,
+   "beat": 35.08,
+   "score": 10.59
+  },
+  {
+   "frame": 1149,
+   "time_s": 19.15,
+   "beat": 35.11,
+   "score": 21.46
+  },
+  {
+   "frame": 1150,
+   "time_s": 19.167,
+   "beat": 35.14,
+   "score": 15.32
+  },
+  {
+   "frame": 1151,
+   "time_s": 19.183,
+   "beat": 35.17,
+   "score": 11.52
+  },
+  {
+   "frame": 1152,
+   "time_s": 19.2,
+   "beat": 35.2,
+   "score": 14.86
+  },
+  {
+   "frame": 1153,
+   "time_s": 19.217,
+   "beat": 35.23,
+   "score": 12.11
+  },
+  {
+   "frame": 1154,
+   "time_s": 19.233,
+   "beat": 35.26,
+   "score": 10.25
+  },
+  {
+   "frame": 1155,
+   "time_s": 19.25,
+   "beat": 35.29,
+   "score": 18.87
+  },
+  {
+   "frame": 1156,
+   "time_s": 19.267,
+   "beat": 35.32,
+   "score": 8.75
+  },
+  {
+   "frame": 1158,
+   "time_s": 19.3,
+   "beat": 35.38,
+   "score": 4.03
+  },
+  {
+   "frame": 1162,
+   "time_s": 19.367,
+   "beat": 35.51,
+   "score": 4.12
+  },
+  {
+   "frame": 1163,
+   "time_s": 19.383,
+   "beat": 35.54,
+   "score": 5.04
+  },
+  {
+   "frame": 1164,
+   "time_s": 19.4,
+   "beat": 35.57,
+   "score": 4.02
+  },
+  {
+   "frame": 1166,
+   "time_s": 19.433,
+   "beat": 35.63,
+   "score": 4.59
+  },
+  {
+   "frame": 1167,
+   "time_s": 19.45,
+   "beat": 35.66,
+   "score": 5.0
+  },
+  {
+   "frame": 1215,
+   "time_s": 20.25,
+   "beat": 37.12,
+   "score": 4.26
+  },
+  {
+   "frame": 1220,
+   "time_s": 20.333,
+   "beat": 37.28,
+   "score": 4.07
+  },
+  {
+   "frame": 1221,
+   "time_s": 20.35,
+   "beat": 37.31,
    "score": 5.08
   },
   {
-   "frame": 1117,
-   "time_s": 18.617,
-   "beat": 34.13,
-   "score": 6.0
+   "frame": 1223,
+   "time_s": 20.383,
+   "beat": 37.37,
+   "score": 6.1
+  },
+  {
+   "frame": 1226,
+   "time_s": 20.433,
+   "beat": 37.46,
+   "score": 9.7
+  },
+  {
+   "frame": 1412,
+   "time_s": 23.533,
+   "beat": 43.14,
+   "score": 4.44
+  },
+  {
+   "frame": 1434,
+   "time_s": 23.9,
+   "beat": 43.82,
+   "score": 4.97
+  },
+  {
+   "frame": 1438,
+   "time_s": 23.967,
+   "beat": 43.94,
+   "score": 11.19
+  },
+  {
+   "frame": 1440,
+   "time_s": 24.0,
+   "beat": 44.0,
+   "score": 13.01
+  },
+  {
+   "frame": 1442,
+   "time_s": 24.033,
+   "beat": 44.06,
+   "score": 9.61
+  },
+  {
+   "frame": 1445,
+   "time_s": 24.083,
+   "beat": 44.15,
+   "score": 11.6
+  },
+  {
+   "frame": 1449,
+   "time_s": 24.15,
+   "beat": 44.27,
+   "score": 21.52
+  },
+  {
+   "frame": 1525,
+   "time_s": 25.417,
+   "beat": 46.6,
+   "score": 6.46
+  },
+  {
+   "frame": 1549,
+   "time_s": 25.817,
+   "beat": 47.33,
+   "score": 7.48
+  },
+  {
+   "frame": 1550,
+   "time_s": 25.833,
+   "beat": 47.36,
+   "score": 6.3
+  },
+  {
+   "frame": 1551,
+   "time_s": 25.85,
+   "beat": 47.39,
+   "score": 12.87
+  },
+  {
+   "frame": 1553,
+   "time_s": 25.883,
+   "beat": 47.45,
+   "score": 12.67
+  },
+  {
+   "frame": 1554,
+   "time_s": 25.9,
+   "beat": 47.48,
+   "score": 6.98
   }
  ],
  "jumps": [],
- "max_pop_score": 39.64,
- "max_frame_change": 24.39,
- "max_change_at_s": 18.483
+ "max_pop_score": 32.43,
+ "max_frame_change": 24.03,
+ "max_change_at_s": 30.533
 }

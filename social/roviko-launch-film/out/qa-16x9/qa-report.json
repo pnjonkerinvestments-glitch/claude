@@ -2,8 +2,8 @@
  "file": "out/master-16x9.mkv",
  "size": "1920x1080",
  "fps": "60/1",
- "frames": 1538,
- "duration_s": 25.633,
+ "frames": 2193,
+ "duration_s": 36.55,
  "single_frame_pops": [
   {
    "frame": 219,
@@ -30,164 +30,152 @@
    "score": 4.27
   },
   {
-   "frame": 952,
-   "time_s": 15.867,
-   "beat": 29.09,
-   "score": 16.76
+   "frame": 1108,
+   "time_s": 18.467,
+   "beat": 33.86,
+   "score": 20.0
   },
   {
-   "frame": 961,
-   "time_s": 16.017,
-   "beat": 29.36,
-   "score": 4.83
+   "frame": 1135,
+   "time_s": 18.917,
+   "beat": 34.68,
+   "score": 4.48
   },
   {
-   "frame": 962,
-   "time_s": 16.033,
-   "beat": 29.39,
-   "score": 4.08
+   "frame": 1136,
+   "time_s": 18.933,
+   "beat": 34.71,
+   "score": 5.26
   },
   {
-   "frame": 963,
-   "time_s": 16.05,
-   "beat": 29.43,
-   "score": 5.62
+   "frame": 1137,
+   "time_s": 18.95,
+   "beat": 34.74,
+   "score": 5.22
   },
   {
-   "frame": 966,
-   "time_s": 16.1,
-   "beat": 29.52,
-   "score": 5.59
+   "frame": 1138,
+   "time_s": 18.967,
+   "beat": 34.77,
+   "score": 4.43
   },
   {
-   "frame": 967,
-   "time_s": 16.117,
-   "beat": 29.55,
-   "score": 5.72
+   "frame": 1141,
+   "time_s": 19.017,
+   "beat": 34.86,
+   "score": 5.5
   },
   {
-   "frame": 968,
-   "time_s": 16.133,
-   "beat": 29.58,
-   "score": 7.13
+   "frame": 1142,
+   "time_s": 19.033,
+   "beat": 34.89,
+   "score": 9.35
   },
   {
-   "frame": 969,
-   "time_s": 16.15,
-   "beat": 29.61,
-   "score": 5.8
+   "frame": 1145,
+   "time_s": 19.083,
+   "beat": 34.99,
+   "score": 8.21
   },
   {
-   "frame": 970,
-   "time_s": 16.167,
-   "beat": 29.64,
-   "score": 7.73
+   "frame": 1146,
+   "time_s": 19.1,
+   "beat": 35.02,
+   "score": 12.44
   },
   {
-   "frame": 971,
-   "time_s": 16.183,
-   "beat": 29.67,
-   "score": 7.6
+   "frame": 1148,
+   "time_s": 19.133,
+   "beat": 35.08,
+   "score": 5.2
   },
   {
-   "frame": 972,
-   "time_s": 16.2,
-   "beat": 29.7,
-   "score": 5.78
+   "frame": 1149,
+   "time_s": 19.15,
+   "beat": 35.11,
+   "score": 6.17
   },
   {
-   "frame": 973,
-   "time_s": 16.217,
-   "beat": 29.73,
-   "score": 8.31
+   "frame": 1150,
+   "time_s": 19.167,
+   "beat": 35.14,
+   "score": 6.86
   },
   {
-   "frame": 974,
-   "time_s": 16.233,
-   "beat": 29.76,
-   "score": 7.15
+   "frame": 1152,
+   "time_s": 19.2,
+   "beat": 35.2,
+   "score": 11.25
   },
   {
-   "frame": 975,
-   "time_s": 16.25,
-   "beat": 29.79,
-   "score": 11.5
+   "frame": 1153,
+   "time_s": 19.217,
+   "beat": 35.23,
+   "score": 5.44
   },
   {
-   "frame": 976,
-   "time_s": 16.267,
-   "beat": 29.82,
-   "score": 7.79
+   "frame": 1154,
+   "time_s": 19.233,
+   "beat": 35.26,
+   "score": 7.27
   },
   {
-   "frame": 977,
-   "time_s": 16.283,
-   "beat": 29.85,
-   "score": 4.67
+   "frame": 1155,
+   "time_s": 19.25,
+   "beat": 35.29,
+   "score": 9.98
   },
   {
-   "frame": 978,
-   "time_s": 16.3,
-   "beat": 29.88,
-   "score": 6.62
+   "frame": 1156,
+   "time_s": 19.267,
+   "beat": 35.32,
+   "score": 5.37
   },
   {
-   "frame": 1037,
-   "time_s": 17.283,
-   "beat": 31.69,
-   "score": 6.25
+   "frame": 1440,
+   "time_s": 24.0,
+   "beat": 44.0,
+   "score": 4.12
   },
   {
-   "frame": 1110,
-   "time_s": 18.5,
-   "beat": 33.92,
-   "score": 7.86
+   "frame": 1445,
+   "time_s": 24.083,
+   "beat": 44.15,
+   "score": 7.92
   },
   {
-   "frame": 1111,
-   "time_s": 18.517,
-   "beat": 33.95,
-   "score": 20.88
+   "frame": 1449,
+   "time_s": 24.15,
+   "beat": 44.27,
+   "score": 7.7
   },
   {
-   "frame": 1112,
-   "time_s": 18.533,
-   "beat": 33.98,
-   "score": 22.11
+   "frame": 1554,
+   "time_s": 25.9,
+   "beat": 47.48,
+   "score": 32.73
   },
   {
-   "frame": 1113,
-   "time_s": 18.55,
-   "beat": 34.01,
-   "score": 27.53
+   "frame": 1555,
+   "time_s": 25.917,
+   "beat": 47.51,
+   "score": 15.44
   },
   {
-   "frame": 1114,
-   "time_s": 18.567,
-   "beat": 34.04,
-   "score": 27.82
+   "frame": 1558,
+   "time_s": 25.967,
+   "beat": 47.61,
+   "score": 7.87
   },
   {
-   "frame": 1115,
-   "time_s": 18.583,
-   "beat": 34.07,
-   "score": 6.64
-  },
-  {
-   "frame": 1116,
-   "time_s": 18.6,
-   "beat": 34.1,
-   "score": 8.25
-  },
-  {
-   "frame": 1117,
-   "time_s": 18.617,
-   "beat": 34.13,
-   "score": 7.95
+   "frame": 1559,
+   "time_s": 25.983,
+   "beat": 47.64,
+   "score": 4.17
   }
  ],
  "jumps": [],
- "max_pop_score": 27.82,
- "max_frame_change": 23.8,
- "max_change_at_s": 18.55
+ "max_pop_score": 32.73,
+ "max_frame_change": 22.63,
+ "max_change_at_s": 30.533
 }

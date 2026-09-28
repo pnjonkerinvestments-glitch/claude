@@ -19,9 +19,20 @@ The timeline, beat by beat, is in [`BEATMAP.md`](BEATMAP.md).
 
 ## QA results
 
-- Both masters: 1,538 frames at 60 fps, 25.64 s. 0 sudden jumps.
-- Single-frame pops: the scanner compares each frame with the average of its neighbours after a blur, per block. Every frame it still flags was checked by eye at full resolution with the frames around it (`build/qa_zoom.py`). All of them are genuine fast motion (the "+50" chips flying into the counter, the map zoom, the leaderboard swap), not glitches.
-- Glitches found and fixed along the way: the flag and the answer pills appearing at full size (now grow from a dot); the button label vanishing a few frames early; ghost bands on fast edges (slower pointer, pull-back and wordmark; 32 subframes on the six fastest moments); the vertical push into the button reduced from 5× to 3.6×.
+- Both masters: 2,193 frames at 60 fps, 36.55 s. 0 sudden jumps.
+- Single-frame pops:
+  - How it works: the scanner blurs each frame and compares it, block by block, with the average of its neighbours.
+  - Every frame it flagged was checked by eye at full resolution with the frames around it (`build/qa_zoom.py`).
+  - What remains is genuine fast motion: the "+50" chips, the players flying up to the strip and onto their answers, the push into "Play again".
+- v3 fix: the three winners flew onto the podium fast enough to leave stepped copies (pop score 52.8).
+  - Their flight was slowed from 0.45 to 0.75 beats, and frames 1400–1524 were re-rendered with 32 subframes.
+  - The re-rendered frames were spliced into both masters losslessly (`build/splice.sh`), and the seams were checked by frame hash.
+  - The score there is now 7.9.
+- Glitches fixed in earlier versions:
+  - The flag and the answer pills appeared at full size; they now grow from a dot.
+  - The button label vanished a few frames early.
+  - Fast edges left ghost bands. The pointer, pull-back and wordmark were slowed, and the fastest moments get 32 subframes.
+  - The vertical push into the button was reduced from 5× to 3.6×.
 - Audio: every effect's measured peak lands on its cue with 0.00 ms error (`audio/mix-report.json`).
 
 ## How it's built
@@ -37,6 +48,7 @@ The timeline, beat by beat, is in [`BEATMAP.md`](BEATMAP.md).
 | Render | `build/render.mjs` | Playwright + Chromium renders 8 subframes per frame over a 180° shutter. ffmpeg `tmix` blends them (motion blur) into a lossless FFV1 master. The six fastest moments get 32 subframes (the pull-back, both floods, the gold-to-flame shrink, the button-to-page growth and the map reveal), because their edges move over 100 px per frame and 8 samples leave visible bands there. Moves that could be slowed were slowed instead. A pool of four workers, each with its own browser, renders short work units |
 | QA | `build/qa.py` | Scans every frame for single-frame pops and sudden jumps, and writes filmstrips of every fast moment |
 | Export | `build/export.sh` | Encodes the master and the mix to MP4 (BT.709) |
+| Splice | `build/splice.sh` | Replaces a range of frames in a master with a re-rendered patch, picked by frame index (lossless) |
 
 ```sh
 npm install                      # playwright 1.56.1 (uses the preinstalled Chromium), uisfx

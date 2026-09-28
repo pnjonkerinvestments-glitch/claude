@@ -1493,7 +1493,8 @@ function multiplayer(t, b, rr) {
   }
 
   // avatars: grid -> strip -> answer -> strip -> (top 3) podium
-  const podBeat = fr => TL.podium + 0.3 + fr * 0.1;
+  const podBeat = fr => TL.podium + 0.3 + fr * 0.12;
+  const POD_FLY = 0.75;                                     // beats for the flight down onto the podium
   mpAv.forEach((m, i) => {
     const jt = joinT(i);
     let x, y, sc = GRID_S;
@@ -1527,12 +1528,12 @@ function multiplayer(t, b, rr) {
     // the top 3 fly down onto the podium and hop on the beat; the rest do a wave in the strip
     const fr = i < 5 ? STAND.find(s2 => s2.p === i).ranks[9] : 9;
     if (fr < 3) {
-      const pb = podBeat(fr), fl = segB(t, pb, pb + 0.45, E.inOutCubic);
+      const pb = podBeat(fr), fl = segB(t, pb, pb + POD_FLY, E.inOutSine);
       if (fl > 0) {
         const [px, py] = COL_AV[fr];
         const q = quad([sx, sy], [lerp(sx, px, 0.5), Math.min(sy, py) - 30], [px, py], fl);
         x = q[0]; y = q[1]; sc = lerp(28 / 60, 72 / 60, fl);
-        const hb = b - (pb + 0.45);
+        const hb = b - (pb + POD_FLY);
         if (hb > 0 && b < TL.grow) y -= Math.max(0, Math.sin(((hb + fr * 0.33) % 1) * Math.PI)) * 9;
       }
     } else {
