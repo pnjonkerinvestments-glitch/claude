@@ -20,3 +20,6 @@ out/zooms*.png
 audio/music/mixkit-*.mp3
 audio/music/score-edit.wav
 out/v2-stills*/
+out/v3-*stills*/
+out/v3-sheet*.png
+out/render-v3.log

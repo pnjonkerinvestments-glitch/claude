@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <title>Roviko launch film</title>
 <!--
-  Roviko launch film. 25.6 s, 110 BPM ("Swings and Slides", Mixkit), one continuous take.
+  Roviko launch film. 36.5 s, 110 BPM ("Aerobic Fashion", Mixkit), one continuous take.
   Every style is a pure function of time: window.seek(t) sets the whole frame.
   No CSS transitions, no timers, no state between frames.
     film.html                  1920x1080
@@ -38,11 +38,11 @@ const V = Q.get('format') === 'vertical';
 const W = V ? 1080 : 1920, H = V ? 1920 : 1080;
 // The film is designed on a 130 BPM grid and played at the music's tempo: one design beat is one
 // music beat, and every duration (springs included) slows by the same factor, 110/130 = 85%.
-const TEMPO = 110;                             // "Swings and Slides" (Mixkit), measured 110.0 BPM
+const TEMPO = 110;                             // "Aerobic Fashion" (Mixkit), measured 110.0 BPM
 const BPM = 130, BEAT = 60 / BPM;              // design grid
 const DIL = TEMPO / BPM;                       // design seconds per real second
-const END = 47;                                // film length in beats
-const DURATION = END * 60 / TEMPO;             // real seconds (25.64 s)
+const END = 67;                                // film length in beats
+const DURATION = END * 60 / TEMPO;             // real seconds (36.55 s)
 const T = b => b * BEAT;                       // beats -> design seconds
 const C = {
   forest: '#163B32', green: '#1F806B', mint: '#DDEDE6', gold: '#F6B84B', cream: '#F6F3E9', white: '#FFFFFF',
@@ -55,16 +55,21 @@ const TL = {
   duck: 6.55, toMap: 6.55, mapZoom: [7.9, 8.85], pin: 9.0,
   q3: 10.25, g3: 11.0, q4: 12.25, g4: 13.0, q5: 14.25, g5: 15.0,
   drop: 16.0, cards: 16.15, pass: 17.25, climb: 18.0, swap: 18.28, today: 19.0,
-  shrink: 19.75, shrinkEnd: 20.5, flip: 21.0, mascotUp: 20.9, text1: 22.0, text2: 22.5, pill1: 23.0, pill2: 23.25,
-  cur2In: 22.9, cur2At: 23.85, click: 24.0, room: 24.1, join: 24.75,
-  // multiplayer: the room card grows into a lobby, 12 players join, one live round, a win
-  lobby: 25.0, join0: 25.25, joinStep: 0.25, full: 27.5, start: 27.75, cur3In: 27.55, cur3At: 28.15, startClick: 28.25,
-  match: 28.45, flagMP: 29.05, answers: 29.05, reveal: 30.2, plus: 30.35, win: 31.1, again: 32.0,
-  cur4In: 32.2, cur4At: 32.75, againClick: 32.9,
-  grow: 33.25, growEnd: 34.4, labelOut: 34.2, line1: 34.55, line2: 36.25, linesOut: 37.85,
-  mapIn: 37.85, pin2: 38.05, plane0: 38.35, plane1: 39.7, pop: 40.0, cream: 40.12,
-  wordmark: 40.7, tagline: 41.45, url: 41.95, final: 42.0, blink: 42.55, wink: 43.0, hit: 44.0, blink2: 45.4,
+  shrink: 19.75, shrinkEnd: 20.5, flip: 21.0, mascotUp: 20.9, text1: 22.0, text2: 22.5, pill1: 23.5, pill2: 24.0,
+  cur2In: 24.6, cur2At: 25.75, click: 26.0, room: 26.1, join: 26.9,
+  // multiplayer 1: the room card grows into the lounge. The host picks 10 rounds and Medium while 10 friends join
+  lobby: 28.0, join0: 29.0, joinStep: 0.25, full: 31.5, set1In: 28.55, set1At: 29.05, set1: 29.25, set2At: 30.05, set2: 30.25,
+  start: 31.85, startIn: 32.1, startAt: 32.75, startClick: 33.0,
+  // multiplayer 2: round 1 live, everyone answers the same question
+  match: 33.25, flagMP: 33.85, answers: 33.85, reveal: 35.9, plus: 36.05,
+  // multiplayer 3: live leaderboard through rounds 2-10, then the final podium
+  stand: 37.0, round2: 38.25, roundStep: 0.5, podium: 43.0, again: 45.2,
+  cur4In: 45.3, cur4At: 46.0, againClick: 46.25,
+  grow: 46.6, growEnd: 48.05, labelOut: 47.8, line1: 48.2, line2: 50.6, linesOut: 52.85,
+  mapIn: 52.85, pin2: 53.1, plane0: 53.45, plane1: 55.3, pop: 55.7, cream: 55.85,
+  wordmark: 56.5, tagline: 57.5, url: 58.1, final: 58.5, blink: 59.3, blink3: 60.9, wink: 62.0, hit: 64.0, blink2: 65.5,
 };
+const roundB = r => TL.round2 + (r - 2) * TL.roundStep;      // beat on which round r (2..10) is scored
 
 // ------------------------------------------------------------------ math
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
@@ -251,9 +256,9 @@ const CAM = V ? [
   [7.75, 1.76, 960, 540, PULL],
   [16, 1.8, 960, 540, E.inOutSine],
   [20, 1.9, 960, 540, E.inOutSine],
-  [24, 1.96, 960, 556, E.inOutSine],
-  [33.25, 2.0, 960, 560, E.inOutSine],
-  [34.7, 3.6, 960, PLAY_Y, E.inOutCubic],
+  [26, 1.96, 960, 556, E.inOutSine],
+  [46.6, 2.0, 960, 560, E.inOutSine],
+  [48.4, 3.6, 960, PLAY_Y, E.inOutCubic],
 ] : [
   [0, 2.86, 990, 296],
   [2.3, 2.92, 984, 318, E.inOutSine],
@@ -262,9 +267,9 @@ const CAM = V ? [
   [7.75, 1.1, 960, 526, PULL],
   [16, 1.14, 960, 526, E.inOutSine],
   [20, 1.24, 960, 526, E.inOutSine],
-  [24, 1.28, 960, 540, E.inOutSine],
-  [33.25, 1.31, 904, 552, E.inOutSine],                 // drifts left to balance the side headline
-  [34.7, 3.2, 904, PLAY_Y, E.inOutCubic],
+  [26, 1.28, 960, 540, E.inOutSine],
+  [46.6, 1.33, 900, 552, E.inOutSine],                  // drifts left to balance the side headline
+  [48.4, 3.2, 900, PLAY_Y, E.inOutCubic],
 ];
 function cam(t) {
   const b = t / BEAT;
@@ -497,26 +502,47 @@ const avYou = el(roomIn, { left: 236, top: 28, width: 42, height: 42, borderRadi
 const avEmma = avatar(roomIn, { name: 'Emma', img: 1 }, 42);
 S(avEmma, { left: 270, top: 28 });
 
-// ------------------------------------------------------------------ multiplayer: lobby -> live round -> win
+// ------------------------------------------------------------------ multiplayer: lounge -> host settings -> round 1 -> leaderboard -> podium
 const LOBBY = { x: 16, y: 112, w: 396, h: 684 };
 const lobbyIn = el(room, { width: LOBBY.w, height: LOBBY.h });
-const lobbyArt = el(lobbyIn, { left: 12, top: 12, width: 372, height: 230, borderRadius: 16, overflow: 'hidden' },
-  '<img src="assets/art/lobby-create.png" style="position:absolute;left:0;top:0;width:372px;height:230px;object-fit:cover;display:block">');
+const ART_H = 132;
+const lobbyArt = el(lobbyIn, { left: 12, top: 12, width: 372, height: ART_H, borderRadius: 16, overflow: 'hidden' },
+  `<img src="assets/art/lobby-create.png" style="position:absolute;left:0;top:0;width:372px;height:${ART_H}px;object-fit:cover;object-position:50% 60%;display:block">`);
 const LT = { fontFamily: 'Fredoka', fontWeight: 600, color: C.forest };
-const lobbyTitle = maskText(lobbyIn, 'Room K7QMA', { left: 20, top: 254, width: 250, height: 36 }, Object.assign({ fontSize: 26, lineHeight: '36px' }, LT));
-const lobbySub = maskText(lobbyIn, 'Share the code. Up to 12 players.', { left: 20, top: 290, width: 300, height: 22 },
+const lobbyTitle = maskText(lobbyIn, 'Room K7QMA', { left: 20, top: 152, width: 250, height: 36 }, Object.assign({ fontSize: 26, lineHeight: '36px' }, LT));
+const lobbySub = maskText(lobbyIn, 'You’re the host · up to 12 players', { left: 20, top: 188, width: 300, height: 22 },
   { fontSize: 13.5, fontWeight: 700, color: 'rgba(22,59,50,.62)', lineHeight: '22px' });
-const countPill = el(lobbyIn, { left: LOBBY.w - 20 - 92, top: 258, width: 92, height: 32, borderRadius: 16, background: C.mint, transformOrigin: '50% 50%' });
+const countPill = el(lobbyIn, { left: LOBBY.w - 20 - 92, top: 156, width: 92, height: 32, borderRadius: 16, background: C.mint, transformOrigin: '50% 50%' });
 const countRoll = roller(countPill, { left: 0, top: 3, width: 92, height: 26 }, { width: 92, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 19, lineHeight: '26px', color: C.forest });
+// host settings: rounds and difficulty (the app's own options)
+const SET = { x: 12, y: 222, w: 372, h: 128 };
+const SEG = { x: 106, w: 254, h: 40 };
+const setCard = el(lobbyIn, { left: SET.x, top: SET.y, width: SET.w, height: SET.h, borderRadius: 18, background: C.chip, overflow: 'hidden' });
+const setRows = [
+  { label: 'Rounds', opts: ['5', '10', '15', '20'], from: 0, to: 1, tap: 'set1', y: 36 },
+  { label: 'Difficulty', opts: ['Easy', 'Medium', 'Hard', 'Mixed'], from: 0, to: 1, tap: 'set2', y: 92 },
+].map(r => {
+  const mask = el(setCard, { left: 0, top: r.y - 26, width: SET.w, height: 52, overflow: 'hidden' });
+  const inner = el(mask, { left: 0, top: 0, width: SET.w, height: 52 });
+  el(inner, { left: 18, top: 15, height: 22, fontSize: 14.5, fontWeight: 800, lineHeight: '22px', color: C.forest }, r.label);
+  const track = el(inner, { left: SEG.x, top: 6, width: SEG.w, height: SEG.h, borderRadius: SEG.h / 2, background: 'rgba(22,59,50,.07)' });
+  const segW = SEG.w / r.opts.length;
+  const knob = el(track, { top: 3, height: SEG.h - 6, borderRadius: (SEG.h - 6) / 2, background: C.green, boxShadow: '0 2px 6px rgba(22,59,50,.18)' });
+  const txt = r.opts.map((o, i) => el(track, { left: i * segW, top: 0, width: segW, height: SEG.h, lineHeight: SEG.h + 'px', textAlign: 'center',
+    fontFamily: 'Manrope', fontWeight: 800, fontSize: 12.5, color: C.forest, transformOrigin: '50% 50%' }, o));
+  return Object.assign(r, { mask, inner, track, knob, txt, segW });
+});
+const segTgt = k => [PX + LOBBY.x + SET.x + SEG.x + 1.5 * setRows[k].segW, PY + LOBBY.y + SET.y + setRows[k].y];
 const MP = [
   { name: 'You', you: true }, { name: 'Emma', img: 1 }, { name: 'Lucas', img: 2 }, { name: 'Amara', img: 5 }, { name: 'Yuki', img: 3 }, { name: 'Mateo', img: 4 },
   { name: 'Sofia', bg: C.mint }, { name: 'Kenji', bg: '#FBEBC8' }, { name: 'Lina', bg: '#E4F2EB' }, { name: 'Omar', bg: '#FBEBC8' }, { name: 'Zoe', bg: C.mint }, { name: 'Noah', bg: '#E4F2EB' },
 ];
-// the round: who picks what, and when (Japan is right)
+// round 1: who picks what, and when (Japan is right)
 const ANSWERS = ['South Korea', 'Japan', 'China', 'Bangladesh'];
-const PICKS = [[1, 29.2], [1, 29.35], [1, 29.45], [0, 29.53], [1, 29.6], [1, 29.67], [2, 29.74], [1, 29.8], [1, 29.86], [3, 29.9], [1, 29.95], [0, 30.0]];
+const PICKS = [[1, 34.55], [1, 34.72], [1, 34.84], [0, 34.93], [1, 35.02], [1, 35.1], [2, 35.18], [1, 35.26], [1, 35.33], [3, 35.4], [1, 35.47], [0, 35.55]];
 const stackIdx = PICKS.map(([a], i) => PICKS.slice(0, i).filter(([b]) => b === a).length);
-const GRID = i => [12 + 46.5 + (i % 4) * 93, 352 + Math.floor(i / 4) * 92];
+const GRID_S = 52 / 60;                                    // avatar scale in the lounge grid
+const GRID = i => [12 + 46.5 + (i % 4) * 93, 394 + Math.floor(i / 4) * 74];
 const STRIP = i => [(LOBBY.w - 12 * 30) / 2 + 15 + i * 30, 34];
 const ANS_Y = [274, 334, 394, 454];
 const ANS = (i) => [22 + 352 - 22 - stackIdx[i] * 16, ANS_Y[PICKS[i][0]] + 25];
@@ -526,15 +552,21 @@ const mpAv = MP.map((p, i) => {
   const nm = maskText(wrap, p.name, { left: -20, top: 64, width: 100, height: 18 }, { width: 100, textAlign: 'center', fontSize: 12.5, fontWeight: 800, color: p.you ? C.green : 'rgba(22,59,50,.75)', lineHeight: '18px' });
   return { wrap, a, nm };
 });
+// the host's crown on You
+const crown = el(mpAv[0].wrap, { left: 36, top: -14, width: 30, height: 24, transformOrigin: '50% 90%' },
+  `<svg width="30" height="24" viewBox="-2 -2 30 24"><path d="M2 18L0 4.5l7.2 5L13 0l5.8 9.5L26 4.5 24 18z" fill="${C.gold}" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>`);
 const startBtn = Pill(lobbyIn, 'Start match', 28, 604, 340, 56, 20);
 S(startBtn.box, { background: C.green }); startBtn.txt.style.color = C.white; startBtn.txt.style.fontWeight = 600;
-// live round
-const mLabel = maskText(lobbyIn, 'ROUND 1/10 · FLAGS OF THE WORLD', { left: 22, top: 66, width: 352, height: 18 }, { fontSize: 11.5, fontWeight: 800, letterSpacing: '0.08em', color: C.green, lineHeight: '18px' });
+// round label: "ROUND n/10 · MEDIUM" (n rolls), ten round dots, then "FINAL RESULTS"
+const LBL = { fontSize: 11.5, fontWeight: 800, letterSpacing: '0.08em', color: C.green, lineHeight: '18px', whiteSpace: 'pre' };
+const mLabel = maskText(lobbyIn, '', { left: 22, top: 64, width: 220, height: 18 }, LBL);
+mLabel.span.textContent = 'ROUND';
+const mRound = roller(mLabel.span, { left: 0, top: 0, width: 24, height: 18 }, LBL);
+const mSuffix = el(mLabel.span, Object.assign({ top: 0 }, LBL), '/10 · MEDIUM');
+const finalLbl = maskText(lobbyIn, 'FINAL RESULTS · 10 ROUNDS', { left: 22, top: 64, width: 220, height: 18 }, LBL);
+const roundDots = Array.from({ length: 10 }, (_, i) => el(lobbyIn, { left: 256 + i * 12.4 - 4, top: 69, width: 8, height: 8, borderRadius: 4, background: '#D5E3DC' }));
 const mHead1 = maskText(lobbyIn, 'Which country flies', { left: 22, top: 88, width: 352, height: 34 }, Object.assign({ fontSize: 27, lineHeight: '34px' }, LT));
 const mHead2 = maskText(lobbyIn, 'this flag?', { left: 22, top: 121, width: 352, height: 34 }, Object.assign({ fontSize: 27, lineHeight: '34px' }, LT));
-const winHead = maskText(lobbyIn, 'You win!', { left: 0, top: 90, width: LOBBY.w, height: 52 }, Object.assign({ width: LOBBY.w, textAlign: 'center', fontSize: 42, lineHeight: '52px' }, LT));
-const winSub = maskText(lobbyIn, '1st of 12 players', { left: 0, top: 372, width: LOBBY.w, height: 30 }, { width: LOBBY.w, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 22, color: C.green, lineHeight: '30px' });
-const winPts = maskText(lobbyIn, '+1,583 points', { left: 0, top: 404, width: LOBBY.w, height: 26 }, { width: LOBBY.w, textAlign: 'center', fontSize: 16, fontWeight: 800, color: 'rgba(22,59,50,.62)', lineHeight: '26px' });
 const FLAG_JP = { x: 123, y: 162, w: 150, h: 100 };
 const flagJP = el(lobbyIn, { left: FLAG_JP.x, top: FLAG_JP.y, width: FLAG_JP.w, height: FLAG_JP.h, borderRadius: 8, overflow: 'hidden',
   boxShadow: '0 0 0 1px rgba(22,59,50,.10), 0 8px 18px rgba(22,59,50,.12)' }, '<img src="assets/flags/jp.svg" style="width:100%;height:100%;display:block">');
@@ -542,34 +574,76 @@ const ansPills = ANSWERS.map((a, i) => Pill(lobbyIn, a, 22, ANS_Y[i], 352, 50, 1
 ansPills.forEach(P => S(P.txt, { textAlign: 'left', paddingLeft: '48px' }));
 const plusChip = el(lobbyIn, { width: 88, height: 34, borderRadius: 17, background: C.gold, zIndex: 40, textAlign: 'center', lineHeight: '34px',
   fontFamily: 'Fredoka', fontWeight: 600, fontSize: 18, color: C.forest, boxShadow: '0 6px 14px rgba(22,59,50,.16)' }, '+1,583');
-const winBox = el(lobbyIn, { left: LOBBY.w / 2 - 95, top: 160, width: 190, height: 190, zIndex: 5 });
-const winMascot = Mascot(winBox, 190);
+// live leaderboard: top 5 of 12, points after every round (sums checked in BEATMAP.md)
+const lbHead = maskText(lobbyIn, 'Live leaderboard', { left: 22, top: 88, width: 352, height: 36 }, Object.assign({ fontSize: 27, lineHeight: '36px' }, LT));
+const lbSub = maskText(lobbyIn, 'Top 5 of 12 players', { left: 22, top: 124, width: 300, height: 22 }, { fontSize: 13.5, fontWeight: 700, color: 'rgba(22,59,50,.62)', lineHeight: '22px' });
+const LBR = { x: 56, w: 318, h: 60, y0: 160, gap: 70 };
+const lbRank = [1, 2, 3, 4, 5].map((n, k) => maskText(lobbyIn, String(n), { left: 14, top: LBR.y0 + k * LBR.gap + 12, width: 34, height: 36 },
+  { width: 34, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 24, lineHeight: '36px', color: 'rgba(22,59,50,.45)' }));
+const STAND = [
+  { p: 0, pts: [1583, 2903, 4210, 5480, 6590, 7720, 8950, 10480, 11920, 13560] },    // You
+  { p: 1, pts: [1420, 3010, 4480, 5900, 7330, 8650, 9950, 11210, 12500, 13480] },    // Emma
+  { p: 2, pts: [1310, 2600, 3920, 5240, 6700, 7980, 9120, 10390, 11700, 12850] },    // Lucas
+  { p: 3, pts: [1190, 2420, 3650, 4870, 6060, 7250, 8420, 9610, 10830, 11940] },     // Amara
+  { p: 4, pts: [1050, 2240, 3480, 4760, 6010, 7310, 8560, 9800, 11050, 12230] },     // Yuki
+];
+STAND.forEach(s => { s.ranks = s.pts.map((v, r) => STAND.filter(o => o.pts[r] > v).length); });
+const RANK_SWAPS = [2, 3, 4, 5, 6, 7, 8, 9, 10].filter(r => STAND.some(s => s.ranks[r - 1] !== s.ranks[r - 2]));
+// podium columns (final rank 0, 1, 2) and where each winner's avatar lands
+const COL = [{ x: 138, y: 420, w: 120, h: 170, bg: C.gold }, { x: 14, y: 470, w: 120, h: 120, bg: C.mint }, { x: 262, y: 505, w: 120, h: 85, bg: '#FBEBC8' }];
+const COL_AV = COL.map(c => [c.x + c.w / 2, c.y - 40]);
+const lbRows = STAND.map(s => {
+  const p = MP[s.p];
+  const e = el(lobbyIn, { width: LBR.w, height: LBR.h, borderRadius: 18, background: p.you ? C.green : C.chip, overflow: 'hidden', zIndex: 4, transformOrigin: '50% 50%' });
+  const inner = el(e, { left: 0, top: 0, width: LBR.w, height: LBR.h, transformOrigin: '30% 50%' });
+  S(avatar(inner, p, 40, 0), { left: 12, top: 10, boxShadow: p.you ? '0 0 0 2px #fff' : 'none' });
+  el(inner, { left: 64, top: 0, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 21, lineHeight: LBR.h + 'px', color: p.you ? C.white : C.forest }, p.name);
+  const ptsEl = el(inner, { left: LBR.w - 136, top: 0, width: 120, textAlign: 'right', fontFamily: 'Manrope', fontWeight: 800, fontSize: 17, lineHeight: LBR.h + 'px', color: p.you ? C.cream : C.green });
+  ptsEl.classList.add('tnum');
+  const fr = s.ranks[9];
+  let colRank = null, colName = null;
+  if (fr < 3) {
+    const w = COL[fr].w;
+    colRank = maskText(e, String(fr + 1), { left: 0, top: 10, width: w, height: 52 }, Object.assign({ width: w, textAlign: 'center', fontSize: 44, lineHeight: '52px' }, LT));
+    colName = maskText(e, p.name, { left: 0, top: 60, width: w, height: 24 }, { width: w, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 18, lineHeight: '24px', color: C.forest });
+  }
+  return Object.assign({ e, inner, ptsEl, colRank, colName, fr, bg: p.you ? C.green : C.chip }, s);
+});
+const lastGain = el(lobbyIn, { width: 80, height: 30, borderRadius: 15, background: C.gold, zIndex: 40, textAlign: 'center', lineHeight: '30px',
+  fontFamily: 'Fredoka', fontWeight: 600, fontSize: 16, color: C.forest, boxShadow: '0 6px 14px rgba(22,59,50,.16)' }, '+' + fmt(STAND[0].pts[9] - STAND[0].pts[8]));
+// final results
+const winHead = maskText(lobbyIn, 'You win!', { left: 0, top: 90, width: LOBBY.w, height: 52 }, Object.assign({ width: LOBBY.w, textAlign: 'center', fontSize: 42, lineHeight: '52px' }, LT));
+const winSub = maskText(lobbyIn, '1st of 12 players', { left: 0, top: 142, width: LOBBY.w, height: 30 }, { width: LOBBY.w, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 22, color: C.green, lineHeight: '30px' });
+const winPts = maskText(lobbyIn, fmt(STAND[0].pts[9]) + ' points', { left: 0, top: 172, width: LOBBY.w, height: 26 }, { width: LOBBY.w, textAlign: 'center', fontSize: 16, fontWeight: 800, color: 'rgba(22,59,50,.62)', lineHeight: '26px' });
+const winBox = el(lobbyIn, { left: LOBBY.w / 2 - 72, top: 196, width: 144, height: 144, zIndex: 5 });
+const winMascot = Mascot(winBox, 144);
 S(winMascot.svg, { left: 0, top: 0 });
 const againBtn = Pill(lobbyIn, 'Play again', 28, 604, 340, 56, 20);
 S(againBtn.box, { background: C.green }); againBtn.txt.style.color = C.white; againBtn.txt.style.fontWeight = 600;
 
-// side headline (landscape only): the multiplayer message next to the phone
-const sideHead = [];
-if (!V) {
-  const words = [['Play', 'live', 'with'], ['up', 'to', '12', 'friends.']];
-  const meas = document.createElement('canvas').getContext('2d');
-  words.forEach((line, li) => {
-    let x = 262;
-    line.forEach(w => {
-      meas.font = '600 52px Fredoka';
-      const wd = meas.measureText(w).width;
-      const m = maskText(world, w, { left: x - 4, top: 390 + li * 62, width: wd + 8, height: 64 },
-        { left: 4, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 52, lineHeight: '64px', color: w === '12' ? C.green : C.forest });
-      S(m.box, { zIndex: 3 });
-      sideHead.push(m);
-      x += wd + 14;
+// side headline (landscape only): what multiplayer is, in three steps beside the phone
+const SIDE = V ? [] : [
+  { at: TL.lobby + 0.1, out: TL.match + 0.1, lines: [['Host', 'a', 'party.'], ['Up', 'to', '12', 'friends.']], sub: 'You pick the rounds and the difficulty.' },
+  { at: TL.match + 0.4, out: TL.stand + 0.1, lines: [['Everyone', 'plays'], ['the', 'same', 'questions.']], sub: 'The fastest right answer scores the most.' },
+  { at: TL.stand + 0.4, out: 999, lines: [['Live', 'leaderboard'], ['after', 'every', 'round.']], sub: 'Most points after the last round wins.' },
+];
+const SIDE_X = 226, SIDE_FS = 48;
+SIDE.forEach(ph => {                                       // word boxes are sized in layoutText, once the font is loaded
+    ph.parts = [];
+    ph.lines.forEach((line, li) => {
+      line.forEach(w => {
+        const m = maskText(world, w, { left: SIDE_X, top: 394 + li * 58, width: 10, height: 60 },
+          { left: 4, fontFamily: 'Fredoka', fontWeight: 600, fontSize: SIDE_FS, lineHeight: '60px', color: w === '12' ? C.green : C.forest });
+        S(m.box, { zIndex: 3 });
+        Object.assign(m, { word: w, line: li });
+        ph.parts.push(m);
+      });
     });
+    const sub = maskText(world, ph.sub, { left: SIDE_X, top: 522, width: 480, height: 28 },
+      { fontFamily: 'Manrope', fontWeight: 700, fontSize: 18, lineHeight: '28px', color: 'rgba(22,59,50,.62)' });
+    S(sub.box, { zIndex: 3 });
+    ph.parts.push(sub);
   });
-  const sub = maskText(world, 'One room code. Same questions, same time.', { left: 262, top: 528, width: 460, height: 28 },
-    { fontFamily: 'Manrope', fontWeight: 700, fontSize: 18, lineHeight: '28px', color: 'rgba(22,59,50,.62)' });
-  S(sub.box, { zIndex: 3 });
-  sideHead.push(sub);
-}
 
 // the "Play again" button escaping the phone and growing into the page (world layer, above the phone)
 const growPill = el(world, { zIndex: 70, overflow: 'hidden', background: C.green });
@@ -675,9 +749,24 @@ function layoutText() {
   }
   S(wordmark, { fontSize: OL.wm, lineHeight: OL.wm * 1.2 + 'px', left: 0, top: 0 });
   cx.font = '600 22px Fredoka'; G.sevenW = cx.measureText('7').width;
+  cx.font = '800 11.5px Manrope'; cx.letterSpacing = '0.92px';
+  G.lblPre = cx.measureText('ROUND ').width;
+  G.lblNum = Array.from({ length: 11 }, (_, n) => cx.measureText(String(n)).width);
+  cx.letterSpacing = '0px';
   cx.font = '600 20px Fredoka'; G.streakW = cx.measureText('-day streak').width;
   cx.font = '800 13px Manrope'; cx.letterSpacing = '0.26px';
   S(lblRoll.box, { left: 22 + cx.measureText('Daily Detour · ').width + 0.26 * 15 });
+  // side headline words, measured
+  cx.font = `600 ${SIDE_FS}px Fredoka`;
+  for (const ph of SIDE) {
+    const xs = [SIDE_X, SIDE_X];
+    for (const m of ph.parts) if (m.word) {
+      const wd = cx.measureText(m.word).width;
+      S(m.box, { left: xs[m.line] - 4, width: wd + 10 });
+      xs[m.line] += wd + 13;
+    }
+    ph.right = Math.max(...xs) - 13;
+  }
   // map: Lisbon under the pin that becomes the mascot
   const s = V ? 2.3 : 2.2;
   const lis = { u: (-9.14 + 180) / 360 * 1000, v: (90 - 38.72) / 180 * 500 };
@@ -707,7 +796,7 @@ function layoutText() {
   // schedule the words: line 1 words every quaver-ish from TL.line1, line 2 from TL.line2
   let i1 = 0, i2 = 0;
   for (const w of words) for (const s2 of w.spans) {
-    if (w.group === 1) { s2.b = TL.line1 + i1 * 0.25; i1++; } else { s2.b = TL.line2 + i2 * 0.32; i2++; }
+    if (w.group === 1) { s2.b = TL.line1 + i1 * 0.3; i1++; } else { s2.b = TL.line2 + i2 * 0.4; i2++; }
   }
 }
 const quad = (a, c, b, t) => [(1 - t) ** 2 * a[0] + 2 * (1 - t) * t * c[0] + t * t * b[0], (1 - t) ** 2 * a[1] + 2 * (1 - t) * t * c[1] + t * t * b[1]];
@@ -745,7 +834,9 @@ const ev = (b, sfx, gain = 0, extra = {}) => EVENTS.push(Object.assign({ t: +(T(
   ev(TL.join + 0.1, 'join', -8);
   // multiplayer
   ev(TL.lobby + 0.1, 'expand', -9);
-  for (let i = 2; i < 12; i++) ev(TL.join0 + (i - 2) * TL.joinStep + 0.03, 'pop', -9, { rate: 0.9 + (i - 2) * 0.07 });
+  for (let i = 2; i < 12; i++) ev(TL.join0 + (i - 2) * TL.joinStep + 0.03, 'pop', -10, { rate: 0.9 + (i - 2) * 0.07 });
+  ev(TL.set1, 'tap', -5); ev(TL.set1 + 0.1, 'snap', -9, { rate: 1.1 });
+  ev(TL.set2, 'tap', -5); ev(TL.set2 + 0.1, 'snap', -9, { rate: 1.2 });
   ev(TL.full, 'full', -6);
   ev(TL.start + 0.04, 'pop', -11);
   ev(TL.startClick, 'tap', -4);
@@ -755,10 +846,16 @@ const ev = (b, sfx, gain = 0, extra = {}) => EVENTS.push(Object.assign({ t: +(T(
   PICKS.forEach(([a, pt], i) => ev(pt + 0.3, 'snap', -13, { rate: 0.95 + (i % 5) * 0.05 }));
   ev(TL.reveal + 0.35, 'correct', -5);
   ev(TL.plus, 'coin', -6, { rate: 1.2 });
-  ev(TL.win + 0.5, 'win', -5);
+  ev(TL.stand + 0.3, 'swoosh', -8);
+  for (let r = 2; r <= 10; r++) ev(roundB(r), 'tick', -9, { rate: 1 + (r - 2) * 0.035 });
+  RANK_SWAPS.forEach(r => ev(roundB(r) + 0.18, 'reorder', -10));
+  ev(roundB(10) + 0.06, 'coin', -7, { rate: 1.34 });
+  ev(TL.podium + 0.12, 'morph', -9);
+  ev(TL.podium + 0.5, 'win', -5);
+  ev(TL.podium + 0.75, 'cheer', -9);
   ev(TL.again + 0.04, 'pop', -10);
   ev(TL.againClick, 'tap', -4);
-  ev(TL.grow + 1.0, 'whoosh', -5);
+  ev(TL.grow + 1.2, 'whoosh', -5);
   ev(TL.pin2 + 0.3, 'pin', -7);
   ev(TL.plane0 + 0.12, 'send', -9);
   ev(TL.pop + 0.3, 'sparkle', -6);
@@ -854,33 +951,43 @@ function seek(tReal) {
     } else { pillFill(P, 0); show(P.chk, false); }
   });
 
-  // the round pointer: four passes (Portugal, Challenge a friend, Start match, Play again)
+  // the round pointer: Portugal, Challenge a friend, the two host settings, Start match, Play again
   {
     const LX = PX + LOBBY.x, LY = PY + LOBBY.y;
     const passes = [
       { in: TL.cur1In, at: TL.cur1At, tap: TL.tap, tgt: [PX + CX + 22 + 176 + 30, PY + CY + PILL_Y[1] + 28], off: [95, 115], bow: 22, gone: TL.toMap - 0.1 },
       { in: TL.cur2In, at: TL.cur2At, tap: TL.click, tgt: [PX + 214 + 40, PY + 602 + 29], off: [80, 100], bow: 16, gone: TL.click + 0.35 },
-      { in: TL.cur3In, at: TL.cur3At, tap: TL.startClick, tgt: [LX + 238, LY + 632], off: [70, 90], bow: 14, gone: TL.startClick + 0.3 },
+      { in: TL.set1In, at: TL.set1At, tap: TL.set1, tgt: segTgt(0), off: [80, 110], bow: 14, gone: 999 },
+      { in: TL.set1 + 0.2, at: TL.set2At, tap: TL.set2, tgt: segTgt(1), chain: true, bow: 10, gone: TL.set2 + 0.3 },
+      { in: TL.startIn, at: TL.startAt, tap: TL.startClick, tgt: [LX + 238, LY + 632], off: [70, 90], bow: 14, gone: TL.startClick + 0.3 },
       { in: TL.cur4In, at: TL.cur4At, tap: TL.againClick, tgt: [LX + 212, LY + 632], off: [80, 95], bow: 14, gone: TL.againClick + 0.2 },
     ];
     let k = 0;
     passes.forEach((ps, i) => { if (b >= ps.in - 0.05) k = i; });
     const ps = passes[k];
-    const p = segB(t, ps.in + 0.1, ps.at, E.inOutCubic);
-    const cx = lerp(ps.tgt[0] + ps.off[0], ps.tgt[0], p) + Math.sin(p * Math.PI) * ps.bow;
-    const cy = lerp(ps.tgt[1] + ps.off[1], ps.tgt[1], p);
+    const from = ps.chain ? passes[k - 1].tgt : [ps.tgt[0] + ps.off[0], ps.tgt[1] + ps.off[1]];
+    const p = segB(t, ps.in + (ps.chain ? 0 : 0.1), ps.at, E.inOutCubic);
+    const cx = lerp(from[0], ps.tgt[0], p) + Math.sin(p * Math.PI) * ps.bow;
+    const cy = lerp(from[1], ps.tgt[1], p);
     const press = t >= T(ps.tap) - 0.05 ? Math.exp(-Math.max(0, t - T(ps.tap) + 0.05) * 14) : 0;
-    const sc = spB(t, ps.in, 3, 0.6) * (1 - segB(t, ps.gone, ps.gone + 0.25, E.inCubic)) * (1 - 0.28 * press);
+    const sIn = ps.chain ? 1 : spB(t, ps.in, 3, 0.6);
+    const sc = sIn * (1 - segB(t, ps.gone, ps.gone + 0.25, E.inCubic)) * (1 - 0.28 * press);
     S(cursor, { left: cx - 11, top: cy - 11, transform: `scale(${sc})` });
     show(cursor, sc > 0.01);
-    const tapT = T(ps.tap), rp = clamp((t - tapT) / 0.4);
-    const rr = 12 + 26 * E.outCubic(rp);
-    S(cursorRing, { left: cx - rr, top: cy - rr, width: 2 * rr, height: 2 * rr, borderWidth: (2.4 * (1 - rp)) + 'px' });
-    show(cursorRing, t > tapT && rp < 1);
+    // tap ring: from the latest tap, wherever the pointer has gone since
+    let lastTap = null;
+    passes.forEach(q => { if (t > T(q.tap)) lastTap = q; });
+    if (lastTap) {
+      const rp = clamp((t - T(lastTap.tap)) / 0.4);
+      const rr = 12 + 26 * E.outCubic(rp);
+      S(cursorRing, { left: lastTap.tgt[0] - rr, top: lastTap.tgt[1] - rr, width: 2 * rr, height: 2 * rr, borderWidth: (2.4 * (1 - rp)) + 'px' });
+      show(cursorRing, rp < 1);
+    } else show(cursorRing, false);
   }
 
-  // side headline (landscape): word by word as the players join
-  sideHead.forEach((m, i) => m.set(segB(t, TL.lobby + 0.1 + i * 0.16, TL.lobby + 0.5 + i * 0.16, E.outQuint)));
+  // side headline (landscape): three steps, word by word; each step drops out as the next rises
+  SIDE.forEach(ph => ph.parts.forEach((m, i) => m.set(segB(t, ph.at + i * 0.12, ph.at + 0.42 + i * 0.12, E.outQuint),
+    segB(t, ph.out + i * 0.03, ph.out + 0.3 + i * 0.03, E.inCubic))));
 
   // mascot peeking over the card
   {
@@ -1232,7 +1339,7 @@ function seek(tReal) {
         [-lerp(90, 118 + 6 * wave * waveAmt, armsIn), lerp(30, lerp(70, -86, waveAmt), armsIn), lerp(10, -18, waveAmt), 10 * armsIn],
         [lerp(90, 112, armsIn), lerp(30, 76, armsIn), 10, 10 * armsIn],
       ];
-      const blink = Math.max(blinkAt(t, [TL.blink, TL.blink2]), 1 - clamp((t - popT - 0.25) / 0.12));
+      const blink = Math.max(blinkAt(t, [TL.blink, TL.blink3, TL.blink2]), 1 - clamp((t - popT - 0.25) / 0.12));
       drawMascot(endMascot, { look: [0, 0], blink, wink: segB(t, TL.wink, TL.wink + 0.1) * (1 - segB(t, TL.wink + 0.9, TL.wink + 1.0)),
         mouth: g > 0.5 ? 'smile' : 'none', cheeks: segB(t, TL.wink, TL.wink + 0.15), legs, arms: armsIn > 0.02 ? arms : null, hop: hopE, iris: (1 - E.inOutCubic(clamp((t - popT) / 0.22))) * 102 });
       const shw = r * 1.1 * legs;
@@ -1264,9 +1371,9 @@ function seek(tReal) {
 // ------------------------------------------------------------------ multiplayer scene (inside the lobby card)
 function multiplayer(t, b, rr) {
   const joinT = i => i < 2 ? TL.lobby : TL.join0 + (i - 2) * TL.joinStep;
-  // lobby: illustration and title are revealed by the growing card; they fold away when the match starts
+  // lounge: illustration, title and host settings are revealed by the growing card; they fold away when the match starts
   const out = segB(t, TL.match, TL.match + 0.3, E.inCubic);
-  const artH = 230 * (1 - out);
+  const artH = ART_H * (1 - out);
   S(lobbyArt, { height: artH }); show(lobbyArt, artH > 0.5);
   lobbyTitle.set(segB(t, TL.lobby + 0.2, TL.lobby + 0.6, E.outQuint), out);
   lobbySub.set(segB(t, TL.lobby + 0.35, TL.lobby + 0.75, E.outQuint), out);
@@ -1280,30 +1387,64 @@ function multiplayer(t, b, rr) {
   const bump = Math.exp(-Math.max(0, t - T(TL.full)) * 8) * (t >= T(TL.full) ? 0.18 : 0);
   S(countPill, { transform: `scale(${cpIn * (1 + bump)})`, background: mixc(C.mint, C.gold, full) });
   show(countPill, cpIn > 0.001);
+  // host settings: each row rises in; the tapped option's knob slides over on a spring
+  const cardOut = segB(t, TL.match + 0.05, TL.match + 0.35, E.inCubic);
+  S(setCard, { top: SET.y + SET.h * cardOut / 2, height: SET.h * (1 - cardOut) });
+  show(setCard, cardOut < 1);
+  setRows.forEach((r, k) => {
+    const pin = segB(t, TL.lobby + 0.45 + k * 0.14, TL.lobby + 0.87 + k * 0.14, E.outQuint);
+    S(r.inner, { transform: `translateY(${(1 - pin) * 52}px)` });
+    show(r.mask, pin > 0);
+    const tb = TL[r.tap];
+    const pos = lerp(r.from, r.to, spB(t, tb + 0.02, 2.4, 0.7));
+    S(r.knob, { left: 2 + pos * r.segW, width: r.segW - 4 });
+    r.txt.forEach((e, i) => { e.style.color = mixc(C.forest, C.white, clamp(1 - Math.abs(pos - i) * 1.4)); });
+    const press = t >= T(tb) - 0.04 ? Math.exp(-Math.max(0, t - T(tb)) * 18) : 0;
+    S(r.txt[r.to], { transform: `scale(${1 - 0.12 * press})` });
+  });
   // start button, pressed, then gone
   const sIn = spB(t, TL.start, 2.2, 0.62), sOut = segB(t, TL.match, TL.match + 0.25, E.inCubic);
   const sPress = t >= T(TL.startClick) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.startClick)) * 18) : 0;
   pillShape(startBtn, clamp(sIn, 0, 1.2), sOut, sPress); show(startBtn.box, sIn > 0.001 && sOut < 1); show(startBtn.chk, false);
   startBtn.txt.style.color = C.white;
-  // round content
-  mLabel.set(segB(t, TL.match + 0.32, TL.match + 0.67, E.outQuint), segB(t, TL.win, TL.win + 0.3, E.inCubic));
-  const hswapW = segB(t, TL.win, TL.win + 0.42, E.inOutQuart);
-  mHead1.set(segB(t, TL.match + 0.38, TL.match + 0.73, E.outQuint), hswapW);
-  mHead2.set(segB(t, TL.match + 0.46, TL.match + 0.81, E.outQuint), hswapW);
-  winHead.set(hswapW);
+
+  // round label: ROUND n/10 · MEDIUM, n rolls as each round is scored; ten dots fill
+  let rN = 1, rP = 1;
+  for (let r = 2; r <= 10; r++) if (b >= roundB(r)) { rN = r; rP = E.outCubic(clamp((t - T(roundB(r))) / 0.16)); }
+  mLabel.set(segB(t, TL.match + 0.32, TL.match + 0.67, E.outQuint), segB(t, TL.podium, TL.podium + 0.3, E.inCubic));
+  mRound.set(String(rN === 1 ? 1 : rN - 1), String(rN), rP);
+  S(mRound.box, { left: G.lblPre, width: G.lblNum[10] + 2 });
+  S(mSuffix, { left: G.lblPre + lerp(G.lblNum[Math.max(1, rN - 1)], G.lblNum[rN], rN === 1 ? 1 : rP) });
+  finalLbl.set(segB(t, TL.podium + 0.25, TL.podium + 0.6, E.outQuint));
+  roundDots.forEach((d, i) => {
+    const pin = spB(t, TL.match + 0.45 + i * 0.03, 2.6, 0.6);
+    const fb = i === 0 ? TL.match + 0.7 : roundB(i + 1);
+    const dd = t - T(fb);
+    const kick = dd > 0 ? Math.exp(-dd * 10) * Math.sin(Math.min(dd * 30, Math.PI)) : 0;
+    S(d, { transform: `scale(${pin * (1 + 0.6 * kick)})`, background: mixc('#D5E3DC', C.green, clamp(dd / 0.08)) });
+    show(d, pin > 0.001);
+  });
+  // question -> "Live leaderboard" -> "You win!"
+  const hsQ = segB(t, TL.stand, TL.stand + 0.42, E.inOutQuart);
+  const hsW = segB(t, TL.podium, TL.podium + 0.42, E.inOutQuart);
+  mHead1.set(segB(t, TL.match + 0.38, TL.match + 0.73, E.outQuint), hsQ);
+  mHead2.set(segB(t, TL.match + 0.46, TL.match + 0.81, E.outQuint), hsQ);
+  lbHead.set(hsQ, hsW);
+  lbSub.set(segB(t, TL.stand + 0.12, TL.stand + 0.52, E.outQuint), segB(t, TL.podium, TL.podium + 0.3, E.inCubic));
+  winHead.set(hsW);
   {
     const land = T(TL.flagMP);
     const pop = spring(t - (land - 0.16), 2.4, 0.58);
     let sx = 1, sy = 1;
     if (t >= land) { const d = t - land; const k = Math.exp(-d * 9) * Math.sin(d * 34); sy = 1 - 0.08 * k; sx = 1 + 0.05 * k; }
-    const fo = segB(t, TL.win - 0.05, TL.win + 0.2, E.inCubic);
+    const fo = segB(t, TL.stand - 0.05, TL.stand + 0.2, E.inCubic);
     const sc = pop * (1 - fo);
     S(flagJP, { transform: `scale(${sx * sc},${sy * sc})`, transformOrigin: '50% 60%' });
     show(flagJP, sc > 0.001);
   }
   ansPills.forEach((P, i) => {
     const pIn = spB(t, TL.answers + i * 0.1, 2.2, 0.62);
-    const q = segB(t, TL.win + i * 0.04, TL.win + 0.25 + i * 0.04, E.inCubic);
+    const q = segB(t, TL.stand + i * 0.04, TL.stand + 0.25 + i * 0.04, E.inCubic);
     show(P.box, pIn > 0.001 && q < 1);
     if (P.box.style.display === 'none') return;
     pillShape(P, clamp(pIn, 0, 1.2), q);
@@ -1314,18 +1455,56 @@ function multiplayer(t, b, rr) {
       S(P.chk, { left: 14 });                                  // check on the left, avatars stack on the right
     } else { pillFill(P, 0); show(P.chk, false); }
   });
-  // avatars: grid -> strip -> answer -> strip, with a cheer wave at the end
+
+  // leaderboard rows: burst in after round 1, climb and fall as rounds 2-10 are scored, top 3 become the podium
+  lbRank.forEach((m, k) => m.set(segB(t, TL.stand + 0.4 + k * 0.06, TL.stand + 0.8 + k * 0.06, E.outQuint), segB(t, TL.podium + k * 0.03, TL.podium + 0.25 + k * 0.03, E.inCubic)));
+  const fold = segB(t, TL.podium - 0.02, TL.podium + 0.2, E.inBack);
+  lbRows.forEach(R => {
+    const pIn = spB(t, TL.stand + 0.25 + R.ranks[0] * 0.08, 1.9, 0.64);
+    let slot = R.ranks[0], v = R.pts[0];
+    for (let r = 2; r <= 10; r++) {
+      slot += (R.ranks[r - 1] - R.ranks[r - 2]) * spring(t - T(roundB(r) + 0.04), 2.0, 0.78);
+      v += (R.pts[r - 1] - R.pts[r - 2]) * E.outCubic(clamp((t - T(roundB(r))) / 0.22));
+    }
+    R.ptsEl.textContent = fmt(v);
+    let x = LBR.x, y = LBR.y0 + slot * LBR.gap, w = LBR.w, h = LBR.h, rad = 18, s = lerp(0.2, 1, pIn), bg = R.bg, gone = false;
+    if (R.fr < 3) {
+      const c = COL[R.fr], m = spB(t, TL.podium + 0.1 + R.fr * 0.1, 1.6, 0.74);
+      x = lerp(x, c.x, m); y = lerp(y, c.y, m); w = lerp(w, c.w, m); h = lerp(h, c.h, m); rad = lerp(18, 16, clamp(m));
+      bg = mixc(R.bg, c.bg, clamp(m * 1.4));
+      R.colRank.set(segB(t, TL.podium + 0.4 + R.fr * 0.1, TL.podium + 0.8 + R.fr * 0.1, E.outQuint));
+      R.colName.set(segB(t, TL.podium + 0.5 + R.fr * 0.1, TL.podium + 0.9 + R.fr * 0.1, E.outQuint));
+    } else {
+      const q = segB(t, TL.podium + (R.fr - 3) * 0.06, TL.podium + 0.3 + (R.fr - 3) * 0.06, E.inBack);
+      s *= 1 - q; gone = q >= 1;
+    }
+    S(R.e, { left: x, top: y, width: Math.max(0, w), height: Math.max(0, h), borderRadius: rad, transform: `scale(${s})`, background: bg, zIndex: R.p === 0 ? 5 : 4 });
+    show(R.e, pIn > 0.001 && !gone);
+    S(R.inner, { transform: `scale(${1 - fold})` }); show(R.inner, fold < 1);
+  });
+  // the last round's points for You as You take first place
+  {
+    const lb = roundB(10) + 0.04;
+    const g = spB(t, lb, 2.8, 0.55) * (1 - segB(t, TL.podium - 0.1, TL.podium + 0.1, E.inCubic));
+    const R = lbRows[0];
+    const yRow = LBR.y0 + lerp(R.ranks[8], R.ranks[9], spring(t - T(roundB(10) + 0.04), 2.0, 0.78)) * LBR.gap;
+    S(lastGain, { left: LBR.x + LBR.w - 150, top: yRow - 18, transform: `scale(${g}) rotate(${-4 * g}deg)` });
+    show(lastGain, g > 0.001);
+  }
+
+  // avatars: grid -> strip -> answer -> strip -> (top 3) podium
+  const podBeat = fr => TL.podium + 0.3 + fr * 0.1;
   mpAv.forEach((m, i) => {
     const jt = joinT(i);
-    let x, y, sc = 1;
+    let x, y, sc = GRID_S;
     const [gx, gy] = GRID(i), [sx, sy] = STRIP(i), [ax, ay] = ANS(i);
     if (i < 2 && b < TL.lobby + 0.6) {                        // You and Emma arrive from the room card
       const from = i === 0 ? [285, 429] : [319, 429];
       const p = spB(t, TL.lobby + 0.05, 1.9, 0.7);
-      x = lerp(from[0], gx, p); y = lerp(from[1], gy, p); sc = lerp(0.7, 1, p);
+      x = lerp(from[0], gx, p); y = lerp(from[1], gy, p); sc = lerp(0.7, GRID_S, p);
     } else {
       const pop = spB(t, jt, 2.8, 0.55);
-      x = gx; y = gy; sc = i < 2 ? 1 : pop;
+      x = gx; y = gy; sc = i < 2 ? GRID_S : GRID_S * pop;
     }
     const toStrip = spB(t, TL.match + 0.05 + i * 0.03, 2.0, 0.72);
     x = lerp(x, sx, toStrip); y = lerp(y, sy, toStrip); sc = lerp(sc, 28 / 60, toStrip);
@@ -1337,35 +1516,51 @@ function multiplayer(t, b, rr) {
       x = q[0]; y = q[1]; sc = lerp(28 / 60, 26 / 60, fp);
     }
     // reveal: right answers hop, wrong ones shake
-    if (t > T(TL.reveal) && b < TL.win) {
+    if (t > T(TL.reveal) && b < TL.stand) {
       const d = t - T(TL.reveal) - stackIdx[i] * 0.03;
       if (pick === 1) y -= Math.max(0, Math.sin(clamp(d / 0.28) * Math.PI)) * 10;
       else x += Math.sin(d * 40) * Math.exp(-d * 6) * 4;
     }
-    // back to the strip for the win, then a wave of little hops
-    const back = spB(t, TL.win + 0.05 + i * 0.02, 2.0, 0.72);
+    // back to the strip for the leaderboard
+    const back = spB(t, TL.stand + 0.05 + i * 0.02, 2.0, 0.72);
     if (back > 0) { x = lerp(x, sx, back); y = lerp(y, sy, back); sc = lerp(sc, 28 / 60, back); }
-    const wv = b - (TL.win + 0.55 + i * 0.06);
-    if (wv > 0 && b < TL.grow) y -= Math.max(0, Math.sin((wv % 1) * Math.PI * 2)) * 7;
+    // the top 3 fly down onto the podium and hop on the beat; the rest do a wave in the strip
+    const fr = i < 5 ? STAND.find(s2 => s2.p === i).ranks[9] : 9;
+    if (fr < 3) {
+      const pb = podBeat(fr), fl = segB(t, pb, pb + 0.45, E.inOutCubic);
+      if (fl > 0) {
+        const [px, py] = COL_AV[fr];
+        const q = quad([sx, sy], [lerp(sx, px, 0.5), Math.min(sy, py) - 30], [px, py], fl);
+        x = q[0]; y = q[1]; sc = lerp(28 / 60, 72 / 60, fl);
+        const hb = b - (pb + 0.45);
+        if (hb > 0 && b < TL.grow) y -= Math.max(0, Math.sin(((hb + fr * 0.33) % 1) * Math.PI)) * 9;
+      }
+    } else {
+      const wv = b - (TL.podium + 0.6 + i * 0.06);
+      if (wv > 0 && b < TL.grow) y -= Math.max(0, Math.sin((wv % 1) * Math.PI * 2)) * 7;
+    }
     S(m.wrap, { left: x - 30, top: y - 30, transform: `scale(${sc})`, zIndex: i === 0 ? 30 : 20 });
     show(m.wrap, b >= jt && sc > 0.001);
     m.nm.set(segB(t, jt + 0.05, jt + 0.35, E.outQuint), segB(t, TL.match - 0.05, TL.match + 0.1, E.inCubic));
   });
+  // the host's crown: on You in the lounge, gone when the match starts
+  const cr = spB(t, TL.lobby + 0.5, 2.6, 0.55) * (1 - segB(t, TL.match - 0.05, TL.match + 0.12, E.inBack));
+  S(crown, { transform: `scale(${cr}) rotate(${14 * cr}deg)` }); show(crown, cr > 0.001);
   // +1,583 for the fastest right answer
-  const pc = spB(t, TL.plus, 2.8, 0.55) * (1 - segB(t, TL.win - 0.05, TL.win + 0.15, E.inCubic));
+  const pc = spB(t, TL.plus, 2.8, 0.55) * (1 - segB(t, TL.stand - 0.05, TL.stand + 0.15, E.inCubic));
   const [yx, yy] = ANS(0);
   S(plusChip, { left: yx - 70, top: yy - 62, transform: `scale(${pc})` }); show(plusChip, pc > 0.001);
-  // win: Roviko cheers, "1st of 12 players", Play again
-  const wIn = spB(t, TL.win + 0.1, 1.8, 0.55);
-  const arm = spB(t, TL.win + 0.3, 2.4, 0.5);
-  const hop = b > TL.win + 0.6 ? -Math.max(0, Math.sin(((b - TL.win - 0.6) % 1) * Math.PI)) * 12 : 0;
+  // final results: Roviko cheers above the podium
+  const wIn = spB(t, TL.podium + 0.3, 1.8, 0.55);
+  const arm = spB(t, TL.podium + 0.5, 2.4, 0.5);
+  const hop = b > TL.podium + 0.8 ? -Math.max(0, Math.sin(((b - TL.podium - 0.8) % 1) * Math.PI)) * 10 : 0;
   const wig = Math.sin(t * 13) * 6 * arm;
   drawMascot(winMascot, { happy: arm > 0.4 ? 1 : 0, mouth: arm > 0.4 ? 'open' : 'smile', cheeks: arm, legs: 1, hop,
     arms: [[lerp(-112, -118, arm) + wig, lerp(60, -92, arm), lerp(8, -22, arm), 10], [lerp(112, 118, arm) - wig, lerp(60, -92, arm), lerp(8, -22, arm), 10]] });
-  S(winBox, { transform: `translateY(${(1 - wIn) * 60}px) scale(${lerp(0.3, 1, wIn)})`, transformOrigin: '50% 80%' });
+  S(winBox, { transform: `translateY(${(1 - wIn) * 50}px) scale(${lerp(0.3, 1, wIn)})`, transformOrigin: '50% 80%' });
   show(winBox, wIn > 0.001);
-  winSub.set(segB(t, TL.win + 0.4, TL.win + 0.8, E.outQuint));
-  winPts.set(segB(t, TL.win + 0.55, TL.win + 0.95, E.outQuint));
+  winSub.set(segB(t, TL.podium + 0.4, TL.podium + 0.8, E.outQuint));
+  winPts.set(segB(t, TL.podium + 0.55, TL.podium + 0.95, E.outQuint));
   const aIn = spB(t, TL.again, 2.2, 0.62);
   const aPress = t >= T(TL.againClick) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.againClick)) * 18) : 0;
   pillShape(againBtn, clamp(aIn, 0, 1.2), 0, aPress); show(againBtn.box, aIn > 0.001 && b < TL.grow); show(againBtn.chk, false);

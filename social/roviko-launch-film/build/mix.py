@@ -23,7 +23,7 @@ from scipy.ndimage import minimum_filter1d
 SR = 48000
 ROOT = Path(__file__).resolve().parent.parent
 A = ROOT / 'audio'
-DUR = 25.637        # film length (47 beats at 110 BPM)
+DUR = 36.545        # film length (67 beats at 110 BPM)
 
 # effect-over-music level in the 150 ms around its peak (dB). Positive = on top of the bed.
 TARGET = {'key': -3, 'pop': -4, 'land': 1, 'tap': 3, 'correct': 4, 'pin': 4, 'coin': 2, 'tick': 1, 'morph': -2,

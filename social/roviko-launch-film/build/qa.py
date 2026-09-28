@@ -20,9 +20,9 @@ B = 60 / BPM
 FAST = {  # name: (first beat, last beat)
     'tap + pull-back': (5.95, 7.8), 'pin drop': (8.8, 9.3), 'answer montage': (10.2, 15.2),
     'gold flood': (15.9, 16.6), 'cards burst': (16.1, 17.0), 'climb + swap': (18.1, 19.2),
-    'gold -> flame chip': (19.7, 20.7), 'click + room card': (23.9, 24.9), 'lobby fills to 12': (24.95, 27.8),
-    'live round': (28.4, 30.6), 'win + play again': (31.0, 33.2), 'button -> page': (33.2, 34.6),
-    'plane + pin -> mascot': (39.4, 40.6), 'cream flood + wordmark': (40.1, 41.4),
+    'gold -> flame chip': (19.7, 20.7), 'click + room card': (25.9, 26.9), 'lounge + host settings': (27.9, 31.7),
+    'round 1': (33.2, 36.6), 'leaderboard rounds 2-10': (37.0, 42.8), 'podium': (42.9, 44.2), 'button -> page': (46.5, 48.3),
+    'plane + pin -> mascot': (55.0, 56.3), 'cream flood + wordmark': (55.8, 57.2),
 }
 
 
@@ -89,13 +89,13 @@ def main(path, outdir):
         slug = name.replace(' ', '-').replace('>', '').replace('+', 'and')
         plt.imsave(out / f'strip-{slug}-f{i0}-{i1}.png', sheet)
     # change-over-time plot
-    fig, ax = plt.subplots(figsize=(16, 3.2), dpi=100)
+    fig, ax = plt.subplots(figsize=(24, 3.2), dpi=100)
     t = (np.arange(len(diff)) + 1) / FPS
     ax.plot(t, diff, color='#163B32', lw=1)
     ax.plot(t[1:-1] if len(pop_score) == len(t) - 2 else t[:len(pop_score)], pop_score[:len(t)], color='#E5484D', lw=1, alpha=.8)
-    for k in range(33): ax.axvline(k * B, color='#F6B84B', lw=.6, alpha=.6)
-    ax.axvline(12 * B, color='#1F806B', lw=1.4)
-    ax.set_xlim(0, 15); ax.set_xlabel('seconds (gold lines = beats, green = drop)'); ax.set_ylabel('mean change / pop score')
+    for k in range(int(n / FPS / B) + 1): ax.axvline(k * B, color='#F6B84B', lw=.6, alpha=.6)
+    ax.axvline(16 * B, color='#1F806B', lw=1.4)
+    ax.set_xlim(0, n / FPS); ax.set_xlabel('seconds (gold lines = beats, green = drop)'); ax.set_ylabel('mean change / pop score')
     ax.set_title('Frame-to-frame change (dark) and single-frame pop score (red)')
     fig.tight_layout(); fig.savefig(out / 'change-plot.png')
 
