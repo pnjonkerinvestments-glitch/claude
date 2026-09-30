@@ -22,9 +22,9 @@ Each post has 12 slides:
 - **Series:** "Next: map challenge #2" makes it a series worth following.
 
 ## Formats
-- `out/post-N/tiktok/01..12.png`: 1080×1920 (TikTok photo mode).
-- `out/post-N/instagram/01..12.png`: 1080×1350 (Instagram 4:5), the band y 285–1635 of the same slide.
-- All text sits in y 300–1440, inside both the Instagram crop and TikTok's overlay-free area.
+- `out/post-N/tiktok/01..12.png`: 1080×1440 (3:4). TikTok shows photo posts in a 3:4 frame, so this fills it with nothing cropped. The level pills sit below TikTok's search bar.
+- `out/post-N/instagram/01..12.png`: 1080×1350 (Instagram 4:5).
+- Both are bands of one 1080×1920 drawing (y 150–1590 and y 285–1635). All content sits in y 300–1552.
 
 ## How it's built
 ```sh

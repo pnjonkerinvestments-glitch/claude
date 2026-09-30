@@ -1,7 +1,7 @@
 # Captions, pinned comments and hashtags
 
 Post as a photo carousel:
-- **TikTok:** the 12 slides from `out/post-N/tiktok/`.
+- **TikTok:** the 12 slides from `out/post-N/tiktok/` (3:4, fills TikTok's photo frame).
 - **Instagram:** the 12 slides from `out/post-N/instagram/`.
 
 The same caption works on both.

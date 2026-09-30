@@ -6,8 +6,10 @@
 <!--
   Roviko "Guess the country" carousels. One page draws one slide:
     carousel.html?post=1&slide=0      post 1..5, slide 0 (cover), 1..10 (question/answer x5), 11 (score)
-  Drawn at 1080x1920 (TikTok photo mode). The Instagram 4:5 version is the band y 285..1635, so all text sits in
-  y 300..1420: inside both the Instagram crop and TikTok's overlay-free area (130 px top, 484 px bottom, 140 px right).
+  Drawn at 1080x1920 and cut into two frames (build/shots.mjs):
+    TikTok photo mode 3:4 (1080x1440), the band y 150..1590: TikTok shows photo posts in a 3:4 frame
+    Instagram 4:5 (1080x1350), the band y 285..1635
+  All content sits in y 300..1552, inside both bands, clear of TikTok's search bar (top) and button column (right).
 -->
 <style>
 @font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
@@ -125,7 +127,7 @@ function peek(parent, x, edgeY, face, px = 190) {
 function whiteCard(x, y, w, h, z = 10) {
   return el(stage, { left: x, top: y, width: w, height: h, borderRadius: 40, background: C.white, zIndex: z, boxShadow: '0 4px 10px rgba(0,0,0,.12), 0 30px 70px rgba(0,0,0,.28)' });
 }
-const watermark = () => pill(stage, 'roviko.app', 70, 1560, { bg: 'rgba(246,243,233,.92)', fg: C.green, size: 28, h: 52, font: 'Manrope', weight: 800, pad: 24 });
+const watermark = () => pill(stage, 'roviko.app', 60, 1500, { bg: 'rgba(246,243,233,.92)', fg: C.green, size: 28, h: 52, font: 'Manrope', weight: 800, pad: 24 });
 
 // ------------------------------------------------------------------ slides
 const K = post.countries;
