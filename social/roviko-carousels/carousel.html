@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko map challenge</title>
+<!--
+  Roviko "Guess the country" carousels. One page draws one slide:
+    carousel.html?post=1&slide=0      post 1..5, slide 0 (cover), 1..10 (question/answer x5), 11 (score)
+  Drawn at 1080x1920 (TikTok photo mode). The Instagram 4:5 version is the band y 285..1635, so all text sits in
+  y 300..1420: inside both the Instagram crop and TikTok's overlay-free area (130 px top, 484 px bottom, 140 px right).
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #163B32; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="data/geo.js"></script>
+<script src="data/posts.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../roviko-shorts/lib/core.js"></script>
+<script>
+const W = 1080, H = 1920;
+const DIL = 1;
+const FLAGS = '../../roviko/public/flags/';
+const post = POSTS[(+Q.get('post') || 1) - 1];
+const slide = +(Q.get('slide') || 0);
+const OCEAN = '#163B32', LAND = '#DDEDE6', GOLD = '#F6B84B';
+S(document.body, { width: W, height: H });
+
+// ------------------------------------------------------------------ projection: Lambert azimuthal equal-area, centred per view
+const rad = d => d * Math.PI / 180;
+function projector(lon0, lat0, R, cx, cy) {
+  const l0 = rad(lon0), p0 = rad(lat0), sp0 = Math.sin(p0), cp0 = Math.cos(p0);
+  return (lon, lat) => {
+    const l = rad(lon) - l0, p = rad(lat), cp = Math.cos(p), sp = Math.sin(p), cl = Math.cos(l);
+    const cosc = sp0 * sp + cp0 * cp * cl;
+    const k = Math.sqrt(2 / Math.max(1e-9, 1 + cosc));
+    return [cx + R * k * cp * Math.sin(l), cy - R * k * (cp0 * sp - sp0 * cp * cl), cosc];
+  };
+}
+function ringPath(ring, P, cull = -0.35) {
+  let d = '', out = 0;
+  const pts = ring.map(([lo, la]) => P(lo, la));
+  if (pts.some(p => p[2] < cull)) return '';                    // ring reaches too far round the globe: never on screen
+  for (const [x, y] of pts) if (x < -600 || x > W + 600 || y < -600 || y > H + 600) out++;
+  if (out === pts.length) return '';
+  pts.forEach(([x, y], i) => { d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); });
+  return d + 'Z';
+}
+const countryPath = (id, P) => GEO[id].map(poly => poly.map(r => ringPath(r, P)).join('')).join('');
+// the country's own centre: the bounding box of its largest polygon, and everything within 12 degrees of it
+function centreOf(id) {
+  const polys = GEO[id];
+  const area = poly => { const r = poly[0]; let a = 0; for (let i = 0; i < r.length; i++) { const [x1, y1] = r[i], [x2, y2] = r[(i + 1) % r.length]; a += x1 * y2 - x2 * y1; } return Math.abs(a); };
+  const main = polys.reduce((m, p) => area(p) > area(m) ? p : m, polys[0]);
+  const mb = bbox(main[0]);
+  const c0 = [(mb[0] + mb[2]) / 2, (mb[1] + mb[3]) / 2];
+  const near = polys.filter(p => { const b = bbox(p[0]); return Math.abs((b[0] + b[2]) / 2 - c0[0]) < 12 && Math.abs((b[1] + b[3]) / 2 - c0[1]) < 12; });
+  const all = near.flatMap(p => p[0]);
+  const b = bbox(all);
+  return { lon: (b[0] + b[2]) / 2, lat: (b[1] + b[3]) / 2, near };
+}
+function bbox(pts) { let a = [1e9, 1e9, -1e9, -1e9]; for (const [x, y] of pts) { a = [Math.min(a[0], x), Math.min(a[1], y), Math.max(a[2], x), Math.max(a[3], y)]; } return a; }
+
+// ------------------------------------------------------------------ the map layer
+function drawMap(view, highlight, answered) {
+  const R = W / rad(view.span);
+  const P = projector(view.lon, view.lat, R, W / 2, view.cy);
+  const svg = svgEl(stage, 'svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}` });
+  svg.style.position = 'absolute';
+  const defs = svgEl(svg, 'defs');
+  const g = svgEl(defs, 'radialGradient', { id: 'sea', cx: '50%', cy: String(view.cy / H), r: '75%' });
+  svgEl(g, 'stop', { offset: '0', 'stop-color': '#24584C' }); svgEl(g, 'stop', { offset: '1', 'stop-color': OCEAN });
+  const f = svgEl(defs, 'filter', { id: 'glow', x: '-50%', y: '-50%', width: '200%', height: '200%' });
+  svgEl(f, 'feDropShadow', { dx: 0, dy: 0, stdDeviation: 14, 'flood-color': answered ? '#5ED34F' : GOLD, 'flood-opacity': 0.75 });
+  svgEl(svg, 'rect', { width: W, height: H, fill: 'url(#sea)' });
+  // land, no borders: every country (and the gap-filling extra land) in one colour, stroked in the same colour
+  let d = '';
+  for (const id in GEO) if (id !== highlight) d += countryPath(id, P);
+  for (const r of GEO_EXTRA) d += ringPath(r, P);
+  svgEl(svg, 'path', { d, fill: LAND, stroke: LAND, 'stroke-width': 1.2, 'stroke-linejoin': 'round', 'fill-rule': 'nonzero' });
+  if (highlight) {
+    const hd = countryPath(highlight, P);
+    svgEl(svg, 'path', { d: hd, fill: answered ? C.green : GOLD, stroke: OCEAN, 'stroke-width': 3.5, 'stroke-linejoin': 'round', filter: 'url(#glow)' });
+    // tiny countries get a ring so the eye finds them
+    const pts = centreOf(highlight).near.flatMap(p => p[0].map(([lo, la]) => P(lo, la))).filter(p => p[2] > 0);
+    const b = bbox(pts.map(p => [p[0], p[1]]));
+    const size = Math.max(b[2] - b[0], b[3] - b[1]);
+    if (size < 150) svgEl(svg, 'circle', { cx: (b[0] + b[2]) / 2, cy: (b[1] + b[3]) / 2, r: size / 2 + 46, fill: 'none', stroke: answered ? '#5ED34F' : GOLD, 'stroke-width': 5, 'stroke-dasharray': '14 12', 'stroke-linecap': 'round' });
+    return { P, b };
+  }
+  return { P };
+}
+
+// ------------------------------------------------------------------ pieces
+const LT = { fontFamily: 'Fredoka', fontWeight: 600, color: C.forest };
+function pill(parent, text, x, y, { bg = C.white, fg = C.forest, size = 30, h = 60, font = 'Fredoka', weight = 600, pad = 30, ls = '0', z = 10 } = {}) {
+  const e = el(parent, { left: x, top: y, height: h, borderRadius: h / 2, background: bg, color: fg, fontFamily: font, fontWeight: weight, fontSize: size,
+    lineHeight: h + 'px', padding: `0 ${pad}px`, whiteSpace: 'pre', letterSpacing: ls, zIndex: z, boxShadow: '0 10px 26px rgba(0,0,0,.22)' }, text);
+  return e;
+}
+function centreRow(els, y, gap = 16) { LAYOUT.push(() => centreRowNow(els, y, gap)); }
+function centreRowNow(els, y, gap) {
+  const ws = els.map(e => e.getBoundingClientRect().width);
+  let x = W / 2 - (ws.reduce((a, b) => a + b, 0) + gap * (els.length - 1)) / 2;
+  els.forEach((e, i) => { S(e, { left: x, top: y }); x += ws[i] + gap; });
+}
+// Roviko peeking over the top edge of a card, hands on the edge (the launch film's peek)
+function peek(parent, x, edgeY, face, px = 190) {
+  const box = el(parent, { left: x - px / 2, top: edgeY - px * 0.5, width: px, height: px * 0.5 + 2, overflow: 'hidden', zIndex: 12 });
+  const m = Mascot(box, px); S(m.svg, { left: 0, top: -px * 0.05 });
+  drawMascot(m, Object.assign({ mouth: 'none', legs: 0, arms: null }, face));
+  const hw = px, hs = px / 120;
+  el(parent, { left: x - hw / 2, top: edgeY - 12 * hs, width: hw, height: 24 * hs, zIndex: 13 },
+    `<svg width="${hw}" height="${24 * hs}" viewBox="0 0 120 24"><g fill="${C.ink}">${[33, 87].map(hx => `<ellipse cx="${hx}" cy="10" rx="9.5" ry="7"/><circle cx="${hx - 5.5}" cy="15.5" r="2.9"/><circle cx="${hx}" cy="16.5" r="2.9"/><circle cx="${hx + 5.5}" cy="15.5" r="2.9"/>`).join('')}</g></svg>`);
+}
+function whiteCard(x, y, w, h, z = 10) {
+  return el(stage, { left: x, top: y, width: w, height: h, borderRadius: 40, background: C.white, zIndex: z, boxShadow: '0 4px 10px rgba(0,0,0,.12), 0 30px 70px rgba(0,0,0,.28)' });
+}
+const watermark = () => pill(stage, 'roviko.app', 70, 1560, { bg: 'rgba(246,243,233,.92)', fg: C.green, size: 28, h: 52, font: 'Manrope', weight: 800, pad: 24 });
+
+// ------------------------------------------------------------------ slides
+const K = post.countries;
+function questionOrAnswer(k, answered) {
+  const c = K[k], lv = LEVELS[k];
+  const ctr = centreOf(c.id);
+  const { b } = drawMap({ lon: ctr.lon, lat: ctr.lat, span: c.span, cy: 790 }, c.id, answered);
+  // top: n/5, level, progress dots
+  const n = pill(stage, `${k + 1} / 5`, 0, 0, { size: 34, h: 66 });
+  const lvp = pill(stage, lv.label.toUpperCase(), 0, 0, { bg: lv.bg, fg: lv.fg, size: 28, h: 66, font: 'Manrope', weight: 800, ls: '0.08em' });
+  centreRow([n, lvp], 300);
+  for (let i = 0; i < 5; i++) {
+    const done = i < k || (i === k && answered), cur = i === k;
+    el(stage, { left: W / 2 - 2 * 34 + i * 34 - (cur ? 13 : 8), top: 400 - (cur ? 13 : 8), width: cur ? 26 : 16, height: cur ? 26 : 16, borderRadius: '50%', zIndex: 10,
+      background: done ? '#5ED34F' : cur ? GOLD : 'rgba(221,237,230,.35)', boxShadow: cur ? '0 0 0 4px rgba(246,184,75,.3)' : 'none' });
+  }
+  if (!answered) {
+    const card = whiteCard(140, 1200, 800, c.hint ? 210 : 160);
+    el(card, Object.assign({ left: 0, top: 30, width: 800, textAlign: 'center', fontSize: 58, lineHeight: '70px' }, LT), 'Which country is this?');
+    if (c.hint) el(card, { left: 0, top: 118, width: 800, textAlign: 'center', fontSize: 30, fontWeight: 800, lineHeight: '44px', color: C.green, whiteSpace: 'pre' },
+      `<span style="background:${C.mint};border-radius:22px;padding:4px 18px">HINT</span>  ${c.hint}`);
+    peek(stage, 812, 1200, { look: [-0.8, -1], brow: 1 }, 230);
+    pill(stage, 'Swipe for the answer  →', 0, 0, { bg: GOLD, size: 30, h: 60 }).id = 'swipe';
+    const sw = document.getElementById('swipe'); centreRow([sw], 1200 + (c.hint ? 210 : 160) + 24);
+  } else {
+    const card = whiteCard(140, 1150, 800, 250);
+    el(card, { left: 40, top: 40, width: 150, height: 112, borderRadius: 12, overflow: 'hidden', boxShadow: '0 0 0 2px rgba(22,59,50,.1), 0 8px 18px rgba(22,59,50,.16)' },
+      `<img src="${FLAGS}${c.flag}.svg" style="width:100%;height:100%;object-fit:cover;display:block">`);
+    const nm = el(card, Object.assign({ left: 220, top: 36, fontSize: c.name.length > 10 ? 64 : 76, lineHeight: '92px', whiteSpace: 'pre' }, LT), c.name);
+    el(card, { left: 222, top: 128, width: 540, fontSize: 28, fontWeight: 700, lineHeight: '38px', color: 'rgba(22,59,50,.72)' }, c.fact);
+    peek(stage, 846, 1150, { happy: 1, cheeks: 1 }, 210);
+    const got = pill(stage, k < 4 ? 'Got it? +1. Next one’s harder  →' : 'Got it? Count your score  →', 0, 0, { bg: '#5ED34F', size: 30, h: 60 });
+    centreRow([got], 1424);
+    // a tick on the country
+    if (b) el(stage, { left: (b[0] + b[2]) / 2 - 36, top: (b[1] + b[3]) / 2 - 36, width: 72, height: 72, borderRadius: 36, background: C.white, zIndex: 9,
+      display: 'grid', placeItems: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.25)' }, icon('check', 44, C.green, 3.6));
+  }
+  watermark();
+}
+
+function cover() {
+  // the region, wide
+  const cs = K.map(c => centreOf(c.id));
+  const lon = cs.reduce((a, c) => a + c.lon, 0) / 5, lat = cs.reduce((a, c) => a + c.lat, 0) / 5;
+  const spread = Math.max(...cs.map(c => Math.hypot(c.lon - lon, c.lat - lat)));
+  drawMap({ lon, lat, span: Math.min(120, Math.max(40, spread * 2.6)), cy: 900 }, null, false);
+  const card = whiteCard(140, 300, 800, 600);
+  el(card, { left: 0, top: 44, width: 800, textAlign: 'center', fontSize: 26, fontWeight: 800, letterSpacing: '0.12em', color: C.green },
+    `MAP CHALLENGE #${post.n} · ${post.region.toUpperCase()}`);
+  el(card, Object.assign({ left: 0, top: 96, width: 800, textAlign: 'center', fontSize: 118, lineHeight: '122px', fontWeight: 700 }, LT), 'Guess the<br>country');
+  el(card, { left: 0, top: 360, width: 800, textAlign: 'center', fontSize: 36, fontWeight: 800, color: C.forest }, '5 countries. No borders.');
+  const lvRow = LEVELS.map(l => { const e = el(card, { height: 44, borderRadius: 22, background: l.bg, color: l.fg, fontFamily: 'Manrope', fontWeight: 800, fontSize: 20, lineHeight: '44px', padding: '0 16px', letterSpacing: '0.06em', whiteSpace: 'pre' }, l.label.toUpperCase()); return e; });
+  LAYOUT.push(() => { const ws = lvRow.map(e => e.getBoundingClientRect().width); let x = 400 - (ws.reduce((a, b) => a + b, 0) + 10 * 4) / 2; lvRow.forEach((e, i) => { S(e, { left: x, top: 430 }); x += ws[i] + 10; }); });
+  const goal = el(card, { left: 0, top: 506, width: 800, textAlign: 'center' }, `<span style="background:${GOLD};border-radius:30px;padding:10px 30px;font-family:Fredoka;font-weight:600;font-size:36px;color:${C.forest}">5/5 = Geography legend</span>`);
+  // five mystery tiles, one per level: no shapes, so nothing is given away before the swipe
+  K.forEach((c, i) => {
+    const x = 162 + i * 154, y = 950, lv = LEVELS[i];
+    const tile = el(stage, { left: x, top: y, width: 140, height: 140, borderRadius: 26, background: C.white, zIndex: 10, overflow: 'hidden', boxShadow: `0 0 0 4px ${C.forest}, 0 12px 28px rgba(0,0,0,.3)` });
+    el(tile, Object.assign({ left: 0, top: 6, width: 140, textAlign: 'center', fontSize: 86, lineHeight: '100px', color: lv.bg === '#06224F' ? C.ink : lv.bg }, LT), '?');
+    el(tile, { left: 0, top: 104, width: 140, height: 36, background: lv.bg, color: lv.fg, textAlign: 'center', lineHeight: '36px', fontFamily: 'Manrope', fontWeight: 800, fontSize: 17, letterSpacing: '0.05em', whiteSpace: 'pre' }, `${i + 1} · ${lv.label.toUpperCase()}`);
+  });
+  // Roviko with a magnifying glass
+  const px = 360, mx = 400, my = 1250;
+  const box = el(stage, { left: mx - px / 2, top: my - px / 2, width: px, height: px, zIndex: 11 });
+  const m = Mascot(box, px); S(m.svg, { left: 0, top: 0 });
+  drawMascot(m, { look: [0.6, -0.4], brow: 1, mouth: 'smile', legs: 1, arms: [[-118, 70, 26, 10], [104, -40, -24, 11]] });
+  const u = px / 340;                                              // mascot units -> px
+  el(stage, { left: mx + 104 * u - 20, top: my - 40 * u - 118, width: 120, height: 140, zIndex: 12 },
+    `<svg width="120" height="140" viewBox="0 0 120 140"><path d="M28 116L8 136" stroke="${C.ink}" stroke-width="14" stroke-linecap="round"/><circle cx="62" cy="68" r="44" fill="rgba(191,228,248,.55)" stroke="${C.ink}" stroke-width="12"/><path d="M40 52a26 26 0 0 1 22 -12" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"/></svg>`);
+  const sw = pill(stage, 'Swipe to start  →', 620, 1236, { bg: GOLD, size: 34, h: 70 });
+}
+
+function score() {
+  const cs = K.map(c => centreOf(c.id));
+  const lon = cs.reduce((a, c) => a + c.lon, 0) / 5, lat = cs.reduce((a, c) => a + c.lat, 0) / 5;
+  drawMap({ lon, lat, span: 90, cy: 900 }, null, false);
+  const card = whiteCard(140, 300, 800, 850);
+  el(card, Object.assign({ left: 0, top: 44, width: 800, textAlign: 'center', fontSize: 64, lineHeight: '76px' }, LT), 'How many did you get?');
+  const rows = [['5/5', 'Geography legend', GOLD], ['4/5', 'Explorer', C.mint], ['3/5', 'Backpacker', C.mint], ['1–2', 'Tourist', C.chip], ['0', 'Still packing', C.chip]];
+  rows.forEach(([s, t, bg], i) => {
+    const r = el(card, { left: 60, top: 150 + i * 108, width: 680, height: 92, borderRadius: 26, background: bg });
+    el(r, Object.assign({ left: 30, top: 0, width: 110, fontSize: 44, lineHeight: '92px' }, LT), s);
+    el(r, Object.assign({ left: 160, top: 0, fontSize: 40, lineHeight: '92px', whiteSpace: 'pre' }, LT), t);
+  });
+  el(card, { left: 0, top: 712, width: 800, textAlign: 'center', fontSize: 36, fontWeight: 800, color: C.green }, 'Comment your score below');
+  el(card, { left: 0, top: 766, width: 800, textAlign: 'center', fontSize: 28, fontWeight: 700, color: 'rgba(22,59,50,.6)' }, 'Answers: ' + K.map(c => c.name).join(' · '));
+  // Roviko waving + the call to action
+  el(stage, { left: 140, top: 1180, width: 800, height: 250, borderRadius: 40, background: C.forest, zIndex: 10, boxShadow: '0 0 0 4px rgba(246,243,233,.9), 0 30px 70px rgba(0,0,0,.28)' });
+  const px = 300, mx = 290, my = 1296;
+  const box = el(stage, { left: mx - px / 2, top: my - px / 2, width: px, height: px, zIndex: 11 });
+  const m = Mascot(box, px); S(m.svg, { left: 0, top: 0 });
+  drawMascot(m, { happy: 1, cheeks: 1, mouth: 'open', legs: 0.9, arms: [[-118, -86, -18, 10], [112, 76, 10, 10]] });
+  el(stage, { left: 450, top: 1196, fontFamily: 'Fredoka', fontWeight: 700, fontSize: 100, lineHeight: '120px', color: C.cream, zIndex: 11 }, 'roviko');
+  el(stage, { left: 456, top: 1314, fontFamily: 'Manrope', fontWeight: 800, fontSize: 36, color: GOLD, zIndex: 11 }, 'roviko.app');
+  el(stage, { left: 456, top: 1364, fontFamily: 'Manrope', fontWeight: 700, fontSize: 24, color: 'rgba(221,237,230,.85)', zIndex: 11, whiteSpace: 'pre' },
+    post.next ? `Next: map challenge #${post.n + 1} · ${post.next}` : 'Follow for more map challenges');
+}
+
+if (slide === 0) cover(); else if (slide === 11) score(); else questionOrAnswer(Math.floor((slide - 1) / 2), (slide - 1) % 2 === 1);
+window.filmReady = (async () => {
+  await Promise.all(['600 28px Fredoka', '700 40px Fredoka', '700 13px Manrope', '800 13px Manrope'].map(f => document.fonts.load(f)));
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+  LAYOUT.forEach(f => f());
+  return true;
+})();
+</script>
+</body>
+</html>
