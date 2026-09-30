@@ -1,0 +1,10 @@
+# the Mixkit songs are not redistributed here (Mixkit licence); build/README downloads them
+audio/music/*.mp3
+audio/*/music.wav
+audio/*/mix-pre.wav
+out/*.mkv
+out/.chunks-*/
+out/*-stills/
+out/*.log
+out/*sheet*.png
+out/zoom-*.png

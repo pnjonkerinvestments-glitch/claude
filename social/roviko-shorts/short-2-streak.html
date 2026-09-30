@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 2: 23:58</title>
+<!--
+  Roviko short 2, "Me remembering my 47-day streak at 23:58". 15.5 s, 1080x1920 (TikTok / Reels), 124 BPM ("Take this Higher", Mixkit).
+  Asleep -> alarm -> leaps out of bed -> the phone grows off the nightstand -> four questions at double speed while the
+  clock races -> the song's break: 23:59:57, 58, 59, he hesitates -> tap -> the drop: gold floods out of the flame,
+  48-day streak -> he collapses in relief -> 00:00, "Your new Daily Detour is ready" -> eye twitch -> end card.
+  Same rules as the launch film: seek(t) draws the whole frame from t; nothing fades; springs; a real sound on every event.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #163B32; }
+.a { position: absolute; left: 0; top: 0; }
+.tnum { font-variant-numeric: tabular-nums; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script>
+const W = 1080, H = 1920;
+const TEMPO = 124.01;                      // "Take this Higher" (Mixkit), measured
+const DIL = TEMPO / 130;
+const END = 32;
+const DURATION = END * 60 / TEMPO;         // 15.48 s
+const TL = {
+  cap1: 0.05, alarm: 1.0, jump: 1.5, grow: 2.4, open: 3.0, cap1Out: 3.8, clockIn: 4.0,
+  q: [4.0, 7.5, 11.0, 14.5], tap: [6.0, 9.5, 13.0, 21.0],       // question k appears, and is answered
+  ticks: [18.5, 19.5, 20.5], drop: 22.0, cheer: 22.3, collapse: 23.5, cap2: 23.2, midnight: 24.5, notif: 25.0,
+  twitch: [25.5, 25.75, 26.0, 26.6], cap3: 26.0, end: 28.0, hop: 30.0, blink2: 29.3, blink3: 31.2,
+};
+const QS = [
+  { h: 'Largest ocean?', a: ['Atlantic', 'Pacific'], ok: 1 },
+  { h: 'Capital of Canada?', a: ['Toronto', 'Ottawa'], ok: 1 },
+  { h: 'Machu Picchu is in…', a: ['Peru', 'Mexico'], ok: 0 },
+  { h: 'Which is bigger?', a: ['Canada', 'USA'], ok: 0 },
+];
+
+S(document.body, { width: W, height: H });
+S(stage, { width: W, height: H });
+const world = el(stage, { width: 3000, height: 3000, transformOrigin: '0 0', zIndex: 1 });
+const gold = el(stage, { width: W, height: H, zIndex: 20, background: C.gold, overflow: 'hidden' });
+const capL = el(stage, { width: W, height: H, zIndex: 50 });
+Halo(world, 540, 1000, 1800, 0.16);
+
+// camera: bedroom wide, then one move up to the phone and a slow creep while he races
+const CAM = [[0, 1.35, 500, 1170], [2.4, 1.38, 500, 1170, E.inOutSine], [4.0, 1.22, 590, 980, E.inOutCubic], [22, 1.28, 590, 975, E.inOutSine]];
+function cam(t) {
+  const b = t / BEAT;
+  if (b <= CAM[0][0]) return { z: CAM[0][1], x: CAM[0][2], y: CAM[0][3] };
+  for (let i = 1; i < CAM.length; i++) if (b <= CAM[i][0]) {
+    const [b0, z0, x0, y0] = CAM[i - 1], [b1, z1, x1, y1, e = E.inOutCubic] = CAM[i];
+    const p = e(inv(b0, b1, b));
+    return { z: Math.exp(lerp(Math.log(z0), Math.log(z1), p)), x: lerp(x0, x1, p), y: lerp(y0, y1, p) };
+  }
+  const k = CAM[CAM.length - 1]; return { z: k[1], x: k[2], y: k[3] };
+}
+const toScreen = (c, wx, wy) => [(wx - c.x) * c.z + W / 2, (wy - c.y) * c.z + H / 2];
+
+// ------------------------------------------------------------------ bedroom: bed, blanket, nightstand
+const bed = el(world, { left: 110, top: 1250, width: 560, height: 210, borderRadius: 34, background: '#0F2E27', zIndex: 2 });
+el(bed, { left: 24, top: -26, width: 512, height: 70, borderRadius: 30, background: C.cream });
+el(world, { left: 70, top: 1120, width: 70, height: 340, borderRadius: 30, background: '#0F2E27', zIndex: 2 });   // headboard
+const pillow = el(world, { left: 150, top: 1176, width: 170, height: 80, borderRadius: 40, background: C.white, zIndex: 3 });
+const blanket = el(world, { left: 300, top: 1196, width: 350, height: 110, borderRadius: '34px 34px 20px 20px', background: C.mint, zIndex: 12,
+  boxShadow: 'inset 0 -14px 0 rgba(22,59,50,.08)', transformOrigin: '30% 50%' });
+// the moon over the bed
+const moon = el(world, { left: 560, top: 790, width: 120, height: 120, borderRadius: '50%', background: C.cream, zIndex: 1, overflow: 'hidden' });
+el(moon, { left: 34, top: -18, width: 120, height: 120, borderRadius: '50%', background: '#163B32' });
+const stand = el(world, { left: 710, top: 1300, width: 180, height: 160, borderRadius: 20, background: '#0F2E27', zIndex: 2 });
+
+// ------------------------------------------------------------------ the phone: lock screen on the nightstand, then the app
+const PX = 480, PY = 560;
+const phone = Phone(world, PX, PY, { tab: 0, time: '23:58', z: 8 });
+const scr = phone.scr;
+const STAND_C = [800, 1215], PH_C = [PX + PH.w / 2, PY + PH.h / 2];
+// lock screen
+const lock = el(scr, { width: PH.w, height: PH.h, background: '#0F2E27', zIndex: 20 });
+const lockTime = el(lock, { left: 0, top: 110, width: PH.w, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 96, lineHeight: '110px', color: C.cream }, '23:58');
+el(lock, { left: 0, top: 88, width: PH.w, textAlign: 'center', fontSize: 17, fontWeight: 700, color: 'rgba(246,243,233,.7)' }, 'Tuesday');
+const notif = el(lock, { left: 16, top: 290, width: 396, height: 104, borderRadius: 24, background: C.white, overflow: 'hidden', transformOrigin: '50% 0%' });
+const nIcon = el(notif, { left: 16, top: 18, width: 44, height: 44, borderRadius: 12, background: C.globe, overflow: 'hidden' });
+{ const mm = Mascot(nIcon, 44 * 1.25); S(mm.svg, { left: -5.5, top: -2 }); drawMascot(mm, { mouth: 'smile' }); }
+el(notif, { left: 74, top: 16, fontSize: 15, fontWeight: 800, color: C.forest }, 'Roviko');
+el(notif, { left: 340, top: 17, fontSize: 13, fontWeight: 700, color: 'rgba(22,59,50,.5)' }, 'now');
+el(notif, { left: 74, top: 40, width: 310, fontSize: 16, fontWeight: 600, lineHeight: '22px', color: C.forest }, 'Your 47-day streak ends at midnight!');
+const appFlood = el(scr, { borderRadius: '50%', background: C.cream, zIndex: 21 });
+// app
+const app = el(scr, { width: PH.w, height: PH.h, zIndex: 22, overflow: 'hidden' });
+el(app, { left: 20, top: 56, width: 40, height: 40, borderRadius: 20, background: C.mint, display: 'grid', placeItems: 'center' }, icon('close', 20, C.forest, 2.4));
+const timer = el(app, { left: 124, top: 56, width: 150, height: 40, borderRadius: 20, background: C.red, color: C.white, transformOrigin: '50% 50%' });
+const timerTxt = el(timer, { left: 0, top: 0, width: 150, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 20, lineHeight: '40px', whiteSpace: 'pre' });
+timerTxt.classList.add('tnum');
+const counter = el(app, { left: 302, top: 56, width: 106, height: 40, borderRadius: 20, background: C.white, transformOrigin: '24px 20px', boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 6px 16px rgba(22,59,50,.08)' });
+el(counter, { left: 10, top: 8, width: 24, height: 24, borderRadius: 12, background: C.gold, boxShadow: 'inset 0 0 0 3px #E9A53A' });
+const cntRoll = roller(counter, { left: 40, top: 7, width: 56, height: 26 }, { width: 56, textAlign: 'right', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 21, lineHeight: '26px', color: C.forest });
+const qc = card(app, 16, 116, 396, 360);
+const lbl = el(qc, { left: 24, top: 24, fontSize: 14, fontWeight: 800, letterSpacing: '0.02em', color: C.green, whiteSpace: 'pre' }, 'Daily Detour · ');
+const lblRoll = roller(qc, { left: 150, top: 24, width: 60, height: 20 }, { fontSize: 14, fontWeight: 800, letterSpacing: '0.02em', color: C.green, lineHeight: '20px', whiteSpace: 'pre' });
+const HL = { fontFamily: 'Fredoka', fontWeight: 600, fontSize: 32, lineHeight: '40px', color: C.forest };
+const heads = QS.map(q => maskText(qc, q.h, { left: 24, top: 56, width: 360, height: 42 }, HL));
+const pills = [0, 1].map(i => Pill(qc, '', 22, 130 + i * 92, 352, 72, 26));
+pills.forEach(P => { P.txt.style.fontWeight = 600; });
+const flame = el(app, { left: 214 - 105, top: 510, width: 210, height: 50, borderRadius: 25, background: C.gold, overflow: 'hidden', transformOrigin: '50% 50%' });
+el(flame, { left: 16, top: 13 }, FLAME.replace('width="22" height="22"', 'width="24" height="24"'));
+el(flame, { left: 48, top: 0, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 22, lineHeight: '50px', whiteSpace: 'pre' }, '47-day streak');
+const FLAME_C = [PX + 214, PY + 535];
+const chips = [0, 1, 2, 3].map(() => el(app, { width: 64, height: 32, borderRadius: 16, background: C.gold, zIndex: 45, textAlign: 'center', lineHeight: '32px',
+  fontFamily: 'Fredoka', fontWeight: 600, fontSize: 18, color: C.forest, boxShadow: '0 6px 14px rgba(22,59,50,.16)' }, '+50'));
+
+// ------------------------------------------------------------------ Roviko (asleep, then panicking)
+const MR = 105;
+const mRot = el(world, { width: MR * 3.4, height: MR * 3.4, zIndex: 11, transformOrigin: '50% 50%' });
+const mascot = Mascot(mRot, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const zz = [0, 1, 2].map(() => el(world, { fontFamily: 'Fredoka', fontWeight: 600, fontSize: 44, color: C.cream, zIndex: 13 }, 'z'));
+const pointer = Pointer(world);
+
+// ------------------------------------------------------------------ gold: the drop
+const bigFlame = el(gold, { left: 540 - 260, top: 560, width: 520, height: 120, borderRadius: 60, background: C.forest, overflow: 'hidden', transformOrigin: '50% 50%' });
+el(bigFlame, { left: 34, top: 30 }, FLAME.replace('width="22" height="22"', 'width="60" height="60"').replace('fill="#163B32"', 'fill="#F6B84B"'));
+const bigRoll = roller(bigFlame, { left: 110, top: 18, width: 90, height: 84 }, { width: 90, textAlign: 'left', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 70, lineHeight: '84px', color: C.gold });
+el(bigFlame, { left: 196, top: 18, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 60, lineHeight: '84px', color: C.cream, whiteSpace: 'pre' }, '-day streak');
+const M2R = 140, M2C = [540, 1150];
+const m2Rot = el(gold, { left: M2C[0] - M2R * 1.7, top: M2C[1] - M2R * 1.7, width: M2R * 3.4, height: M2R * 3.4, transformOrigin: '50% 50%' });
+const m2 = Mascot(m2Rot, M2R * 3.4); S(m2.svg, { left: 0, top: 0 });
+const m2Shadow = el(gold, { left: M2C[0] - 110, top: M2C[1] + M2R * 1.55, width: 220, height: 22, borderRadius: '50%', background: 'rgba(120,70,0,.18)', filter: 'blur(5px)' });
+const banner = el(stage, { left: 60, top: 150, width: 960, height: 150, borderRadius: 36, background: C.white, zIndex: 45, overflow: 'hidden', transformOrigin: '50% 0%',
+  boxShadow: '0 20px 50px rgba(22,59,50,.22)' });
+const bIcon = el(banner, { left: 30, top: 32, width: 86, height: 86, borderRadius: 22, background: C.globe, overflow: 'hidden' });
+{ const mm = Mascot(bIcon, 86 * 1.25); S(mm.svg, { left: -10.75, top: -4 }); drawMascot(mm, { mouth: 'smile' }); }
+el(banner, { left: 140, top: 30, fontSize: 30, fontWeight: 800, color: C.forest }, 'Roviko');
+el(banner, { left: 870, top: 32, fontSize: 24, fontWeight: 700, color: 'rgba(22,59,50,.5)' }, 'now');
+el(banner, { left: 140, top: 76, fontSize: 32, fontWeight: 600, color: C.forest, whiteSpace: 'pre' }, 'Your new Daily Detour is ready.');
+
+// ------------------------------------------------------------------ the clock (top, in the safe zone): cream at night, forest on gold
+function Clock(parent, color, z) {
+  const box = el(parent, { left: 0, top: 196, width: W, height: 150, zIndex: z });
+  const CW = 86, cells = [];
+  const layout = '00:00:00';
+  let x = W / 2 - (6 * CW + 2 * 40) / 2;
+  for (const ch of layout) {
+    if (ch === ':') { el(box, { left: x, top: 0, width: 40, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 130, lineHeight: '150px', color }, ':'); x += 40; continue; }
+    cells.push(roller(box, { left: x, top: 0, width: CW, height: 150 }, { width: CW, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 130, lineHeight: '150px', color }));
+    x += CW;
+  }
+  return { box, cells };
+}
+const clockN = Clock(stage, C.cream, 15), clockG = Clock(gold, C.forest, 5);
+// seconds after 23:58:00: real time asleep, fast-forward while he races, one per beat in the break, :59 held, midnight
+function clockSec(b) {
+  const K = [[0, 13], [1.5, 13.7], [18.5, 117], [19.5, 118], [20.5, 119], [24.5, 119.99], [24.5001, 120]];
+  if (b <= K[0][0]) return K[0][1];
+  for (let i = 1; i < K.length; i++) if (b <= K[i][0]) return lerp(K[i - 1][1], K[i][1], inv(K[i - 1][0], K[i][0], b));
+  return 120 + (b - 24.5) * 0.48;
+}
+const hms = s => { const tot = 23 * 3600 + 58 * 60 + Math.floor(s); const h = Math.floor(tot / 3600) % 24, m = Math.floor(tot / 60) % 60, ss = tot % 60; return [h, m, ss].map(v => String(v).padStart(2, '0')).join(''); };
+function setClock(clk, t, b) {
+  const s = clockSec(b), now = hms(s);
+  // the second (or midnight) that just changed rolls in
+  let sPrev = s, tPrev = t;
+  for (let k = 1; k <= 40; k++) { const tb = b - k * 0.02; if (hms(clockSec(tb)) !== now) { sPrev = clockSec(tb); tPrev = T(tb + 0.02); break; } }
+  const prev = hms(sPrev), p = E.outCubic(clamp((t - tPrev) / 0.12));
+  clk.cells.forEach((c, i) => c.set(prev[i], now[i], prev[i] === now[i] ? 1 : p));
+}
+
+// captions
+const cap1 = Caption(capL, ['Me remembering my', '47-day streak at <i>23:58</i>'], { cy: 250, size: 64 });
+const cap2 = Caption(capL, ['Saved. With <b>1 second</b> left.'], { cy: 430, size: 56 });
+const cap3 = Caption(capL, ['It’s already tomorrow.'], { cy: 430, size: 56 });
+const endCard = EndCard(stage, { my: 690, tagline: '5 minutes a day. Ideally before 23:58.' });
+
+// ------------------------------------------------------------------ sound
+ev(TL.cap1, 'pop', -12, { rate: 1.05 });
+ev(TL.alarm, 'alarm', -1);
+ev(TL.alarm + 0.1, 'notify', -8);
+ev(TL.jump + 0.1, 'boing', -4);
+ev(TL.jump + 0.25, 'swoosh', -8);
+ev(TL.grow + 0.3, 'morph', -6);
+ev(TL.open + 0.1, 'open', -7);
+QS.forEach((q, k) => {
+  ev(TL.q[k] + 0.3, k ? 'morph' : 'pop', -11);
+  ev(TL.q[k] + 0.35 + 0.04, 'pop', -11, { rate: 0.95 + k * 0.03 }); ev(TL.q[k] + 0.55 + 0.04, 'pop', -11, { rate: 1.05 + k * 0.03 });
+  ev(TL.tap[k], 'tap', -4);
+  ev(TL.tap[k] + 0.12, k === 3 ? 'correct' : 'tick', k === 3 ? -3 : -6, { rate: 1 + k * 0.06 });
+  if (k < 3) ev(TL.tap[k] + 0.85, 'coin', -8, { rate: [1, 1.122, 1.26][k] });
+});
+TL.ticks.forEach((b, i) => ev(b, 'clock', -2, { rate: 1 + i * 0.04 }));
+ev(TL.drop, 'impact', -1);
+ev(TL.drop + 0.45, 'streak', -5);
+ev(TL.cheer + 0.4, 'cheer', -8);
+ev(TL.cap2 + 0.1, 'pop', -10);
+ev(TL.collapse + 0.45, 'thud', -3);
+ev(TL.midnight, 'clock', -4, { rate: 0.9 });
+ev(TL.notif + 0.1, 'notify', -3);
+ev(TL.cap3 + 0.1, 'pop', -10, { rate: 0.94 });
+ev(TL.end + 0.1, 'swoosh', -7);
+ev(TL.end + 0.35, 'sparkle', -7);
+ev(TL.end + 0.7, 'expand', -10);
+
+// ------------------------------------------------------------------ frame
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  const c = cam(t);
+  world.style.transform = `translate(${W / 2}px,${H / 2}px) scale(${c.z}) translate(${-c.x}px,${-c.y}px)`;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+
+  // phone: small on the nightstand, grows to centre stage; the lock screen floods into the app
+  {
+    const g = spB(t, TL.grow, 1.7, 0.72);
+    const s = lerp(0.3, 1, g), x = lerp(STAND_C[0], PH_C[0], g), y = lerp(STAND_C[1], PH_C[1], g);
+    const buzz = b > TL.alarm && b < TL.grow ? Math.sin(t * 90) * 5 * Math.exp(-((t - T(TL.alarm)) % 0.5) * 6) : 0;
+    S(phone.wrap, { transform: `translate(${x - PH_C[0] + buzz}px,${y - PH_C[1]}px) scale(${s}) rotate(${buzz * 0.4}deg)` });
+    phone.clock.textContent = b < TL.midnight ? '23:' + String(58 + Math.floor(clockSec(b) / 60)).padStart(2, '0') : '00:00';
+    const nIn = spB(t, TL.alarm, 2.4, 0.6);
+    S(notif, { transform: `scale(${lerp(0.4, 1, nIn)})` }); show(notif, nIn > 0.001);
+    const fr = E.inOutSine(inv(T(TL.open), T(TL.open) + 0.4, t)) * 1000;
+    S(appFlood, { left: 214 - fr, top: 342 - fr, width: 2 * fr, height: 2 * fr }); show(appFlood, fr > 0);
+    S(app, { clipPath: `circle(${fr.toFixed(1)}px at 214px 342px)` }); show(app, fr > 0);
+    show(lock, fr < 1000);
+  }
+  // app: questions
+  {
+    let k = 0; QS.forEach((q, i) => { if (b >= TL.q[i]) k = i; });
+    const q = QS[k];
+    lblRoll.set(`${16 + k}/20`, `${17 + k}/20`, k === 0 ? 1 : E.outCubic(clamp((t - T(TL.q[k] + 0.2)) / 0.16)));
+    heads.forEach((h, i) => h.set(segB(t, TL.q[i] + 0.1, TL.q[i] + 0.5, E.outQuint), i < 3 ? segB(t, TL.q[i + 1] - 0.1, TL.q[i + 1] + 0.25, E.inCubic) : 0));
+    pills.forEach((P, i) => {
+      const pin = spB(t, TL.q[k] + 0.35 + i * 0.2, 2.2, 0.62);
+      const out = k < 3 ? segB(t, TL.q[k + 1] - 0.3, TL.q[k + 1], E.inBack) : 0;
+      P.txt.textContent = q.a[i];
+      pillShape(P, clamp(pin, 0, 1.2), out);
+      show(P.box, pin > 0.001 && out < 1);
+      const isOk = i === q.ok;
+      const press = isOk && t >= T(TL.tap[k]) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.tap[k])) * 18) : 0;
+      if (press) S(P.box, { transform: `scale(${1 - 0.045 * press})` });
+      pillFill(P, isOk ? E.outCubic(clamp((t - T(TL.tap[k])) / 0.3)) : 0, isOk ? 250 : 176, 36);
+      const ck = isOk ? spB(t, TL.tap[k] + 0.12, 3, 0.55) : 0; S(P.chk, { transform: `scale(${ck})` }); show(P.chk, ck > 0.01);
+    });
+    // points: +50 chips fly into the counter
+    let pts = 800, prev = 800, rp = 1;
+    chips.forEach((ch, i) => {
+      if (i > 2) { show(ch, false); return; }
+      const at = TL.tap[i] + 0.85;
+      const pop = spB(t, TL.tap[i] + 0.05, 2.8, 0.55), fp = segB(t, TL.tap[i] + 0.35, at, E.inOutCubic);
+      const on = b >= TL.tap[i] && b < at;
+      show(ch, on);
+      if (b >= at) { prev = pts; pts += 50; rp = clamp((t - T(at)) / 0.14); }
+      if (!on) return;
+      const a0 = [300, 130 + QS[i].ok * 92 + 36 + 116 - 30], z = [324, 76];
+      const [x, y] = quad(a0, [lerp(a0[0], z[0], 0.3) - 40, Math.min(a0[1], z[1]) - 70], z, fp);
+      S(ch, { left: x - 32, top: y - 16, transform: `scale(${pop * (1 - fp)})` });
+    });
+    cntRoll.set(String(prev), String(pts), E.outCubic(rp));
+    // timer chip: seconds to midnight, pulsing on each tick
+    const left = Math.max(0, 120 - Math.floor(clockSec(b)));
+    timerTxt.textContent = `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')} left`;
+    let pulse = 0; TL.ticks.forEach(tb => { const d = t - T(tb); if (d > 0 && d < 0.5) pulse = Math.max(pulse, Math.exp(-d * 9) * Math.sin(Math.min(d * 30, Math.PI))); });
+    S(timer, { transform: `scale(${1 + 0.12 * pulse})` });
+    const fb = spB(t, TL.open + 0.3, 2.4, 0.6);
+    const swell = segB(t, TL.drop - 0.4, TL.drop, E.inCubic) * 0.12;
+    S(flame, { transform: `scale(${fb * (1 + swell)})` }); show(flame, fb > 0.001);
+  }
+
+  // pointer: taps each right answer; on the last one it dithers between Canada and the USA through the break
+  {
+    let k = 0; QS.forEach((q, i) => { if (b >= TL.q[i] + 0.5) k = i; });
+    const tgtOf = i => [PX + 16 + 22 + 250, PY + 116 + 130 + i * 92 + 36];
+    const tgt = tgtOf(QS[k].ok);
+    const b0 = TL.q[k] + 0.6, b1 = k < 3 ? TL.tap[k] - 0.4 : 16.5;
+    let p = pointerAt(t, { from: [tgt[0] + 200, tgt[1] + 460], to: tgt, b0, b1, tap: TL.tap[k], gone: TL.tap[k] + 0.4, bow: 30 });
+    if (k === 3 && b > 16.5 && b < TL.tap[3]) {
+      // hesitation through the break: Canada, USA, Canada, USA, Canada (one per beat), then the tap
+      const ph = Math.min(b - 16.5, 4), yC = tgtOf(0)[1], yU = tgtOf(1)[1];
+      p = { x: tgt[0] + Math.sin(ph * Math.PI) * 14, y: lerp(yC, yU, (1 - Math.cos(ph * Math.PI)) / 2), sc: 1 };
+    }
+    pointer.set(p.x, p.y, b < TL.q[0] + 0.5 ? 0 : p.sc, T(TL.tap[k]), t, tgt[0], tgt[1]);
+  }
+
+  // Roviko: asleep -> awake -> leap -> racing in place -> biting his nails through the break
+  {
+    const jump = spB(t, TL.jump, 1.6, 0.66), rot = lerp(-90, 0, jump);
+    const from = [235, 1200], to = [300, 1230];
+    const arc = Math.sin(clamp(jump) * Math.PI) * -220;
+    const x = lerp(from[0], to[0], clamp(jump)), y = lerp(from[1], to[1], jump) + arc;
+    S(mRot, { left: x - MR * 1.7, top: y - MR * 1.7, transform: `rotate(${rot}deg)` });
+    const awake = b >= TL.alarm, racing = b >= TL.grow && b < TL.ticks[0] - 0.5, biting = b >= TL.ticks[0] - 0.5 && b < TL.drop;
+    const run = racing ? t * 15 : 0;
+    const feet = racing ? [[Math.sin(run) * 16, -Math.max(0, Math.cos(run)) * 22], [-Math.sin(run) * 16, -Math.max(0, -Math.cos(run)) * 22]] : [[0, 0], [0, 0]];
+    const flail = racing ? Math.sin(t * 17) : 0;
+    let arms = awake ? [[-118 + flail * 10, -60 - flail * 30, -10, 10], [118 - flail * 10, -60 + flail * 30, -10, 10]] : [[-80, 60, 10, 9], [80, 60, 10, 9]];
+    if (biting) arms = [[-20, 24, -30, 10], [20, 24, -30, 10]];
+    const look = biting ? [Math.sin((b - 16.5) * Math.PI) > 0 ? 0.9 : 0.6, Math.cos((b - 16.5) * Math.PI) * 0.5] : racing ? [0.8, -0.3] : [0, 0];
+    drawMascot(mascot, { blink: awake ? blinkAt(t, [8.2, 15.1]) : 1, eyesBig: awake ? spB(t, TL.alarm, 3, 0.45) * (biting ? 0.6 : 1) : 0,
+      mouth: !awake ? 'o' : biting ? 'wobble' : 'open', brows: awake ? 'worried' : null, sweat: racing || biting ? 1 : 0,
+      legs: awake ? 1 : 0.8, feet, hop: racing ? -Math.abs(Math.sin(run)) * 10 : 0, arms: awake ? arms : null, look });
+    show(mRot, b < TL.drop + 1);
+    // blanket flies off with the leap
+    const bl = segB(t, TL.jump, TL.jump + 0.7, E.outCubic);
+    S(blanket, { transform: `translate(${bl * 700}px,${-Math.sin(bl * Math.PI) * 260}px) rotate(${bl * 40}deg)` });
+    show(blanket, bl < 1);
+    zz.forEach((z, i) => {
+      const ph = ((b + i * 0.4) % 1.2) / 1.2;
+      const on = b < TL.alarm;
+      S(z, { left: 330 + ph * 60 + i * 10, top: 1100 - ph * 120, transform: `scale(${Math.sin(ph * Math.PI) * (0.6 + i * 0.2)})` });
+      show(z, on);
+    });
+  }
+
+  // the drop: gold floods out of the flame chip; the big streak flips 47 -> 48; Roviko cheers, then collapses
+  {
+    const cd = cam(T(TL.drop));
+    const o = toScreen(cd, FLAME_C[0], FLAME_C[1]);
+    const far = Math.max(...[[0, 0], [W, 0], [0, H], [W, H]].map(([x, y]) => Math.hypot(x - o[0], y - o[1]))) + 20;
+    const fp = inv(T(TL.drop), T(TL.drop) + 0.4, t);
+    const rr = lerp(30, far, E.inOutSine(fp) * 0.35 + E.outCubic(fp) * 0.65);
+    S(gold, { clipPath: `circle(${rr.toFixed(1)}px at ${o[0].toFixed(1)}px ${o[1].toFixed(1)}px)` });
+    show(gold, b >= TL.drop);
+    const bf = spB(t, TL.drop + 0.2, 1.9, 0.6);
+    S(bigFlame, { transform: `scale(${lerp(0.3, 1, bf)})` });
+    bigRoll.set('47', '48', E.outCubic(clamp((t - T(TL.drop + 0.45)) / 0.16)));
+    const up = spB(t, TL.cheer, 1.8, 0.55), arm = spB(t, TL.cheer + 0.25, 2.4, 0.5);
+    const fall = spB(t, TL.collapse, 1.4, 0.7);
+    const wig = Math.sin(t * 13) * 6 * arm * (1 - clamp(fall));
+    let hop = 0; if (b > TL.cheer + 0.4 && b < TL.collapse) hop = -Math.max(0, Math.sin(((b - TL.cheer - 0.4) % 1) * Math.PI)) * 14;
+    const cheerArms = [[-118 + wig, -92, -22, 11], [118 - wig, -92, -22, 11]], flat = [[-150, -20, 0, 11], [150, -20, 0, 11]];
+    const arms = cheerArms.map((a, i) => a.map((v, j) => lerp(v, flat[i][j], clamp(fall))));
+    const woke = b >= TL.notif;
+    drawMascot(m2, { happy: !woke && arm > 0.4 ? 1 : 0, mouth: woke ? 'wobble' : arm > 0.4 ? 'open' : 'smile', cheeks: woke ? 0 : arm, legs: 1, hop, arms,
+      eyesBig: woke ? spB(t, TL.notif, 3, 0.45) : 0, blink: woke ? blinkAt(t, TL.twitch) : 0, brows: woke ? 'worried' : null, sweat: woke ? spB(t, TL.notif + 0.3, 2.6, 0.55) : 0,
+      look: woke ? [0, -0.8] : [0, 0] });
+    const lift = woke ? spB(t, TL.notif, 2.4, 0.6) * 18 : 0;
+    S(m2Rot, { transform: `translate(${fall * 40}px,${(1 - up) * 120 + fall * 150}px) rotate(${-86 * fall + lift}deg) scale(${lerp(0.3, 1, up)})` });
+    show(m2Rot, up > 0.001);
+    S(m2Shadow, { transform: `scale(${up * (1 + hop / 50) * (1 + fall * 0.6)},${1 + fall * 0.4})` });
+    // notification banner at midnight
+    const nb = spB(t, TL.notif, 2.2, 0.66);
+    S(banner, { transform: `translateY(${(1 - nb) * -260}px) scale(${lerp(0.6, 1, nb)})` });
+    show(banner, nb > 0.001 && b < TL.end + 0.2);
+  }
+
+  // clock: night version until the flood, gold version under it
+  const clockIn = spB(t, TL.clockIn, 2.2, 0.62);
+  setClock(clockN, t, b); setClock(clockG, t, b);
+  S(clockN.box, { transform: `scale(${clockIn})` }); show(clockN.box, clockIn > 0.001 && b < TL.drop + 1);
+  S(clockG.box, { transform: `scale(${clockIn * (1 - segB(t, TL.notif - 0.2, TL.notif + 0.1, E.inBack))})` });
+  show(clockG.box, b < TL.notif + 0.15);
+
+  // captions
+  cap1.set(spB(t, TL.cap1, 1.9, 0.62), segB(t, TL.cap1Out, TL.cap1Out + 0.3));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.cap3 - 0.2, TL.cap3 + 0.1));
+  cap3.set(spB(t, TL.cap3, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+
+  endCard.update(t, TL.end, [M2C[0], M2C[1] + 80], { hops: [TL.hop], blinks: [TL.blink2, TL.blink3] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

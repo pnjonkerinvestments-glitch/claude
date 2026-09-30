@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 1: Sydney</title>
+<!--
+  Roviko short 1, "POV: you're 100% sure it's Sydney". 7.5 s, 1080x1920 (TikTok / Reels), 120.4 BPM ("Funkee Monkeee", Mixkit).
+  Roviko in sunglasses taps Sydney, the music tape-stops, the camera punches in on his face, Canberra turns green,
+  he stares at the camera, puts the shades back on: "I knew that." End card.
+  Same rules as the launch film: seek(t) draws the whole frame from t; nothing fades; springs; a real sound on every event.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #F6F3E9; }
+.a { position: absolute; left: 0; top: 0; }
+.tnum { font-variant-numeric: tabular-nums; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script>
+const W = 1080, H = 1920;
+const TEMPO = 120.384;                     // "Funkee Monkeee" (Mixkit), measured
+const DIL = TEMPO / 130;
+const END = 15;
+const DURATION = END * 60 / TEMPO;         // 7.48 s
+const TL = {
+  cap1: 0.05, pills: [0.5, 0.75], smug: 1.0, curIn: 1.5, curAt: 2.6, tap: 3.0, wrong: 3.2,   // the song tape-stops on 3.2
+  punch: [3.3, 3.75], shock: 3.3, shadesDown: 3.9, sweat: 4.4, right: 4.6, cap2: 4.8, cap3: 5.6,
+  stare: 6.0, blink: 6.45, back: 7.0, shadesUp: 7.3, cap4: 7.25, end: 9.0, hop: 13.0, blink2: 11.4, blink3: 14.1,
+};
+
+S(document.body, { width: W, height: H });
+S(stage, { width: W, height: H });
+const world = el(stage, { width: 3000, height: 3000, transformOrigin: '0 0', zIndex: 1 });
+const capL = el(stage, { width: W, height: H, zIndex: 50 });
+Halo(world, 540, 980, 1700);
+
+// camera: [beat, zoom, x, y, ease]. One slow push while he's sure of himself, one punch-in on the wrong answer, then a creep in.
+const CAM = [[0, 1.16, 560, 1000], [3.2, 1.22, 560, 1010, E.inOutSine], [3.75, 1.5, 470, 1040, E.outQuart], [9.0, 1.57, 470, 1040, E.inOutSine]];
+function cam(t) {
+  const b = t / BEAT;
+  if (b <= CAM[0][0]) return { z: CAM[0][1], x: CAM[0][2], y: CAM[0][3] };
+  for (let i = 1; i < CAM.length; i++) if (b <= CAM[i][0]) {
+    const [b0, z0, x0, y0] = CAM[i - 1], [b1, z1, x1, y1, e = E.inOutCubic] = CAM[i];
+    const p = e(inv(b0, b1, b));
+    return { z: Math.exp(lerp(Math.log(z0), Math.log(z1), p)), x: lerp(x0, x1, p), y: lerp(y0, y1, p) };
+  }
+  const k = CAM[CAM.length - 1]; return { z: k[1], x: k[2], y: k[3] };
+}
+const toScreen = (c, wx, wy) => [(wx - c.x) * c.z + W / 2, (wy - c.y) * c.z + H / 2];
+
+// phone with the Detour question
+const PX = 426, PY = 520;
+const phone = Phone(world, PX, PY, { tab: 0 });
+const scr = phone.scr;
+const hdr = el(scr, { width: PH.w, height: 110, zIndex: 3 });
+el(hdr, { left: 20, top: 56, width: 40, height: 40, borderRadius: 20, background: C.mint, display: 'grid', placeItems: 'center' }, icon('close', 20, C.forest, 2.4));
+el(hdr, { left: 76, top: 72, width: 212, height: 8, borderRadius: 4, background: C.mint });
+el(hdr, { left: 76, top: 72, width: 212 * 6 / 20, height: 8, borderRadius: 4, background: C.green });
+const counter = el(scr, { left: 302, top: 56, width: 106, height: 40, borderRadius: 20, background: C.white, zIndex: 3, boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 6px 16px rgba(22,59,50,.08)' });
+el(counter, { left: 10, top: 8, width: 24, height: 24, borderRadius: 12, background: C.gold, boxShadow: 'inset 0 0 0 3px #E9A53A' });
+el(counter, { left: 40, top: 7, width: 56, textAlign: 'right', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 21, lineHeight: '26px' }, '300');
+const qcard = card(scr, 16, 116, 396, 400);
+el(qcard, { left: 24, top: 24, fontSize: 14, fontWeight: 800, letterSpacing: '0.02em', color: C.green, whiteSpace: 'pre' }, 'Daily Detour · 7/20');
+el(qcard, { left: 24, top: 54, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 32, lineHeight: '40px', color: C.forest, whiteSpace: 'pre' }, 'Capital of\nAustralia?');
+const pSyd = Pill(qcard, 'Sydney', 22, 170, 352, 72, 26);
+const pCan = Pill(qcard, 'Canberra', 22, 262, 352, 72, 26);
+[pSyd, pCan].forEach(P => { P.txt.style.fontWeight = 600; });
+
+// Roviko, in sunglasses, very sure of himself
+const MX = 300, MY = 1230, MR = 120;
+const mBox = el(world, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 20 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const mShadow = el(world, { left: MX - 70, top: MY + MR * 1.52, width: 140, height: 18, borderRadius: '50%', background: 'rgba(22,59,50,.12)', filter: 'blur(4px)', zIndex: 19 });
+const pointer = Pointer(world);
+
+// captions (screen space, inside the TikTok safe zone)
+const cap1 = Caption(capL, ['POV: you’re <b>100%</b> sure', 'it’s Sydney'], { cy: 290, size: 66 });
+const cap2 = Caption(capL, ['It’s <b>Canberra</b>.'], { cy: 250, size: 66 });
+const cap3 = Caption(capL, ['Sydney is just the famous one.'], { cy: 376, size: 42, pad: 24 });
+const cap4 = Caption(capL, ['“I knew that.”'], { cy: 250, size: 66 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Fewer Sydney moments. Every day.' });
+
+// ------------------------------------------------------------------ sound
+ev(TL.cap1, 'pop', -12, { rate: 1.1 });
+TL.pills.forEach((b, i) => ev(b + 0.04, 'pop', -10, { rate: 0.96 + i * 0.08 }));
+ev(TL.tap, 'tap', -4);
+ev(TL.wrong + 0.08, 'error', -2);
+ev(TL.shadesDown + 0.2, 'slide', -6);
+ev(TL.right + 0.05, 'tick', -6);
+ev(TL.cap2 + 0.1, 'pop', -9);
+ev(TL.cap3 + 0.1, 'pop', -12, { rate: 1.15 });
+ev(TL.back, 'boing', -8);
+ev(TL.cap4 + 0.1, 'pop', -9, { rate: 0.95 });
+ev(TL.shadesUp + 0.15, 'slide', -8, { rate: 1.25 });
+ev(TL.end + 0.1, 'swoosh', -7);
+ev(TL.end + 0.35, 'sparkle', -7);
+ev(TL.end + 0.7, 'expand', -10);
+
+// ------------------------------------------------------------------ frame
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  const c = cam(t);
+  world.style.transform = `translate(${W / 2}px,${H / 2}px) scale(${c.z}) translate(${-c.x}px,${-c.y}px)`;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  const playing = b < TL.wrong || b >= TL.back;          // the song is audible: groove on the beat
+
+  // answers: Sydney fills red and shakes; Canberra fills green
+  const sIn = spB(t, TL.pills[0], 2.1, 0.62), cIn = spB(t, TL.pills[1], 2.1, 0.62);
+  const press = t >= T(TL.tap) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.tap)) * 18) : 0;
+  pillShape(pSyd, clamp(sIn, 0, 1.2), 0, press); show(pSyd.box, sIn > 0.001);
+  pillShape(pCan, clamp(cIn, 0, 1.2), 0, 0); show(pCan.box, cIn > 0.001);
+  pillFill(pSyd, E.outCubic(clamp((t - T(TL.wrong)) / 0.3)), 240, 36);
+  pSyd.fill.style.background = C.red;
+  const sh = t > T(TL.wrong) ? Math.sin((t - T(TL.wrong)) * 46) * Math.exp(-(t - T(TL.wrong)) * 6) * 10 : 0;
+  S(pSyd.box, { transform: `translateX(${sh}px) scale(${1 - 0.045 * press})` });
+  show(pSyd.chk, false);
+  pillFill(pCan, E.outCubic(clamp((t - T(TL.right)) / 0.3)), 60, 36);
+  const ck = spB(t, TL.right + 0.12, 3, 0.55); S(pCan.chk, { transform: `scale(${ck})` }); show(pCan.chk, ck > 0.01);
+
+  // the pointer: from bottom right to Sydney, a confident little hover, tap
+  {
+    const tgt = [PX + 16 + 22 + 250, PY + 116 + 170 + 36];
+    const p = pointerAt(t, { from: [tgt[0] + 240, tgt[1] + 420], to: tgt, b0: TL.curIn, b1: TL.curAt, tap: TL.tap, gone: TL.wrong + 0.25, bow: 30 });
+    const hover = b > TL.curAt && b < TL.tap ? Math.sin((t - T(TL.curAt)) * 22) * 6 : 0;
+    pointer.set(p.x + hover, p.y, p.sc, T(TL.tap), t, tgt[0], tgt[1]);
+  }
+
+  // Roviko
+  {
+    const up = spB(t, -0.5, 1.8, 0.6);
+    let hop = 0, sq = 0;
+    if (playing) { const ph = (b + 0.5) % 1; hop = -Math.max(0, Math.sin(ph * Math.PI)) * 9; sq = Math.max(0, Math.sin(ph * Math.PI)); }
+    const shock = spB(t, TL.shock, 2.6, 0.5);
+    const back = spB(t, TL.back, 2.2, 0.6);
+    const smug = spB(t, TL.smug, 2.4, 0.6) * (1 - shock) + back;
+    // arms: hands on hips -> hands on cheeks (shock) -> finger up (I knew that)
+    const hips = [[-122, 70, 26, 10], [122, 70, 26, 10]], cheeks = [[-62, 18, -30, 11], [62, 18, -30, 11]], know = [[-122, 72, 26, 10], [64, -72, -18, 11]];
+    const mixA = (A, B, p) => A.map((a, i) => a.map((v, j) => lerp(v, B[i][j], p)));
+    let arms = mixA(hips, cheeks, clamp(shock));
+    arms = mixA(arms, know, clamp(back));
+    const stare = segB(t, TL.stare, TL.stare + 0.5, E.inOutCubic) * (1 - clamp(back));
+    const look = b < TL.shock ? [-0.3 + 0.2 * Math.sin(t * 2), 0.2] : [lerp(0.9, 0, stare), lerp(-0.4, 0, stare)];
+    const shadesOn = 1;
+    const drop = segB(t, TL.shadesDown, TL.shadesDown + 0.45, E.outQuart) * (1 - segB(t, TL.shadesUp, TL.shadesUp + 0.35, E.inOutCubic));
+    const mouth = b < TL.shock ? (smug > 0.5 ? 'smile' : 'smile') : b < TL.stare ? 'o' : b < TL.back ? 'flat' : 'smile';
+    drawMascot(mascot, { look, eyesBig: b >= TL.shock && b < TL.stare + 0.3 ? shock : 0, blink: blinkAt(t, [1.9, TL.blink, 8.2]),
+      mouth, brow: clamp(smug), shades: { on: shadesOn, drop }, sweat: spB(t, TL.sweat, 2.6, 0.55) * (1 - clamp(back)),
+      legs: 1, hop, sy: 1 - 0.04 * sq, sx: 1 + 0.03 * sq, arms, cheeks: back * 0.8 });
+    S(mBox, { transform: `translateY(${(1 - up) * 60}px)` });
+    S(mShadow, { transform: `scale(${1 + hop / 60})` });
+  }
+
+  // captions
+  cap1.set(spB(t, TL.cap1, 1.9, 0.62), segB(t, TL.cap2 - 0.1, TL.cap2 + 0.25));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.back - 0.1, TL.back + 0.25));
+  cap3.set(spB(t, TL.cap3, 1.9, 0.62), segB(t, TL.back - 0.05, TL.back + 0.3));
+  cap4.set(spB(t, TL.cap4, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+
+  // end card, flooding out of Roviko
+  const mc = cam(T(TL.end));
+  endCard.update(t, TL.end, toScreen(mc, MX, MY), { hops: [TL.hop], blinks: [TL.blink2, TL.blink3] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

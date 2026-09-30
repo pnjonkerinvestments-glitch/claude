@@ -1,0 +1,352 @@
+[
+ {
+  "t": 0.01,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 0.065,
+  "beat": 0.13,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 0.94
+ },
+ {
+  "t": 1.04,
+  "beat": 2.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1
+ },
+ {
+  "t": 2.04,
+  "beat": 4.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1.06
+ },
+ {
+  "t": 3.0401,
+  "beat": 6.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 0.94
+ },
+ {
+  "t": 8.0401,
+  "beat": 16.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1
+ },
+ {
+  "t": 9.2902,
+  "beat": 18.58,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1.06
+ },
+ {
+  "t": 10.0402,
+  "beat": 20.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 0.94
+ },
+ {
+  "t": 12.0402,
+  "beat": 24.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1
+ },
+ {
+  "t": 16.2903,
+  "beat": 32.58,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1.06
+ },
+ {
+  "t": 17.2903,
+  "beat": 34.58,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 0.94
+ },
+ {
+  "t": 18.5403,
+  "beat": 37.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1
+ },
+ {
+  "t": 20.0403,
+  "beat": 40.08,
+  "sfx": "leave",
+  "gain": -3,
+  "rate": 1
+ },
+ {
+  "t": 22.5404,
+  "beat": 45.08,
+  "sfx": "enter",
+  "gain": -3,
+  "rate": 1
+ },
+ {
+  "t": 23.0404,
+  "beat": 46.08,
+  "sfx": "mention",
+  "gain": -6,
+  "rate": 1
+ },
+ {
+  "t": 4.1751,
+  "beat": 8.35,
+  "sfx": "swoosh",
+  "gain": -9
+ },
+ {
+  "t": 4.5201,
+  "beat": 9.04,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 0.95
+ },
+ {
+  "t": 4.7201,
+  "beat": 9.44,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.02
+ },
+ {
+  "t": 4.9201,
+  "beat": 9.84,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.0899999999999999
+ },
+ {
+  "t": 5.1201,
+  "beat": 10.24,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.16
+ },
+ {
+  "t": 5.5201,
+  "beat": 11.04,
+  "sfx": "pop",
+  "gain": -10
+ },
+ {
+  "t": 6.0001,
+  "beat": 12,
+  "sfx": "tap",
+  "gain": -4
+ },
+ {
+  "t": 6.1751,
+  "beat": 12.35,
+  "sfx": "start",
+  "gain": -6
+ },
+ {
+  "t": 6.5001,
+  "beat": 13,
+  "sfx": "land",
+  "gain": -7
+ },
+ {
+  "t": 6.5201,
+  "beat": 13.04,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1
+ },
+ {
+  "t": 6.5701,
+  "beat": 13.14,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 6.6201,
+  "beat": 13.24,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 6.6701,
+  "beat": 13.34,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 7.1501,
+  "beat": 14.3,
+  "sfx": "snap",
+  "gain": -9,
+  "rate": 0.95
+ },
+ {
+  "t": 7.4001,
+  "beat": 14.8,
+  "sfx": "snap",
+  "gain": -9,
+  "rate": 1
+ },
+ {
+  "t": 7.6501,
+  "beat": 15.3,
+  "sfx": "snap",
+  "gain": -9,
+  "rate": 1.05
+ },
+ {
+  "t": 8.0251,
+  "beat": 16.05,
+  "sfx": "lock",
+  "gain": -4,
+  "rate": 1.1
+ },
+ {
+  "t": 8.6501,
+  "beat": 17.3,
+  "sfx": "correct",
+  "gain": -5
+ },
+ {
+  "t": 8.6751,
+  "beat": 17.35,
+  "sfx": "error",
+  "gain": -7
+ },
+ {
+  "t": 11.0502,
+  "beat": 22.1,
+  "sfx": "morph",
+  "gain": -8
+ },
+ {
+  "t": 11.2252,
+  "beat": 22.45,
+  "sfx": "land",
+  "gain": -8
+ },
+ {
+  "t": 11.3252,
+  "beat": 22.65,
+  "sfx": "land",
+  "gain": -8,
+  "rate": 1.1
+ },
+ {
+  "t": 13.0502,
+  "beat": 26.1,
+  "sfx": "collapse",
+  "gain": -8
+ },
+ {
+  "t": 13.5002,
+  "beat": 27,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1
+ },
+ {
+  "t": 13.7502,
+  "beat": 27.5,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.035
+ },
+ {
+  "t": 14.0002,
+  "beat": 28,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.07
+ },
+ {
+  "t": 14.2502,
+  "beat": 28.5,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.105
+ },
+ {
+  "t": 14.5002,
+  "beat": 29,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.1400000000000001
+ },
+ {
+  "t": 14.7502,
+  "beat": 29.5,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.175
+ },
+ {
+  "t": 15.0003,
+  "beat": 30,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.21
+ },
+ {
+  "t": 15.2503,
+  "beat": 30.5,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.245
+ },
+ {
+  "t": 15.5003,
+  "beat": 31,
+  "sfx": "tick",
+  "gain": -9,
+  "rate": 1.28
+ },
+ {
+  "t": 15.7503,
+  "beat": 31.5,
+  "sfx": "win",
+  "gain": -5
+ },
+ {
+  "t": 16.0003,
+  "beat": 32,
+  "sfx": "pop",
+  "gain": -8,
+  "rate": 0.8
+ },
+ {
+  "t": 24.0504,
+  "beat": 48.1,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 24.1754,
+  "beat": 48.35,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 24.3504,
+  "beat": 48.7,
+  "sfx": "expand",
+  "gain": -10
+ }
+]

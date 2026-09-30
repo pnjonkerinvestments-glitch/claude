@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 3: Game night</title>
+<!--
+  Roviko short 3, "Game night". 27 s, 1080x1920 (TikTok / Reels), 120 BPM ("Life is a Dream", Mixkit).
+  The group chat: Lucas is "honestly elite at geography". A 4-player Roviko match: Japan's flag; everyone picks Japan,
+  Lucas locks in Bangladesh ("ez"). "In my defence, it ALSO has a red circle." Spot the difference. Ten rounds later
+  Lucas is last by a mile. "Rematch." "Pizza first." Lucas left the room (the song dips). Lucas joined the room:
+  "Best of three." (the song comes back). End card.
+  Same rules as the launch film: seek(t) draws the whole frame from t; nothing fades; springs; a real sound on every event.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #F6F3E9; }
+.a { position: absolute; left: 0; top: 0; }
+.tnum { font-variant-numeric: tabular-nums; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script>
+const W = 1080, H = 1920;
+const TEMPO = 119.998;                     // "Life is a Dream" (Mixkit), measured
+const DIL = TEMPO / 130;
+const END = 54;
+const DURATION = END * 60 / TEMPO;         // 27.0 s
+const TL = {
+  chatUp: 8.0, phoneUp: 8.0, joins: [9.0, 9.4, 9.8, 10.2], start: 11.0, startClick: 12.0, match: 12.25, flag: 13.0, answers: 13.0,
+  picks: [[1, 14.0], [1, 14.5], [1, 15.0], [2, 15.75]],          // You, Emma, Amara, Lucas: answer index and beat
+  reveal: 17.0, laugh: 17.2, cmp: 22.0, cmpOut: 26.0, board: 26.2, round2: 27.0, roundStep: 0.5, final: 31.5,
+  cheer: 31.6, left: 40.0, back: 45.0, end: 48.0, hop: 51.0, blink2: 50.2, blink3: 52.6,
+};
+const roundB = r => TL.round2 + (r - 2) * TL.roundStep;
+const P4 = [{ name: 'You', you: true }, { name: 'Emma', img: 1 }, { name: 'Amara', img: 5 }, { name: 'Lucas', img: 2 }];
+const PTS = [
+  [1583, 2903, 4210, 5480, 6590, 7720, 8950, 10480, 11920, 12940],     // You
+  [1420, 2860, 4170, 5390, 6550, 7690, 8830, 10040, 11210, 12310],     // Emma
+  [1310, 2540, 3700, 4910, 6040, 7210, 8300, 9480, 10620, 11780],      // Amara
+  [0, 980, 980, 1890, 2400, 2400, 3150, 3150, 3620, 4050],             // Lucas (0 = a wrong answer)
+];
+// the group chat. who: index into P4, or 'sys' for a room notice
+const MSG = [
+  { b: 0.05, who: 3, text: 'I’m honestly elite at geography.' },
+  { b: 2.0, who: 1, text: 'Prove it. Roviko, 8 pm.' },
+  { b: 4.0, who: 0, text: 'Loser buys pizza.' },
+  { b: 6.0, who: 3, text: 'Easy money.' },
+  { b: 16.0, who: 3, text: 'ez' },
+  { b: 18.5, who: 1, text: 'LUCAS.' },
+  { b: 20.0, who: 3, text: 'In my defence, it ALSO\nhas a red circle.' },
+  { b: 24.0, who: 2, text: 'Lucas. It’s green.' },
+  { b: 32.5, who: 3, text: 'Rematch.' },
+  { b: 34.5, who: 0, text: 'Pizza first.' },
+  { b: 37.0, who: 1, text: 'Extra cheese, Lucas.' },
+  { b: TL.left, who: 'sys', text: 'Lucas left the room' },
+  { b: TL.back, who: 'sys', text: 'Lucas joined the room' },
+  { b: 46.0, who: 3, text: 'Best of three.' },
+];
+
+S(document.body, { width: W, height: H });
+S(stage, { width: W, height: H });
+const world = el(stage, { width: 3000, height: 3000, transformOrigin: '0 0', zIndex: 1 });
+const chatL = el(stage, { width: W, height: H, zIndex: 30 });
+const overL = el(stage, { width: W, height: H, zIndex: 40 });
+Halo(world, 540, 980, 1800);
+// camera: one slow push through the whole match
+const cam = t => { const p = E.inOutSine(clamp(t / T(TL.end))); return { z: lerp(1.12, 1.17, p), x: 540, y: lerp(1000, 1010, p) }; };
+const toScreen = (c, wx, wy) => [(wx - c.x) * c.z + W / 2, (wy - c.y) * c.z + H / 2];
+
+// ------------------------------------------------------------------ the chat (screen space). New messages push older ones up;
+// they leave under a clip edge at the top of the safe zone
+const chatClip = el(chatL, { left: 0, top: SAFE.top, width: W, height: H - SAFE.top, overflow: 'hidden' });
+const FS = 44, NAME_H = 38, PADX = 30, PADY = 18, GAP = 22, AV = 76, SYS_H = 72;
+const meas = document.createElement('canvas').getContext('2d');
+const msgs = MSG.map(m => {
+  const you = m.who === 0, sys = m.who === 'sys';
+  const e = el(chatClip, { width: W, height: 10, transformOrigin: you ? '92% 100%' : '8% 100%' });
+  let bub, nameEl = null, av = null;
+  if (sys) {
+    bub = el(e, { left: 0, top: 0, height: SYS_H, borderRadius: SYS_H / 2, background: 'rgba(22,59,50,.1)', fontFamily: 'Manrope', fontWeight: 800, fontSize: 34, lineHeight: SYS_H + 'px', color: 'rgba(22,59,50,.7)', textAlign: 'center', whiteSpace: 'pre' }, m.text);
+  } else {
+    const p = P4[m.who];
+    if (!you) {
+      av = avatar(e, p, AV, 3);
+      nameEl = el(e, { left: 150, top: 0, height: NAME_H, fontFamily: 'Manrope', fontWeight: 800, fontSize: 29, lineHeight: NAME_H + 'px', color: ['', C.green, '#B7791F', '#C2410C'][m.who] }, p.name);
+    }
+    const nl = m.text.split('\n').length;
+    bub = el(e, { top: you ? 0 : NAME_H, height: nl * FS * 1.3 + 2 * PADY, borderRadius: 30, background: you ? C.green : C.white, color: you ? C.white : C.forest,
+      fontFamily: 'Manrope', fontWeight: 700, fontSize: FS, lineHeight: FS * 1.3 + 'px', padding: `${PADY}px ${PADX}px`, whiteSpace: 'pre',
+      boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 12px 28px rgba(22,59,50,.10)' }, m.text);
+  }
+  return Object.assign({}, m, { e, bub, nameEl, av, you, sys, h: sys ? SYS_H + GAP : (you ? 0 : NAME_H) + m.text.split('\n').length * FS * 1.3 + 2 * PADY + GAP });
+});
+LAYOUT.push(() => {
+  msgs.forEach(m => {
+    meas.font = m.sys ? '800 34px Manrope' : `700 ${FS}px Manrope`;
+    const w = Math.max(...m.text.split('\n').map(l => meas.measureText(l).width)) + (m.sys ? 70 : 2 * PADX);
+    if (m.sys) S(m.bub, { left: W / 2 - w / 2, width: w });
+    else if (m.you) S(m.bub, { left: SAFE.right - w, width: w });
+    else { S(m.bub, { left: SAFE.left + AV + 34, width: w }); S(m.av, { left: SAFE.left + 16, top: m.h - GAP - AV }); S(m.nameEl, { left: SAFE.left + AV + 44 }); }
+  });
+});
+
+// ------------------------------------------------------------------ the phone: room -> round 1 -> leaderboard
+const PX = 326, PY = 640;
+const phone = Phone(world, PX, PY, { tab: 2, time: '20:00' });
+const scr = phone.scr;
+const room = card(scr, 16, 112, 396, 680);
+const LT = { fontFamily: 'Fredoka', fontWeight: 600, color: C.forest };
+const LBL = { fontSize: 13, fontWeight: 800, letterSpacing: '0.08em', color: C.green, lineHeight: '20px', whiteSpace: 'pre' };
+const roomTitle = maskText(room, 'Room K7QMA', { left: 22, top: 24, width: 260, height: 38 }, Object.assign({ fontSize: 28, lineHeight: '38px' }, LT));
+const roomSub = maskText(room, 'Game night · up to 12 players', { left: 22, top: 62, width: 320, height: 24 }, { fontSize: 15, fontWeight: 700, color: 'rgba(22,59,50,.62)', lineHeight: '24px' });
+const countPill = el(room, { left: 396 - 22 - 86, top: 26, width: 86, height: 34, borderRadius: 17, background: C.mint });
+const countRoll = roller(countPill, { left: 0, top: 4, width: 86, height: 26 }, { width: 86, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 20, lineHeight: '26px', color: C.forest });
+const startBtn = Pill(room, 'Start match', 28, 300, 340, 60, 22);
+S(startBtn.box, { background: C.green }); startBtn.txt.style.color = C.white; startBtn.txt.style.fontWeight = 600;
+const mLabel = maskText(room, '', { left: 22, top: 24, width: 352, height: 20 }, LBL);
+const mRound = roller(mLabel.span, { left: 0, top: 0, width: 240, height: 20 }, LBL);
+const mHead = ['Which country flies', 'this flag?'].map((s, i) => maskText(room, s, { left: 22, top: 50 + i * 36, width: 352, height: 38 }, Object.assign({ fontSize: 29, lineHeight: '38px' }, LT)));
+const FLAG_JP = { x: 116, y: 136, w: 164, h: 109 };
+const flagJP = el(room, { left: FLAG_JP.x, top: FLAG_JP.y, width: FLAG_JP.w, height: FLAG_JP.h, borderRadius: 8, overflow: 'hidden',
+  boxShadow: '0 0 0 1px rgba(22,59,50,.10), 0 8px 18px rgba(22,59,50,.12)' }, `<img src="${ASSETS}flags/jp.svg" style="width:100%;height:100%;display:block">`);
+const ANSWERS = ['South Korea', 'Japan', 'Bangladesh', 'China'];
+const ANS_Y = [268, 330, 392, 454];
+const ans = ANSWERS.map((a, i) => Pill(room, a, 22, ANS_Y[i], 352, 54, 21));
+ans.forEach(P => S(P.txt, { textAlign: 'left', paddingLeft: '52px' }));
+const lbHead = maskText(room, 'Final results', { left: 22, top: 50, width: 352, height: 40 }, Object.assign({ fontSize: 30, lineHeight: '40px' }, LT));
+const ROW = { x: 22, w: 352, h: 64, y0: 150, gap: 76 };
+const rows = P4.map((p, k) => {
+  const e = el(room, { left: ROW.x, top: ROW.y0 + k * ROW.gap, width: ROW.w, height: ROW.h, borderRadius: 20, background: p.you ? C.green : C.chip, overflow: 'hidden', transformOrigin: '50% 50%' });
+  el(e, { left: 16, top: 0, width: 24, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 24, lineHeight: ROW.h + 'px', color: p.you ? C.cream : 'rgba(22,59,50,.5)' }, String(k + 1));
+  el(e, { left: 104, top: 0, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 23, lineHeight: ROW.h + 'px', color: p.you ? C.white : C.forest }, p.name);
+  const pts = el(e, { left: ROW.w - 140, top: 0, width: 124, textAlign: 'right', fontFamily: 'Manrope', fontWeight: 800, fontSize: 19, lineHeight: ROW.h + 'px', color: p.you ? C.cream : C.green });
+  pts.classList.add('tnum');
+  return { e, pts };
+});
+const lastTag = el(room, { width: 132, height: 34, borderRadius: 17, background: C.red, color: C.white, textAlign: 'center', lineHeight: '34px',
+  fontFamily: 'Fredoka', fontWeight: 600, fontSize: 17, zIndex: 30, whiteSpace: 'pre' }, '4th of 4');
+const crown = el(room, { width: 30, height: 24, zIndex: 31, transformOrigin: '50% 90%' },
+  `<svg width="30" height="24" viewBox="-2 -2 30 24"><path d="M2 18L0 4.5l7.2 5L13 0l5.8 9.5L26 4.5 24 18z" fill="${C.gold}" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg>`);
+// players: lobby row -> onto their answers -> into the leaderboard rows
+const avs = P4.map((p, i) => { const w = el(room, { width: 60, height: 60, zIndex: 20 + (i === 3 ? 5 : 0) }); avatar(w, p, 60); return w; });
+const nms = P4.map((p, i) => maskText(room, p.name, { left: 0, top: 0, width: 100, height: 22 }, { width: 100, textAlign: 'center', fontSize: 14, fontWeight: 800, color: p.you ? C.green : 'rgba(22,59,50,.75)', lineHeight: '22px' }));
+const LOBBY_AV = i => [22 + 44 + i * 88, 150];
+const stackIdx = TL.picks.map(([a], i) => TL.picks.slice(0, i).filter(([b2]) => b2 === a).length);
+const ANS_AV = i => [22 + 352 - 30 - stackIdx[i] * 22, ANS_Y[TL.picks[i][0]] + 27];
+const ROW_AV = i => [ROW.x + 72, ROW.y0 + i * ROW.gap + ROW.h / 2];
+
+// "Spot the difference" card (screen space, over the phone)
+const cmp = el(overL, { left: 70, top: 780, width: 940, height: 470, borderRadius: 40, background: C.white, overflow: 'hidden', transformOrigin: '50% 50%',
+  boxShadow: '0 4px 8px rgba(22,59,50,.06), 0 30px 70px rgba(22,59,50,.20)' });
+const cmpTitle = maskText(cmp, 'Spot the difference', { left: 0, top: 34, width: 940, height: 70 }, { width: 940, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 56, lineHeight: '70px', color: C.forest });
+const cmpFlags = [
+  { x: 70, w: 360, h: 240, html: `<img src="${ASSETS}flags/jp.svg" style="width:100%;height:100%;display:block">`, label: 'Japan' },
+  // Bangladesh, 10:6: a red disc (radius 1/5 of the length) set slightly toward the hoist, on bottle green
+  { x: 510, w: 360, h: 216, html: '<svg viewBox="0 0 10 6" width="100%" height="100%" style="display:block"><rect width="10" height="6" fill="#006A4E"/><circle cx="4.5" cy="3" r="2" fill="#F42A41"/></svg>', label: 'Bangladesh' },
+].map(f => {
+  const box = el(cmp, { left: f.x, top: 130 + (240 - f.h) / 2, width: f.w, height: f.h, borderRadius: 12, overflow: 'hidden', transformOrigin: '50% 60%',
+    boxShadow: '0 0 0 1px rgba(22,59,50,.10), 0 10px 22px rgba(22,59,50,.14)' }, f.html);
+  const lab = maskText(cmp, f.label, { left: f.x, top: 392, width: f.w, height: 56 }, { width: f.w, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 44, lineHeight: '56px', color: C.forest });
+  return Object.assign(f, { box, lab });
+});
+
+// Roviko, beside the phone, reacting
+const MX = 185, MY = 1300, MR = 100;
+const mBox = el(world, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 20 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const pointer = Pointer(world);
+const hook = Caption(overL, ['POV: your friend says he’s', '“elite at geography”'], { cy: 330, size: 62 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Game night for up to 12 friends.' });
+
+// ------------------------------------------------------------------ sound
+ev(0.02, 'pop', -12, { rate: 1.1 });
+msgs.forEach((m, i) => ev(m.b + 0.08, m.sys ? (m.text.includes('left') ? 'leave' : 'enter') : 'mention', m.sys ? -3 : -6, { rate: m.sys ? 1 : 0.94 + (i % 3) * 0.06 }));
+ev(TL.phoneUp + 0.35, 'swoosh', -9);
+TL.joins.forEach((b, i) => ev(b + 0.04, 'pop', -9, { rate: 0.95 + i * 0.07 }));
+ev(TL.start + 0.04, 'pop', -10);
+ev(TL.startClick, 'tap', -4);
+ev(TL.match + 0.1, 'start', -6);
+ev(TL.flag, 'land', -7);
+ANSWERS.forEach((a, i) => ev(TL.answers + i * 0.1 + 0.04, 'pop', -12, { rate: 1 + i * 0.05 }));
+TL.picks.forEach(([a, b], i) => ev(b + 0.3, i === 3 ? 'lock' : 'snap', i === 3 ? -4 : -9, { rate: 0.95 + i * 0.05 }));
+ev(TL.reveal + 0.3, 'correct', -5);
+ev(TL.reveal + 0.35, 'error', -7);
+ev(TL.cmp + 0.1, 'morph', -8);
+ev(TL.cmp + 0.45, 'land', -8); ev(TL.cmp + 0.65, 'land', -8, { rate: 1.1 });
+ev(TL.cmpOut + 0.1, 'collapse', -8);
+for (let r = 2; r <= 10; r++) ev(roundB(r), 'tick', -9, { rate: 1 + (r - 2) * 0.035 });
+ev(TL.final, 'win', -5);
+ev(TL.final + 0.5, 'pop', -8, { rate: 0.8 });
+ev(TL.end + 0.1, 'swoosh', -7);
+ev(TL.end + 0.35, 'sparkle', -7);
+ev(TL.end + 0.7, 'expand', -10);
+
+// ------------------------------------------------------------------ frame
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  const c = cam(t);
+  world.style.transform = `translate(${W / 2}px,${H / 2}px) scale(${c.z}) translate(${-c.x}px,${-c.y}px)`;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+
+  // chat: stack from an anchor line; the anchor rises to the top of the frame when the phone arrives
+  {
+    const up = spB(t, TL.chatUp, 1.7, 0.74);
+    const anchor = lerp(1320, 545, up);
+    msgs.forEach((m, i) => {
+      let off = 0;
+      for (let j = i + 1; j < msgs.length; j++) off += msgs[j].h * spB(t, msgs[j].b, 2.2, 0.76);
+      const y = anchor - (m.h - GAP) - off - SAFE.top;
+      const p = spB(t, m.b, 2.4, 0.62);
+      S(m.e, { top: y, transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.2))})` });
+      show(m.e, p > 0.001 && y > -m.h - 40);
+    });
+  }
+
+  // phone springs up from below the frame
+  const pu = spB(t, TL.phoneUp, 1.6, 0.74);
+  S(phone.wrap, { transform: `translateY(${(1 - pu) * 1300}px)` });
+  show(phone.wrap, pu > 0.001);
+
+  // room: title, 4 players join, start
+  const out = segB(t, TL.match, TL.match + 0.3, E.inCubic);
+  roomTitle.set(segB(t, TL.phoneUp + 0.4, TL.phoneUp + 0.8, E.outQuint), out);
+  roomSub.set(segB(t, TL.phoneUp + 0.55, TL.phoneUp + 0.95, E.outQuint), out);
+  let n = 0, last = 0; TL.joins.forEach((jb, i) => { if (b >= jb) { n = i + 1; last = jb; } });
+  countRoll.set(`${Math.max(0, n - 1)}/12`, `${n}/12`, n ? E.outCubic(clamp((t - T(last)) / 0.12)) : 1);
+  const cp = spB(t, TL.phoneUp + 0.5, 2.6, 0.6) * (1 - segB(t, TL.match, TL.match + 0.2, E.inBack));
+  S(countPill, { transform: `scale(${cp})` }); show(countPill, cp > 0.001);
+  const sIn = spB(t, TL.start, 2.2, 0.62), sOut = segB(t, TL.match, TL.match + 0.25, E.inCubic);
+  const sPress = t >= T(TL.startClick) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.startClick)) * 18) : 0;
+  pillShape(startBtn, clamp(sIn, 0, 1.2), sOut, sPress); show(startBtn.box, sIn > 0.001 && sOut < 1); show(startBtn.chk, false);
+  startBtn.txt.style.color = C.white;
+  {
+    const tgt = [PX + 16 + 28 + 230, PY + 112 + 300 + 30];
+    const p = pointerAt(t, { from: [tgt[0] + 200, tgt[1] + 360], to: tgt, b0: TL.start + 0.1, b1: TL.startClick - 0.25, tap: TL.startClick, gone: TL.startClick + 0.3, bow: 20 });
+    pointer.set(p.x, p.y, p.sc, T(TL.startClick), t, tgt[0], tgt[1]);
+  }
+
+  // round 1 -> leaderboard montage -> final results
+  let rN = 1, rP = 1;
+  for (let r = 2; r <= 10; r++) if (b >= roundB(r)) { rN = r; rP = E.outCubic(clamp((t - T(roundB(r))) / 0.16)); }
+  const lblIn = segB(t, TL.match + 0.3, TL.match + 0.65, E.outQuint);
+  mLabel.set(lblIn, segB(t, TL.final, TL.final + 0.3, E.inCubic));
+  mRound.set(`ROUND ${rN === 1 ? 1 : rN - 1}/10 · FLAGS`, `ROUND ${rN}/10 · FLAGS`, rP);
+  const hsQ = segB(t, TL.board, TL.board + 0.4, E.inOutQuart);
+  mHead.forEach((m, i) => m.set(segB(t, TL.match + 0.4 + i * 0.08, TL.match + 0.75 + i * 0.08, E.outQuint), hsQ));
+  lbHead.set(segB(t, TL.final, TL.final + 0.42, E.inOutQuart));
+  {
+    const pop = spring(t - (T(TL.flag) - 0.16), 2.4, 0.58);
+    let sx = 1, sy = 1;
+    if (t >= T(TL.flag)) { const d = t - T(TL.flag); const k = Math.exp(-d * 9) * Math.sin(d * 34); sy = 1 - 0.08 * k; sx = 1 + 0.05 * k; }
+    const sc = pop * (1 - segB(t, TL.board - 0.05, TL.board + 0.2, E.inCubic));
+    S(flagJP, { transform: `scale(${sx * sc},${sy * sc})`, transformOrigin: '50% 60%' }); show(flagJP, sc > 0.001);
+  }
+  ans.forEach((P, i) => {
+    const pIn = spB(t, TL.answers + i * 0.1, 2.2, 0.62), q = segB(t, TL.board + i * 0.04, TL.board + 0.25 + i * 0.04, E.inCubic);
+    show(P.box, pIn > 0.001 && q < 1);
+    if (P.box.style.display === 'none') return;
+    pillShape(P, clamp(pIn, 0, 1.2), q);
+    const f = E.outCubic(clamp((t - T(TL.reveal)) / 0.3));
+    if (i === 1) { pillFill(P, f, 30, 27); const ck = spB(t, TL.reveal + 0.12, 3, 0.55); S(P.chk, { transform: `scale(${ck})`, left: 14 }); show(P.chk, ck > 0.01); }
+    else if (i === 2) { pillFill(P, f, 30, 27); P.fill.style.background = C.red; show(P.chk, false);
+      const d = t - T(TL.reveal); if (d > 0) S(P.box, { transform: `translateX(${Math.sin(d * 46) * Math.exp(-d * 5) * 8}px)` }); }
+    else { pillFill(P, 0); show(P.chk, false); }
+  });
+  // leaderboard rows (ranks never change: Lucas is last all game)
+  rows.forEach((R, k) => {
+    const p = spB(t, TL.board + 0.2 + k * 0.1, 1.9, 0.64);
+    let v = PTS[k][0];
+    for (let r = 2; r <= 10; r++) v += (PTS[k][r - 1] - PTS[k][r - 2]) * E.outCubic(clamp((t - T(roundB(r))) / 0.22));
+    R.pts.textContent = fmt(v);
+    const red = k === 3 ? E.outCubic(clamp((t - T(TL.final + 0.4)) / 0.2)) : 0;
+    S(R.e, { transform: `scale(${lerp(0.2, 1, p)})`, background: k === 3 ? mixc(C.chip, '#FBE3E4', red) : R.e.style.background });
+    show(R.e, p > 0.001);
+  });
+  const lt = spB(t, TL.final + 0.5, 2.6, 0.5);
+  S(lastTag, { left: ROW.x + 176, top: ROW.y0 + 3 * ROW.gap - 20, transform: `scale(${lt}) rotate(${-5 * lt}deg)` }); show(lastTag, lt > 0.001);
+  const cr = spB(t, TL.final + 0.3, 2.6, 0.55);
+  S(crown, { left: ROW.x + 72 + 14, top: ROW.y0 + ROW.h / 2 - 44, transform: `scale(${cr}) rotate(${14 * cr}deg)` }); show(crown, cr > 0.001);
+  // avatars
+  avs.forEach((w, i) => {
+    const jb = TL.joins[i];
+    const pop = spB(t, jb, 2.8, 0.55);
+    let [x, y] = LOBBY_AV(i), sc = pop;
+    const [pick, pb] = TL.picks[i];
+    const fp = segB(t, pb, pb + 0.3, E.inOutCubic);
+    if (fp > 0) { const [ax, ay] = ANS_AV(i); const q = quad([x, y], [lerp(x, ax, 0.5), Math.min(y, ay) - 40], [ax, ay], fp); x = q[0]; y = q[1]; sc = lerp(1, 0.6, fp); }
+    if (t > T(TL.reveal) && b < TL.board) {
+      const d = t - T(TL.reveal);
+      if (pick === 1) y -= Math.max(0, Math.sin(clamp(d / 0.28) * Math.PI)) * 10;
+      else x += Math.sin(d * 40) * Math.exp(-d * 4) * 6;
+    }
+    const tr = spB(t, TL.board + 0.2 + i * 0.1, 1.9, 0.7);
+    if (tr > 0) { const [rx, ry] = ROW_AV(i); x = lerp(x, rx, tr); y = lerp(y, ry, tr); sc = lerp(sc, 0.72, tr); }
+    if (b >= TL.final + 0.4 && b < TL.end) {
+      const ph = ((b - TL.final - 0.4 + i * 0.2) % 1);
+      if (i < 3) y -= Math.max(0, Math.sin(ph * Math.PI)) * 6;
+    }
+    S(w, { left: x - 30, top: y - 30, transform: `scale(${sc})` }); show(w, pop > 0.001 && b >= TL.phoneUp);
+    const [lx, ly] = LOBBY_AV(i);
+    S(nms[i].box, { left: lx - 50, top: ly + 36 });
+    nms[i].set(segB(t, jb + 0.05, jb + 0.35, E.outQuint), segB(t, TL.match - 0.05, TL.match + 0.1, E.inCubic));
+  });
+
+  // spot the difference
+  {
+    const p = spB(t, TL.cmp, 1.9, 0.66), q = segB(t, TL.cmpOut, TL.cmpOut + 0.3, E.inBack);
+    S(cmp, { transform: `scale(${lerp(0.2, 1, clamp(p, 0, 1.2)) * (1 - q)})` }); show(cmp, p > 0.001 && q < 1);
+    cmpTitle.set(segB(t, TL.cmp + 0.2, TL.cmp + 0.6, E.outQuint));
+    cmpFlags.forEach((f, i) => {
+      const fb = TL.cmp + 0.45 + i * 0.2;
+      const pop = spring(t - (T(fb) - 0.16), 2.4, 0.58);
+      let sx = 1, sy = 1;
+      if (t >= T(fb)) { const d = t - T(fb); const k = Math.exp(-d * 9) * Math.sin(d * 34); sy = 1 - 0.08 * k; sx = 1 + 0.05 * k; }
+      S(f.box, { transform: `scale(${sx * pop},${sy * pop})` }); show(f.box, pop > 0.001);
+      f.lab.set(segB(t, fb + 0.3, fb + 0.7, E.outQuint));
+    });
+  }
+
+  // Roviko: watches, laughs at Lucas, peers at the flags, cheers, "oof", then smirks when Lucas comes back
+  {
+    const up = spB(t, TL.phoneUp + 0.3, 1.8, 0.6);
+    const laughing = b >= TL.laugh && b < TL.cmp, peering = b >= TL.cmp && b < TL.cmpOut, cheering = b >= TL.cheer && b < TL.left,
+      oof = b >= TL.left && b < TL.back, smirk = b >= TL.back;
+    let hop = 0, arms = [[-100, 70, 20, 9], [100, 70, 20, 9]], mouth = 'smile', look = [0.7, -0.3], happy = 0, brow = 0, brows = null, eyesBig = 0, cheeks = 0;
+    const beatPh = b % 1;
+    if (laughing) { const s = Math.sin(t * 30) * 4; hop = -Math.abs(Math.sin(t * 15)) * 8; arms = [[-40, 70 + s, -20, 11], [40, 70 - s, -20, 11]]; mouth = 'grin'; happy = 1; cheeks = 1; look = [0, 0]; }
+    if (peering) { mouth = b < TL.cmp + 2 ? 'o' : 'flat'; look = [0.4, -1]; brows = b < TL.cmp + 2 ? 'up' : null; arms = [[-96, 64, 20, 9], [70, -40, -20, 10]]; }
+    if (cheering) { hop = -Math.max(0, Math.sin(beatPh * Math.PI)) * 12; arms = [[-118, -92, -22, 11], [118, -92, -22, 11]]; mouth = 'open'; happy = 1; cheeks = 1; look = [0, 0]; }
+    if (oof) { mouth = 'o'; brows = 'worried'; look = [0.3, -1]; arms = [[-40, 20, -30, 11], [100, 70, 20, 9]]; eyesBig = 0.5; }
+    if (smirk) { mouth = 'smile'; brow = spB(t, TL.back, 2.4, 0.6); look = [0.2, -0.9]; hop = -Math.max(0, Math.sin(beatPh * Math.PI)) * 8; arms = [[-120, 70, 26, 10], [120, 70, 26, 10]]; }
+    if (!laughing && !cheering && !smirk && b < TL.laugh) hop = -Math.max(0, Math.sin(beatPh * Math.PI)) * 6;
+    drawMascot(mascot, { look, happy, mouth, brow, brows, eyesBig, cheeks, legs: 1, hop, arms, blink: blinkAt(t, [11.4, 27.6, 36.2, 43.1]) });
+    S(mBox, { transform: `translateY(${(1 - up) * 700}px)` }); show(mBox, up > 0.001);
+  }
+
+  hook.set(spB(t, 0.02, 1.9, 0.62), segB(t, TL.chatUp - 0.2, TL.chatUp + 0.15));
+  endCard.update(t, TL.end, toScreen(cam(T(TL.end)), MX, MY), { hops: [TL.hop], blinks: [TL.blink2, TL.blink3] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>
