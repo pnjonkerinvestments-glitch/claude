@@ -1,0 +1,115 @@
+{
+ "file": "out/master-3-gamenight.mkv",
+ "size": "1080x1920",
+ "fps": "60/1",
+ "frames": 1620,
+ "duration_s": 27.0,
+ "single_frame_pops": [
+  {
+   "frame": 243,
+   "time_s": 4.05,
+   "beat": 8.1,
+   "score": 6.92
+  },
+  {
+   "frame": 245,
+   "time_s": 4.083,
+   "beat": 8.17,
+   "score": 12.6
+  },
+  {
+   "frame": 246,
+   "time_s": 4.1,
+   "beat": 8.2,
+   "score": 5.19
+  },
+  {
+   "frame": 248,
+   "time_s": 4.133,
+   "beat": 8.27,
+   "score": 10.69
+  },
+  {
+   "frame": 249,
+   "time_s": 4.15,
+   "beat": 8.3,
+   "score": 9.03
+  },
+  {
+   "frame": 251,
+   "time_s": 4.183,
+   "beat": 8.37,
+   "score": 4.14
+  },
+  {
+   "frame": 252,
+   "time_s": 4.2,
+   "beat": 8.4,
+   "score": 5.43
+  },
+  {
+   "frame": 253,
+   "time_s": 4.217,
+   "beat": 8.43,
+   "score": 7.61
+  },
+  {
+   "frame": 254,
+   "time_s": 4.233,
+   "beat": 8.47,
+   "score": 6.27
+  },
+  {
+   "frame": 255,
+   "time_s": 4.25,
+   "beat": 8.5,
+   "score": 5.9
+  },
+  {
+   "frame": 423,
+   "time_s": 7.05,
+   "beat": 14.1,
+   "score": 4.49
+  },
+  {
+   "frame": 425,
+   "time_s": 7.083,
+   "beat": 14.17,
+   "score": 8.91
+  },
+  {
+   "frame": 426,
+   "time_s": 7.1,
+   "beat": 14.2,
+   "score": 4.91
+  },
+  {
+   "frame": 440,
+   "time_s": 7.333,
+   "beat": 14.67,
+   "score": 11.92
+  },
+  {
+   "frame": 478,
+   "time_s": 7.967,
+   "beat": 15.93,
+   "score": 12.64
+  },
+  {
+   "frame": 793,
+   "time_s": 13.217,
+   "beat": 26.43,
+   "score": 7.81
+  },
+  {
+   "frame": 794,
+   "time_s": 13.233,
+   "beat": 26.47,
+   "score": 15.22
+  }
+ ],
+ "jumps": [],
+ "max_pop_score": 15.22,
+ "max_frame_change": 12.43,
+ "max_change_at_s": 4.267
+}

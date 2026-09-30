@@ -70,6 +70,15 @@ Sources: [quso.ai: video length 2026](https://quso.ai/blog/social-media-video-le
 - Multiplayer rooms hold up to 12 players.
 - All names are made up. There are no other brands, no store badges and no "ad-free" claims. The only call to action is roviko.app.
 
+## QA
+- Every frame of every master was scanned with the launch film's scanner (`build/qa.py`). 0 sudden jumps in all three.
+- Short 1: 0 flagged frames.
+- Shorts 2 and 3: every flagged frame was checked at full resolution with `qa_zoom.py`. They're genuine fast motion: the blanket flying off, the lock screen flooding into the app, players flying onto their answers.
+- Two exits left stepped copies at 8 subframes: the 23:58 caption shrinking away and the "Spot the difference" card collapsing.
+  - Both were slowed from 0.3 to 0.5 beats and re-rendered at 32 subframes.
+  - They were spliced back into the masters losslessly, and the seams were checked by frame hash.
+- Audio: every effect's peak lands on its cue (0.00 ms error), −14.0 LUFS integrated, true peak ≤ −1.2 dBTP (`audio/<short>/mix-report.json`).
+
 ## How it's built
 | Step | File | What it does |
 |---|---|---|

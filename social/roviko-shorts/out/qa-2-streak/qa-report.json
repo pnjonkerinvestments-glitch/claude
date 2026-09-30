@@ -1,0 +1,103 @@
+{
+ "file": "out/master-2-streak.mkv",
+ "size": "1080x1920",
+ "fps": "60/1",
+ "frames": 929,
+ "duration_s": 15.483,
+ "single_frame_pops": [
+  {
+   "frame": 44,
+   "time_s": 0.733,
+   "beat": 1.52,
+   "score": 78.57
+  },
+  {
+   "frame": 45,
+   "time_s": 0.75,
+   "beat": 1.55,
+   "score": 73.84
+  },
+  {
+   "frame": 46,
+   "time_s": 0.767,
+   "beat": 1.58,
+   "score": 85.8
+  },
+  {
+   "frame": 47,
+   "time_s": 0.783,
+   "beat": 1.62,
+   "score": 50.53
+  },
+  {
+   "frame": 48,
+   "time_s": 0.8,
+   "beat": 1.65,
+   "score": 34.79
+  },
+  {
+   "frame": 49,
+   "time_s": 0.817,
+   "beat": 1.69,
+   "score": 7.57
+  },
+  {
+   "frame": 94,
+   "time_s": 1.567,
+   "beat": 3.24,
+   "score": 8.5
+  },
+  {
+   "frame": 95,
+   "time_s": 1.583,
+   "beat": 3.27,
+   "score": 11.49
+  },
+  {
+   "frame": 98,
+   "time_s": 1.633,
+   "beat": 3.38,
+   "score": 10.87
+  },
+  {
+   "frame": 185,
+   "time_s": 3.083,
+   "beat": 6.37,
+   "score": 4.81
+  },
+  {
+   "frame": 280,
+   "time_s": 4.667,
+   "beat": 9.65,
+   "score": 4.87
+  },
+  {
+   "frame": 289,
+   "time_s": 4.817,
+   "beat": 9.96,
+   "score": 7.35
+  },
+  {
+   "frame": 299,
+   "time_s": 4.983,
+   "beat": 10.3,
+   "score": 5.55
+  },
+  {
+   "frame": 391,
+   "time_s": 6.517,
+   "beat": 13.47,
+   "score": 6.65
+  },
+  {
+   "frame": 443,
+   "time_s": 7.383,
+   "beat": 15.26,
+   "score": 5.76
+  }
+ ],
+ "jumps": [],
+ "max_pop_score": 85.8,
+ "max_frame_change": 12.15,
+ "max_change_at_s": 1.617
+}

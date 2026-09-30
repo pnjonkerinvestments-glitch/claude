@@ -312,7 +312,7 @@ function seek(tReal) {
 
   // spot the difference
   {
-    const p = spB(t, TL.cmp, 1.9, 0.66), q = segB(t, TL.cmpOut, TL.cmpOut + 0.3, E.inBack);
+    const p = spB(t, TL.cmp, 1.9, 0.66), q = segB(t, TL.cmpOut, TL.cmpOut + 0.5, E.inBack);
     S(cmp, { transform: `scale(${lerp(0.2, 1, clamp(p, 0, 1.2)) * (1 - q)})` }); show(cmp, p > 0.001 && q < 1);
     cmpTitle.set(segB(t, TL.cmp + 0.2, TL.cmp + 0.6, E.outQuint));
     cmpFlags.forEach((f, i) => {

@@ -1,0 +1,12 @@
+{
+ "file": "out/master-1-sydney.mkv",
+ "size": "1080x1920",
+ "fps": "60/1",
+ "frames": 449,
+ "duration_s": 7.483,
+ "single_frame_pops": [],
+ "jumps": [],
+ "max_pop_score": 3.02,
+ "max_frame_change": 11.96,
+ "max_change_at_s": 1.633
+}
