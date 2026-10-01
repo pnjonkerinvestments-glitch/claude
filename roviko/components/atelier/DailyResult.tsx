@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Star, Users } from 'lucide-react';
+import { ArrowRight, Check, Clock, Flame, Star, Users, X } from 'lucide-react';
 import { api } from '@/lib/client';
 import type { PointMode } from '@/lib/daily-scoring';
 import { nextDailyMode, type DayMode } from '@/lib/daily-loop';
@@ -22,7 +22,8 @@ const writeFlag = () => { try { localStorage.setItem(SAVE_KEY, 'done'); } catch 
  * The whole result of a daily game in one card: your points, how that compares with everyone who played
  * today, and one button on to the next game. Replaces the long score panel and the "games left" overview.
  */
-export function DailyResult({ app, date, mode }: { app: ResultApp; date: string; mode: PointMode }) {
+export type ResultSummary = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' }[];
+export function DailyResult({ app, date, mode, summary, trail }: { app: ResultApp; date: string; mode: PointMode; summary?: ResultSummary; trail?: boolean[] }) {
   const { t, locale, boot, fail } = app;
   const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
   const bonusLaunch = useBonusLaunch({ go: app.go, fail });
@@ -48,6 +49,8 @@ export function DailyResult({ app, date, mode }: { app: ResultApp; date: string;
       <strong>{game ? <CountUp value={score} format={fmt}/> : '…'}<small> / {fmt(1000)}</small></strong>
       <span>{t('points')}{isBest && <b className="daily-result-best"><Star size={13} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</b>}</span>
     </div>
+    {summary && summary.length > 0 && <ul className="daily-result-summary">{summary.map(item => <li key={item.label}>{item.icon === 'flame' ? <Flame size={16} aria-hidden="true"/> : item.icon === 'clock' ? <Clock size={16} aria-hidden="true"/> : <Check size={16} strokeWidth={3} aria-hidden="true"/>}<b>{item.value}</b><span>{item.label}</span></li>)}</ul>}
+    {trail && trail.length > 0 && <ol className="daily-result-trail" aria-label={summary?.[0]?.label}>{trail.map((ok, i) => <li key={i} className={ok ? 'is-right' : 'is-wrong'} aria-label={String(i + 1)}>{ok ? <Check size={13} strokeWidth={3}/> : <X size={13} strokeWidth={3}/>}</li>)}</ol>}
     <div className="daily-result-compare">
       <p><Users size={17} aria-hidden="true"/>{!game ? t('loading') : players <= 1 ? t('resultFirstPlayer') : t('competitionRank').replace('{rank}', fmt(place)).replace('{count}', fmt(players))}</p>
       {beaten !== null && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}

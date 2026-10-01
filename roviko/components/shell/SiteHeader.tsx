@@ -25,10 +25,12 @@ function AppMenu() {
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild><button className="icon-btn nav-icon" aria-label={t('menuOpen')}><Menu size={21} aria-hidden="true"/></button></PopoverTrigger>
     <PopoverContent align="end" className="settings-menu app-menu">
-      {bootLoaded && <div className="app-menu-user">
-        <Avatar id={u.avatar}/>
-        <span><strong>{u.name}</strong><small>{u.guest ? t('menuGuest') : u.email}</small></span>
-        {u.guest && <button className="btn primary btn-sm" onClick={() => { close(); setModal('login'); }}><LogIn size={15} aria-hidden="true"/>{t('signIn')}</button>}
+      {bootLoaded && <div className={'app-menu-user' + (u.guest ? ' is-guest' : '')}>
+        <div className="app-menu-who"><Avatar id={u.avatar}/><span className="app-menu-name"><strong>{u.name}</strong><small>{u.guest ? t('menuGuest') : u.email}</small></span></div>
+        {u.guest && <div className="app-menu-cta">
+          <button className="btn primary" onClick={() => { close(); setModal('signup'); }}>{t('signUp')}</button>
+          <button className="btn ghost" onClick={() => { close(); setModal('login'); }}><LogIn size={16} aria-hidden="true"/>{t('signIn')}</button>
+        </div>}
       </div>}
       <nav className="settings-links app-menu-links" aria-label={t('navMore')}>
         {item('/account', UserRound, t('myAccount'), t('myAccountNote'))}

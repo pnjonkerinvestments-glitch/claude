@@ -19,6 +19,7 @@ import { musicPlaying, startMusic, stopMusic } from '@/lib/audio';
 import { Question } from './game/Question';
 import { SoloResults } from './game/SoloResults';
 import { BonusResult, BonusTour } from './home/BonusTour';
+import { DailyFinish } from './atelier/DailyFinish';
 import { useToday } from './home/useDay';
 import { PuzzleDeck, openPuzzle } from './puzzles/PuzzleDeck';
 import { HowToPlayButton, HowToPlayPage } from './atelier/HowToPlay';
@@ -257,6 +258,14 @@ function Results({ result, multiplayer = false, room, send }: any) {
     const wrong = list.filter((a: any) => !a.correct);
     const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : result.competition?.mode==='trail'?'dailyTrail':result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed'), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+' '+t('points'):undefined, origin: window.location.origin }));
     const winners = room?.players ?? [];
+    if (!multiplayer && result.competition) {
+        const all = list.length > 0 && correct === list.length;
+        return <DailyFinish app={app} date={result.daily} mode={result.competition.mode} game={t(result.competition.mode === 'trail' ? 'dailyTrail' : 'dailyTitle')} headline={t(all ? 'finishPerfect' : 'finishNice')} mood={all ? 'cheer' : correct / Math.max(1, list.length) >= .5 ? 'happy' : 'wink'}
+            summary={[{ icon: 'check', value: correct + '/' + list.length, label: t('finishCorrect') }, { icon: 'flame', value: String(result.bestStreak ?? 0), label: t('finishStreak') }]} trail={list.map((a: any) => !!a.correct)}
+            onShare={share} onDone={backToStart} onAgain={() => start({ ...result.settings, mode: result.competition?.mode === 'trail' ? 'trail' : 'mixed' })}>
+            {wrong.length > 0 && <details className="review-section result-review"><summary><h2>{t('learningReview')}</h2></summary><div className="review-list">{wrong.map((a: any, i: number) => <div key={i}><GameIcon mode={a.mode}/><div><strong>{a.answerLabel[locale]}</strong><p>{a.fact[locale]}</p></div></div>)}</div></details>}
+        </DailyFinish>;
+    }
     if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => start({ ...result.settings, mode: result.competition?.mode==='trail'?'trail':result.daily ? 'mixed' : result.settings.mode })} onShare={share} onHome={backToStart} followUp={result.competition ? <DailyResult app={app} date={result.daily} mode={result.competition.mode}/> : result.bonus ? <BonusResult app={app} mode={result.settings.mode}/> : <NextDiscovery result={result} t={t} go={go} fail={fail}/>}/>;
     return <div className="results-page"><span className="result-emblem">{multiplayer ? <Trophy size={40}/> : result.daily ? <Sunrise size={40}/> : <Compass size={40}/>}</span><span className="eyebrow">{multiplayer ? t('multiplayer') : result.daily ? t('daily') : t(result.settings?.mode ?? 'mixed')}</span><h1>{t(multiplayer ? 'podium' : result.daily ? 'dailyResult' : 'yourResult')}</h1><p className="results-subtitle">{t(multiplayer ? 'podiumCopy' : 'resultCopy')}</p>{multiplayer && <div className="podium">{winners.slice(0, 3).map((p: any, i: number) => <div key={p.id} className={'podium-player place-' + (i + 1)}>{i === 0 && <Crown className="podium-crown" size={27}/>}<Avatar id={p.avatar} size="large"/><strong>{p.name}</strong><span>{formatScore(p.score)} {t('points')}</span><div className="podium-step"><span>{p.rank ?? i + 1}</span></div></div>)}</div>}
  {!multiplayer && <div className="result-score"><span>{formatScore(score)}</span><small>{t('points')}</small>{score > result.personalBest && <div className="record-chip"><Star size={14}/>{t('newRecord')}</div>}</div>}

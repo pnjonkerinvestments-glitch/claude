@@ -1855,3 +1855,46 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
 .app-store-btn{background:#0e0e10!important;color:#fff!important;border-radius:var(--radius-pill)!important;text-decoration:none}
 .app-store-btn:hover{background:#26262b!important}
 .is-app .footer-app-link{display:none}
+/* Menu header: a round avatar, the name in full width, and for guests the account buttons underneath. */
+.app-menu-user{display:grid!important;gap:12px}
+.app-menu-who{display:flex;align-items:center;gap:12px;min-width:0}
+.app-menu-who .avatar{width:44px!important;height:44px!important;flex:none!important;border-radius:50%}
+.app-menu-name{display:flex;flex-direction:column;min-width:0;flex:1}
+.app-menu-name strong{font-size:1rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-menu-name small{color:var(--color-ink-soft);font-size:.8125rem;white-space:normal}
+.app-menu-cta{display:grid;grid-template-columns:1fr auto;gap:8px}
+.app-menu-cta .btn{min-height:44px;padding:0 14px;font-size:.9375rem}
+.app-menu-user.is-guest{background:color-mix(in srgb,var(--color-mint) 55%,transparent);border-radius:16px;border-bottom:0!important;padding:14px!important;margin-bottom:8px}
+/* Explore picks without a scene: the country's outline on a soft map grid, in its region's tint. */
+.pick-flag.is-neutral{position:relative;overflow:hidden}
+.pick-shape{position:absolute;inset:8% 10% 6% 6%;width:84%;height:86%;color:var(--color-forest)}
+.pick-shape-land{fill:var(--color-brand);stroke:#fff;stroke-width:1.2;stroke-linejoin:round;filter:drop-shadow(0 6px 10px rgba(24,33,29,.18))}
+.pick-card.is-mirrored .pick-shape{inset:8% 6% 6% 10%}
+[data-theme=dark] .pick-shape-land{fill:#5bc8a6;stroke:#16201c}
+.pick-flag.is-neutral{background-image:linear-gradient(color-mix(in srgb,var(--color-forest) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--color-forest) 9%,transparent) 1px,transparent 1px)!important;background-size:22px 22px!important;background-color:color-mix(in srgb,var(--color-gold) 14%,var(--color-surface))!important}
+.settings-menu.app-menu{width:min(calc(100vw - 24px),340px)!important;max-width:calc(100vw - 24px);overflow:hidden}
+.app-menu *{min-width:0}
+.app-menu hr{margin:6px 0;border:0;border-top:1px solid var(--color-line)}
+.app-menu-cta .btn{white-space:nowrap}
+/* 1.21 one end screen for every daily game. */
+.daily-finish{max-width:560px;margin:0 auto;padding:8px 0 calc(110px + env(safe-area-inset-bottom));display:grid;gap:14px}
+.finish-head{display:flex;align-items:center;gap:14px}
+.finish-head .finish-mascot{flex:none;width:76px;height:76px}
+.finish-game{display:block;color:var(--color-brand-strong);font-weight:800;font-size:.8125rem;letter-spacing:.06em;text-transform:uppercase}
+.finish-head h1{margin:2px 0 0;font-size:clamp(1.6rem,6vw,2rem);line-height:1.1}
+.daily-finish .daily-result{margin:0}
+.daily-result-summary{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.daily-result-summary li{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:99px;background:var(--color-surface-2);font-size:.9375rem}
+.daily-result-summary li b{font-weight:800}
+.daily-result-summary li span{color:var(--color-ink-soft)}
+.daily-result-summary li svg{color:var(--color-brand-strong)}
+.daily-result-summary li:nth-child(2) svg{color:#d9822b}
+.daily-result-trail{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:5px}
+.daily-result-trail li{display:grid;place-items:center;width:24px;height:24px;border-radius:8px}
+.daily-result-trail li.is-right{background:color-mix(in srgb,var(--color-brand) 16%,transparent);color:var(--color-brand-strong)}
+.daily-result-trail li.is-wrong{background:color-mix(in srgb,#d64545 14%,transparent);color:#b4233c}
+.finish-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.finish-actions .btn{min-height:50px}
+.finish-again{justify-self:center;color:var(--color-ink-soft)!important;font-size:.9375rem}
+.daily-finish .daily-result-target{background:none!important;padding:0!important;font-weight:800;color:#8a5a00}
+.daily-finish .puzzle-review,.daily-finish .result-review{margin-top:4px}

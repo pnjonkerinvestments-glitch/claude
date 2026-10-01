@@ -1,7 +1,7 @@
 name: Roviko preview
 
 # Zet de werkversie (branch claude/upbeat-sagan-8igsaj) op een aparte testlink:
-# worker "roviko-preview" met een eigen, lege database "roviko-preview-db".
+# worker "roviko-preview" met een eigen, lege database "roviko-preview-eu" (West-Europa).
 # Raakt de live worker "roviko", roviko.app en de live database NIET aan.
 # De iPhone-app laadt roviko.app en ziet deze preview dus ook niet.
 # Adres: https://roviko-preview.pnjonkerinvestments.workers.dev (niet geïndexeerd).
@@ -47,13 +47,14 @@ jobs:
         run: |
           printf '\n/*\n  X-Robots-Tag: noindex, nofollow\n' >> dist/client/_headers
 
-      # Eigen database: maakt "roviko-preview-db" aan als die nog niet bestaat.
+      # Eigen database: maakt "roviko-preview-eu" aan als die nog niet bestaat.
       - name: Previewdatabase
         run: |
-          id=$(npx wrangler d1 list --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const db=JSON.parse(s).find(d=>d.name==='roviko-preview-db');console.log(db?db.uuid:'')})")
+          id=$(npx wrangler d1 list --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const db=JSON.parse(s).find(d=>d.name==='roviko-preview-eu');console.log(db?db.uuid:'')})")
           if [ -z "$id" ]; then
-            npx wrangler d1 create roviko-preview-db
-            id=$(npx wrangler d1 list --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{console.log(JSON.parse(s).find(d=>d.name==='roviko-preview-db').uuid)})")
+            # West-Europa: dicht bij de spelers, anders gaat elke databasevraag over de oceaan.
+            npx wrangler d1 create roviko-preview-eu --location weur
+            id=$(npx wrangler d1 list --json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{console.log(JSON.parse(s).find(d=>d.name==='roviko-preview-eu').uuid)})")
           fi
           echo "PREVIEW_DB_ID=$id" >> "$GITHUB_ENV"
 
@@ -65,14 +66,21 @@ jobs:
             const src=fs.readFileSync('wrangler.cloudflare.jsonc','utf8').replace(/^\s*\/\/.*$/gm,'');
             const c=JSON.parse(src);
             c.name='roviko-preview';
-            c.d1_databases[0].database_name='roviko-preview-db';
+            c.d1_databases[0].database_name='roviko-preview-eu';
             c.d1_databases[0].database_id=process.env.PREVIEW_DB_ID;
             if (c.name==='roviko') throw new Error('preview mag nooit als roviko deployen');
             fs.writeFileSync('wrangler.preview.json',JSON.stringify(c,null,2));
           "
 
+      # Alleen lezen: laat zien in welke regio de live en de previewdatabase staan.
+      - name: Databaseregio's
+        continue-on-error: true
+        run: |
+          npx wrangler d1 info roviko-db -c wrangler.cloudflare.jsonc || true
+          npx wrangler d1 info roviko-preview-eu -c wrangler.preview.json || true
+
       - name: Migraties op de previewdatabase
-        run: npx wrangler d1 migrations apply roviko-preview-db --remote -c wrangler.preview.json
+        run: npx wrangler d1 migrations apply roviko-preview-eu --remote -c wrangler.preview.json
 
       - name: Deployen naar roviko-preview
         run: npx wrangler deploy -c wrangler.preview.json --message "Preview $(git rev-parse --short HEAD)"

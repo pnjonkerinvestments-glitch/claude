@@ -14,6 +14,7 @@ import { seedHash } from '../lib/game-engine/scoring';
 import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin } from './auth';
 import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
+import silhouettes from '../lib/data/silhouettes.json';
 import { startSolo, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
@@ -52,6 +53,13 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (req.headers.get('Upgrade')?.toLowerCase() !== 'websocket')
                 throw new AppError('WEBSOCKET_REQUIRED', 426);
             return await connectSocket(req, env, ctx);
+        }
+        // Country outlines for the Explore cards: a few small SVG paths, cached for a day.
+        if (path[0] === 'silhouettes' && method === 'GET') {
+            const ids = (url.searchParams.get('ids') ?? '').split(',').filter(id => /^[A-Z]{3}$/.test(id)).slice(0, 12);
+            const out: Record<string, string> = {};
+            for (const id of ids) { const d = (silhouettes as Record<string, string>)[id]; if (d) out[id] = d; }
+            return new Response(JSON.stringify(out), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' } });
         }
         if (path[0] === 'flag') {
             const c = flagCountry(decodeURIComponent(path[1] ?? '').split('-')[0]);
