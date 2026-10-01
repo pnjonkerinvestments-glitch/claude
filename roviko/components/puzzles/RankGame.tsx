@@ -1,6 +1,7 @@
 'use client';
 import { DailyScoreRule } from '../atelier/Competition';
 import { DailyResult } from '../atelier/DailyResult';
+import { RankBoardGame } from './RankBoardGame';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 import { Mascot } from '../ds/Mascot';
@@ -31,7 +32,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
   async function save(action:'answer'|'next',answer?:string){
     if(!game||lock.current||error)return;
     const previous=game;lock.current=true;setBusy(true);
-    if(action==='answer'&&!game.competition){
+    if(action==='answer'&&!game.competition&&!game.board){
       if(game.phase!=='question'||!game.question?.options.some(o=>o.id===answer)){lock.current=false;setBusy(false);return;}
       const correct=answer===game.question.correct;
       setGame({...game,phase:'reveal',answers:[...game.answers,{value:answer!,correct,countryId:game.question.country.id,questionId:game.question.id,responseTime:0,at:new Date().getTime()}]});
@@ -45,7 +46,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
     }finally{lock.current=false;setBusy(false);}
   }
   const choose=useRef(save);choose.current=save;
-  useEffect(()=>{const key=(e:KeyboardEvent)=>{if((e.target as HTMLElement)?.closest('input,textarea,select,[role="dialog"],details'))return;if(game?.phase==='question'&&/^[1-4]$/.test(e.key)){e.preventDefault();const id=game.question!.options[+e.key-1].id;setSelection(id);void choose.current('answer',id);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[game?.question?.id,game?.phase]);
+  useEffect(()=>{const key=(e:KeyboardEvent)=>{if((e.target as HTMLElement)?.closest('input,textarea,select,[role="dialog"],details'))return;if(game?.phase==='question'&&game.question&&/^[1-4]$/.test(e.key)){e.preventDefault();const id=game.question!.options[+e.key-1].id;setSelection(id);void choose.current('answer',id);}};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[game?.question?.id,game?.phase]);
   const fill=(key:string,values:Record<string,string|number>)=>Object.entries(values).reduce((s,[k,v])=>s.replace('{'+k+'}',String(v)),t(key));
   if(!game)return <div className="puzzle-loading" role="status"><Radar/><p>{t(error||'rankLoading')}</p>{error&&<button className="btn primary" onClick={load}>{t('retry')}</button>}</div>;
   const q=game.question,reveal=game.phase==='reveal',answer=game.answers.at(-1),winner=q?.options.find(o=>o.id===q.correct),picked=q?.options.find(o=>o.id===answer?.value);
@@ -57,6 +58,11 @@ export function RankGame({ id, app }: { id: string; app: any }) {
   const explanation=(o:RankOption,key:string)=>fill(key,{winner:o.label[lang] ?? o.label.en,choice:o.label[lang] ?? o.label.en,rank:o.rank,count:o.coverage,percent:o.topPercent});
   const share=()=>{const url=new URL('/daily',location.origin);url.searchParams.set('shared','rank');copy(`${BRAND.name} · ${t('rankRadar')} · ${game.daily??new Date().toISOString().slice(0,10)}\n${places.map(medalFor).join('')}\n${fill('rankMedalSummary',{gold:medals[1],silver:medals[2],bronze:medals[3]})}${game.competition?' · '+(game.score??0).toLocaleString(locale)+' '+t('points'):''}\n${url}`);};
   const again=async()=>{if(lock.current)return;lock.current=true;setBusy(true);try{const fresh=await post('/ranks',{daily:false});go('/rank/'+fresh.id);}catch{setError('puzzleLoadError');}finally{lock.current=false;setBusy(false);}};
+  if(game.board){
+    const board=game.board;const pts=game.answers.reduce((n,a)=>n+(a.points??0),0);
+    const shareBoard=()=>copy(`${BRAND.name} · ${t('rankRadar')} · ${game.daily??new Date().toISOString().slice(0,10)}\n${game.answers.map(a=>a.correct?'🟩':(a.points??0)>=60?'🟨':'⬜').join('')}\n${pts.toLocaleString(locale)} ${t('points')}${board.optimal?' · '+fill('rbOptimal',{n:board.optimal.toLocaleString(locale)}):''}\n${new URL('/daily',location.origin)}`);
+    return <RankBoardGame game={game} app={app} busy={busy} error={error} save={save} again={again} share={shareBoard}/>;
+  }
   return <section className="puzzle-game rank-game">
     <GameHeader mode="rank" title={t('rankRadar')} edition={editionLabel(game.daily,lang,t('puzzleStartPractice'))} count={Math.min(game.round+1,game.total)+' / '+game.total} unit={t('countries')} progress={game.answers.length/game.total} onExit={()=>backToStart?backToStart():go('/daily')} exitLabel={t('back')} help={<HowToPlayButton mode="rank" t={t} locale={lang} auto={game.phase!=='finished'}/>}/>
     {game.phase!=='finished'&&<ol className="rank-trail" aria-label={t('rankTrail')}>{Array.from({length:game.total},(_,i)=><li key={i} className={i<places.length?'is-done place-'+places[i]:i===game.round&&game.phase!=='finished'?'is-current':''}>{i<places.length?<span role="img" aria-label={t('rankPlace'+places[i])}>{medalFor(places[i])}</span>:<span aria-hidden="true">{i+1}</span>}</li>)}</ol>}

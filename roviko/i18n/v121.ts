@@ -1,6 +1,8 @@
 // Copy for 1.21: navigation (Multiplayer tab, menu), account and settings pages, game fixes. Spread last in messages.ts.
 export const v121Messages = {
   en: {
+    rbUpcoming: 'Today\u2019s eight countries', rbRound: 'Country {n} of {total}', rbPrompt: 'Where does {country} rank highest?', rbIntro: 'Each subject can be used once today. Keep strong ones for the countries that need them.', rbSubjects: 'Subjects', rbChoose: 'Pick a subject', rbLock: 'Lock in: {subject}', rbBestPick: 'Best pick! +125', rbRankLine: '#{rank} of {count} in the world', rbBestWas: 'Strongest was {subject}: #{rank}', rbBestPicks: 'best picks', rbOptimal: 'Best possible today: {n}', rbOptimalShort: 'best possible today', rbRankOne: 'Rank 1 = the highest value in the world.',
+    compareRounds15: '15 rounds · one mistake ends it', compareOutTitle: 'One wrong. Run over.', compareOutCta: 'See your result',
     finishDone: 'Done', finishPractice: 'Practise this game again (no points)', finishNice: 'Nice trip!', finishPerfect: 'Perfect!', finishCorrect: 'correct', finishStreak: 'best streak', finishOut: 'Run over!',
     appPromptTitle: 'Roviko is better in the app', appPromptCopy: 'The same daily trip and the same progress, made for your iPhone.', appPromptPerk1: 'Full screen, no browser bars', appPromptPerk2: 'A daily reminder, so your streak never breaks', appPromptPerk3: 'Free, one tap from your home screen', appPromptCta: 'Download on the App Store', appPromptLater: 'Continue in the browser', appFooterLink: 'Get the iPhone app',
     rematchWaiting: 'Waiting for {names}\u2026',
@@ -31,6 +33,8 @@ export const v121Messages = {
     mailUnavailable: 'Email is not available yet. Contact support@roviko.app.', mailFailed: 'The email could not be sent. Try again in a minute.',
   },
   nl: {
+    rbUpcoming: 'De acht landen van vandaag', rbRound: 'Land {n} van {total}', rbPrompt: 'Waar staat {country} het hoogst?', rbIntro: 'Elk onderwerp mag je vandaag één keer gebruiken. Bewaar sterke voor de landen die ze nodig hebben.', rbSubjects: 'Onderwerpen', rbChoose: 'Kies een onderwerp', rbLock: 'Vastzetten: {subject}', rbBestPick: 'Beste keuze! +125', rbRankLine: '#{rank} van {count} in de wereld', rbBestWas: 'Het sterkst was {subject}: #{rank}', rbBestPicks: 'beste keuzes', rbOptimal: 'Beste mogelijke score vandaag: {n}', rbOptimalShort: 'beste mogelijke vandaag', rbRankOne: 'Plek 1 = de hoogste waarde ter wereld.',
+    compareRounds15: '15 rondes · één fout en je bent af', compareOutTitle: 'Eén fout. Run voorbij.', compareOutCta: 'Bekijk je resultaat',
     finishDone: 'Klaar', finishPractice: 'Oefen dit spel nog eens (zonder punten)', finishNice: 'Mooie reis!', finishPerfect: 'Perfect!', finishCorrect: 'goed', finishStreak: 'langste reeks', finishOut: 'Einde van je run!',
     appPromptTitle: 'Roviko speel je het fijnst in de app', appPromptCopy: 'Dezelfde dagreis en dezelfde voortgang, gemaakt voor je iPhone.', appPromptPerk1: 'Schermvullend, zonder browserbalken', appPromptPerk2: 'Een dagelijkse herinnering, zodat je reeks nooit breekt', appPromptPerk3: 'Gratis, met één tik vanaf je beginscherm', appPromptCta: 'Download in de App Store', appPromptLater: 'Verder in de browser', appFooterLink: 'Download de iPhone-app',
     rematchWaiting: 'Wachten op {names}\u2026',
@@ -61,6 +65,8 @@ export const v121Messages = {
     mailUnavailable: 'E-mail is nog niet beschikbaar. Mail support@roviko.app.', mailFailed: 'De mail kon niet worden verstuurd. Probeer het over een minuut opnieuw.',
   },
   es: {
+    rbUpcoming: 'Los ocho países de hoy', rbRound: 'País {n} de {total}', rbPrompt: '¿Dónde está {country} más arriba?', rbIntro: 'Cada tema se usa una sola vez hoy. Guarda los fuertes para los países que los necesiten.', rbSubjects: 'Temas', rbChoose: 'Elige un tema', rbLock: 'Fijar: {subject}', rbBestPick: '¡Mejor elección! +125', rbRankLine: 'n.º {rank} de {count} en el mundo', rbBestWas: 'Su punto fuerte era {subject}: n.º {rank}', rbBestPicks: 'mejores elecciones', rbOptimal: 'Mejor puntuación posible hoy: {n}', rbOptimalShort: 'mejor posible hoy', rbRankOne: 'Puesto 1 = el valor más alto del mundo.',
+    compareRounds15: '15 rondas · un error y fuera', compareOutTitle: 'Un error. Fin de la partida.', compareOutCta: 'Ver tu resultado',
     finishDone: 'Listo', finishPractice: 'Practica este juego otra vez (sin puntos)', finishNice: '¡Buen viaje!', finishPerfect: '¡Perfecto!', finishCorrect: 'correctas', finishStreak: 'mejor racha', finishOut: '¡Fin de la partida!',
     appPromptTitle: 'Roviko es mejor en la app', appPromptCopy: 'El mismo viaje diario y el mismo progreso, hecho para tu iPhone.', appPromptPerk1: 'Pantalla completa, sin barras del navegador', appPromptPerk2: 'Un recordatorio diario para que tu racha nunca se rompa', appPromptPerk3: 'Gratis, a un toque desde tu pantalla de inicio', appPromptCta: 'Descargar en el App Store', appPromptLater: 'Seguir en el navegador', appFooterLink: 'Descarga la app para iPhone',
     rematchWaiting: 'Esperando a {names}\u2026',

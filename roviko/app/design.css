@@ -1898,3 +1898,49 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
 .finish-again{justify-self:center;color:var(--color-ink-soft)!important;font-size:.9375rem}
 .daily-finish .daily-result-target{background:none!important;padding:0!important;font-weight:800;color:#8a5a00}
 .daily-finish .puzzle-review,.daily-finish .result-review{margin-top:4px}
+.compare-out{display:block;margin:0 0 8px;color:#b4233c;font-weight:800;text-align:center}
+/* 1.21 Rank Radar: eight countries, eight subjects. Flags as rounded cards, like the social posts. */
+.rank-board{max-width:760px;margin:0 auto;padding-bottom:calc(100px + env(safe-area-inset-bottom))}
+.rb-strip{list-style:none;margin:6px 0 14px;padding:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px}
+.rb-strip li{position:relative;border-radius:10px;padding:3px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-line);opacity:.55;transition:opacity .2s}
+.rb-strip li.is-current{opacity:1;box-shadow:inset 0 0 0 2px var(--color-brand),0 6px 14px rgba(24,33,29,.12)}
+.rb-strip li.is-done{opacity:1}
+.rb-strip img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:7px}
+.rb-strip-pick{position:absolute;right:-4px;bottom:-6px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--color-surface);box-shadow:0 2px 6px rgba(24,33,29,.18);font-size:.75rem}
+.rb-country{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin-bottom:14px}
+.rb-flag{width:132px;padding:6px;border-radius:18px;background:#fff;box-shadow:0 10px 24px rgba(24,33,29,.14),inset 0 0 0 1px rgba(24,33,29,.06);transform:rotate(-2deg)}
+.rb-flag img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:12px}
+.rb-country h1{margin:2px 0 4px;font-size:clamp(1.35rem,4.6vw,1.8rem);line-height:1.15}
+.rb-intro{margin:0;color:var(--color-ink-soft);font-size:.9375rem;line-height:1.45}
+.rb-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (min-width:700px){.rb-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.rb-tile{position:relative;display:grid;gap:4px;align-content:start;min-height:96px;padding:12px;border:0;border-radius:18px;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-line),0 2px 6px rgba(24,33,29,.05);text-align:left;font:inherit;color:var(--color-ink);cursor:pointer;transition:transform .15s,box-shadow .15s}
+.rb-tile:hover:not(:disabled){transform:translateY(-2px)}
+.rb-tile strong{font-size:.9375rem;line-height:1.2}
+.rb-emoji{font-size:1.4rem;line-height:1}
+.rb-tile.is-picked{box-shadow:inset 0 0 0 2px var(--color-brand),0 8px 18px rgba(31,128,107,.18);background:color-mix(in srgb,var(--color-mint) 55%,var(--color-surface))}
+.rb-tile.is-taken{opacity:.5;cursor:default}
+.rb-tile:disabled{cursor:default}
+.rb-taken{display:inline-flex;align-items:center;gap:6px;color:var(--color-ink-soft);font-weight:800}
+.rb-taken img{width:22px;height:15px;object-fit:cover;border-radius:3px}
+.rb-rank{font-weight:800;font-size:1rem}.rb-rank span{font-weight:600;color:var(--color-ink-soft);font-size:.8125rem}
+.rb-value{color:var(--color-ink-soft);font-size:.75rem}
+.rb-bar{display:block;height:6px;border-radius:99px;background:var(--color-surface-2);overflow:hidden}.rb-bar i{display:block;height:100%;border-radius:inherit;background:color-mix(in srgb,var(--color-brand) 55%,transparent)}
+.rb-tile.is-best .rb-bar i{background:var(--color-gold)}
+.rb-tile.is-chosen{box-shadow:inset 0 0 0 2px var(--color-forest)}
+.rb-tile.is-best{box-shadow:inset 0 0 0 2px var(--color-gold),0 8px 18px rgba(246,184,75,.25)}
+.rb-badge{position:absolute;top:8px;right:8px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--color-gold);color:var(--color-gold-ink)}
+.rb-verdict{display:flex;gap:12px;align-items:center;margin:0 0 12px;padding:12px 14px;border-radius:16px;background:var(--color-surface-2)}
+.rb-verdict.is-best{background:color-mix(in srgb,var(--color-gold) 22%,var(--color-surface))}
+.rb-verdict strong{display:block}.rb-verdict p{margin:2px 0 0;color:var(--color-ink-soft);font-size:.9375rem}
+.rb-points{flex:none;display:grid;place-items:center;min-width:58px;height:46px;padding:0 8px;border-radius:14px;background:var(--color-forest);color:#fff;font:800 1.1rem var(--font-display,var(--font-sans))}
+.rb-actions{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));display:grid;margin-top:14px;z-index:2}
+.rb-actions .btn{box-shadow:0 10px 24px rgba(24,33,29,.18)}
+.rb-note{display:flex;align-items:center;justify-content:center;gap:6px;color:var(--color-ink-soft);font-size:.8125rem;margin:12px 0 0}
+.rb-review ol{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.rb-review li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:14px;background:var(--color-surface)}
+.rb-review li img{width:40px;height:27px;object-fit:cover;border-radius:5px}
+.rb-review li div{display:grid}.rb-review li span{color:var(--color-ink-soft);font-size:.875rem}
+.rb-review li b{font-weight:800}.rb-review li b.is-best{color:#a36a00}
+@media (max-width:420px){.rb-flag{width:104px}.rb-tile{min-height:88px;padding:10px}}
+.rb-tile:disabled:not(.is-taken){opacity:1}

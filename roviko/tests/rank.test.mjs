@@ -8,8 +8,8 @@ globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 globalThis.window={addEventListener(){},removeEventListener(){}};
 globalThis.document={title:''};
 fs.mkdirSync('.test-runtime',{recursive:true});
-await build({stdin:{contents:"export {RankGame,rankValue} from './components/puzzles/RankGame';export {rankValues,generateRankRounds,RANK_CATEGORIES} from './lib/puzzles/rank';export {messages} from './i18n/messages';export {shareResult} from './lib/share';",resolveDir:process.cwd()},outfile:'.test-runtime/rank.mjs',bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/*','react-dom','react-dom/*','lucide-react','radix-ui'],plugins:[{name:'transport',setup(b){b.onResolve({filter:/^@\/lib\/client$/},()=>({path:'transport',namespace:'mock'}));b.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export const api=(...args)=>globalThis.transport.api(...args);export const post=(...args)=>globalThis.transport.post(...args);export const sound=()=>{};'}));}}]});
-const {RankGame,rankValue,rankValues,generateRankRounds,RANK_CATEGORIES,messages,shareResult}=await import('../.test-runtime/rank.mjs');
+await build({stdin:{contents:"export {RankGame,rankValue} from './components/puzzles/RankGame';export {rankValues,generateRankRounds,RANK_CATEGORIES} from './lib/puzzles/rank';export {messages} from './i18n/messages';export {generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard} from './lib/puzzles/rank-board';export {shareResult} from './lib/share';",resolveDir:process.cwd()},outfile:'.test-runtime/rank.mjs',bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/*','react-dom','react-dom/*','lucide-react','radix-ui'],plugins:[{name:'transport',setup(b){b.onResolve({filter:/^@\/lib\/client$/},()=>({path:'transport',namespace:'mock'}));b.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export const api=(...args)=>globalThis.transport.api(...args);export const post=(...args)=>globalThis.transport.post(...args);export const sound=()=>{};'}));}}]});
+const {RankGame,rankValue,rankValues,generateRankRounds,RANK_CATEGORIES,messages,shareResult,generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard}=await import('../.test-runtime/rank.mjs');
 const clone=x=>structuredClone(x);
 const app={t:k=>messages.en[k]??k,locale:'en',go(){},refresh(){},muted:true,copy(){},report(){}};
 function state(){return {id:'rank-ui',mode:'rank',daily:'2026-09-22',phase:'question',round:0,total:6,version:0,learning:true,answers:[],streak:0,bestStreak:0,question:generateRankRounds('rank-ui')[0]};}
@@ -62,5 +62,15 @@ test('lost saved response reconciles once, while an unsaved guess requires expli
   assert.equal(r.root.findAll(n=>n.props.role==='alert').length,committed?0:1);
   if(!committed){assert.ok(cards(r).every(c=>c.props.disabled));await act(async()=>{r.root.findAll(n=>n.type==='button'&&n.children.includes(messages.en.retry))[0].props.onClick();});assert.ok(cards(r).every(c=>!c.props.disabled));}
   await act(async()=>r.unmount());
+ }
+});
+
+test('Rank Radar board: eight countries, eight full-coverage subjects, deterministic and with a reachable optimum',()=>{
+ for(const seed of ['2026-10-01','2026-10-02','x','y','z']){
+  const b=generateRankBoard(seed);assert.deepEqual(generateRankBoard(seed),b);
+  assert.equal(b.rounds.length,8);assert.equal(b.categories.length,8);assert.equal(new Set(b.rounds.map(r=>r.country.id)).size,8);
+  for(const r of b.rounds){assert.deepEqual(Object.keys(r.stats).sort(),b.categories.map(c=>c.id).sort());const best=bestCategories(r);assert.ok(best.length>=1);assert.ok(r.stats[best[0]].rank<=30);for(const id of best)assert.equal(rankPoints(r,id),125);for(const c of b.categories)assert.ok(rankPoints(r,c.id)>=0&&rankPoints(r,c.id)<=125);}
+  assert.equal(b.optimal,optimalTotal(b));assert.ok(b.optimal>0&&b.optimal<=1000);
+  const hidden=publicBoard(b,2,false);assert.ok(hidden.rounds[1].stats&&!hidden.rounds[2].stats);assert.equal(hidden.optimal,undefined);assert.equal(publicBoard(b,8,true).optimal,b.optimal);
  }
 });

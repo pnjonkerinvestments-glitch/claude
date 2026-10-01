@@ -6,7 +6,7 @@ fs.mkdirSync('.test-runtime', { recursive: true });
 await build({ stdin: { contents: "export * from './lib/puzzles/generate'; export * from './lib/puzzles/model'; export * from './lib/puzzles/topics'; export * from './lib/puzzles/country-facts';", resolveDir: process.cwd() }, outfile: '.test-runtime/puzzles.mjs', bundle: true, format: 'esm', platform: 'node' });
 const { TOPICS, generateComparisons, generateMosaic, dailyTopic, checkMosaic, selectMosaicTile, mosaicHint, formatMetric, numericCountryFact, factCoverage, refreshMosaicFacts } = await import('../.test-runtime/puzzles.mjs');
 
-test('all 14 topics generate ten reproducible, unambiguous comparisons from dated sources', () => {
+test('all 14 topics generate reproducible, unambiguous comparison chains from dated sources (10 classic, 15 ramped)', () => {
   assert.equal(TOPICS.length, 14);
   for (const topic of TOPICS) {
     const rounds = generateComparisons(topic.id, 'comparison-validation');
@@ -137,4 +137,16 @@ test('legacy Mosaic hints upgrade without replacing tile IDs, order, or solved c
  assert.deepEqual(upgraded.tiles.map(t=>[t.id,t.kind,t.countryId]),old.tiles.map(t=>[t.id,t.kind,t.countryId]));
  assert.deepEqual(upgraded,b);assert.equal(refreshMosaicFacts(upgraded,'2026-09-21'),upgraded);
  assert.ok(old.tiles.some(t=>t.text?.en==='Find me in Europe'),'Do not mutate saved evidence');
+});
+
+test('the ramped Side by Side chain has 15 rounds and the gaps shrink from easy to close calls', async () => {
+  const { generateComparisons, TOPICS, COMPARE_ROUNDS } = await import('../.test-runtime/puzzles.mjs');
+  assert.equal(COMPARE_ROUNDS, 15);
+  for (const topic of TOPICS) {
+    const rounds = generateComparisons(topic.id, 'ramp-check', COMPARE_ROUNDS, undefined, [], true);
+    assert.equal(rounds.length, 15, topic.id);
+    const gaps = rounds.map(q => { const [a, b] = q.countries.map(c => c.value); return Math.abs(a - b) / Math.max(Math.abs(a), Math.abs(b)); });
+    const first = gaps.slice(0, 5).reduce((x, y) => x + y) / 5, last = gaps.slice(-5).reduce((x, y) => x + y) / 5;
+    assert.ok(first > last, topic.id + ': early gaps ' + first.toFixed(2) + ' should be larger than late gaps ' + last.toFixed(2));
+  }
 });

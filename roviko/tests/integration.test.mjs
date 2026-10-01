@@ -31,13 +31,13 @@ test('a personal retry contains only misses, preserves Europe, resumes once and 
  const following=await request(a.cookie,'/next-round','POST',{sessionId:retry.id,intent:'next'});assert.equal(following.status,200,JSON.stringify(following.data));const next=(await request(a.cookie,following.data.href.replace('/game/','/games/'))).data;assert.equal(next.settings.mode,'capitals');assert.equal(next.settings.region,'Europe');assert.equal(next.total,5);assert.equal(next.daily,null);
 });
 
-test('comparison retries stop at five missed questions, retain units and years, and keep the official daily result',async()=>{
+test('a comparison run ends on the first miss; its retry keeps units and years, and the daily result stays',async()=>{
  const a=await bootstrap();let p=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;const misses=[];
- while(p.phase!=='finished'){const q=structuredClone(p.question);const wrong=p.round<6;if(wrong)misses.push(q);const answer=wrong?q.countries.find(c=>c.id!==q.correct).id:q.correct;const saved=await request(a.cookie,'/puzzles/'+p.id+'/answer','POST',{version:p.version,answer});assert.equal(saved.status,200);p=(await request(a.cookie,'/puzzles/'+p.id+'/next','POST',{version:saved.data.version})).data;}
+ while(p.phase!=='finished'){const q=structuredClone(p.question);const wrong=p.round===5;if(wrong)misses.push(q);const answer=wrong?q.countries.find(c=>c.id!==q.correct).id:q.correct;const saved=await request(a.cookie,'/puzzles/'+p.id+'/answer','POST',{version:p.version,answer});assert.equal(saved.status,200);p=(await request(a.cookie,'/puzzles/'+p.id+'/next','POST',{version:saved.data.version})).data;}
  const retry=await request(a.cookie,'/next-round','POST',{sessionId:p.id,intent:'review'});assert.equal(retry.status,200,JSON.stringify(retry.data));let fresh=(await request(a.cookie,retry.data.href.replace('/puzzle/','/puzzles/'))).data;
- assert.equal(fresh.total,5);assert.equal(fresh.daily,null);assert.equal(fresh.practice,true);
- for(let i=0;i<5;i++){assert.deepEqual(fresh.question,{...misses[i],carried:false});const saved=await request(a.cookie,'/puzzles/'+fresh.id+'/answer','POST',{version:fresh.version,answer:fresh.question.correct});assert.equal(saved.status,200);fresh=(await request(a.cookie,'/puzzles/'+fresh.id+'/next','POST',{version:saved.data.version})).data;}
- assert.equal(fresh.phase,'finished');const daily=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;assert.equal(daily.id,p.id);assert.equal(daily.answers.filter(a=>a.correct).length,4);assert.equal((await request(a.cookie,'/profile')).data.stats.dailyCount,1);
+ assert.equal(fresh.total,1,'the run ended on its first miss');assert.equal(fresh.daily,null);assert.equal(fresh.practice,true);
+ for(let i=0;i<fresh.total;i++){assert.deepEqual(fresh.question,{...misses[i],carried:false});const saved=await request(a.cookie,'/puzzles/'+fresh.id+'/answer','POST',{version:fresh.version,answer:fresh.question.correct});assert.equal(saved.status,200);fresh=(await request(a.cookie,'/puzzles/'+fresh.id+'/next','POST',{version:saved.data.version})).data;}
+ assert.equal(fresh.phase,'finished');const daily=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;assert.equal(daily.id,p.id);assert.equal(daily.answers.filter(a=>a.correct).length,5);assert.equal(daily.answers.length,6);assert.equal(daily.out,true);assert.equal((await request(a.cookie,'/profile')).data.stats.dailyCount,1);
 });
 
 test('a completed Mosaic opens a targeted retry for its mismatched flag',async()=>{
@@ -115,18 +115,18 @@ test('daily comparisons are shared, untimed, resumable and independently validat
  assert.deepEqual(g.question,second.question);assert.ok(!('questions' in g));assert.ok(!('deadline' in g));
  assert.equal((await request(b.cookie,'/puzzles/'+g.id)).status,404);
  assert.equal((await request(a.cookie,'/games/'+g.id)).status,404);
- for(let i=0;i<10;i++){
-  const answer=i===2?g.question.countries.find(c=>c.id!==g.question.correct).id:g.question.correct;
+ for(let i=0;i<15;i++){
+  const answer=i===14?g.question.countries.find(c=>c.id!==g.question.correct).id:g.question.correct;
   const replies=await Promise.all([request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer,correct:true,score:99999}),request(a.cookie,'/puzzles/'+g.id+'/answer','POST',{version:g.version,answer})]);
   assert.deepEqual(replies.map(r=>r.status).sort(),[200,409]);
-  g=replies.find(r=>r.status===200).data;assert.equal(g.answers.at(-1).correct,i!==2);assert.equal(g.phase,'reveal');
+  g=replies.find(r=>r.status===200).data;assert.equal(g.answers.at(-1).correct,i!==14);assert.equal(g.phase,'reveal');
   const resumed=(await request(a.cookie,'/puzzles/'+g.id)).data;assert.deepEqual(resumed,g);
   const carried=g.question.countries[0].id;const next=await request(a.cookie,'/puzzles/'+g.id+'/next','POST',{version:g.version});assert.equal(next.status,200,JSON.stringify(next.data));g=next.data;if(g.question)assert.equal(g.question.countries[1].id,carried);
  }
- assert.equal(g.phase,'finished');assert.equal(g.answers.length,10);assert.equal((await request(a.cookie,'/puzzles/today')).data.week.at(-1).completed,true);
+ assert.equal(g.phase,'finished');assert.equal(g.answers.length,15);assert.equal((await request(a.cookie,'/puzzles/today')).data.week.at(-1).completed,true);
  const repeat=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;assert.equal(repeat.id,g.id);assert.equal(repeat.phase,'finished');
- const profile=(await request(a.cookie,'/profile')).data;assert.equal(profile.stats.games,1);assert.equal(profile.stats.accuracy,90);assert.equal(profile.stats.score,0);assert.equal(profile.stats.xp,0);assert.equal(profile.stats.dailyStreak,1);
- const results=(await request(a.cookie,'/export')).data;assert.equal(results.results.length,1);assert.equal(results.answers.length,10);assert.equal(results.results[0].mode,'compare');
+ const profile=(await request(a.cookie,'/profile')).data;assert.equal(profile.stats.games,1);assert.equal(profile.stats.accuracy,93);assert.equal(profile.stats.score,0);assert.equal(profile.stats.xp,0);assert.equal(profile.stats.dailyStreak,1);
+ const results=(await request(a.cookie,'/export')).data;assert.equal(results.results.length,1);assert.equal(results.answers.length,15);assert.equal(results.results[0].mode,'compare');
 });
 
 test('mosaic supports every board size, retrying mistakes, resuming, final results and fresh practice',async()=>{
@@ -258,38 +258,43 @@ test('Rank Radar daily is shared, resumable, untimed and isolated from other gam
  const a=await bootstrap(),b=await bootstrap();
  const [first,second]=await Promise.all([request(a.cookie,'/ranks','POST',{}),request(b.cookie,'/ranks','POST',{})]);
  assert.equal(first.status,200,JSON.stringify(first.data));let g=first.data;
- assert.equal(g.mode,'rank');assert.equal(g.total,6);assert.equal(g.learning,true);assert.deepEqual(g.question,second.data.question);
+ assert.equal(g.mode,'rank');assert.equal(g.total,8);assert.equal(g.learning,true);assert.deepEqual(g.board,second.data.board);
+ assert.equal(g.board.rounds.length,8);assert.equal(g.board.categories.length,8);assert.ok(g.board.rounds.every(r=>!r.stats&&!r.best));assert.equal(g.board.optimal,undefined);
  for(const forbidden of ['questions','review','startedAt','turnAt','score','xp','deadline'])assert.ok(!(forbidden in g),forbidden);
  assert.equal((await request(b.cookie,'/ranks/'+g.id)).status,404);assert.equal((await request(a.cookie,'/games/'+g.id)).status,404);assert.equal((await request(a.cookie,'/puzzles/'+g.id)).status,404);
  assert.equal((await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version})).status,400);
  assert.equal((await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer:'made-up'})).status,400);
- const wrong=g.question.options.find(o=>o.id!==g.question.correct).id;
- const results=await Promise.all([request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:0,answer:wrong,score:999999}),request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:0,answer:g.question.correct})]);
+ const [c0,c1]=g.board.categories.map(c=>c.id);
+ const results=await Promise.all([request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:0,answer:c0,score:999999}),request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:0,answer:c1})]);
  assert.equal(results.filter(r=>r.status===200).length,1);assert.equal(results.filter(r=>r.status===409).length,1);
- g=results.find(r=>r.status===200).data;
+ g=results.find(r=>r.status===200).data;assert.ok(g.board.rounds[0].stats&&g.board.rounds[0].best.length);assert.ok(!g.board.rounds[1].stats);
  const resumed=(await request(a.cookie,'/ranks','POST',{})).data;assert.equal(resumed.id,g.id);assert.deepEqual(resumed.answers,g.answers);assert.equal(resumed.phase,'reveal');assert.ok(!resumed.review);
- assert.equal((await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer:g.question.correct})).status,409);
- const daily=(await request(a.cookie,'/puzzles/today')).data.sessions.find(s=>s.mode==='rank');assert.equal(daily.total,6);assert.equal(daily.completed,false);
+ assert.equal((await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer:c1})).status,409);
+ g=(await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version})).data;
+ assert.equal((await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer:g.answers[0].value})).status,400,'Each subject only once');
+ const daily=(await request(a.cookie,'/puzzles/today')).data.sessions.find(s=>s.mode==='rank');assert.equal(daily.total,8);assert.equal(daily.completed,false);
 });
 
-test('six Rank Radar rounds persist exactly once, award no points and expose a native-compatible recap',async()=>{
+test('eight Rank Radar rounds persist exactly once, store pick points and expose a full recap',async()=>{
  const a=await bootstrap();let g=(await request(a.cookie,'/ranks','POST',{})).data;
- const firstQuestion=g.question.id;
+ const firstCountry=g.board.rounds[0].id;let sum=0;
  while(g.phase!=='finished'){
-  assert.equal(g.question.options.length,4);for(const o of g.question.options)assert.ok(o.label.en&&o.label.nl&&o.explanation.en&&o.sourceUrl);
-  const answer=g.round===0?g.question.options.find(o=>o.id!==g.question.correct).id:g.question.correct;
+  for(const c of g.board.categories)assert.ok(c.label.en&&c.label.nl&&c.explanation.en);
+  const used=new Set(g.answers.map(x=>x.value)),answer=g.board.categories.find(c=>!used.has(c.id)).id;
   const reveal=await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer,correct:true,points:5000});assert.equal(reveal.status,200,JSON.stringify(reveal.data));
-  g=reveal.data;assert.equal(g.answers.at(-1).correct,g.round!==0);assert.equal(g.answers.at(-1).countryId,g.question.country.id);
+  g=reveal.data;const last=g.answers.at(-1);assert.ok(last.points>=0&&last.points<=125);sum+=last.points;assert.equal(last.countryId,g.board.rounds[g.round].country.id);
+  assert.equal(last.correct,g.board.rounds[g.round].best.includes(answer));
   const next=await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version});assert.equal(next.status,200);g=next.data;
  }
- assert.equal(g.answers.length,6);assert.equal(g.review.length,6);assert.equal(g.question,null);assert.equal(g.review[0].id,firstQuestion);assert.equal(g.bestStreak,5);
- const profile=(await request(a.cookie,'/profile')).data.stats;assert.equal(profile.games,1);assert.equal(profile.correct,5);assert.equal(profile.total,6);assert.equal(profile.score,0);assert.equal(profile.xp,0);assert.equal(profile.dailyCount,1);assert.equal(profile.discovered,5);
+ assert.equal(g.answers.length,8);assert.equal(new Set(g.answers.map(x=>x.value)).size,8);assert.equal(g.question,null);assert.equal(g.board.rounds[0].id,firstCountry);
+ assert.ok(g.board.rounds.every(r=>r.stats));assert.ok(g.board.optimal>=sum&&g.board.optimal<=1000);
+ const profile=(await request(a.cookie,'/profile')).data.stats;assert.equal(profile.games,1);assert.equal(profile.total,8);assert.equal(profile.dailyCount,1);
  for(let i=0;i<2;i++)await request(a.cookie,'/ranks/'+g.id);
  const replay=(await request(a.cookie,'/ranks','POST',{})).data;assert.equal(replay.id,g.id);assert.deepEqual(replay.answers,g.answers);
  assert.equal((await request(a.cookie,'/profile')).data.stats.games,1);
- const audit=await db.prepare('SELECT COUNT(*) n,SUM(points) points FROM answers WHERE session_id=?').bind(g.id).first();assert.equal(audit.n,6);assert.equal(audit.points,0);
+ const audit=await db.prepare('SELECT COUNT(*) n,SUM(points) points FROM answers WHERE session_id=?').bind(g.id).first();assert.equal(audit.n,8);assert.equal(audit.points,sum);
  const daily=(await request(a.cookie,'/puzzles/today')).data.sessions.find(s=>s.mode==='rank');assert.equal(daily.completed,true);
- const practice=(await request(a.cookie,'/ranks','POST',{daily:false})).data;assert.equal(practice.daily,null);assert.notEqual(practice.id,g.id);assert.notEqual(practice.question.id,firstQuestion);
+ const practice=(await request(a.cookie,'/ranks','POST',{daily:false})).data;assert.equal(practice.daily,null);assert.notEqual(practice.id,g.id);assert.notDeepEqual(practice.board.rounds.map(r=>r.id),g.board.rounds.map(r=>r.id));
  assert.equal((await request(a.cookie,'/next-round','POST',{sessionId:g.id,intent:'review'})).status,400);
 });
 
@@ -369,21 +374,25 @@ test('Daily Detour uses accuracy points for maps, hides solutions and ignores cl
 });
 test('daily Rank Radar ranks ties, counts finished players, preserves zero scores and excludes practice',async()=>{
  const players=await Promise.all([bootstrap(),bootstrap(),bootstrap()]);
+ // Players 0 and 1 hand each country the free subject with the best place; player 2 the worst.
+ const choose=(round,used,worst)=>Object.entries(round.stats).filter(([id])=>!used.has(id)).sort((x,y)=>worst?y[1].position-x[1].position:x[1].position-y[1].position)[0][0];
+ const scores=[];
  for(let j=0;j<players.length;j++){
   const a=players[j];let g=(await request(a.cookie,'/ranks','POST',{daily:true,competition:true})).data;
   while(g.phase!=='finished'){
-   assert.equal(g.question.correct,undefined);for(const o of g.question.options){assert.equal(o.rank,undefined);assert.equal(o.value,undefined);assert.equal(o.sourceUrl,undefined);}
-   const s=await privateGame(g.id),q=s.questions[g.round],answer=j===2?q.options.find(o=>o.id!==q.correct).id:g.round===0?q.options.find(o=>o.id!==q.correct).id:q.correct;
-   const r=await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer});assert.equal(r.status,200,JSON.stringify(r.data));assert.ok(r.data.question.options.every(o=>o.rank>0));
+   assert.ok(g.board.rounds.slice(g.answers.length).every(r=>!r.stats));
+   const s=await privateGame(g.id),answer=choose(s.board.rounds[g.round],new Set(g.answers.map(x=>x.value)),j===2);
+   const r=await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer});assert.equal(r.status,200,JSON.stringify(r.data));assert.ok(r.data.board.rounds[g.round].stats);
    g=(await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:r.data.version})).data;
   }
-  assert.equal(g.score,j===2?0:833);
+  assert.equal(g.score,g.answers.reduce((n,x)=>n+x.points,0));scores.push(g.score);
  }
+ assert.equal(scores[0],scores[1]);assert.ok(scores[2]<scores[0]);
  const first=(await request(players[0].cookie,'/competition?mode=rank')).data,second=(await request(players[1].cookie,'/competition?mode=rank')).data,last=(await request(players[2].cookie,'/competition?mode=rank')).data;
- assert.equal(first.game.place,1);assert.equal(second.game.place,1);assert.equal(last.game.place,3);assert.equal(first.game.participants,3);assert.equal(last.game.score,0);
+ assert.equal(first.game.place,1);assert.equal(second.game.place,1);assert.equal(last.game.place,3);assert.equal(first.game.participants,3);assert.equal(last.game.score,scores[2]);
  let practice=(await request(players[0].cookie,'/ranks','POST',{daily:false,competition:true})).data;assert.equal(practice.competition,undefined);
- while(practice.phase!=='finished'){const r=await request(players[0].cookie,'/ranks/'+practice.id+'/answer','POST',{version:practice.version,answer:practice.question.correct});practice=(await request(players[0].cookie,'/ranks/'+practice.id+'/next','POST',{version:r.data.version})).data;}
- assert.equal((await request(players[0].cookie,'/competition')).data.total.score,833);
+ while(practice.phase!=='finished'){const used=new Set(practice.answers.map(x=>x.value));const r=await request(players[0].cookie,'/ranks/'+practice.id+'/answer','POST',{version:practice.version,answer:practice.board.categories.find(c=>!used.has(c.id)).id});practice=(await request(players[0].cookie,'/ranks/'+practice.id+'/next','POST',{version:r.data.version})).data;}
+ assert.equal((await request(players[0].cookie,'/competition')).data.total.score,scores[0]);
  await db.prepare('UPDATE users SET blocked=1 WHERE id=?').bind(players[1].data.user.id).run();assert.equal((await request(players[0].cookie,'/competition?mode=rank')).data.game.participants,2);
 });
 test('daily Mosaic hides unsolved associations, marks mismatches, charges hints and saves the final group score once',async()=>{
