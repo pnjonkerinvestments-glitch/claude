@@ -14,7 +14,7 @@ Afgeleid uit de code van versie 1.20.0: `db/schema.ts`, `server/*.ts`, `server/t
 | Vriendschappen, uitnodigingen, online-status (laatste 90 seconden) | `friend_requests`, `room_invites`, `user_presence` | Samen spelen (alleen accounts) | Ja | Nee |
 | Meldingen en blokkades van spelers | `player_reports`, `player_blocks` | Veiligheid, moderatie | Ja | Nee |
 | Meldingen over vragen (categorie + korte toelichting) | `question_reports` | Fouten in vragen verbeteren | Ja | Nee |
-| Optionele productmetingen (alleen na aanzetten in het Paspoort) | `analytics_events` | Welke onderdelen gebruikt worden | Nee (gebeurtenistype en een afgeschermde code, geen naam, e-mail of IP) | Nee |
+| Optionele productmetingen (alleen na aanzetten; vanaf 1.21 in Instellingen) | `analytics_events` | Welke onderdelen gebruikt worden | Nee (gebeurtenistype en een afgeschermde code, geen naam, e-mail of IP) | Nee |
 | IP-adres (alleen als afgeschermde code voor limieten, na minuten weg) | `rate_limits` | Misbruik voorkomen | Nee | Nee |
 
 **Niet verzameld:**
@@ -26,7 +26,7 @@ Afgeleid uit de code van versie 1.20.0: `db/schema.ts`, `server/*.ts`, `server/t
 - Hosting: Cloudflare.
 - Google, alleen als Google-login ooit wordt aangezet. Die staat nu uit.
 
-**Verwijderen:** Paspoort → "Verwijder mijn account" (ook voor gasten) wist direct alle gegevens.
+**Verwijderen:** Paspoort → "Account en privacy" (vanaf 1.21 ook menu ☰ → Mijn account) → "Verwijder mijn account" (ook voor gasten) wist direct alle gegevens.
 - Gastgegevens zonder spel worden na 12 maanden automatisch verwijderd (`server/retention.ts`).
 - Meldingen over een speler verdwijnen samen met diens account.
 

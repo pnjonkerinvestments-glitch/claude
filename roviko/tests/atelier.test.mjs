@@ -23,7 +23,7 @@ test('back navigation keeps the original game entry and scroll through a follow-
 test('translations remain complete and daily covers have decorative responsive local images',()=>{
   assert.deepEqual(Object.keys(messages.en).sort(),Object.keys(messages.nl).sort());
   for(const mode of ['daily','compare','mosaic','rank']){
-    const html=renderToStaticMarkup(React.createElement(GameCover,{mode}));assert.match(html,/alt=""/);assert.match(html,/width="960" height="640"/);assert.match(html,/srcSet="[^"]+480w, [^"]+960w"/);
+    const html=renderToStaticMarkup(React.createElement(GameCover,{mode}));assert.match(html,/alt=""/);assert.match(html,/width="960" height="640"/);assert.match(html,/srcSet="[^"]+480w, [^"]+960w, [^"]+1440w"/);
     const paths=[...html.matchAll(/\/art\/[a-z-]+-(?:480|960)\.webp/g)].map(m=>m[0]);assert.ok(paths.length>=2);
     for(const path of paths)assert.ok(fs.statSync('public'+path).size<40000);
     for(const key of ['cardVerb'+mode,'soloPace'])assert.ok(messages.en[key] && messages.nl[key]);
@@ -56,12 +56,12 @@ test('text contrast meets 4.5:1 for both themes, all daily card surfaces and red
 });
 
 test('1.17 illustrations: every artwork the interface references exists and stays light', () => {
-  const files = ['components/home/CoverArt.tsx', 'components/atelier/GameCover.tsx', 'components/pages/ExplorePage.tsx', 'components/pages/MultiplayerPage.tsx', 'components/home/HomePage.tsx', 'components/atelier/HowToPlay.tsx', 'components/atelier/PassportCollection.tsx', 'components/atelier/DailyQuests.tsx', 'components/pages/ScoringPage.tsx', 'components/RovikoApp.tsx'];
+  const files = ['components/home/CoverArt.tsx', 'components/atelier/GameCover.tsx', 'components/pages/ExplorePage.tsx', 'components/pages/MultiplayerPage.tsx', 'components/home/HomePage.tsx', 'components/atelier/HowToPlay.tsx', 'components/atelier/PassportCollection.tsx', 'components/atelier/DailyQuests.tsx', 'components/pages/ScoringPage.tsx', 'components/RovikoApp.tsx', 'components/friends/Friends.tsx'];
   const src = files.map(f => fs.readFileSync(f, 'utf8')).join('\n');
   const direct = [...src.matchAll(/\/art\/([a-z0-9-]+\.webp)/g)].map(m => m[1]);
   const regions = ['europe', 'africa', 'asia', 'north-america', 'south-america', 'oceania'];
-  const covers = ['rank-radar', 'world-trip', 'side-by-side', 'country-mosaic', 'clue-trail'].flatMap(n => [n + '-480.webp', n + '-960.webp']);
-  const scenes = ['duel', 'mystery', 'classic'].flatMap(n => [n + '-480.webp', n + '-720.webp']);
+  const covers = ['rank-radar', 'world-trip', 'side-by-side', 'country-mosaic', 'clue-trail'].flatMap(n => [n + '-480.webp', n + '-960.webp', n + '-1440.webp']);
+  const scenes = ['duel', 'mystery', 'classic'].flatMap(n => [n + '-480.webp', n + '-720.webp', n + '-1440.webp']);
   const perRegion = regions.flatMap(r => ['scene-' + r + '.webp', 'banner-' + r + '.webp', 'pick-' + r + '.webp']);
   const classics = ['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order'].map(m => 'classic-' + m + '.webp');
   const facts = ['points', 'day', 'once', 'timer'].map(f => 'fact-' + f + '.webp');

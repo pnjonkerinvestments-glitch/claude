@@ -5,20 +5,20 @@ const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 
 export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   rank: { emoji: '🎯', steps: [
-    { icon: '🌍', text: l('You see one country and four subjects, like coastline, forest or population.', 'Je ziet één land en vier onderwerpen, zoals kustlijn, bos of bevolking.', 'Ves un país y cuatro temas, como costa, bosque o población.') },
-    { icon: '👆', text: l('Tap the subject where this country ranks highest in the world. Your tap is your answer.', 'Tik op het onderwerp waarop dit land het hoogst staat in de wereld. Je tik is meteen je antwoord.', 'Toca el tema en el que este país está más alto del mundo. Tu toque es tu respuesta.') },
-    { icon: '🥇', text: l('Best choice: gold. 2nd best: silver, 3rd: bronze. Six countries a day.', 'Beste keuze: goud. 2e beste: zilver, 3e: brons. Elke dag zes landen.', 'Mejor elección: oro. 2.ª: plata, 3.ª: bronce. Seis países al día.') },
-  ], tip: l('Think relative: a small country can still be world top in forest or coastline.', 'Denk relatief: een klein land kan toch wereldtop zijn in bos of kustlijn.', 'Piensa en relativo: un país pequeño puede ser top mundial en bosque o costa.') },
+    { icon: '🌍', text: l('Eight countries and eight subjects a day. You see all eight countries up front.', 'Elke dag acht landen en acht onderwerpen. Je ziet alle acht landen vooraf.', 'Ocho países y ocho temas al día. Ves los ocho países desde el principio.') },
+    { icon: '👆', text: l('For each country, pick the subject where it ranks highest in the world. Each subject once.', 'Kies per land het onderwerp waarop het het hoogst staat in de wereld. Elk onderwerp één keer.', 'Para cada país, elige el tema en el que está más arriba del mundo. Cada tema una vez.') },
+    { icon: '🏆', text: l('Its strongest subject is 125 points; a weaker pick gives fewer. You also see the best total possible today.', 'Het sterkste onderwerp is 125 punten; een zwakkere keuze minder. Je ziet ook de beste score die vandaag mogelijk was.', 'Su tema más fuerte vale 125 puntos; uno más débil, menos. También ves el mejor total posible hoy.') },
+  ], tip: l('Plan ahead: save a subject for the country that has nothing else.', 'Denk vooruit: bewaar een onderwerp voor het land dat verder niets heeft.', 'Piensa por adelantado: guarda un tema para el país que no tiene otro.') },
   daily: { emoji: '✈️', steps: [
     { icon: '🧳', text: l('Twenty questions from every kind of game, mixed: flags, capitals, the map, neighbours and sizes.', 'Twintig vragen uit alle soorten spellen door elkaar: vlaggen, hoofdsteden, de kaart, buurlanden en grootte.', 'Veinte preguntas de todos los tipos de juego, mezcladas: banderas, capitales, el mapa, vecinos y tamaños.') },
     { icon: '👆', text: l('Tap the answer you think is right. There is no timer, take your time.', 'Tik op het antwoord dat jij denkt. Er is geen tijdsdruk, neem je tijd.', 'Toca la respuesta que creas correcta. No hay reloj, tómate tu tiempo.') },
     { icon: '💡', text: l('After every answer you see if it was right, with a fun fact. Each question is worth up to 50 points.', 'Na elk antwoord zie je of het goed was, met een weetje. Elke vraag is tot 50 punten waard.', 'Después de cada respuesta ves si acertaste, con un dato curioso. Cada pregunta vale hasta 50 puntos.') },
-  ], tip: l('Everyone gets the same detour today. A new one starts at midnight (UTC).', 'Iedereen krijgt vandaag dezelfde omweg. Om middernacht (UTC) begint een nieuwe.', 'Hoy todos hacen el mismo desvío. Uno nuevo empieza a medianoche (UTC).') },
+  ], tip: l('Everyone gets the same trip today. A new one every day: come back tomorrow.', 'Iedereen krijgt vandaag dezelfde reis. Elke dag een nieuwe: kom morgen terug.', 'Hoy todos hacen el mismo viaje. Cada día uno nuevo: vuelve mañana.') },
   compare: { emoji: '⚖️', steps: [
     { icon: '🌎', text: l('Two countries and one subject of the day, for example land neighbours.', 'Twee landen en één onderwerp van de dag, bijvoorbeeld het aantal buurlanden.', 'Dos países y un tema del día, por ejemplo los países vecinos.') },
     { icon: '👆', text: l('Tap the country with the higher value.', 'Tik op het land met de hoogste waarde.', 'Toca el país con el valor más alto.') },
-    { icon: '🔁', text: l('One country stays for the next round and a new one joins. Ten rounds, 100 points each.', 'Eén land blijft voor de volgende ronde en er komt een nieuw land bij. Tien rondes, elk 100 punten.', 'Un país se queda para la siguiente ronda y llega uno nuevo. Diez rondas de 100 puntos.') },
-  ], tip: l('Unsure? Think about size, climate and where the country lies.', 'Twijfel je? Denk aan grootte, klimaat en waar het land ligt.', '¿Dudas? Piensa en el tamaño, el clima y dónde está el país.') },
+    { icon: '💥', text: l('One country stays and a new one joins. 15 rounds, easy to close; one mistake ends the run.', 'Eén land blijft en er komt een nieuw bij. 15 rondes, makkelijk tot nipt; één fout en je bent af.', 'Un país se queda y llega otro. 15 rondas, de fácil a reñido; un error termina la partida.') },
+  ], tip: l('All 15 right is 1,000 points. No timer, so take your time on the close ones.', 'Alle 15 goed is 1.000 punten. Geen timer, dus neem je tijd bij de nipte.', 'Las 15 bien son 1000 puntos. Sin cronómetro: tómate tu tiempo en las reñidas.') },
   mosaic: { emoji: '🧩', steps: [
     { icon: '🔲', text: l('The board hides four countries in tiles: names, flags, shapes, facts and more.', 'Op het bord zitten vier landen verstopt in tegels: namen, vlaggen, vormen, weetjes en meer.', 'El tablero esconde cuatro países en fichas: nombres, banderas, siluetas, datos y más.') },
     { icon: '👆', text: l('Tap one tile of each kind that belong to the same country, then tap "Check match".', 'Tik op één tegel van elke soort die bij hetzelfde land hoort en tik dan op "Controleer set".', 'Toca una ficha de cada tipo del mismo país y luego «Comprobar grupo».') },
@@ -30,10 +30,10 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '👆', text: l('Pick the country. In the daily game: 200, 150, 100 or 50 points after 1, 2, 3 or 4 clues.', 'Kies het land. In het dagspel: 200, 150, 100 of 50 punten na 1, 2, 3 of 4 hints.', 'Elige el país. En el juego diario: 200, 150, 100 o 50 puntos tras 1, 2, 3 o 4 pistas.') },
   ], tip: l('The fewer clues you need, the better you know the world.', 'Hoe minder hints je nodig hebt, hoe beter je de wereld kent.', 'Cuantas menos pistas necesites, mejor conoces el mundo.') },
   duel: { emoji: '⚔️', steps: [
-    { icon: '🃏', text: l('You get five country cards. Each round Roviko plays a country on a subject.', 'Je krijgt vijf landenkaarten. Elke ronde speelt Roviko een land op een onderwerp.', 'Recibes cinco cartas de países. Cada ronda Roviko juega un país en un tema.') },
-    { icon: '👆', text: l('Pick a card from your hand that scores higher than Roviko\'s country. In the daily duel every win is worth 200 points.', 'Kies een kaart uit je hand die hoger scoort dan het land van Roviko. In het dagduel is elke winst 200 punten waard.', 'Elige una carta de tu mano que supere al país de Roviko. En el duelo diario cada victoria vale 200 puntos.') },
+    { icon: '🃏', text: l('You get seven country cards. Each round Roviko plays a country on a subject.', 'Je krijgt zeven landenkaarten. Elke ronde speelt Roviko een land op een onderwerp.', 'Recibes siete cartas de países. Cada ronda Roviko juega un país en un tema.') },
+    { icon: '👆', text: l('Pick a card from your hand that you think scores higher than Roviko\'s country. You only see who won each duel after your last card.', 'Kies een kaart uit je hand die volgens jou hoger scoort dan het land van Roviko. Wie elk duel won, zie je pas na je laatste kaart.', 'Elige la carta de tu mano que creas que supera al país de Roviko. Solo ves quién ganó cada duelo después de tu última carta.') },
     { icon: '🧠', text: l('Every card only once! Save strong cards for the right subject. There is always one perfect route.', 'Elke kaart maar één keer! Bewaar sterke kaarten voor het juiste onderwerp. Er is altijd één perfecte route.', '¡Cada carta solo una vez! Guarda las fuertes para el tema adecuado. Siempre hay una ruta perfecta.') },
-  ], tip: l('Look at all five subjects at the top first and plan which card goes where.', 'Bekijk eerst alle vijf onderwerpen bovenaan en bedenk welke kaart waar hoort.', 'Mira primero los cinco temas de arriba y planea qué carta va en cada uno.') },
+  ], tip: l('Look at all seven subjects and Roviko\'s countries at the top first and plan which card goes where.', 'Bekijk eerst alle zeven onderwerpen en landen van Roviko bovenaan en bedenk welke kaart waar hoort.', 'Mira primero los siete temas y los países de Roviko de arriba y planea qué carta va en cada uno.') },
   mystery: { emoji: '❓', steps: [
     { icon: '📜', text: l('Read the clue about a special place somewhere in the world.', 'Lees de aanwijzing over een bijzondere plek ergens op de wereld.', 'Lee la pista sobre un lugar especial en algún sitio del mundo.') },
     { icon: '💡', text: l('Stuck? Tap for another clue.', 'Kom je er niet uit? Tik voor nog een aanwijzing.', '¿Atascado? Toca para otra pista.') },
@@ -52,7 +52,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   pinpoint: { emoji: '🗺️', steps: [
     { icon: '📍', text: l('You get the name of a country.', 'Je krijgt de naam van een land.', 'Recibes el nombre de un país.') },
     { icon: '👆', text: l('Tap the country on the world map: your tap is your answer. Pinch or use + and − to zoom in first.', 'Tik op het land op de wereldkaart: je tik is je antwoord. Zoom eerst in met knijpen of + en −.', 'Toca el país en el mapa: tu toque es tu respuesta. Antes, pellizca o usa + y − para acercar.') },
-    { icon: '📏', text: l('You see how far away you were and where the country really is.', 'Je ziet hoe ver je ernaast zat en waar het land echt ligt.', 'Ves a qué distancia quedaste y dónde está realmente el país.') },
+    { icon: '📏', text: l('A tap inside the country, or within 25 km of its border, is right. Otherwise the closer your pin, the more points, and you see where the country really is.', 'Een tik in het land, of binnen 25 km van de grens, is goed. Anders geldt: hoe dichterbij je pin, hoe meer punten, en je ziet waar het land echt ligt.', 'Un toque dentro del país, o a menos de 25 km de su frontera, es correcto. Si no, cuanto más cerca tu marca, más puntos, y ves dónde está realmente el país.') },
   ], tip: l('Start with the continent, then zoom in.', 'Begin bij het werelddeel en zoom dan in.', 'Empieza por el continente y luego acércate.') },
   borders: { emoji: '🤝', steps: [
     { icon: '🌍', text: l('You see a country.', 'Je ziet een land.', 'Ves un país.') },
@@ -64,6 +64,11 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '↕️', text: l('Put them in order of size, largest at the top. Drag a row or use the arrows.', 'Zet ze op volgorde van grootte, de grootste bovenaan. Sleep een rij of gebruik de pijltjes.', 'Ordénalos por tamaño, el más grande arriba. Arrastra una fila o usa las flechas.') },
     { icon: '✅', text: l('Tap "Confirm order" and see which places were right.', 'Tik op "Volgorde bevestigen" en zie welke plekken goed waren.', 'Toca «Confirmar orden» y mira qué posiciones acertaste.') },
   ], tip: l('Size means land area, not population.', 'Grootte betekent oppervlakte, niet het aantal inwoners.', 'Tamaño significa superficie, no población.') },
+  shape: { emoji: '🗺️', steps: [
+    { icon: '👀', text: l('You see the outline of one country, without the map around it.', 'Je ziet de omtrek van één land, zonder de kaart eromheen.', 'Ves el contorno de un país, sin el mapa alrededor.') },
+    { icon: '👆', text: l('Pick the right country from four names.', 'Kies het juiste land uit vier namen.', 'Elige el país correcto entre cuatro nombres.') },
+    { icon: '❤️', text: l('In the daily survival run you have one life: a wrong answer ends the run. It starts with famous shapes and ends with tricky neighbours.', 'In de dagelijkse overlevingsrun heb je één leven: een fout antwoord stopt de run. Het begint met bekende vormen en eindigt met lastige buurlanden.', 'En la partida diaria de supervivencia tienes una vida: un fallo la termina. Empieza con formas famosas y acaba con vecinos difíciles.') },
+  ], tip: l('Look for coastlines, long borders and islands. North is always up.', 'Let op kustlijnen, lange grenzen en eilanden. Het noorden is altijd boven.', 'Fíjate en costas, fronteras largas e islas. El norte siempre está arriba.') },
   room: { emoji: '👥', steps: [
     { icon: '🔑', text: l('Create a room and share the code or link. 2 to 12 players, guests are welcome.', 'Maak een kamer en deel de code of link. 2 tot 12 spelers, ook als gast.', 'Crea una sala y comparte el código o el enlace. De 2 a 12 jugadores, también invitados.') },
     { icon: '⚙️', text: l('The host picks the games, the number of questions and the timer.', 'De host kiest de spellen, het aantal vragen en de timer.', 'El anfitrión elige los juegos, el número de preguntas y el tiempo.') },
@@ -77,7 +82,7 @@ export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', da
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
   { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'] },
-  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mystery'] },
+  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mystery', 'shape'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'order'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];
@@ -87,6 +92,9 @@ export const HOW_TO_PLAY_ORDER = HOW_TO_PLAY_GROUPS.flatMap(g => g.modes);
 
 /** One worked example per game, shown under "Example" on the How to play page. */
 export const HOW_TO_EXAMPLES: Record<string, L> = {
+  shape: l('A long, thin outline along a coast, with a jagged southern tip? That is Chile. A boot shape with two islands next to it is Italy.',
+    'Een lange, smalle vorm langs een kust, met een rafelige zuidpunt? Dat is Chili. Een laars met twee eilanden ernaast is Italië.',
+    'Un contorno largo y estrecho junto a la costa, con la punta sur recortada: es Chile. Una bota con dos islas al lado es Italia.'),
   rank: l('Iceland: population, forest, coastline or exports? With fewer than 400,000 people it ranks low on population and forest, but its long, jagged coastline lifts it far up the list. Coastline is the strong pick.',
     'IJsland: bevolking, bos, kustlijn of export? Met minder dan 400.000 inwoners staat het laag op bevolking en bos, maar de lange, grillige kust tilt het ver omhoog. Kustlijn is de sterke keuze.',
     'Islandia: ¿población, bosque, costa o exportaciones? Con menos de 400.000 habitantes está abajo en población y bosque, pero su costa larga y recortada la sube mucho. La costa es la buena elección.'),

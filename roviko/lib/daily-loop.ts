@@ -1,4 +1,6 @@
 import { spanishContent } from '../i18n/content';
+import type { DailyState } from './bonus';
+export * from './bonus';
 // Pure helpers behind the daily return loop: streak milestones, the UTC reset countdown,
 // which daily game to suggest next, and the deterministic "mystery country" of the day.
 
@@ -7,7 +9,7 @@ export const DAILY_MODES = ['rank', 'duel', 'compare', 'mosaic', 'trail'] as con
 export const DAY_MODES = ['daily', ...DAILY_MODES] as const;
 export type DayMode = typeof DAY_MODES[number];
 export type DailyMode = typeof DAILY_MODES[number];
-export type DailyState = 'new' | 'active' | 'done';
+export type { DailyState } from './bonus';
 
 export const STREAK_MILESTONES = [3, 7, 14, 30, 50, 100, 200, 365];
 

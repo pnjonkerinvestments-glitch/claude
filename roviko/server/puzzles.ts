@@ -1,14 +1,14 @@
 import { COMPETITION_SUFFIX, dailyScore } from '../lib/daily-scoring';
 import { recordCompetition } from './competition';
 import { refreshMosaicFacts } from '../lib/puzzles/country-facts';
-import { reviewSession } from './reviews';
+import { reviewSession, reviewStatements } from './reviews';
 import { dailyContent } from './daily-content';
 import { z } from 'zod';
 import { AppError } from './auth';
 import { one, rows, run, batch } from './db';
 import { resultStatement } from './stats';
 import { TOPICS } from '../lib/puzzles/topics';
-import { dailyTopic, generateComparisons, generateMosaic } from '../lib/puzzles/generate';
+import { COMPARE_ROUNDS, dailyTopic, generateComparisons, generateMosaic } from '../lib/puzzles/generate';
 import { checkMosaic, reviewMosaic, mosaicHint, type PuzzleState, type PuzzleView } from '../lib/puzzles/model';
 import type { Env, User } from './types';
 
@@ -39,7 +39,7 @@ export async function puzzleToday(env: Env, user: User, competition = false) {
   const sessions = await rows(env, "SELECT id,kind,completed,state FROM game_sessions WHERE user_id=? AND date=?", user.id, date);
   const recent = await rows(env, 'SELECT date FROM daily_challenge_results WHERE user_id=? AND date>=? ORDER BY date', user.id, new Date(Date.parse(date)-6*86400000).toISOString().slice(0,10));
   const tomorrow = new Date(Date.parse(date)+86400000).toISOString().slice(0,10);
-  return { date, topic: dailyTopic(date), tomorrowTopic: dailyTopic(tomorrow), week: Array.from({length:7},(_,i)=>{const day=new Date(Date.parse(date)-(6-i)*86400000).toISOString().slice(0,10);return {date:day,completed:recent.some((r:any)=>r.date===day)};}), sessions: sessions.filter((s:any)=>competition ? s.kind.endsWith(COMPETITION_SUFFIX) : !s.kind.endsWith(COMPETITION_SUFFIX)).map((s:any)=>{const state=JSON.parse(s.state);return {id:s.id,mode:state.competition?.mode??s.kind.replace('puzzle:',''),completed:!!s.completed,round:state.round,total:state.questions?.length||(state.mode==='duel'?5:4)};}) };
+  return { date, topic: dailyTopic(date), tomorrowTopic: dailyTopic(tomorrow), week: Array.from({length:7},(_,i)=>{const day=new Date(Date.parse(date)-(6-i)*86400000).toISOString().slice(0,10);return {date:day,completed:recent.some((r:any)=>r.date===day)};}), bonus: sessions.filter((s:any)=>s.kind.startsWith('bonus:')).map((s:any)=>{const state=JSON.parse(s.state);return {mode:s.kind.slice(6),completed:!!s.completed,score:state.answers?.filter((a:any)=>a.correct).length??0,total:state.questions?.length??10};}), survival: sessions.filter((s:any)=>s.kind.startsWith('survival:')).map((s:any)=>{const state=JSON.parse(s.state);return {mode:s.kind.slice(9),completed:!!s.completed,score:state.answers?.filter((a:any)=>a.correct).length??0,out:!!state.out};}), sessions: sessions.filter((s:any)=>!s.kind.startsWith('bonus:') && !s.kind.startsWith('survival:') && (competition ? s.kind.endsWith(COMPETITION_SUFFIX) : !s.kind.endsWith(COMPETITION_SUFFIX))).map((s:any)=>{const state=JSON.parse(s.state);return {id:s.id,mode:state.competition?.mode??s.kind.replace('puzzle:',''),completed:!!s.completed,round:state.round,total:state.board?.rounds?.length||state.questions?.length||(state.mode==='duel'?5:4)};}) };
 }
 export async function startPuzzle(env: Env, user: User, input: unknown, focus?: string) {
   const settings = schema.parse(input), daily = settings.daily ? new Date().toISOString().slice(0, 10) : null;
@@ -52,11 +52,11 @@ export async function startPuzzle(env: Env, user: User, input: unknown, focus?: 
   const id = crypto.randomUUID(), seed = daily ? 'roviko:puzzle:v1:' + settings.mode + ':' + daily : id;
   const topic = daily ? dailyTopic(daily).id : settings.topic ?? TOPICS[0].id;
   const size = daily ? 4 : settings.size;
-  const generate = (seed: string) => ({ settings: { topic, size }, questions: settings.mode === 'compare' ? generateComparisons(topic, seed, 10, focus) : [], board: settings.mode === 'mosaic' ? generateMosaic(size, seed, focus, daily ?? new Date().toISOString().slice(0, 10)) : null });
+  const generate = (seed: string) => ({ settings: { topic, size }, questions: settings.mode === 'compare' ? generateComparisons(topic, seed, COMPARE_ROUNDS, focus, [], true) : [], board: settings.mode === 'mosaic' ? generateMosaic(size, seed, focus, daily ?? new Date().toISOString().slice(0, 10)) : null });
   const content = daily ? await dailyContent(env, daily, kind, generate) : { ...generate(seed), datasetVersion: undefined };
   const blocked = await rows(env, 'SELECT question_id FROM disabled_questions');
   if (blocked.some((r:any) => content.board?.id === r.question_id || content.questions.some((q:any) => q.id === r.question_id))) throw new AppError('QUESTION_UNAVAILABLE',503);
-  const s: PuzzleState = { id,...(ranked?{competition:{version:1,mode:settings.mode} as const}:{}), mode: settings.mode, daily, ...content, phase: 'question', round: 0, startedAt: Date.now(), turnAt: Date.now(), answers: [], solved: [], streak: 0, bestStreak: 0 };
+  const s: PuzzleState = { ...(settings.mode === 'compare' && content.questions.length >= COMPARE_ROUNDS ? { suddenDeath: true } : {}), id,...(ranked?{competition:{version:1,mode:settings.mode} as const}:{}), mode: settings.mode, daily, ...content, phase: 'question', round: 0, startedAt: Date.now(), turnAt: Date.now(), answers: [], solved: [], streak: 0, bestStreak: 0 };
   const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
   if (!inserted.meta.changes && daily) {
     const saved = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, daily, kind);
@@ -105,7 +105,8 @@ export async function puzzleAction(env: Env, user: User, id: string, action: str
     s.turnAt = Date.now();
     s.streak = correct ? s.streak + 1 : 0; s.bestStreak = Math.max(s.bestStreak, s.streak);
   } else if (action === 'next' && s.mode === 'compare' && s.phase === 'reveal') {
-    if (s.round + 1 === s.questions.length) s.phase = 'finished';
+    if (s.suddenDeath && !s.answers.at(-1)?.correct) { s.phase = 'finished'; s.out = true; }
+    else if (s.round + 1 === s.questions.length) s.phase = 'finished';
     else {
       s.round++; s.phase = 'question'; s.turnAt = Date.now();
     }
@@ -113,7 +114,7 @@ export async function puzzleAction(env: Env, user: User, id: string, action: str
   const updated = await run(env, 'UPDATE game_sessions SET state=?,version=version+1,completed=? WHERE id=? AND version=?', JSON.stringify(s), +(s.phase === 'finished'), id, row.version);
   if (!updated.meta.changes) throw new AppError('STATE_CHANGED', 409);
   // Immutable audit rows and result insertion are idempotent; GET repairs a retried completion.
-  if (action === 'answer') { await batch(env, answerStatements(user, s).slice(-1)); await reviewSession(env, user, s, row.created_at); }
+  if (action === 'answer') await batch(env, [...answerStatements(user, s).slice(-1), ...reviewStatements(user, s, row.created_at, s.answers.length - 1)]);
   if (s.phase === 'finished') await recordPuzzle(env, user, s);
   return view(s, row.version + 1);
 }

@@ -435,3 +435,40 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
 - **Contact:** support@roviko.app in de footer en in het Paspoort, met ook een link naar de privacyverklaring.
 - **Wachtruimte van een kamer op de telefoon:** liep rechts buiten beeld. Opgelost en gecontroleerd op 320 en 390 px.
 - **Documenten voor de stores:** `docs/APP_REVIEW_NOTES.md` (tekst voor de reviewer) en `docs/STORE_PRIVACY.md` (privacylabels, Data safety, leeftijd).
+
+## 1.21.0: menu, account, Multiplayer-tab, eerlijke kaartvragen, competitie
+
+**Niet live zetten voordat Apple de app heeft goedgekeurd.** Nieuwe migratie: `drizzle/0007_yummy_dragon_lord.sql` (kolom `users.email_verified`, tabel `email_tokens`); de deployworkflow past hem vanzelf toe. Nieuwe optionele geheimen: `RESEND_API_KEY`, `MAIL_FROM`. Cacheversie `roviko-shell-v1.21.0`, dataset `atlas-2026-09-25-r6`.
+
+- **Menu (☰)** met Mijn account, Vrienden, Instellingen, Ranglijsten, Hoe speel je en Puntentelling.
+- **Mijn account** (`/account`): e-mail met bevestigd-badge en knop om te bevestigen, wachtwoord wijzigen, wachtwoord vergeten (via e-mail), vriendcode, gegevens downloaden, contact, privacy, uitloggen, account verwijderen, geblokkeerde spelers. Het Paspoort linkt ernaartoe ("Account en privacy").
+- **Instellingen** (`/settings`): geluidseffecten, zachte achtergrondmuziek (Web Audio, geen bestanden), taal, thema, dagherinnering in de app, optionele metingen.
+- **Huisknop in spellen** op de telefoon, zodat je altijd terug kunt naar het hoofdmenu.
+- **Multiplayer-tab** (was Friends): bovenaan vrienden die online zijn met uitnodigen, verzoeken en vriend toevoegen met code; daaronder spelen tegen een willekeurige speler en tegen de computer; daaronder een privékamer.
+- **Kaartvragen**: geen piepkleine eilanden meer (minimaal 3.000 km²); kleine landen openen ingezoomd met een korte hint; de regelregel onder de kaart is weg (staat in de uitleg).
+- **Daily Detour** begint makkelijk: vlag, dan hoofdstad, bekende landen in de eerste drie vragen, geen klein land op de kaart in de eerste vijf.
+- **Country Mosaic** compact: 4×4-raster zonder scrollen, opgeloste groepen als gekleurde balken, lange namen kleiner, op desktop maximaal 600px breed.
+- **Nieuwste data**: 2025/2024 waar betrouwbaar, anders 2023 (zie START_HERE).
+- **Competitie**: weekranglijst, vriendenranglijst, en overal "nog X punten tot plek N". Na de Detour zie je je dagplek en je doel.
+- **Uit het Grok-plan** (alleen wat nuttig was): nieuwe homepagetekst en een welkomstregel voor nieuwe spelers, delen via het deelmenu van de telefoon, een eenmalige vraag aan gasten om hun voortgang te bewaren na de eerste Detour, "lokale dag" in plaats van "middernacht (UTC)", vriendelijkere gastnamen (bijv. "Brave Otter 42"), en Ontdekken toont bij elk land de juiste afbeelding (of een neutrale kaart). Niet overgenomen: "Detour-first in plaats van 6/6" (botst met het competitie-element) en "Friends niet hernoemen" (de eigenaar wil Multiplayer).
+
+- **Bonustour**: zodra de zes spellen met punten klaar zijn, wijst de homepage (knop, mascotte en een uitgelicht blok bovenaan) naar zes klassieke spellen met elke dag andere landen, dezelfde voor iedereen. Na elk bonusspel zie je hoe je het deed ten opzichte van de spelers van vandaag en ga je met één knop door naar het volgende; na het laatste dagspel verwijst het resultaat direct naar de bonustour. Geen ranglijstpunten. Nieuwe migratie `drizzle/0008_rainy_amphibian.sql` (alleen een index voor die vergelijking).
+- **Rondleiding** bij het eerste bezoek (4 stappen, voor gasten een 5e over het gratis account), ook via het menu. Het aanmeldvenster toont wat een account oplevert, en gasten die al spelen zien op de homepage een blok "Je reeks staat alleen op dit apparaat".
+
+- **Na feedback (1 oktober):**
+  - Downloadscherm voor iPhone-bezoekers in de browser en een link "Download de iPhone-app" onderaan.
+  - Snellere antwoorden in de dagspellen: de server verwerkte na elk antwoord alle eerdere antwoorden opnieuw (bij vraag 20 tientallen databaseacties); nu één bundel per antwoord.
+  - Next Door: het gevraagde land blauw, het buurland oranje, met legenda.
+  - "Run it back" werkt voor iedereen en start direct een nieuwe wedstrijd.
+  - Multiplayer stabieler: geen herverbinding meer elke ~25 seconden en geen foutmeldingen bij tijdelijke drukte.
+  - Kaartvragen vanaf 3.000 km² (dus ook Fiji, Vanuatu, de Salomonseilanden, Cyprus).
+
+- **Na feedback (spelelement, 1 oktober):**
+  - **Rank Radar** opnieuw ontworpen (naar GeoRankle, maar beter): acht landen en acht onderwerpen per dag, elk onderwerp één keer. Je ziet alle landen vooraf, na elke keuze de plek van dat land in alle acht onderwerpen, tot 125 punten per land en aan het eind de best mogelijke score van de dag.
+  - **Side by Side**: 15 vragen, van makkelijk naar moeilijk; één fout en je run is voorbij.
+  - **World Duel**: 7 landen, en je ziet pas na je laatste kaart wie er won, in een overzicht per land waarin je elk duel kunt openen en doorklikken.
+  - **Overleven** (nieuw blok op de homepage en bij Alle spellen): drie dagelijkse runs waarin één fout je eruit gooit: Size Shuffle, Next Door en het nieuwe **Vormenjacht** (land herkennen aan zijn omtrek). Elke run wordt per vraag moeilijker. Je ziet hoeveel spelers je verslaat en de langste run van vandaag.
+  - Alle zes dagspellen geven elk account dezelfde vragen (dat was al zo; nu ook voor de nieuwe borden gecontroleerd en getest).
+  - Eindscherm van de dagspellen duidelijker, menu-knoppen goed uitgelijnd, elk land bij "Today's picks" een herkenbaar plaatje (vorm van het land als er geen foto is), alle afbeeldingen opnieuw scherp gemaakt (2×).
+
+Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 390×844 en 1280×800 van home, Multiplayer (gast en account), Account, Instellingen, Ranglijsten, Ontdekken, menu en Country Mosaic. Nog fysiek te controleren: muziek en geluid op een echte iPhone, e-mails zodra Resend is ingesteld.

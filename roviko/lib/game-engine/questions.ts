@@ -1,5 +1,6 @@
 import { spanishCapital, spanishCountry } from '../../i18n/content';
 import data from '../data/countries.json';
+import silhouettes from '../data/silhouettes.json';
 import { locateInCountry, type Polygons } from './geometry';
 import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash } from './scoring';
 import { GEOGRAPHY_POLICY, MODES } from '../config';
@@ -28,6 +29,8 @@ export type Settings = {
     difficulty: string;
     region: string;
     typed?: boolean;
+    /** Survival runs (1.21): questions climb from easy to hard over the run. */
+    ramp?: boolean;
     enabledModes?: string[];
 };
 export type Option = {
@@ -59,12 +62,47 @@ export type Question = {
     difficulty: string;
     typed?: boolean;
     clues?: { en: string; nl: string; es?: string }[];
+    /** Shape Shift (1.21): the country outline as an SVG path in a 100 × 80 box. */
+    shape?: string;
     mapRule?: 'country-v1';
     toleranceKm?: number;
     geometry?: Polygons;
+    /** Pinpoint on a small country: the map opens on this [south, west, north, east] box around its subregion. */
+    zoom?: [number, number, number, number];
 };
 const familiar = ['USA', 'CAN', 'MEX', 'BRA', 'ARG', 'PER', 'CHL', 'COL', 'GBR', 'FRA', 'ESP', 'ITA', 'DEU', 'NLD', 'BEL', 'GRC', 'PRT', 'SWE', 'NOR', 'CHE', 'AUT', 'POL', 'RUS', 'CHN', 'JPN', 'IND', 'IDN', 'THA', 'KOR', 'TUR', 'SAU', 'AUS', 'NZL', 'FJI', 'EGY', 'ZAF', 'MAR', 'KEN', 'NGA', 'GHA'];
+/** How recognisable a country is, 0 (very) to 2 (hardly): the familiar list first, then by size. */
+const bySize = COUNTRIES.filter(c => !familiar.includes(c.id)).sort((a, b) => b.area - a.area).map(c => c.id);
+export function fame(c: Country) { return familiar.includes(c.id) ? 0 : 1 + bySize.indexOf(c.id) / Math.max(1, bySize.length - 1); }
+const SHAPES = silhouettes as Record<string, string>;
+/** In a survival run question i of n sits at level 0 (easy) to 1 (hard): pick candidates around that fame. */
+function rampWindow<T extends Country>(candidates: T[], level: number) {
+    const sorted = [...candidates].sort((a, b) => fame(a) - fame(b)), size = Math.max(6, Math.round(sorted.length * .16));
+    const start = Math.max(0, Math.min(sorted.length - size, Math.round(level * (sorted.length - size))));
+    return sorted.slice(start, start + size);
+}
+/** Four countries for Size Shuffle whose areas sit far apart (easy) or close together (hard). */
+function rampOrder(c: Country, pool: Country[], level: number, rng: () => number) {
+    const lo = 1.12 + (1 - level) * 2.4, hi = level > .6 ? lo * 1.9 : Infinity;
+    for (let tries = 0; tries < 200; tries++) {
+        const list = [c, ...shuffle(pool.filter(x => x.id !== c.id), rng).slice(0, 3)].sort((a, b) => b.area - a.area);
+        if (list.every((x, i) => i === 0 || (list[i - 1].area / x.area >= lo && list[i - 1].area / x.area <= hi))) return list;
+    }
+    return null;
+}
 const aliases: Record<string, string[]> = { CHN: ['Peking'], UKR: ['Kiev', 'Kyiv'], MEX: ['Mexico City', 'Mexico-stad', 'Ciudad de Mexico'], CZE: ['Prague', 'Praag', 'Praha'], RUS: ['Moscow', 'Moskou', 'Moskva'], EGY: ['Cairo', 'Caïro'], ITA: ['Rome', 'Roma'], AUT: ['Vienna', 'Wenen', 'Wien'], BEL: ['Brussels', 'Brussel', 'Bruxelles'], DNK: ['Copenhagen', 'Kopenhagen'], GRC: ['Athens', 'Athene'], POL: ['Warsaw', 'Warschau'], PRT: ['Lisbon', 'Lissabon', 'Lisboa'], SWE: ['Stockholm'], HUN: ['Budapest', 'Boedapest'], ROU: ['Bucharest', 'Boekarest'], SRB: ['Belgrade', 'Belgrado'], ESP: ['Madrid'], KOR: ['Seoul'], THA: ['Bangkok', 'Krung Thep'] };
+/** Pin questions only use countries a player can realistically find and tap on a phone-sized world map:
+ *  at least 3,000 km² (so Fiji, Vanuatu and Cyprus count, tiny atolls and microstates do not). Small ones open zoomed in. */
+const PIN_MIN_AREA = 3000;
+export function pinnable(c: Country) { return c.area >= PIN_MIN_AREA; }
+/** Below this size the map opens zoomed in on the country's subregion, and the Daily Detour keeps it out of its first five questions. */
+export const PIN_SMALL_AREA = 50000;
+function subregionBox(c: Country): [number, number, number, number] {
+    const pts = COUNTRIES.filter(x => x.subregion === c.subregion).map(x => x.latlng);
+    const lat = pts.map(p => p[0]), lng = pts.map(p => p[1]);
+    const pad = 4;
+    return [Math.max(-85, Math.min(...lat) - pad), Math.max(-180, Math.min(...lng) - pad), Math.min(85, Math.max(...lat) + pad), Math.min(180, Math.max(...lng) + pad)];
+}
 function namesOverlap(a: Country, b: Country) { return [a.name, a.nl, spanishCountry(a.name)].some((name,i) => name.toLocaleLowerCase().includes([b.name,b.nl,spanishCountry(b.name)][i].toLocaleLowerCase())); }
 function nameOption(c: Country): Option { return { id: c.id, en: c.name, nl: c.nl, flag: c.flag }; }
 function capitalOption(c: Country): Option { return { id: c.id, en: c.capitals[0], nl: c.capitals[0] }; }
@@ -89,6 +127,8 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     // Daily Detour: every question type, four times over, shuffled per block of five and never the same type twice in a row.
     const DETOUR = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
     const detourOrder: string[] = [];
+    // The trip opens gently: a flag and a capital first, the map and the harder types after that.
+    if (settings.mode === 'daily') detourOrder.push('flags', 'capitals', ...shuffle(['pinpoint', 'borders', 'order'], rng));
     if (settings.mode === 'daily') while (detourOrder.length < settings.count) {
         let block = shuffle([...DETOUR], rng);
         if (block[0] === detourOrder.at(-1)) block = [...block.slice(1), block[0]];
@@ -105,7 +145,13 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         if (mode === 'borders')
             candidates = candidates.filter(c => c.borders.some(id => COUNTRIES.some(n => n.id === id && !namesOverlap(c,n))) && !['PSE', 'ISR', 'RUS', 'UKR'].includes(c.id));
         if (mode === 'pinpoint')
-            candidates = candidates.filter(c => c.area > 25 && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id));
+            candidates = candidates.filter(c => pinnable(c) && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id) && (settings.mode !== 'daily' || i >= 5 || c.area >= PIN_SMALL_AREA));
+        // The first three Detour questions are about well-known countries.
+        if (settings.mode === 'daily' && i < 3) { const known = candidates.filter(c => familiar.includes(c.id)); if (known.length) candidates = known; }
+        const level = settings.ramp ? i / Math.max(1, settings.count - 1) : 0;
+        if (mode === 'shape') candidates = candidates.filter(c => SHAPES[c.id] && c.area >= 2000 && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id));
+        if (settings.ramp && mode !== 'order') candidates = rampWindow(candidates, level);
+        if (settings.ramp && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
         if (!candidates.length)
             throw new Error('Question unavailable');
         const weighted = focus && i === 0 ? candidates.filter(c => c.id === focus) : !daily && weak.length && rng() < .45 ? candidates.filter(c => weak.includes(c.id)) : [];
@@ -128,7 +174,10 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         const others = COUNTRIES.filter(x => x.id !== c.id && x.capitals.length);
         const nearby = shuffle(others.filter(x => x.region === c.region), rng);
         const far = shuffle(others.filter(x => x.region !== c.region), rng);
-        const plausible = settings.difficulty === 'easy' ? shuffle(others, rng) : [...nearby, ...far];
+        // A survival run starts with wrong options from other continents and ends with neighbours from the same subregion.
+        const calm = (list: Country[]) => list.filter(x => !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(x.id));
+        const plausible = settings.ramp ? calm(level < .34 ? far : level < .67 ? shuffle(others, rng) : [...shuffle(others.filter(x => x.subregion === c.subregion), rng), ...nearby.filter(x => x.subregion !== c.subregion), ...far])
+            : settings.difficulty === 'easy' ? shuffle(others, rng) : [...nearby, ...far];
         if (mode === 'flags') {
             q.prompt = { en: 'Which country flies this flag?', nl: 'Bij welk land hoort deze vlag?' };
             q.flag = c.iso2;
@@ -158,6 +207,12 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.prompt = { en: `Drop a pin in ${c.name}.`, nl: `Zet een pin in ${c.nl}.` };
             q.correct = c.latlng;
             q.fact = { en: `The target is a representative point in ${c.name}. Distance is measured to this point.`, nl: `Het doel is een representatief punt in ${c.nl}. De afstand wordt tot dit punt gemeten.` };
+            if (c.area < PIN_SMALL_AREA) q.zoom = subregionBox(c);
+        }
+        else if (mode === 'shape') {
+            q.prompt = { en: 'Which country has this shape?', nl: 'Welk land heeft deze vorm?', es: '¿Qué país tiene esta forma?' };
+            q.shape = SHAPES[c.id];
+            q.options = shuffle([c, ...plausible.filter(x => SHAPES[x.id]).slice(0, 3)], rng).map(nameOption);
         }
         else if (mode === 'borders') {
             const n = shuffle(COUNTRIES.filter(x => c.borders.includes(x.id) && !namesOverlap(c,x)), rng)[0];
@@ -169,7 +224,9 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.fact = { en: `${c.name} and ${n.name} share a land border.`, nl: `${c.nl} en ${n.nl} delen een landgrens.` };
         }
         else if (mode === 'order') {
-            const list = [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
+            const ramped = settings.ramp ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), level, rng) : null;
+            if (settings.ramp && !ramped) continue;
+            const list = ramped ?? [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
             q.options = shuffle(list, rng).map(nameOption);
             q.correct = [...list].sort((a, b) => b.area - a.area).map(x => x.id);
             q.prompt = { en: 'Put these countries in order. Largest area first.', nl: 'Zet de landen op volgorde. Grootste oppervlakte bovenaan.' };

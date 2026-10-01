@@ -6,9 +6,9 @@ import { errorMessage } from '@/i18n/messages';
 import { useApp } from '../app/context';
 import { A } from '../app/shared';
 import { EmptyState, PageHeader } from '../ds/States';
-import { CoverArt } from '../home/CoverArt';
 import { GameIcon } from '../atelier/GameIcon';
 import { PlayNow } from '../multiplayer/Computer';
+import { FriendsOnlinePanel } from '../friends/Friends';
 
 const CODE = /^[A-Z2-9]{5}$/;
 const ROOM_ERRORS: Record<string, [string, string]> = {
@@ -51,30 +51,18 @@ export function RoomProblem({ code, onRetry }: { code: string; onRetry: () => vo
 
 export function MultiplayerPage() {
   const { t, setModal, go, fail } = useApp();
-  return <div className="page friends-lobby">
-    <PageHeader art="friends-hero" kicker={t('friendsKicker')} title={t('friendsLobbyTitle')} lead={t('friendsLobbyLead')}/>
+  return <div className="page friends-lobby mp-page">
+    <PageHeader art="friends-hero" kicker={t('mpKicker')} title={t('navMultiplayer')} lead={t('mpLead')}/>
+    <FriendsOnlinePanel/>
     <PlayNow t={t} go={go} fail={fail}/>
-    <div className="lobby-choice">
-      <section className="lobby-card lobby-create" aria-labelledby="create-title">
-        <div className="lobby-card-art" aria-hidden="true"><CoverArt mode="room"/></div>
-        <div className="lobby-card-body">
-          <div className="lobby-title"><GameIcon mode="room"/><div><h2 id="create-title">{t('createRoom')}</h2><p>{t('friendsCreateCopy')}</p></div></div>
-          <button className="btn primary btn-lg" onClick={() => setModal('room')}><Plus size={20} aria-hidden="true"/>{t('createRoom')}</button>
-        </div>
-      </section>
-      <section className="lobby-card lobby-join" aria-labelledby="join-title">
-        <img className="lobby-join-mascot" src="/art/join-mascot.webp" alt="" aria-hidden="true" width={161} height={137} decoding="async"/>
-        <div className="lobby-card-body">
-          <h2 id="join-title">{t('joinRoom')}</h2>
-          <p>{t('friendsJoinCopy')}</p>
-          <JoinForm/>
-        </div>
-      </section>
-    </div>
-    <div className="lobby-links">
-      <A href="/friends" className="soft-link soft-link-art"><img className="soft-link-friends" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
-      <A href="/how-to-play" className="soft-link soft-link-help"><img className="soft-link-mascot" src="/art/howto-mascot.webp" alt="" aria-hidden="true" width={185} height={191} decoding="async"/><span><strong>{t('howToLink')}</strong><small>{t('scoringFriendsCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
-    </div>
+    <section className="mp-private" aria-labelledby="mp-private-title">
+      <div className="mp-private-create">
+        <div className="lobby-title"><GameIcon mode="room"/><div><h2 id="mp-private-title">{t('mpPrivateTitle')}</h2><p className="muted">{t('friendsCreateCopy')}</p></div></div>
+        <button className="btn secondary" onClick={() => setModal('room')}><Plus size={18} aria-hidden="true"/>{t('createRoom')}</button>
+      </div>
+      <div className="mp-private-join"><JoinForm compact/></div>
+    </section>
+    <A href="/how-to-play" className="soft-link soft-link-help"><img className="soft-link-mascot" src="/art/howto-mascot.webp" alt="" aria-hidden="true" width={185} height={191} decoding="async"/><span><strong>{t('howToLink')}</strong><small>{t('scoringFriendsCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
     <p className="center-note"><ShieldCheck size={16} aria-hidden="true"/>{t('guestNote')}</p>
   </div>;
 }

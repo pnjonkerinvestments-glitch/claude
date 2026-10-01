@@ -1,0 +1,1 @@
+CREATE INDEX `games_date_kind` ON `game_sessions` (`date`,`kind`,`completed`);
