@@ -10,7 +10,7 @@ const descriptions:Record<string,string>={'flags-quiz':'Meet the world one flag 
   leaderboard:'Today\u2019s Roviko rankings: see how your daily points compare with players around the world.',
   explore:'Explore every country by region: flags, capitals, neighbours and facts. Then put your knowledge to the test.',
   multiplayer:'Play geography games with friends in a private room, against a random player or against the computer. No account needed.',
-  duel:'World Duel: five country cards against Roviko. Pick the right card for each subject and win up to 1,000 daily points.',
+  duel:'World Duel: seven country cards against Roviko. Pick the right card for each subject, see how you did at the end and win up to 1,000 daily points.',
   sources:'Where Roviko\u2019s country data comes from: sources, licences, data years and the choices behind the questions.',
   privacy:'How Roviko handles your data: what we store, why, for how long, and how to delete it.',
   terms:'The terms for playing Roviko.'};

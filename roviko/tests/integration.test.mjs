@@ -499,26 +499,32 @@ test('the next flag can load while the answer is shown, but never early and neve
  const priv=await privateGame(daily.id);const fr=priv.questions.findIndex(q=>q.mode==='flags');assert.ok(fr>=0,'the detour contains flag questions');
 });
 
-test('the daily World Duel is scored on the server, hides future values and counts once for 1,000 points',async()=>{
- const a=await bootstrap();let g=(await request(a.cookie,'/duels','POST',{competition:true})).data;
- assert.equal(g.total,5);assert.equal(g.hand.length,5);assert.deepEqual(g.solution,[]);assert.deepEqual(g.plays,[]);
+test('the daily World Duel is blind, scored on the server and counts once for 1,000 points',async()=>{
+ const a=await bootstrap(),b=await bootstrap();let g=(await request(a.cookie,'/duels','POST',{competition:true})).data;
+ assert.equal(g.total,7);assert.equal(g.blind,true);assert.equal(g.hand.length,7);assert.deepEqual(g.solution,[]);assert.deepEqual(g.plays,[]);
+ const other=(await request(b.cookie,'/duels','POST',{competition:true})).data;assert.deepEqual(other.hand,g.hand);assert.deepEqual(other.rounds.map(r=>r.roviko.id),g.rounds.map(r=>r.roviko.id));
  for(const r of g.rounds){assert.deepEqual(r.hand,{});assert.equal(r.roviko.value,undefined);}
  assert.equal((await request(a.cookie,'/duel/today')).status,404);
  const cheat=await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:'not-a-card'});assert.equal(cheat.status,400);
- // Win every round: the perfect route is only known after each play, so try cards until one wins.
+ // Nothing about played rounds leaks before the last card: no values, no wins, no score, no route.
  while(g.phase!=='finished'){
   const played=g.plays.length;
-  const res=await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand.find(c=>!g.plays.includes(c.id)).id});assert.equal(res.status,200,JSON.stringify(res.data));
-  g=res.data;assert.equal(g.plays.length,played+1);assert.ok(Number.isFinite(g.rounds[played].roviko.value));assert.equal(g.solution.length,played+1);
-  if(g.phase!=='finished')assert.deepEqual(g.rounds[played+1].hand,{});
+  const res=await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand[played].id});assert.equal(res.status,200,JSON.stringify(res.data));
+  g=res.data;assert.equal(g.plays.length,played+1);
+  if(g.phase!=='finished'){assert.ok(g.rounds.every(r=>r.roviko.value===undefined&&!Object.keys(r.hand).length));assert.deepEqual(g.solution,[]);assert.equal(g.score,undefined);assert.ok(g.answers.every(x=>x.correct===undefined));assert.equal(g.streak,0);}
+  assert.equal((await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand[played].id})).status,g.phase==='finished'?409:400,'a card plays once');
  }
- const wins=g.answers.filter(x=>x.correct).length;assert.equal(g.score,wins*200);assert.equal(g.solution.length,5);
- assert.equal((await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand[0].id})).status,409);
+ assert.ok(g.rounds.every(r=>Number.isFinite(r.roviko.value)&&Object.keys(r.hand).length===7));assert.equal(g.solution.length,7);
+ const wins=g.answers.filter(x=>x.correct).length;assert.equal(g.score,Math.round(wins/7*1000));
  const again=(await request(a.cookie,'/duels','POST',{competition:true})).data;assert.equal(again.id,g.id);
- const summary=(await request(a.cookie,'/competition?mode=duel')).data;assert.equal(summary.game.score,wins*200);assert.equal(summary.maxPerDay,6000);
- const today=(await request(a.cookie,'/puzzles/today?competition=1')).data.sessions.find(s=>s.mode==='duel');assert.equal(today.completed,true);assert.equal(today.total,5);
+ const summary=(await request(a.cookie,'/competition?mode=duel')).data;assert.equal(summary.game.score,g.score);assert.equal(summary.maxPerDay,6000);
+ const today=(await request(a.cookie,'/puzzles/today?competition=1')).data.sessions.find(s=>s.mode==='duel');assert.equal(today.completed,true);assert.equal(today.total,7);
  const rows=await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE session_id=?').bind(g.id).first();assert.equal(rows.n,1);
+ // A perfect route scores the full 1,000.
+ let p=other;for(const card of (await privateDuel(p.id)).board.solution)p=(await request(b.cookie,'/duels/'+p.id+'/play','POST',{version:p.version,card})).data;
+ assert.equal(p.score,1000);assert.ok(p.answers.every(x=>x.correct));
 });
+async function privateDuel(id){return JSON.parse((await db.prepare('SELECT state FROM game_sessions WHERE id=?').bind(id).first()).state);}
 
 test('quick match pairs two random players and starts at once; a lone player can switch to the computer',async()=>{
  const a=await bootstrap(),b=await bootstrap(),c=await bootstrap();

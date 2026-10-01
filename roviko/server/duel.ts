@@ -6,18 +6,21 @@ import { one, run, batch } from './db';
 import { dailyContent } from './daily-content';
 import { resultStatement } from './stats';
 import { generateDuel } from '../lib/puzzles/duel';
-import { DUEL_ROUNDS, duelWon, type DuelBoard } from '../lib/puzzles/duel-shared';
+import { duelWon, type DuelBoard } from '../lib/puzzles/duel-shared';
 import type { Env, User } from './types';
 
 type DuelAnswer = { value: string; correct: boolean; countryId: string; questionId: string; responseTime: number; at: number };
 export type DuelState = { id: string; competition?: Competition; mode: 'duel'; daily: string | null; phase: 'question' | 'finished'; board: DuelBoard; datasetVersion?: string; answers: DuelAnswer[]; streak: number; bestStreak: number; startedAt: number; turnAt: number };
 
-/** The scored daily World Duel: the server keeps every value and the perfect route until a card is played. */
+/** The scored daily World Duel: the server keeps every value and the perfect route until a card is played (a blind duel: until the last card). */
 function view(s: DuelState, version = 0) {
   const { board, startedAt, turnAt, ...rest } = s;
-  const played = s.answers.length, finished = s.phase === 'finished';
-  const rounds = board.rounds.map((r, i) => i < played || finished ? r : { category: r.category, roviko: { id: r.roviko.id, name: r.roviko.name, flag: r.roviko.flag }, hand: {} });
-  return { ...rest, ...(s.competition ? { score: dailyScore(s) } : {}), version, total: DUEL_ROUNDS, date: s.daily, seed: board.seed, hand: board.hand, rounds, solution: finished ? board.solution : board.solution.slice(0, played), plays: s.answers.map(a => a.value) };
+  const played = s.answers.length, finished = s.phase === 'finished', total = board.rounds.length;
+  const hidden = (r: DuelBoard['rounds'][number]) => ({ category: r.category, roviko: { id: r.roviko.id, name: r.roviko.name, flag: r.roviko.flag }, hand: {} });
+  // A blind duel (1.21) shows nothing about played rounds until the last card is down: no values, no wins, no score.
+  if (board.blind && !finished) return { ...rest, answers: s.answers.map(a => ({ value: a.value, countryId: a.countryId, questionId: a.questionId, at: a.at })), streak: 0, bestStreak: 0, version, total, blind: true, date: s.daily, seed: board.seed, hand: board.hand, rounds: board.rounds.map(hidden), solution: [], plays: s.answers.map(a => a.value) };
+  const rounds = board.rounds.map((r, i) => i < played || finished ? r : hidden(r));
+  return { ...rest, ...(s.competition ? { score: dailyScore(s) } : {}), version, total, ...(board.blind ? { blind: true } : {}), date: s.daily, seed: board.seed, hand: board.hand, rounds, solution: finished ? board.solution : board.solution.slice(0, played), plays: s.answers.map(a => a.value) };
 }
 export async function startDuel(env: Env, user: User, input: unknown) {
   const settings = z.object({ competition: z.boolean().default(true) }).parse(input ?? {});
@@ -25,7 +28,8 @@ export async function startDuel(env: Env, user: User, input: unknown) {
   const kind = 'duel' + (settings.competition ? COMPETITION_SUFFIX : '');
   const existing = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, daily, kind);
   if (existing) { const s = JSON.parse(existing.state); await record(env, user, s); return view(s, existing.version); }
-  const content = await dailyContent(env, daily, 'duel' + COMPETITION_SUFFIX, seed => ({ board: generateDuel(seed), settings: { mode: 'duel' } }));
+  // New content key for the seven-round blind duel (1.21), so a day that already has a five-round board is never mixed up.
+  const content = await dailyContent(env, daily, 'duel7' + COMPETITION_SUFFIX, seed => ({ board: generateDuel(seed), settings: { mode: 'duel' } }));
   const id = crypto.randomUUID();
   const s: DuelState = { id, ...(settings.competition ? { competition: { version: 1, mode: 'duel' } as const } : {}), mode: 'duel', daily, phase: 'question', board: content.board, datasetVersion: content.datasetVersion, answers: [], streak: 0, bestStreak: 0, startedAt: Date.now(), turnAt: Date.now() };
   const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
@@ -46,7 +50,7 @@ export async function duelAction(env: Env, user: User, id: string, action: strin
   const correct = duelWon(round, body.card);
   s.answers.push({ value: body.card, correct, countryId: round.roviko.id, questionId: s.board.seed + ':' + round.category.id, responseTime: Math.max(0, Date.now() - s.turnAt), at: Date.now() });
   s.streak = correct ? s.streak + 1 : 0; s.bestStreak = Math.max(s.bestStreak, s.streak); s.turnAt = Date.now();
-  if (s.answers.length >= DUEL_ROUNDS) s.phase = 'finished';
+  if (s.answers.length >= s.board.rounds.length) s.phase = 'finished';
   const updated = await run(env, 'UPDATE game_sessions SET state=?,version=version+1,completed=? WHERE id=? AND version=?', JSON.stringify(s), +(s.phase === 'finished'), id, row.version);
   if (!updated.meta.changes) throw new AppError('STATE_CHANGED', 409);
   await record(env, user, s); return view(s, row.version + 1);
