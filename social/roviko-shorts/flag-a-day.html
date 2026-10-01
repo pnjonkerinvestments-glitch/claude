@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko: Flag a Day</title>
+<!--
+  "Flag a Day": guess the flag in 3 seconds. 7.3 s, 1080x1920 (TikTok / Reels), 124 BPM ("Take this Higher", Mixkit,
+  the same song as short 2, so the series has one recognisable sound).
+    flag-a-day.html?day=7
+  Frame 1 already shows the hook, the flag and the timer (it is the thumbnail). 3-2-1 on the groove; "Time's up" lands on
+  the song's break (near silence, ticking); the drop: gold floods out, the flag flips into the country's shape filled with
+  the flag, name + fact (and the look-alike twin on trap days), Roviko cheers. "Comment your streak."
+  Same rules as the launch film: seek(t) draws the whole frame from t; nothing fades; springs; a real sound on every event.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #F6F3E9; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/flagaday.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script>
+const W = 1080, H = 1920;
+const TEMPO = 124.01;                      // "Take this Higher" (Mixkit), measured
+const DIL = TEMPO / 130;
+const END = 15;
+const DURATION = END * 60 / TEMPO;         // 7.26 s
+const FLAGS = '../../roviko/public/flags/';
+const DAY = Math.max(1, Math.min(30, +(Q.get('day') || 1)));
+const D = FLAG_DAYS[DAY - 1], LV = FLAG_LEVELS[D.level];
+const TL = { n3: 1, n2: 3, n1: 5, up: 7, drum: [8, 8.5, 9, 9.25, 9.5, 9.75], reveal: 10, name: 10.35, fact: 10.65, twin: 11.0, cap2: 11.3, blink: 13.4 };
+S(document.body, { width: W, height: H });
+S(stage, { width: W, height: H });
+
+// ------------------------------------------------------------------ layers
+const world = el(stage, { width: W, height: H, zIndex: 1, transformOrigin: '540px 900px' });
+const ui = el(stage, { width: W, height: H, zIndex: 10 });
+const gold = el(stage, { width: W, height: H, zIndex: 20, background: C.gold, overflow: 'hidden' });
+const rev = el(stage, { width: W, height: H, zIndex: 25 });
+const topL = el(stage, { width: W, height: H, zIndex: 30 });
+const capL = el(stage, { width: W, height: H, zIndex: 50 });
+Halo(world, 540, 900, 1700);
+
+// series + level pills (top, inside the safe zone)
+const pillCss = (bg, fg) => ({ height: 60, borderRadius: 30, background: bg, color: fg, fontFamily: 'Manrope', fontWeight: 800, fontSize: 26, lineHeight: '60px', padding: '0 26px', letterSpacing: '0.08em', whiteSpace: 'pre', boxShadow: '0 8px 20px rgba(22,59,50,.14)' });
+const series = el(topL, pillCss(C.white, C.forest), `FLAG A DAY · DAY ${DAY}`);
+const level = el(topL, pillCss(LV.bg, LV.fg), LV.label);
+LAYOUT.push(() => { const a = series.getBoundingClientRect().width, b = level.getBoundingClientRect().width; const x = W / 2 - (a + b + 14) / 2; S(series, { left: x, top: 150 }); S(level, { left: x + a + 14, top: 150 }); });
+
+// the flag card
+const FC = { cx: 540, cy: 760, w: 640, h: 480 };
+const flagCard = el(ui, { left: FC.cx - FC.w / 2 - 18, top: FC.cy - FC.h / 2 - 18, width: FC.w + 36, height: FC.h + 36, borderRadius: 30, background: C.white, transformOrigin: '50% 50%',
+  boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.16)' });
+el(flagCard, { left: 18, top: 18, width: FC.w, height: FC.h, borderRadius: 14, overflow: 'hidden', boxShadow: '0 0 0 2px rgba(22,59,50,.08)' },
+  `<img src="${FLAGS}${D.flag}.svg" style="width:100%;height:100%;object-fit:contain;display:block">`);
+
+// the countdown: a ring that drains over 3 seconds, the number rolls 3 -> 2 -> 1, then morphs into "Time's up!"
+const TC = { cx: 540, cy: 1150, r: 92 };
+const timer = el(ui, { left: TC.cx - TC.r, top: TC.cy - TC.r, width: 2 * TC.r, height: 2 * TC.r, borderRadius: TC.r, background: C.white, overflow: 'hidden', transformOrigin: '50% 50%',
+  boxShadow: '0 10px 26px rgba(22,59,50,.16)' });
+const ring = svgEl(ui, 'svg', { width: 2 * TC.r + 40, height: 2 * TC.r + 40 });
+S(ring, { position: 'absolute', left: TC.cx - TC.r - 20, top: TC.cy - TC.r - 20, transformOrigin: '50% 50%' });
+svgEl(ring, 'circle', { cx: TC.r + 20, cy: TC.r + 20, r: TC.r + 8, fill: 'none', stroke: 'rgba(22,59,50,.1)', 'stroke-width': 12 });
+const arc = svgEl(ring, 'circle', { cx: TC.r + 20, cy: TC.r + 20, r: TC.r + 8, fill: 'none', 'stroke-width': 12, 'stroke-linecap': 'round', transform: `rotate(-90 ${TC.r + 20} ${TC.r + 20})` });
+const CIRC = 2 * Math.PI * (TC.r + 8);
+const numRoll = roller(timer, { left: 0, top: 22, width: 2 * TC.r, height: 140 }, { width: 2 * TC.r, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 120, lineHeight: '140px' });
+const upTxt = el(timer, { left: 0, top: 0, width: 450, height: 2 * TC.r, textAlign: 'center', lineHeight: 2 * TC.r + 'px', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 64, color: C.white, whiteSpace: 'pre' }, 'Time’s up!');
+const hintLine = maskText(ui, 'Answer before it hits 0', { left: 340, top: 1272, width: 520, height: 46 }, { width: 520, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 32, lineHeight: '46px', color: 'rgba(22,59,50,.62)' });
+
+// the reveal: the country's shape filled with its flag, name, fact, and the twin on trap days
+function centreOf(id) {
+  const polys = GEO[id];
+  const area = poly => { const r = poly[0]; let a = 0; for (let i = 0; i < r.length; i++) { const [x1, y1] = r[i], [x2, y2] = r[(i + 1) % r.length]; a += x1 * y2 - x2 * y1; } return Math.abs(a); };
+  const bb = pts => { let a = [1e9, 1e9, -1e9, -1e9]; for (const [x, y] of pts) a = [Math.min(a[0], x), Math.min(a[1], y), Math.max(a[2], x), Math.max(a[3], y)]; return a; };
+  const main = polys.reduce((m, p) => area(p) > area(m) ? p : m, polys[0]);
+  const mb = bb(main[0]), c0 = [(mb[0] + mb[2]) / 2, (mb[1] + mb[3]) / 2];
+  const near = polys.filter(p => { const b = bb(p[0]); return Math.abs((b[0] + b[2]) / 2 - c0[0]) < 14 && Math.abs((b[1] + b[3]) / 2 - c0[1]) < 14; });
+  const b = bb(near.flatMap(p => p[0]));
+  return { lon: (b[0] + b[2]) / 2, lat: (b[1] + b[3]) / 2, near };
+}
+const rad = d => d * Math.PI / 180;
+function laea(lon0, lat0) {
+  const l0 = rad(lon0), sp0 = Math.sin(rad(lat0)), cp0 = Math.cos(rad(lat0));
+  return (lon, lat) => { const l = rad(lon) - l0, p = rad(lat), cp = Math.cos(p), sp = Math.sin(p), cl = Math.cos(l); const k = Math.sqrt(2 / (1 + sp0 * sp + cp0 * cp * cl)); return [k * cp * Math.sin(l), -k * (cp0 * sp - sp0 * cp * cl)]; };
+}
+const SH = { cx: 540, cy: 665, w: 720, h: 440 };
+const shapeBox = el(rev, { left: 0, top: 0, width: W, height: H, transformOrigin: `${SH.cx}px ${SH.cy}px` });
+{
+  const ctr = centreOf(D.id), P = laea(ctr.lon, ctr.lat);
+  const rings = ctr.near.flatMap(poly => poly.map(r => r.map(([lo, la]) => P(lo, la))));
+  let b = [1e9, 1e9, -1e9, -1e9]; rings.flat().forEach(([x, y]) => { b = [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)]; });
+  const s = Math.min(SH.w / (b[2] - b[0]), SH.h / (b[3] - b[1]));
+  const ox = SH.cx - s * (b[0] + b[2]) / 2, oy = SH.cy - s * (b[1] + b[3]) / 2;
+  const d = rings.map(r => r.map(([x, y], i) => (i ? 'L' : 'M') + (ox + s * x).toFixed(1) + ' ' + (oy + s * y).toFixed(1)).join('') + 'Z').join('');
+  const bx = [ox + s * b[0], oy + s * b[1], s * (b[2] - b[0]), s * (b[3] - b[1])];
+  const svg = svgEl(shapeBox, 'svg', { width: W, height: H }); svg.style.position = 'absolute';
+  const defs = svgEl(svg, 'defs');
+  const cp = svgEl(defs, 'clipPath', { id: 'land' }); svgEl(cp, 'path', { d });
+  const f = svgEl(defs, 'filter', { id: 'sh', x: '-30%', y: '-30%', width: '160%', height: '160%' });
+  svgEl(f, 'feDropShadow', { dx: 0, dy: 16, stdDeviation: 16, 'flood-color': '#7A4A00', 'flood-opacity': 0.35 });
+  svgEl(svg, 'path', { d, fill: C.forest, filter: 'url(#sh)' });
+  // the flag, covering the shape's bounding box, seen only through the country
+  svgEl(svg, 'path', { d, fill: C.white });
+  // the flag stretched over the shape's bounds (a flag map), so every stripe shows, seen only through the country
+  svgEl(svg, 'image', { href: `${FLAGS}${D.flag}.svg`, x: bx[0] - 2, y: bx[1] - 2, width: bx[2] + 4, height: bx[3] + 4, preserveAspectRatio: 'none', 'clip-path': 'url(#land)' });
+  svgEl(svg, 'path', { d, fill: 'none', stroke: C.forest, 'stroke-width': 6, 'stroke-linejoin': 'round' });
+}
+const nameT = maskText(rev, D.name, { left: 0, top: 900, width: W, height: 124 }, { width: W, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 700, fontSize: D.name.length > 10 ? 92 : 108, lineHeight: '124px', color: C.forest });
+const factT = maskText(rev, D.fact, { left: 100, top: 1026, width: W - 240, height: 92 }, { width: W - 240, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 32, lineHeight: '46px', color: 'rgba(22,59,50,.75)', whiteSpace: 'normal' });
+let twinEl = null;
+if (D.twin) {
+  twinEl = el(rev, { height: 76, borderRadius: 38, background: C.white, transformOrigin: '50% 50%', boxShadow: '0 10px 24px rgba(120,70,0,.2)', whiteSpace: 'pre' },
+    `<img src="${FLAGS}${D.twin.flag}.svg" style="position:absolute;left:14px;top:14px;width:64px;height:48px;border-radius:6px;object-fit:cover;box-shadow:0 0 0 2px rgba(22,59,50,.1)"><span style="position:absolute;left:94px;top:0;font-family:Fredoka;font-weight:600;font-size:34px;line-height:76px;color:${C.forest}">Not ${D.twin.name}!</span>`);
+  LAYOUT.push(() => { const cx = document.createElement('canvas').getContext('2d'); cx.font = '600 34px Fredoka'; const w = 94 + cx.measureText(`Not ${D.twin.name}!`).width + 30; S(twinEl, { left: W / 2 - w / 2, top: 1136, width: w }); });
+}
+
+// Roviko: nervous through the countdown, hands over his eyes when time's up, cheering at the reveal
+const MX = 205, MY = 1230, MR = 100;
+const mBox = el(topL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+
+// captions
+const cap1 = Caption(capL, ['Guess the flag', 'in <b>3 seconds</b>'], { cy: 340, size: 66 });
+const cap2 = Caption(capL, ['Got it? Comment your', '<b>flag streak</b>'], { cy: 340, size: 60 });
+const url = el(topL, pillCss('rgba(255,255,255,.92)', C.green), 'roviko.app');
+LAYOUT.push(() => { const w = url.getBoundingClientRect().width; S(url, { left: W - 160 - w, top: 1376 }); });
+
+// ------------------------------------------------------------------ sound
+[TL.n3, TL.n2, TL.n1].forEach((b, i) => ev(b, 'clock', -3, { rate: 1 + i * 0.06 }));
+ev(TL.up, 'lock', -3);
+TL.drum.forEach((b, i) => ev(b, 'clock', -6 + i, { rate: 1.1 + i * 0.05 }));
+ev(TL.reveal, 'impact', -2);
+ev(TL.reveal + 0.15, 'sparkle', -6);
+ev(TL.name + 0.08, 'pop', -9);
+ev(TL.fact + 0.08, 'pop', -12, { rate: 1.12 });
+if (D.twin) ev(TL.twin + 0.08, 'error', -9);
+ev(TL.reveal + 0.5, 'cheer', -8);
+ev(TL.cap2 + 0.1, 'mention', -8);
+
+// ------------------------------------------------------------------ frame
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  // one slow push through the countdown, a small bump on time's up
+  const push = 1 + 0.04 * segB(t, 0, TL.reveal, E.inOutSine) + 0.02 * segB(t, TL.up, TL.up + 0.4, E.outCubic);
+  S(world, { transform: `scale(${push})` });
+  S(ui, { transform: `scale(${push})`, transformOrigin: '540px 900px' });
+
+  // countdown
+  const drain = clamp((b - TL.n3) / (TL.up - TL.n3));
+  const col = b < TL.n2 ? C.green : b < TL.n1 ? C.gold : C.red;
+  arc.setAttribute('stroke', col); arc.setAttribute('stroke-dasharray', `${CIRC} ${CIRC}`); arc.setAttribute('stroke-dashoffset', (CIRC * drain).toFixed(1));
+  let n = 3, prev = 3, rp = 1;
+  if (b >= TL.n2) { n = 2; prev = 3; rp = E.outCubic(clamp((t - T(TL.n2)) / 0.14)); }
+  if (b >= TL.n1) { n = 1; prev = 2; rp = E.outCubic(clamp((t - T(TL.n1)) / 0.14)); }
+  numRoll.set(String(prev), String(n), rp);
+  numRoll.box.querySelectorAll('span').forEach(s => { s.style.color = col; });
+  let kick = 0; [TL.n3, TL.n2, TL.n1].forEach(nb => { const d = t - T(nb); if (d > 0 && d < 0.5) kick = Math.max(kick, Math.exp(-d * 9) * Math.sin(Math.min(d * 30, Math.PI))); });
+  // time's up: the circle stretches into a red pill
+  const m = spB(t, TL.up, 2.4, 0.72);
+  const tw = lerp(2 * TC.r, 450, clamp(m, 0, 1.1));
+  S(timer, { left: TC.cx - tw / 2, width: tw, background: mixc(C.white, C.red, clamp(m * 2)), transform: `scale(${1 + 0.1 * kick})` });
+  S(upTxt, { left: (tw - 450) / 2 }); show(upTxt, m > 0.05);
+  show(numRoll.box, m < 0.5);
+  S(ring, { transform: `scale(${(1 + 0.1 * kick) * (1 - clamp(m * 1.6))})` }); show(ring, m < 0.62);
+  const shake = b > TL.up && b < TL.reveal ? Math.sin(t * 40) * Math.min(1, (b - TL.up) / 3) * 3 : 0;
+  S(flagCard, { transform: `translateX(${shake}px) scaleX(${1 - E.inCubic(segB(t, TL.reveal - 0.02, TL.reveal + 0.22, E.lin))})` });
+  hintLine.set(1, segB(t, TL.up - 0.1, TL.up + 0.2, E.inCubic));
+  show(flagCard, b < TL.reveal + 0.25);
+
+  // the drop: gold floods out from the flag
+  const fp = inv(T(TL.reveal), T(TL.reveal) + 0.4, t);
+  const far = Math.hypot(Math.max(FC.cx, W - FC.cx), Math.max(FC.cy, H - FC.cy)) + 30;
+  const rr = lerp(40, far, E.inOutSine(fp) * 0.35 + E.outCubic(fp) * 0.65);
+  S(gold, { clipPath: `circle(${rr.toFixed(1)}px at ${FC.cx}px ${FC.cy}px)` }); show(gold, b >= TL.reveal);
+  show(ui, b < TL.reveal + 0.5);
+  // the flag flips over into the country's shape
+  const sp = spB(t, TL.reveal + 0.2, 2.0, 0.6);
+  S(shapeBox, { transform: `scaleX(${clamp(sp * 1.5, 0, 1)}) scale(${lerp(0.75, 1, sp)})` }); show(shapeBox, sp > 0.001);
+  nameT.set(segB(t, TL.name, TL.name + 0.45, E.outQuint));
+  factT.set(segB(t, TL.fact, TL.fact + 0.45, E.outQuint));
+  if (twinEl) { const tp = spB(t, TL.twin, 2.6, 0.5); S(twinEl, { transform: `scale(${tp}) rotate(${-3 * tp}deg)` }); show(twinEl, tp > 0.001); }
+
+  // Roviko
+  {
+    const revd = b >= TL.reveal + 0.1, covering = b >= TL.up && b < TL.reveal;
+    const peekOne = covering && b > 8.6;
+    const nerves = clamp((b - 1) / 6);
+    let arms = [[-112, 64 - 8 * Math.sin(t * 9), 22, 10], [112, 64 + 8 * Math.sin(t * 9), 22, 10]], hop = 0;
+    if (covering) arms = [[-34, -6, -30, 11], peekOne ? [104, 62, 22, 10] : [34, -6, -30, 11]];
+    const arm = spB(t, TL.reveal + 0.25, 2.4, 0.5);
+    if (revd) { const wig = Math.sin(t * 13) * 6 * arm; arms = [[-118 + wig, -92, -22, 11], [118 - wig, -92, -22, 11]]; hop = -Math.max(0, Math.sin(((b - TL.reveal - 0.3) % 1) * Math.PI)) * 14; }
+    else hop = -Math.max(0, Math.sin(((b + 0.5) % 1) * Math.PI)) * 5 * (b < TL.up ? 1 : 0);
+    drawMascot(mascot, { look: revd ? [0, 0] : covering ? [0.5, -0.6] : [0.7, -0.9], happy: revd && arm > 0.4 ? 1 : 0, mouth: revd ? (arm > 0.4 ? 'open' : 'o') : covering ? 'wobble' : 'smile',
+      brows: !revd && b > 2 ? 'worried' : null, sweat: !revd ? clamp((b - 4) / 1.5) : 0, eyesBig: revd ? 0 : nerves * 0.4, blink: covering && !peekOne ? 1 : blinkAt(t, [2.2, TL.blink]),
+      cheeks: revd ? arm : 0, legs: 1, hop, arms });
+  }
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.reveal - 0.1, TL.reveal + 0.2));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62));
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

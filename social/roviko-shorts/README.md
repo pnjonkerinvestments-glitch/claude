@@ -110,3 +110,22 @@ Open `short-2-streak.html?t=10` in a browser to see any single moment.
 - **Music:** "Funkee Monkeee", "Take this Higher" and "Life is a Dream" by Michael Ramir C., [Mixkit](https://mixkit.co/free-stock-music/), under the Mixkit Stock Music Free License (commercial use allowed).
 - **Sound effects:** [uisfx](https://www.npmjs.com/package/uisfx) 0.4.0 (audio CC0 1.0). The coin, whoosh, impact, alarm and thud are synthesised.
 - **Mascot, fonts, avatars and flags:** the same sources as the launch film (see its README).
+
+## Flag a Day (30 videos)
+`out/flag-a-day/flag-a-day-01.mp4` … `-30.mp4`: 7.3 s each, 1080×1920, one a day. Captions are in `FLAG-A-DAY-CAPTIONS.md`.
+
+**Format: guess the flag in 3 seconds**
+- **Frame 1 (the thumbnail):** the hook ("Guess the flag in 3 seconds"), the flag and the timer at 3, with a series pill ("FLAG A DAY · DAY 7") and a level pill (Easy / Medium / Hard / Trap).
+- **3-2-1 on the beat:** the ring drains over 3 seconds while Roviko gets nervous and starts sweating.
+- **Time's up:** the timer morphs into "Time's up!" just as the song hits its break (near silence, ticking clock). Roviko covers his eyes, then peeks.
+- **The drop:** gold floods out of the flag. The flag flips over into the country's shape, filled with the flag, which ties into the "Guess the country" carousels. Then the name, a fact about the flag, and on trap days the look-alike ("Not Romania!"). Roviko cheers. "Got it? Comment your flag streak."
+- **Sound:** the same song as short 2 ("Take this Higher"), so the series has one recognisable sound.
+
+**Why it can get views**
+- It's 7 seconds long, so people finish it and replay it.
+- The answer comes in the comments during the 3 seconds.
+- A daily streak brings people back.
+- Trap days (Chad/Romania, Ireland/Ivory Coast, Indonesia/Monaco, Australia/New Zealand, Colombia/Ecuador, Norway/Iceland, Slovakia/Slovenia) start "team A or team B" debates.
+- The difficulty varies, so nobody drops out.
+
+**Build:** `data/flagaday.js` (30 days, facts checked), `flag-a-day.html?day=N`, `build/flagaday.sh [first] [last]` (sound cues → mix → render → MP4 per day). The country shapes come from `../roviko-carousels/data/geo.js`, and the flags are the app's own.

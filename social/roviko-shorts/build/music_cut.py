@@ -1,6 +1,6 @@
 """Cut each short's song to picture on beat lines.
 
-  python3 build/music_cut.py sydney|streak|gamenight  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
+  python3 build/music_cut.py sydney|streak|gamenight|flagaday  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
 
 Every short plays at its song's measured tempo, so one film beat is one song beat. A piece is
 (film beat, song beat[, film beat where it stops with a tape-stop]). Grids from build/analyze_music.py.
@@ -24,6 +24,8 @@ SHORTS = {
     # 3. "Game night": groove from the first frame; 16 beats skipped (song 32 -> 48, similarity 0.91);
     #    the song's dip under "Lucas left the room" (film 40), back to full for the rematch (film 48)
     'gamenight': dict(song='life-is-a-dream', end=54, fade=1.2, pieces=[(0, 16, None), (16, 48, None)]),
+    # Flag a Day: 3-2-1 on the groove, "time's up" on the song's break (film 7 = song 56), the reveal on the drop (film 10 = song 59)
+    'flagaday': dict(song='take-this-higher', end=15, fade=0.5, pieces=[(0, 49, None)]),
 }
 XF = 0.02          # crossfade at each cut (s)
 STOP = 0.42        # tape stop length (s)
