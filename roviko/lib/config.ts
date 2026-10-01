@@ -6,3 +6,6 @@ export type Mode = typeof MODES[number];
 export const MODE_EMOJIS: Record<string, string> = { trail: '🧭', capitals: '🏙️', flags: '🚩', pinpoint: '🗺️', borders: '🤝', order: '📏', mixed: '🌍', daily: '☀️', compare: '⚖️', mosaic: '🧩', rank: '📡' };
 export const REGIONS = ['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania'];
 export const DEFAULT_SETTINGS = { mode: 'mixed', count: 10, timer: 15, difficulty: 'medium', region: 'World', typed: false };
+/** The iPhone app in the App Store (Apple ID 6816171629). Leave empty to hide every get-the-app prompt. */
+export const APP_STORE_ID = '6816171629';
+export const APP_STORE_URL = 'https://apps.apple.com/app/id' + APP_STORE_ID;

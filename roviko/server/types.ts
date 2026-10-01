@@ -30,6 +30,8 @@ export type Player = {
     name: string;
     avatar: number;
     ready: boolean;
+    /** Tapped "Run it back" on the results screen. */
+    rematch?: boolean;
     lastSeen: number;
     score: number;
     streak: number;

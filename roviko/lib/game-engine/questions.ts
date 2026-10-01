@@ -68,9 +68,9 @@ export type Question = {
 const familiar = ['USA', 'CAN', 'MEX', 'BRA', 'ARG', 'PER', 'CHL', 'COL', 'GBR', 'FRA', 'ESP', 'ITA', 'DEU', 'NLD', 'BEL', 'GRC', 'PRT', 'SWE', 'NOR', 'CHE', 'AUT', 'POL', 'RUS', 'CHN', 'JPN', 'IND', 'IDN', 'THA', 'KOR', 'TUR', 'SAU', 'AUS', 'NZL', 'FJI', 'EGY', 'ZAF', 'MAR', 'KEN', 'NGA', 'GHA'];
 const aliases: Record<string, string[]> = { CHN: ['Peking'], UKR: ['Kiev', 'Kyiv'], MEX: ['Mexico City', 'Mexico-stad', 'Ciudad de Mexico'], CZE: ['Prague', 'Praag', 'Praha'], RUS: ['Moscow', 'Moskou', 'Moskva'], EGY: ['Cairo', 'Caïro'], ITA: ['Rome', 'Roma'], AUT: ['Vienna', 'Wenen', 'Wien'], BEL: ['Brussels', 'Brussel', 'Bruxelles'], DNK: ['Copenhagen', 'Kopenhagen'], GRC: ['Athens', 'Athene'], POL: ['Warsaw', 'Warschau'], PRT: ['Lisbon', 'Lissabon', 'Lisboa'], SWE: ['Stockholm'], HUN: ['Budapest', 'Boedapest'], ROU: ['Bucharest', 'Boekarest'], SRB: ['Belgrade', 'Belgrado'], ESP: ['Madrid'], KOR: ['Seoul'], THA: ['Bangkok', 'Krung Thep'] };
 /** Pin questions only use countries a player can realistically find and tap on a phone-sized world map:
- *  at least 10,000 km², and in Oceania only the three large countries (no scattered island states). */
-const PIN_MIN_AREA = 10000, PIN_OCEANIA = ['AUS', 'NZL', 'PNG'];
-export function pinnable(c: Country) { return c.area >= PIN_MIN_AREA && (c.region !== 'Oceania' || PIN_OCEANIA.includes(c.id)); }
+ *  at least 3,000 km² (so Fiji, Vanuatu and Cyprus count, tiny atolls and microstates do not). Small ones open zoomed in. */
+const PIN_MIN_AREA = 3000;
+export function pinnable(c: Country) { return c.area >= PIN_MIN_AREA; }
 /** Below this size the map opens zoomed in on the country's subregion, and the Daily Detour keeps it out of its first five questions. */
 export const PIN_SMALL_AREA = 50000;
 function subregionBox(c: Country): [number, number, number, number] {

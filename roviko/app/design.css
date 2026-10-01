@@ -1840,3 +1840,18 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
 /* iOS zooms into any focused field under 16px and, in the app, stays zoomed in afterwards. Touch screens
    therefore always get 16px text in fields (the big room-code fields keep their own, larger size). */
 @media (hover:none) and (pointer:coarse){.text-input:not(.code-input),textarea,select,input:not(.code-input):not([type=checkbox]):not([type=radio]):not([type=range]){font-size:16px!important}}
+/* Next Door reveal: the asked country in blue, the neighbour in orange, with matching dots in the legend. */
+.border-reveal-map{--bm-target:#2f7dd1;--bm-neighbor:#e8833a}
+.border-reveal-map .bm-target{fill:var(--bm-target)}.border-reveal-map .bm-neighbor{fill:var(--bm-neighbor)}
+.border-reveal-map figcaption span{display:inline-flex;align-items:center;gap:8px;color:var(--color-ink)!important}
+.border-reveal-map figcaption i{width:14px;height:14px;border-radius:50%;flex:none}
+.border-reveal-map .target i{background:var(--bm-target)}.border-reveal-map .neighbor i{background:var(--bm-neighbor)}
+[data-theme=dark] .border-reveal-map{--bm-target:#5aa6ff;--bm-neighbor:#ffa45c}
+.results-actions .rematch-wait{flex-basis:100%;text-align:center;margin:0}
+/* 1.21 get-the-app screen (iPhone visitors in the browser). */
+.app-prompt{max-width:420px!important;display:grid;gap:12px;text-align:center;justify-items:center}
+.app-prompt-art{position:relative;display:grid;place-items:center;width:100%;padding:18px 0 8px;border-radius:var(--radius-card);background:var(--color-mint)}
+.app-prompt-phone{position:absolute;right:calc(50% - 92px);bottom:10px;display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--color-surface);color:var(--color-forest);box-shadow:var(--shadow-card)}
+.app-store-btn{background:#0e0e10!important;color:#fff!important;border-radius:var(--radius-pill)!important;text-decoration:none}
+.app-store-btn:hover{background:#26262b!important}
+.is-app .footer-app-link{display:none}

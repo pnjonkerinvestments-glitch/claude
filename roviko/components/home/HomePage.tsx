@@ -17,6 +17,7 @@ import { GameCard } from './GameCard';
 import { useCompetition, useResetLabel, useToday } from './useDay';
 import { BonusTour, useBonusLaunch } from './BonusTour';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
+import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
 
 /** The globe with one arc per scored game (the Daily Detour first); finished games light up in their own colour. */
@@ -77,7 +78,9 @@ export function HomePage() {
     window.addEventListener('roviko:tour', ask);
     return () => window.removeEventListener('roviko:tour', ask);
   }, []);
-  useEffect(() => { if (firstVisit && !tourSeen()) setTourOpen(true); }, [firstVisit]);
+  // iPhone visitors in the browser first get the app screen; the tour follows only if they stay here.
+  const appPrompt = useAppPrompt();
+  useEffect(() => { if (appPrompt.decided && !appPrompt.open && firstVisit && !tourSeen()) setTourOpen(true); }, [firstVisit, appPrompt.decided, appPrompt.open]);
   const pointsToday = competition?.today.score ?? 0;
   const yesterday = competition?.yesterday?.score ?? 0;
   const bestDay = competition?.bestDay ?? null;
@@ -186,6 +189,7 @@ export function HomePage() {
     </section>
 
 
+    <AppPrompt open={appPrompt.open} onClose={appPrompt.close} t={t}/>
     <WelcomeTour open={tourOpen} onOpenChange={setTourOpen} guest={!!boot.user.guest} t={t} onStart={() => { if (!allDone && heroMode) open(heroMode); }} onSignup={() => app.setModal('signup')}/>
 
     <Dialog open={mysteryOpen} onOpenChange={setMysteryOpen}>

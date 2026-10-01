@@ -12,8 +12,13 @@ import { generateQuestions, evaluate, publicQuestion, type Settings, type Questi
 import { resultStatement } from './stats';
 import type { Room, Player, Env, User } from './types';
 const TTL = 30 * 60000;
-/** Hand a socket over to a fresh connection after this many D1 queries (the Free plan allows 50 per invocation). */
-export const ROTATE_AFTER_QUERIES = 34;
+/** Hand a socket over to a fresh connection after this many D1 queries. Roviko runs on Workers Paid, which
+ *  allows 1,000 D1 queries per invocation (the Free plan only 50). At about 1.5 queries per second a socket
+ *  now lasts roughly 9 minutes, so a whole match stays on one connection instead of reconnecting every ~25 s. */
+export const ROTATE_AFTER_QUERIES = 800;
+/** Errors that end the room for this player. Anything else in the background loop (a busy row, a slow
+ *  database) is retried on the next tick without bothering the player. */
+const PUMP_TERMINAL = new Set(['ROOM_NOT_FOUND', 'ROOM_EXPIRED', 'NOT_IN_ROOM', 'SESSION_EXPIRED', 'BLOCKED']);
 const savedMatches = new Set<string>();
 const savingMatches = new Map<string, Promise<void>>();
 /** Names from before the 1.20 filter are shown as "Explorer" if they do not pass it. */
@@ -115,7 +120,7 @@ function upcomingFlag(r: Room) {
     return next?.flag && next.mode === 'flags' ? '/api/flag/' + encodeURIComponent(next.id) : undefined;
 }
 export function roomView(r: Room, userId: string) { const p = r.players.find(p => p.id === userId); if (!p)
-    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, preloadFlag: upcomingFlag(r), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
+    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rematch: !!p.rematch, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, preloadFlag: upcomingFlag(r), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
 /** Generate the private questions and start the countdown for everyone in the room. */
 async function startMatch(env: Env, r: Room) {
     const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
@@ -252,6 +257,24 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                 changed = true;
             }
             else if (action === 'disconnect') { return { state: r, version: row.version }; }
+            else if (action === 'rematch') {
+                    // "Run it back": every player who is still here taps it, then a fresh match starts at once
+                    // with new questions. Computer opponents always agree; players who left don't hold it up.
+                    if (r.phase !== 'finished')
+                        throw new AppError('MATCH_NOT_FINISHED', 409);
+                    p.rematch = true;
+                    p.lastSeen = Date.now();
+                    const waiting = r.players.filter(x => !x.bot && !x.rematch && Date.now() - x.lastSeen < 20000);
+                    if (!waiting.length) {
+                        r.players = r.players.filter(x => x.bot || x.rematch);
+                        if (!r.players.some(x => x.id === r.host)) r.host = p.id;
+                        r.previousQuestions = r.questions.map(q => q.id);
+                        r.players.forEach(x => { x.rematch = false; x.ready = false; x.delta = 0; x.previousRank = undefined; });
+                        await startMatch(env, r);
+                    }
+                    else r.events = ['player_ready'];
+                    changed = true;
+                }
             else {
                 if (r.host !== user.id)
                     throw new AppError('HOST_ONLY', 403);
@@ -285,17 +308,6 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                         throw new AppError('MATCH_IN_PROGRESS', 409);
                     r.players = r.players.filter(x => !(x.bot && x.id === body.id));
                     r.events = ['player_left'];
-                    changed = true;
-                }
-                else if (action === 'rematch') {
-                    if (r.phase !== 'finished')
-                        throw new AppError('MATCH_NOT_FINISHED', 409);
-                    r.previousQuestions = r.questions.map(q => q.id);
-                    r.questions = [];
-                    r.phase = 'lobby';
-                    r.answersCompleteAt = undefined;
-                    r.players.forEach(x => { x.ready = false; x.score = 0; x.delta = 0; });
-                    r.events = ['lobby'];
                     changed = true;
                 }
                 else if (action === 'advance') {
@@ -386,7 +398,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
         }
     }
     catch (e: any) {
-        send({ type: 'error', code: e.code ?? 'SERVER_UNAVAILABLE' });
+        if (PUMP_TERMINAL.has(e.code)) send({ type: 'error', code: e.code });
     }
     finally {
         busy = false;

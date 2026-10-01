@@ -445,7 +445,7 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
 - **Instellingen** (`/settings`): geluidseffecten, zachte achtergrondmuziek (Web Audio, geen bestanden), taal, thema, dagherinnering in de app, optionele metingen.
 - **Huisknop in spellen** op de telefoon, zodat je altijd terug kunt naar het hoofdmenu.
 - **Multiplayer-tab** (was Friends): bovenaan vrienden die online zijn met uitnodigen, verzoeken en vriend toevoegen met code; daaronder spelen tegen een willekeurige speler en tegen de computer; daaronder een privékamer.
-- **Kaartvragen**: geen piepkleine eilanden meer (minimaal 10.000 km², in Oceanië alleen AUS/NZL/PNG); kleine landen openen ingezoomd met een korte hint; de regelregel onder de kaart is weg (staat in de uitleg).
+- **Kaartvragen**: geen piepkleine eilanden meer (minimaal 3.000 km²); kleine landen openen ingezoomd met een korte hint; de regelregel onder de kaart is weg (staat in de uitleg).
 - **Daily Detour** begint makkelijk: vlag, dan hoofdstad, bekende landen in de eerste drie vragen, geen klein land op de kaart in de eerste vijf.
 - **Country Mosaic** compact: 4×4-raster zonder scrollen, opgeloste groepen als gekleurde balken, lange namen kleiner, op desktop maximaal 600px breed.
 - **Nieuwste data**: 2025/2024 waar betrouwbaar, anders 2023 (zie START_HERE).
@@ -454,5 +454,13 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
 
 - **Bonustour**: zodra de zes spellen met punten klaar zijn, wijst de homepage (knop, mascotte en een uitgelicht blok bovenaan) naar zes klassieke spellen met elke dag andere landen, dezelfde voor iedereen. Na elk bonusspel zie je hoe je het deed ten opzichte van de spelers van vandaag en ga je met één knop door naar het volgende; na het laatste dagspel verwijst het resultaat direct naar de bonustour. Geen ranglijstpunten. Nieuwe migratie `drizzle/0008_rainy_amphibian.sql` (alleen een index voor die vergelijking).
 - **Rondleiding** bij het eerste bezoek (4 stappen, voor gasten een 5e over het gratis account), ook via het menu. Het aanmeldvenster toont wat een account oplevert, en gasten die al spelen zien op de homepage een blok "Je reeks staat alleen op dit apparaat".
+
+- **Na feedback (1 oktober):**
+  - Downloadscherm voor iPhone-bezoekers in de browser en een link "Download de iPhone-app" onderaan.
+  - Snellere antwoorden in de dagspellen: de server verwerkte na elk antwoord alle eerdere antwoorden opnieuw (bij vraag 20 tientallen databaseacties); nu één bundel per antwoord.
+  - Next Door: het gevraagde land blauw, het buurland oranje, met legenda.
+  - "Run it back" werkt voor iedereen en start direct een nieuwe wedstrijd.
+  - Multiplayer stabieler: geen herverbinding meer elke ~25 seconden en geen foutmeldingen bij tijdelijke drukte.
+  - Kaartvragen vanaf 3.000 km² (dus ook Fiji, Vanuatu, de Salomonseilanden, Cyprus).
 
 Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 390×844 en 1280×800 van home, Multiplayer (gast en account), Account, Instellingen, Ranglijsten, Ontdekken, menu en Country Mosaic. Nog fysiek te controleren: muziek en geluid op een echte iPhone, e-mails zodra Resend is ingesteld.

@@ -14,7 +14,7 @@ import { seedHash } from '../lib/game-engine/scoring';
 import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin } from './auth';
 import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
-import { startSolo, soloAction, recordSolo, bonusStanding } from './solo';
+import { startSolo, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
@@ -213,11 +213,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
             if (path[1]) {
                 const result = await soloAction(env, user, path[1], method === 'GET' ? 'get' : path[2], method === 'GET' ? {} : await body(req));
-                if (result.phase === 'finished') {
-                    const row = await one(env, 'SELECT state FROM game_sessions WHERE id=? AND user_id=?', path[1], user.id);
-                    await recordSolo(env, user, JSON.parse(row.state));
-                    if (result.daily) await measure(req, env, user, 'daily_completed', 'daily', result.id);
-                }
+                // soloAction already records a finished game (idempotently); only the metric is left here.
+                if (result.phase === 'finished' && result.daily && path[2] === 'next') await measure(req, env, user, 'daily_completed', 'daily', result.id);
                 return json(result);
             }
         }

@@ -1,7 +1,7 @@
 import { dailyScore, dailyRoundPoints, COMPETITION_SUFFIX, DETOUR_ROUNDS } from '../lib/daily-scoring';
 import { recordCompetition } from './competition';
 import { validAnswer } from '../lib/game-engine/validate-answer';
-import { reviewSession } from './reviews';
+import { reviewSession, reviewStatements } from './reviews';
 import { dailyContent } from './daily-content';
 import { prepareGeography, enrichMapFeedback } from './geography';
 import { one, rows, run, batch } from './db';
@@ -128,11 +128,11 @@ export async function soloAction(env: Env, user: User, id: string, action: strin
     const updated = await run(env, 'UPDATE game_sessions SET state=?,version=version+1,score=?,completed=? WHERE id=? AND version=?', JSON.stringify(s), s.score, s.phase === 'finished' ? 1 : 0, id, row.version);
     if (!updated.meta.changes)
         throw new AppError('STATE_CHANGED', 409);
+    // The answer row and this answer's review go to D1 together in one round trip, so the result comes back fast.
     if (action === 'answer') {
         const a = s.answers[s.round];
-        await run(env, 'INSERT OR IGNORE INTO answers(session_id,round,user_id,question_id,country_id,mode,answer,correct,points,response_time,risk,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', id, s.round, user.id, a.questionId, a.countryId, a.mode, JSON.stringify(a.value ?? null), +a.correct, a.points, a.responseTime, a.risk, Date.now());
+        await batch(env, [{ sql: 'INSERT OR IGNORE INTO answers(session_id,round,user_id,question_id,country_id,mode,answer,correct,points,response_time,risk,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)', args: [id, s.round, user.id, a.questionId, a.countryId, a.mode, JSON.stringify(a.value ?? null), +a.correct, a.points, a.responseTime, a.risk, Date.now()] }, ...reviewStatements(user, s, row.created_at, s.answers.length - 1)]);
     }
-    if (action === 'answer') await reviewSession(env, user, s, row.created_at);
     if (s.phase === 'finished')
         await recordSolo(env, user, s);
     return soloView(s);

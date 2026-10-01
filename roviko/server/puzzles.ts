@@ -1,7 +1,7 @@
 import { COMPETITION_SUFFIX, dailyScore } from '../lib/daily-scoring';
 import { recordCompetition } from './competition';
 import { refreshMosaicFacts } from '../lib/puzzles/country-facts';
-import { reviewSession } from './reviews';
+import { reviewSession, reviewStatements } from './reviews';
 import { dailyContent } from './daily-content';
 import { z } from 'zod';
 import { AppError } from './auth';
@@ -113,7 +113,7 @@ export async function puzzleAction(env: Env, user: User, id: string, action: str
   const updated = await run(env, 'UPDATE game_sessions SET state=?,version=version+1,completed=? WHERE id=? AND version=?', JSON.stringify(s), +(s.phase === 'finished'), id, row.version);
   if (!updated.meta.changes) throw new AppError('STATE_CHANGED', 409);
   // Immutable audit rows and result insertion are idempotent; GET repairs a retried completion.
-  if (action === 'answer') { await batch(env, answerStatements(user, s).slice(-1)); await reviewSession(env, user, s, row.created_at); }
+  if (action === 'answer') await batch(env, [...answerStatements(user, s).slice(-1), ...reviewStatements(user, s, row.created_at, s.answers.length - 1)]);
   if (s.phase === 'finished') await recordPuzzle(env, user, s);
   return view(s, row.version + 1);
 }
