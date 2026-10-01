@@ -69,7 +69,7 @@ Dit is de native app voor de App Store en Google Play, gebouwd met [Capacitor](h
    - Upload de screenshots uit `store/ios-iphone-6.9/` (1320×2868) en, omdat de app ook op iPad werkt, `store/ios-ipad-13/` (2064×2752). Het icoon van 1024 px staat in `store/app-store-icon-1024.png`.
 5. Test eerst via **TestFlight** en dien de app daarna in. De beoordeling duurt meestal 1–3 dagen.
 
-**Kinderen:** kies bij Apple **niet** de categorie "Kinderen". Die eist een ouderpoort voor elke externe link. Categorie *Onderwijs* of *Spellen → Trivia* met leeftijd 4+ is geschikt. Bij Google moet je bij *Doelgroep* kiezen. Kies je ook leeftijden onder 13, dan geldt het Families-beleid. Roviko heeft geen advertenties en geen trackers, dus dat is haalbaar, maar vul de formulieren zorgvuldig in.
+**Kinderen:** kies bij Apple **niet** de categorie "Kinderen". Die eist een ouderpoort voor elke externe link. Categorie *Onderwijs* of *Spellen → Trivia* met leeftijd 4+ is geschikt. Bij Google moet je bij *Doelgroep* kiezen. Kies je ook leeftijden onder 13, dan geldt het Families-beleid. Roviko heeft nu nog geen advertenties en geen trackers. Komen er advertenties, dan gelden onder 13 jaar strenge regels (Google Families-beleid, alleen gecertificeerde advertentienetwerken). Kies de doelgroep daarom bewust en vul de formulieren zorgvuldig in.
 
 ## Handige commando's
 

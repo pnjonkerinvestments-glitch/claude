@@ -45,7 +45,7 @@ Er is niets overgenomen: geen teksten, beelden, namen of vormgeving.
 2. **Weekcompetitie in kleine groepen.** De ranglijst uit 1.11 is wereldwijd. Voor kinderen is "#8 van 30 deze week" motiverender dan "#5.231 van 20.000". Dit vraagt server-werk: groepen van ongeveer 30 spelers en een wekelijkse reset. Doe dit pas als er genoeg dagelijkse spelers zijn.
 3. **Reeksen met vrienden.** Vriendschappen bestaan al. Een gedeelde reeks ("jullie spelen allebei elke dag") is een sterke sociale prikkel, maar vraagt server-opslag.
 4. **Een mascotte met emoties.** De tekstballon van Roviko reageert al (blij, of bezorgd bij een reeks in gevaar). Extra houdingen (juichen, slapen, bezorgd kijken) vragen nieuwe illustraties in de eigen Roviko-stijl.
-5. **Geen hartjes/levens of betaalde versnellers.** Die zijn bij Duolingo vooral bedoeld om geld te verdienen. Voor een kindvriendelijk spel zonder advertenties past dat niet.
+5. **Geen hartjes/levens of betaalde versnellers.** Die zijn bij Duolingo vooral bedoeld om geld te verdienen. Voor een kindvriendelijk spel past dat niet.
 
 ## Technisch
 
