@@ -10,3 +10,4 @@ out/*sheet*.png
 out/zoom-*.png
 audio/flag-*/mix.wav
 tmp/
+out/*.zip
