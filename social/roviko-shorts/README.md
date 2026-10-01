@@ -171,3 +171,27 @@ The formats are ones that keep doing well on TikTok and Reels: the true-size map
 - Short 9's cards now collapse into the end card over 0.6 beats instead of 0.3.
 
 **Facts:** see the bottom of `FUNNY-SHORTS-CAPTIONS.md`. Short 8 was first going to be "Russia is bigger than Pluto". It was replaced because, with New Horizons' radius of 1,188 km, Pluto's surface (about 17.7 million km²) is larger than Russia (17.1 million km²).
+
+## "Sounds fake, but it's true" (5 fun-fact videos)
+`out/fun-facts/fun-fact-1.mp4` … `-5.mp4`: 19.6 s each, 1080×1920, 60 fps. Each one is a country fact played as a quiz. Captions, pinned comments, hashtags, the bio and the research are in `FUN-FACTS-CAPTIONS.md`.
+
+| # | Question | Answer | Bonus |
+|---|---|---|---|
+| 1 | France's longest land border is with which country? | Brazil (French Guiana, 730 km) | France also borders the Netherlands (Saint Martin) |
+| 2 | Which country has the most pyramids? | Sudan (200+ vs Egypt ~120) | Sudan's pyramids are steeper (~70° vs 52°) |
+| 3 | Which country has zero permanent rivers? | Saudi Arabia | It makes drinking water from the sea |
+| 4 | Which country has more lakes than the rest of the world combined? | Canada (~880,000, 62%) | The world's longest coastline |
+| 5 | Which country needs to cross 2 borders to reach the sea? | Liechtenstein (and Uzbekistan) | No airport |
+
+**Format.** Frame 1 shows the hook, the question and A/B/C. It is also the thumbnail.
+- **The open loop:** the pill "BONUS FACT AT THE END 👀" is on screen from frame 1.
+- **Countdown:** "Comment A, B or C" with a 3-2-1 timer.
+- **Knock-outs:** "Time's up" lands on the song's break, then the wrong answers are knocked out one by one, the tempting one last.
+- **Reveal:** the answer floods green on the drop ("WHAT?! 🤯"), and the fact is shown on a map.
+- **Ending:** the bonus fact, then "Got it right? ✅ or ❌", then the end card.
+
+**Build:**
+- `data/funfacts.js`: the 5 facts.
+- `fun-fact.html?n=N`: a shared quiz with one map explainer per fact. The map comes from `../roviko-carousels/data/geo.js`, plus French Guiana from Natural Earth 1:110m.
+- `build/funfacts.sh [first] [last]`: sound cues, mix, render and MP4.
+- Music: "Aerobic Fashion" from song beat 50 (the `funfact` entry in `build/music_cut.py`).

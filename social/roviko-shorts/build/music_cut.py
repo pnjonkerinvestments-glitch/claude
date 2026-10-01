@@ -1,6 +1,6 @@
 """Cut each short's song to picture on beat lines.
 
-  python3 build/music_cut.py <short>   (sydney, streak, gamenight, flagaday, greenland, wronganswers, austria, stages, moon, lobby, uk)  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
+  python3 build/music_cut.py <short>   (sydney, streak, gamenight, flagaday, greenland, wronganswers, austria, stages, moon, lobby, uk, funfact)  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
 
 Every short plays at its song's measured tempo, so one film beat is one song beat. A piece is
 (film beat, song beat[, film beat where it stops with a tape-stop]). Grids from build/analyze_music.py.
@@ -34,6 +34,9 @@ SHORTS = {
     'moon': dict(song='aerobic-fashion', end=24, fade=1.0, pieces=[(0, 31, None)]),
     'lobby': dict(song='life-is-a-dream', end=40, fade=1.2, pieces=[(0, 48, None)]),
     'uk': dict(song='funkee-monkeee', end=30, fade=1.0, pieces=[(0, 32, None)]),
+    # Sounds fake, but it's true: from song beat 50, so the break (song 59-62) sits under time's up and the knock-outs
+    # (film 9-12) and the drop (song 63) lands on the reveal (film 13)
+    'funfact': dict(song='aerobic-fashion', end=36, fade=1.0, pieces=[(0, 50, None)]),
 }
 XF = 0.02          # crossfade at each cut (s)
 STOP = 0.42        # tape stop length (s)

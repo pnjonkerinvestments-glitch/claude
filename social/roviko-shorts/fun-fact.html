@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko: Sounds fake, but it's true</title>
+<!--
+  "Sounds fake, but it's true": a country fact as a 20 s quiz. 1080x1920 (TikTok / Reels), 110 BPM ("Aerobic Fashion",
+  Mixkit, from song beat 50, so its 4-beat break lands under the knock-outs and its drop on the reveal).
+    fun-fact.html?n=1   (1 border, 2 pyramids, 3 rivers, 4 lakes, 5 landlocked)
+  Frame 1 is the thumbnail: the hook, the question and the A/B/C answers. "Comment A, B or C" + 3-2-1 (the viewer answers
+  in the comments); time's up on the break; the wrong answers are knocked out one by one (the tempting one last);
+  the true one floods green on the drop. Then the fact is shown on a map, then the bonus fact promised by the top pill from frame 1
+  (an open loop, so people stay), then "Got it right?" and the end card.
+  Same rules as the launch film: seek(t) draws the whole frame from t; nothing fades; springs; a real sound on every event.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; background: #F6F3E9; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/funfacts.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const W = 1080, H = 1920;
+const TEMPO = 110.01, DIL = TEMPO / 130, END = 36, DURATION = END * 60 / TEMPO;   // 19.6 s
+const FLAGS = '../../roviko/public/flags/';
+const N = Math.max(1, Math.min(FUN_FACTS.length, +(Q.get('n') || 1)));
+const F = FUN_FACTS[N - 1];
+const TL = { hint: 1.5, n3: 3, n2: 5, n1: 7, up: 9, out: [9.75, 11], drum: [11.75, 12, 12.25, 12.5, 12.75], reveal: 13, wow: 13.35,
+  explain: 15, bonus: 23, cap3: 28.5, end: 31, hop: 34, blink2: 33.2 };
+setupStage(C.cream);
+
+// ------------------------------------------------------------------ layers
+const world = el(stage, { width: W, height: H, zIndex: 1 });
+const quiz = el(stage, { width: W, height: H, zIndex: 10 });
+const sceneL = el(stage, { width: W, height: H, zIndex: 12 });
+const topL = el(stage, { width: W, height: H, zIndex: 30 });
+const capL = el(stage, { width: W, height: H, zIndex: 50 });
+Halo(world, 540, 900, 1700);
+
+// series pill + the open loop ("bonus at the end"), top of the safe zone
+const pillCss = (bg, fg) => ({ height: 58, borderRadius: 29, background: bg, color: fg, fontFamily: 'Manrope', fontWeight: 800, fontSize: 25, lineHeight: '58px', padding: '0 24px', letterSpacing: '0.07em', whiteSpace: 'pre', boxShadow: '0 8px 20px rgba(22,59,50,.14)', transformOrigin: '50% 50%' });
+const series = el(topL, pillCss(C.white, C.forest), `SOUNDS FAKE · #${N}`);
+const bonusPill = el(topL, pillCss(C.gold, C.forest), 'BONUS FACT AT THE END 👀');
+const bonusNow = el(topL, pillCss(C.green, C.white), 'BONUS TIME 👀');
+LAYOUT.push(() => {
+  const a = series.getBoundingClientRect().width, b = bonusPill.getBoundingClientRect().width, x = W / 2 - (a + b + 12) / 2;
+  S(series, { left: x, top: 148 }); S(bonusPill, { left: x + a + 12, top: 148 });
+  S(bonusNow, { left: x + a + 12 + (b - bonusNow.getBoundingClientRect().width) / 2, top: 148 });
+});
+
+// ------------------------------------------------------------------ the quiz
+const QC = { x: 140, y: 392, w: 800, h: 196 };
+const qCard = el(quiz, { left: QC.x, top: QC.y, width: QC.w, height: QC.h, borderRadius: 34, background: C.forest, transformOrigin: '50% 50%',
+  boxShadow: '0 4px 10px rgba(22,59,50,.1), 0 26px 60px rgba(22,59,50,.22)' });
+el(qCard, { left: 0, top: 0, width: QC.w, height: QC.h, display: 'grid', placeItems: 'center' },
+  `<div style="font-family:Fredoka;font-weight:600;font-size:${F.q[0].length > 30 ? 46 : 52}px;line-height:1.22;color:#fff;text-align:center;white-space:pre">${F.q.join('\n')}</div>`);
+qCard.querySelectorAll('b').forEach(e => S(e, { color: C.gold, fontWeight: 600 }));
+
+const OP = { x: 140, y: 624, w: 800, h: 112, gap: 20 };
+const opts = F.opts.map((txt, i) => {
+  const y = OP.y + i * (OP.h + OP.gap);
+  const box = el(quiz, { left: OP.x, top: y, width: OP.w, height: OP.h, borderRadius: OP.h / 2, background: C.white, overflow: 'hidden', transformOrigin: '50% 50%',
+    boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 14px 32px rgba(22,59,50,.14)' });
+  const fill = el(box, { left: 0, top: 0, width: OP.w, height: OP.h, background: i === F.right ? C.green : C.red });
+  const dot = el(box, { left: 16, top: 16, width: 80, height: 80, borderRadius: 40, background: C.mint, display: 'grid', placeItems: 'center', zIndex: 2 });
+  const letter = el(dot, { left: 0, top: 0, width: 80, height: 80, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 44, lineHeight: '80px', color: C.forest }, 'ABC'[i]);
+  const mark = el(dot, { left: 16, top: 16, width: 48, height: 48 }, icon(i === F.right ? 'check' : 'close', 48, i === F.right ? C.green : C.red, 3.4));
+  const label = el(box, { left: 124, top: 0, height: OP.h, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 48, lineHeight: OP.h + 'px', color: C.forest, whiteSpace: 'pre', zIndex: 2 }, txt);
+  return { box, fill, dot, letter, mark, label, y };
+});
+const hint = maskText(quiz, 'Comment A, B or C 👇', { left: 0, top: 1030, width: W - 140, height: 52 }, { width: W - 140, paddingLeft: 140, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 36, lineHeight: '52px', color: C.forest });
+
+// the countdown ring (as in Flag a Day), then "Time's up!"
+const TC = { cx: 760, cy: 1232, r: 76 };
+const timer = el(quiz, { left: TC.cx - TC.r, top: TC.cy - TC.r, width: 2 * TC.r, height: 2 * TC.r, borderRadius: TC.r, background: C.white, overflow: 'hidden', transformOrigin: '50% 50%', boxShadow: '0 10px 26px rgba(22,59,50,.16)' });
+const ring = svgEl(quiz, 'svg', { width: 2 * TC.r + 40, height: 2 * TC.r + 40 });
+S(ring, { position: 'absolute', left: TC.cx - TC.r - 20, top: TC.cy - TC.r - 20, transformOrigin: '50% 50%' });
+svgEl(ring, 'circle', { cx: TC.r + 20, cy: TC.r + 20, r: TC.r + 8, fill: 'none', stroke: 'rgba(22,59,50,.1)', 'stroke-width': 11 });
+const arc = svgEl(ring, 'circle', { cx: TC.r + 20, cy: TC.r + 20, r: TC.r + 8, fill: 'none', 'stroke-width': 11, 'stroke-linecap': 'round', transform: `rotate(-90 ${TC.r + 20} ${TC.r + 20})` });
+const CIRC = 2 * Math.PI * (TC.r + 8);
+const numRoll = roller(timer, { left: 0, top: 18, width: 2 * TC.r, height: 116 }, { width: 2 * TC.r, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 98, lineHeight: '116px' });
+const UPW = 340;
+const upTxt = el(timer, { left: 0, top: 0, width: UPW, height: 2 * TC.r, textAlign: 'center', lineHeight: 2 * TC.r + 'px', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 54, color: C.white, whiteSpace: 'pre' }, 'Time’s up!');
+
+// ------------------------------------------------------------------ Roviko
+const MX = 230, MY = 1262, MR = 100;
+const mBox = el(topL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 5 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const what = Bubble(topL, 'WHAT?! 🤯', { x: 360, y: 1080, w: 300, size: 46, tail: 'left', z: 8 });
+
+// ------------------------------------------------------------------ captions
+const cap1 = Caption(capL, ['Bet you get this <i>wrong</i> 👀'], { cy: 292, size: 58 });
+const cap2 = Caption(capL, F.fact, { cy: 300, size: 56 });
+const cap3 = Caption(capL, F.bonus, { cy: 300, size: 56 });
+const cap4 = Caption(capL, ['Got it right? Comment', '✅ or ❌ 👇'], { cy: 300, size: 56 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Sounds fake. Play it daily.' });
+
+// ------------------------------------------------------------------ explainer pieces
+const CARD = { x: 140, y: 430, w: 800, h: 640 };
+const SEA = '#CDE8F6', LAND = '#E2EFE8', SAND = '#F8DFA6';
+// a map window in the card: laea around (lon, lat), fitted to `fit` (ISO3 ids) or a given radius R
+function MapCard({ lon, lat, fit = null, pad = 0.16, R = null, shift = [0, 0], hi = {}, extra = [] }) {
+  const P = laea(lon, lat), cx = CARD.x + CARD.w / 2, cy = CARD.y + CARD.h / 2;
+  let ox = 0, oy = 0;
+  if (fit) {
+    const pts = fit.flatMap(id => geoCentre(id).near.flatMap(poly => poly[0])).map(([a, b]) => P(a, b));
+    const bb = bboxOf(pts);
+    R = Math.min(CARD.w * (1 - pad) / (bb[2] - bb[0]), CARD.h * (1 - pad) / (bb[3] - bb[1]));
+    ox = -(bb[0] + bb[2]) / 2; oy = -(bb[1] + bb[3]) / 2;
+  }
+  const scr = (lo, la) => { const [x, y, c] = P(lo, la); return [cx + R * (x + ox) + shift[0], cy + R * (y + oy) + shift[1], c]; };
+  const ringD = r => {
+    const pts = r.map(([lo, la]) => scr(lo, la));
+    if (pts.every(p => p[2] < 0.05)) return '';
+    const bb = bboxOf(pts);
+    if (bb[2] < CARD.x - 400 || bb[0] > CARD.x + CARD.w + 400 || bb[3] < CARD.y - 400 || bb[1] > CARD.y + CARD.h + 400) return '';
+    let d = '', last = null;
+    pts.forEach((p, i) => { if (last && i < pts.length - 1 && Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.2) return; d += (d ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); last = p; });
+    return d + 'Z';
+  };
+  const dOf = id => GEO[id].map(poly => poly.map(ringD).join('')).join('');
+  const outer = el(sceneL, { left: CARD.x - 12, top: CARD.y - 12, width: CARD.w + 24, height: CARD.h + 24, borderRadius: 52, background: C.white, transformOrigin: '50% 50%',
+    boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+  const win = el(outer, { left: 12, top: 12, width: CARD.w, height: CARD.h, borderRadius: 40, overflow: 'hidden', background: SEA });
+  const layer = el(win, { left: -CARD.x, top: -CARD.y, width: W, height: H });
+  const over = el(outer, { left: -(CARD.x - 12), top: -(CARD.y - 12), width: W, height: H, zIndex: 5 });
+  const svg = svgEl(layer, 'svg', { width: W, height: H }); svg.style.position = 'absolute';
+  const defs = svgEl(svg, 'defs');
+  extra.forEach(x => svgEl(svg, 'path', { d: ringD(x.ring), fill: x.fill || LAND, stroke: '#fff', 'stroke-width': 1.6, 'stroke-linejoin': 'round' }));
+  let land = '';
+  for (const id in GEO) if (!(id in hi)) land += dOf(id);
+  for (const r of GEO_EXTRA) land += ringD(r);
+  svgEl(svg, 'path', { d: land, fill: LAND, stroke: '#fff', 'stroke-width': 1.6, 'stroke-linejoin': 'round' });
+  const paths = {};
+  for (const id in hi) paths[id] = svgEl(svg, 'path', { d: dOf(id), fill: hi[id], stroke: '#fff', 'stroke-width': 1.8, 'stroke-linejoin': 'round' });
+  const ctx = document.createElement('canvas').getContext('2d');
+  return { outer, win, layer, over, svg, defs, paths, scr, R, dOf, ringD,
+    inside: (d, x, y) => ctx.isPointInPath(new Path2D(d), x, y) };
+}
+// a label pill with an optional app flag, placed by its centre
+function Label(parent, text, { flag = null, bg = C.white, fg = C.forest, size = 34, h = 66, z = 10 } = {}) {
+  const e = el(parent, { height: h, borderRadius: h / 2, background: bg, color: fg, fontFamily: 'Fredoka', fontWeight: 600, fontSize: size, lineHeight: h + 'px', whiteSpace: 'pre', zIndex: z,
+    padding: flag ? `0 ${h * 0.4}px 0 ${h * 0.2}px` : `0 ${h * 0.4}px`, transformOrigin: '50% 50%', boxShadow: '0 8px 20px rgba(22,59,50,.16)', display: 'flex', alignItems: 'center', gap: h * 0.18 + 'px' },
+    (flag ? `<img src="${FLAGS}${flag}.svg" style="height:${h * 0.56}px;width:${h * 0.75}px;object-fit:cover;border-radius:${h * 0.1}px;box-shadow:0 0 0 2px rgba(22,59,50,.1)">` : '') + `<span>${text}</span>`);
+  e.querySelectorAll('b').forEach(b => S(b, { color: C.green, fontWeight: 600 }));
+  let cx = 0, cy = 0;
+  LAYOUT.push(() => { const r = e.getBoundingClientRect(); S(e, { left: cx - r.width / 2, top: cy - h / 2 }); });
+  return { e, at(x, y) { cx = x; cy = y; return this; },
+    pop(t, b, out = null) { const p = spB(t, b, 2.6, 0.55) * (out == null ? 1 : 1 - E.inBack(segB(t, out, out + 0.35, E.lin))); S(e, { transform: `scale(${p})` }); show(e, p > 0.001); return p; } };
+}
+// the card's entrance (springs up from the mascot's side) and exit
+function cardIn(card, t) {
+  const p = spB(t, TL.explain + 0.1, 2.1, 0.62), q = segB(t, TL.end - 0.4, TL.end - 0.05, E.inBack);
+  S(card.outer, { transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.1)) * (1 - q)})` }); show(card.outer, p > 0.001 && q < 1);
+  return p;
+}
+// a clip circle growing from (x, y) between beats b0 and b1 (a flood)
+function flood(defs, id, x, y, rMax) {
+  const c = svgEl(svgEl(defs, 'clipPath', { id }), 'circle', { cx: x, cy: y, r: 0 });
+  return (t, b0, b1) => { const f = segB(t, b0, b1, E.outCubic); c.setAttribute('r', (rMax * f).toFixed(1)); return f; };
+}
+const pyramidSvg = (s, c1 = '#E7A63A', c2 = '#C9861E') => `<svg width="${s}" height="${s * 0.8}" viewBox="0 0 30 24"><path d="M15 1L29 23H15z" fill="${c2}"/><path d="M15 1L1 23H15z" fill="${c1}"/><path d="M15 1L1 23H29z" fill="none" stroke="#7A4A00" stroke-width="1.2" stroke-linejoin="round"/></svg>`;
+const dropSvg = s => `<svg width="${s}" height="${s * 1.3}" viewBox="0 0 20 26"><path d="M10 1C10 1 2 11 2 17a8 8 0 0016 0C18 11 10 1 10 1z" fill="${C.ocean}" stroke="#fff" stroke-width="2"/></svg>`;
+const planeSvg = s => `<svg width="${s}" height="${s}" viewBox="0 0 24 24"><path d="M21 15.5v-2L13.5 9V4a1.5 1.5 0 00-3 0v5L3 13.5v2l7.5-2.3V18l-2 1.5V21l3.5-1 3.5 1v-1.5l-2-1.5v-4.8z" fill="${C.ink}" stroke="#fff" stroke-width="1" stroke-linejoin="round"/></svg>`;
+
+// ------------------------------------------------------------------ the five explainers
+// each returns update(t, b) and registers its own sounds
+const SCENES = {
+  // 1. France's longest border is with Brazil (French Guiana, 730 km); bonus: France and the Netherlands share Saint Martin
+  border() {
+    const m = MapCard({ lon: -53.4, lat: 2.6, R: 2600, shift: [0, 40], hi: { BRA: '#BFE3D2' }, extra: [{ ring: FRENCH_GUIANA, fill: LAND }] });
+    const gufD = m.ringD(FRENCH_GUIANA);
+    const gc = m.scr(-53.1, 4.0);
+    const fl = flood(m.defs, 'gufFlood', gc[0], gc[1], 180);
+    svgEl(m.svg, 'path', { d: gufD, fill: C.gold, stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round', 'clip-path': 'url(#gufFlood)' });
+    // the Brazil border of French Guiana (its southern and eastern edge, the Oyapock and the Tumuc-Humac hills)
+    const bRing = FRENCH_GUIANA.slice(0, 9);
+    const bD = 'M' + bRing.map(([a, b]) => m.scr(a, b).slice(0, 2).map(v => v.toFixed(1)).join(' ')).join('L');
+    const bord = svgEl(m.svg, 'path', { d: bD, fill: 'none', stroke: C.red, 'stroke-width': 9, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': '1 1' });
+    const lBra = Label(m.layer, 'Brazil', { flag: 'br', size: 36 }).at(...m.scr(-53.8, 0.6).slice(0, 2));
+    const lGuf = Label(m.over, 'French Guiana = <b>France</b>', { flag: 'fr', size: 34 }).at(540, 520);
+    const lKm = Label(m.over, '730 km', { bg: C.red, fg: C.white, size: 40, h: 72 }).at(...(([x, y]) => [x + 120, y + 30])(m.scr(-52.4, 2.4)));
+    const lSpain = Label(m.over, 'Longer than the border with Spain!', { size: 30, h: 60 }).at(540, 1024);
+    // bonus: one island, two countries
+    const isl = el(sceneL, { left: CARD.x - 12, top: CARD.y - 12, width: CARD.w + 24, height: CARD.h + 24, borderRadius: 52, background: C.white, transformOrigin: '50% 50%', zIndex: 2,
+      boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+    const iw = el(isl, { left: 12, top: 12, width: CARD.w, height: CARD.h, borderRadius: 40, overflow: 'hidden', background: SEA });
+    const isvg = svgEl(iw, 'svg', { width: CARD.w, height: CARD.h, viewBox: `0 0 ${CARD.w} ${CARD.h}` });
+    const blob = 'M120 300C140 210 250 170 360 190C450 205 520 160 610 185C700 210 720 300 680 360C650 410 560 420 500 450C420 490 330 480 250 450C170 420 105 370 120 300Z';
+    const icp = svgEl(svgEl(isvg, 'defs'), 'clipPath', { id: 'isl' }); svgEl(icp, 'path', { d: blob });
+    svgEl(isvg, 'path', { d: blob, fill: '#fff', transform: 'translate(0 10)', opacity: 0.6 });
+    svgEl(isvg, 'rect', { x: 0, y: 0, width: CARD.w, height: 320, fill: C.gold, 'clip-path': 'url(#isl)' });
+    svgEl(isvg, 'rect', { x: 0, y: 320, width: CARD.w, height: 400, fill: '#F08A3C', 'clip-path': 'url(#isl)' });
+    svgEl(isvg, 'path', { d: 'M100 330C260 300 520 340 720 312', fill: 'none', stroke: C.forest, 'stroke-width': 5, 'stroke-dasharray': '14 10' });
+    svgEl(isvg, 'path', { d: blob, fill: 'none', stroke: C.forest, 'stroke-width': 4 });
+    const lFr = Label(isl, 'France', { flag: 'fr', size: 34 }).at(400, 250);
+    const lNl = Label(isl, 'Netherlands', { flag: 'nl', size: 34 }).at(420, 410);
+    const lSm = Label(isl, 'Saint Martin, Caribbean', { size: 30, h: 60, bg: C.forest, fg: C.white }).at(412, 570);
+    ev(TL.explain + 0.9, 'expand', -8); ev(TL.explain + 1.6, 'pop', -8); ev(TL.explain + 2.6, 'swoosh', -9); ev(TL.explain + 3.0, 'pop', -6, { rate: 0.9 });
+    ev(TL.explain + 4.6, 'pop', -10, { rate: 1.1 });
+    ev(TL.bonus + 0.35, 'morph', -6); ev(TL.bonus + 1.2, 'pop', -9); ev(TL.bonus + 1.6, 'pop', -9, { rate: 1.1 }); ev(TL.bonus + 2.4, 'pop', -11, { rate: 1.2 });
+    return (t, b) => {
+      const flip = segB(t, TL.bonus + 0.1, TL.bonus + 0.35, E.inCubic), flip2 = segB(t, TL.bonus + 0.35, TL.bonus + 0.65, E.outCubic);
+      const p = cardIn(m, t);
+      S(m.outer, { transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.1))}) scaleX(${1 - flip})` }); show(m.outer, p > 0.001 && flip < 1);
+      fl(t, TL.explain + 0.9, TL.explain + 1.9);
+      lGuf.pop(t, TL.explain + 1.5); lBra.pop(t, TL.explain + 1.0);
+      bord.setAttribute('stroke-dashoffset', (1 - segB(t, TL.explain + 2.5, TL.explain + 3.4, E.inOutCubic)).toFixed(4));
+      lKm.pop(t, TL.explain + 2.9); lSpain.pop(t, TL.explain + 4.5);
+      const q = segB(t, TL.end - 0.4, TL.end - 0.05, E.inBack);
+      S(isl, { transform: `scaleX(${flip2}) scale(${1 - q})` }); show(isl, flip2 > 0.001 && q < 1);
+      lFr.pop(t, TL.bonus + 1.1); lNl.pop(t, TL.bonus + 1.5); lSm.pop(t, TL.bonus + 2.3);
+    };
+  },
+
+  // 2. Sudan has about twice as many pyramids as Egypt (200+ vs about 120); bonus: Nubian pyramids are steeper (~70 vs 52 degrees)
+  pyramids() {
+    const m = MapCard({ lon: 31, lat: 21, fit: ['EGY', 'SDN'], pad: 0.1, shift: [-40, 0], hi: { EGY: SAND, SDN: SAND } });
+    const r = rng(7);
+    // icons where the pyramids really are: Egypt along the Nile from Giza to Meidum; Sudan at el-Kurru/Nuri and Meroe
+    const sites = [{ c: [31.15, 29.6], n: 12, sp: 46 }, { c: [31.85, 18.5], n: 10, sp: 44 }, { c: [33.75, 16.94], n: 12, sp: 44 }];
+    const icons = [];
+    sites.forEach((s, k) => { const [x0, y0] = m.scr(...s.c); for (let i = 0; i < s.n; i++) {
+      const a = i * 2.39996, rr = s.sp * Math.sqrt((i + 0.5) / s.n);
+      const e = el(m.layer, { left: x0 + Math.cos(a) * rr - 15, top: y0 + Math.sin(a) * rr * 0.8 - 12, width: 30, height: 24, zIndex: 3 + i, transformOrigin: '50% 100%' }, pyramidSvg(30));
+      icons.push({ e, b: TL.explain + 1.1 + (k === 0 ? i * 0.17 : (k === 1 ? i : i + 10) * 0.1) }); } });
+    const lEgy = Label(m.over, 'Egypt ~120', { flag: 'eg', size: 36 }).at(...m.scr(25.6, 27.2).slice(0, 2));
+    const lSdn = Label(m.over, 'Sudan 200+', { flag: 'sd', size: 36, bg: C.green, fg: C.white }).at(...m.scr(25.4, 15.2).slice(0, 2));
+    const lKey = Label(m.over, '1', { size: 30, h: 58 }).at(540, 1028);
+    lKey.e.innerHTML = `${pyramidSvg(30)}<span>= 10 pyramids</span>`;
+    // bonus: the two silhouettes side by side
+    const sil = el(sceneL, { left: CARD.x - 12, top: CARD.y - 12, width: CARD.w + 24, height: CARD.h + 24, borderRadius: 52, background: C.white, transformOrigin: '50% 50%', zIndex: 2,
+      boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+    const sw = el(sil, { left: 12, top: 12, width: CARD.w, height: CARD.h, borderRadius: 40, overflow: 'hidden', background: '#FFF4DA' });
+    const ssvg = svgEl(sw, 'svg', { width: CARD.w, height: CARD.h });
+    svgEl(ssvg, 'rect', { x: 0, y: 470, width: CARD.w, height: 200, fill: SAND });
+    const tri = (x0, base, deg, col) => { const h = Math.tan(rad(deg)) * base / 2; return { d: `M${x0} 470L${x0 + base / 2} ${470 - h}L${x0 + base} 470Z`, h, col }; };
+    const gz = tri(60, 330, 52, '#E7A63A'), nb = tri(470, 200, 70, '#C9861E');
+    const gzP = svgEl(ssvg, 'path', { d: gz.d, fill: gz.col, stroke: '#7A4A00', 'stroke-width': 3, 'stroke-linejoin': 'round' });
+    const nbP = svgEl(ssvg, 'path', { d: nb.d, fill: nb.col, stroke: '#7A4A00', 'stroke-width': 3, 'stroke-linejoin': 'round' });
+    const arcD = (x, deg) => `M${x + 70} 470A70 70 0 0 0 ${x + 70 * Math.cos(rad(deg))} ${470 - 70 * Math.sin(rad(deg))}`;
+    svgEl(ssvg, 'path', { d: arcD(60, 52), fill: 'none', stroke: C.forest, 'stroke-width': 4 });
+    svgEl(ssvg, 'path', { d: arcD(470, 70), fill: 'none', stroke: C.forest, 'stroke-width': 4 });
+    const lG = Label(sil, 'Egypt (Giza) 52°', { flag: 'eg', size: 30, h: 60 }).at(237, 560);
+    const lN = Label(sil, 'Sudan ~70°', { flag: 'sd', size: 30, h: 60, bg: C.green, fg: C.white }).at(582, 560);
+    ev(TL.explain + 1.1, 'pop', -12); ev(TL.explain + 2.1, 'pop', -12, { rate: 1.1 }); ev(TL.explain + 3.1, 'pop', -12, { rate: 1.2 });
+    ev(TL.explain + 2.0, 'tick', -8); ev(TL.explain + 3.4, 'correct', -7); ev(TL.explain + 4.4, 'pop', -12);
+    ev(TL.bonus + 0.35, 'morph', -6); ev(TL.bonus + 0.9, 'land', -6); ev(TL.bonus + 1.4, 'land', -5, { rate: 1.15 }); ev(TL.bonus + 2.0, 'pop', -9); ev(TL.bonus + 2.4, 'pop', -9, { rate: 1.1 });
+    return (t, b) => {
+      const flip = segB(t, TL.bonus + 0.1, TL.bonus + 0.35, E.inCubic), flip2 = segB(t, TL.bonus + 0.35, TL.bonus + 0.65, E.outCubic);
+      const p = cardIn(m, t);
+      S(m.outer, { transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.1))}) scaleX(${1 - flip})` }); show(m.outer, p > 0.001 && flip < 1);
+      icons.forEach(ic => { const q = spB(t, ic.b, 3, 0.5); S(ic.e, { transform: `scale(${q})` }); show(ic.e, q > 0.001); });
+      lEgy.pop(t, TL.explain + 2.0); lSdn.pop(t, TL.explain + 3.3); lKey.pop(t, TL.explain + 4.3);
+      const q = segB(t, TL.end - 0.4, TL.end - 0.05, E.inBack);
+      S(sil, { transform: `scaleX(${flip2}) scale(${1 - q})` }); show(sil, flip2 > 0.001 && q < 1);
+      const g1 = spB(t, TL.bonus + 0.8, 2.4, 0.6), g2 = spB(t, TL.bonus + 1.3, 2.4, 0.5);
+      S(gzP, { transform: `scale(1 ${g1})`, transformOrigin: '0 470px', transformBox: 'view-box' }); S(nbP, { transform: `scale(1 ${g2})`, transformOrigin: '0 470px', transformBox: 'view-box' });
+      lG.pop(t, TL.bonus + 1.9); lN.pop(t, TL.bonus + 2.3);
+    };
+  },
+
+  // 3. Saudi Arabia has no permanent river (the largest country without one); bonus: it makes drinking water from the sea
+  rivers() {
+    const m = MapCard({ lon: 45, lat: 24, fit: ['SAU'], pad: 0.08, shift: [0, -10], hi: { SAU: SAND } });
+    const rv = [[37.6, 27.2], [39.5, 26.4], [41.5, 26.9], [43.4, 25.6], [45.3, 26.0], [47.0, 24.6], [48.6, 24.9]].map(p => m.scr(...p));
+    let d = 'M' + rv[0][0].toFixed(1) + ' ' + rv[0][1].toFixed(1);
+    for (let i = 1; i < rv.length; i++) { const a = rv[i - 1], c = rv[i]; d += `Q${((a[0] + c[0]) / 2).toFixed(1)} ${(Math.min(a[1], c[1]) - 26).toFixed(1)} ${c[0].toFixed(1)} ${c[1].toFixed(1)}`; }
+    const river = svgEl(m.svg, 'path', { d, fill: 'none', stroke: C.ocean, 'stroke-width': 12, 'stroke-linecap': 'round', pathLength: 1, 'stroke-dasharray': '1 1' });
+    const lSau = Label(m.over, 'Saudi Arabia', { flag: 'sa', size: 36 }).at(...(([x, y]) => [x, y + 60])(m.scr(45, 22)));
+    const zero = el(m.over, { left: 0, top: 0, width: 240, height: 240, borderRadius: 120, background: C.red, color: C.white, display: 'grid', placeItems: 'center', textAlign: 'center', zIndex: 8, transformOrigin: '50% 50%', boxShadow: '0 16px 36px rgba(150,20,20,.3)' },
+      '<div style="font-family:Fredoka;font-weight:700;font-size:110px;line-height:96px">0</div><div style="font-family:Manrope;font-weight:800;font-size:22px;line-height:26px;letter-spacing:.04em">PERMANENT<br>RIVERS</div>');
+    S(zero, { left: 680, top: 470 });
+    const lBig = Label(m.over, 'The biggest country without one', { size: 30, h: 60 }).at(540, 1024);
+    // bonus: drops of seawater come in from both coasts
+    const coasts = [[39.2, 21.5], [49.7, 27.0], [41.5, 18.0], [50.1, 26.3]].map(p => m.scr(...p)), riy = m.scr(46.7, 24.7);
+    const drops = []; for (let i = 0; i < 12; i++) { const e = el(m.layer, { width: 30, height: 39, zIndex: 6, transformOrigin: '50% 50%' }, dropSvg(30)); drops.push({ e, c: coasts[i % 4], b: TL.bonus + 0.6 + i * 0.28 }); }
+    const lDes = Label(m.over, '#1 at turning seawater into drinking water', { size: 28, h: 58, bg: C.ocean, fg: C.white }).at(540, 1024);
+    ev(TL.explain + 1.0, 'whoosh', -10, { rate: 1.2 }); ev(TL.explain + 2.6, 'collapse', -6); ev(TL.explain + 3.2, 'impact', -8); ev(TL.explain + 3.3, 'error', -9);
+    ev(TL.explain + 4.6, 'pop', -10); ev(TL.explain + 1.6, 'pop', -12);
+    drops.forEach((dp, i) => { if (i % 3 === 0) ev(dp.b + 0.5, 'pop', -14, { rate: 1.3 + i * 0.02 }); });
+    ev(TL.bonus + 0.5, 'swoosh', -9); ev(TL.bonus + 2.2, 'pop', -9);
+    return (t, b) => {
+      cardIn(m, t);
+      const draw = segB(t, TL.explain + 1.0, TL.explain + 2.2, E.inOutCubic), dry = segB(t, TL.explain + 2.6, TL.explain + 3.1, E.inCubic);
+      river.setAttribute('stroke-dashoffset', (1 - draw + dry).toFixed(4)); show(river, draw > 0 && dry < 1);
+      river.setAttribute('stroke', mixc(C.ocean, '#D9A441', dry * 1.4));
+      lSau.pop(t, TL.explain + 1.6);
+      const z = spB(t, TL.explain + 3.2, 2.8, 0.45) * (1 - E.inBack(segB(t, TL.bonus - 0.2, TL.bonus + 0.15, E.lin)));
+      S(zero, { transform: `scale(${z}) rotate(${(1 - clamp(z)) * -20}deg)` }); show(zero, z > 0.001);
+      lBig.pop(t, TL.explain + 4.5, TL.bonus - 0.2);
+      drops.forEach(dp => { const u = segB(t, dp.b, dp.b + 1.0, E.inOutSine), [x, y] = [lerp(dp.c[0], riy[0], u), lerp(dp.c[1], riy[1], u) - Math.sin(u * Math.PI) * 50];
+        const s = spB(t, dp.b, 3, 0.5) * (1 - segB(t, dp.b + 0.9, dp.b + 1.05, E.inCubic)); S(dp.e, { left: x - 15, top: y - 20, transform: `scale(${s})` }); show(dp.e, s > 0.001); });
+      lDes.pop(t, TL.bonus + 2.1);
+    };
+  },
+
+  // 4. Canada has about 62% of the world's lakes (HydroLAKES, ~880,000 of 1.42 million); bonus: the world's longest coastline
+  lakes() {
+    const m = MapCard({ lon: -96, lat: 62, fit: ['CAN'], pad: 0.06, shift: [0, 30], hi: { CAN: '#F6E7C6' } });
+    const canD = m.paths.CAN.getAttribute('d');
+    const r = rng(11), dots = [];
+    const bb = { x0: CARD.x + 40, x1: CARD.x + CARD.w - 40, y0: CARD.y + 120, y1: CARD.y + CARD.h - 60 };
+    for (let k = 0; dots.length < 170 && k < 6000; k++) {
+      const x = lerp(bb.x0, bb.x1, r()), y = lerp(bb.y0, bb.y1, r());
+      if (!m.inside(canD, x, y)) continue;
+      const s = 5 + r() * 9;
+      const e = el(m.layer, { left: x - s / 2, top: y - s / 2, width: s, height: s * 0.8, borderRadius: '50%', background: C.ocean, zIndex: 3, transformOrigin: '50% 50%' });
+      dots.push({ e, b: TL.explain + 1.0 + r() * 2.2 });
+    }
+    const counter = el(m.over, { left: 0, top: 0, height: 74, borderRadius: 37, background: C.forest, color: C.white, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 40, lineHeight: '74px', whiteSpace: 'pre', padding: '0 30px', zIndex: 8, transformOrigin: '50% 50%' }, '');
+    const cnt = el(counter, { left: 0, top: 0, position: 'relative' }, '');
+    S(counter, { left: 300, top: 462 });
+    // split bar: Canada 62% / the rest of the world 38%
+    const bar = el(m.over, { left: 170, top: 990, width: 740, height: 70, borderRadius: 35, overflow: 'hidden', background: '#D7DED9', zIndex: 8, transformOrigin: '0 50%', boxShadow: '0 8px 20px rgba(22,59,50,.14)' });
+    const barFill = el(bar, { left: 0, top: 0, height: 70, background: C.ocean });
+    el(bar, { left: 24, top: 0, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 30, lineHeight: '70px', color: C.white, whiteSpace: 'pre', zIndex: 2 }, 'Canada 62%');
+    el(bar, { left: 470, width: 250, top: 0, textAlign: 'right', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 26, lineHeight: '70px', color: C.forest, whiteSpace: 'pre', zIndex: 2 }, 'Everyone else 38%');
+    // bonus: the coastline lights up, west to east
+    const cl = svgEl(svgEl(m.defs, 'clipPath', { id: 'sweep' }), 'rect', { x: 0, y: 0, width: 0, height: H });
+    svgEl(m.svg, 'path', { d: canD, fill: 'none', stroke: C.ink, 'stroke-width': 3.2, 'stroke-linejoin': 'round', 'clip-path': 'url(#sweep)' });
+    const lCoast = Label(m.over, 'World’s longest coastline', { size: 32, h: 64, bg: C.ink, fg: C.white }).at(540, 1024);
+    for (let i = 0; i < 9; i++) ev(TL.explain + 1.1 + i * 0.25, 'pop', -14, { rate: 1.0 + i * 0.05 });
+    ev(TL.explain + 1.0, 'tick', -10); ev(TL.explain + 3.4, 'correct', -7); ev(TL.explain + 4.2, 'slide', -8);
+    ev(TL.bonus + 0.4, 'whoosh', -8); ev(TL.bonus + 2.4, 'pop', -9);
+    return (t, b) => {
+      cardIn(m, t);
+      dots.forEach(dt => { const q = spB(t, dt.b, 3, 0.5); S(dt.e, { transform: `scale(${q})` }); show(dt.e, q > 0.001); });
+      const cp = spB(t, TL.explain + 1.0, 2.6, 0.55) * (1 - E.inBack(segB(t, TL.bonus - 0.2, TL.bonus + 0.15, E.lin)));
+      const n = Math.round(880000 * E.outCubic(segB(t, TL.explain + 1.0, TL.explain + 3.4, E.lin)) / 1000) * 1000;
+      cnt.textContent = `${n.toLocaleString('en-US')} lakes`;
+      S(counter, { transform: `scale(${cp})` }); show(counter, cp > 0.001);
+      const bp = spB(t, TL.explain + 4.1, 2.2, 0.62) * (1 - E.inBack(segB(t, TL.bonus - 0.2, TL.bonus + 0.15, E.lin)));
+      S(bar, { transform: `scaleX(${clamp(bp, 0, 1.08)})` }); show(bar, bp > 0.001);
+      S(barFill, { width: 740 * 0.62 * segB(t, TL.explain + 4.4, TL.explain + 5.4, E.outCubic) + 0.001 });
+      cl.setAttribute('width', (W * segB(t, TL.bonus + 0.4, TL.bonus + 2.2, E.inOutSine)).toFixed(1));
+      lCoast.pop(t, TL.bonus + 2.3);
+    };
+  },
+
+  // 5. Liechtenstein (and Uzbekistan) are the only double-landlocked countries; bonus: Liechtenstein has no airport
+  landlocked() {
+    const m = MapCard({ lon: 11.2, lat: 46.4, R: 4300, shift: [0, -10], hi: { CHE: SAND, AUT: SAND, LIE: C.red } });
+    const lie = m.scr(9.55, 47.15);
+    const pulse = el(m.layer, { left: lie[0] - 30, top: lie[1] - 30, width: 60, height: 60, borderRadius: 30, border: `6px solid ${C.red}`, zIndex: 4, transformOrigin: '50% 50%' });
+    const pts = [[9.55, 47.15], [10.3, 47.3], [11.0, 47.25], [11.5, 47.0], [11.65, 46.6], [12.0, 46.1], [12.33, 45.47]].map(p => m.scr(...p));
+    const pd = 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L');
+    const path = svgEl(m.svg, 'path', { d: pd, fill: 'none', stroke: C.forest, 'stroke-width': 6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': '1 1' });
+    const cross = [[10.05, 47.3], [11.5, 47.0]].map(p => m.scr(...p)).map((p, i) => { const e = el(m.layer, { left: p[0] - 26, top: p[1] - 26, width: 52, height: 52, borderRadius: 26, background: C.forest, color: C.white,
+      textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 32, lineHeight: '52px', zIndex: 6, transformOrigin: '50% 50%', boxShadow: '0 6px 14px rgba(22,59,50,.25)' }, String(i + 1)); return e; });
+    const sea = m.scr(12.33, 45.47);
+    const wave = el(m.layer, { left: sea[0] - 34, top: sea[1] - 4, width: 68, height: 68, borderRadius: 34, background: C.ocean, color: C.white, textAlign: 'center', fontSize: 38, lineHeight: '68px', zIndex: 6, transformOrigin: '50% 50%' }, '🌊');
+    const lLie = Label(m.over, 'Liechtenstein', { flag: 'li', size: 34 }).at(lie[0] - 20, lie[1] - 90);
+    const lChe = Label(m.layer, 'Switzerland', { size: 28, h: 54 }).at(...m.scr(7.9, 46.75).slice(0, 2));
+    const lAut = Label(m.layer, 'Austria', { size: 28, h: 54 }).at(...m.scr(14.6, 47.4).slice(0, 2));
+    const lUzb = Label(m.over, 'The only other one: Uzbekistan', { flag: 'uz', size: 30, h: 62 }).at(540, 1024);
+    // bonus: a plane comes in, finds no runway, turns back to Zurich
+    const plane = el(m.over, { width: 90, height: 90, zIndex: 9, transformOrigin: '50% 50%' }, planeSvg(90));
+    const noX = el(m.over, { left: lie[0] - 55 + 12 - CARD.x + CARD.x, top: lie[1] - 55, width: 110, height: 110, borderRadius: 55, background: C.red, display: 'grid', placeItems: 'center', zIndex: 10, transformOrigin: '50% 50%', boxShadow: '0 10px 24px rgba(150,20,20,.3)' }, icon('close', 64, C.white, 3.4));
+    S(noX, { left: lie[0] - 55 + 12, top: lie[1] - 55 + 12 });
+    const lAir = Label(m.over, 'No airport. Fly to Zurich, then drive.', { size: 28, h: 58 }).at(540, 1024);
+    ev(TL.explain + 0.9, 'pin', -6); ev(TL.explain + 1.4, 'pop', -9); ev(TL.explain + 1.9, 'whoosh', -10, { rate: 1.2 });
+    ev(TL.explain + 2.25, 'pop', -6, { rate: 1.0 }); ev(TL.explain + 3.05, 'pop', -6, { rate: 1.15 }); ev(TL.explain + 3.7, 'correct', -6); ev(TL.explain + 4.6, 'pop', -10);
+    ev(TL.bonus + 0.5, 'whoosh', -6); ev(TL.bonus + 1.6, 'error', -5); ev(TL.bonus + 2.4, 'pop', -9);
+    return (t, b) => {
+      cardIn(m, t);
+      const pp = spB(t, TL.explain + 0.9, 2.6, 0.5), pl = Math.sin(Math.max(0, t - T(TL.explain + 0.9)) * 7) * 0.08;
+      S(pulse, { transform: `scale(${pp * (1 + pl)})` }); show(pulse, pp > 0.001);
+      lLie.pop(t, TL.explain + 1.4); lChe.pop(t, TL.explain + 1.2); lAut.pop(t, TL.explain + 1.3);
+      path.setAttribute('stroke-dashoffset', (1 - segB(t, TL.explain + 1.9, TL.explain + 3.6, E.inOutSine)).toFixed(4));
+      cross.forEach((e, i) => { const q = spB(t, TL.explain + 2.2 + i * 0.8, 3, 0.45); S(e, { transform: `scale(${q})` }); show(e, q > 0.001); });
+      const wq = spB(t, TL.explain + 3.6, 3, 0.45); S(wave, { transform: `scale(${wq})` }); show(wave, wq > 0.001);
+      lUzb.pop(t, TL.explain + 4.5, TL.bonus - 0.2);
+      // the plane: in from the right, hovers over Liechtenstein, turns back west to Zurich
+      const u = segB(t, TL.bonus + 0.4, TL.bonus + 1.5, E.outCubic), back = segB(t, TL.bonus + 1.9, TL.bonus + 3.0, E.inCubic);
+      const zur = m.scr(8.55, 47.45);
+      const x = lerp(lerp(1000, lie[0] + 70, u), zur[0] - 120, back), y = lerp(lerp(lie[1] - 160, lie[1] - 70, u), zur[1] - 40, back);
+      const turn = segB(t, TL.bonus + 1.6, TL.bonus + 2.0, E.inOutCubic);
+      S(plane, { left: x - 45 + 12, top: y - 45 + 12, transform: `rotate(${lerp(-90, -270, turn)}deg)` }); show(plane, u > 0 && back < 1);
+      const xq = spB(t, TL.bonus + 1.6, 3, 0.45); S(noX, { transform: `scale(${xq}) rotate(${(1 - clamp(xq)) * 30}deg)` }); show(noX, xq > 0.001);
+      lAir.pop(t, TL.bonus + 2.3);
+    };
+  },
+};
+const scene = SCENES[F.scene]();
+
+// ------------------------------------------------------------------ sound
+ev(0.02, 'pop', -12, { rate: 1.1 });
+ev(TL.hint + 0.05, 'mention', -8);
+[TL.n3, TL.n2, TL.n1].forEach((b, i) => ev(b, 'clock', -3, { rate: 1 + i * 0.06 }));
+ev(TL.up, 'lock', -3);
+TL.out.forEach((b, i) => ev(b, 'error', -5 + i));
+TL.drum.forEach((b, i) => ev(b, 'clock', -7 + i, { rate: 1.1 + i * 0.05 }));
+ev(TL.reveal, 'impact', -2); ev(TL.reveal + 0.05, 'correct', -4); ev(TL.reveal + 0.2, 'sparkle', -6);
+ev(TL.wow + 0.1, 'boing', -7);
+ev(TL.explain + 0.1, 'swoosh', -7);
+ev(TL.bonus, 'levelup', -5);
+ev(TL.cap3 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+// ------------------------------------------------------------------ frame
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  const qOut = (k = 0) => E.inBack(segB(t, TL.explain - 0.5 + k * 0.08, TL.explain - 0.05 + k * 0.08, E.lin));
+
+  // the question and the answers (in from frame 1)
+  const qp = spB(t, -1.4, 1.9, 0.62);
+  S(qCard, { transform: `scale(${lerp(0.3, 1, clamp(qp, 0, 1.1)) * (1 - qOut(0))})` }); show(qCard, qOut(0) < 1);
+  opts.forEach((o, i) => {
+    const pin = spB(t, -1.2 + i * 0.15, 2.2, 0.6);
+    const k = F.out.indexOf(i), outB = k >= 0 ? TL.out[k] : null;
+    const isOut = outB != null && b >= outB, isRight = i === F.right && b >= TL.reveal;
+    const hit = outB != null ? spB(t, outB, 2.6, 0.4) : 0;
+    const shake = outB != null && b >= outB && b < outB + 0.7 ? Math.sin((t - T(outB)) * 60) * 10 * (1 - (b - outB) / 0.7) : 0;
+    const win = i === F.right ? spB(t, TL.reveal, 2.6, 0.45) : 0;
+    const sc = lerp(0.3, 1, clamp(pin, 0, 1.1)) * (1 - 0.08 * clamp(hit)) * (1 + 0.06 * win - 0.06 * clamp(win - 1)) * (1 - qOut(i + 1));
+    S(o.box, { transform: `translateX(${shake}px) scale(${sc})` }); show(o.box, qOut(i + 1) < 1);
+    // flood from the letter: red for a knocked-out answer, green for the true one
+    const f0 = isRight ? TL.reveal : outB;
+    const fr = f0 != null ? lerp(0, 900, segB(t, f0, f0 + 0.55, E.outCubic)) : 0;
+    S(o.fill, { clipPath: `circle(${fr.toFixed(1)}px at 56px 56px)` }); show(o.fill, fr > 0.5);
+    const lit = isOut || isRight;
+    S(o.label, { color: lit && fr > 140 ? C.white : C.forest });
+    S(o.dot, { background: lit ? C.white : C.mint });
+    const ms = f0 != null ? spB(t, f0 + 0.08, 3, 0.5) : 0;
+    S(o.mark, { transform: `scale(${ms})` }); show(o.mark, ms > 0.001);
+    S(o.letter, { transform: `scale(${1 - clamp(ms * 1.5)})` }); show(o.letter, ms < 0.66);
+  });
+  hint.set(segB(t, TL.hint, TL.hint + 0.45, E.outQuint), segB(t, TL.up - 0.1, TL.up + 0.2, E.inCubic));
+
+  // countdown
+  const drain = clamp((b - TL.n3) / (TL.up - TL.n3));
+  const col = b < TL.n2 ? C.green : b < TL.n1 ? C.gold : C.red;
+  arc.setAttribute('stroke', col); arc.setAttribute('stroke-dasharray', `${CIRC} ${CIRC}`); arc.setAttribute('stroke-dashoffset', (CIRC * drain).toFixed(1));
+  let n = 3, prev = 3, rp = 1;
+  if (b >= TL.n2) { n = 2; prev = 3; rp = E.outCubic(clamp((t - T(TL.n2)) / 0.14)); }
+  if (b >= TL.n1) { n = 1; prev = 2; rp = E.outCubic(clamp((t - T(TL.n1)) / 0.14)); }
+  numRoll.set(String(prev), String(n), rp);
+  numRoll.box.querySelectorAll('span').forEach(s => { s.style.color = col; });
+  let kick = 0; [TL.n3, TL.n2, TL.n1].forEach(nb => { const d = t - T(nb); if (d > 0 && d < 0.5) kick = Math.max(kick, Math.exp(-d * 9) * Math.sin(Math.min(d * 30, Math.PI))); });
+  const tin = spB(t, TL.hint + 0.2, 2.4, 0.6);
+  const mm = spB(t, TL.up, 2.4, 0.72);
+  const tw = lerp(2 * TC.r, UPW, clamp(mm, 0, 1.1));
+  const tOut = E.inBack(segB(t, TL.reveal - 0.1, TL.reveal + 0.25, E.lin));
+  S(timer, { left: TC.cx - tw / 2, width: tw, background: mixc(C.white, C.red, clamp(mm * 2)), transform: `scale(${clamp(tin, 0, 1.1) * (1 + 0.1 * kick) * (1 - tOut)})` });
+  show(timer, tin > 0.001 && tOut < 1);
+  S(upTxt, { left: (tw - UPW) / 2 }); show(upTxt, mm > 0.05);
+  show(numRoll.box, mm < 0.5);
+  S(ring, { transform: `scale(${clamp(tin, 0, 1.1) * (1 + 0.1 * kick) * (1 - clamp(mm * 1.6))})` }); show(ring, tin > 0.001 && mm < 0.62);
+
+  scene(t, b);
+
+  // the pills: the open loop pays off at the bonus
+  const sp = spB(t, -1.0, 2.2, 0.6), bp = spB(t, -0.8, 2.2, 0.6);
+  const swap = segB(t, TL.bonus - 0.15, TL.bonus + 0.05, E.inCubic), bn = spB(t, TL.bonus + 0.05, 3, 0.45);
+  const pillsOut = segB(t, TL.end - 0.3, TL.end, E.inBack);
+  S(series, { transform: `scale(${clamp(sp, 0, 1.1) * (1 - pillsOut)})` }); show(series, pillsOut < 1);
+  S(bonusPill, { transform: `scale(${clamp(bp, 0, 1.1) * (1 - swap) * (1 + 0.05 * Math.max(0, Math.sin(t * 7)) * (b > TL.explain ? 1 : 0))})` }); show(bonusPill, swap < 1);
+  S(bonusNow, { transform: `scale(${bn * (1 - pillsOut)})` }); show(bonusNow, bn > 0.001 && pillsOut < 1);
+
+  // Roviko: nervous, covers his eyes, peeks at each knock-out, shocked at the reveal, mind blown at the bonus
+  {
+    const covering = b >= TL.up && b < TL.reveal, peek = covering && ((b >= TL.out[0] && b < TL.out[0] + 0.7) || (b >= TL.out[1] && b < TL.out[1] + 0.7));
+    const shock = b >= TL.reveal && b < TL.explain, blown = b >= TL.bonus + 0.2 && b < TL.bonus + 2.2, happy = b >= TL.cap3;
+    const nerves = clamp((b - 1) / 6);
+    let arms = [[-112, 64 - 8 * Math.sin(t * 9), 22, 10], [112, 64 + 8 * Math.sin(t * 9), 22, 10]], hop = 0;
+    if (covering) arms = [[-34, -6, -30, 11], peek ? [104, 62, 22, 10] : [34, -6, -30, 11]];
+    if (shock) arms = [[-92, -58, -30, 11], [92, -58, -30, 11]];
+    if (blown) arms = [[-70, -96, -30, 11], [70, -96, -30, 11]];
+    if (happy) { const wig = Math.sin(t * 13) * 6; arms = [[-118 + wig, -92, -22, 11], [118 - wig, -92, -22, 11]]; hop = bop(b, 12); }
+    else if (b < TL.up) hop = bop(b, 5, 0.5);
+    else if (b >= TL.explain && !blown) hop = bop(b, 4);
+    const sh = spB(t, TL.reveal, 2.6, 0.5);
+    drawMascot(mascot, { look: shock ? [0, 0] : covering ? [0.5, -0.6] : b >= TL.explain ? [0.8, -0.7] : [0.75, -0.9],
+      mouth: shock || blown ? 'o' : covering ? 'wobble' : happy ? 'open' : b >= TL.explain ? 'grin' : 'smile',
+      brows: !shock && b > 2 && b < TL.reveal ? 'worried' : shock ? 'up' : null, sweat: b < TL.reveal ? clamp((b - 4) / 1.5) : 0,
+      eyesBig: shock ? sh * 0.6 : blown ? 0.6 : b < TL.reveal ? nerves * 0.35 : 0, blink: covering && !peek ? 1 : blinkAt(t, [2.2, 18.4, 26.8]),
+      cheeks: happy ? 0.8 : 0, legs: 1, hop, arms, tilt: shock ? Math.sin((t - T(TL.reveal)) * 10) * 6 * Math.exp(-(t - T(TL.reveal)) * 2) : 0 });
+  }
+  what.set(spB(t, TL.wow, 2.4, 0.55), segB(t, TL.explain - 0.4, TL.explain - 0.05));
+
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.explain - 0.45, TL.explain - 0.1));
+  cap2.set(spB(t, TL.explain, 1.9, 0.62), segB(t, TL.bonus - 0.4, TL.bonus - 0.05));
+  cap3.set(spB(t, TL.bonus, 1.9, 0.62), segB(t, TL.cap3 - 0.4, TL.cap3 - 0.05));
+  cap4.set(spB(t, TL.cap3, 1.9, 0.62), segB(t, TL.end - 0.3, TL.end + 0.05));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>
