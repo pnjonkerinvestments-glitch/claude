@@ -22,9 +22,11 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Practice, bonus-warm-up en persoonlijke herkansingen blijven zonder punten/timer. Multiplayer behoudt eigen matchpunten/XP, gescheiden van dagtotalen.
 - Daily Detour (1.18, was Wereldreis): 20 vragen, vier van elk type (vlag, hoofdstad, kaart, buren, grootte), nooit twee keer hetzelfde type na elkaar. Sinds 1.21 begint hij makkelijk: vraag 1 is een vlag, vraag 2 een hoofdstad, de eerste drie vragen gebruiken bekende landen en een kaartvraag in de eerste vijf is altijd een land van minstens 50.000 km²; 50 punten per vraag, kaart naar nauwkeurigheid. Punten per vraag = 1000 ÷ aantal vragen, zodat oudere edities met vijf stops (200 per stop) gelijk blijven.
 - Dagelijkse Clue Trail: vijf landen; hints continent, grens, hoofdstad, vlag; opties zonder vlaggen. Correct na 1/2/3/4 hints = 200/150/100/50, fout = 0.
-- Rank Radar: zes landen, vier onderwerpen per vraag; expliciet bevestigen, daarna alle cijfers/rangen uitleggen.
+- Rank Radar (1.21): een bord met acht landen en acht onderwerpen, elk onderwerp één keer (`lib/puzzles/rank-board.ts`, `components/puzzles/RankBoardGame.tsx`); tot 125 punten per land, aan het eind de best mogelijke dagscore. Oude zesvragen-sessies blijven werken.
+- Wereldduel (1.21): zeven kaarten, blind tot de laatste kaart (server stuurt pas daarna waarden, winst, score en route), daarna een overzicht per land.
+- Overleven (1.21, `lib/survival.ts`, `/api/survival`): drie dagelijkse runs van 30 vragen die per vraag moeilijker worden (`settings.ramp` in `generateQuestions`); de eerste fout stopt de run. Geen ranglijstpunten. Vormenjacht (`shape`) is alleen een survival-modus, niet in `MODES`/multiplayer.
 - Mosaic: dagelijkse numerieke feiten, duidelijk geselecteerde categorieën, rood gemarkeerde mismatches; server-gevalideerde dagpunten en betaalde hints volgens GAME_RULES.md.
-- Side by Side: links schuift naar rechts voor één extra vergelijking, ongeacht de keuze.
+- Side by Side: links schuift naar rechts voor één extra vergelijking, ongeacht de keuze. Sinds 1.21 dagelijks 15 vragen van makkelijk naar moeilijk, en de eerste fout stopt de run.
 - Dagspelresultaten zijn eenmalig en hervatbaar per speler/UTC-datum/spel. Geen herhaalpunten, geen retroactieve scores voor oude edities.
 - EN/NL/ES, light/dark mode, gasten zonder account, responsief en toetsenbordbedienbaar.
 - Elke spelvorm heeft een uitleg (3 stappen + tip, EN/NL/ES) die de eerste keer vanzelf opent, een ?-knop in elk spel en de pagina `/how-to-play`. Nieuwe spelvormen krijgen altijd een uitleg in `lib/how-to-play.ts`.

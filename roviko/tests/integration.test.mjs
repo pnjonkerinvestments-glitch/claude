@@ -605,3 +605,26 @@ test('players can report and block each other; blocks keep them out of the same 
  assert.equal((await request(a.cookie,'/players/'+idB+'/block','DELETE')).status,200);
  assert.equal((await request(b.cookie,'/rooms/'+room+'/join','POST',{})).status,200);
 });
+
+test('survival runs share the day\'s questions, climb in difficulty and end at the first mistake',async()=>{
+ await db.prepare('DELETE FROM rate_limits').run();
+ const a=await bootstrap(),b=await bootstrap();
+ assert.equal((await request(a.cookie,'/survival','POST',{mode:'flags'})).status,400);
+ for(const mode of ['order','borders','shape']){
+  let g=(await request(a.cookie,'/survival','POST',{mode})).data;const other=(await request(b.cookie,'/survival','POST',{mode})).data;
+  assert.equal(g.total,30);assert.ok(g.survival);assert.equal(g.question.id,other.question.id,'same first question for everyone');
+  if(mode==='shape'){assert.match(g.question.shape,/^M/);assert.equal(g.question.options.length,4);}
+  const s=await privateGame(g.id);
+  // Two right answers, then a wrong one: the run ends there.
+  for(let i=0;i<3;i++){
+   const q=s.questions[g.round],right=q.correct,wrong=mode==='order'?[...right].reverse():q.options.find(o=>o.id!==right).id;
+   const r=await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:g.round,answer:i<2?right:wrong});assert.equal(r.status,200,JSON.stringify(r.data));
+   g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;
+  }
+  assert.equal(g.phase,'finished');assert.equal(g.out,true);assert.equal(g.answers.length,3);assert.equal(g.score,2);
+  assert.equal((await request(a.cookie,'/survival','POST',{mode})).data.id,g.id,'one run per day');
+  const standing=(await request(a.cookie,'/survival/standing?mode='+mode)).data;assert.equal(standing.score,2);assert.equal(standing.top,2);
+ }
+ const today=(await request(a.cookie,'/puzzles/today?competition=1')).data;assert.equal(today.survival.length,3);assert.ok(today.survival.every(x=>x.completed&&x.out&&x.score===2));
+ assert.ok(!today.sessions.some(x=>String(x.mode).startsWith('survival')));
+});

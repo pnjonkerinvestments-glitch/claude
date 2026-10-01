@@ -1998,3 +1998,42 @@ a.week-shield{display:grid!important;grid-template-columns:auto 1fr auto;padding
 .duel-detail .duel-bar:not(.is-you)>i{background:linear-gradient(90deg,#8a95a1,#c3cad1)}
 .duel-detail-best{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:12px;background:var(--color-surface-2)}
 .duel-detail-best img{width:26px;height:18px;object-fit:cover;border-radius:3px;flex-shrink:0}
+
+/* ───────── 1.21: Survival runs and Shape Shift ───────── */
+.game-icon-shape{--g:#2c6e8f;--g-soft:#dcedf5}
+.game-life-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:99px;background:#fde3e3;color:#c0312b;font-weight:800;font-size:.875rem}
+[data-theme=dark] .game-life-chip{background:#3d1f22;color:#ff9a94}
+.shape-stage{display:grid;place-items:center;margin:4px auto 16px;width:min(100%,340px);aspect-ratio:5/4;border-radius:20px;background:radial-gradient(circle at 50% 40%,#eaf4f8,#d6e8f0);box-shadow:inset 0 0 0 1px var(--color-line)}
+.shape-stage svg{width:86%;height:86%}
+.shape-stage path{fill:#2c6e8f;stroke:#1d4f68;stroke-width:.6;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+[data-theme=dark] .shape-stage{background:radial-gradient(circle at 50% 40%,#1f3440,#15232c)}
+[data-theme=dark] .shape-stage path{fill:#7cc3e2;stroke:#bfe5f5}
+.survival{display:grid;gap:14px;padding:var(--space-5);border-radius:var(--radius-hero);background:var(--color-surface);box-shadow:var(--shadow-card)}
+.survival-head{display:flex;gap:14px;align-items:flex-start}
+.survival-head h2{margin:2px 0 4px;font:800 1.375rem/1.2 var(--font-display,var(--font-sans))}
+.survival-head .kicker,.survival-head p.muted{margin:0}.survival-head p.muted{font-size:.9375rem}
+.survival-badge{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:#fde3e3;color:#d2382f}
+.survival-grid{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.survival-card>button{width:100%;height:100%;display:grid;grid-template-rows:auto 1fr;padding:0;border:0;border-radius:18px;overflow:hidden;background:var(--color-surface);box-shadow:inset 0 0 0 1px var(--color-line),0 2px 6px rgba(24,33,29,.06);text-align:left;font:inherit;color:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.survival-card>button:hover:not(:disabled){transform:translateY(-2px);box-shadow:inset 0 0 0 1px var(--color-line-strong),0 8px 18px rgba(24,33,29,.1)}
+.survival-card>button:focus-visible{outline:3px solid var(--color-brand);outline-offset:2px}
+.survival-art{position:relative;display:grid;place-items:center;aspect-ratio:574/248;background:linear-gradient(160deg,#dcedf5,#c4e0ec);overflow:hidden}
+.survival-art img{width:100%;height:100%;object-fit:cover}
+.survival-shape-art{width:58%;height:auto;color:#2c6e8f}
+.survival-new{position:absolute;top:8px;right:8px;padding:3px 9px;border-radius:99px;background:var(--color-gold);color:var(--color-gold-ink);font-size:.75rem;font-weight:800}
+.survival-body{display:flex;align-items:center;gap:10px;padding:10px 12px}
+.survival-body>span:nth-child(2){flex:1;min-width:0;display:grid}
+.survival-body strong{font-weight:800}.survival-body small{color:var(--color-ink-soft);font-size:.8125rem;line-height:1.3}
+.survival-score{display:grid;place-items:center;min-width:34px;height:34px;padding:0 8px;border-radius:99px;background:#17844a;color:#fff;font-weight:800}
+.survival-card.is-done .survival-art{filter:saturate(.75)}
+.survival-result{display:grid;gap:10px}
+.survival-verdict{display:flex;align-items:center;justify-content:center;gap:8px;margin:0;font-weight:800;font-size:1.05rem}
+.survival-verdict.is-out{color:#c0312b}.survival-verdict.is-all{color:#17844a}
+.survival-top{display:inline-flex;align-items:center;gap:6px;margin-top:6px;color:var(--color-ink-soft);font-weight:700}
+@media (max-width:760px){
+  .survival{padding:var(--space-4)}
+  .survival-grid{grid-template-columns:1fr;gap:8px}
+  .survival-card>button{grid-template-rows:none;grid-template-columns:112px 1fr}
+  .survival-art{aspect-ratio:auto;height:100%;min-height:72px}
+  .shape-stage{width:min(100%,280px)}
+}

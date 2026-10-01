@@ -113,6 +113,14 @@ const LOGOS: Record<string, React.ReactNode> = {
     <circle cx="16" cy="12.6" r="3.2" fill="currentColor" opacity=".75"/>
     <circle cx="24.75" cy="6.8" r="4" fill="currentColor"/>
   </>,
+  // Shape Shift: a country outline with a question mark.
+  shape: <>
+    <path d="M9 5.5l5 1.2 3-1.5 4 2 1 3.5-2 2 2.5 4.5 4.5 4 4 2-1 2.5-3 .5-1.5 2.5-3-1-1-3-4-2.5-3.5-4-3-4-3.5-3.5-3-2.5.5-3.5z" fill="currentColor" opacity=".3"/>
+    <path d="M9 5.5l5 1.2 3-1.5 4 2 1 3.5-2 2 2.5 4.5 4.5 4 4 2-1 2.5-3 .5-1.5 2.5-3-1-1-3-4-2.5-3.5-4-3-4-3.5-3.5-3-2.5.5-3.5z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"/>
+    <circle cx="8" cy="23.5" r="5.5" fill="currentColor"/>
+    <path d="M6.3 22.1a1.8 1.8 0 1 1 2.5 1.6c-.5.3-.8.6-.8 1.2" fill="none" stroke={CUT} strokeWidth="1.3" strokeLinecap="round"/>
+    <circle cx="8" cy="26.4" r=".8" fill={CUT}/>
+  </>,
   // Around the World: a globe with an orbit.
   mixed: <>
     <circle cx="16" cy="16" r="9" fill="currentColor" opacity=".22"/>

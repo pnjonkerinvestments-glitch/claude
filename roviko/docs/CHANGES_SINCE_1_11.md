@@ -463,4 +463,12 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
   - Multiplayer stabieler: geen herverbinding meer elke ~25 seconden en geen foutmeldingen bij tijdelijke drukte.
   - Kaartvragen vanaf 3.000 km² (dus ook Fiji, Vanuatu, de Salomonseilanden, Cyprus).
 
+- **Na feedback (spelelement, 1 oktober):**
+  - **Rank Radar** opnieuw ontworpen (naar GeoRankle, maar beter): acht landen en acht onderwerpen per dag, elk onderwerp één keer. Je ziet alle landen vooraf, na elke keuze de plek van dat land in alle acht onderwerpen, tot 125 punten per land en aan het eind de best mogelijke score van de dag.
+  - **Side by Side**: 15 vragen, van makkelijk naar moeilijk; één fout en je run is voorbij.
+  - **World Duel**: 7 landen, en je ziet pas na je laatste kaart wie er won, in een overzicht per land waarin je elk duel kunt openen en doorklikken.
+  - **Overleven** (nieuw blok op de homepage en bij Alle spellen): drie dagelijkse runs waarin één fout je eruit gooit: Size Shuffle, Next Door en het nieuwe **Vormenjacht** (land herkennen aan zijn omtrek). Elke run wordt per vraag moeilijker. Je ziet hoeveel spelers je verslaat en de langste run van vandaag.
+  - Alle zes dagspellen geven elk account dezelfde vragen (dat was al zo; nu ook voor de nieuwe borden gecontroleerd en getest).
+  - Eindscherm van de dagspellen duidelijker, menu-knoppen goed uitgelijnd, elk land bij "Today's picks" een herkenbaar plaatje (vorm van het land als er geen foto is), alle afbeeldingen opnieuw scherp gemaakt (2×).
+
 Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 390×844 en 1280×800 van home, Multiplayer (gast en account), Account, Instellingen, Ranglijsten, Ontdekken, menu en Country Mosaic. Nog fysiek te controleren: muziek en geluid op een echte iPhone, e-mails zodra Resend is ingesteld.

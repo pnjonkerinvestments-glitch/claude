@@ -16,6 +16,7 @@ import { CoverArt } from './CoverArt';
 import { GameCard } from './GameCard';
 import { useCompetition, useResetLabel, useToday } from './useDay';
 import { BonusTour, useBonusLaunch } from './BonusTour';
+import { SurvivalRuns } from './Survival';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
@@ -144,6 +145,7 @@ export function HomePage() {
     </section>
 
     {allDone && <BonusTour app={app} bonus={bonus} busy={busy} featured/>}
+    {allDone && <SurvivalRuns app={app} survival={today?.survival} busy={busy}/>}
 
     {ready && boot.user.guest && (boot.stats.dailyCount ?? 0) > 0 && <aside className="guest-banner" aria-labelledby="guest-banner-title">
       <span className="guest-banner-icon" aria-hidden="true"><Flame size={22}/></span>
@@ -169,6 +171,7 @@ export function HomePage() {
     </section>
 
     {ready && !allDone && <BonusTour app={app} bonus={bonus} busy={busy}/>}
+    {ready && !allDone && <SurvivalRuns app={app} survival={today?.survival} busy={busy}/>}
 
     <section className="home-section motivation" aria-label={t('allGamesYourDay')}>
       <div className="motivation-quests"><DailyQuests date={date} sessions={sessions ?? []} t={t} compact art onPick={pickQuest}/></div>

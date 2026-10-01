@@ -64,6 +64,11 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '↕️', text: l('Put them in order of size, largest at the top. Drag a row or use the arrows.', 'Zet ze op volgorde van grootte, de grootste bovenaan. Sleep een rij of gebruik de pijltjes.', 'Ordénalos por tamaño, el más grande arriba. Arrastra una fila o usa las flechas.') },
     { icon: '✅', text: l('Tap "Confirm order" and see which places were right.', 'Tik op "Volgorde bevestigen" en zie welke plekken goed waren.', 'Toca «Confirmar orden» y mira qué posiciones acertaste.') },
   ], tip: l('Size means land area, not population.', 'Grootte betekent oppervlakte, niet het aantal inwoners.', 'Tamaño significa superficie, no población.') },
+  shape: { emoji: '🗺️', steps: [
+    { icon: '👀', text: l('You see the outline of one country, without the map around it.', 'Je ziet de omtrek van één land, zonder de kaart eromheen.', 'Ves el contorno de un país, sin el mapa alrededor.') },
+    { icon: '👆', text: l('Pick the right country from four names.', 'Kies het juiste land uit vier namen.', 'Elige el país correcto entre cuatro nombres.') },
+    { icon: '❤️', text: l('In the daily survival run you have one life: a wrong answer ends the run. It starts with famous shapes and ends with tricky neighbours.', 'In de dagelijkse overlevingsrun heb je één leven: een fout antwoord stopt de run. Het begint met bekende vormen en eindigt met lastige buurlanden.', 'En la partida diaria de supervivencia tienes una vida: un fallo la termina. Empieza con formas famosas y acaba con vecinos difíciles.') },
+  ], tip: l('Look for coastlines, long borders and islands. North is always up.', 'Let op kustlijnen, lange grenzen en eilanden. Het noorden is altijd boven.', 'Fíjate en costas, fronteras largas e islas. El norte siempre está arriba.') },
   room: { emoji: '👥', steps: [
     { icon: '🔑', text: l('Create a room and share the code or link. 2 to 12 players, guests are welcome.', 'Maak een kamer en deel de code of link. 2 tot 12 spelers, ook als gast.', 'Crea una sala y comparte el código o el enlace. De 2 a 12 jugadores, también invitados.') },
     { icon: '⚙️', text: l('The host picks the games, the number of questions and the timer.', 'De host kiest de spellen, het aantal vragen en de timer.', 'El anfitrión elige los juegos, el número de preguntas y el tiempo.') },
@@ -77,7 +82,7 @@ export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', da
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
   { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'] },
-  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mystery'] },
+  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mystery', 'shape'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'order'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];
@@ -87,6 +92,9 @@ export const HOW_TO_PLAY_ORDER = HOW_TO_PLAY_GROUPS.flatMap(g => g.modes);
 
 /** One worked example per game, shown under "Example" on the How to play page. */
 export const HOW_TO_EXAMPLES: Record<string, L> = {
+  shape: l('A long, thin outline along a coast, with a jagged southern tip? That is Chile. A boot shape with two islands next to it is Italy.',
+    'Een lange, smalle vorm langs een kust, met een rafelige zuidpunt? Dat is Chili. Een laars met twee eilanden ernaast is Italië.',
+    'Un contorno largo y estrecho junto a la costa, con la punta sur recortada: es Chile. Una bota con dos islas al lado es Italia.'),
   rank: l('Iceland: population, forest, coastline or exports? With fewer than 400,000 people it ranks low on population and forest, but its long, jagged coastline lifts it far up the list. Coastline is the strong pick.',
     'IJsland: bevolking, bos, kustlijn of export? Met minder dan 400.000 inwoners staat het laag op bevolking en bos, maar de lange, grillige kust tilt het ver omhoog. Kustlijn is de sterke keuze.',
     'Islandia: ¿población, bosque, costa o exportaciones? Con menos de 400.000 habitantes está abajo en población y bosque, pero su costa larga y recortada la sube mucho. La costa es la buena elección.'),

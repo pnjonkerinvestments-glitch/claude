@@ -12,10 +12,11 @@ import { resultStatement } from './stats';
 import type { Solo, Env, User } from './types';
 import { BONUS_MODES, BONUS_ROUNDS } from '../lib/bonus';
 import { DEFAULT_SETTINGS } from '../lib/config';
+import { SURVIVAL_MODES, SURVIVAL_ROUNDS } from '../lib/survival';
 function learningState(s: Solo): Solo {
     if (s.competition) return {...s, score:dailyScore(s)};
     // Bonus games keep a simple score (correct answers) so players can compare with everyone else that day.
-    return { ...s, settings: { ...s.settings, timer: 0 }, score: s.bonus ? s.answers.filter(a => a.correct).length : 0, xp: 0, personalBest: 0, answers: s.answers.map(a => ({ ...a, points: 0, risk: 0 })) };
+    return { ...s, settings: { ...s.settings, timer: 0 }, score: s.bonus || s.survival ? s.answers.filter(a => a.correct).length : 0, xp: 0, personalBest: 0, answers: s.answers.map(a => ({ ...a, points: 0, risk: 0 })) };
 }
 export function soloView(stored: Solo) {
     const s = learningState(stored), q = s.questions[s.round];
@@ -34,7 +35,7 @@ export function soloView(stored: Solo) {
     const preloadFlag = upcoming?.flag && upcoming.mode === 'flags'
       ? (s.competition || /^[a-z]+:[0-9a-f-]{36}$/.test(upcoming.id) ? '/api/game-asset/' + s.id + '/' + (s.round + 1) : '/api/flag/' + encodeURIComponent(String(publicQuestion(upcoming).flag)))
       : undefined;
-    return { id: s.id, preloadFlag, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, competition:s.competition, score:s.score, streak: s.streak, bestStreak: s.bestStreak, question, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, bonus: s.bonus, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
+    return { id: s.id, preloadFlag, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, competition:s.competition, score:s.score, streak: s.streak, bestStreak: s.bestStreak, question, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, bonus: s.bonus, survival: s.survival, out: s.out, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
 }
 export async function startSolo(env: Env, user: User, settings: Settings, practice = false, focus?: string, competition = false, bonus = false) {
     settings = { ...settings, timer: 0 };
@@ -78,13 +79,29 @@ async function startBonus(env: Env, user: User, mode: string) {
     if (!inserted.meta.changes) return soloView(JSON.parse((await one(env, 'SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, date, kind)).state));
     return soloView(s);
 }
+/** Today's survival run of one mode: the same climbing questions for everyone, over at the first mistake. */
+export async function startSurvival(env: Env, user: User, mode: string) {
+    if (!(SURVIVAL_MODES as readonly string[]).includes(mode)) throw new AppError('INVALID_INPUT');
+    const date = new Date().toISOString().slice(0, 10), kind = 'survival:' + mode;
+    const existing = await one(env, 'SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, date, kind);
+    if (existing) return soloView(JSON.parse(existing.state));
+    const settings: Settings = { ...DEFAULT_SETTINGS, mode, count: SURVIVAL_ROUNDS, timer: 0, difficulty: 'medium', region: 'World', ramp: true };
+    const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
+    const content = await dailyContent(env, date, kind, seed => ({ questions: prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled)), settings }));
+    if (content.questions.some((q: any) => disabled.includes(q.id))) throw new AppError('QUESTION_UNAVAILABLE', 503);
+    const id = crypto.randomUUID();
+    const s: Solo = { id, survival: date, datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily: null, xp: 0, personalBest: 0 };
+    const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, date, JSON.stringify(s), Date.now());
+    if (!inserted.meta.changes) return soloView(JSON.parse((await one(env, 'SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, date, kind)).state));
+    return soloView(s);
+}
 /** How a finished bonus game compares with everyone who finished the same one today. */
-export async function bonusStanding(env: Env, user: User, mode: string) {
-    const date = new Date().toISOString().slice(0, 10), kind = 'bonus:' + mode;
+export async function bonusStanding(env: Env, user: User, mode: string, prefix: 'bonus' | 'survival' = 'bonus') {
+    const date = new Date().toISOString().slice(0, 10), kind = prefix + ':' + mode;
     const mine = await one(env, 'SELECT score,completed FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, date, kind);
     if (!mine?.completed) return { players: 0, beaten: 0, score: null };
-    const r = await one(env, 'SELECT COUNT(*) AS players, COALESCE(SUM(CASE WHEN score<? THEN 1 ELSE 0 END),0) AS beaten FROM game_sessions WHERE date=? AND kind=? AND completed=1 AND user_id<>?', mine.score, date, kind, user.id);
-    return { players: Number(r?.players ?? 0), beaten: Number(r?.beaten ?? 0), score: mine.score };
+    const r = await one(env, 'SELECT COUNT(*) AS players, COALESCE(SUM(CASE WHEN score<? THEN 1 ELSE 0 END),0) AS beaten, COALESCE(MAX(score),0) AS top FROM game_sessions WHERE date=? AND kind=? AND completed=1 AND user_id<>?', mine.score, date, kind, user.id);
+    return { players: Number(r?.players ?? 0), beaten: Number(r?.beaten ?? 0), score: mine.score, top: Math.max(Number(r?.top ?? 0), Number(mine.score ?? 0)) };
 }
 export async function soloAction(env: Env, user: User, id: string, action: string, body: any) {
     const row = await one(env, 'SELECT * FROM game_sessions WHERE id=? AND user_id=?', id, user.id);
@@ -114,7 +131,9 @@ export async function soloAction(env: Env, user: User, id: string, action: strin
     else if (action === 'next') {
         if (s.phase !== 'reveal')
             throw new AppError('ANSWER_REQUIRED', 409);
-        if (s.round + 1 === s.questions.length) {
+        // A survival run ends at the first mistake.
+        if (s.survival && !s.answers.at(-1)?.correct) { s.phase = 'finished'; s.out = true; }
+        else if (s.round + 1 === s.questions.length) {
             s.phase = 'finished';
         }
         else {

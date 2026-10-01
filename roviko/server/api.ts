@@ -15,7 +15,7 @@ import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sess
 import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
 import silhouettes from '../lib/data/silhouettes.json';
-import { startSolo, soloAction, bonusStanding } from './solo';
+import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
@@ -212,6 +212,11 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return new Response(asset.body,{status:asset.status,headers:{'Content-Type':'image/svg+xml','Cache-Control':asset.ok?'private,max-age=86400,immutable':'no-store','X-Content-Type-Options':'nosniff'}});
         }
         if (path[0] === 'bonus' && path[1] === 'standing' && method === 'GET') return json(await bonusStanding(env, user, String(url.searchParams.get('mode') ?? '')));
+        if (path[0] === 'survival' && path[1] === 'standing' && method === 'GET') return json(await bonusStanding(env, user, String(url.searchParams.get('mode') ?? ''), 'survival'));
+        if (path[0] === 'survival' && !path[1] && method === 'POST') {
+            await limit(env, 'games:' + user.id, 30);
+            const b = await body(req), game = await startSurvival(env, user, String(b.mode ?? '')); await measureStart(req, env, user, 'survival-' + game.settings.mode, game.id); return json(game);
+        }
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {
                 await limit(env, 'games:' + user.id, 30);

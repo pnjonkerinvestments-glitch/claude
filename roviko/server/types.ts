@@ -91,6 +91,10 @@ export type Solo = {
     daily: string | null;
     /** UTC date of a bonus-tour game (the classic games as a daily edition, no ranking points). */
     bonus?: string;
+    /** UTC date of a survival run (1.21): ends at the first mistake. */
+    survival?: string;
+    /** A survival run that ended on a wrong answer. */
+    out?: boolean;
     xp: number;
     personalBest: number;
 };
