@@ -1,0 +1,118 @@
+{
+ "loudness_lufs": -14.1,
+ "true_peak_dbfs": -1.2,
+ "normalization_type": "static gain + true-peak limiter",
+ "music_gain_db": -3.0,
+ "events": [
+  {
+   "t": 0.0109,
+   "beat": 0.02,
+   "sfx": "pop",
+   "rate": 1.1,
+   "start_s": 0.0054,
+   "peak_lands_at_s": 0.0109,
+   "bed_db": -34.0,
+   "gain_db": -29.1
+  },
+  {
+   "t": 1.1999,
+   "beat": 2.2,
+   "sfx": "land",
+   "rate": 1.0,
+   "start_s": 1.1173,
+   "peak_lands_at_s": 1.1999,
+   "bed_db": -27.5,
+   "gain_db": -11.2
+  },
+  {
+   "t": 2.2362,
+   "beat": 4.1,
+   "sfx": "mention",
+   "rate": 1.0,
+   "start_s": 2.0321,
+   "peak_lands_at_s": 2.2362,
+   "bed_db": -34.0,
+   "gain_db": -22.0
+  },
+  {
+   "t": 3.5997,
+   "beat": 6.6,
+   "sfx": "swoosh",
+   "rate": 1.0,
+   "start_s": 3.5589,
+   "peak_lands_at_s": 3.5997,
+   "bed_db": -28.5,
+   "gain_db": -15.5
+  },
+  {
+   "t": 3.8178,
+   "beat": 7,
+   "sfx": "swoosh",
+   "rate": 1.1,
+   "start_s": 3.7807,
+   "peak_lands_at_s": 3.8178,
+   "bed_db": -32.5,
+   "gain_db": -20.0
+  },
+  {
+   "t": 5.1268,
+   "beat": 9.4,
+   "sfx": "levelup",
+   "rate": 1.0,
+   "start_s": 4.7085,
+   "peak_lands_at_s": 5.1268,
+   "bed_db": -26.1,
+   "gain_db": -13.9
+  },
+  {
+   "t": 5.2904,
+   "beat": 9.7,
+   "sfx": "boing",
+   "rate": 1.0,
+   "start_s": 5.2751,
+   "peak_lands_at_s": 5.2904,
+   "bed_db": -28.2,
+   "gain_db": -14.7
+  },
+  {
+   "t": 6.4903,
+   "beat": 11.9,
+   "sfx": "mention",
+   "rate": 1.0,
+   "start_s": 6.2862,
+   "peak_lands_at_s": 6.4903,
+   "bed_db": -28.4,
+   "gain_db": -16.4
+  },
+  {
+   "t": 9.3264,
+   "beat": 17.1,
+   "sfx": "swoosh",
+   "rate": 1.0,
+   "start_s": 9.2856,
+   "peak_lands_at_s": 9.3264,
+   "bed_db": -27.9,
+   "gain_db": -14.5
+  },
+  {
+   "t": 9.4628,
+   "beat": 17.35,
+   "sfx": "sparkle",
+   "rate": 1.0,
+   "start_s": 9.0672,
+   "peak_lands_at_s": 9.4628,
+   "bed_db": -26.3,
+   "gain_db": -14.3
+  },
+  {
+   "t": 9.6537,
+   "beat": 17.7,
+   "sfx": "expand",
+   "rate": 1.0,
+   "start_s": 9.6389,
+   "peak_lands_at_s": 9.6537,
+   "bed_db": -25.8,
+   "gain_db": -16.4
+  }
+ ]
+}

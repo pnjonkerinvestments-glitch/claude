@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 5: Wrong answers only</title>
+<!--
+  Roviko short 5, "Wrong answers only: what's the capital of Brazil?". 14 s, 1080x1920, 120 BPM ("Funkee Monkeee", Mixkit).
+  The comments roll in (Rio, Carnival City, Sao Paulo, Football), each gets a red X and a Roviko reaction; then Roviko
+  pins the real one on Brazil's map: Brasilia, built from scratch and capital since 1960. "Your turn: wrong answers only."
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 120.384, DIL = TEMPO / 130, END = 28, DURATION = END * 60 / TEMPO;
+const TL = { flag: 0, cm: [2, 5, 8, 11], x: 1.0, reveal: 14, pin: 15, bub: 15.6, cap2: 19, end: 22, hop: 26, blink2: 24.2 };
+setupStage(C.cream);
+const world = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+Halo(world, 540, 900, 1700);
+const FLAGS = '../../roviko/public/flags/';
+const flag = el(uiL, { left: 540 - 165, top: 400, width: 330, height: 248, borderRadius: 16, overflow: 'hidden', background: C.white, transformOrigin: '50% 50%',
+  boxShadow: '0 0 0 8px #fff, 0 20px 50px rgba(22,59,50,.18)' }, `<img src="${FLAGS}br.svg" style="width:100%;height:100%;display:block">`);
+const PEOPLE = [{ name: 'Lucas', img: 2 }, { name: 'Emma', img: 1 }, { name: 'Amara', img: 5 }, { name: 'Kenji', bg: '#FBEBC8' }];
+const TEXTS = ['Rio. Obviously.', 'Carnival City', 'São Paulo, final answer', 'Football'];
+const comments = PEOPLE.map((p, i) => Comment(uiL, p, TEXTS[i], { x: 100, y: 680 + i * 140, w: 800, wrong: true }));
+// the real answer: Brazil's shape with a pin on Brasilia
+const shape = fitShape('BRA', { cx: 540, cy: 860, w: 620, h: 600 });
+const mapBox = el(uiL, { width: 1080, height: 1920, transformOrigin: '540px 860px' });
+const msvg = svgEl(mapBox, 'svg', { width: 1080, height: 1920 }); msvg.style.position = 'absolute';
+svgEl(msvg, 'path', { d: shape.d, fill: C.green, stroke: C.forest, 'stroke-width': 5, 'stroke-linejoin': 'round' });
+const BSB = shape.pt(-47.88, -15.79);
+const pinEl = el(uiL, { width: 80, height: 100, zIndex: 25 });
+const pinTag = Tag(uiL, 'Brasília', { bg: C.gold, fg: C.forest, font: 'Fredoka', weight: 600, size: 44, h: 80, ls: '0' });
+const MX = 205, MY = 1352, MR = 98;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const bub = Bubble(uiL, 'Built from scratch.<br>Capital since <b>1960</b>.', { x: 330, y: 1150, w: 520, size: 40, tail: 'left' });
+const cap1 = Caption(capL, ['<i>Wrong answers only:</i>', 'capital of Brazil? 🇧🇷'], { cy: 250, size: 62 });
+const cap2 = Caption(capL, ['Your turn 👇', '<i>Wrong answers only</i>'], { cy: 250, size: 62 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Right answers only. Every day.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+TL.cm.forEach((b, i) => { ev(b + 0.08, 'mention', -6, { rate: 0.95 + i * 0.05 }); ev(b + TL.x + 0.05, 'error', -9, { rate: 1 + i * 0.04 }); });
+ev(TL.cm[1] + 1.4, 'boing', -9); ev(TL.cm[3] + 1.4, 'boing', -9, { rate: 1.2 });
+ev(TL.reveal + 0.1, 'collapse', -8);
+ev(TL.reveal + 0.4, 'morph', -8);
+ev(TL.pin, 'pin', -4);
+ev(TL.pin + 0.3, 'correct', -5);
+ev(TL.bub + 0.1, 'mention', -8, { rate: 0.9 });
+ev(TL.cap2 + 0.1, 'pop', -9);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  const out = segB(t, TL.reveal, TL.reveal + 0.3, E.inBack);
+  S(flag, { transform: `scale(${(1 - out)}) rotate(${-3 + Math.sin(t * 2) * 1.5}deg)` }); show(flag, out < 1);
+  comments.forEach((c, i) => c.set(spB(t, TL.cm[i], 2.4, 0.62), segB(t, TL.reveal + i * 0.05, TL.reveal + 0.3 + i * 0.05), spB(t, TL.cm[i] + TL.x, 3, 0.5)));
+  const mp = spB(t, TL.reveal + 0.3, 1.9, 0.66);
+  S(mapBox, { transform: `scale(${lerp(0.2, 1, mp)})` }); show(mapBox, mp > 0.001);
+  const tp = T(TL.pin), fall = clamp((t - (tp - 0.22)) / 0.22);
+  let py = -90 * (1 - fall * fall), sx = 1, sy = 1;
+  if (t >= tp) { const d = t - tp, k = Math.exp(-d * 10) * Math.sin(d * 36); sy = 1 - 0.18 * k; sx = 1 + 0.12 * k; py = 0; }
+  pinEl.innerHTML = `<svg width="80" height="100" viewBox="-40 -80 80 100">${`<ellipse cx="0" cy="0" rx="${9 * fall}" ry="3.5" fill="rgba(0,0,0,.25)"/><g transform="translate(0 ${py}) scale(${1.7 * sx} ${1.7 * sy})"><path d="M0 0C-3 -8 -13 -15 -13 -26A13 13 0 1 1 13 -26C13 -15 3 -8 0 0Z" fill="${C.red}"/><circle cy="-26" r="5.2" fill="#fff"/></g>`}</svg>`;
+  S(pinEl, { left: BSB[0] - 40, top: BSB[1] - 80 }); show(pinEl, fall > 0);
+  const tg = spB(t, TL.pin + 0.25, 2.6, 0.55);
+  S(pinTag, { left: BSB[0] + 30, top: BSB[1] - 150, transform: `scale(${tg}) rotate(${-4 * tg}deg)` }); show(pinTag, tg > 0.001);
+  bub.set(spB(t, TL.bub, 2.2, 0.6), segB(t, TL.cap2 - 0.1, TL.cap2 + 0.2));
+  // Roviko reacts to every comment: deadpan, laughing, facepalm, crying with laughter; then smug with the right answer
+  const r = TL.cm.reduce((k, cb, i) => b >= cb + TL.x ? i : k, -1);
+  let st = { look: [0.6, -0.8], mouth: 'smile', legs: 1, hop: bop(b, 6), arms: [[-112, 66, 22, 10], [112, 66, 22, 10]] };
+  if (b >= TL.reveal) st = { look: [0.7, -0.6], mouth: 'smile', brow: 1, legs: 1, hop: bop(b, 8), arms: [[-122, 70, 26, 10], [70, -80, -20, 11]] };
+  else if (r === 0) st = { look: [0, 0], mouth: 'flat', brow: 1, legs: 1, arms: [[-112, 66, 22, 10], [112, 66, 22, 10]] };
+  else if (r === 1 || r === 3) { const s = Math.sin(t * 30) * 5; st = { happy: 1, mouth: 'grin', cheeks: 1, legs: 1, hop: -Math.abs(Math.sin(t * 15)) * (r === 3 ? 14 : 8), arms: [[-40, 70 + s, -20, 11], [40, 70 - s, -20, 11]], sweat: r === 3 ? 1 : 0 }; }
+  else if (r === 2) st = { blink: 1, mouth: 'frown', legs: 1, arms: [[-30, -12, -30, 11], [112, 66, 22, 10]] };
+  st.blink = st.blink ?? blinkAt(t, [6.3, 17.4]);
+  drawMascot(mascot, st);
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+
+boot(seek, DURATION);
+</script>
+</body>
+</html>

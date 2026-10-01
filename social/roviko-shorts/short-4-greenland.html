@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 4: Greenland</title>
+<!--
+  Roviko short 4, "POV: you find out how big Greenland really is". 15 s, 1080x1920, 120 BPM ("Life is a Dream", Mixkit).
+  A flat (Mercator) world map: Greenland looks as big as Africa. Roviko: "Same size, right?" Greenland lifts off and slides
+  down the globe to Africa; it is re-projected at every step (rotated on the sphere, then drawn in Mercator), so it shrinks
+  to its true size. "Africa is 14x bigger." (Africa 30.3 million km2 incl. Western Sahara, Greenland 2.17 million km2.)
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 119.998, DIL = TEMPO / 130, END = 30, DURATION = END * 60 / TEMPO;
+const TL = { lblG: 1, lblA: 1.6, smug: 3, lift: 6, move: [6.5, 12.5], cap2: 13.2, cap3: 16.2, cap4: 19.4, end: 23, hop: 27, blink2: 25.2 };
+setupStage(C.forest);
+const mapL = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+
+// Mercator: x = X0 + R (lon - lon0), y = Y0 - R ln tan(pi/4 + lat/2)
+const R = 300, LON0 = -12, X0 = 540, Y0 = 1262;
+const merc = (lon, lat) => [X0 + R * rad(lon - LON0), Y0 - R * Math.log(Math.tan(Math.PI / 4 + rad(Math.max(-85, Math.min(85, lat))) / 2))];
+const ringD = (ring, P) => ring.map(([lo, la], i) => { const [x, y] = P(lo, la); return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }).join('') + 'Z';
+const svg = svgEl(mapL, 'svg', { width: 1080, height: 1920 }); svg.style.position = 'absolute';
+const defs = svgEl(svg, 'defs');
+const g = svgEl(defs, 'radialGradient', { id: 'sea', cx: '50%', cy: '45%', r: '75%' });
+svgEl(g, 'stop', { offset: '0', 'stop-color': '#24584C' }); svgEl(g, 'stop', { offset: '1', 'stop-color': C.forest });
+const glow = svgEl(defs, 'filter', { id: 'glow', x: '-50%', y: '-50%', width: '200%', height: '200%' });
+svgEl(glow, 'feDropShadow', { dx: 0, dy: 0, stdDeviation: 12, 'flood-color': C.gold, 'flood-opacity': 0.7 });
+svgEl(svg, 'rect', { width: 1080, height: 1920, fill: 'url(#sea)' });
+let land = '', africa = '';
+for (const id in GEO) {
+  const d = GEO[id].map(poly => poly.map(r => ringD(r, merc)).join('')).join('');
+  if (AFRICA.includes(id)) africa += d; else land += d;
+}
+for (const r of GEO_EXTRA) { const lat = r[0][1]; if (lat > -60 && !(r.length === GREENLAND[0].length)) land += ringD(r, merc); }
+africa += WSAHARA.map(r => ringD(r, merc)).join('');
+svgEl(svg, 'path', { d: land, fill: C.mint, stroke: C.mint, 'stroke-width': 1.2, 'stroke-linejoin': 'round' });
+const afr = svgEl(svg, 'path', { d: africa, fill: C.green, stroke: C.green, 'stroke-width': 1.2, 'stroke-linejoin': 'round' });
+const gShadow = svgEl(svg, 'path', { fill: 'rgba(0,0,0,.28)' });
+const gPath = svgEl(svg, 'path', { fill: C.gold, stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round', filter: 'url(#glow)' });
+
+// Greenland moves on the sphere: rotate every point about the axis c0 x c1
+const vec = (lon, lat) => [Math.cos(rad(lat)) * Math.cos(rad(lon)), Math.cos(rad(lat)) * Math.sin(rad(lon)), Math.sin(rad(lat))];
+const ll = v => [Math.atan2(v[1], v[0]) * 180 / Math.PI, Math.asin(Math.max(-1, Math.min(1, v[2]))) * 180 / Math.PI];
+const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const norm = a => { const l = Math.hypot(...a); return a.map(x => x / l); };
+function rotate(v, k, th) { const c = Math.cos(th), s = Math.sin(th), kv = cross(k, v), kd = dot(k, v); return v.map((x, i) => x * c + kv[i] * s + k[i] * kd * (1 - c)); }
+const C0 = [-41, 73], C1 = [20, 4];
+const v0 = vec(...C0), v1 = vec(...C1), AX = norm(cross(v0, v1)), TH = Math.acos(dot(v0, v1));
+const gVecs = GREENLAND[0].map(([lo, la]) => vec(lo, la));
+function greenlandAt(p) {
+  const pts = gVecs.map(v => merc(...ll(rotate(v, AX, TH * p))));
+  return { d: pts.map(([x, y], i) => (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1)).join('') + 'Z', c: merc(...ll(rotate(v0, AX, TH * p))) };
+}
+
+// labels
+const lblG = Tag(uiL, 'Greenland', { bg: C.gold, fg: C.forest, font: 'Fredoka', weight: 600, size: 38, h: 70, ls: '0' });
+const lblA = Tag(uiL, 'Africa', { bg: C.white, fg: C.green, font: 'Fredoka', weight: 600, size: 38, h: 70, ls: '0' });
+const AF_L = merc(21, -2);
+
+// Roviko
+const MX = 200, MY = 1240, MR = 100;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const smug = Bubble(uiL, 'Same size,<br>right? 😎', { x: 300, y: 930, w: 330, size: 40, tail: 'left' });
+
+const cap1 = Caption(capL, ['POV: you find out how big', '<b>Greenland</b> really is'], { cy: 270, size: 60 });
+const cap2 = Caption(capL, ['Africa is <b>14×</b> bigger 🤯'], { cy: 250, size: 64 });
+const cap3 = Caption(capL, ['Flat maps stretch everything', 'near the poles'], { cy: 400, size: 44, pad: 24 });
+const cap4 = Caption(capL, ['Which country should we', '<b>shrink</b> next? 👇'], { cy: 270, size: 58 });
+const endCard = EndCard(stage, { my: 690, tagline: 'The world, at its true size.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+ev(TL.lblG + 0.05, 'pop', -9); ev(TL.lblA + 0.05, 'pop', -9, { rate: 1.1 });
+ev(TL.smug + 0.1, 'mention', -7);
+ev(TL.lift + 0.2, 'boing', -8);
+ev(TL.move[0] + 0.6, 'swoosh', -7);
+ev(TL.move[1] - 0.4, 'collapse', -6, { rate: 0.85 });
+ev(TL.cap2 + 0.1, 'impact', -4);
+ev(TL.cap3 + 0.1, 'pop', -11);
+ev(TL.cap4 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  // Greenland: lifts (a shadow drops away), then slides down the globe, shrinking to its true size
+  const lift = spB(t, TL.lift, 2.2, 0.7);
+  const p = segB(t, TL.move[0], TL.move[1], E.inOutSine);
+  const G = greenlandAt(p);
+  gPath.setAttribute('d', G.d);
+  gShadow.setAttribute('d', G.d); gShadow.setAttribute('transform', `translate(${10 * lift} ${18 * lift})`);
+  gPath.setAttribute('transform', `translate(${-4 * lift} ${-10 * lift})`);
+  S(lblG, { left: G.c[0] - 95, top: G.c[1] - 35 - 10 * lift - lerp(0, 90, p), transform: `scale(${spB(t, TL.lblG, 2.6, 0.55)})` });
+  show(lblG, b >= TL.lblG);
+  S(lblA, { left: AF_L[0] - 70, top: AF_L[1] + lerp(0, 120, p), transform: `scale(${spB(t, TL.lblA, 2.6, 0.55)})` });
+  show(lblA, b >= TL.lblA);
+  // Roviko: smug, then horrified, then curious
+  const shock = spB(t, TL.cap2, 2.6, 0.5), sm = spB(t, TL.smug, 2.4, 0.6) * (1 - clamp(shock));
+  const hips = [[-122, 70, 26, 10], [122, 70, 26, 10]], cheeks = [[-62, 18, -30, 11], [62, 18, -30, 11]], point = [[-122, 70, 26, 10], [70, -80, -20, 11]];
+  const mix = (A, B, q) => A.map((a, i) => a.map((v, j) => lerp(v, B[i][j], q)));
+  let arms = mix(hips, cheeks, clamp(shock));
+  arms = mix(arms, point, clamp(spB(t, TL.cap4, 2.4, 0.6)));
+  const watching = b >= TL.lift && b < TL.cap2;
+  drawMascot(mascot, { look: watching ? [0.9, -0.2 - 0.6 * (1 - p)] : b < TL.cap2 ? [0.9, -0.9] : [0, 0], brow: sm, shades: { on: clamp(sm * 1.2) * (1 - clamp(shock * 2)), drop: 0 },
+    eyesBig: b >= TL.cap2 && b < TL.cap4 ? shock : 0, mouth: b < TL.cap2 ? 'smile' : b < TL.cap4 ? 'o' : 'grin', cheeks: b >= TL.cap4 ? 0.8 : 0,
+    sweat: b >= TL.cap3 && b < TL.cap4 ? 1 : 0, legs: 1, hop: b < TL.lift || b > TL.cap4 ? bop(b, 8) : 0, arms, blink: blinkAt(t, [2.2, 9.4, 21.2]) });
+  smug.set(spB(t, TL.smug, 2.2, 0.6), segB(t, TL.lift + 0.2, TL.lift + 0.5));
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.cap4 - 0.2, TL.cap4 + 0.15));
+  cap3.set(spB(t, TL.cap3, 1.9, 0.62), segB(t, TL.cap4 - 0.2, TL.cap4 + 0.15));
+  cap4.set(spB(t, TL.cap4, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

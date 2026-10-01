@@ -1,6 +1,6 @@
 # Roviko shorts (TikTok / Instagram Reels)
 
-Three vertical 1080×1920 videos at 60 fps, each with a different joke and a different song.
+The first three vertical 1080×1920 videos at 60 fps, each with a different joke and a different song.
 They use the same style and the same engine rules as the launch film (`social/roviko-launch-film`):
 - one continuous take;
 - nothing fades; shapes spring and morph;
@@ -107,7 +107,7 @@ build/export.sh out/master-1-sydney.mkv audio/sydney/mix.wav out/roviko-short-1-
 Open `short-2-streak.html?t=10` in a browser to see any single moment.
 
 ## Licences
-- **Music:** "Funkee Monkeee", "Take this Higher" and "Life is a Dream" by Michael Ramir C., [Mixkit](https://mixkit.co/free-stock-music/), under the Mixkit Stock Music Free License (commercial use allowed).
+- **Music:** "Funkee Monkeee", "Take this Higher" and "Life is a Dream" by Michael Ramir C., [Mixkit](https://mixkit.co/free-stock-music/), under the Mixkit Stock Music Free License (commercial use allowed). Shorts 6 and 8 use "Aerobic Fashion" by Arulo, also from Mixkit under the same licence.
 - **Sound effects:** [uisfx](https://www.npmjs.com/package/uisfx) 0.4.0 (audio CC0 1.0). The coin, whoosh, impact, alarm and thud are synthesised.
 - **Mascot, fonts, avatars and flags:** the same sources as the launch film (see its README).
 
@@ -129,3 +129,45 @@ Open `short-2-streak.html?t=10` in a browser to see any single moment.
 - The difficulty varies, so nobody drops out.
 
 **Build:** `data/flagaday.js` (30 days, facts checked), `flag-a-day.html?day=N`, `build/flagaday.sh [first] [last]` (sound cues → mix → render → MP4 per day). The country shapes come from `../roviko-carousels/data/geo.js`, and the flags are the app's own.
+
+## Funny shorts 4–10 (one a week's worth)
+Seven more vertical 1080×1920 videos at 60 fps, one funny short per day next to Flag a Day and the "Guess the country" carousel. Captions, pinned comments and hashtags are in `FUNNY-SHORTS-CAPTIONS.md`.
+
+| | File | Length | Hook | Song |
+|---|---|---|---|---|
+| 4 | `out/roviko-short-4-greenland.mp4` | 15.0 s | "POV: you find out how big Greenland really is" | "Life is a Dream" |
+| 5 | `out/roviko-short-5-wronganswers.mp4` | 14.0 s | "Wrong answers only: capital of Brazil?" | "Funkee Monkeee" |
+| 6 | `out/roviko-short-6-austria.mp4` | 14.2 s | "POV: you tell your friend you're going to Austria" | "Aerobic Fashion" |
+| 7 | `out/roviko-short-7-stages.mp4` | 16.9 s | "The 5 stages of a Legend-level question" | "Funkee Monkeee" |
+| 8 | `out/roviko-short-8-moon.mp4` | 13.1 s | "A fact that sounds fake: Australia is wider than the Moon" | "Aerobic Fashion" |
+| 9 | `out/roviko-short-9-lobby.mp4` | 20.0 s | "Every Roviko lobby has these 5 players" | "Life is a Dream" |
+| 10 | `out/roviko-short-10-uk.mp4` | 15.0 s | "England, Britain, the UK… explained in 10 seconds" | "Funkee Monkeee" |
+
+**Built for engagement.** Every short ends on a question that is easy to answer in one comment:
+- which country to shrink next;
+- wrong answers only;
+- tag a friend;
+- pick your stage or player number;
+- drop a fake-sounding fact;
+- explain Holland vs the Netherlands.
+
+The formats are ones that keep doing well on TikTok and Reels: the true-size map reveal, "wrong answers only", the "5 stages" meme, "every group has these 5 people", a fact that sounds fake, and an explainer that ends on a confused mascot. Every short is 13–20 s long, so people watch to the end and replay.
+
+**How they work.**
+- **Short 4:** Greenland slides from the Mercator pole to the equator on a turning globe and shrinks to its true size next to Africa.
+- **Short 6:** the map flies 15,900 km along the great circle from Vienna to Australia.
+- **Short 8:** two bars: Australia about 4,000 km wide, the Moon 3,475 km across.
+- **Short 10:** Great Britain and the United Kingdom are drawn as frames around the four nations, with Ireland outside both.
+
+**Build:**
+- `build/funny7.sh [name …]`: sound cues, mix, render and MP4 per short.
+- `build/patch.sh <name> <file> <dur> A B`: re-renders frames A–B at 32 subframes and splices them into the master losslessly.
+- The music cuts are the `greenland`, `wronganswers`, `austria`, `stages`, `moon`, `lobby` and `uk` entries in `build/music_cut.py`.
+
+**QA:**
+- Every master was scanned with `build/qa.py`, and every flagged frame was zoomed.
+- Fast exits (captions, bubbles, cards), the map zoom and flight in short 6, and the end-card wipes were re-rendered at 32 subframes and spliced back.
+- In short 6, Australia used to turn green in a single frame. It now floods green from the landing kangaroo.
+- Short 9's cards now collapse into the end card over 0.6 beats instead of 0.3.
+
+**Facts:** see the bottom of `FUNNY-SHORTS-CAPTIONS.md`. Short 8 was first going to be "Russia is bigger than Pluto". It was replaced because, with New Horizons' radius of 1,188 km, Pluto's surface (about 17.7 million km²) is larger than Russia (17.1 million km²).

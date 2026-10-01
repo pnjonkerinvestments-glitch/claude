@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 7: The 5 stages</title>
+<!--
+  Roviko short 7, "The 5 stages of a Legend-level question". 17 s, 1080x1920, 120 BPM ("Funkee Monkeee", Mixkit).
+  "Capital of Kazakhstan?" Roviko goes through denial, anger (red, shaking), bargaining (pleading), depression (his own
+  rain cloud) and acceptance, then taps Astana: correct (+50). Almaty was the capital until 1997.
+  "Which stage are you at?"
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 120.384, DIL = TEMPO / 130, END = 34, DURATION = END * 60 / TEMPO;
+const ST = [
+  { b: 2.5, label: '1 · DENIAL', bg: C.ocean, fg: C.ink, say: 'That’s not a real question.' },
+  { b: 7.5, label: '2 · ANGER', bg: C.red, fg: C.white, say: '<i>WHO WROTE THIS?!</i>' },
+  { b: 12.5, label: '3 · BARGAINING', bg: C.gold, fg: C.forest, say: 'If I get this right, I’ll<br>eat my vegetables' },
+  { b: 17.5, label: '4 · DEPRESSION', bg: '#7A8C99', fg: C.white, say: 'I’m just a little globe…' },
+  { b: 22.5, label: '5 · ACCEPTANCE', bg: C.green, fg: C.white, say: 'It’s <b>Astana</b>. Obviously.' },
+];
+const TL = { tap: 25.2, cap2: 27.5, end: 30, hop: 32.5, blink2: 31.6 };
+setupStage(C.cream);
+const world = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+Halo(world, 540, 1000, 1700);
+// the question card
+const qc = card(uiL, 140, 360, 800, 330, 10);
+const lvl = Tag(qc, 'LEGEND', { bg: C.ink, fg: C.gold, size: 22, h: 44, z: 1 }); S(lvl, { left: 30, top: 26, boxShadow: 'none' });
+el(qc, { left: 30, top: 84, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 48, lineHeight: '58px', color: C.forest }, 'Capital of Kazakhstan?');
+const OPTS = ['Almaty', 'Astana', 'Bishkek', 'Tashkent'];
+const pills = OPTS.map((o, i) => Pill(qc, o, 30 + (i % 2) * 376, 170 + Math.floor(i / 2) * 76, 364, 64, 26));
+pills.forEach(P => { P.txt.style.fontWeight = 600; });
+const plus = el(uiL, { width: 110, height: 52, borderRadius: 26, background: C.gold, textAlign: 'center', lineHeight: '52px', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 30, zIndex: 30, boxShadow: '0 8px 18px rgba(22,59,50,.18)' }, '+50');
+const stageTags = ST.map(s => { const e = Tag(uiL, s.label, { bg: s.bg, fg: s.fg, size: 40, h: 88 }); centreX(e, 730); return e; });
+const bubbles = ST.map(s => Bubble(uiL, s.say, { x: 170, y: 850, w: 740, size: 44, tail: 'down', tx: 370 }));
+const cloud = el(uiL, { width: 300, height: 220, zIndex: 31 },
+  `<svg width="300" height="220" viewBox="0 0 300 220"><g stroke="#7FB6E0" stroke-width="7" stroke-linecap="round">${[60, 110, 160, 210, 240].map((x, i) => `<path d="M${x} ${120 + (i % 2) * 14}l-12 ${40 + (i % 3) * 12}"/>`).join('')}</g><path d="M60 120a40 40 0 0 1 20-74a56 56 0 0 1 104-10a44 44 0 0 1 66 40a38 38 0 0 1-10 44z" fill="#9AA7B1"/></svg>`);
+const MX = 540, MY = 1290, MR = 125;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const pointer = Pointer(uiL, 60);
+const cap1 = Caption(capL, ['The 5 stages of a', '<b>Legend-level</b> question'], { cy: 230, size: 60 });
+const cap2 = Caption(capL, ['Which stage', 'are you at? 👇'], { cy: 230, size: 64 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Every stage counts. Every day.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+pills.forEach((P, i) => ev(0.4 + i * 0.15, 'pop', -12, { rate: 1 + i * 0.05 }));
+ST.forEach((s, i) => { ev(s.b, 'pop', -6, { rate: 0.9 + i * 0.06 }); ev(s.b + 0.5, 'mention', -9, { rate: 0.9 + i * 0.05 }); });
+ev(ST[1].b + 0.6, 'thud', -6, { rate: 1.4 });
+ev(ST[3].b + 0.6, 'collapse', -8, { rate: 0.8 });
+ev(TL.tap, 'tap', -4); ev(TL.tap + 0.12, 'correct', -4); ev(TL.tap + 0.9, 'coin', -7);
+ev(TL.cap2 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  pills.forEach((P, i) => {
+    const p = spB(t, 0.3 + i * 0.15, 2.2, 0.62);
+    const press = i === 1 && t >= T(TL.tap) - 0.04 ? Math.exp(-Math.max(0, t - T(TL.tap)) * 18) : 0;
+    pillShape(P, clamp(p, 0, 1.2), 0, press); show(P.box, p > 0.001);
+    pillFill(P, i === 1 ? E.outCubic(clamp((t - T(TL.tap)) / 0.3)) : 0, 182, 32);
+    const ck = i === 1 ? spB(t, TL.tap + 0.12, 3, 0.55) : 0; S(P.chk, { transform: `scale(${ck})` }); show(P.chk, ck > 0.01);
+  });
+  const pc = spB(t, TL.tap + 0.1, 2.8, 0.55) * (1 - segB(t, TL.end - 0.3, TL.end, E.inCubic));
+  S(plus, { left: 140 + 30 + 376 + 250, top: 360 + 150, transform: `scale(${pc})` }); show(plus, pc > 0.001);
+  // which stage
+  let k = -1; ST.forEach((s, i) => { if (b >= s.b) k = i; });
+  stageTags.forEach((e, i) => { const p = spB(t, ST[i].b, 2.6, 0.55), q = i < 4 ? segB(t, ST[i + 1].b - 0.2, ST[i + 1].b, E.inBack) : segB(t, TL.cap2 - 0.2, TL.cap2 + 0.1, E.inBack); S(e, { transform: `scale(${p * (1 - q)}) rotate(${(i % 2 ? 3 : -3) * p}deg)` }); show(e, p > 0.001 && q < 1); });
+  bubbles.forEach((bb, i) => bb.set(spB(t, ST[i].b + 0.4, 2.2, 0.6), i < 4 ? segB(t, ST[i + 1].b - 0.25, ST[i + 1].b) : segB(t, TL.cap2 - 0.2, TL.cap2 + 0.1)));
+  // Roviko in five moods
+  let st = { look: [0, -1], mouth: 'smile', legs: 1, arms: [[-118, 66, 22, 10], [118, 66, 22, 10]], blink: blinkAt(t, [1.4, 26.4]) };
+  let dx = 0, tilt = 0;
+  if (k === 0) st = Object.assign(st, { look: [Math.sin(t * 9) > 0 ? -0.9 : 0.9, 0], mouth: 'flat', brow: 1, arms: [[-40, 64, -24, 11], [40, 56, -24, 11]] });
+  if (k === 1) { dx = Math.sin(t * 50) * 6; st = Object.assign(st, { flush: 1, brows: 'angry', mouth: 'open', look: [0, 0], arms: [[-130, -60 + Math.sin(t * 25) * 20, -10, 12], [130, -60 - Math.sin(t * 25) * 20, -10, 12]] }); }
+  if (k === 2) st = Object.assign(st, { eyesBig: 0.7, brows: 'worried', mouth: 'wobble', look: [0, -0.4], arms: [[-24, 30, -30, 11], [24, 30, -30, 11]] });
+  if (k === 3) { tilt = -6; st = Object.assign(st, { blink: 0.55, mouth: 'frown', brows: 'worried', look: [0.2, 0.8], arms: [[-96, 84, 12, 10], [96, 84, 12, 10]] }); }
+  if (k === 4) st = Object.assign(st, { mouth: b >= TL.tap ? 'grin' : 'smile', happy: b >= TL.tap ? 1 : 0, cheeks: b >= TL.tap ? 1 : 0, brow: b < TL.tap ? 1 : 0, look: [0.3, -1], hop: b >= TL.tap ? bop(b, 10) : 0, arms: b >= TL.tap ? [[-118, -92, -22, 11], [118, -92, -22, 11]] : [[-118, 66, 22, 10], [80, -30, -20, 11]] });
+  st.tilt = tilt;
+  drawMascot(mascot, st);
+  S(mBox, { transform: `translateX(${dx}px)` });
+  const cp = spB(t, ST[3].b + 0.3, 2.4, 0.6) * (1 - segB(t, ST[4].b - 0.2, ST[4].b + 0.1, E.inBack));
+  S(cloud, { left: MX - 150, top: MY - 360 + Math.sin(t * 3) * 6, transform: `scale(${cp})` }); show(cloud, cp > 0.001);
+  // the calm tap on Astana
+  const tgt = [140 + 30 + 376 + 182, 360 + 170 + 32];
+  const p = pointerAt(t, { from: [tgt[0] + 160, tgt[1] + 420], to: tgt, b0: ST[4].b + 1.2, b1: TL.tap - 0.25, tap: TL.tap, gone: TL.tap + 0.4, bow: 20 });
+  pointer.set(p.x, p.y, b > ST[4].b + 1 ? p.sc : 0, T(TL.tap), t, tgt[0], tgt[1]);
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+
+boot(seek, DURATION);
+</script>
+</body>
+</html>

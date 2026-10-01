@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 8: Australia is wider than the Moon</title>
+<!--
+  Roviko short 8, "A fact that sounds fake: Australia is wider than the Moon". 13 s, 1080x1920, 110 BPM ("Aerobic Fashion", Mixkit).
+  The Moon rolls in, Australia lands beside it. Roviko: "No way." Two bars: Australia about 4,000 km west to east against the Moon 3,475 km across.
+  Australia wins. Roviko's mind is blown. "Drop a fact that sounds fake but is true."
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 110.01, DIL = TEMPO / 130, END = 24, DURATION = END * 60 / TEMPO;
+const TL = { moon: 0, aus: 2.2, noway: 4.0, bars: 6.4, win: 9.4, cap3: 11.8, end: 17, hop: 21.5, blink2: 19.6 };
+setupStage(C.forest);
+const world = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+Halo(world, 540, 900, 1800, 0.18);
+// a few fixed stars
+const sky = svgEl(world, 'svg', { width: 1080, height: 1920 }); sky.style.position = 'absolute';
+{ const r = rng(3); for (let i = 0; i < 40; i++) svgEl(sky, 'circle', { cx: r() * 1080, cy: 120 + r() * 1400, r: 1.5 + r() * 2.5, fill: '#F6F3E9', opacity: 0.25 + r() * 0.5 }); }
+// the Moon: a grey disc with its dark seas and a few craters
+const moon = el(uiL, { left: 70, top: 470, width: 330, height: 330, transformOrigin: '50% 50%' },
+  `<svg width="330" height="330" viewBox="-190 -190 380 380"><defs><radialGradient id="pl" cx="35%" cy="35%" r="75%"><stop offset="0" stop-color="#F2F0EA"/><stop offset="1" stop-color="#A7A49C"/></radialGradient><clipPath id="pc"><circle r="180"/></clipPath></defs>
+  <circle r="180" fill="url(#pl)"/><g clip-path="url(#pc)" fill="#8E8B84"><path d="M-120-60c20-40 80-50 100-20s-10 70-50 70-70-20-50-50z" opacity=".45"/><path d="M10-110c30-15 80-5 85 25s-30 45-60 40-50-50-25-65z" opacity=".4"/><path d="M20 40c25-10 70 0 75 30s-35 50-65 40-35-60-10-70z" opacity=".38"/>
+  <circle cx="-60" cy="110" r="22" opacity=".5"/><circle cx="-130" cy="40" r="14" opacity=".5"/><circle cx="120" cy="-20" r="16" opacity=".5"/><circle cx="-20" cy="-150" r="11" opacity=".5"/></g></svg>`);
+const moonLbl = Tag(uiL, 'The Moon', { bg: C.white, fg: C.forest, font: 'Fredoka', weight: 600, size: 40, h: 76, ls: '0' });
+const ausShape = fitShape('AUS', { cx: 700, cy: 640, w: 440, h: 330 });
+const ausBox = el(uiL, { width: 1080, height: 1920, transformOrigin: '700px 640px' });
+const rsvg = svgEl(ausBox, 'svg', { width: 1080, height: 1920 }); rsvg.style.position = 'absolute';
+svgEl(rsvg, 'path', { d: ausShape.d, fill: C.gold, stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round' });
+const ausLbl = Tag(uiL, 'Australia', { bg: C.gold, fg: C.forest, font: 'Fredoka', weight: 600, size: 40, h: 76, ls: '0' });
+// the bars
+const BAR = { x: 110, w: 860, h: 96 };
+const bars = [
+  { label: 'Australia, west to east', val: 4000, txt: 'about 4,000 km', y: 900, bg: C.gold, fg: C.forest },
+  { label: 'The Moon, all the way across', val: 3475, txt: '3,475 km', y: 1050, bg: '#C9C6BE', fg: C.forest },
+].map(r => {
+  const track = el(uiL, { left: BAR.x, top: r.y, width: BAR.w, height: BAR.h, borderRadius: BAR.h / 2, background: 'rgba(246,243,233,.12)', overflow: 'hidden' });
+  const fill = el(track, { left: 0, top: 0, height: BAR.h, borderRadius: BAR.h / 2, background: r.bg });
+  const lab = el(track, { left: 30, top: 0, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 38, lineHeight: BAR.h + 'px', color: r.fg, whiteSpace: 'pre', zIndex: 2 }, r.label);
+  const num = el(uiL, { left: BAR.x + 10, top: r.y + BAR.h + 6, fontFamily: 'Manrope', fontWeight: 800, fontSize: 30, color: C.cream, whiteSpace: 'pre' }, r.txt);
+  return Object.assign(r, { track, fill, lab, num });
+});
+const crown = el(uiL, { width: 70, height: 56, zIndex: 25, transformOrigin: '50% 90%' },
+  `<svg width="70" height="56" viewBox="-2 -2 30 24"><path d="M2 18L0 4.5l7.2 5L13 0l5.8 9.5L26 4.5 24 18z" fill="${C.gold}" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>`);
+const MX = 200, MY = 1330, MR = 100;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const noway = Bubble(uiL, 'No way. 🤨', { x: 320, y: 1180, w: 300, size: 44, tail: 'left' });
+const cap1 = Caption(capL, ['A fact that sounds fake:', '<b>Australia</b> is wider than <b>the Moon</b>'], { cy: 260, size: 56 });
+const cap2 = Caption(capL, ['Australia wins by', 'about <b>500 km</b> 🤯'], { cy: 260, size: 56 });
+const cap3 = Caption(capL, ['Drop a fact that sounds', 'fake but is true 👇'], { cy: 260, size: 58 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Facts that sound fake. Every day.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+ev(TL.aus, 'land', -5);
+ev(TL.noway + 0.1, 'mention', -7);
+ev(TL.bars + 0.2, 'swoosh', -8); ev(TL.bars + 0.6, 'swoosh', -9, { rate: 1.1 });
+ev(TL.win, 'levelup', -5);
+ev(TL.win + 0.3, 'boing', -8);
+ev(TL.cap3 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 10}deg)`;
+  const pp = spB(t, -1.2, 1.8, 0.6);
+  S(moon, { transform: `translateX(${(1 - pp) * -500}px) rotate(${t * 12}deg) scale(${lerp(0.6, 1, pp)})` });
+  S(moonLbl, { left: 130, top: 812, transform: `scale(${spB(t, 0.6, 2.6, 0.55)})` });
+  const rp = spB(t, TL.aus - 0.15, 2.4, 0.55);
+  const fall = clamp((t - T(TL.aus - 0.3)) / T(0.3));
+  S(ausBox, { transform: `translateY(${-(1 - fall * fall) * 300}px) scale(${lerp(0.6, 1, rp)})` }); show(ausBox, fall > 0);
+  const rl = spB(t, TL.aus + 0.3, 2.6, 0.55); S(ausLbl, { left: 600, top: 812, transform: `scale(${rl})` }); show(ausLbl, rl > 0.001);
+  bars.forEach((r, i) => {
+    const f = segB(t, TL.bars + i * 0.4, TL.bars + 2.2 + i * 0.4, E.outCubic);
+    const w = BAR.w * (r.val / 4200) * f;
+    S(r.fill, { width: Math.max(BAR.h, w) }); show(r.fill, f > 0);
+    const tin = spB(t, TL.bars - 0.3 + i * 0.2, 2.4, 0.62);
+    S(r.track, { transform: `scaleX(${clamp(tin, 0, 1.1)})`, transformOrigin: '0 50%' }); show(r.track, tin > 0.001);
+    S(r.num, { transform: `translateY(${(1 - clamp((t - T(TL.bars + 1.8 + i * 0.4)) / 0.3)) * 20}px)` }); show(r.num, b > TL.bars + 1.8 + i * 0.4);
+  });
+  const cw = spB(t, TL.win, 2.8, 0.5);
+  S(crown, { left: BAR.x + BAR.w * (4000 / 4200) - 60, top: 900 - 50, transform: `scale(${cw}) rotate(${12 * cw}deg)` }); show(crown, cw > 0.001);
+  // Roviko: sceptical, then mind blown
+  const blown = spB(t, TL.win + 0.2, 2.6, 0.5);
+  drawMascot(mascot, { look: b < TL.bars ? [0.8, -0.8] : [0.9, -0.4], brow: b >= TL.noway && b < TL.win ? 1 : 0, eyesBig: b >= TL.win && b < TL.cap3 ? blown : 0,
+    mouth: b < TL.noway ? 'smile' : b < TL.win ? 'flat' : b < TL.cap3 ? 'o' : 'grin', cheeks: b >= TL.cap3 ? 0.8 : 0, legs: 1, hop: b >= TL.cap3 ? bop(b, 9) : 0,
+    arms: b >= TL.win && b < TL.cap3 ? [[-70, -96, -30, 11], [70, -96, -30, 11]] : [[-112, 66, 22, 10], [112, 66, 22, 10]], blink: blinkAt(t, [3.2, 14.6]) });
+  noway.set(spB(t, TL.noway, 2.2, 0.6), segB(t, TL.win - 0.2, TL.win + 0.1));
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.win - 0.2, TL.win + 0.15));
+  cap2.set(spB(t, TL.win, 1.9, 0.62), segB(t, TL.cap3 - 0.2, TL.cap3 + 0.15));
+  cap3.set(spB(t, TL.cap3, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+
+boot(seek, DURATION);
+</script>
+</body>
+</html>

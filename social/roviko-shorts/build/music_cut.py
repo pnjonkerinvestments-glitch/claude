@@ -1,6 +1,6 @@
 """Cut each short's song to picture on beat lines.
 
-  python3 build/music_cut.py sydney|streak|gamenight|flagaday  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
+  python3 build/music_cut.py <short>   (sydney, streak, gamenight, flagaday, greenland, wronganswers, austria, stages, moon, lobby, uk)  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
 
 Every short plays at its song's measured tempo, so one film beat is one song beat. A piece is
 (film beat, song beat[, film beat where it stops with a tape-stop]). Grids from build/analyze_music.py.
@@ -26,6 +26,14 @@ SHORTS = {
     'gamenight': dict(song='life-is-a-dream', end=54, fade=1.2, pieces=[(0, 16, None), (16, 48, None)]),
     # Flag a Day: 3-2-1 on the groove, "time's up" on the song's break (film 7 = song 56), the reveal on the drop (film 10 = song 59)
     'flagaday': dict(song='take-this-higher', end=15, fade=0.5, pieces=[(0, 49, None)]),
+    # the seven extra funny shorts (songs rotate so the feed doesn't repeat; one film beat = one song beat)
+    'greenland': dict(song='life-is-a-dream', end=30, fade=1.0, pieces=[(0, 16, None)]),
+    'wronganswers': dict(song='funkee-monkeee', end=28, fade=1.0, pieces=[(0, 48, None)]),
+    'austria': dict(song='aerobic-fashion', end=26, fade=1.0, pieces=[(0, 63, None)]),
+    'stages': dict(song='funkee-monkeee', end=34, fade=1.0, pieces=[(0, 16, None)]),
+    'moon': dict(song='aerobic-fashion', end=24, fade=1.0, pieces=[(0, 31, None)]),
+    'lobby': dict(song='life-is-a-dream', end=40, fade=1.2, pieces=[(0, 48, None)]),
+    'uk': dict(song='funkee-monkeee', end=30, fade=1.0, pieces=[(0, 32, None)]),
 }
 XF = 0.02          # crossfade at each cut (s)
 STOP = 0.42        # tape stop length (s)

@@ -133,7 +133,7 @@ function limbPath(ax, ay, bx, by, bend) {
 }
 // state: look [dx,dy], blink 0..1, happy 0..1 (^^ eyes), wink 0..1, eyesBig 0..1 (shock),
 // mouth 'smile'|'open'|'o'|'flat'|'frown'|'grin'|'wobble'|'none', brow 0..1 (one raised: smug), brows 'worried'|'up',
-// cheeks 0..1, shades {on 0..1, drop 0..1}, sweat 0..1, arms [[hx,hy,bend,hand r]...] or null,
+// cheeks 0..1, flush 0..1 (red with anger), shades {on 0..1, drop 0..1}, sweat 0..1, arms [[hx,hy,bend,hand r]...] or null,
 // legs 0..1, spread, tuck, feet [[dx,dy],[dx,dy]] (running), hop (y offset), sx/sy squash, tilt (deg)
 function drawMascot(m, st) {
   const look = st.look || [0, 0];
@@ -146,9 +146,11 @@ function drawMascot(m, st) {
     return `<ellipse cx="${x}" cy="${y}" rx="${rx.toFixed(2)}" ry="${ry.toFixed(2)}" fill="${INK}"/>` +
       (closed < 0.5 ? `<ellipse cx="${x - 3.5 * big}" cy="${y - 4.5 * (ry / 11)}" rx="${(3.6 * big).toFixed(2)}" ry="${(3.4 * ry / 11).toFixed(2)}" fill="#fff"/>` : '');
   };
-  let f = eye(-30.4, st.blink || 0, st.happy || 0) + eye(30.9, st.blink || 0, Math.max(st.happy || 0, st.wink || 0));
+  let f = st.flush ? `<circle r="100" fill="#E5484D" opacity="${(0.5 * st.flush).toFixed(2)}"/>` : '';
+  f += eye(-30.4, st.blink || 0, st.happy || 0) + eye(30.9, st.blink || 0, Math.max(st.happy || 0, st.wink || 0));
   if (st.brow) f += `<path d="M${20 + ex} ${-24 + ey - 5 * st.brow}l19 ${-3 - 2 * st.brow}" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/>`;
   if (st.brows === 'worried') f += `<path d="M${-40 + ex} ${-27 + ey}l17 -6M${40 + ex} ${-27 + ey}l-17 -6" stroke="${INK}" stroke-width="4.4" stroke-linecap="round"/>`;
+  if (st.brows === 'angry') f += `<path d="M${-42 + ex} ${-33 + ey}l20 7M${42 + ex} ${-33 + ey}l-20 7" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>`;
   if (st.brows === 'up') f += `<path d="M${-41 + ex} ${-31 + ey}q10 -7 20 0M${21 + ex} ${-31 + ey}q10 -7 20 0" stroke="${INK}" stroke-width="4.4" stroke-linecap="round" fill="none"/>`;
   if (st.cheeks) f += `<g fill="#FF8FA3" opacity="${(0.55 * st.cheeks).toFixed(2)}"><ellipse cx="${-45 + ex}" cy="${10 + ey}" rx="9" ry="5"/><ellipse cx="${46 + ex}" cy="${10 + ey}" rx="9" ry="5"/></g>`;
   const mx = ex * 0.7, my = ey * 0.6;

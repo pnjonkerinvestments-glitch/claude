@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 6: Austria is not Australia</title>
+<!--
+  Roviko short 6, "Austria is not Australia". 14 s, 1080x1920, 110 BPM ("Aerobic Fashion", Mixkit).
+  Emma: "Have fun in Austria! Say hi to the kangaroos." Roviko facepalms. The map zooms onto Austria, a kangaroo pops up
+  there: NOPE. The map flies 15,900 km (Vienna to Canberra) round the globe to Australia, the kangaroo lands at home.
+  "Austria: the Alps, Mozart, zero kangaroos." "Tag the friend who mixes them up."
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #163B32; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 110.01, DIL = TEMPO / 130, END = 26, DURATION = END * 60 / TEMPO;
+const TL = { chat: 0, palm: 2.6, roo: 4.6, nope: 6.0, fly: [7.6, 13.6], land: 13.6, cap2: 14.2, cap3: 16.6, cap4: 18.8, end: 21, hop: 24.4, blink2: 23.0 };
+setupStage(C.forest);
+const mapL = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+const FLAGS = '../../roviko/public/flags/';
+// a flight round the globe: the projection centre moves along the great circle Vienna -> Canberra,
+// zooming out mid-flight and back in over Australia (Lambert equal-area, so nothing tears)
+const VIE = [16.37, 48.21], AUC = [134, -26.5];          // the counter shows Vienna -> Canberra: 15,900 km
+const vec = (lon, lat) => [Math.cos(rad(lat)) * Math.cos(rad(lon)), Math.cos(rad(lat)) * Math.sin(rad(lon)), Math.sin(rad(lat))];
+const ll = v => [Math.atan2(v[1], v[0]) * 180 / Math.PI, Math.asin(Math.max(-1, Math.min(1, v[2]))) * 180 / Math.PI];
+function slerp(a, b, p) { const va = vec(...a), vb = vec(...b), om = Math.acos(va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2]); const s = Math.sin(om); return ll(va.map((x, i) => (Math.sin((1 - p) * om) * x + Math.sin(p * om) * vb[i]) / s)); }
+const svg = svgEl(mapL, 'svg', { width: 1080, height: 1920 }); svg.style.position = 'absolute';
+const defs = svgEl(svg, 'defs');
+const g = svgEl(defs, 'radialGradient', { id: 'sea', cx: '50%', cy: '50%', r: '75%' });
+svgEl(g, 'stop', { offset: '0', 'stop-color': '#24584C' }); svgEl(g, 'stop', { offset: '1', 'stop-color': C.forest });
+svgEl(svg, 'rect', { width: 1080, height: 1920, fill: 'url(#sea)' });
+const landP = svgEl(svg, 'path', { fill: C.mint, stroke: C.mint, 'stroke-width': 1.2, 'stroke-linejoin': 'round' });
+const autP = svgEl(svg, 'path', { fill: C.gold, stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round' });
+const ausP = svgEl(svg, 'path', { fill: C.mint, stroke: C.forest, 'stroke-width': 0, 'stroke-linejoin': 'round' });
+// on landing, green floods out across Australia from where the kangaroo touches down
+const floodC = svgEl(svgEl(defs, 'clipPath', { id: 'flood' }), 'circle', { r: 0 });
+const ausG = svgEl(svg, 'path', { fill: C.green, stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round', 'clip-path': 'url(#flood)' });
+const CY = 900;
+function view(b) {
+  const p = segB(T(b) , TL.fly[0], TL.fly[1], E.inOutSine);
+  const ctr = slerp(VIE, AUC, p);
+  const zIn = 1 + 2.2 * segB(T(b), 3.4, 4.6, E.inOutCubic);                   // zoom onto Austria before the flight
+  const arc = Math.sin(p * Math.PI);
+  const R = Math.exp(lerp(Math.log(2600 * zIn), Math.log(1450), p) - 1.25 * arc);
+  return { ctr, R, p };
+}
+function ringD(ring, P, R, step) {
+  let d = '', out = 0, n = 0;
+  for (let i = 0; i < ring.length; i += step) {
+    const [x, y, c] = P(ring[i][0], ring[i][1]);
+    if (c < -0.3) return '';
+    const sx = 540 + R * x, sy = CY + R * y;
+    if (sx < -400 || sx > 1480 || sy < -400 || sy > 2320) out++;
+    d += (n++ ? 'L' : 'M') + sx.toFixed(1) + ' ' + sy.toFixed(1);
+  }
+  return out === n ? '' : d + 'Z';
+}
+function drawMap(b) {
+  const v = view(b), P = laea(v.ctr[0], v.ctr[1]), step = v.R < 1800 ? 3 : 1;
+  let land = '';
+  for (const id in GEO) if (id !== 'AUT' && id !== 'AUS') for (const poly of GEO[id]) for (const r of poly) land += ringD(r, P, v.R, step);
+  for (const r of GEO_EXTRA) if (r[0][1] > -60) land += ringD(r, P, v.R, step);
+  landP.setAttribute('d', land);
+  autP.setAttribute('d', GEO.AUT.map(poly => poly.map(r => ringD(r, P, v.R, 1)).join('')).join(''));
+  const ausD = GEO.AUS.map(poly => poly.map(r => ringD(r, P, v.R, step)).join('')).join('');
+  ausP.setAttribute('d', ausD); ausG.setAttribute('d', ausD);
+  return v;
+}
+// the friend's message, the kangaroo, the NOPE, the distance counter
+const PEOPLE = { emma: { name: 'Emma', img: 1 } };
+const chat = Comment(uiL, PEOPLE.emma, 'Have fun in Austria!\nSay hi to the kangaroos 🦘', { x: 100, y: 440, w: 820, size: 34 });
+chat.box.style.height = '170px';
+const roo = el(uiL, { width: 200, height: 200, fontSize: 150, lineHeight: '200px', textAlign: 'center', zIndex: 25, transformOrigin: '50% 90%' }, '🦘');
+const nope = Tag(uiL, 'NOPE', { bg: C.red, fg: C.white, font: 'Fredoka', weight: 700, size: 64, h: 110, ls: '0.04em', z: 26 });
+const km = Tag(uiL, '0 km', { bg: C.white, fg: C.forest, font: 'Fredoka', weight: 600, size: 52, h: 96, ls: '0' });
+km.classList.add('tnum');
+const labA = Tag(uiL, '', { bg: C.white, fg: C.forest, font: 'Fredoka', weight: 600, size: 44, h: 84, ls: '0' });
+labA.innerHTML = `<img src="${FLAGS}at.svg" style="height:40px;width:53px;vertical-align:-7px;margin-right:14px;border-radius:5px">Austria`;
+const labU = Tag(uiL, '', { bg: C.white, fg: C.green, font: 'Fredoka', weight: 600, size: 44, h: 84, ls: '0' });
+labU.innerHTML = `<img src="${FLAGS}au.svg" style="height:40px;width:53px;vertical-align:-7px;margin-right:14px;border-radius:5px">Australia`;
+const MX = 205, MY = 1320, MR = 100;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const cap1 = Caption(capL, ['POV: you tell your friend', 'you’re going to <b>Austria</b>'], { cy: 260, size: 60 });
+const cap2 = Caption(capL, ['Austria <i>≠</i> Australia'], { cy: 250, size: 70 });
+const cap3 = Caption(capL, ['Austria: the Alps, Mozart', 'and <b>zero</b> kangaroos'], { cy: 410, size: 44, pad: 24 });
+const cap4 = Caption(capL, ['Tag the friend who', 'mixes them up 👇'], { cy: 260, size: 62 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Know where you’re going.' });
+
+ev(0.02, 'mention', -7);
+ev(TL.palm + 0.1, 'thud', -10, { rate: 1.3 });
+ev(3.5, 'swoosh', -9);
+ev(TL.roo + 0.05, 'boing', -6);
+ev(TL.nope + 0.05, 'error', -2);
+ev(TL.fly[0] + 0.4, 'whoosh', -6);
+ev(TL.land, 'land', -4);
+ev(TL.land + 0.1, 'correct', -6);
+ev(TL.cap2 + 0.1, 'pop', -8);
+ev(TL.cap3 + 0.1, 'pop', -11, { rate: 1.1 });
+ev(TL.cap4 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  const v = drawMap(b);
+  const P = laea(v.ctr[0], v.ctr[1]);
+  const scr = (lon, lat) => { const [x, y] = P(lon, lat); return [540 + v.R * x, CY + v.R * y]; };
+  const fl = segB(t, TL.land - 0.05, TL.land + 1.4, E.outCubic);
+  chat.set(spB(t, -1.5, 2.4, 0.62), segB(t, 3.2, 3.5));
+  // the kangaroo: pops up on Austria, gets a NOPE, then rides the flight (it stays in the middle while the globe turns)
+  const at = scr(14.5, 47.5), au = scr(134, -24);
+  const rp = spB(t, TL.roo, 2.6, 0.5);
+  floodC.setAttribute('cx', au[0]); floodC.setAttribute('cy', au[1]); floodC.setAttribute('r', 700 * fl); show(ausG, fl > 0);
+  const flying = b >= TL.fly[0];
+  const rx = flying ? lerp(at[0], au[0], segB(t, TL.fly[1] - 0.8, TL.fly[1], E.inOutCubic)) : at[0];
+  const ry = flying ? lerp(at[1], au[1], segB(t, TL.fly[1] - 0.8, TL.fly[1], E.inOutCubic)) - Math.abs(Math.sin((b - TL.fly[0]) * Math.PI)) * 90 : at[1];
+  const pos = flying && b < TL.fly[1] - 0.8 ? [540, CY - Math.abs(Math.sin((b - TL.fly[0]) * Math.PI)) * 90] : [rx, ry];
+  S(roo, { left: pos[0] - 100, top: pos[1] - 180, transform: `scale(${rp * (flying ? 0.75 : 1)}) rotate(${flying ? -12 : 0}deg)` }); show(roo, rp > 0.001);
+  const np = spB(t, TL.nope, 3, 0.45) * (1 - segB(t, TL.fly[0] - 0.2, TL.fly[0] + 0.1, E.inBack));
+  S(nope, { left: at[0] - 30, top: at[1] - 290, transform: `scale(${np}) rotate(${-12 * np}deg)` }); show(nope, np > 0.001);
+  const kmP = segB(t, TL.fly[0], TL.fly[1], E.inOutSine);
+  km.textContent = '✈️ ' + Math.round(15900 * kmP).toLocaleString('en-US') + ' km';
+  const kp = spB(t, TL.fly[0], 2.6, 0.6);
+  S(km, { transform: `scale(${kp})` }); show(km, kp > 0.001 && b < TL.end);
+  S(km, { left: 540 - km.getBoundingClientRect().width / 2, top: 1150 });
+  const la = spB(t, 4.4, 2.6, 0.55) * (1 - segB(t, TL.fly[0], TL.fly[0] + 0.25, E.inBack));
+  S(labA, { left: at[0] - 130, top: at[1] + 70, transform: `scale(${la})` }); show(labA, la > 0.001);
+  const lu = spB(t, TL.land + 0.2, 2.6, 0.55);
+  S(labU, { left: au[0] - 150, top: au[1] + 110, transform: `scale(${lu})` }); show(labU, lu > 0.001);
+  // Roviko: facepalm, then watching the flight, then grinning
+  const palm = b >= TL.palm && b < TL.fly[0];
+  drawMascot(mascot, { look: palm ? [0, 0] : [0.6, -0.8], blink: palm ? 1 : blinkAt(t, [11.2, 19.6]), mouth: palm ? 'frown' : b >= TL.land ? 'grin' : 'smile',
+    cheeks: b >= TL.land ? 0.8 : 0, legs: 1, hop: b >= TL.land ? bop(b, 9) : 0,
+    arms: palm ? [[-30, -12, -30, 11], [112, 66, 22, 10]] : b >= TL.cap4 ? [[-122, 70, 26, 10], [70, -80, -20, 11]] : [[-112, 66, 22, 10], [112, 66, 22, 10]] });
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.cap4 - 0.2, TL.cap4 + 0.15));
+  cap3.set(spB(t, TL.cap3, 1.9, 0.62), segB(t, TL.cap4 - 0.2, TL.cap4 + 0.15));
+  cap4.set(spB(t, TL.cap4, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+
+boot(seek, DURATION);
+</script>
+</body>
+</html>
