@@ -1,0 +1,114 @@
+[
+ {
+  "t": 0.4838,
+  "beat": 1,
+  "sfx": "clock",
+  "gain": -3,
+  "rate": 1
+ },
+ {
+  "t": 1.4515,
+  "beat": 3,
+  "sfx": "clock",
+  "gain": -3,
+  "rate": 1.06
+ },
+ {
+  "t": 2.4192,
+  "beat": 5,
+  "sfx": "clock",
+  "gain": -3,
+  "rate": 1.12
+ },
+ {
+  "t": 3.3868,
+  "beat": 7,
+  "sfx": "lock",
+  "gain": -3
+ },
+ {
+  "t": 3.8707,
+  "beat": 8,
+  "sfx": "clock",
+  "gain": -6,
+  "rate": 1.1
+ },
+ {
+  "t": 4.1126,
+  "beat": 8.5,
+  "sfx": "clock",
+  "gain": -5,
+  "rate": 1.1500000000000001
+ },
+ {
+  "t": 4.3545,
+  "beat": 9,
+  "sfx": "clock",
+  "gain": -4,
+  "rate": 1.2000000000000002
+ },
+ {
+  "t": 4.4754,
+  "beat": 9.25,
+  "sfx": "clock",
+  "gain": -3,
+  "rate": 1.25
+ },
+ {
+  "t": 4.5964,
+  "beat": 9.5,
+  "sfx": "clock",
+  "gain": -2,
+  "rate": 1.3
+ },
+ {
+  "t": 4.7174,
+  "beat": 9.75,
+  "sfx": "clock",
+  "gain": -1,
+  "rate": 1.35
+ },
+ {
+  "t": 4.8383,
+  "beat": 10,
+  "sfx": "impact",
+  "gain": -2
+ },
+ {
+  "t": 4.9109,
+  "beat": 10.15,
+  "sfx": "sparkle",
+  "gain": -6
+ },
+ {
+  "t": 5.0464,
+  "beat": 10.43,
+  "sfx": "pop",
+  "gain": -9
+ },
+ {
+  "t": 5.1915,
+  "beat": 10.73,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.12
+ },
+ {
+  "t": 5.3609,
+  "beat": 11.08,
+  "sfx": "error",
+  "gain": -9
+ },
+ {
+  "t": 5.0802,
+  "beat": 10.5,
+  "sfx": "cheer",
+  "gain": -8
+ },
+ {
+  "t": 5.5157,
+  "beat": 11.4,
+  "sfx": "mention",
+  "gain": -8
+ }
+]
