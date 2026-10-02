@@ -1,0 +1,33 @@
+// Nieuwsmelder als losse Cloudflare Worker. Let op de naam: NOOIT "roviko", dat is de live site.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "nieuws-alert",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "observability": { "enabled": true },
+  // Geen publiek adres nodig: alles loopt via de cron en Telegram.
+  "workers_dev": false,
+
+  // Elke minuut, dag en nacht: nieuws komt ook na sluiting van de beurs (Tradegate tot 22:00).
+  "triggers": { "crons": ["* * * * *"] },
+
+  // Volglijst en wat al gemeld is. Zonder database_id maakt `wrangler deploy` de
+  // database bij de eerste deploy zelf aan; de tabellen maakt de Worker zelf.
+  "d1_databases": [{ "binding": "DB", "database_name": "nieuws-alert" }],
+
+  // TELEGRAM_BOT_TOKEN (en optioneel TELEGRAM_CHAT_ID) zijn secrets, die horen hier niet.
+  "vars": {
+    // Talen van de TradingView-nieuwsfeed. Duitse aandelen: de en en.
+    "NEWS_LANGS": "de,en",
+    "TIMEZONE": "Europe/Amsterdam",
+    // Berichten ouder dan dit worden niet meer gemeld (bijvoorbeeld na een storing).
+    "MAX_AGE_HOURS": "24",
+    // Hoogstens zoveel TradingView-verzoeken per minuut; bij een lange lijst wisselt het door.
+    "MAX_REQUESTS": "40",
+    "MAX_ALERTS_PER_SYMBOL": "5",
+    // Korte samenvatting en bronlink bij elke melding ophalen.
+    "STORY_DETAILS": "true",
+    // Startlijst, alleen bij de allereerste run. Daarna beheer je de lijst via /volg en /stop.
+    "WATCHLIST": "XETR:1INN=innoscripta SE"
+  }
+}

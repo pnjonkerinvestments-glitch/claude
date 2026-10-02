@@ -4,6 +4,8 @@
   [`roviko/START_HERE_CLAUDE.md`](roviko/START_HERE_CLAUDE.md). Publiceren gaat via
   GitHub Actions naar Cloudflare, zie [`roviko/docs/PUBLICEREN.md`](roviko/docs/PUBLICEREN.md).
 - **[`roviko-app/`](roviko-app/)**: de App Store-/Google Play-app (Capacitor).
+- **[`nieuws/`](nieuws/)**: nieuwsmelder; Telegram-bericht zodra TradingView nieuws heeft over
+  een aandeel op je lijst. Losse Cloudflare Worker `nieuws-alert`.
 - De rest van deze README gaat over een ouder, los zijproject: de premarket-alert.
   Die staat stil (geen schema meer) en draait niet op Cloudflare.
 
