@@ -22,6 +22,12 @@ import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
 
 /** The globe with one arc per scored game (the Daily Detour first); finished games light up in their own colour. */
+/** The key words of a headline in brand green, as in the captions of the Roviko videos. */
+function Highlight({ text, hl }: { text: string; hl: string }) {
+  const i = hl && hl !== 'homeTitleHl' ? text.lastIndexOf(hl) : -1;
+  return i < 0 ? <>{text}</> : <>{text.slice(0, i)}<span className="hl">{hl}</span>{text.slice(i + hl.length)}</>;
+}
+
 function MascotRing({ states, mood, bubble }: { states: ('new' | 'active' | 'done')[]; mood: MascotMood; bubble: string }) {
   const ring = 2 * Math.PI * 46, arc = ring / DAY_MODES.length;
   return <div className="hero-mascot" aria-hidden="true">
@@ -113,7 +119,7 @@ export function HomePage() {
     <section className={'home-hero-v2' + (atRisk ? ' is-at-risk' : '') + (allDone ? ' is-done' : '')} aria-labelledby="home-title">
       <div className="hero-copy">
         <p className="kicker">{t('homeKicker')}</p>
-        <h1 id="home-title">{t('homeTitle')}</h1>
+        <h1 id="home-title"><Highlight text={t('homeTitle')} hl={t('homeTitleHl')}/></h1>
         <p className="lead">{atRisk ? t('streakAtRiskNote') : allDone && nextBonus ? t('bonusLead') : allDone && reset ? t('tripDoneCopy').replace('{time}', reset) : t('homeLead')}</p>
         <div className="hero-actions">
           <button className="btn primary btn-lg" disabled={busy} aria-busy={!!launching} onClick={() => allDone ? (nextBonus ? bonusLaunch.open(nextBonus) : go('/leaderboard')) : heroMode && open(heroMode)}>{cta}<ArrowRight size={20} aria-hidden="true"/></button>

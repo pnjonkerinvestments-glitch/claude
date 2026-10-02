@@ -472,3 +472,26 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
   - Eindscherm van de dagspellen duidelijker, menu-knoppen goed uitgelijnd, elk land bij "Today's picks" een herkenbaar plaatje (vorm van het land als er geen foto is), alle afbeeldingen opnieuw scherp gemaakt (2×).
 
 Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 390×844 en 1280×800 van home, Multiplayer (gast en account), Account, Instellingen, Ranglijsten, Ontdekken, menu en Country Mosaic. Nog fysiek te controleren: muziek en geluid op een echte iPhone, e-mails zodra Resend is ingesteld.
+
+## 1.22.0: de social-stijl op de hele site (2 oktober 2026)
+
+**Waarom.** De video's en posts (shorts, Flag a Day, "Sounds fake", de Guess the country-carrousels) hebben een eigen, herkenbare beeldtaal gekregen. De website spreekt nu dezelfde taal, zodat iemand die via een video binnenkomt meteen herkent waar hij is.
+
+**Wat er verandert (alleen presentatie).**
+- Nieuwe laatste CSS-laag `app/social.css`, geladen na `design.css` (`app/layout.tsx`). De spellen, het spelverloop, de puntentelling en de API zijn niet veranderd.
+- **Knoppen en labels:** pillen. Knoppen in Fredoka met een zachte lift en een verende hover; kleine labels (kickers, eyebrows) als witte pillen in gespatieerde hoofdletters, zoals "SOUNDS FAKE · #1" in de video's.
+- **Kaarten:** grotere hoeken, de zachte dubbele schaduw uit de video's, spelkaarten die verend omhoog komen bij hover.
+- **Spelschermen:** elke vraag op een donkergroene kaart met witte tekst. De vlag staat in een witte lijst. De antwoorden zijn pillen met een rond cijferbolletje, en bij een antwoord loopt de pil groen (goed) of rood (fout) vol vanaf het bolletje, met een vinkje of kruisje en een kort schudje bij fout. Nieuwe antwoorden komen één voor één binnen. Feedback met een rond icoon, gekleurde kop en neutrale tekst. Sorteerlijsten en hints als pillen met ronde nummers.
+- **Kaart (Pinpoint, Daily Detour):** postkleuren: lichtblauwe zee, mintgroen land, witte grenzen, in een witte lijst. Donkere modus: diepblauwe zee, groen land.
+- **Homepage:** Roviko praat in een witte tekstballon (springt binnen), maakt kleine sprongetjes, de kernwoorden van de kop staan in merkgroen (`homeTitleHl` in `i18n/v121.ts`, EN/NL/ES), een kleurhalo achter de mascotte.
+- **Paginakoppen:** de illustratie staat in een zachte mintgroene halo.
+- **Navigatie:** de actieve tab is een donkergroene pil; op de telefoon zweeft de tabbalk als pil boven de pagina.
+- **Niveaus** (spelen tegen de computer): Easy groen, Medium blauw, Hard rood, zoals de niveaupillen in de carrousels.
+- **Achtergrond:** zachte groene, blauwe en gouden halo's op het crèmekleurige canvas, zoals in de video's.
+- **Uitslag:** de dagscore in merkgroen, een verlopende balk, de mascotte springt.
+- **Opgelost:** in de kamerinstellingen op de telefoon liepen de spelkiezer en de rondes over elkaar heen (bestond al in 1.21); ze krijgen nu de volle breedte.
+- Service worker-cache: `roviko-shell-v1.22.0`.
+
+**Geen migratie, geen nieuwe geheimen, geen API-wijziging.**
+
+Getest: zie `docs/QA_1_22.md`.

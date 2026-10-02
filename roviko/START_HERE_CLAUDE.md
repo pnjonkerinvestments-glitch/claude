@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.21.0 · 25 september 2026** (nog niet live: pas mergen na goedkeuring van de iOS-app door Apple) (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
+**Versie 1.22.0 · 2 oktober 2026** (1.21 + de social-stijl; nog niet live: pas mergen na goedkeuring van de iOS-app door Apple) (1.11.0 van ChatGPT + de verbeteringen van Claude, zie `docs/CHANGES_SINCE_1_11.md`; de redesign van 1.14 staat in `docs/REDESIGN_1_14.md`, 1.15 in `docs/CHANGES_SINCE_1_11.md`). Live domein: https://roviko.app
 Hosting: eigen Cloudflare-account (worker `roviko`, database `roviko-db`), sinds 25 september 2026. De oude ChatGPT-hosting (https://roviko.info960133.chatgpt.site) is alleen nog een tijdelijke terugvaloptie.
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
@@ -33,7 +33,8 @@ Dit is de volledige websitebron inclusief backend, lokale geografische data, ill
 - Dagdoelen (3 per dag, kroonkist) en Rank Radar-medailles zijn motivatie zonder punten: ze veranderen nooit dagpunten, ranglijsten of reeksen.
 - In singleplayer is een tik meteen het antwoord (geen bevestigknop), met een duidelijke rand om de gekozen kaart. Alleen multiplayer en Size Shuffle hebben een bevestigknop.
 - Reeksschilden worden afgeleid uit de opgeslagen dagresultaten (`lib/streak.ts`); geen aparte opslag, niet te kopen.
-- Visueel systeem in `app/design.css` (laatste laag, 1.14): tokens (canvas #F6F3E9, ink #18211D, forest #163B32, brand #1F806B, mint #DDEDE6, gold #F6B84B), alleen Fredoka + Manrope, vaste schalen, één schaduw. Nieuwe schermen gebruiken `components/ds` (States, Celebration) en de tokens, geen nieuwe losse kleuren. Eén primaire actie per scherm; scoreregels horen op `/scoring`, niet op de homepage. Lijniconen via `GameIcon` in plaats van emoji in de interface.
+- Social-stijl (1.22): `app/social.css` is nu de laatste laag, na `design.css`. De site gebruikt dezelfde beeldtaal als de video's en posts (`social/roviko-shorts`, `social/roviko-carousels`): ronde pillen voor knoppen en labels (kleine labels in gespatieerde hoofdletters), witte kaarten met de zachte dubbele schaduw, elke vraag op een donkergroene kaart, antwoordpillen met een rond cijferbolletje die groen (goed) of rood (fout) vollopen, kaarten in de postkleuren (lichtblauwe zee, mintgroen land, witte grenzen, witte lijst), Roviko in een witte tekstballon, niveaus in de postkleuren (Easy groen, Medium blauw, Hard rood), zachte kleurhalo's op de achtergrond en kleine verende animaties (uit bij `prefers-reduced-motion`). Kernwoorden van de homepagekop in merkgroen via `homeTitleHl`. Alleen presentatie: geen spelregel of spelverloop hangt van deze laag af. Nieuwe schermen volgen deze laag.
+- Visueel systeem in `app/design.css` (1.14, onder `social.css`): tokens (canvas #F6F3E9, ink #18211D, forest #163B32, brand #1F806B, mint #DDEDE6, gold #F6B84B), alleen Fredoka + Manrope, vaste schalen, één schaduw. Nieuwe schermen gebruiken `components/ds` (States, Celebration) en de tokens, geen nieuwe losse kleuren. Eén primaire actie per scherm; scoreregels horen op `/scoring`, niet op de homepage. Lijniconen via `GameIcon` in plaats van emoji in de interface.
 - Vrienden (alleen accounts) zien elkaars online-status (heartbeat `/api/presence`, 90 s venster) en kunnen elkaar direct in een kamer uitnodigen (`/api/rooms/:code/invite`, `/api/invites/:id`). Online-status is alleen zichtbaar voor geaccepteerde vrienden; gasten schrijven geen presence.
 - Elke spelvorm heeft een eigen logo in `components/atelier/GameIcon.tsx` (getekende SVG, tweekleurig via `currentColor`); nieuwe spelvormen krijgen daar ook een logo. Gebruik altijd `<GameIcon mode=…/>` waar een spel genoemd wordt, geen emoji of losse iconen.
 - Na een dagspel toont het resultaat alleen je punten, je plek tussen de spelers van vandaag en één knop naar het volgende spel (`components/atelier/DailyResult.tsx`); de terugblik is ingeklapt. Tijdens een spel op de telefoon staat de knop om verder te gaan altijd vast onderin en verdwijnt de bovenbalk; houd dat zo bij nieuwe spellen.
@@ -72,7 +73,7 @@ React 19 + TypeScript + Vinext (Next.js App Router-API's bovenop Vite), Cloudfla
 - `server/api.ts`, `server/multiplayer.ts`, `lib/realtime/`: API en kamers.
 - `lib/game-engine/`, `lib/puzzles/`: generators/validatie, gelicenseerde gegevens.
 - `i18n/messages.ts`, `es.ts`, `content.ts`, `competition.ts`: vertalingen.
-- CSS wordt in `app/layout.tsx` geladen; `design.css` is de laatste laag. De oudere lagen bevatten nog regels voor de spellen; controleer overrides bij visuele wijzigingen.
+- CSS wordt in `app/layout.tsx` geladen; `social.css` (1.22) is de laatste laag, daaronder `design.css`. De oudere lagen bevatten nog regels voor de spellen; controleer overrides bij visuele wijzigingen.
 - `drizzle/`, `db/schema.ts`: schema/migraties; `db/seed.sql` bevat geografie, geen gebruikersgegevens.
 
 ## Installeren en controleren
