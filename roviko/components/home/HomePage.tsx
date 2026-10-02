@@ -9,7 +9,8 @@ import { A } from '../app/shared';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { DailyQuests, type Quest } from '../atelier/DailyQuests';
 import { MysteryCountry } from '../atelier/MysteryCountry';
-import { Mascot, type MascotMood } from '../ds/Mascot';
+import type { MascotMood } from '../ds/Mascot';
+import { Character, type CharacterMood, type CharacterPose } from '../ds/Character';
 import { SectionHeader, Skeleton } from '../ds/States';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CoverArt } from './CoverArt';
@@ -28,6 +29,10 @@ function Highlight({ text, hl }: { text: string; hl: string }) {
   return i < 0 ? <>{text}</> : <>{text.slice(0, i)}<span className="hl">{hl}</span>{text.slice(i + hl.length)}</>;
 }
 
+/** The home mascot is the video character: the same moods, with arms and legs that match them. */
+const MOOD: Record<MascotMood, CharacterMood> = { happy: 'happy', cheer: 'cheer', wink: 'wink', worried: 'worried', sleepy: 'sleepy', curious: 'curious' };
+const POSE: Record<MascotMood, CharacterPose> = { happy: 'wave', cheer: 'cheer', wink: 'hips', worried: 'shrug', sleepy: 'stand', curious: 'point' };
+
 function MascotRing({ states, mood, bubble }: { states: ('new' | 'active' | 'done')[]; mood: MascotMood; bubble: string }) {
   const ring = 2 * Math.PI * 46, arc = ring / DAY_MODES.length;
   return <div className="hero-mascot" aria-hidden="true">
@@ -36,7 +41,7 @@ function MascotRing({ states, mood, bubble }: { states: ('new' | 'active' | 'don
       <circle className="hero-ring-track" cx="50" cy="50" r="46"/>
       {DAY_MODES.map((mode, i) => <circle key={mode} className={'hero-ring-arc tone-' + mode + ' is-' + states[i]} cx="50" cy="50" r="46" strokeDasharray={`${arc - 7} ${ring - arc + 7}`} strokeDashoffset={-(arc * i) - 3.5}/>)}
     </svg>
-    <Mascot mood={mood} size={260} className="hero-globe"/>
+    <Character mood={MOOD[mood]} pose={POSE[mood]} size={340} className="hero-character"/>
   </div>;
 }
 
@@ -182,7 +187,7 @@ export function HomePage() {
     <section className="home-section motivation" aria-label={t('allGamesYourDay')}>
       <div className="motivation-quests"><DailyQuests date={date} sessions={sessions ?? []} t={t} compact art onPick={pickQuest}/></div>
       <div className="motivation-week journey-card">
-        <header><span className="week-flame" aria-hidden="true">{streak > 0 ? <Flame size={24} strokeWidth={2.2}/> : <CalendarDays size={24} strokeWidth={2.2}/>}</span><div><h2>{streak > 0 ? t('statusStreak').replace('{n}', String(streak)) : t('statusStreakZero')}</h2><p>{streak > 0 ? t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target)) : t('streakStartCopy')}</p></div><img className="card-corner-art" src="/art/journey-scene.webp" alt="" aria-hidden="true" width={203} height={232} loading="lazy" decoding="async"/></header>
+        <header><span className="week-flame" aria-hidden="true">{streak > 0 ? <Flame size={24} strokeWidth={2.2}/> : <CalendarDays size={24} strokeWidth={2.2}/>}</span><div><h2>{streak > 0 ? t('statusStreak').replace('{n}', String(streak)) : t('statusStreakZero')}</h2><p>{streak > 0 ? t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target)) : t('streakStartCopy')}</p></div><Character mood={streak > 0 ? 'cheer' : 'happy'} pose="wave" size={112} className="card-corner-art card-corner-character"/></header>
         {today?.week ? <WeekDots week={today.week} frozen={freeze?.frozenDates ?? []} locale={locale}/> : <Skeleton className="sk-block sk-week"/>}
         <A href="/scoring#streaks" className="week-shield"><ShieldCheck size={18} aria-hidden="true"/><span>{freeze?.available ? t('freezeReady').replace('{n}', String(freeze.available)) : t('freezeNext').replace('{n}', String(freeze?.nextIn ?? 7))}</span><ChevronRight size={18} aria-hidden="true"/></A>
       </div>

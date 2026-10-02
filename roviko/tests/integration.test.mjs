@@ -260,6 +260,7 @@ test('Rank Radar daily is shared, resumable, untimed and isolated from other gam
  assert.equal(first.status,200,JSON.stringify(first.data));let g=first.data;
  assert.equal(g.mode,'rank');assert.equal(g.total,8);assert.equal(g.learning,true);assert.deepEqual(g.board,second.data.board);
  assert.equal(g.board.rounds.length,8);assert.equal(g.board.categories.length,8);assert.ok(g.board.rounds.every(r=>!r.stats&&!r.best));assert.equal(g.board.optimal,undefined);
+ assert.ok(g.board.rounds[0].country,'the first country is shown');assert.ok(g.board.rounds.slice(1).every(r=>!r.country&&r.id),'later countries stay hidden');
  for(const forbidden of ['questions','review','startedAt','turnAt','score','xp','deadline'])assert.ok(!(forbidden in g),forbidden);
  assert.equal((await request(b.cookie,'/ranks/'+g.id)).status,404);assert.equal((await request(a.cookie,'/games/'+g.id)).status,404);assert.equal((await request(a.cookie,'/puzzles/'+g.id)).status,404);
  assert.equal((await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version})).status,400);
@@ -267,7 +268,7 @@ test('Rank Radar daily is shared, resumable, untimed and isolated from other gam
  const [c0,c1]=g.board.categories.map(c=>c.id);
  const results=await Promise.all([request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:0,answer:c0,score:999999}),request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:0,answer:c1})]);
  assert.equal(results.filter(r=>r.status===200).length,1);assert.equal(results.filter(r=>r.status===409).length,1);
- g=results.find(r=>r.status===200).data;assert.ok(g.board.rounds[0].stats&&g.board.rounds[0].best.length);assert.ok(!g.board.rounds[1].stats);
+ g=results.find(r=>r.status===200).data;assert.deepEqual(Object.keys(g.board.rounds[0].stats),[g.answers[0].value],'only the chosen subject\'s place is shown');assert.ok(!g.board.rounds[0].best);assert.ok(!g.board.rounds[1].stats&&!g.board.rounds[1].country,'the next country stays hidden after a pick');
  const resumed=(await request(a.cookie,'/ranks','POST',{})).data;assert.equal(resumed.id,g.id);assert.deepEqual(resumed.answers,g.answers);assert.equal(resumed.phase,'reveal');assert.ok(!resumed.review);
  assert.equal((await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer:c1})).status,409);
  g=(await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version})).data;
@@ -283,11 +284,12 @@ test('eight Rank Radar rounds persist exactly once, store pick points and expose
   const used=new Set(g.answers.map(x=>x.value)),answer=g.board.categories.find(c=>!used.has(c.id)).id;
   const reveal=await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer,correct:true,points:5000});assert.equal(reveal.status,200,JSON.stringify(reveal.data));
   g=reveal.data;const last=g.answers.at(-1);assert.ok(last.points>=0&&last.points<=125);sum+=last.points;assert.equal(last.countryId,g.board.rounds[g.round].country.id);
-  assert.equal(last.correct,g.board.rounds[g.round].best.includes(answer));
+  assert.deepEqual(Object.keys(g.board.rounds[g.round].stats),[answer]);assert.ok(!g.board.rounds[g.round].best);assert.ok(g.board.rounds.slice(g.round+1).every(r=>!r.country));
   const next=await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version});assert.equal(next.status,200);g=next.data;
  }
  assert.equal(g.answers.length,8);assert.equal(new Set(g.answers.map(x=>x.value)).size,8);assert.equal(g.question,null);assert.equal(g.board.rounds[0].id,firstCountry);
- assert.ok(g.board.rounds.every(r=>r.stats));assert.ok(g.board.optimal>=sum&&g.board.optimal<=1000);
+ assert.ok(g.board.rounds.every(r=>r.country&&Object.keys(r.stats).length===8));assert.ok(g.board.optimal>=sum&&g.board.optimal<=1000);
+ g.answers.forEach((x,i)=>assert.equal(x.correct,g.board.rounds[i].best.includes(x.value),'the recap shows the best subject per country'));
  const profile=(await request(a.cookie,'/profile')).data.stats;assert.equal(profile.games,1);assert.equal(profile.total,8);assert.equal(profile.dailyCount,1);
  for(let i=0;i<2;i++)await request(a.cookie,'/ranks/'+g.id);
  const replay=(await request(a.cookie,'/ranks','POST',{})).data;assert.equal(replay.id,g.id);assert.deepEqual(replay.answers,g.answers);
@@ -488,7 +490,7 @@ test('the next flag can load while the answer is shown, but never early and neve
  const r=(await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:0,answer:g.question.options[0].id})).data;
  assert.match(r.preloadFlag,/^\/api\/flag\//);
  const img=await mf.dispatchFetch(origin+r.preloadFlag,{headers:{Cookie:a.cookie}});assert.equal(img.status,200);await img.arrayBuffer();
- const next=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;assert.equal('/api/flag/'+encodeURIComponent(next.question.flag),r.preloadFlag,'the preloaded image is exactly the next question');
+ const next=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;assert.equal('/api/flag/'+encodeURIComponent(next.question.flag)+'?v=2',r.preloadFlag,'the preloaded image is exactly the next question');
  const trail=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'trail',count:5}})).data;
  const tr=(await request(a.cookie,'/games/'+trail.id+'/answer','POST',{round:0,answer:trail.question.options[0].id})).data;assert.equal(tr.preloadFlag,undefined,'Clue Trail flags stay hidden');
  const daily=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily'},competition:true})).data;

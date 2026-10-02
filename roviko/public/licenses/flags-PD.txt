@@ -1,0 +1,13 @@
+Country flags (Roviko 1.22 and later)
+
+The flag images in /flags/ are the renders collected in svg-country-flags 1.2.10
+(https://github.com/hjnilsson/country-flags, author Hampus Nilsson), published as public domain (licence: PD).
+
+From that project's README: "The source files were taken from Wikipedia and are not under copyright
+protection since flags are effectively in public domain (there may be other restrictions on how the
+flag can be used though)."
+
+Roviko optimised the vector files (svgo) and renders flags with a detailed coat of arms as a WebP inside
+an SVG with the same proportions (scripts/import-flags.mjs). The artwork itself is unchanged.
+National flags and emblems may be protected by other laws in some countries (for example against misuse
+or commercial use as a trademark); Roviko shows them only to identify countries in a geography game.

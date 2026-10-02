@@ -1,5 +1,6 @@
 'use client';
 import React from 'react';
+import { Character, type CharacterMood, type CharacterPose } from './Character';
 import { ArrowLeft, Compass, type LucideIcon } from 'lucide-react';
 import { useApp } from '../app/context';
 
@@ -62,15 +63,25 @@ export function SectionHeader({ id, title, kicker, action }: { id?: string; titl
   </div>;
 }
 
-/** Page title block: small kicker, one H1, one calm sentence. */
-/** Page title block. `art` names an illustration in /public/art; `back` adds a quiet "Back" pill for pages outside the tab bar. */
+/** What Roviko does next to each page title (the old `art` names map to a pose from the videos). */
+const STAGE: Record<string, [CharacterMood, CharacterPose]> = {
+  'spot-side-by-side': ['happy', 'wave'], 'join-mascot': ['happy', 'wave'], 'howto-hero': ['curious', 'point'], 'spot-world-trip': ['happy', 'wave'],
+  'explore-hero': ['curious', 'point'], 'spot-rank-radar': ['cool', 'hips'], 'scoring-hero': ['cheer', 'cheer'], 'friends-hero': ['cheer', 'cheer'],
+};
+/**
+ * Page title block as a scene from the videos (1.22): a forest-green stage with the kicker pill, the H1 in white,
+ * one calm sentence and Roviko in a pose that fits the page. `back` adds a quiet "Back" pill for pages outside the tab bar.
+ */
 export function PageHeader({ kicker, title, lead, art, back, children }: { kicker?: React.ReactNode; title: React.ReactNode; lead?: React.ReactNode; art?: string; back?: string; children?: React.ReactNode }) {
-  return <header className={'page-header' + (art ? ' has-art' : '')}>
-    {art && <img className="page-header-art" src={'/art/' + art + '.webp'} alt="" aria-hidden="true" decoding="async" fetchPriority="high" style={{ shapeOutside: `url(/art/${art}.webp)` } as React.CSSProperties}/>}
-    {back && <button type="button" className="back-pill" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.assign('/'); }}><ArrowLeft size={18} aria-hidden="true"/>{back}</button>}
-    {kicker && <p className="kicker">{kicker}</p>}
-    <h1>{title}</h1>
-    {lead && <p className="lead">{lead}</p>}
-    {children}
+  const [mood, pose] = (art && STAGE[art]) || ['happy', 'stand'];
+  return <header className="page-header page-stage">
+    <div className="ps-copy">
+      {back && <button type="button" className="back-pill" onClick={() => { if (window.history.length > 1) window.history.back(); else window.location.assign('/'); }}><ArrowLeft size={18} aria-hidden="true"/>{back}</button>}
+      {kicker && <p className="kicker">{kicker}</p>}
+      <h1>{title}</h1>
+      {lead && <p className="lead">{lead}</p>}
+      {children}
+    </div>
+    <Character mood={mood} pose={pose} size={200} className="ps-character"/>
   </header>;
 }

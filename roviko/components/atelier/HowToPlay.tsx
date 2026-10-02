@@ -4,6 +4,7 @@ import { ArrowRight, CircleHelp, Lightbulb } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { GameIcon } from './GameIcon';
 import { CoverArt, type CoverMode } from '../home/CoverArt';
+import { GameScene, type SceneMode } from '../ds/GameScene';
 import { A } from '../app/shared';
 import { PageHeader } from '../ds/States';
 import { HOW_TO_EXAMPLES, HOW_TO_PLAY, HOW_TO_PLAY_GROUPS, HOW_TO_PLAY_ORDER, HOW_TO_PLAY_TITLE } from '@/lib/how-to-play';
@@ -80,7 +81,7 @@ export function HowToPlayPage({ t, locale, onPlay, busy = false, initialMode = '
       </div>)}
     </div>
     {guide && <section id="howto-panel" role="tabpanel" aria-labelledby={'howto-tab-' + mode} className={'howto-panel howto-' + mode}>
-      <div className={'howto-art howto-art-' + mode} aria-hidden="true">{COVER[mode] ? <CoverArt mode={COVER[mode]}/> : <img className="game-cover-image" src={'/art/classic-' + mode + '.webp'} alt="" width={574} height={248} decoding="async"/>}</div>
+      <div className={'howto-art howto-art-' + mode} aria-hidden="true">{COVER[mode] ? <CoverArt mode={COVER[mode]}/> : <GameScene mode={mode as SceneMode} shape="wide" className="game-cover-image"/>}</div>
       <div className="howto-body">
         <p className="kicker">{t(group.key)}</p>
         <h2><GameIcon mode={mode} size="sm" className="howto-title-logo"/>{howToGame(mode, t)}</h2>

@@ -1,5 +1,6 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
+import { GameScene, type SceneMode } from '../ds/GameScene';
 import { ArrowRight, Check, Sparkles, Swords, Users } from 'lucide-react';
 import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
@@ -47,7 +48,7 @@ export function BonusTour({ app, bonus, busy, featured }: { app: LaunchApp & { t
       const state = bonusStateOf(bonus, mode), saved = bonus?.find(b => b.mode === mode), isNext = mode === next;
       return <li key={mode} className={'bonus-stop is-' + state + (isNext ? ' is-next' : '') + ' tone-' + mode}>
         <button type="button" disabled={busy || !!launching} aria-busy={launching === mode} onClick={() => open(mode)}>
-          <span className="bonus-art"><img src={'/art/classic-' + mode + '.webp'} alt="" width={574} height={248} loading="lazy" decoding="async"/>{state === 'done' && <span className="bonus-check"><Check size={14} strokeWidth={3}/></span>}</span>
+          <span className="bonus-art"><GameScene mode={mode as SceneMode} shape="wide"/>{state === 'done' && <span className="bonus-check"><Check size={14} strokeWidth={3}/></span>}</span>
           <span className="bonus-body"><GameIcon mode={mode} size="sm"/><span><strong>{t(mode)}</strong><small>{state === 'done' ? t('bonusScore').replace('{n}', String(saved?.score ?? 0)).replace('/10', '/' + (saved?.total ?? BONUS_ROUNDS)) : isNext ? t('tripUpNext') : t('bonusQuestions')}</small></span></span>
         </button>
       </li>;

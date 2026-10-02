@@ -11,7 +11,7 @@ Dit is een praktische controle van de broncode en de bestanden, geen juridisch a
   - cijfers: World Bank WDI (CC BY 4.0) en het CIA World Factbook-archief (publiek domein / CC0);
   - mysterieland-teksten: UNESCO (CC BY-SA 3.0 IGO; de bewerkingen staan onder dezelfde licentie).
 - **Bronvermelding:** staat bij elk getal en op de pagina "Data & credits". In 1.13.1 zijn UNESCO en het Factbook daar ook in het Engels en Nederlands toegevoegd.
-- **Vlaggen en iconen:** flag-icons (MIT) en Lucide (ISC). De licentiebestanden staan in `/licenses`.
+- **Vlaggen en iconen:** vlaggen van Wikipedia via svg-country-flags (publiek domein, sinds 1.22; daarvoor flag-icons, MIT) en Lucide (ISC). De licentiebestanden staan in `/licenses`.
 - **Lettertypen:** Nunito, Fredoka, Manrope, Outfit, DM Sans en Space Grotesk, allemaal SIL Open Font License. Ze worden zelf gehost en de licentiebestanden staan in `/fonts`.
 - **Beeld:** het logo, de mascotte en de spelillustraties zijn eigen, gegenereerd of zelf getekend werk. Er zijn geen beelden, schermafbeeldingen of iconen van andere sites gebruikt.
 - **Teksten en vragen:** alles is eigen werk. Er is geen vragenbank van een ander overgenomen.

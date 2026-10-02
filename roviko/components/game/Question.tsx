@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { Character } from '../ds/Character';
 import { ArrowUp, ArrowDown, Check, X, LockKeyhole, Flag, GripVertical, Navigation } from 'lucide-react';
 const BorderMap = lazy(() => import('./BorderMap'));
 const WorldMap = lazy(() => import('./WorldMap'));
@@ -22,7 +23,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
     // Every clue has a fixed slot from the start, so answers never move down while clues appear.
     const clueSlots = q?.clueCount ?? q?.clues?.length ?? 0;
     const openClues = feedback ? clueSlots : competitive ? liveClues : cluesShown;
-    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag)) : '';
+    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag) + '?v=2') : '';
     const [hintPending,setHintPending]=useState(false);
     useEffect(()=>{if(q?.dailyPoints)setCluesShown(q.cluesShown??1);},[q?.cluesShown,q?.id]);
     const [answer, setAnswer] = useState<any>(null);
@@ -97,6 +98,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         })}</div>}
         {locked && !feedback && <div className="locked-note" role="status"><LockKeyhole size={17}/>{t(busy ? 'answerSending' : 'answerLocked')}</div>}
         {feedback && <div id="answer-explanation" className={'answer-feedback ' + (feedback.correct ? 'good' : 'bad')} role="status">
+            <Character mood={feedback.correct ? 'cheer' : 'shock'} pose={feedback.correct ? 'cheer' : 'shrug'} size={78} className="feedback-character"/>
             <div className="feedback-heading">{feedback.correct ? <span aria-hidden="true">🎉</span> : <X size={22}/>}<strong>{t(feedback.correct ? 'correct' : 'incorrect')}</strong>{(competitive || q.dailyPoints) && <span>+{(feedback.points??0).toLocaleString(locale)} {t('points')}</span>}</div>
             {q.mode === 'order' ? <><p>{unanswered ? t('noAnswerInTime') : feedback.correct ? t('orderAllRight') : t('orderWrongCount').replace('{n}', String(misplaced))}</p><strong className="correction-label">{t('correctOrder')}</strong><ol className="correct-order">{correctOrder.map((id: string) => { const o = q.options.find((o: any) => o.id === id); return o ? <li key={id}>{countryLabel(o)}</li> : null; })}</ol></> : <>
                 {!feedback.correct && pickedLabel && <p className="your-answer-copy">{t('yourAnswer')}: <strong>{pickedLabel}</strong></p>}

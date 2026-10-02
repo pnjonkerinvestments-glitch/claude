@@ -17,11 +17,11 @@
   },
   {
     "id": "flags",
-    "name": "flag-icons 7.5.0",
-    "url": "https://github.com/lipis/flag-icons",
-    "license": "MIT",
+    "name": "svg-country-flags 1.2.10 (Wikipedia flags)",
+    "url": "https://github.com/hjnilsson/country-flags",
+    "license": "Public domain",
     "importedAt": "2026-09-08",
-    "attribution": "flag-icons © Panayiotis Lipiridis."
+    "attribution": "Flags from Wikipedia via svg-country-flags (Hampus Nilsson), public domain."
   },
   {
     "id": "factbook-archive",

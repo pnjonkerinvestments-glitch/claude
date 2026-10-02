@@ -30,6 +30,6 @@ await fs.writeFile(path.join(icon,'Contents.json'), JSON.stringify({ images:[{fi
 const resources = 'ios/Roviko/Resources';
 await fs.mkdir(resources,{recursive:true});
 for (const name of ['countries','silhouettes','boundaries']) await fs.copyFile('public/data/'+name+'.json',resources+'/'+name+'.json');
-for (const name of ['countries-ODbL','flags-MIT','factbook-CC0']) await fs.copyFile('public/licenses/'+name+'.txt',resources+'/'+name+'.txt');
+for (const name of ['countries-ODbL','flags-PD','factbook-CC0']) await fs.copyFile('public/licenses/'+name+'.txt',resources+'/'+name+'.txt');
 await fs.copyFile('DATA_SOURCES.md',resources+'/DATA_SOURCES.md');
 console.log('Prepared 195 licensed flags, four game covers, a 1024px icon and offline geography.');

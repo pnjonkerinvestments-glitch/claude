@@ -34,7 +34,7 @@ test("renders the playable branded homepage before hydration", async () => {
   assert.match(html, /Where shall we go today\?/);
   assert.equal((html.match(/<h1/g)||[]).length, 1);
   assert.match(html, /Start today(&#x27;|’|')s trip/);
-  assert.match(html, /class="mascot mascot-happy/);
+  assert.match(html, /class="character pose-wave mood-happy[^"]*hero-character/);
   assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 6);
   assert.match(html, /20 mixed questions/);
   assert.match(html, /class="hero-stat stat-streak/);

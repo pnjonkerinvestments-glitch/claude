@@ -8,6 +8,7 @@ import { duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/pu
 import { ResetCountdown } from '../atelier/ResetCountdown';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { DailyFinish } from '../atelier/DailyFinish';
+import { FinishStage } from '../ds/FinishStage';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 import { Mascot } from '../ds/Mascot';
 import { notifyProgress } from '../atelier/DailyQuests';
@@ -108,9 +109,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     </section>;
     return <section className="puzzle-game duel-game" aria-labelledby="duel-title">{header}
       <div className="duel-finished">
-        <Mascot mood={wins === total ? 'cheer' : wins >= 4 ? 'happy' : 'wink'} size={110} className="result-mascot"/>
-        <h1 id="duel-title">{headline}</h1>
-        <div className="duel-trail" aria-hidden="true">{results.map((ok, i) => <span key={i} className={ok ? 'won' : 'lost'}>{ok ? '✓' : '✕'}</span>)}</div>
+        <FinishStage game={t('duel')} headline={headline} mood={wins === total ? 'cheer' : wins >= 4 ? 'happy' : 'wink'} locale={locale} score={wins} max={total} unit={t('duelWonShort')} trail={results} titleId="duel-title"/>
         {overview}
         <div className="duel-actions">
           <button className="btn secondary" onClick={share}><Share2 size={18}/>{t(copied ? 'copied' : 'share')}</button>

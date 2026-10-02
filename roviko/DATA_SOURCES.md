@@ -7,7 +7,7 @@ Import date: **2026-09-08**. The build uses pinned package versions and ships so
 | 195-country catalog: ISO codes, names, Dutch names, capitals, area, region/subregion, coordinates, currencies, languages and land neighbours | [mledoze/countries](https://github.com/mledoze/countries), npm `world-countries` **5.1.0** | ODbL 1.0 | Mohammed Le Doze and contributors. Attribution at `/sources`; derived catalog downloadable at `/data/countries.json`; full licence at `/licenses/countries-ODbL.txt`. The derived geographic database is made available under ODbL 1.0. |
 | Per-country GeoJSON geometries | Same `world-countries` 5.1.0 package, `data/*.geo.json` | Package data licence, ODbL 1.0 | Retained as local downloadable data in `/shapes/`. Included in the derived geographic database obligations; not relabelled as proprietary. |
 | Simplified global map | Natural Earth through [world-atlas](https://github.com/topojson/world-atlas) **2.0.2**, `countries-110m.json` | Natural Earth data: public domain; world-atlas software: ISC | [Natural Earth terms](https://www.naturalearthdata.com/about/terms-of-use/). Made with Natural Earth. Michael Bostock ISC notice shipped under `/licenses/`. Converted deterministically to SVG paths by our own importer. |
-| Country flag SVGs | [flag-icons](https://github.com/lipis/flag-icons) **7.5.0** | MIT | © Panayiotis Lipiridis. MIT notice shipped and linked. These specific vector assets use that licence; no blanket claim that every national emblem is unrestricted in every jurisdiction. |
+| Country flag SVGs (since 1.22) | Wikipedia renders via [svg-country-flags](https://github.com/hjnilsson/country-flags) **1.2.10** | Public domain | Real proportions (Nepal, Switzerland, Qatar…). Optimised with svgo; eleven flags with detailed coats of arms served as a 960 px WebP inside an SVG with the same viewBox (`scripts/import-flags.mjs`). Notice in `/licenses/flags-PD.txt`; no blanket claim that every national emblem is unrestricted in every jurisdiction. Until 1.21 the flags came from flag-icons 7.5.0 (MIT, 4:3). |
 | Interface icons | [Lucide](https://lucide.dev/), version in lockfile | ISC | Lucide contributors; licence included in `/licenses/lucide-ISC.txt`. |
 | Fonts (since 1.14 only Fredoka and Manrope) | `@fontsource-variable/fredoka` 5.x, `@fontsource-variable/manrope` **5.3.0** | SIL Open Font License 1.1 | Self-hosted WOFF2 files; licences in `public/fonts/*-LICENSE`. No runtime font tracking requests. DM Sans, Space Grotesk, Nunito and Outfit were removed in 1.14. |
 | Brand mark | Original SVG written for this project | Project original | `public/favicon.svg`; no existing logo was used as a reference. |
@@ -136,7 +136,7 @@ The 1.17 layout follows eight design mockups the owner generated with ChatGPT fo
 - the continent scenes, banners and pick backgrounds (`scene-*`, `banner-*`, `pick-*`);
 - the classic game scenes (`classic-*`);
 - the scoring landscapes (`fact-*`);
-- `scoring-hero`, `howto-hero`, `quests-scene`, `journey-scene`, `passport-stamps`, `friends-hero` and `lobby-create`.
+- `scoring-hero`, `howto-hero`, `passport-stamps` and `friends-hero` (`quests-scene`, `journey-scene` and `lobby-create` were removed in 1.22: Roviko with arms and legs and the vector scenes took their place).
 
 They are decorative only. The flags drawn inside some scenes are illustration, not quiz data.
 

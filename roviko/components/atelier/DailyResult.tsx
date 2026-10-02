@@ -6,6 +6,7 @@ import type { PointMode } from '@/lib/daily-scoring';
 import { nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CountUp } from '../ds/Celebration';
+import { FinishStage, type FinishStageProps } from '../ds/FinishStage';
 import { ResetCountdown } from './ResetCountdown';
 import { dailyTitleKey } from './DailyLoop';
 import { nextBonusMode, type BonusMode } from '@/lib/bonus';
@@ -23,7 +24,7 @@ const writeFlag = () => { try { localStorage.setItem(SAVE_KEY, 'done'); } catch 
  * today, and one button on to the next game. Replaces the long score panel and the "games left" overview.
  */
 export type ResultSummary = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' }[];
-export function DailyResult({ app, date, mode, summary, trail }: { app: ResultApp; date: string; mode: PointMode; summary?: ResultSummary; trail?: boolean[] }) {
+export function DailyResult({ app, date, mode, summary, trail, stage }: { app: ResultApp; date: string; mode: PointMode; summary?: ResultSummary; trail?: boolean[]; stage?: Omit<FinishStageProps, 'score' | 'max' | 'locale' | 'unit'> }) {
   const { t, locale, boot, fail } = app;
   const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
   const bonusLaunch = useBonusLaunch({ go: app.go, fail });
@@ -44,13 +45,14 @@ export function DailyResult({ app, date, mode, summary, trail }: { app: ResultAp
   const [askSave, setAskSave] = useState(false);
   useEffect(() => { if (mode === 'daily' && boot.user?.guest && !readFlag()) setAskSave(true); }, [mode, boot.user?.guest]);
   const closeSave = () => { writeFlag(); setAskSave(false); };
-  return <section className="daily-result" aria-label={t('competitionScoreSaved')}>
-    <div className="daily-result-score">
+  const card = <section className={'daily-result' + (stage ? ' has-stage' : '')} aria-label={t('competitionScoreSaved')}>
+    {!stage && <><div className="daily-result-score">
       <strong>{game ? <CountUp value={score} format={fmt}/> : '…'}<small> / {fmt(1000)}</small></strong>
       <span>{t('points')}{isBest && <b className="daily-result-best"><Star size={13} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</b>}</span>
     </div>
     {summary && summary.length > 0 && <ul className="daily-result-summary">{summary.map(item => <li key={item.label}>{item.icon === 'flame' ? <Flame size={16} aria-hidden="true"/> : item.icon === 'clock' ? <Clock size={16} aria-hidden="true"/> : <Check size={16} strokeWidth={3} aria-hidden="true"/>}<b>{item.value}</b><span>{item.label}</span></li>)}</ul>}
-    {trail && trail.length > 0 && <ol className="daily-result-trail" aria-label={summary?.[0]?.label}>{trail.map((ok, i) => <li key={i} className={ok ? 'is-right' : 'is-wrong'} aria-label={String(i + 1)}>{ok ? <Check size={13} strokeWidth={3}/> : <X size={13} strokeWidth={3}/>}</li>)}</ol>}
+    {trail && trail.length > 0 && <ol className="daily-result-trail" aria-label={summary?.[0]?.label}>{trail.map((ok, i) => <li key={i} className={ok ? 'is-right' : 'is-wrong'} aria-label={String(i + 1)}>{ok ? <Check size={13} strokeWidth={3}/> : <X size={13} strokeWidth={3}/>}</li>)}</ol>}</>}
+    {stage && isBest && <p className="daily-result-best is-banner"><Star size={15} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</p>}
     <div className="daily-result-compare">
       <p><Users size={17} aria-hidden="true"/>{!game ? t('loading') : players <= 1 ? t('resultFirstPlayer') : t('competitionRank').replace('{rank}', fmt(place)).replace('{count}', fmt(players))}</p>
       {beaten !== null && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}
@@ -66,4 +68,9 @@ export function DailyResult({ app, date, mode, summary, trail }: { app: ResultAp
         ? <div className="daily-result-bonus"><p>{t('bonusAfterDaily')}</p><button className="btn primary btn-lg daily-result-next" disabled={!!bonusLaunch.launching || app.busy} onClick={() => bonusLaunch.open(bonusNext)}>{bonusLaunch.launching ? t('loading') : t('bonusCta').replace('{game}', t(bonusNext))}<ArrowRight size={19} aria-hidden="true"/></button></div>
         : <p className="daily-result-done">{t('loopAllDone')} <ResetCountdown label={t('heroResetIn')} t={t}/></p>}
   </section>;
+  if (!stage) return card;
+  return <>
+    <FinishStage {...stage} score={game ? score : null} max={1000} unit={t('points')} locale={locale} chips={stage.chips ?? summary?.map(s => ({ ...s }))} trail={stage.trail ?? trail}/>
+    {card}
+  </>;
 }

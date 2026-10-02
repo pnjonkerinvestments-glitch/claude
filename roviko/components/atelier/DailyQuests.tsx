@@ -1,5 +1,6 @@
 'use client';
 import { useSyncExternalStore } from 'react';
+import { Character } from '../ds/Character';
 import { Check, ChevronRight, Crown, Flame, Gift, Target } from 'lucide-react';
 import { GameIcon } from './GameIcon';
 import { addCrown, allQuestsDone, questsFor, type Quest } from '@/lib/daily-quests';
@@ -42,7 +43,7 @@ export function DailyQuests({ date, sessions, t, compact = false, art = false, o
       <span className="quests-badge" aria-hidden="true">{done ? <Crown size={24} strokeWidth={2.2}/> : <Target size={24} strokeWidth={2.2}/>}</span>
       <div><h2 id={titleId}>{t('questsTitle')}</h2><p>{compact ? t('questsLead') : t('questsIntro')}</p></div>
       {crowns > 0 && <span className="quests-crowns" aria-label={t('questCrowns').replace('{n}', String(crowns))}><Crown size={15} strokeWidth={2.4} aria-hidden="true"/>{crowns}</span>}
-      {art && <img className="card-corner-art" src="/art/quests-scene.webp" alt="" aria-hidden="true" width={260} height={202} loading="lazy" decoding="async"/>}
+      {art && <Character mood="cheer" pose="cheer" size={118} className="card-corner-art card-corner-character"/>}
     </header>
     <ul className="quest-list">{quests.map(q => {
       const body = <>

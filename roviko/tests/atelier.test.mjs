@@ -23,9 +23,10 @@ test('back navigation keeps the original game entry and scroll through a follow-
 test('translations remain complete and daily covers have decorative responsive local images',()=>{
   assert.deepEqual(Object.keys(messages.en).sort(),Object.keys(messages.nl).sort());
   for(const mode of ['daily','compare','mosaic','rank']){
-    const html=renderToStaticMarkup(React.createElement(GameCover,{mode}));assert.match(html,/alt=""/);assert.match(html,/width="960" height="640"/);assert.match(html,/srcSet="[^"]+480w, [^"]+960w, [^"]+1440w"/);
-    const paths=[...html.matchAll(/\/art\/[a-z-]+-(?:480|960)\.webp/g)].map(m=>m[0]);assert.ok(paths.length>=2);
-    for(const path of paths)assert.ok(fs.statSync('public'+path).size<40000);
+    // Since 1.22 the covers are decorative vector scenes: sharp at any size, hidden from screen readers, local assets only.
+    const html=renderToStaticMarkup(React.createElement(GameCover,{mode}));assert.match(html,/^<svg class="game-scene scene-/);assert.match(html,/aria-hidden="true"/);assert.match(html,/viewBox="0 0 320 240"/);
+    for(const [,href] of html.matchAll(/href="([^"]+)"/g)){assert.match(href,/^\/(flags\/[a-z]{2}\.svg|mascot-body\.svg)$/);assert.ok(fs.statSync('public'+href).size<160000);}
+    assert.ok(html.length<20000,'a cover stays light');
     for(const key of ['cardVerb'+mode,'soloPace'])assert.ok(messages.en[key] && messages.nl[key]);
   }
 });

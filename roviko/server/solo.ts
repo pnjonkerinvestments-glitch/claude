@@ -33,7 +33,7 @@ export function soloView(stored: Solo) {
     // Only for plain flag questions: in Clue Trail the flag is the last hidden clue and stays private until earned.
     const upcoming = s.phase === 'reveal' ? s.questions[s.round + 1] : undefined;
     const preloadFlag = upcoming?.flag && upcoming.mode === 'flags'
-      ? (s.competition || /^[a-z]+:[0-9a-f-]{36}$/.test(upcoming.id) ? '/api/game-asset/' + s.id + '/' + (s.round + 1) : '/api/flag/' + encodeURIComponent(String(publicQuestion(upcoming).flag)))
+      ? (s.competition || /^[a-z]+:[0-9a-f-]{36}$/.test(upcoming.id) ? '/api/game-asset/' + s.id + '/' + (s.round + 1) : '/api/flag/' + encodeURIComponent(String(publicQuestion(upcoming).flag)) + '?v=2')
       : undefined;
     return { id: s.id, preloadFlag, practice: !!s.practice, settings: s.settings, phase: s.phase, round: s.round, total: s.questions.length, startAt: s.startAt, deadline: null, competition:s.competition, score:s.score, streak: s.streak, bestStreak: s.bestStreak, question, feedback: s.phase === 'reveal' ? s.answers[s.round] : null, answers: s.phase === 'finished' ? s.answers : undefined, xp: 0, daily: s.daily, bonus: s.bonus, survival: s.survival, out: s.out, serverTime: Date.now(), learning: true, datasetVersion: s.datasetVersion };
 }

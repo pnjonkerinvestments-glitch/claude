@@ -6,11 +6,11 @@ import { RANK_TABLES, type RankCategory } from './rank';
 import type { Localized } from './topics';
 
 /**
- * Rank Radar since 1.21 (inspired by GeoRankle, with three changes):
+ * Rank Radar since 1.22 (played like GeoRankle):
  * - eight countries and eight subjects a day, every subject used exactly once;
- * - all eight countries are shown up front, so you can plan which subject to keep for whom;
- * - after each pick you see that country's place in all eight subjects, and at the end the best
- *   possible total for the day, so you know how close to perfect you came.
+ * - the countries arrive one by one: you never know which country comes next;
+ * - after each pick you only see the world place (#) of the subject you chose for that country;
+ *   the full radar, the best subject per country and the best possible total open after the last pick.
  * A pick is worth up to 125 points: full points for the country's strongest subject of the eight,
  * fewer the lower the chosen subject sits on the world list compared with that strongest one.
  */
@@ -21,10 +21,19 @@ export type RankStat = { rank: number; coverage: number; position: number; value
 export type RankBoardCategory = Pick<RankCategory, 'id' | 'emoji' | 'label' | 'explanation' | 'unit'>;
 export type RankBoardRound = { id: string; country: { id: string; name: Localized; flag: string }; stats: Record<string, RankStat> };
 export type RankBoard = { v: 2; categories: RankBoardCategory[]; rounds: RankBoardRound[]; optimal: number };
-/** What the browser may see: every country up front, a country's places only once it has been played. */
-export type PublicRankBoard = { v: 2; categories: RankBoardCategory[]; rounds: (Pick<RankBoardRound, 'id' | 'country'> & { stats?: Record<string, RankStat>; best?: string[] })[]; optimal?: number };
-export function publicBoard(board: RankBoard, played: number, finished: boolean): PublicRankBoard {
-  return { v: 2, categories: board.categories, rounds: board.rounds.map((r, i) => i < played ? { ...r, best: bestCategories(r) } : { id: r.id, country: r.country }), ...(finished ? { optimal: board.optimal } : {}) };
+/**
+ * What the browser may see: played countries and the current one (later ones only as an anonymous id),
+ * and for a played country only the place of the subject that was chosen. Everything opens at the end.
+ */
+export type PublicRankRound = { id: string; country?: RankBoardRound['country']; stats?: Record<string, RankStat>; best?: string[] };
+export type PublicRankBoard = { v: 2; categories: RankBoardCategory[]; rounds: PublicRankRound[]; optimal?: number };
+export function publicBoard(board: RankBoard, picks: (string | undefined)[], round: number, finished: boolean): PublicRankBoard {
+  return { v: 2, categories: board.categories, rounds: board.rounds.map((r, i) => {
+    if (finished) return { ...r, best: bestCategories(r) };
+    if (i > round) return { id: r.id };
+    const pick = picks[i];
+    return pick && r.stats[pick] ? { id: r.id, country: r.country, stats: { [pick]: r.stats[pick] } } : { id: r.id, country: r.country };
+  }), ...(finished ? { optimal: board.optimal } : {}) };
 }
 
 /** Points for choosing `categoryId` for this round's country. */

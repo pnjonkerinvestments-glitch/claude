@@ -1,6 +1,6 @@
 'use client';
-import { ArrowRight, Flame, RefreshCw, Share2, Sprout, Sparkles, Sun, Target } from 'lucide-react';
-import { Mascot } from '../ds/Mascot';
+import { ArrowRight, RefreshCw, Share2, Sprout, Sparkles } from 'lucide-react';
+import { FinishStage } from '../ds/FinishStage';
 import { GameIcon } from '../atelier/GameIcon';
 
 export function SoloResults({ result, t, locale, onAgain, onShare, onHome, followUp, dailyStreak }: any) {
@@ -10,16 +10,15 @@ export function SoloResults({ result, t, locale, onAgain, onShare, onHome, follo
     const perfect = correct === answers.length;
     const daily = !!result.competition, survival = !!result.survival;
     return <div className={'results-page learning-results' + (daily ? ' is-daily' : '')}>
-        <Mascot mood={perfect ? 'cheer' : correct / Math.max(1, answers.length) >= .5 ? 'happy' : 'wink'} size={132} className="result-mascot"/>
-        <span className="eyebrow">{t(result.competition?.mode === 'trail' ? 'dailyTrail' : result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed')}</span>
-        <h1>{t(survival ? (result.out ? 'finishOut' : 'finishPerfect') : perfect ? 'learningPerfectTitle' : 'learningResultTitle')}</h1>
-        {!daily && !survival && <p className="results-subtitle">{t('learningResultCopy')}</p>}
-        <div className="learning-total">{survival ? <><strong>{correct}</strong><p>{t('survivalInARow')}</p></> : <><strong>{correct}<span> / {answers.length}</span></strong><p>{t('correctAnswers')}</p></>}</div>
-        <div className="answer-trail" aria-label={`${correct} / ${answers.length} ${t('correctAnswers')}`}>
-            {answers.map((a: any, i: number) => <span key={i} className={a.correct ? 'found' : 'discovered'} title={`${i + 1}: ${t(a.correct ? 'correct' : 'incorrect')}`} aria-hidden="true">{a.correct ? '✓' : '✕'}</span>)}
-        </div>
-
-        {!daily && !survival && <div className="learning-highlights"><span><Target size={17} aria-hidden="true"/><b>{answers.length ? Math.round(correct / answers.length * 100) : 0}%</b> {t('accuracy')}</span><span><Flame size={17} aria-hidden="true"/><b>{result.bestStreak ?? 0}</b> {t('bestStreak')}</span>{result.daily && <span><Sun size={17} aria-hidden="true"/><b>{dailyStreak}</b> {t('days')}</span>}</div>}
+        <FinishStage game={t(result.competition?.mode === 'trail' ? 'dailyTrail' : result.daily ? 'dailyTitle' : survival ? (result.settings?.mode === 'shape' ? 'shape' : result.settings?.mode ?? 'mixed') : result.settings?.mode ?? 'mixed')}
+            headline={t(survival ? (result.out ? 'finishOut' : 'finishPerfect') : perfect ? 'learningPerfectTitle' : 'learningResultTitle')}
+            mood={survival && result.out ? (correct >= 10 ? 'wink' : 'worried') : perfect ? 'cheer' : correct / Math.max(1, answers.length) >= .5 ? 'happy' : 'wink'}
+            tone={survival ? (result.out ? (correct >= 15 ? 'forest' : 'out') : 'gold') : undefined}
+            score={correct} max={survival ? undefined : answers.length} unit={t(survival ? 'survivalInARow' : 'correctAnswers')} locale={locale}
+            chips={!daily && !survival ? [{ icon: 'target', value: (answers.length ? Math.round(correct / answers.length * 100) : 0) + '%', label: t('accuracy') }, { icon: 'flame', value: String(result.bestStreak ?? 0), label: t('bestStreak') }, ...(result.daily ? [{ icon: 'clock' as const, value: String(dailyStreak), label: t('days') }] : [])] : undefined}
+            trail={answers.map((a: any) => !!a.correct)}>
+            {!daily && !survival && <p className="fs-sub">{t('learningResultCopy')}</p>}
+        </FinishStage>
         {result.practice && <p className="muted">{t('practiceSaved')}</p>}
         {followUp}
         <div className="results-actions"><button className="btn secondary" onClick={onHome}>{t('finishForNow')}</button><button className="btn ghost" onClick={onShare}><Share2 size={17}/>{t('share')}</button>{!daily && !survival && <button className="btn ghost" onClick={onAgain}><RefreshCw size={18}/>{t('playAgain')}</button>}</div>

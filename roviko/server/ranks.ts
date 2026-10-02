@@ -11,7 +11,7 @@ import { bestCategories, generateRankBoard, publicBoard, rankPoints } from '../l
 import type { Env, User } from './types';
 
 function view(s: RankState, version = 0): RankView {
-  if(s.board){const {questions,startedAt,turnAt,board,...rest}=s;return {...rest,...(s.competition?{score:dailyScore(s)}:{}),version,total:board.rounds.length,learning:true,question:null,board:publicBoard(board,s.answers.length,s.phase==='finished')};}
+  if(s.board){const {questions,startedAt,turnAt,board,...rest}=s;return {...rest,...(s.competition?{score:dailyScore(s)}:{}),version,total:board.rounds.length,learning:true,question:null,board:publicBoard(board,s.answers.map(a=>typeof a.value==='string'?a.value:undefined),s.round,s.phase==='finished')};}
   const {questions,startedAt,turnAt,board,...rest}=s;
   // This untimed learning game reveals only the current solution for instant feedback.
   const question = s.phase === 'finished' ? null : s.competition && s.phase === 'question' ? {...questions[s.round],correct:undefined,options:questions[s.round].options.map(({id,emoji,label,explanation,unit})=>({id,emoji,label,explanation,unit}))} : questions[s.round];

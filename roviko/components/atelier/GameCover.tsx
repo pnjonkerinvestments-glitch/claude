@@ -1,11 +1,7 @@
 import React from 'react';
+import { GameScene } from '../ds/GameScene';
 
-const covers = { daily: 'world-trip', compare: 'side-by-side', mosaic: 'country-mosaic', rank: 'rank-radar', trail:'clue-trail', duel: 'duel' } as const;
-/** The duel artwork was made at 720 px wide; the others at 960. */
-const large = (name: string) => name === 'duel' ? '720' : '960';
-
-/** Original decorative artwork, separate from factual quiz flags and shapes. */
-export function GameCover({ mode }: { mode: keyof typeof covers }) {
-  const name = covers[mode];
-  return <img className="game-cover-image" src={'/art/' + name + '-480.webp'} srcSet={'/art/' + name + '-480.webp 480w, /art/' + name + '-960.webp 960w, /art/' + name + '-1440.webp 1440w'} sizes="(max-width: 760px) 92vw, 560px" width="960" height="640" alt="" decoding="async"/>;
+/** Original decorative artwork, separate from factual quiz flags and shapes (a vector scene since 1.22). */
+export function GameCover({ mode }: { mode: 'daily' | 'compare' | 'mosaic' | 'rank' | 'trail' | 'duel' }) {
+  return <GameScene mode={mode} className="game-cover-image"/>;
 }

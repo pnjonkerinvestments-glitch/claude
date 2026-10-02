@@ -71,6 +71,10 @@ test('Rank Radar board: eight countries, eight full-coverage subjects, determini
   assert.equal(b.rounds.length,8);assert.equal(b.categories.length,8);assert.equal(new Set(b.rounds.map(r=>r.country.id)).size,8);
   for(const r of b.rounds){assert.deepEqual(Object.keys(r.stats).sort(),b.categories.map(c=>c.id).sort());const best=bestCategories(r);assert.ok(best.length>=1);assert.ok(r.stats[best[0]].rank<=30);for(const id of best)assert.equal(rankPoints(r,id),125);for(const c of b.categories)assert.ok(rankPoints(r,c.id)>=0&&rankPoints(r,c.id)<=125);}
   assert.equal(b.optimal,optimalTotal(b));assert.ok(b.optimal>0&&b.optimal<=1000);
-  const hidden=publicBoard(b,2,false);assert.ok(hidden.rounds[1].stats&&!hidden.rounds[2].stats);assert.equal(hidden.optimal,undefined);assert.equal(publicBoard(b,8,true).optimal,b.optimal);
+  // Played like GeoRankle: after two picks the third country is shown, later ones are anonymous, and only chosen places are visible.
+  const picks=[b.categories[0].id,b.categories[1].id],hidden=publicBoard(b,picks,2,false);
+  assert.deepEqual(Object.keys(hidden.rounds[1].stats),[picks[1]]);assert.ok(!hidden.rounds[1].best);assert.ok(hidden.rounds[2].country&&!hidden.rounds[2].stats);
+  assert.ok(hidden.rounds.slice(3).every(r=>!r.country&&!r.stats&&r.id));assert.equal(hidden.optimal,undefined);
+  const done=publicBoard(b,b.categories.map(c=>c.id),7,true);assert.equal(done.optimal,b.optimal);assert.ok(done.rounds.every(r=>r.country&&Object.keys(r.stats).length===8&&r.best.length));
  }
 });
