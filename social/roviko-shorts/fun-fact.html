@@ -65,7 +65,7 @@ const QC = { x: 140, y: 392, w: 800, h: 196 };
 const qCard = el(quiz, { left: QC.x, top: QC.y, width: QC.w, height: QC.h, borderRadius: 34, background: C.forest, transformOrigin: '50% 50%',
   boxShadow: '0 4px 10px rgba(22,59,50,.1), 0 26px 60px rgba(22,59,50,.22)' });
 el(qCard, { left: 0, top: 0, width: QC.w, height: QC.h, display: 'grid', placeItems: 'center' },
-  `<div style="font-family:Fredoka;font-weight:600;font-size:${F.q[0].length > 30 ? 46 : 52}px;line-height:1.22;color:#fff;text-align:center;white-space:pre">${F.q.join('\n')}</div>`);
+  `<div style="font-family:Fredoka;font-weight:600;font-size:${Math.max(...F.q.map(l => l.replace(/<[^>]+>/g, '').length)) > 28 ? 46 : 52}px;line-height:1.22;color:#fff;text-align:center;white-space:pre">${F.q.join('\n')}</div>`);
 qCard.querySelectorAll('b').forEach(e => S(e, { color: C.gold, fontWeight: 600 }));
 
 const OP = { x: 140, y: 624, w: 800, h: 112, gap: 20 };
@@ -111,7 +111,7 @@ const endCard = EndCard(stage, { my: 690, tagline: 'Sounds fake. Play it daily.'
 const CARD = { x: 140, y: 430, w: 800, h: 640 };
 const SEA = '#CDE8F6', LAND = '#E2EFE8', SAND = '#F8DFA6';
 // a map window in the card: laea around (lon, lat), fitted to `fit` (ISO3 ids) or a given radius R
-function MapCard({ lon, lat, fit = null, pad = 0.16, R = null, shift = [0, 0], hi = {}, extra = [] }) {
+function MapCard({ lon, lat, fit = null, pad = 0.16, R = null, shift = [0, 0], hi = {}, extra = [], eq = null }) {
   const P = laea(lon, lat), cx = CARD.x + CARD.w / 2, cy = CARD.y + CARD.h / 2;
   let ox = 0, oy = 0;
   if (fit) {
@@ -120,14 +120,18 @@ function MapCard({ lon, lat, fit = null, pad = 0.16, R = null, shift = [0, 0], h
     R = Math.min(CARD.w * (1 - pad) / (bb[2] - bb[0]), CARD.h * (1 - pad) / (bb[3] - bb[1]));
     ox = -(bb[0] + bb[2]) / 2; oy = -(bb[1] + bb[3]) / 2;
   }
-  const scr = (lo, la) => { const [x, y, c] = P(lo, la); return [cx + R * (x + ox) + shift[0], cy + R * (y + oy) + shift[1], c]; };
+  // eq: {k} = a flat (equirectangular) world map, k px per degree, for views that span the whole globe
+  const scr = eq ? (lo, la) => [cx + (lo - lon) * eq.k + shift[0], cy - (la - lat) * eq.k + shift[1], 1]
+    : (lo, la) => { const [x, y, c] = P(lo, la); return [cx + R * (x + ox) + shift[0], cy + R * (y + oy) + shift[1], c]; };
   const ringD = r => {
     const pts = r.map(([lo, la]) => scr(lo, la));
     if (pts.every(p => p[2] < 0.05)) return '';
     const bb = bboxOf(pts);
     if (bb[2] < CARD.x - 400 || bb[0] > CARD.x + CARD.w + 400 || bb[3] < CARD.y - 400 || bb[1] > CARD.y + CARD.h + 400) return '';
     let d = '', last = null;
-    pts.forEach((p, i) => { if (last && i < pts.length - 1 && Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.2) return; d += (d ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); last = p; });
+    pts.forEach((p, i) => { if (last && i < pts.length - 1 && Math.hypot(p[0] - last[0], p[1] - last[1]) < 1.2) return;
+      const jump = eq && last && Math.abs(p[0] - last[0]) > 180 * eq.k;   // the antimeridian on a flat map: start a new piece
+      d += (d && !jump ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1); last = p; });
     return d + 'Z';
   };
   const dOf = id => GEO[id].map(poly => poly.map(ringD).join('')).join('');
@@ -391,6 +395,214 @@ const SCENES = {
       S(plane, { left: x - 45 + 12, top: y - 45 + 12, transform: `rotate(${lerp(-90, -270, turn)}deg)` }); show(plane, u > 0 && back < 1);
       const xq = spB(t, TL.bonus + 1.6, 3, 0.45); S(noX, { transform: `scale(${xq}) rotate(${(1 - clamp(xq)) * 30}deg)` }); show(noX, xq > 0.001);
       lAir.pop(t, TL.bonus + 2.3);
+    };
+  },
+  // 6. Sweden has 267,570 islands (Statistics Sweden, 2013 count), more than any other country; bonus: only 984 are inhabited
+  islands() {
+    const m = MapCard({ lon: 16, lat: 62, fit: ['SWE'], pad: 0.08, shift: [40, 10], hi: { SWE: SAND } });
+    const sweD = m.paths.SWE.getAttribute('d');
+    const r = rng(5), verts = [];
+    geoCentre('SWE').near.forEach(poly => poly.forEach(ring => ring.forEach(([lo, la]) => verts.push(m.scr(lo, la)))));
+    const dots = [];
+    for (let k = 0; dots.length < 190 && k < 8000; k++) {
+      const v = verts[Math.floor(r() * verts.length)], x = v[0] + (r() - 0.5) * 34, y = v[1] + (r() - 0.5) * 34;
+      if (m.inside(sweD, x, y)) continue;
+      const s = 4 + r() * 6, keep = dots.length % 40 === 0;
+      const e = el(m.layer, { left: x - s / 2, top: y - s / 2, width: s, height: s * 0.8, borderRadius: '50%', background: C.gold, boxShadow: '0 0 0 1.5px #7A4A00', zIndex: 3, transformOrigin: '50% 50%' });
+      dots.push({ e, keep, b: TL.explain + 1.0 + r() * 2.3 });
+    }
+    const counter = el(m.over, { left: 170, top: 462, height: 74, borderRadius: 37, background: C.forest, color: C.white, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 40, lineHeight: '74px', whiteSpace: 'pre', padding: '0 30px', zIndex: 8, transformOrigin: '50% 50%' }, '');
+    const lIdn = Label(m.over, 'Indonesia: about 17,000', { flag: 'id', size: 30, h: 60 }).at(540, 1024);
+    const sth = m.scr(18.6, 59.4);
+    const ring = el(m.layer, { left: sth[0] - 46, top: sth[1] - 46, width: 92, height: 92, borderRadius: 46, border: `6px solid ${C.green}`, zIndex: 5, transformOrigin: '50% 50%' });
+    const lLive = Label(m.over, 'Lived on: 984. The rest: just rocks and trees', { size: 26, h: 56, bg: C.forest, fg: C.white }).at(540, 1024);
+    for (let i = 0; i < 9; i++) ev(TL.explain + 1.1 + i * 0.25, 'pop', -14, { rate: 1.0 + i * 0.05 });
+    ev(TL.explain + 1.0, 'tick', -10); ev(TL.explain + 3.4, 'correct', -7); ev(TL.explain + 4.5, 'pop', -10);
+    ev(TL.bonus + 0.5, 'collapse', -9); ev(TL.bonus + 1.2, 'pin', -7); ev(TL.bonus + 2.0, 'pop', -9);
+    return (t, b) => {
+      cardIn(m, t);
+      const grey = segB(t, TL.bonus + 0.4, TL.bonus + 1.0, E.inOutCubic);
+      dots.forEach(d => { const q = spB(t, d.b, 3, 0.5) * (d.keep ? 1 + 0.6 * spB(t, TL.bonus + 1.0, 2.6, 0.5) : 1 - 0.35 * grey);
+        S(d.e, { transform: `scale(${q})`, background: d.keep ? C.gold : mixc(C.gold, '#AEBDB6', grey) }); show(d.e, q > 0.001); });
+      const cp = spB(t, TL.explain + 1.0, 2.6, 0.55) * (1 - E.inBack(segB(t, TL.end - 0.4, TL.end - 0.05, E.lin)));
+      const n = Math.round(267570 * E.outCubic(segB(t, TL.explain + 1.0, TL.explain + 3.4, E.lin)) / 10) * 10;
+      counter.textContent = `${(segB(t, TL.explain + 3.3, TL.explain + 3.4, E.lin) >= 1 ? 267570 : n).toLocaleString('en-US')} islands`;
+      S(counter, { transform: `scale(${cp})` }); show(counter, cp > 0.001);
+      lIdn.pop(t, TL.explain + 4.4, TL.bonus - 0.2);
+      const rq = spB(t, TL.bonus + 1.1, 2.6, 0.5); S(ring, { transform: `scale(${rq * (1 + 0.06 * Math.sin(t * 7))})` }); show(ring, rq > 0.001);
+      lLive.pop(t, TL.bonus + 1.9);
+    };
+  },
+
+  // 7. France has 12 time zones (its overseas regions), the most of any country; Russia and the USA have 11; bonus: China uses 1
+  timezones() {
+    const m = MapCard({ lon: -5, lat: 8, eq: { k: 2.2 }, hi: { CHN: LAND } });
+    const ZONES = [[-176.2, -13.3], [-149.4, -17.6], [-140.1, -9.0], [-134.9, -23.1], [-109.2, 10.3], [-61.6, 16.2], [-53.1, 3.9],
+      [2.35, 48.85], [45.2, -12.8], [55.5, -21.1], [69.4, -49.3], [165.6, -21.3]];   // UTC+12 −10 −9:30 −9 −8 −4 −3 +1 +3 +4 +5 +11
+    const pins = ZONES.map(([lo, la], i) => { const [x, y] = m.scr(lo, la);
+      const e = el(m.layer, { left: x - 13, top: y - 13, width: 26, height: 26, borderRadius: 13, background: C.gold, border: `4px solid ${C.forest}`, zIndex: 6, transformOrigin: '50% 50%' });
+      return { e, b: TL.explain + 1.0 + i * 0.24 }; });
+    const counter = el(m.over, { left: 0, top: 462, height: 74, borderRadius: 37, background: C.forest, color: C.white, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 40, lineHeight: '74px', whiteSpace: 'pre', padding: '0 30px', zIndex: 8, transformOrigin: '50% 50%' }, '');
+    LAYOUT.push(() => { counter.textContent = '12 time zones'; const w = counter.getBoundingClientRect().width; S(counter, { left: 540 - w / 2 + 12 }); });
+    const lFra = Label(m.over, 'France', { flag: 'fr', size: 32, h: 62 }).at(...(([x, y]) => [x - 40, y - 60])(m.scr(2.35, 48.85)));
+    const lRus = Label(m.over, 'Russia and the USA: 11 each', { size: 30, h: 60 }).at(540, 1024);
+    const cn = m.scr(116.4, 39.9);
+    const fl = flood(m.defs, 'cnFlood', cn[0], cn[1], 160);
+    svgEl(m.svg, 'path', { d: m.dOf('CHN'), fill: C.red, stroke: '#fff', 'stroke-width': 1.6, 'clip-path': 'url(#cnFlood)' });
+    const lChn = Label(m.over, 'China: 1 time zone for all of it', { flag: 'cn', size: 30, h: 62, bg: C.forest, fg: C.white }).at(540, 1024);
+    const lCn = Label(m.over, 'China', { flag: 'cn', size: 30, h: 58 }).at(cn[0] - 20, cn[1] + 90);
+    ZONES.forEach((z, i) => ev(TL.explain + 1.0 + i * 0.24, 'pop', -12, { rate: 0.9 + i * 0.04 }));
+    ev(TL.explain + 3.9, 'correct', -7); ev(TL.explain + 4.5, 'pop', -10); ev(TL.explain + 1.0, 'pin', -8);
+    ev(TL.bonus + 0.5, 'expand', -7); ev(TL.bonus + 1.1, 'pop', -9); ev(TL.bonus + 1.9, 'pop', -9);
+    return (t, b) => {
+      cardIn(m, t);
+      const shrink = segB(t, TL.bonus + 0.2, TL.bonus + 0.5, E.inBack);
+      let shown = 0;
+      pins.forEach(p => { const q = spB(t, p.b, 3, 0.45) * (1 - 0.5 * shrink); if (t >= T(p.b)) shown++; S(p.e, { transform: `scale(${q})` }); show(p.e, q > 0.001); });
+      const cp = spB(t, TL.explain + 1.0, 2.6, 0.55) * (1 - E.inBack(segB(t, TL.end - 0.4, TL.end - 0.05, E.lin)));
+      counter.textContent = `${Math.max(1, shown)} time zone${shown > 1 ? 's' : ''}`;
+      S(counter, { transform: `scale(${cp})` }); show(counter, cp > 0.001);
+      lFra.pop(t, TL.explain + 2.8, TL.bonus); lRus.pop(t, TL.explain + 4.4, TL.bonus - 0.2);
+      fl(t, TL.bonus + 0.4, TL.bonus + 1.3);
+      lCn.pop(t, TL.bonus + 1.0); lChn.pop(t, TL.bonus + 1.8);
+    };
+  },
+
+  // 8. Mongolia: about 2 people per km², the lowest of any country (3.5 million on 1.56 million km²); NL ~500; bonus: almost half live in Ulaanbaatar
+  density() {
+    const m = MapCard({ lon: 103, lat: 47, fit: ['MNG'], pad: 0.3, shift: [0, -120], hi: { MNG: SAND } });
+    const personSvg = (s, c = C.forest) => `<svg width="${s}" height="${s * 1.6}" viewBox="0 0 10 16"><circle cx="5" cy="3" r="2.6" fill="${c}"/><path d="M1 15V9.5C1 7 2.8 6.4 5 6.4S9 7 9 9.5V15z" fill="${c}"/></svg>`;
+    const box = (x, label, flag) => {
+      const sq = el(m.over, { left: x, top: 790, width: 280, height: 210, borderRadius: 26, background: C.white, zIndex: 8, transformOrigin: '50% 100%', boxShadow: '0 10px 26px rgba(22,59,50,.18)', overflow: 'hidden' });
+      el(sq, { left: 0, top: 10, width: 280, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 20, letterSpacing: '0.06em', color: 'rgba(22,59,50,.55)' }, '1 KM²');
+      const l = Label(m.over, label, { flag, size: 28, h: 56, z: 9 }).at(x + 140, 1024);
+      return { sq, l };
+    };
+    const mn = box(150, 'Mongolia: about 2', 'mn'), nl = box(650, 'Netherlands: about 500', 'nl');
+    const twoP = [70, 175].map(x => el(mn.sq, { left: x, top: 80, width: 30, height: 48, transformOrigin: '50% 100%' }, personSvg(30)));
+    const r = rng(9), crowd = [];
+    for (let i = 0; i < 500; i++) { const e = el(nl.sq, { left: 10 + r() * 252, top: 40 + r() * 155, width: 7, height: 11, transformOrigin: '50% 100%' }, personSvg(7, i % 3 ? C.forest : C.green)); crowd.push({ e, b: TL.explain + 3.0 + r() * 1.2 }); }
+    const ub = m.scr(106.9, 47.9);
+    const ring = el(m.layer, { left: ub[0] - 40, top: ub[1] - 40, width: 80, height: 80, borderRadius: 40, border: `7px solid ${C.red}`, zIndex: 5, transformOrigin: '50% 50%' });
+    const lUb = Label(m.over, 'Ulaanbaatar', { size: 30, h: 58 }).at(ub[0], ub[1] - 80);
+    const lMn = Label(m.layer, 'Mongolia', { flag: 'mn', size: 34 }).at(...m.scr(101, 46).slice(0, 2));
+    const lHalf = Label(m.over, 'Almost half of all Mongolians live here', { size: 28, h: 58, bg: C.forest, fg: C.white }).at(540, 1024);
+    ev(TL.explain + 1.0, 'pop', -9); ev(TL.explain + 1.9, 'land', -6); ev(TL.explain + 2.2, 'pop', -10); ev(TL.explain + 2.4, 'pop', -10, { rate: 1.1 });
+    ev(TL.explain + 2.9, 'land', -6, { rate: 1.1 }); for (let i = 0; i < 6; i++) ev(TL.explain + 3.05 + i * 0.2, 'pop', -14, { rate: 1.2 + i * 0.05 });
+    ev(TL.explain + 4.4, 'boing', -8);
+    ev(TL.bonus + 0.6, 'pin', -6); ev(TL.bonus + 1.0, 'pop', -9); ev(TL.bonus + 1.9, 'pop', -9);
+    return (t, b) => {
+      cardIn(m, t);
+      lMn.pop(t, TL.explain + 1.0);
+      const out = E.inBack(segB(t, TL.bonus - 0.3, TL.bonus + 0.05, E.lin));
+      [[mn, TL.explain + 1.8], [nl, TL.explain + 2.8]].forEach(([o, b0]) => { const q = spB(t, b0, 2.4, 0.6) * (1 - out); S(o.sq, { transform: `scale(${q})` }); show(o.sq, q > 0.001); o.l.pop(t, b0 + 0.4, TL.bonus - 0.3); });
+      twoP.forEach((e, i) => { const q = spB(t, TL.explain + 2.2 + i * 0.2, 3, 0.45); S(e, { transform: `scale(${q})` }); show(e, q > 0.001); });
+      crowd.forEach(c => { const q = spB(t, c.b, 3.2, 0.5); S(c.e, { transform: `scale(${q})` }); show(c.e, q > 0.001); });
+      const rq = spB(t, TL.bonus + 0.5, 2.6, 0.5); S(ring, { transform: `scale(${rq * (1 + 0.07 * Math.sin(t * 7))})` }); show(ring, rq > 0.001);
+      lUb.pop(t, TL.bonus + 0.9); lHalf.pop(t, TL.bonus + 1.8);
+    };
+  },
+
+  // 9. Wellington (41.3°S) is the southernmost capital; Canberra 35.3°S, Buenos Aires 34.6°S; bonus: Reykjavik (64.1°N) the northernmost
+  capital() {
+    const mkCard = (z = 1) => {
+      const outer = el(sceneL, { left: CARD.x - 12, top: CARD.y - 12, width: CARD.w + 24, height: CARD.h + 24, borderRadius: 52, background: C.white, transformOrigin: '50% 50%', zIndex: z,
+        boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+      const win = el(outer, { left: 12, top: 12, width: CARD.w, height: CARD.h, borderRadius: 40, overflow: 'hidden', background: SEA });
+      const layer = el(outer, { left: -(CARD.x - 12), top: -(CARD.y - 12), width: W, height: H, zIndex: 3 });
+      return { outer, win, layer };
+    };
+    // card 1: latitude 30°S (top) to 45°S (bottom)
+    const c1 = mkCard(1), y1 = la => 480 + (la - 30) / 15 * 540;
+    const svg1 = svgEl(c1.layer, 'svg', { width: W, height: H }); svg1.style.position = 'absolute';
+    for (let la = 30; la <= 45; la += 5) { svgEl(svg1, 'line', { x1: 190, x2: 920, y1: y1(la), y2: y1(la), stroke: 'rgba(22,59,50,.25)', 'stroke-width': 2, 'stroke-dasharray': '8 8' });
+      el(c1.layer, { left: 152, top: y1(la) - 16, fontFamily: 'Manrope', fontWeight: 800, fontSize: 22, color: 'rgba(22,59,50,.6)' }, `${la}°S`); }
+    const CITY = [{ n: 'Buenos Aires', f: 'ar', la: 34.6, x: 360 }, { n: 'Canberra', f: 'au', la: 35.3, x: 700 }, { n: 'Wellington', f: 'nz', la: 41.3, x: 520, win: true }];
+    const pins = CITY.map((c, i) => {
+      const dot = el(c1.layer, { left: c.x - 14, top: y1(c.la) - 14, width: 28, height: 28, borderRadius: 14, background: c.win ? C.gold : C.white, border: `5px solid ${C.forest}`, zIndex: 4, transformOrigin: '50% 50%' });
+      const l = Label(c1.layer, `${c.n} ${c.la}°S`, { flag: c.f, size: 28, h: 56, bg: c.win ? C.forest : C.white, fg: c.win ? C.white : C.forest }).at(c.x, y1(c.la) - 50);
+      return { dot, l, b: TL.explain + 1.0 + i * 0.8, c };
+    });
+    const lSouth = Label(c1.layer, 'The southernmost capital on Earth', { size: 30, h: 60, bg: C.gold }).at(540, 1024);
+    // card 2: the whole world, 70°N to 50°S
+    const c2 = mkCard(2), y2 = la => 480 + (70 - la) / 120 * 540;
+    const svg2 = svgEl(c2.layer, 'svg', { width: W, height: H }); svg2.style.position = 'absolute';
+    [60, 30, 0, -30].forEach(la => { svgEl(svg2, 'line', { x1: 190, x2: 920, y1: y2(la), y2: y2(la), stroke: la === 0 ? C.forest : 'rgba(22,59,50,.25)', 'stroke-width': la === 0 ? 3 : 2, 'stroke-dasharray': la === 0 ? '' : '8 8' });
+      el(c2.layer, { left: 140, top: y2(la) - 16, fontFamily: 'Manrope', fontWeight: 800, fontSize: 22, color: 'rgba(22,59,50,.6)' }, la === 0 ? '0°' : `${Math.abs(la)}°${la > 0 ? 'N' : 'S'}`); });
+    const span = el(c2.layer, { left: 536, top: y2(64.1), width: 8, height: y2(-41.3) - y2(64.1), background: C.red, borderRadius: 4, zIndex: 3, transformOrigin: '50% 0' });
+    const pR = el(c2.layer, { left: 526, top: y2(64.1) - 14, width: 28, height: 28, borderRadius: 14, background: C.gold, border: `5px solid ${C.forest}`, zIndex: 4, transformOrigin: '50% 50%' });
+    const pW = el(c2.layer, { left: 526, top: y2(-41.3) - 14, width: 28, height: 28, borderRadius: 14, background: C.gold, border: `5px solid ${C.forest}`, zIndex: 4, transformOrigin: '50% 50%' });
+    const lR = Label(c2.layer, 'Reykjavik 64.1°N', { flag: 'is', size: 28, h: 56, bg: C.forest, fg: C.white }).at(540, y2(64.1) + 52);
+    const lW = Label(c2.layer, 'Wellington 41.3°S', { flag: 'nz', size: 28, h: 56 }).at(540, y2(-41.3) - 52);
+    const lSpan = Label(c2.layer, '105° apart', { size: 30, h: 60, bg: C.red, fg: C.white }).at(730, (y2(64.1) + y2(-41.3)) / 2);
+    CITY.forEach((c, i) => { ev(TL.explain + 1.0 + i * 0.8, 'land', -7, { rate: 1 + i * 0.08 }); });
+    ev(TL.explain + 2.7, 'correct', -6); ev(TL.explain + 4.4, 'pop', -10);
+    ev(TL.bonus + 0.35, 'morph', -6); ev(TL.bonus + 0.9, 'pin', -7); ev(TL.bonus + 1.3, 'whoosh', -10); ev(TL.bonus + 2.0, 'pin', -7); ev(TL.bonus + 2.4, 'pop', -9);
+    return (t, b) => {
+      const p = spB(t, TL.explain + 0.1, 2.1, 0.62), flip = segB(t, TL.bonus + 0.1, TL.bonus + 0.35, E.inCubic), flip2 = segB(t, TL.bonus + 0.35, TL.bonus + 0.65, E.outCubic);
+      const q = segB(t, TL.end - 0.4, TL.end - 0.05, E.inBack);
+      S(c1.outer, { transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.1))}) scaleX(${1 - flip})` }); show(c1.outer, p > 0.001 && flip < 1);
+      pins.forEach(pn => {
+        const drop = spB(t, pn.b, 2.4, 0.5), off = (1 - clamp(drop, 0, 1.2)) * -260;
+        S(pn.dot, { transform: `translateY(${off}px) scale(${clamp(drop * 2, 0, 1)})` }); show(pn.dot, drop > 0.001);
+        pn.l.pop(t, pn.b + 0.25);
+      });
+      lSouth.pop(t, TL.explain + 4.3);
+      S(c2.outer, { transform: `scaleX(${flip2}) scale(${1 - q})` }); show(c2.outer, flip2 > 0.001 && q < 1);
+      const a = spB(t, TL.bonus + 0.8, 3, 0.45), c = spB(t, TL.bonus + 1.9, 3, 0.45);
+      S(pR, { transform: `scale(${a})` }); show(pR, a > 0.001); S(pW, { transform: `scale(${c})` }); show(pW, c > 0.001);
+      S(span, { transform: `scaleY(${segB(t, TL.bonus + 1.2, TL.bonus + 1.9, E.inOutCubic)})` }); show(span, b > TL.bonus + 1.2);
+      lR.pop(t, TL.bonus + 1.0); lW.pop(t, TL.bonus + 2.0); lSpan.pop(t, TL.bonus + 2.3);
+    };
+  },
+
+  // 10. Lake Baikal (Russia) holds ~23,600 km³, more than the 5 Great Lakes combined (~22,700 km³); bonus: 1,642 m deep, the deepest lake (~5 Eiffel Towers)
+  baikal() {
+    const mk = (z, bg) => {
+      const outer = el(sceneL, { left: CARD.x - 12, top: CARD.y - 12, width: CARD.w + 24, height: CARD.h + 24, borderRadius: 52, background: C.white, transformOrigin: '50% 50%', zIndex: z,
+        boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+      el(outer, { left: 12, top: 12, width: CARD.w, height: CARD.h, borderRadius: 40, overflow: 'hidden', background: bg });
+      return { outer, layer: el(outer, { left: -(CARD.x - 12), top: -(CARD.y - 12), width: W, height: H, zIndex: 3 }) };
+    };
+    const c1 = mk(1, '#F4F8F6');
+    const BOT = 960, HMAX = 400, VMAX = 24000;
+    const tank = (x, w) => el(c1.layer, { left: x, top: BOT - HMAX - 10, width: w, height: HMAX + 10, borderRadius: '0 0 26px 26px', border: `5px solid ${C.forest}`, borderTop: 'none', zIndex: 2, overflow: 'hidden', background: '#fff' });
+    const tL = tank(200, 260), tR = tank(620, 260);
+    const GL = [['Superior', 12100, '#2F86C7'], ['Michigan', 4900, '#36B3F5'], ['Huron', 3540, '#5FC3F7'], ['Ontario', 1640, '#8AD3FA'], ['Erie', 480, '#B5E3FC']];
+    let acc = 0;
+    const segs = GL.map(([n, v, c], i) => { const h = v / VMAX * HMAX, s = { e: el(tL, { left: 0, width: 250, top: HMAX + 10 - (acc + v) / VMAX * HMAX, height: h + 0.5, background: c, transformOrigin: '50% 100%' }), b: TL.explain + 1.0 + i * 0.35 }; acc += v; return s; });
+    const bk = el(tR, { left: 0, width: 250, top: HMAX + 10 - 23600 / VMAX * HMAX, height: 23600 / VMAX * HMAX, background: '#1F6FB0', transformOrigin: '50% 100%' });
+    const lL = Label(c1.layer, 'All 5 Great Lakes', { size: 28, h: 56 }).at(330, 1024);
+    const lR = Label(c1.layer, 'Lake Baikal', { flag: 'ru', size: 28, h: 56, bg: C.forest, fg: C.white }).at(750, 1024);
+    const vL = el(c1.layer, { left: 200, width: 260, top: 498, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 34, color: C.forest, transformOrigin: '50% 50%' }, '22,700 km³');
+    const vR = el(c1.layer, { left: 620, width: 260, top: 498, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 34, color: C.forest, transformOrigin: '50% 50%' }, '23,600 km³');
+    const crown = el(c1.layer, { left: 715, top: 452, width: 70, height: 56, zIndex: 5, transformOrigin: '50% 90%' },
+      `<svg width="70" height="56" viewBox="-2 -2 30 24"><path d="M2 18L0 4.5l7.2 5L13 0l5.8 9.5L26 4.5 24 18z" fill="${C.gold}" stroke="#7A4A00" stroke-width="1.6" stroke-linejoin="round"/></svg>`);
+    // bonus: the depth, in Eiffel Towers (330 m each)
+    const c2 = mk(2, '#DCEFFA');
+    const eiffel = s => `<svg width="${s * 0.62}" height="${s}" viewBox="0 0 31 50"><path d="M15.5 0L17 12 21 26 31 50H24C22 41 19 37 15.5 37S9 41 7 50H0L10 26 14 12z" fill="${C.forest}"/><path d="M9 26H22M11.5 18H19.5" stroke="${C.gold}" stroke-width="2"/></svg>`;
+    const towers = []; for (let i = 0; i < 5; i++) towers.push(el(c2.layer, { left: 240, top: 500 + i * 108, width: 62, height: 100, transformOrigin: '50% 0' }, eiffel(100)));
+    const gauge = el(c2.layer, { left: 360, top: 490, width: 14, height: 0, background: C.ink, borderRadius: 7, zIndex: 3 });
+    const lDepth = Label(c2.layer, '1,642 m deep', { size: 40, h: 76, bg: C.ink, fg: C.white }).at(640, 640);
+    const lTowers = Label(c2.layer, '≈ 5 Eiffel Towers', { size: 32, h: 64 }).at(640, 750);
+    const lDeep = Label(c2.layer, 'The deepest lake on Earth', { size: 30, h: 60, bg: C.gold }).at(540, 1024);
+    GL.forEach((g, i) => ev(TL.explain + 1.0 + i * 0.35, 'pop', -11, { rate: 0.9 + i * 0.06 }));
+    ev(TL.explain + 2.9, 'whoosh', -9); ev(TL.explain + 3.8, 'levelup', -8); ev(TL.explain + 4.4, 'pop', -10);
+    ev(TL.bonus + 0.35, 'morph', -6); for (let i = 0; i < 5; i++) ev(TL.bonus + 0.8 + i * 0.25, 'land', -9, { rate: 1 + i * 0.06 }); ev(TL.bonus + 2.2, 'pop', -9);
+    return (t, b) => {
+      const p = spB(t, TL.explain + 0.1, 2.1, 0.62), flip = segB(t, TL.bonus + 0.1, TL.bonus + 0.35, E.inCubic), flip2 = segB(t, TL.bonus + 0.35, TL.bonus + 0.65, E.outCubic);
+      const q = segB(t, TL.end - 0.4, TL.end - 0.05, E.inBack);
+      S(c1.outer, { transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.1))}) scaleX(${1 - flip})` }); show(c1.outer, p > 0.001 && flip < 1);
+      segs.forEach(sg => { const g = segB(t, sg.b, sg.b + 0.45, E.outCubic); S(sg.e, { transform: `scaleY(${g})` }); show(sg.e, g > 0); });
+      const g = segB(t, TL.explain + 2.9, TL.explain + 3.8, E.inOutCubic); S(bk, { transform: `scaleY(${g})` }); show(bk, g > 0);
+      const v1 = spB(t, TL.explain + 2.7, 2.6, 0.55), v2 = spB(t, TL.explain + 3.8, 2.6, 0.55), cw = spB(t, TL.explain + 3.9, 2.8, 0.5);
+      S(vL, { transform: `scale(${v1})` }); show(vL, v1 > 0.001); S(vR, { transform: `scale(${v2})` }); show(vR, v2 > 0.001);
+      S(crown, { transform: `scale(${cw}) rotate(${12 * cw}deg)` }); show(crown, cw > 0.001);
+      lL.pop(t, TL.explain + 1.2); lR.pop(t, TL.explain + 2.5);
+      S(c2.outer, { transform: `scaleX(${flip2}) scale(${1 - q})` }); show(c2.outer, flip2 > 0.001 && q < 1);
+      towers.forEach((e, i) => { const tq = spB(t, TL.bonus + 0.8 + i * 0.25, 2.8, 0.5); S(e, { transform: `scale(${tq})`, transformOrigin: '50% 0' }); show(e, tq > 0.001); });
+      S(gauge, { height: 540 * segB(t, TL.bonus + 0.7, TL.bonus + 2.0, E.inOutCubic) });
+      lDepth.pop(t, TL.bonus + 1.4); lTowers.pop(t, TL.bonus + 2.0); lDeep.pop(t, TL.bonus + 2.6);
     };
   },
 };

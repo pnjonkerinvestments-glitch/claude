@@ -117,3 +117,80 @@
 - Hooks and retention: [teleprompter.com: TikTok 3-second rule](https://www.teleprompter.com/blog/tiktok-3-second-rule) · [Sprout Social: TikTok algorithm 2026](https://sproutsocial.com/insights/tiktok-algorithm/) · [OpusClip: length and retention](https://www.opus.pro/blog/tiktok-length-format-retention-data) · [slidestorm: open-loop hooks](https://www.slidestorm.ai/articles/open-loop-hook-formula-viral-tiktok) · [ghostshorts: quiz videos](https://ghostshorts.com/blog/how-to-make-quiz-videos-for-tiktok-and-youtube-shorts-2026) · [smmnut: loops and rewatches](https://smmnut.com/blog/tiktok-loop-content-strategy-2025/)
 - Captions and link in bio: [SocialKit: TikTok CTAs](https://socialk.it/en/blog/tiktok-cta-conversion-guide) · [shareb.io: caption templates](https://shareb.io/blog/tiktok-caption-strategy) · [taap.bio: link in bio](https://taap.bio/blog/tiktok-link-in-bio) · [stan.store: link-in-bio requirements](https://stan.store/blog/tiktok-link-bio-requirements-2026-guide/)
 - Facts: [Brazil–France border](https://en.wikipedia.org/wiki/Brazil%E2%80%93France_border) · [Vivid Maps: French borders](https://vividmaps.com/french-border/) · [National Geographic: Sudan's pyramids](https://www.nationalgeographic.com/history/article/sudan-archaeology-pyramdis-kush-nubia) · [Visual Capitalist: countries with the most lakes (HydroLAKES)](https://www.visualcapitalist.com/ranked-the-countries-with-the-most-lakes/) · [CBC: Canada has the most lakes](https://www.cbc.ca/news/science/canada-has-the-most-lakes-of-any-country-but-we-know-very-little-1.3898162)
+
+---
+
+# Round 2 (videos 6–10)
+
+## 6. Sweden has the most islands
+**Caption**
+> The country with the most islands is NOT Indonesia 🏝️
+> Indonesia, Philippines or Sweden? Comment A, B or C 👇
+> One "wait, really?!" fact a day 👉 roviko.app (link in bio). No account needed.
+
+**Pinned comment**
+> Sweden 🇸🇪: 267,570 islands (Statistics Sweden). Only 984 of them have people living on them. ✅ or ❌?
+
+**Hashtags** #sweden #islands #funfacts #didyouknow #geography #scandinavia
+
+---
+
+## 7. France has the most time zones
+**Caption**
+> The country with the most time zones is NOT Russia ⏰
+> Russia, USA or France? A, B or C 👇
+> Test yourself every day at roviko.app (link in bio)
+
+**Pinned comment**
+> France 🇫🇷: 12 time zones, thanks to its overseas regions from the Pacific to the Indian Ocean. Russia and the USA: 11. China: just 1. Did you get it? ✅ or ❌
+
+**Hashtags** #france #timezones #funfacts #didyouknow #geography #geographyquiz
+
+---
+
+## 8. Mongolia is the emptiest country
+**Caption**
+> In this country, about 2 people share every km² 😳
+> Canada, Mongolia or Australia? Comment A, B or C 👇
+> Facts like this, as a 5-minute daily quiz 👉 roviko.app (link in bio)
+
+**Pinned comment**
+> Mongolia 🇲🇳: about 2 people per km². The Netherlands: about 500. And almost half of all Mongolians live in one city, Ulaanbaatar. ✅ or ❌?
+
+**Hashtags** #mongolia #population #funfacts #didyouknow #geography #netherlands
+
+---
+
+## 9. Wellington is the southernmost capital
+**Caption**
+> The world's southernmost capital is NOT in Australia or Argentina 🧭
+> Canberra, Buenos Aires or Wellington? A, B or C 👇
+> Play one geography quiz a day at roviko.app (link in bio). No account needed.
+
+**Pinned comment**
+> Wellington 🇳🇿 at 41.3°S. The northernmost is Reykjavik 🇮🇸 at 64.1°N: 105° apart. Did you get it? ✅ or ❌
+
+**Hashtags** #newzealand #wellington #capitals #funfacts #geography #geographyquiz
+
+---
+
+## 10. Lake Baikal beats the Great Lakes
+**Caption**
+> ONE lake holds more water than all 5 Great Lakes combined 🌊
+> Lake Victoria, Lake Baikal or Lake Titicaca? Comment A, B or C 👇
+> Fewer geography fails, starting today 👉 roviko.app (link in bio)
+
+**Pinned comment**
+> Lake Baikal 🇷🇺: about 23,600 km³ vs about 22,700 km³ for all 5 Great Lakes. It's also the deepest lake on Earth: 1,642 m, about 5 Eiffel Towers. ✅ or ❌?
+
+**Hashtags** #lakebaikal #russia #lakes #funfacts #didyouknow #geography
+
+---
+
+## Facts checked (round 2)
+- **Sweden:** 267,570 islands (Statistics Sweden, count for 2013, published 2014), of which 984 are inhabited. Indonesia: about 17,000 islands.
+- **France:** 12 time zones (UTC−10, −9:30, −9, −8, −4, −3, +1, +3, +4, +5, +11, +12), 13 with Adélie Land in Antarctica. Russia: 11. The USA: 11 including its territories. China officially uses one time zone (UTC+8).
+- **Mongolia:** about 3.5 million people on 1.56 million km², about 2.2 per km², the lowest of any country. The Netherlands: about 500 per km² of land. Ulaanbaatar has about 1.6–1.7 million people, almost half of the country.
+- **Latitudes:** Wellington 41.3°S is the southernmost capital of a sovereign country. Canberra is at 35.3°S and Buenos Aires at 34.6°S. Reykjavik, the northernmost, is at 64.1°N.
+- **Lake Baikal:** about 23,600 km³, more than the 5 Great Lakes together (Superior 12,100 + Michigan 4,900 + Huron 3,540 + Ontario 1,640 + Erie 480 ≈ 22,700 km³). Maximum depth 1,642 m. The Eiffel Tower is 330 m tall.
+- **Sources:** [Scandinavia Standard: Sweden's 267,570 islands](https://www.scandinaviastandard.com/t-sweden-267570-islands-official-count/) · [timeanddate: country with the most time zones](https://www.timeanddate.com/time/country-with-the-most-time-zones.html) · [The Local: France's 12 time zones](https://www.thelocal.fr/20220325/reader-question-how-does-france-have-12-different-time-zones) · [WorldAtlas: Baikal vs the Great Lakes](https://www.worldatlas.com/lakes/how-lake-baikal-holds-more-water-than-all-the-great-lakes-combined.html) · [Lake Baikal (Wikipedia)](https://en.wikipedia.org/wiki/Lake_Baikal)

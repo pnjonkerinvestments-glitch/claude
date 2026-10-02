@@ -89,3 +89,72 @@ How each caption is built for the algorithm:
 **Pinned comment:** Who got 25/25 over all five challenges? 👑 Show yourself.
 
 **Hashtags:** `#guessthecountry #geographyquiz #worldmap #mapchallenge #roviko`
+
+---
+
+# Round 2 (posts 6–10)
+
+## Post 6 · Europe (round 2)
+**Caption**
+> Round 2 🔁 Europe is back, and #5 is evil 😈🇪🇺
+> 5 countries. No borders. Every swipe gets harder.
+> ✋ Guess BEFORE you swipe. No googling.
+> 🏆 Your rank is on the last slide.
+> Comment your score like this: 4/5
+> Tag the friend who failed round 1 👇
+
+**Pinned comment:** Round 1 or round 2: which was harder? 👇
+
+**Hashtags:** `#guessthecountry #geographyquiz #europe #mapchallenge #roviko`
+
+## Post 7 · Africa (round 2)
+**Caption**
+> Most people get #1. Almost nobody gets #5 🌍👀
+> Map challenge #7: Africa. 5 countries, no borders.
+> 👀 Type your guess in the comments before you swipe to the answer.
+> Stuck? The hard ones come with a hint.
+> Last slide = your rank. Tourist or Legend?
+> 📌 Save it and test your friends tonight.
+
+**Pinned comment:** #5 is the smallest of the five. Did you get it without the hint? 👀
+
+**Hashtags:** `#guessthecountry #geographyquiz #africa #mapchallenge #roviko`
+
+## Post 8 · Asia (round 2)
+**Caption**
+> One of these is shaped like an elephant's head 🐘 Can you find it?
+> 5 countries. No borders. Harder with every swipe.
+> ✍️ Keep count as you go. The answer is always one swipe away.
+> 🏆 The last slide tells you if you're a Tourist or a Legend.
+> Drop your score: __/5
+> Send this to your quiz night partner 👀
+
+**Pinned comment:** Which number was the elephant? 🐘👇
+
+**Hashtags:** `#guessthecountry #geographyquiz #asia #mapchallenge #roviko`
+
+## Post 9 · The Americas (round 2)
+**Caption**
+> #3 is an island. That's your only hint 🏝️🌎
+> Map challenge #9: the Americas. 5 countries, no borders.
+> ✋ Guess first, then swipe. No googling.
+> 🏆 Your rank is waiting on the last slide.
+> Comment your score + the one that fooled you 👇
+> Send this to the friend who always wins quiz night.
+
+**Pinned comment:** Be honest: did #5 fool you? 😅
+
+**Hashtags:** `#guessthecountry #geographyquiz #latinamerica #mapchallenge #roviko`
+
+## Post 10 · Around the world (round 2)
+**Caption**
+> The final boss, round 2 🌍👑
+> 5 continents. 5 countries. 0 borders.
+> ✋ Guess before you swipe. The last slide tells you if you're a Geography legend.
+> Did all 10 challenges? Comment your total: __/50
+> Missed one? They're all on our profile 🔁
+> Play with up to 12 friends at roviko.app
+
+**Pinned comment:** Who got 50/50 over all ten challenges? 👑 Show yourself.
+
+**Hashtags:** `#guessthecountry #geographyquiz #worldmap #mapchallenge #roviko`

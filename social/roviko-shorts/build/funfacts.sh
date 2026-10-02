@@ -5,7 +5,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 python3 build/music_cut.py funfact >/dev/null
 mkdir -p out/fun-facts
-FAST=316-330,357-371,420-440,474-500,748-770,925-940,1012-1032
+FAST=316-330,357-371,420-440,474-500,748-770,925-940,1000-1032
 for n in $(seq "${1:-1}" "${2:-5}"); do
   a="fact-$n"
   mkdir -p "audio/$a"
