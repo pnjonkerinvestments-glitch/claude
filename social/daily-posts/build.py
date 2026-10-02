@@ -1,0 +1,181 @@
+"""Bundle each posting day into one folder: the 4 posts + a CAPTIONS.txt to copy from.
+
+  python3 social/daily-posts/build.py <out_dir>   ->  <out_dir>/Dag-01 … Dag-05 (+ one zip per day)
+
+A day = 1 "Guess the country" carousel, 1 funny Roviko video, 1 "Sounds fake" fact, 1 "Flag a Day" video.
+Only days for which all four exist are built (5 for now: 5 carousels and 5 facts).
+"""
+import shutil
+import sys
+import zipfile
+from pathlib import Path
+
+SOCIAL = Path(__file__).resolve().parent.parent
+CAR = SOCIAL / 'roviko-carousels' / 'out'
+SH = SOCIAL / 'roviko-shorts' / 'out'
+
+# per day: (carousel post, funny short file, fun fact n, flag day) + the four captions
+DAYS = [
+    dict(post=1, funny='roviko-short-1-sydney.mp4', fact=1, flag=1,
+         car=('Europe', """Only real Europe experts get #5 🇪🇺👀
+5 countries. No borders. Every swipe gets harder.
+✋ Rule: guess BEFORE you swipe. No googling.
+🏆 Your rank is on the last slide.
+Comment your score like this: 3/5
+Tag the friend who thinks they know Europe 👇
+#guessthecountry #geographyquiz #europe #mapchallenge #roviko""", "Which number got you? 1, 2, 3, 4 or 5? 👇"),
+         fun=('POV: you\'re 100% sure it\'s Sydney', """The confidence was there. The geography was not 😎🇦🇺
+Be honest: did you also say Sydney? 👇
+5 minutes a day at roviko.app
+#geography #geographyquiz #australia #quiztime #funfacts #learnontiktok #roviko""", "Answer: Canberra 🇦🇺 Sydney is just the famous one. Who else said Sydney? 🙋"),
+         fact_c=('France\'s longest border is with Brazil', """France's longest border is NOT with Spain 👀
+A, B or C? Comment before the reveal 👇
+One "wait, really?!" fact a day 👉 play the daily geography quiz at roviko.app (link in bio). No account needed.
+#geography #funfacts #france #brazil #didyouknow #geographyquiz""", "Answer: Brazil 🇧🇷. French Guiana in South America is part of France, and its border with Brazil is 730 km long. Did you get it? ✅ or ❌ (more of these at roviko.app)"),
+         flag_c=('Japan, EASY', """Warm-up flag 🔥 3 seconds. Go.
+Flag a Day · Day 1/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Play with up to 12 friends at roviko.app
+#flagquiz #guesstheflag #flags #geography #roviko""", "Which flag should we do tomorrow? 👇")),
+    dict(post=2, funny='roviko-short-2-streak.mp4', fact=2, flag=2,
+         car=('Africa', """#1 is easy. #5 is where it gets real 🌍🔥
+Map challenge #2: Africa. 5 countries, no borders.
+👀 Type your guess in the comments before you swipe to the answer.
+Stuck? The hard ones come with a hint.
+Made it to the last slide? Tell us your rank: Tourist, Backpacker, Explorer or Legend?
+📌 Save it and test your friends tonight.
+#guessthecountry #geographyquiz #africa #mapchallenge #roviko""", "Be honest: did you get #3 without the hint? 👀"),
+         fun=('Me remembering my 47-day streak at 23:58', """23:59:59 and not a second later 😮‍💨🔥
+What's your longest streak? Drop it below 👇
+Daily Detour, every day at roviko.app
+#streak #relatable #dailychallenge #geography #quiztime #brainteaser #roviko""", "What's your record? Drop it 👇 Let's find the real streak king 👑"),
+         fact_c=('Sudan has the most pyramids', """The country with the most pyramids is NOT Egypt 🤯
+Egypt, Mexico or Sudan? Comment A, B or C 👇
+Think you'd know? Test yourself every day at roviko.app (link in bio).
+#pyramids #sudan #egypt #history #funfacts #geography""", "Sudan 🇸🇩 has over 200 pyramids, about twice as many as Egypt (~120). And they're steeper: ~70° vs Giza's 52°. Your score? ✅ or ❌"),
+         flag_c=('Brazil, EASY', """Easy one… or is it? 👀
+Flag a Day · Day 2/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Flags, maps and capitals at roviko.app
+#flagquiz #guesstheflag #flags #geography #roviko""", "Got it before 2 or before 1? ⏱️")),
+    dict(post=3, funny='roviko-short-3-gamenight.mp4', fact=3, flag=3,
+         car=('Asia', """Can you beat Asia on Legend level? 🌏
+5 countries. No borders. Harder with every swipe.
+✍️ Keep count as you go. The answer is always one swipe away.
+🏆 The last slide tells you if you're a Tourist or a Legend.
+Drop your score: __/5
+Send this to your quiz night partner 👀
+#guessthecountry #geographyquiz #asia #mapchallenge #roviko""", "Write down your 5 guesses in order, no peeking 👇 Then check the last slide."),
+         fun=('POV: your friend says he\'s "elite at geography"', """In his defence… it ALSO has a red circle 🇯🇵🇧🇩💀
+Tag the Lucas in your group chat 👇
+Game night for up to 12 friends at roviko.app
+#gamenight #friends #geographyquiz #flags #quiztime #groupchat #roviko""", "Japan = red circle on white. Bangladesh = red circle on green. Lucas still says it's the same 😤"),
+         fact_c=('Saudi Arabia has zero permanent rivers', """This country has ZERO permanent rivers 🏜️
+Saudi Arabia, Australia or Mongolia? A, B or C 👇
+Facts like this, as a 5-minute daily quiz 👉 roviko.app (link in bio)
+#saudiarabia #desert #funfacts #didyouknow #geography #learnontiktok""", "Saudi Arabia 🇸🇦 is the biggest country without a permanent river, so it turns seawater into drinking water, more than any other country. ✅ or ❌?"),
+         flag_c=('Canada, EASY', """If you miss this one, we need to talk 😅
+Flag a Day · Day 3/30 🔥
+✅ or ❌? Comment it and keep your streak going 🔥
+Daily geography trips at roviko.app
+#flagquiz #guesstheflag #flags #geography #roviko""", "What's your streak so far? 🔥")),
+    dict(post=4, funny='roviko-short-4-greenland.mp4', fact=4, flag=4,
+         car=('The Americas', """Everyone gets #1. But #5… 🌎😅
+Map challenge #4: the Americas. 5 countries, no borders.
+✋ Guess first, then swipe. No googling.
+🏆 Your rank is waiting on the last slide.
+Comment your score + the one that fooled you 👇
+Send this to the friend who always wins quiz night.
+#guessthecountry #geographyquiz #southamerica #mapchallenge #roviko""", "Which one fooled you? Wrong answers only 😂"),
+         fun=('POV: you find out how big Greenland really is', """Greenland: "we're the same size as Africa" 😎
+Africa: fits Greenland 14 times 💀
+Flat maps stretch everything near the poles.
+Which country should we shrink next? 👇
+#geography #maps #greenland #africa #mapprojection #truesize #funfacts #roviko""", "Next one gets its own video. Russia? Canada? Antarctica? Vote below 👇"),
+         fact_c=('Canada has more lakes than the rest of the world', """One country has more lakes than the rest of the world COMBINED 🌊
+Finland, Canada or Russia? Comment A, B or C 👇
+Play one geography quiz a day at roviko.app (link in bio). No account needed.
+#canada #lakes #nature #funfacts #geography #didyouknow""", "Canada 🇨🇦: about 880,000 lakes, 62% of all lakes in the world (HydroLAKES, lakes from 10 hectares). It also has the world's longest coastline. Did you get it? ✅ or ❌"),
+         flag_c=('Chad, TRAP', """TRAP 🪤 This flag has a twin. Which one is it?
+Flag a Day · Day 4/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Play with up to 12 friends at roviko.app
+#flagquiz #guesstheflag #lookalike #flags #roviko""", "Team Chad or team Romania? 👇")),
+    dict(post=5, funny='roviko-short-5-wronganswers.mp4', fact=5, flag=5,
+         car=('Around the world', """The final boss of our map challenges 🌍👑
+5 continents. 5 countries. 0 borders.
+✋ Guess before you swipe. The last slide tells you if you're a Geography legend.
+Did all 5 challenges? Comment your total: __/25
+Missed one? They're all on our profile 🔁
+Play with up to 12 friends at roviko.app
+#guessthecountry #geographyquiz #worldmap #mapchallenge #roviko""", "Who got 25/25 over all five challenges? 👑 Show yourself."),
+         fun=('Wrong answers only: capital of Brazil?', """Wrong answers only: what's the capital of Brazil? 🇧🇷
+(Roviko is not ok after comment 3)
+Your turn 👇 the funniest one gets pinned
+#wronganswersonly #geography #brazil #capitals #geographyquiz #funny #roviko""", "Right answer: Brasília. Built from scratch, capital since 1960. Now give us your WRONG answers 😂"),
+         fact_c=('Liechtenstein is double landlocked', """To reach the sea from this country, you must cross 2 borders 😳
+Switzerland, Liechtenstein or Austria? A, B or C 👇
+Fewer geography fails, starting today 👉 roviko.app (link in bio)
+#liechtenstein #europe #funfacts #geographyquiz #didyouknow #geography""", "Liechtenstein 🇱🇮. Every neighbour (Switzerland, Austria) is landlocked too. The only other \"double landlocked\" country is Uzbekistan 🇺🇿. And Liechtenstein has no airport ✈️ ✅ or ❌?"),
+         flag_c=('Nepal, MEDIUM', """Medium mode. 3 seconds. No pausing 👀
+Flag a Day · Day 5/30 🔥
+✍️ Comment your answer before the timer hits 0.
+📌 Save this and test your friends.
+Flags, maps and capitals at roviko.app
+#flagquiz #guesstheflag #flags #geographyquiz #roviko""", "Got it before 2 or before 1? ⏱️")),
+]
+
+LINE = '=' * 60
+
+
+def block(n, when, title, what, files, caption, pin):
+    return f"""{LINE}
+{n}. {title}  ({when})
+{what}
+Bestand(en): {files}
+{LINE}
+
+CAPTION (kopieer alles hieronder tot aan PIN):
+
+{caption}
+
+PIN (plaats als eerste reactie en zet hem vast):
+
+{pin}
+
+"""
+
+
+def main(out):
+    out = Path(out)
+    for i, d in enumerate(DAYS, 1):
+        day = out / f'Dag-{i:02d}'
+        if day.exists():
+            shutil.rmtree(day)
+        car = day / '1-land-raden'
+        for plat in ('tiktok', 'instagram'):
+            shutil.copytree(CAR / f"post-{d['post']}" / plat, car / plat)
+        shutil.copy(SH / d['funny'], day / '2-grappige-video.mp4')
+        shutil.copy(SH / 'fun-facts' / f"fun-fact-{d['fact']}.mp4", day / '3-feitje.mp4')
+        shutil.copy(SH / 'flag-a-day' / f"flag-a-day-{d['flag']:02d}.mp4", day / '4-vlag-raden.mp4')
+        txt = f"""ROVIKO, DAG {i}: 4 posts
+Dezelfde caption werkt op TikTok en Instagram. Laat minstens 3 uur tussen twee posts.
+Voorstel: 1 om 09:00, 2 om 13:00, 3 om 17:00, 4 om 20:00.
+
+"""
+        txt += block(1, '09:00', f"LAND RADEN: {d['car'][0]}", 'Fotocarrousel, 12 slides op volgorde (01 → 12).',
+                     '1-land-raden/tiktok/ (TikTok, 3:4)  ·  1-land-raden/instagram/ (Instagram, 4:5)', d['car'][1], d['car'][2])
+        txt += block(2, '13:00', f"GRAPPIGE VIDEO: {d['fun'][0]}", 'Video, plaatsen met het eigen geluid.', '2-grappige-video.mp4', d['fun'][1], d['fun'][2])
+        txt += block(3, '17:00', f"FEITJE: {d['fact_c'][0]}", 'Video, "Sounds fake, but it\'s true" #' + str(d['fact']) + '.', '3-feitje.mp4', d['fact_c'][1], d['fact_c'][2])
+        txt += block(4, '20:00', f"VLAG RADEN: dag {d['flag']} (antwoord: {d['flag_c'][0]})", 'Video, Flag a Day.', '4-vlag-raden.mp4', d['flag_c'][1], d['flag_c'][2])
+        (day / 'CAPTIONS.txt').write_text(txt)
+        z = out / f'Roviko-Dag-{i:02d}.zip'
+        with zipfile.ZipFile(z, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for f in sorted(day.rglob('*')):
+                if f.is_file():
+                    zf.write(f, f.relative_to(out))
+        print(z, round(z.stat().st_size / 1e6, 1), 'MB')
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])
