@@ -7,11 +7,14 @@ minuut heb je de kop, een korte samenvatting en de link naar het originele artik
 ```
 📰 1INN · innoscripta SE
 
-innoscripta SE: Stellungnahme zu ...
+innoscripta SE: Update zu den Ermittlungen der Steuerbehörden – Geschäftsbetrieb läuft weiter – …
 
-🕒 vr 2 okt 19:46 · EQS Newswire
+🕒 vr 2 okt, 19:46 · EQS
 Origineel artikel · TradingView · Grafiek
 ```
+
+Komt hetzelfde nieuws in dezelfde minuut in meerdere varianten binnen (Duits en Engels
+persbericht, Reuters, TradingView-samenvatting), dan krijg je die samen in één bericht.
 
 ## Hoe het werkt
 
@@ -56,7 +59,7 @@ De startlijst (`WATCHLIST` in `wrangler.jsonc`) wordt alleen bij de allereerste 
 | `TIMEZONE` | `Europe/Amsterdam` | tijd in de melding |
 | `MAX_AGE_HOURS` | `24` | ouder nieuws niet meer melden (na een storing) |
 | `MAX_REQUESTS` | `40` | TradingView-verzoeken per minuut; bij een lange lijst wisselt het door |
-| `MAX_ALERTS_PER_SYMBOL` | `5` | meer tegelijk wordt samengevat |
+| `MAX_ALERTS_PER_SYMBOL` | `5` | hoogstens zoveel koppen per bericht; de rest wordt als aantal genoemd |
 | `STORY_DETAILS` | `true` | samenvatting en bronlink ophalen |
 
 Met twee talen past een lijst van 20 aandelen in één minuut. Bij meer aandelen worden ze

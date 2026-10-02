@@ -89,19 +89,56 @@ export interface NewsMessageInput {
   timeZone: string;
 }
 
-export function formatNewsMessage({ entry, item, summary, timeZone }: NewsMessageInput): string {
+function header(entry: WatchEntry): string {
   const ticker = entry.symbol.split(":").pop() ?? entry.symbol;
   const head = entry.name ? `${escapeHtml(ticker)} · ${escapeHtml(entry.name)}` : escapeHtml(entry.symbol);
-  const lines = [`📰 <b>${head}</b>`, "", `<b>${escapeHtml(item.title)}</b>`];
-  if (summary) lines.push("", escapeHtml(summary));
-  const meta = [`🕒 ${escapeHtml(formatTime(item.published, timeZone))}`];
-  if (item.provider) meta.push(escapeHtml(item.provider));
-  lines.push("", meta.join(" · "));
+  return `📰 <b>${head}</b>`;
+}
 
-  const links: string[] = [];
-  if (item.link) links.push(`<a href="${escapeHtml(item.link)}">Origineel artikel</a>`);
-  if (item.storyUrl) links.push(`<a href="${escapeHtml(item.storyUrl)}">TradingView</a>`);
-  links.push(`<a href="${escapeHtml(chartUrl(entry.symbol))}">Grafiek</a>`);
-  lines.push(links.join(" · "));
+function meta(item: NewsItem, timeZone: string): string {
+  const parts = [`🕒 ${escapeHtml(formatTime(item.published, timeZone))}`];
+  if (item.provider) parts.push(escapeHtml(item.provider));
+  return parts.join(" · ");
+}
+
+function links(item: NewsItem, symbol?: string): string {
+  const parts: string[] = [];
+  if (item.link) parts.push(`<a href="${escapeHtml(item.link)}">Origineel artikel</a>`);
+  if (item.storyUrl) parts.push(`<a href="${escapeHtml(item.storyUrl)}">TradingView</a>`);
+  if (symbol) parts.push(`<a href="${escapeHtml(chartUrl(symbol))}">Grafiek</a>`);
+  return parts.join(" · ");
+}
+
+export function formatNewsMessage({ entry, item, summary, timeZone }: NewsMessageInput): string {
+  const lines = [header(entry), "", `<b>${escapeHtml(item.title)}</b>`];
+  if (summary) lines.push("", escapeHtml(summary));
+  lines.push("", meta(item, timeZone), links(item, entry.symbol));
   return lines.join("\n");
+}
+
+/** Telegram weigert berichten boven 4096 tekens. */
+const MAX_LENGTH = 4000;
+
+/**
+ * Meerdere nieuwe koppen over hetzelfde aandeel in één bericht. Bij groot nieuws komt hetzelfde
+ * vaak in drie of vier varianten binnen (persbericht in het Duits en Engels, Reuters, ...);
+ * zo krijg je één melding in plaats van vier. Nieuwste bovenaan.
+ */
+export function formatNewsDigest(entry: WatchEntry, items: NewsItem[], timeZone: string, more = 0): string {
+  const sorted = [...items].sort((a, b) => b.published - a.published);
+  for (let count = sorted.length; count >= 1; count--) {
+    const shown = sorted.slice(0, count);
+    const hidden = more + sorted.length - count;
+    const lines = [header(entry)];
+    for (const item of shown) {
+      lines.push("", `<b>${escapeHtml(item.title)}</b>`, meta(item, timeZone));
+      const itemLinks = links(item);
+      if (itemLinks) lines.push(itemLinks);
+    }
+    if (hidden) lines.push("", `… en nog ${hidden} oudere bericht(en); zie TradingView.`);
+    lines.push("", `<a href="${escapeHtml(chartUrl(entry.symbol))}">Grafiek</a>`);
+    const text = lines.join("\n");
+    if (text.length <= MAX_LENGTH || count === 1) return text.slice(0, MAX_LENGTH);
+  }
+  return header(entry);
 }

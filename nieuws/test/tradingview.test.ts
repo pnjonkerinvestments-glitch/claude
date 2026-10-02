@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { headlinesUrl, newsFlowUrl, parseNewsResponse, parseSymbolSearch } from "../src/tradingview.ts";
+import { cleanSummary, headlinesUrl, newsFlowUrl, parseNewsResponse, parseSymbolSearch } from "../src/tradingview.ts";
 
 test("leest het huidige news-flow-formaat", () => {
   const items = parseNewsResponse({
@@ -64,4 +64,14 @@ test("symbolen zoeken: prefix gaat voor beurs, tags eruit", () => {
     ["XETR:1INN", "TRADEGATE:1INN"],
   );
   assert.equal(matches[0].name, "innoscripta SE");
+});
+
+test("samenvatting: kop en EQS-voorloop eraf, te kort is niets", () => {
+  const title = "innoscripta SE: Update zu den Ermittlungen";
+  assert.equal(
+    cleanSummary(`innoscripta SE/ Schlagwort(e): Sonstiges innoscripta SE: Update zu den Ermittlungen – Der Geschäftsbetrieb läuft uneingeschränkt weiter.`, title),
+    "Der Geschäftsbetrieb läuft uneingeschränkt weiter.",
+  );
+  assert.equal(cleanSummary("innoscripta SE XETR:1INN:", "innoscripta SE (1INN) Searched in Tax Probe"), undefined);
+  assert.equal(cleanSummary("x".repeat(500), "kop")!.length, 350);
 });

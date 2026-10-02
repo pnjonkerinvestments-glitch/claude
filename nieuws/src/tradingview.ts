@@ -178,12 +178,27 @@ export async function fetchStory(fetcher: Fetch, id: string, lang: string): Prom
   const summary = str(body.shortDescription) || str(body.description);
   return {
     link: absolute(str(body.link)),
-    summary: summary ? stripTags(summary).slice(0, 400) : undefined,
+    summary: summary ? stripTags(summary).slice(0, 600) : undefined,
   };
 }
 
 function stripTags(text: string): string {
-  return text.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  return text.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * Maakt een samenvatting bruikbaar naast de kop: persberichten (EQS) beginnen vaak met
+ * "Bedrijf / Schlagwort(e): ... <kop>", en sommige samenvattingen zijn niet meer dan de ticker.
+ * Geeft undefined als er na het opschonen niets zinnigs overblijft.
+ */
+export function cleanSummary(summary: string | undefined, title: string): string | undefined {
+  if (!summary) return undefined;
+  let text = summary.trim();
+  const at = text.indexOf(title);
+  if (at >= 0) text = text.slice(at + title.length);
+  text = text.replace(/^[\s:.,;\-–—]+/, "").trim();
+  if (text.length < 40) return undefined;
+  return text.length > 350 ? text.slice(0, 349).trimEnd() + "…" : text;
 }
 
 export function parseSymbolSearch(body: unknown): SymbolMatch[] {

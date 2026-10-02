@@ -4,9 +4,9 @@
 import type { Config } from "./config.ts";
 import type { Store, WatchEntry } from "./store.ts";
 import type { Telegram } from "./telegram.ts";
-import { formatNewsMessage } from "./telegram.ts";
+import { formatNewsDigest, formatNewsMessage } from "./telegram.ts";
 import type { Fetch, NewsItem } from "./tradingview.ts";
-import { fetchNews, fetchStory } from "./tradingview.ts";
+import { cleanSummary, fetchNews, fetchStory } from "./tradingview.ts";
 
 export interface CheckDeps {
   store: Store;
@@ -86,38 +86,36 @@ async function checkSymbol(deps: CheckDeps, entry: WatchEntry, result: CheckResu
   if (!fresh.length) return;
 
   const tooOld = fresh.filter((item) => item.published && item.published < now - config.maxAgeSeconds);
-  const toAlert = fresh
-    .filter((item) => !tooOld.includes(item))
-    .sort((a, b) => a.published - b.published);
-  // Bij een plotselinge stortvloed alleen de nieuwste melden; de rest stil wegzetten.
-  const skipped = toAlert.splice(0, Math.max(0, toAlert.length - config.maxAlertsPerSymbol));
-  await store.markSeen([...tooOld, ...skipped].map((item) => item.id), entry.symbol, now);
+  const toAlert = fresh.filter((item) => !tooOld.includes(item)).sort((a, b) => b.published - a.published);
+  await store.markSeen(tooOld.map((item) => item.id), entry.symbol, now);
+  if (!toAlert.length) return;
+  // Bij een plotselinge stortvloed alleen de nieuwste tonen; de rest wordt als aantal genoemd.
+  const shown = toAlert.slice(0, config.maxAlertsPerSymbol);
+  const hidden = toAlert.length - shown.length;
 
-  for (const item of toAlert) {
+  let text: string;
+  if (shown.length === 1 && !hidden) {
+    const [item] = shown;
     let summary: string | undefined;
     let link = item.link;
     if (config.storyDetails) {
       try {
         const story = await fetchStory(deps.fetcher, item.id, item.lang);
-        summary = story.summary;
+        summary = cleanSummary(story.summary, item.title);
         link ??= story.link;
       } catch (error) {
         deps.log?.(`${item.id}: details niet opgehaald (${error instanceof Error ? error.message : error})`);
       }
     }
-    const text = formatNewsMessage({ entry, item: { ...item, link }, summary, timeZone: config.timeZone });
-    // Pas na een gelukte verzending als gezien markeren, zodat een mislukte melding de
-    // volgende minuut opnieuw geprobeerd wordt.
-    await deps.telegram.send(deps.chatId, text);
-    await store.markSeen([item.id], entry.symbol, now);
-    result.alerted++;
+    text = formatNewsMessage({ entry, item: { ...item, link }, summary, timeZone: config.timeZone });
+  } else {
+    text = formatNewsDigest(entry, shown, config.timeZone, hidden);
   }
-  if (skipped.length) {
-    await deps.telegram.send(
-      deps.chatId,
-      `… en nog ${skipped.length} oudere bericht(en) over ${entry.symbol}; zie TradingView.`,
-    );
-  }
+  // Pas na een gelukte verzending als gezien markeren, zodat een mislukte melding de
+  // volgende minuut opnieuw geprobeerd wordt.
+  await deps.telegram.send(deps.chatId, text);
+  await store.markSeen(toAlert.map((item) => item.id), entry.symbol, now);
+  result.alerted += shown.length;
 }
 
 export async function checkNews(deps: CheckDeps): Promise<CheckResult> {
