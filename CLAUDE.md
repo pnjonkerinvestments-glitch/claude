@@ -3,6 +3,6 @@ Lees eerst `roviko/START_HERE_CLAUDE.md` en `roviko/docs/PUBLICEREN.md` voordat 
 
 roviko.app draait op Cloudflare. Publiceren gaat via GitHub Actions (`.github/workflows/roviko-deploy.yml`). Na een merge naar de standaardbranch met wijzigingen in `roviko/` deployt die workflow vanzelf.
 
-`nieuws/` is de nieuwsmelder (Telegram-alerts op TradingView-nieuws), een aparte Cloudflare Worker `nieuws-alert` met een eigen workflow (`.github/workflows/nieuws-alert.yml`).
+`nieuws/` is de nieuwsmelder (Telegram-alerts op TradingView-nieuws, plus een screener met filterwoorden op Europese small caps), een aparte Cloudflare Worker `nieuws-alert` met een eigen workflow (`.github/workflows/nieuws-alert.yml`).
 
 `premarket_alert/` is een los, stilgelegd zijproject. Deploy nooit iets anders onder de Cloudflare-workernaam `roviko`.
