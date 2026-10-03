@@ -3,7 +3,8 @@
 Five "Guess the country" photo carousels for TikTok and Instagram, in Roviko style: brand colours, Fredoka/Manrope, and the globe mascot.
 Each post has 12 slides:
 - **Cover:** a hook and five "?" tiles, one per level (Easy → Legend).
-- **Five question/answer pairs:** a country highlighted on a borderless map, then its name, flag and a fact.
+- **Five question/answer pairs:** a country highlighted on the map, then its name, flag and a fact.
+  Posts 1–5 used a dark sea and mint land without borders. From post 6 the map reads like any atlas: blue sea, green land, a darker coastline and white borders between countries, zoomed out about 15% for context (feedback: dark-green water looked like land).
 - **Score slide:** "Comment your score below", plus the next challenge.
 
 | Post | Region | Easy → Legend |

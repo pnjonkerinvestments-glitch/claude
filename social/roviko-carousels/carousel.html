@@ -15,9 +15,9 @@
 @font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
 @font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { overflow: hidden; background: #163B32; }
+html, body { overflow: hidden; background: #7CC4EE; }
 body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
-#stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #163B32; }
+#stage { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; background: #7CC4EE; }
 .a { position: absolute; left: 0; top: 0; }
 svg { overflow: visible; }
 </style>
@@ -34,7 +34,8 @@ const DIL = 1;
 const FLAGS = '../../roviko/public/flags/';
 const post = POSTS[(+Q.get('post') || 1) - 1];
 const slide = +(Q.get('slide') || 0);
-const OCEAN = '#163B32', LAND = '#DDEDE6', GOLD = '#F6B84B';
+// Since day 6: a map everyone reads at a glance. Blue sea, green land, white borders between countries.
+const OCEAN = '#7CC4EE', SEA_LIGHT = '#B9E2F8', LAND = '#9FD49A', BORDER = '#FFFFFF', COAST = '#5E9E66', GOLD = '#F6B84B';
 S(document.body, { width: W, height: H });
 
 // ------------------------------------------------------------------ projection: Lambert azimuthal equal-area, centred per view
@@ -80,18 +81,22 @@ function drawMap(view, highlight, answered) {
   svg.style.position = 'absolute';
   const defs = svgEl(svg, 'defs');
   const g = svgEl(defs, 'radialGradient', { id: 'sea', cx: '50%', cy: String(view.cy / H), r: '75%' });
-  svgEl(g, 'stop', { offset: '0', 'stop-color': '#24584C' }); svgEl(g, 'stop', { offset: '1', 'stop-color': OCEAN });
+  svgEl(g, 'stop', { offset: '0', 'stop-color': SEA_LIGHT }); svgEl(g, 'stop', { offset: '1', 'stop-color': OCEAN });
   const f = svgEl(defs, 'filter', { id: 'glow', x: '-50%', y: '-50%', width: '200%', height: '200%' });
   svgEl(f, 'feDropShadow', { dx: 0, dy: 0, stdDeviation: 14, 'flood-color': answered ? '#5ED34F' : GOLD, 'flood-opacity': 0.75 });
   svgEl(svg, 'rect', { width: W, height: H, fill: 'url(#sea)' });
-  // land, no borders: every country (and the gap-filling extra land) in one colour, stroked in the same colour
+  // land in green with a darker coastline, then every country's border in white, so you can see where each country ends
   let d = '';
   for (const id in GEO) if (id !== highlight) d += countryPath(id, P);
   for (const r of GEO_EXTRA) d += ringPath(r, P);
+  svgEl(svg, 'path', { d, fill: 'none', stroke: COAST, 'stroke-width': 5, 'stroke-linejoin': 'round' });
   svgEl(svg, 'path', { d, fill: LAND, stroke: LAND, 'stroke-width': 1.2, 'stroke-linejoin': 'round', 'fill-rule': 'nonzero' });
+  let bd = '';
+  for (const id in GEO) if (id !== highlight) bd += countryPath(id, P);
+  svgEl(svg, 'path', { d: bd, fill: 'none', stroke: BORDER, 'stroke-width': 2.4, 'stroke-linejoin': 'round', opacity: 0.95 });
   if (highlight) {
     const hd = countryPath(highlight, P);
-    svgEl(svg, 'path', { d: hd, fill: answered ? C.green : GOLD, stroke: OCEAN, 'stroke-width': 3.5, 'stroke-linejoin': 'round', filter: 'url(#glow)' });
+    svgEl(svg, 'path', { d: hd, fill: answered ? C.green : GOLD, stroke: C.forest, 'stroke-width': 3.5, 'stroke-linejoin': 'round', filter: 'url(#glow)' });
     // tiny countries get a ring so the eye finds them
     const pts = centreOf(highlight).near.flatMap(p => p[0].map(([lo, la]) => P(lo, la))).filter(p => p[2] > 0);
     const b = bbox(pts.map(p => [p[0], p[1]]));
@@ -134,7 +139,7 @@ const K = post.countries;
 function questionOrAnswer(k, answered) {
   const c = K[k], lv = LEVELS[k];
   const ctr = centreOf(c.id);
-  const { b } = drawMap({ lon: ctr.lon, lat: ctr.lat, span: c.span, cy: 790 }, c.id, answered);
+  const { b } = drawMap({ lon: ctr.lon, lat: ctr.lat, span: c.span * (post.n >= 6 ? 1.15 : 1), cy: 790 }, c.id, answered);
   // top: n/5, level, progress dots
   const n = pill(stage, `${k + 1} / 5`, 0, 0, { size: 34, h: 66 });
   const lvp = pill(stage, lv.label.toUpperCase(), 0, 0, { bg: lv.bg, fg: lv.fg, size: 28, h: 66, font: 'Manrope', weight: 800, ls: '0.08em' });
@@ -178,7 +183,7 @@ function cover() {
   el(card, { left: 0, top: 44, width: 800, textAlign: 'center', fontSize: 26, fontWeight: 800, letterSpacing: '0.12em', color: C.green },
     `MAP CHALLENGE #${post.n} · ${post.region.toUpperCase()}`);
   el(card, Object.assign({ left: 0, top: 96, width: 800, textAlign: 'center', fontSize: 118, lineHeight: '122px', fontWeight: 700 }, LT), 'Guess the<br>country');
-  el(card, { left: 0, top: 360, width: 800, textAlign: 'center', fontSize: 36, fontWeight: 800, color: C.forest }, '5 countries. No borders.');
+  el(card, { left: 0, top: 360, width: 800, textAlign: 'center', fontSize: 36, fontWeight: 800, color: C.forest }, post.n >= 6 ? '5 countries. Can you name them all?' : '5 countries. No borders.');
   const lvRow = LEVELS.map(l => { const e = el(card, { height: 44, borderRadius: 22, background: l.bg, color: l.fg, fontFamily: 'Manrope', fontWeight: 800, fontSize: 20, lineHeight: '44px', padding: '0 16px', letterSpacing: '0.06em', whiteSpace: 'pre' }, l.label.toUpperCase()); return e; });
   LAYOUT.push(() => { const ws = lvRow.map(e => e.getBoundingClientRect().width); let x = 400 - (ws.reduce((a, b) => a + b, 0) + 10 * 4) / 2; lvRow.forEach((e, i) => { S(e, { left: x, top: 430 }); x += ws[i] + 10; }); });
   const goal = el(card, { left: 0, top: 506, width: 800, textAlign: 'center' }, `<span style="background:${GOLD};border-radius:30px;padding:10px 30px;font-family:Fredoka;font-weight:600;font-size:36px;color:${C.forest}">5/5 = Geography legend</span>`);
