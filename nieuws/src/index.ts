@@ -1,25 +1,46 @@
-// Nieuwsmelder: elke minuut (cron) eerst Telegram-commando's verwerken, dan het nieuws checken.
+// Nieuwsmelder: elke minuut (cron) twee runs naast elkaar.
+// - Volglijst: Telegram-commando's verwerken en het nieuws per gevolgd aandeel checken.
+// - Screener: de Europese nieuwsstromen op filterwoorden doorzoeken en zo nodig een stukje van
+//   de selectie verversen. Die draait als aparte aanroep (de Worker roept zichzelf aan via de
+//   SELF-binding), zodat hij een eigen budget heeft: Workers Free geeft per aanroep 10 ms
+//   rekentijd, 50 uitgaande verzoeken en 50 databasevragen. Zo kan de screener de volglijst
+//   nooit laten vastlopen.
 
-import { LAST_RUN_KEY, ownerChat, processUpdates } from "./bot.ts";
+import { AlertSender, alertChat } from "./alerts.ts";
+import { LAST_RUN_KEY, LAST_SCREEN_KEY, processUpdates } from "./bot.ts";
 import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
-import { loadConfig } from "./config.ts";
+import { DEFAULT_FILTERS, loadConfig } from "./config.ts";
+import { checkScreener, refreshUniverse } from "./screener.ts";
 import type { Store } from "./store.ts";
 import { D1Store } from "./store.ts";
 import { Telegram } from "./telegram.ts";
 
 const SEEDED_KEY = "seeded";
+const FILTERS_SEEDED_KEY = "filters_seeded";
 const LOCK_KEY = "lock";
+const SCREEN_LOCK_KEY = "screen_lock";
+
 /** Langer dan een normale run, korter dan het cron-interval plus wat marge. */
 const LOCK_SECONDS = 55;
 
-async function seedWatchlist(store: Store, env: Env): Promise<void> {
-  if (await store.getSetting(SEEDED_KEY)) return;
-  for (const entry of loadConfig(env).seedWatchlist) await store.addWatch(entry);
-  await store.setSetting(SEEDED_KEY, "1");
+async function seed(store: Store, env: Env): Promise<void> {
+  if (!(await store.getSetting(SEEDED_KEY))) {
+    for (const entry of loadConfig(env).seedWatchlist) await store.addWatch(entry);
+    await store.setSetting(SEEDED_KEY, "1");
+  }
+  // Apart van de volglijst, zodat een bestaande installatie de standaardfilter ook krijgt.
+  if (!(await store.getSetting(FILTERS_SEEDED_KEY))) {
+    for (const [filter, words] of Object.entries(DEFAULT_FILTERS)) await store.addFilterWords(filter, words);
+    await store.setSetting(FILTERS_SEEDED_KEY, "1");
+  }
 }
 
-export async function runOnce(env: Env, now = Math.floor(Date.now() / 1000)): Promise<void> {
+function message(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+export async function runWatch(env: Env, now = Math.floor(Date.now() / 1000)): Promise<void> {
   if (!env.TELEGRAM_BOT_TOKEN) {
     console.error("TELEGRAM_BOT_TOKEN ontbreekt; zet hem als secret (zie nieuws/README.md).");
     return;
@@ -34,8 +55,8 @@ export async function runOnce(env: Env, now = Math.floor(Date.now() / 1000)): Pr
     const config = loadConfig(env);
     const fetcher = fetch.bind(globalThis);
     const telegram = new Telegram(env.TELEGRAM_BOT_TOKEN, fetcher);
-    const log = (message: string) => console.log(message);
-    await seedWatchlist(store, env);
+    const log = (text: string) => console.log(text);
+    await seed(store, env);
 
     try {
       await processUpdates({ store, telegram, fetcher, config, fixedChatId: env.TELEGRAM_CHAT_ID }, log);
@@ -43,12 +64,13 @@ export async function runOnce(env: Env, now = Math.floor(Date.now() / 1000)): Pr
       console.error("Telegram-commando's ophalen mislukt:", error);
     }
 
-    const chatId = await ownerChat(store, env.TELEGRAM_CHAT_ID);
+    const chatId = await alertChat(store, env.TELEGRAM_CHAT_ID);
     if (!chatId) {
       console.log("Nog geen eigenaar; stuur /start naar de bot.");
       return;
     }
-    const result = await checkNews({ store, telegram, fetcher, chatId, config, now, log });
+    const sender = new AlertSender(store, telegram, chatId);
+    const result = await checkNews({ store, fetcher, send: (html) => sender.send(html), config, now, log });
     for (const error of result.errors) console.error(error);
     if (result.alerted) console.log(`${result.alerted} melding(en) verstuurd.`);
     await store.setSetting(
@@ -60,12 +82,78 @@ export async function runOnce(env: Env, now = Math.floor(Date.now() / 1000)): Pr
   }
 }
 
+export async function runScreen(env: Env, now = Math.floor(Date.now() / 1000)): Promise<void> {
+  if (!env.TELEGRAM_BOT_TOKEN) return;
+  const store = new D1Store(env.DB);
+  if (!(await store.tryLock(SCREEN_LOCK_KEY, now, LOCK_SECONDS))) {
+    console.log("Vorige screener-run loopt nog; overgeslagen.");
+    return;
+  }
+  try {
+    const chatId = await alertChat(store, env.TELEGRAM_CHAT_ID);
+    // Zonder eigenaar is er nog geen chat om naartoe te sturen; de volglijst-run regelt /start.
+    if (!chatId) return;
+    const config = loadConfig(env);
+    const fetcher = fetch.bind(globalThis);
+    const sender = new AlertSender(store, new Telegram(env.TELEGRAM_BOT_TOKEN, fetcher), chatId);
+    const log = (text: string) => console.log(text);
+    const errors: string[] = [];
+    let scanned = 0;
+    let alerted = 0;
+    try {
+      const screen = await checkScreener({ store, fetcher, config, send: (html) => sender.send(html), now, log });
+      scanned = screen.scanned;
+      alerted = screen.alerted;
+      errors.push(...screen.errors);
+    } catch (error) {
+      errors.push(`screener: ${message(error)}`);
+    }
+    try {
+      await refreshUniverse(store, config, fetcher, now);
+    } catch (error) {
+      errors.push(`selectie verversen: ${message(error)}`);
+    }
+    for (const error of errors) console.error(error);
+    if (alerted) console.log(`screener: ${alerted} melding(en) verstuurd.`);
+    await store.setSetting(LAST_SCREEN_KEY, JSON.stringify({ at: now, scanned, alerted, errors }));
+  } finally {
+    await store.deleteSetting(SCREEN_LOCK_KEY);
+  }
+}
+
+const SCREEN_PATH = "/intern/screener";
+
 export default {
   async scheduled(controller, env, ctx) {
-    ctx.waitUntil(runOnce(env, Math.floor(controller.scheduledTime / 1000)));
+    const now = Math.floor(controller.scheduledTime / 1000);
+    ctx.waitUntil(runWatch(env, now));
+    if (env.SELF && env.TELEGRAM_BOT_TOKEN) {
+      // Aparte aanroep met een eigen budget; zie bovenaan dit bestand.
+      ctx.waitUntil(
+        env.SELF.fetch(`https://nieuws-alert${SCREEN_PATH}?now=${now}`, {
+          method: "POST",
+          headers: { "X-Intern": env.TELEGRAM_BOT_TOKEN },
+        })
+          .then((response) => response.arrayBuffer())
+          .catch((error) => console.error("screener-aanroep mislukt:", error)),
+      );
+    } else {
+      ctx.waitUntil(runScreen(env, now));
+    }
   },
 
-  async fetch() {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+    // Alleen bereikbaar via de SELF-binding: de Worker heeft geen publiek adres, en het
+    // bot-token dient als extra controle dat de aanroep van onszelf komt.
+    if (url.pathname === SCREEN_PATH && request.method === "POST") {
+      if (!env.TELEGRAM_BOT_TOKEN || request.headers.get("X-Intern") !== env.TELEGRAM_BOT_TOKEN) {
+        return new Response("nee", { status: 403 });
+      }
+      const now = Number(url.searchParams.get("now")) || Math.floor(Date.now() / 1000);
+      await runScreen(env, now);
+      return new Response(null, { status: 204 });
+    }
     return new Response("Nieuwsmelder draait. Bediening gaat via Telegram.\n", {
       headers: { "Content-Type": "text/plain; charset=utf-8" },
     });

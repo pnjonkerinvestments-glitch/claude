@@ -3,16 +3,15 @@
 
 import type { Config } from "./config.ts";
 import type { Store, WatchEntry } from "./store.ts";
-import type { Telegram } from "./telegram.ts";
 import { formatNewsDigest, formatNewsMessage } from "./telegram.ts";
 import type { Fetch, NewsItem } from "./tradingview.ts";
 import { cleanSummary, fetchNews, fetchStory } from "./tradingview.ts";
 
 export interface CheckDeps {
   store: Store;
-  telegram: Telegram;
   fetcher: Fetch;
-  chatId: string;
+  /** Verstuurt een melding naar de meldingenchat. */
+  send: (html: string) => Promise<void>;
   config: Config;
   /** Huidige tijd in seconden. */
   now: number;
@@ -113,7 +112,7 @@ async function checkSymbol(deps: CheckDeps, entry: WatchEntry, result: CheckResu
   }
   // Pas na een gelukte verzending als gezien markeren, zodat een mislukte melding de
   // volgende minuut opnieuw geprobeerd wordt.
-  await deps.telegram.send(deps.chatId, text);
+  await deps.send(text);
   await store.markSeen(toAlert.map((item) => item.id), entry.symbol, now);
   result.alerted += shown.length;
 }

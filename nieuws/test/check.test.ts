@@ -11,7 +11,7 @@ async function setup() {
   const store = new MemoryStore();
   await store.addWatch({ symbol: "XETR:1INN", name: "innoscripta SE" });
   const run = (now = NOW) =>
-    checkNews({ store, telegram: net.telegram(), fetcher: net.fetch, chatId: "99", config, now });
+    checkNews({ store, send: (t) => net.telegram().send("99", t), fetcher: net.fetch, config, now });
   return { net, store, run };
 }
 
@@ -107,7 +107,7 @@ test("samenvatting en bronlink uit het story-endpoint", async () => {
   const { net, store } = await setup();
   const withDetails = loadConfig({ NEWS_LANGS: "de" } as never);
   const run = (now: number) =>
-    checkNews({ store, telegram: net.telegram(), fetcher: net.fetch, chatId: "99", config: withDetails, now });
+    checkNews({ store, send: (t) => net.telegram().send("99", t), fetcher: net.fetch, config: withDetails, now });
   await run(NOW);
   net.news.set("XETR:1INN", { items: [item("d", "Kop", NOW)] });
   net.story = {

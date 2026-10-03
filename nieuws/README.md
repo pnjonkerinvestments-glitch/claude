@@ -1,6 +1,8 @@
 # Nieuwsmelder
 
-Stuurt je een Telegram-bericht zodra TradingView nieuws heeft over een aandeel op je lijst.
+Stuurt een Telegram-bericht zodra TradingView nieuws heeft over een aandeel op je lijst, en
+(screener) zodra een kop over een Europese small cap een van je filterwoorden bevat, zoals
+"Sonderdividende" of "special dividend".
 Bijvoorbeeld: innoscripta (XETR:1INN) reageert om 19:46 op slecht nieuws, en binnen een
 minuut heb je de kop, een korte samenvatting en de link naar het originele artikel op je telefoon.
 
@@ -15,6 +17,43 @@ Origineel artikel · TradingView · Grafiek
 
 Komt hetzelfde nieuws in dezelfde minuut in meerdere varianten binnen (Duits en Engels
 persbericht, Reuters, TradingView-samenvatting), dan krijg je die samen in één bericht.
+
+## Screener: filterwoorden op Europese small caps
+
+```
+🔎 Filter: dividend · "Sonderdividende"
+📰 PFSE · Pfisterer Holding SE
+Duitsland · marktwaarde €312,0 mln
+
+Pfisterer Holding SE: Vorstand schlägt Sonderdividende vor
+🕒 za 3 okt, 12:30 · EQS
+Origineel artikel · TradingView
+
+Grafiek
+```
+
+- **Selectie:** alle primaire aandelen in Duitsland, Frankrijk, Italië, Spanje, Portugal,
+  Nederland, België, Luxemburg, Denemarken, Zweden, Noorwegen, Finland, het VK, Zwitserland en
+  Oostenrijk met een marktwaarde tussen €2,5 mln en €500 mln (± 2.900 aandelen). Wordt elke
+  dag opnieuw opgehaald bij de TradingView-screener, marktwaarde omgerekend naar euro.
+- **Nieuws:** elke minuut de nieuwsstromen van TradingView voor die landen: één Engelse voor
+  alles, plus Duits, Frans, Italiaans, Spaans en Portugees. Zweeds en Nederlands kent
+  TradingView niet als nieuwstaal; dat nieuws komt in het Engels binnen.
+- **Filters:** een filter is een naam met een lijst woorden. Standaard is er `dividend` met
+  "speciaal dividend" in alle relevante talen. Hoofdletters en accenten maken niet uit, en een
+  woord vindt ook langere vormen ("Sonderdividende" vindt "Sonderdividenden").
+- Hetzelfde nieuws in meerdere talen in dezelfde minuut wordt één bericht. Wat al via de
+  volglijst gemeld is, komt niet nog eens.
+
+## Delen in een Telegram-groep
+
+1. Maak in Telegram een groep en voeg de bot en de anderen toe.
+2. Stuur in de groep `/hier`. Vanaf dan gaan alle meldingen (volglijst en screener) naar de groep.
+3. Iedereen ziet de meldingen; alleen de eigenaar (wie als eerste `/start` stuurde) kan
+   instellingen veranderen. Commando's van anderen worden genegeerd.
+4. Reageert de bot niet in de groep, gebruik dan `/hier@gebruikersnaamvandebot`.
+
+`/hier` in je eigen chat met de bot zet de meldingen weer terug naar daar.
 
 ## Hoe het werkt
 
@@ -47,6 +86,14 @@ persbericht, Reuters, TradingView-samenvatting), dan krijg je die samen in één
 | `/lijst` | wat er gevolgd wordt |
 | `/laatste 1INN` | de laatste drie koppen, handig om te testen |
 | `/status` | wanneer er voor het laatst gekeken is, en eventuele fouten |
+| `/hier` | meldingen voortaan naar deze chat of groep |
+| `/filters` | alle filters en hun woorden |
+| `/woord dividend Superdividende` | woord toevoegen (nieuwe filternaam = nieuwe filter) |
+| `/woordweg dividend Superdividende` | woord weghalen |
+| `/filterweg dividend` | hele filter weghalen |
+| `/filtertest` | treffers in de huidige nieuwsstromen tonen, zonder te melden |
+| `/marktwaarde 2,5 500` | bandbreedte in miljoen euro |
+| `/screener` | grootte van de selectie en wanneer die is bijgewerkt |
 
 Commando's worden elke minuut opgehaald, dus een antwoord kan tot een minuut duren.
 De startlijst (`WATCHLIST` in `wrangler.jsonc`) wordt alleen bij de allereerste run gebruikt.
@@ -58,12 +105,16 @@ De startlijst (`WATCHLIST` in `wrangler.jsonc`) wordt alleen bij de allereerste 
 | `NEWS_LANGS` | `de,en` | talen van de nieuwsfeed |
 | `TIMEZONE` | `Europe/Amsterdam` | tijd in de melding |
 | `MAX_AGE_HOURS` | `24` | ouder nieuws niet meer melden (na een storing) |
-| `MAX_REQUESTS` | `40` | TradingView-verzoeken per minuut; bij een lange lijst wisselt het door |
+| `MAX_REQUESTS` | `30` | TradingView-verzoeken per minuut voor de volglijst; bij een lange lijst wisselt het door |
+| `SCREEN_MARKETS` | 15 landen | screener-markten van TradingView (`germany`, `uk`, ...) |
+| `SCREEN_FEEDS` | zie `src/config.ts` | nieuwsstromen per taal en land |
+| `SCREEN_CAP_MIN_EUR` / `SCREEN_CAP_MAX_EUR` | 2,5 mln / 500 mln | standaardbandbreedte; `/marktwaarde` gaat voor |
 | `MAX_ALERTS_PER_SYMBOL` | `5` | hoogstens zoveel koppen per bericht; de rest wordt als aantal genoemd |
 | `STORY_DETAILS` | `true` | samenvatting en bronlink ophalen |
 
-Met twee talen past een lijst van 20 aandelen in één minuut. Bij meer aandelen worden ze
-om de beurt bekeken (bij 40 aandelen dus elk aandeel om de twee minuten).
+Met twee talen past een volglijst van 15 aandelen in één minuut. Bij meer aandelen worden ze
+om de beurt bekeken (bij 30 aandelen dus elk aandeel om de twee minuten). De screener kost
+daarnaast maar zes verzoeken per minuut, hoe groot de selectie ook is.
 
 ## Ontwikkelen
 

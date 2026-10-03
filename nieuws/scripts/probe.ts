@@ -4,6 +4,18 @@
 
 import { fetchStory, headlinesUrl, newsFlowUrl, parseNewsResponse, searchSymbol } from "../src/tradingview.ts";
 import { formatNewsMessage } from "../src/telegram.ts";
+import { DEFAULT_FILTERS, loadConfig } from "../src/config.ts";
+import {
+  countryName,
+  fetchFeeds,
+  formatCap,
+  formatScreenerMessage,
+  groupFilters,
+  matchFilters,
+  parseScannerRows,
+  scannerPayload,
+} from "../src/screener.ts";
+import type { UniverseEntry } from "../src/store.ts";
 
 const symbols = process.argv.slice(2).length ? process.argv.slice(2) : ["XETR:1INN"];
 const langs = ["de", "en"];
@@ -71,6 +83,54 @@ for (const query of ["1INN", "innoscripta"]) {
     console.log(`\nzoeken "${query}" mislukt:`, (error as Error).message);
     problems++;
   }
+}
+
+// ---- screener: selectie, nieuwsstromen en filterwoorden tegen echte data
+const config = loadConfig({} as never);
+const universe = new Map<string, UniverseEntry>();
+let total = 0;
+for (let offset = 0; offset === 0 || offset < total; offset += 1000) {
+  const response = await fetch("https://scanner.tradingview.com/global/scan?label-product=screener-stock", {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: JSON.stringify(scannerPayload(config, { min: config.capMinEur, max: config.capMaxEur }, offset)),
+  });
+  const page = parseScannerRows(await response.json());
+  total = page.total;
+  for (const row of page.rows) universe.set(row.symbol, row);
+  if (!page.rows.length) break;
+}
+const perCountry = new Map<string, number>();
+for (const e of universe.values()) perCountry.set(e.country, (perCountry.get(e.country) ?? 0) + 1);
+console.log(`\n== screener: ${universe.size} van ${total} aandelen tussen ${formatCap(config.capMinEur)} en ${formatCap(config.capMaxEur)}`);
+console.log([...perCountry].sort((a, b) => b[1] - a[1]).map(([c, n]) => `${countryName(c)} ${n}`).join(", "));
+if (universe.size < 1000) {
+  console.log("!! selectie verdacht klein");
+  problems++;
+}
+
+const errors: string[] = [];
+const items = await fetchFeeds(fetch, config.screenFeeds, errors);
+console.log(`\n== nieuwsstromen: ${items.length} unieke koppen uit ${config.screenFeeds.length} stromen`, errors.join("; "));
+if (!items.length || errors.length) problems++;
+const inUniverse = items.filter((i) => i.symbols.some((s) => universe.has(s)));
+console.log(`waarvan ${inUniverse.length} over een aandeel in de selectie`);
+const filters = groupFilters(DEFAULT_FILTERS.dividend.map((word) => ({ filter: "dividend", word })));
+const hits = items.map((item) => ({ item, hits: matchFilters(item.title, filters) })).filter((h) => h.hits.length);
+console.log(`dividendwoorden in ${hits.length} koppen (alle marktwaarden):`);
+for (const { item, hits: h } of hits.slice(0, 15)) {
+  const entry = item.symbols.map((s) => universe.get(s)).find(Boolean);
+  console.log(`- ${entry ? "✔ " + formatCap(entry.capEur) : "✘ buiten selectie"} | ${item.symbols.join(",")} | ${item.title} | "${h[0].word}"`);
+}
+const sample = inUniverse[0];
+if (sample) {
+  const entry = sample.symbols.map((s) => universe.get(s)).find(Boolean)!;
+  console.log("\nvoorbeeld screenermelding:\n" + formatScreenerMessage({
+    entry,
+    items: [sample],
+    hits: [{ filter: "dividend", word: "(voorbeeld)" }],
+    timeZone: config.timeZone,
+  }));
 }
 
 if (problems) {

@@ -4,8 +4,23 @@ import type { WatchEntry } from "./store.ts";
 
 export interface TelegramMessage {
   chatId: string;
+  /** "private", "group", "supergroup" of "channel". */
+  chatType: string;
   text: string;
+  fromId: string;
   fromName: string;
+  /** Gezet als een groep is omgezet naar een supergroep (die krijgt een nieuw chat-id). */
+  migrateTo?: string;
+}
+
+export class TelegramError extends Error {
+  /** Nieuw chat-id als de groep intussen een supergroep is geworden. */
+  readonly migrateTo?: string;
+
+  constructor(message: string, migrateTo?: string) {
+    super(message);
+    this.migrateTo = migrateTo;
+  }
 }
 
 export interface TelegramUpdates {
@@ -30,9 +45,18 @@ export class Telegram {
       body: JSON.stringify(payload),
       signal: AbortSignal.timeout(10_000),
     });
-    const body = (await response.json().catch(() => null)) as { ok?: boolean; result?: unknown; description?: string } | null;
+    const body = (await response.json().catch(() => null)) as {
+      ok?: boolean;
+      result?: unknown;
+      description?: string;
+      parameters?: { migrate_to_chat_id?: number };
+    } | null;
     if (!response.ok || !body?.ok) {
-      throw new Error(`Telegram ${method} mislukt: ${response.status} ${body?.description ?? ""}`.trim());
+      const migrateTo = body?.parameters?.migrate_to_chat_id;
+      throw new TelegramError(
+        `Telegram ${method} mislukt: ${response.status} ${body?.description ?? ""}`.trim(),
+        migrateTo === undefined ? undefined : String(migrateTo),
+      );
     }
     return body.result;
   }
@@ -55,10 +79,24 @@ export class Telegram {
     for (const update of result ?? []) {
       if (typeof update.update_id === "number") nextOffset = Math.max(nextOffset ?? 0, update.update_id + 1);
       const message = update.message;
-      if (!message || typeof message.text !== "string" || !message.chat) continue;
+      if (!message?.chat) continue;
+      if (message.migrate_to_chat_id !== undefined) {
+        messages.push({
+          chatId: String(message.chat.id),
+          chatType: String(message.chat.type ?? ""),
+          text: "",
+          fromId: String(message.from?.id ?? ""),
+          fromName: "",
+          migrateTo: String(message.migrate_to_chat_id),
+        });
+        continue;
+      }
+      if (typeof message.text !== "string") continue;
       messages.push({
         chatId: String(message.chat.id),
+        chatType: String(message.chat.type ?? ""),
         text: message.text,
+        fromId: String(message.from?.id ?? ""),
         fromName: String(message.from?.first_name ?? ""),
       });
     }
@@ -95,13 +133,13 @@ function header(entry: WatchEntry): string {
   return `📰 <b>${head}</b>`;
 }
 
-function meta(item: NewsItem, timeZone: string): string {
+export function meta(item: NewsItem, timeZone: string): string {
   const parts = [`🕒 ${escapeHtml(formatTime(item.published, timeZone))}`];
   if (item.provider) parts.push(escapeHtml(item.provider));
   return parts.join(" · ");
 }
 
-function links(item: NewsItem, symbol?: string): string {
+export function links(item: NewsItem, symbol?: string): string {
   const parts: string[] = [];
   if (item.link) parts.push(`<a href="${escapeHtml(item.link)}">Origineel artikel</a>`);
   if (item.storyUrl) parts.push(`<a href="${escapeHtml(item.storyUrl)}">TradingView</a>`);

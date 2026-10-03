@@ -7,6 +7,7 @@
   "observability": { "enabled": true },
   // Geen publiek adres nodig: alles loopt via de cron en Telegram.
   "workers_dev": false,
+  "preview_urls": false,
 
   // Elke minuut, dag en nacht: nieuws komt ook na sluiting van de beurs (Tradegate tot 22:00).
   "triggers": { "crons": ["* * * * *"] },
@@ -15,6 +16,10 @@
   // database bij de eerste deploy zelf aan; de tabellen maakt de Worker zelf.
   "d1_databases": [{ "binding": "DB", "database_name": "nieuws-alert" }],
 
+  // De Worker roept zichzelf aan voor de screener, zodat die een eigen budget heeft
+  // (Workers Free: 10 ms rekentijd, 50 verzoeken en 50 databasevragen per aanroep).
+  "services": [{ "binding": "SELF", "service": "nieuws-alert" }],
+
   // TELEGRAM_BOT_TOKEN (en optioneel TELEGRAM_CHAT_ID) zijn secrets, die horen hier niet.
   "vars": {
     // Talen van de TradingView-nieuwsfeed. Duitse aandelen: de en en.
@@ -22,8 +27,9 @@
     "TIMEZONE": "Europe/Amsterdam",
     // Berichten ouder dan dit worden niet meer gemeld (bijvoorbeeld na een storing).
     "MAX_AGE_HOURS": "24",
-    // Hoogstens zoveel TradingView-verzoeken per minuut; bij een lange lijst wisselt het door.
-    "MAX_REQUESTS": "40",
+    // Hoogstens zoveel TradingView-verzoeken per minuut voor de volglijst; bij een lange lijst
+    // wisselt het door. De screener gebruikt er daarnaast zo'n 7 (Workers Free: 50 in totaal).
+    "MAX_REQUESTS": "30",
     "MAX_ALERTS_PER_SYMBOL": "5",
     // Korte samenvatting en bronlink bij elke melding ophalen.
     "STORY_DETAILS": "true",
