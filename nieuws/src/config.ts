@@ -16,6 +16,7 @@ export interface Env {
   SCREEN_FEEDS?: string;
   SCREEN_CAP_MIN_EUR?: string;
   SCREEN_CAP_MAX_EUR?: string;
+  SCREEN_COUNTRIES?: string;
 }
 
 export interface Feed {
@@ -41,10 +42,19 @@ export interface Config {
   screenFeeds: Feed[];
   capMinEur: number;
   capMaxEur: number;
+  /**
+   * Land van het bedrijf zelf (zoals TradingView het noemt). Een beurs in Londen of Stockholm
+   * heeft ook bedrijven uit de VS, Ierland, Cyprus of Bermuda; die vallen hiermee af.
+   */
+  screenCountries: string[];
 }
 
 export const DEFAULT_MARKETS =
   "germany,france,italy,spain,portugal,netherlands,belgium,luxembourg,denmark,sweden,norway,finland,uk,switzerland,austria";
+// Faeröer en Groenland horen bij Denemarken, Åland bij Finland.
+export const DEFAULT_COUNTRIES =
+  "Germany,France,Italy,Spain,Portugal,Netherlands,Belgium,Luxembourg,Denmark,Sweden,Norway,Finland," +
+  "United Kingdom,Switzerland,Austria,Faroe Islands,Greenland,Aland Islands";
 // Eén Engelse stroom voor alle landen, plus de landstalen die TradingView kent
 // (Zweeds en Nederlands bestaan daar niet als nieuwstaal).
 export const DEFAULT_FEEDS =
@@ -125,5 +135,9 @@ export function loadConfig(env: Env): Config {
     screenFeeds: parseFeeds(env.SCREEN_FEEDS ?? DEFAULT_FEEDS),
     capMinEur: number(env.SCREEN_CAP_MIN_EUR, 2_500_000),
     capMaxEur: number(env.SCREEN_CAP_MAX_EUR, 500_000_000),
+    screenCountries: (env.SCREEN_COUNTRIES ?? DEFAULT_COUNTRIES)
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean),
   };
 }

@@ -97,7 +97,7 @@ for (let offset = 0; offset === 0 || offset < total; offset += 1000) {
   });
   const page = parseScannerRows(await response.json());
   total = page.total;
-  for (const row of page.rows) universe.set(row.symbol, row);
+  for (const row of page.rows) if (config.screenCountries.includes(row.country)) universe.set(row.symbol, row);
   if (!page.rows.length) break;
 }
 const perCountry = new Map<string, number>();

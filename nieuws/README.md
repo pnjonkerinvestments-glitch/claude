@@ -34,8 +34,10 @@ Grafiek
 
 - **Selectie:** alle primaire aandelen in Duitsland, Frankrijk, Italië, Spanje, Portugal,
   Nederland, België, Luxemburg, Denemarken, Zweden, Noorwegen, Finland, het VK, Zwitserland en
-  Oostenrijk met een marktwaarde tussen €2,5 mln en €500 mln (± 2.900 aandelen). Wordt elke
-  dag opnieuw opgehaald bij de TradingView-screener, marktwaarde omgerekend naar euro.
+  Oostenrijk met een marktwaarde tussen €2,5 mln en €500 mln (± 2.750 aandelen). Het gaat om
+  het land van het bedrijf zelf: een Iers, Cypriotisch of Amerikaans bedrijf met een notering
+  in Londen of Stockholm valt erbuiten. Wordt elke dag opnieuw opgehaald bij de
+  TradingView-screener, marktwaarde omgerekend naar euro.
 - **Nieuws:** elke minuut de nieuwsstromen van TradingView voor die landen: één Engelse voor
   alles, plus Duits, Frans, Italiaans, Spaans en Portugees. Zweeds en Nederlands kent
   TradingView niet als nieuwstaal; dat nieuws komt in het Engels binnen.
@@ -107,6 +109,7 @@ De startlijst (`WATCHLIST` in `wrangler.jsonc`) wordt alleen bij de allereerste 
 | `MAX_AGE_HOURS` | `24` | ouder nieuws niet meer melden (na een storing) |
 | `MAX_REQUESTS` | `30` | TradingView-verzoeken per minuut voor de volglijst; bij een lange lijst wisselt het door |
 | `SCREEN_MARKETS` | 15 landen | screener-markten van TradingView (`germany`, `uk`, ...) |
+| `SCREEN_COUNTRIES` | zie `src/config.ts` | land van het bedrijf zelf, in het Engels zoals TradingView het noemt |
 | `SCREEN_FEEDS` | zie `src/config.ts` | nieuwsstromen per taal en land |
 | `SCREEN_CAP_MIN_EUR` / `SCREEN_CAP_MAX_EUR` | 2,5 mln / 500 mln | standaardbandbreedte; `/marktwaarde` gaat voor |
 | `MAX_ALERTS_PER_SYMBOL` | `5` | hoogstens zoveel koppen per bericht; de rest wordt als aantal genoemd |

@@ -48,6 +48,9 @@ const COUNTRY_NL: Record<string, string> = {
   "United Kingdom": "Verenigd Koninkrijk",
   Switzerland: "Zwitserland",
   Austria: "Oostenrijk",
+  "Faroe Islands": "Faeröer",
+  Greenland: "Groenland",
+  "Aland Islands": "Åland",
 };
 
 // ---------------------------------------------------------------- selectie
@@ -136,7 +139,8 @@ export async function refreshUniverse(store: Store, config: Config, fetcher: Fet
   }
 
   const page = await fetchUniversePage(fetcher, scannerPayload(config, job, job.offset));
-  await store.putUniverse(page.rows, job.batch);
+  const countries = new Set(config.screenCountries);
+  await store.putUniverse(page.rows.filter((row) => countries.has(row.country)), job.batch);
   job.offset += PAGE;
   if (job.offset >= page.total || page.rows.length === 0) {
     // Lege eerste pagina is vrijwel zeker een storing bij TradingView: dan niets weggooien.

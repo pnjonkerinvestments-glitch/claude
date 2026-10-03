@@ -92,6 +92,20 @@ test("selectie verversen: per run één pagina, oude rijen pas weg als alles bin
   assert.deepEqual(net.scannerBodies.at(-1).filter[0].right, [2_500_000, 100_000_000]);
 });
 
+test("selectie: alleen bedrijven uit de gekozen landen, ook als ze in Londen genoteerd zijn", async () => {
+  const net = new FakeNet();
+  const store = new MemoryStore();
+  net.scannerRows = [
+    { s: "LSE:UK1", d: ["Brits bedrijf", 2e7, "United Kingdom"] },
+    { s: "LSE:IE1", d: ["Iers bedrijf", 2e7, "Ireland"] },
+    { s: "LSE:CY1", d: ["Cypriotisch bedrijf", 2e7, "Cyprus"] },
+    { s: "OMXSTO:US1", d: ["Amerikaans bedrijf", 2e7, "United States"] },
+    { s: "OMXCOP:FO1", d: ["Faeröers bedrijf", 2e7, "Faroe Islands"] },
+  ];
+  await refreshUniverse(store, config, net.fetch, NOW);
+  assert.deepEqual([...store.universe.keys()].sort(), ["LSE:UK1", "OMXCOP:FO1"]);
+});
+
 test("lege screener-respons gooit de selectie niet weg", async () => {
   const net = new FakeNet();
   const store = new MemoryStore();
