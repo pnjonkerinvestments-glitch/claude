@@ -22,56 +22,24 @@ function summarize(label: string, status: number, body: any) {
 }
 
 const base = "https://news-mediator.tradingview.com/news-flow/v2/news?client=screener&streaming=false&";
+const ALL = "AT,BE,CH,DE,DK,ES,FI,FR,GB,IT,LU,NL,NO,PT,SE";
 const variants: Array<[string, string]> = [
-  ["DE stock lang:de", "filter=lang:de&filter=market:stock&filter=market_country:DE"],
-  ["DE stock lang:en", "filter=lang:en&filter=market:stock&filter=market_country:DE"],
-  ["DE stock geen lang", "filter=market:stock&filter=market_country:DE"],
-  ["DE,FR,IT stock lang:en", "filter=lang:en&filter=market:stock&filter=market_country:DE,FR,IT"],
-  ["FR stock lang:fr", "filter=lang:fr&filter=market:stock&filter=market_country:FR"],
-  ["IT stock lang:it", "filter=lang:it&filter=market:stock&filter=market_country:IT"],
-  ["SE stock lang:en", "filter=lang:en&filter=market:stock&filter=market_country:SE"],
-  ["SE stock lang:sv", "filter=lang:sv&filter=market:stock&filter=market_country:SE"],
-  ["GB stock lang:en", "filter=lang:en&filter=market:stock&filter=market_country:GB"],
-  ["NL stock lang:nl", "filter=lang:nl&filter=market:stock&filter=market_country:NL"],
-  ["stock lang:en (wereld)", "filter=lang:en&filter=market:stock"],
-  ["area EUR lang:en", "filter=lang:en&filter=market:stock&filter=area:EUR"],
-  ["DE stock lang:de zonder market", "filter=lang:de&filter=market_country:DE"],
+  ["alle 15 lang:en", `filter=lang:en&filter=market:stock&filter=market_country:${ALL}`],
+  ["alle 15 lang:en limit=20", `filter=lang:en&filter=market:stock&filter=market_country:${ALL}&limit=20`],
+  ["alle 15 lang:en count=20", `filter=lang:en&filter=market:stock&filter=market_country:${ALL}&count=20`],
+  ["AT,CH,DE lang:de", "filter=lang:de&filter=market:stock&filter=market_country:AT,CH,DE"],
+  ["BE,CH,FR,LU lang:fr", "filter=lang:fr&filter=market:stock&filter=market_country:BE,CH,FR,LU"],
+  ["ES lang:es", "filter=lang:es&filter=market:stock&filter=market_country:ES"],
+  ["PT lang:pt", "filter=lang:pt&filter=market:stock&filter=market_country:PT"],
+  ["PT lang:en", "filter=lang:en&filter=market:stock&filter=market_country:PT"],
+  ["NL,BE lang:en", "filter=lang:en&filter=market:stock&filter=market_country:BE,NL"],
+  ["DK,FI,NO,SE lang:en", "filter=lang:en&filter=market:stock&filter=market_country:DK,FI,NO,SE"],
+  ["GB lang:en", "filter=lang:en&filter=market:stock&filter=market_country:GB"],
 ];
 for (const [label, q] of variants) {
   const { status, body } = await get(base + q);
   summarize(label, status, body);
+  console.log("bytes:", JSON.stringify(body).length);
 }
 
-// --- screener ---
-const markets = ["germany", "france", "italy", "spain", "portugal", "netherlands", "belgium", "luxembourg", "denmark", "sweden", "norway", "finland", "uk", "switzerland", "austria"];
-async function scan(url: string, payload: unknown) {
-  const r = await fetch(url, { method: "POST", headers: { ...headers, "Content-Type": "application/json" }, body: JSON.stringify(payload) });
-  const t = await r.text();
-  try { return { status: r.status, body: JSON.parse(t) as any }; } catch { return { status: r.status, body: t.slice(0, 300) as any }; }
-}
-const columns = ["name", "description", "exchange", "market_cap_basic", "currency", "fundamental_currency_code", "country", "is_primary", "type", "typespecs"];
-const filter = [
-  { left: "market_cap_basic", operation: "in_range", right: [2.5e6, 5e8] },
-  { left: "type", operation: "equal", right: "stock" },
-  { left: "is_primary", operation: "equal", right: true },
-];
-for (const conv of [undefined, { to_currency: "eur" }]) {
-  const payload: any = { filter, options: { lang: "en" }, markets, columns, range: [0, 8], sort: { sortBy: "market_cap_basic", sortOrder: "desc" } };
-  if (conv) payload.price_conversion = conv;
-  const { status, body } = await scan("https://scanner.tradingview.com/global/scan?label-product=screener-stock", payload);
-  console.log(`\n## scanner global ${conv ? "EUR" : "zonder conversie"}: HTTP ${status} totalCount=${body?.totalCount}`);
-  if (!body?.data) console.log(JSON.stringify(body).slice(0, 400));
-  for (const row of body?.data ?? []) console.log(row.s, JSON.stringify(row.d));
-}
-for (const m of ["uk", "sweden", "switzerland", "germany"]) {
-  const payload: any = { filter, options: { lang: "en" }, markets: [m], columns, range: [0, 3], price_conversion: { to_currency: "eur" }, sort: { sortBy: "market_cap_basic", sortOrder: "asc" } };
-  const { status, body } = await scan(`https://scanner.tradingview.com/${m}/scan?label-product=screener-stock`, payload);
-  console.log(`\n## scanner ${m} EUR kleinste: HTTP ${status} totalCount=${body?.totalCount}`);
-  for (const row of body?.data ?? []) console.log(row.s, JSON.stringify(row.d));
-}
-// per land aantallen
-for (const m of markets) {
-  const { body } = await scan("https://scanner.tradingview.com/global/scan?label-product=screener-stock", { filter, options: { lang: "en" }, markets: [m], columns: ["name"], range: [0, 1], price_conversion: { to_currency: "eur" } });
-  console.log(`aantal ${m}: ${body?.totalCount}`);
-}
 export {};
