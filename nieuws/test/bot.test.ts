@@ -118,8 +118,34 @@ test("groep: /hier verlegt de meldingen, alleen de eigenaar telt", async () => {
   assert.equal(net.sent[0].chatId, "-500");
   assert.match(net.sent[0].text, /alle meldingen in deze groep/);
 
-  await handleMessage(bot, msg("/woord dividend superdividend", { ...group, fromId: "7" }));
-  assert.equal(store.words.length, 0);
+});
+
+test("groepsleden mogen toevoegen in de meldingengroep, maar niet alles", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await store.setSetting(ALERT_CHAT_KEY, "-500");
+  const friend = { chatId: "-500", chatType: "supergroup", fromId: "7" };
+
+  await handleMessage(bot, msg("/woord dividend superdividend", friend));
+  assert.deepEqual(store.words, [{ filter: "dividend", word: "superdividend" }]);
+  await handleMessage(bot, msg("/volg XETR:SAP", friend));
+  assert.deepEqual((await store.listWatch()).map((w) => w.symbol), ["XETR:SAP"]);
+  await handleMessage(bot, msg("/marktwaarde", friend));
+  assert.match(net.sent.at(-1)!.text, /Nu: €2,5 mln tot €500,0 mln/);
+
+  for (const command of ["/hier", "/filterweg dividend", "/marktwaarde 1 2"]) {
+    await handleMessage(bot, msg(command, friend));
+    assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
+  }
+  assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-500");
+  assert.equal(store.words.length, 1);
+  assert.equal(await store.getSetting("screen_cap_min"), null);
+
+  const before = net.sent.length;
+  await handleMessage(bot, msg("/woord dividend x", { chatId: "-999", chatType: "group", fromId: "7" }));
+  await handleMessage(bot, msg("/woord dividend x", { chatId: "7", chatType: "private", fromId: "7" }));
+  assert.equal(net.sent.length, before, "in een andere groep of privé: geen reactie");
+  assert.equal(store.words.length, 1);
 });
 
 test("bestaande installatie: oude eigenaar-sleutel blijft werken", async () => {
