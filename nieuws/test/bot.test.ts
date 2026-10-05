@@ -214,3 +214,32 @@ test("/filtertest toont treffers zonder iets te onthouden", async () => {
   assert.match(net.sent[0].text, /XETR:PFSE<\/b> Pfisterer Holding SE \(Duitsland, €312,0 mln\)/);
   assert.equal(store.seen.size, 0);
 });
+
+test("/koersdoel aan en uit, en zichtbaar in /filters", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await handleMessage(bot, msg("/koersdoel uit"));
+  assert.equal(await store.getSetting("targets_off"), "1");
+  await handleMessage(bot, msg("/filters"));
+  assert.match(net.sent.at(-1)!.text, /koersdoel<\/b> \(street high\/low\): uit/);
+  await handleMessage(bot, msg("/koersdoel aan"));
+  assert.equal(await store.getSetting("targets_off"), null);
+  await handleMessage(bot, msg("/koersdoel"));
+  assert.match(net.sent.at(-1)!.text, /staan <b>aan<\/b>/);
+});
+
+test("standaardfilters: nieuwe komen erbij, weggehaalde komen niet terug", async () => {
+  const { seed } = await import("../src/index.ts");
+  const store = new MemoryStore();
+  // Bestaande installatie van vóór de nieuwe filters: dividend bestond al en is door de groep geleegd.
+  await store.setSetting("seeded", "1");
+  await store.setSetting("filters_seeded", "1");
+  await seed(store, {} as never);
+  const filters = new Set(store.words.map((w) => w.filter));
+  assert.deepEqual([...filters].sort(), ["emissie", "insolventie"]);
+
+  await store.removeFilter("emissie");
+  await seed(store, {} as never);
+  assert.ok(!store.words.some((w) => w.filter === "emissie"));
+  assert.ok(!store.words.some((w) => w.filter === "dividend"));
+});
