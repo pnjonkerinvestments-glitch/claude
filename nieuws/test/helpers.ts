@@ -1,4 +1,4 @@
-import type { FilterWord, Store, UniverseEntry, WatchEntry } from "../src/store.ts";
+import type { FilterWord, Store, TargetSnapshot, UniverseEntry, WatchEntry } from "../src/store.ts";
 import { Telegram } from "../src/telegram.ts";
 import type { Fetch } from "../src/tradingview.ts";
 import { loadConfig } from "../src/config.ts";
@@ -84,6 +84,14 @@ export class MemoryStore implements Store {
   async countUniverse() {
     return this.universe.size;
   }
+
+  targets = new Map<string, TargetSnapshot>();
+  async getTargets(symbols: string[]) {
+    return symbols.flatMap((s) => (this.targets.has(s) ? [{ ...this.targets.get(s)! }] : []));
+  }
+  async putTargets(rows: TargetSnapshot[]) {
+    for (const row of rows) this.targets.set(row.symbol, { ...row });
+  }
 }
 
 export interface Sent {
@@ -105,6 +113,8 @@ export class FakeNet {
   feeds = new Map<string, unknown>();
   feedRequests: string[] = [];
   scannerRows: unknown[] = [];
+  /** Rijen voor de koersdoel-vraag (herkend aan de kolom price_target_high). */
+  targetRows: unknown[] = [];
   scannerBodies: any[] = [];
   /** Telegram-fout met migrate_to_chat_id bij het eerste bericht naar deze chat. */
   migrateFrom: string | null = null;
@@ -141,7 +151,8 @@ export class FakeNet {
       const body = JSON.parse(String(init?.body ?? "{}"));
       this.scannerBodies.push(body);
       const [from, to] = body.range;
-      return Response.json({ totalCount: this.scannerRows.length, data: this.scannerRows.slice(from, to) });
+      const rows = body.columns.includes("price_target_high") ? this.targetRows : this.scannerRows;
+      return Response.json({ totalCount: rows.length, data: rows.slice(from, to) });
     }
     if (url.host === "news-mediator.tradingview.com") {
       if (this.newsStatus !== 200) return new Response("nee", { status: this.newsStatus });

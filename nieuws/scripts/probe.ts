@@ -16,6 +16,7 @@ import {
   scannerPayload,
 } from "../src/screener.ts";
 import type { UniverseEntry } from "../src/store.ts";
+import { parseTargetRows, targetsPayload } from "../src/targets.ts";
 
 const symbols = process.argv.slice(2).length ? process.argv.slice(2) : ["XETR:1INN"];
 const langs = ["de", "en"];
@@ -131,6 +132,29 @@ if (sample) {
     hits: [{ filter: "dividend", word: "(voorbeeld)" }],
     timeZone: config.timeZone,
   }));
+}
+
+// ---- koersdoelen: dekking en terugrekenen naar eigen munt
+{
+  const response = await fetch("https://scanner.tradingview.com/global/scan?label-product=screener-stock", {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json" },
+    body: JSON.stringify(targetsPayload(config, { min: config.capMinEur, max: config.capMaxEur }, 0)),
+  });
+  const { rows, total, raw } = parseTargetRows(await response.json(), config.screenCountries);
+  console.log(`\n== koersdoelen: HTTP ${response.status}, ${total} aandelen met dekking, pagina 1: ${raw} rijen, ${rows.length} in gekozen landen`);
+  const odd = rows.filter((r) => !(r.high >= r.low && r.high > 0 && r.average >= r.low * 0.999 && r.average <= r.high * 1.001));
+  for (const r of rows.filter((r) => r.currency !== "EUR").slice(0, 4)) {
+    console.log(`  ${r.symbol} ${r.currency}: laag ${r.low.toFixed(2)} · gem ${r.average.toFixed(2)} · hoog ${r.high.toFixed(2)} · koers ${r.close}`);
+  }
+  if (!response.ok || rows.length < 100) {
+    console.log("!! koersdoelen verdacht weinig");
+    problems++;
+  }
+  if (odd.length > rows.length * 0.02) {
+    console.log(`!! ${odd.length} koersdoelen kloppen niet na terugrekenen`, odd.slice(0, 3));
+    problems++;
+  }
 }
 
 if (problems) {

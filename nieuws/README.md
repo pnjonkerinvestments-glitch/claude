@@ -41,11 +41,30 @@ Grafiek
 - **Nieuws:** elke minuut de nieuwsstromen van TradingView voor die landen: één Engelse voor
   alles, plus Duits, Frans, Italiaans, Spaans en Portugees. Zweeds en Nederlands kent
   TradingView niet als nieuwstaal; dat nieuws komt in het Engels binnen.
-- **Filters:** een filter is een naam met een lijst woorden. Standaard is er `dividend` met
-  "speciaal dividend" in alle relevante talen. Hoofdletters en accenten maken niet uit, en een
+- **Filters:** een filter is een naam met een lijst woorden. Standaard zijn er drie, elk in alle
+  relevante talen en getest tegen ruim 8.000 echte koppen:
+  - `dividend`: speciaal dividend (Sonderdividende, dividende exceptionnel, ...)
+  - `insolventie`: faillissement en surseance (Insolvenz, redressement judiciaire, composizione
+    negoziata, administrators, ...)
+  - `emissie`: aandelenemissies (placing, rights issue, Kapitalerhöhung, augmentation de capital, ...)
+
+  Een nieuw standaardfilter komt er bij een bestaande installatie vanzelf bij; een filter dat de
+  groep zelf heeft weggehaald, komt niet terug. Hoofdletters en accenten maken niet uit, en een
   woord vindt ook langere vormen ("Sonderdividende" vindt "Sonderdividenden").
 - Hetzelfde nieuws in meerdere talen in dezelfde minuut wordt één bericht. Wat al via de
   volglijst gemeld is, komt niet nog eens.
+
+## Koersdoelen: street high / street low
+
+Elk half uur legt de bot de analistenkoersdoelen vast van de ± 1.300 aandelen in de selectie
+die analistendekking hebben. Stijgt het hoogste koersdoel (een analist zit boven de rest: nieuwe
+street high) of daalt het laagste (nieuwe street low), dan volgt een melding met het oude en
+nieuwe doel, het gemiddelde, het aantal analisten en het potentieel vanaf de huidige koers.
+
+Dit kijkt naar de cijfers, niet naar koppen: "street-high" komt in nieuws over Europese small
+caps vrijwel nooit voor. TradingView rekent koersdoelen om naar euro; de bot rekent terug naar de
+eigen munt van het aandeel, zodat een wisselkoersbeweging geen valse melding geeft. Aan/uit met
+`/koersdoel aan` of `/koersdoel uit`.
 
 ## Delen in een Telegram-groep
 
@@ -96,6 +115,7 @@ Grafiek
 | `/woordweg dividend Superdividende` | woord weghalen |
 | `/filterweg dividend` | hele filter weghalen |
 | `/filtertest` | treffers in de huidige nieuwsstromen tonen, zonder te melden |
+| `/koersdoel aan` / `uit` | street high/low-meldingen aan- of uitzetten |
 | `/marktwaarde 2,5 500` | bandbreedte in miljoen euro |
 | `/screener` | grootte van de selectie en wanneer die is bijgewerkt |
 

@@ -60,7 +60,12 @@ export const DEFAULT_COUNTRIES =
 export const DEFAULT_FEEDS =
   "en:AT,BE,CH,DE,DK,ES,FI,FR,GB,IT,LU,NL,NO,PT,SE; de:AT,CH,DE; fr:BE,CH,FR,LU; it:IT; es:ES; pt:PT";
 
-/** Standaardfilter, alleen bij de allereerste run aangemaakt. Matchen is hoofdletter- en accentongevoelig. */
+/**
+ * Standaardfilters. Elk filter wordt één keer aangemaakt (ook bij een bestaande installatie);
+ * wat de groep daarna toevoegt of weghaalt blijft staan. Matchen is hoofdletter- en
+ * accentongevoelig, en een woord vindt ook langere vormen (Insolvenz → Insolvenzantrag).
+ * De lijsten zijn getest tegen ruim 8.000 echte TradingView-koppen.
+ */
 export const DEFAULT_FILTERS: Record<string, string[]> = {
   dividend: [
     // Engels
@@ -77,6 +82,40 @@ export const DEFAULT_FILTERS: Record<string, string[]> = {
     // Nederlands en Scandinavisch (voor koppen die toch in de landstaal binnenkomen)
     "speciaal dividend", "extra utdelning", "extrautdelning", "ekstraordinært utbytte", "tilleggsutbytte",
     "ekstraordinært udbytte", "ekstraudbytte", "lisäosinko",
+  ],
+  insolventie: [
+    // Engels
+    "insolvency", "insolvent", "bankrupt", "into administration", "administrators", "liquidation", "liquidator",
+    "receivership", "chapter 11", "going concern",
+    // Duits
+    "Insolvenz", "Zahlungsunfähigkeit", "zahlungsunfähig", "Überschuldung", "Schutzschirmverfahren", "Eigenverwaltung",
+    "StaRUG", "Konkurs",
+    // Frans
+    "faillite", "insolvabilité", "redressement judiciaire", "procédure de sauvegarde", "cessation des paiements",
+    // Italiaans
+    "insolvenza", "fallimento", "concordato preventivo", "liquidazione giudiziale", "composizione negoziata",
+    // Spaans en Portugees
+    "insolvencia", "concurso de acreedores", "quiebra", "preconcurso", "insolvência", "falência",
+    // Nederlands, Scandinavisch en Fins
+    "faillissement", "failliet", "surseance", "företagsrekonstruktion", "rekonstruktion", "rekonstruksjon",
+    "tvangsakkord", "konkurssi", "yrityssaneeraus",
+  ],
+  emissie: [
+    // Engels (Londen: "placing", Scandinavië: "rights issue", "directed share issue")
+    "share offering", "equity offering", "public offering", "secondary offering", "placing", "private placement",
+    "capital increase", "capital raise", "rights issue", "accelerated bookbuild", "bookbuilding", "directed issue",
+    "share issue", "issue of new shares", "fundraise", "fundraising", "open offer",
+    // Duits
+    "Kapitalerhöhung", "Platzierung", "Privatplatzierung", "Bezugsrecht", "Bezugsangebot",
+    // Frans
+    "augmentation de capital", "placement privé", "émission d'actions",
+    // Italiaans
+    "aumento di capitale", "aumento capitale", "collocamento",
+    // Spaans en Portugees
+    "ampliación de capital", "aumento de capital", "colocación acelerada", "colocación de acciones",
+    // Nederlands, Scandinavisch en Fins
+    "claimemissie", "aandelenemissie", "nyemission", "riktad emission", "företrädesemission", "emisjon",
+    "kapitalforhøjelse", "rettet emission", "osakeanti",
   ],
 };
 

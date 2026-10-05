@@ -12,27 +12,39 @@ import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
 import { DEFAULT_FILTERS, loadConfig } from "./config.ts";
 import { checkScreener, refreshUniverse } from "./screener.ts";
+import { sweepTargets } from "./targets.ts";
 import type { Store } from "./store.ts";
 import { D1Store } from "./store.ts";
 import { Telegram } from "./telegram.ts";
 
 const SEEDED_KEY = "seeded";
-const FILTERS_SEEDED_KEY = "filters_seeded";
+/** Oude sleutel: alleen "dividend" werd toen aangemaakt. */
+const LEGACY_FILTERS_SEEDED_KEY = "filters_seeded";
+/** Welke standaardfilters al eens zijn aangemaakt (JSON-lijst met namen). */
+const FILTERS_SEEDED_KEY = "filters_seeded_list";
 const LOCK_KEY = "lock";
 const SCREEN_LOCK_KEY = "screen_lock";
 
 /** Langer dan een normale run, korter dan het cron-interval plus wat marge. */
 const LOCK_SECONDS = 55;
 
-async function seed(store: Store, env: Env): Promise<void> {
+export async function seed(store: Store, env: Env): Promise<void> {
   if (!(await store.getSetting(SEEDED_KEY))) {
     for (const entry of loadConfig(env).seedWatchlist) await store.addWatch(entry);
     await store.setSetting(SEEDED_KEY, "1");
   }
-  // Apart van de volglijst, zodat een bestaande installatie de standaardfilter ook krijgt.
-  if (!(await store.getSetting(FILTERS_SEEDED_KEY))) {
-    for (const [filter, words] of Object.entries(DEFAULT_FILTERS)) await store.addFilterWords(filter, words);
-    await store.setSetting(FILTERS_SEEDED_KEY, "1");
+  // Per filter bijhouden of het al eens is aangemaakt: een nieuw standaardfilter komt er zo ook
+  // bij een bestaande installatie bij, en een filter dat de groep heeft weggehaald komt niet terug.
+  const raw = await store.getSetting(FILTERS_SEEDED_KEY);
+  const seeded = new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
+  if (!raw && (await store.getSetting(LEGACY_FILTERS_SEEDED_KEY))) seeded.add("dividend");
+  const missing = Object.entries(DEFAULT_FILTERS).filter(([filter]) => !seeded.has(filter));
+  if (missing.length || !raw) {
+    for (const [filter, words] of missing) {
+      await store.addFilterWords(filter, words);
+      seeded.add(filter);
+    }
+    await store.setSetting(FILTERS_SEEDED_KEY, JSON.stringify([...seeded]));
   }
 }
 
@@ -108,10 +120,19 @@ export async function runScreen(env: Env, now = Math.floor(Date.now() / 1000)): 
     } catch (error) {
       errors.push(`screener: ${message(error)}`);
     }
+    // Per run hoogstens één zware screener-vraag: eerst de selectie, anders de koersdoelen.
+    let refreshed = false;
     try {
-      await refreshUniverse(store, config, fetcher, now);
+      refreshed = await refreshUniverse(store, config, fetcher, now);
     } catch (error) {
       errors.push(`selectie verversen: ${message(error)}`);
+    }
+    if (!refreshed) {
+      try {
+        alerted += (await sweepTargets({ store, config, fetcher, send: (html) => sender.send(html), now })) ?? 0;
+      } catch (error) {
+        errors.push(`koersdoelen: ${message(error)}`);
+      }
     }
     for (const error of errors) console.error(error);
     if (alerted) console.log(`screener: ${alerted} melding(en) verstuurd.`);

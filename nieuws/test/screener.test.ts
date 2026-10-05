@@ -30,6 +30,27 @@ test("woorden: hoofdletters, accenten, meervoud en woordgrens", () => {
   assert.equal(hit("nonspecial dividend"), undefined, "moet aan het begin van een woord staan");
 });
 
+test("insolventie en emissie: echte koppen van begin oktober", () => {
+  const filters = groupFilters(
+    ["insolventie", "emissie"].flatMap((filter) => DEFAULT_FILTERS[filter].map((word) => ({ filter, word }))),
+  );
+  const hit = (title: string) => matchFilters(title, filters).map((h) => h.filter).join(",") || undefined;
+  assert.equal(hit("Nacon fait le point sur la procédure de redressement judiciaire"), "insolventie");
+  assert.equal(hit("Energy - Deposita l'istanza di composizione negoziata della crisi"), "insolventie");
+  assert.equal(hit("SBF passt Ergebnisprognose für 2026 aufgrund der vorläufigen Insolvenzverwaltung eines Kunden an"), "insolventie");
+  assert.equal(hit("Galeria-Insolvenzantrag vom Gericht zugelassen"), "insolventie");
+  assert.equal(hit("REG - Headlam Group PLC - Administrators appointed for Ceco (Flooring) Ltd"), "insolventie");
+  assert.equal(hit("Gigasun Announces Preliminary Outcome Of Rights Issue"), "emissie");
+  assert.equal(hit("REG - eEnergy Group PLC - Placing and Subscription to raise £6.3 million"), "emissie");
+  assert.equal(hit("Amoéba : succès de l'augmentation de capital"), "emissie");
+  assert.equal(hit("Siav completa aumento capitale da 2,5 mln con ABB, collocamento a 2,25 euro/azione"), "emissie");
+  assert.equal(hit("Miquel Y Costas anuncia una ampliación de capital de 15 millones de euros"), "emissie");
+  assert.equal(hit("Kapitalerhöhung drückt Lenzing-Aktie auf tiefsten Stand seit 2009"), "emissie");
+  assert.equal(hit("Vaisala Corporation's Board of Directors resolved on a directed share issue"), "emissie");
+  assert.equal(hit("REG - Mears Grp PLC - Holding(s) in Company"), undefined);
+  assert.equal(hit("POLYTEC HOLDING AG (PYT) LLB Invest Lowers Stake to 3.89%"), undefined);
+});
+
 test("eigen woorden in meerdere filters", () => {
   const filters = groupFilters([
     { filter: "dividend", word: "Sonderdividende" },

@@ -19,6 +19,15 @@ export interface UniverseEntry {
   country: string;
 }
 
+/** Koersdoelen van analisten, in de eigen munt van het aandeel (GBX, SEK, EUR, ...). */
+export interface TargetSnapshot {
+  symbol: string;
+  high: number;
+  low: number;
+  analysts: number;
+  currency: string;
+}
+
 export interface Store {
   listWatch(): Promise<WatchEntry[]>;
   addWatch(entry: WatchEntry): Promise<void>;
@@ -45,6 +54,9 @@ export interface Store {
   pruneUniverse(batch: string): Promise<void>;
   lookupUniverse(symbols: string[]): Promise<UniverseEntry[]>;
   countUniverse(): Promise<number>;
+
+  getTargets(symbols: string[]): Promise<TargetSnapshot[]>;
+  putTargets(rows: TargetSnapshot[], now: number): Promise<void>;
 }
 
 const SCHEMA = [
@@ -54,6 +66,7 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS filter_words (filter TEXT NOT NULL, word TEXT NOT NULL, PRIMARY KEY (filter, word))",
   "CREATE TABLE IF NOT EXISTS universe (symbol TEXT PRIMARY KEY, name TEXT NOT NULL, cap_eur REAL NOT NULL, country TEXT NOT NULL, batch TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS targets (symbol TEXT PRIMARY KEY, high REAL NOT NULL, low REAL NOT NULL, analysts INTEGER NOT NULL, currency TEXT NOT NULL, updated_at INTEGER NOT NULL)",
 ];
 
 // Workers Free staat 50 databasevragen per aanroep toe. Lijsten gaan daarom als één
@@ -235,5 +248,33 @@ export class D1Store implements Store {
     await this.ready();
     const row = await this.db.prepare("SELECT COUNT(*) AS n FROM universe").first<{ n: number }>();
     return row?.n ?? 0;
+  }
+
+  async getTargets(symbols: string[]): Promise<TargetSnapshot[]> {
+    if (!symbols.length) return [];
+    await this.ready();
+    const { results } = await this.db
+      .prepare(
+        "SELECT symbol, high, low, analysts, currency FROM targets WHERE symbol IN (SELECT value FROM json_each(?))",
+      )
+      .bind(JSON.stringify(symbols))
+      .all<TargetSnapshot>();
+    return results;
+  }
+
+  async putTargets(rows: TargetSnapshot[], now: number): Promise<void> {
+    if (!rows.length) return;
+    await this.ready();
+    const data = JSON.stringify(rows.map((r) => [r.symbol, r.high, r.low, r.analysts, r.currency]));
+    await this.db
+      .prepare(
+        "INSERT INTO targets (symbol, high, low, analysts, currency, updated_at) " +
+          "SELECT json_extract(value, '$[0]'), json_extract(value, '$[1]'), json_extract(value, '$[2]'), " +
+          "json_extract(value, '$[3]'), json_extract(value, '$[4]'), ? FROM json_each(?) WHERE true " +
+          "ON CONFLICT(symbol) DO UPDATE SET high = excluded.high, low = excluded.low, analysts = excluded.analysts, " +
+          "currency = excluded.currency, updated_at = excluded.updated_at",
+      )
+      .bind(now, data)
+      .run();
   }
 }

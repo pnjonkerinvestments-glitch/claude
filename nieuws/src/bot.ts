@@ -18,6 +18,7 @@ import {
   groupFilters,
 } from "./screener.ts";
 import type { Store, WatchEntry } from "./store.ts";
+import { TARGETS_OFF_KEY } from "./targets.ts";
 import type { Telegram, TelegramMessage } from "./telegram.ts";
 import { escapeHtml, formatNewsMessage } from "./telegram.ts";
 import type { Fetch } from "./tradingview.ts";
@@ -52,6 +53,7 @@ export const HELP = [
   "/woordweg dividend Sonderdividende · woord weghalen",
   "/filterweg dividend · hele filter weghalen 🔒",
   "/filtertest · treffers van de afgelopen uren tonen, zonder te melden",
+  "/koersdoel aan|uit · meldingen bij een nieuw hoogste of laagste analistenkoersdoel",
   "",
   "<b>Screener</b>",
   "/marktwaarde 2,5 500 · bandbreedte in miljoen euro 🔒",
@@ -180,12 +182,16 @@ const FILTER_NAME = /^[a-z0-9_-]{1,30}$/;
 
 async function showFilters(deps: BotDeps): Promise<string> {
   const filters = groupFilters(await deps.store.listFilterWords());
-  if (!filters.size) return "Er zijn geen filters. Maak er een met bijvoorbeeld /woord dividend Sonderdividende";
   const lines: string[] = [];
+  if (!filters.size) lines.push("Er zijn geen woordfilters. Maak er een met bijvoorbeeld /woord dividend Sonderdividende", "");
   for (const [name, words] of filters) {
     lines.push(`<b>${escapeHtml(name)}</b> (${words.length} woorden)`, words.map(escapeHtml).join(" · "), "");
   }
-  lines.push("Hoofdletters en accenten maken niet uit; een woord vindt ook langere vormen (dividend → dividends).");
+  lines.push(
+    `🎯 <b>koersdoel</b> (street high/low): ${(await deps.store.getSetting(TARGETS_OFF_KEY)) ? "uit" : "aan"}`,
+    "",
+    "Hoofdletters en accenten maken niet uit; een woord vindt ook langere vormen (dividend → dividends).",
+  );
   return lines.join("\n");
 }
 
@@ -284,6 +290,25 @@ async function filterTest(deps: BotDeps): Promise<string> {
   return lines.join("\n");
 }
 
+async function targetsSwitch(deps: BotDeps, args: string): Promise<string> {
+  const choice = args.trim().toLowerCase();
+  if (choice === "uit" || choice === "off") {
+    await deps.store.setSetting(TARGETS_OFF_KEY, "1");
+    return "🎯 Koersdoelmeldingen staan uit.";
+  }
+  if (choice === "aan" || choice === "on") {
+    await deps.store.deleteSetting(TARGETS_OFF_KEY);
+    return "🎯 Koersdoelmeldingen staan aan.";
+  }
+  const off = await deps.store.getSetting(TARGETS_OFF_KEY);
+  return [
+    `🎯 Koersdoelmeldingen staan <b>${off ? "uit" : "aan"}</b>.`,
+    "Elk half uur kijk ik naar de analistenkoersdoelen van de aandelen in de screener. Stijgt het hoogste doel " +
+      "(nieuwe street high) of daalt het laagste (nieuwe street low), dan krijg je een melding.",
+    "Aan- of uitzetten: /koersdoel aan of /koersdoel uit",
+  ].join("\n");
+}
+
 async function here(deps: BotDeps, message: TelegramMessage): Promise<string> {
   if (deps.fixedChatId) return "De meldingenchat staat vast via TELEGRAM_CHAT_ID; haal die secret weg om /hier te gebruiken.";
   await deps.store.setSetting(ALERT_CHAT_KEY, message.chatId);
@@ -371,6 +396,9 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
       break;
     case "/filtertest":
       reply = await filterTest(deps);
+      break;
+    case "/koersdoel":
+      reply = await targetsSwitch(deps, args);
       break;
     case "/marktwaarde":
       reply = await setCap(deps, args);
