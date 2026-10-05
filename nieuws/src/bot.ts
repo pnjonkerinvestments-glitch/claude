@@ -1,6 +1,7 @@
 // Telegram-commando's: aandelen volgen, filters en de screener instellen, en bepalen waar de
-// meldingen heen gaan. Alleen de eigenaar mag iets veranderen; in een groep zien de anderen
-// wel alle meldingen, maar hun commando's worden genegeerd.
+// meldingen heen gaan. In de meldingengroep mag iedereen de volglijst en filterwoorden beheren;
+// een paar commando's die alles voor iedereen omgooien blijven bij de eigenaar. Buiten die
+// groep luistert de bot alleen naar de eigenaar.
 
 import { ALERT_CHAT_KEY, OWNER_USER_KEY, alertChat, ownerUser } from "./alerts.ts";
 import type { Config } from "./config.ts";
@@ -49,17 +50,22 @@ export const HELP = [
   "/filters · filters en woorden",
   "/woord dividend Sonderdividende · woord toevoegen aan een filter",
   "/woordweg dividend Sonderdividende · woord weghalen",
-  "/filterweg dividend · hele filter weghalen",
+  "/filterweg dividend · hele filter weghalen 🔒",
   "/filtertest · treffers van de afgelopen uren tonen, zonder te melden",
   "",
   "<b>Screener</b>",
-  "/marktwaarde 2,5 500 · bandbreedte in miljoen euro",
+  "/marktwaarde 2,5 500 · bandbreedte in miljoen euro 🔒",
   "/screener · hoeveel aandelen er in de selectie zitten",
   "",
   "<b>Overig</b>",
-  "/hier · meldingen voortaan naar deze chat of groep sturen",
+  "/hier · meldingen voortaan naar deze chat of groep sturen 🔒",
   "/status · wanneer ik voor het laatst gekeken heb",
+  "",
+  "🔒 = alleen de beheerder",
 ].join("\n");
+
+/** Commando's die alles voor iedereen omgooien; die blijven bij de eigenaar. */
+const OWNER_ONLY = new Set(["/hier", "/filterweg"]);
 
 function findInList(watch: WatchEntry[], query: string): WatchEntry | undefined {
   const wanted = query.trim().toUpperCase();
@@ -311,8 +317,16 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
     await deps.telegram.send(message.chatId, `Hoi ${escapeHtml(message.fromName)}, deze bot is nu van jou.\n\n${HELP}`);
     return;
   }
-  // Alleen de eigenaar mag de bot bedienen; anderen krijgen geen antwoord.
-  if (message.fromId !== owner) return;
+  // De eigenaar mag alles, overal. Anderen alleen in de meldingengroep, en niet alles.
+  const isOwner = message.fromId === owner;
+  if (!isOwner) {
+    const inAlertGroup = isGroup && message.chatId === (await alertChat(deps.store, deps.fixedChatId));
+    if (!inAlertGroup) return;
+    if (OWNER_ONLY.has(command) || (command === "/marktwaarde" && args.trim())) {
+      await deps.telegram.send(message.chatId, "🔒 Dat kan alleen de beheerder van de bot.");
+      return;
+    }
+  }
 
   let reply: string | null;
   switch (command) {

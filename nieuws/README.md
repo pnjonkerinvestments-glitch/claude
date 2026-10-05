@@ -51,8 +51,10 @@ Grafiek
 
 1. Maak in Telegram een groep en voeg de bot en de anderen toe.
 2. Stuur in de groep `/hier`. Vanaf dan gaan alle meldingen (volglijst en screener) naar de groep.
-3. Iedereen ziet de meldingen; alleen de eigenaar (wie als eerste `/start` stuurde) kan
-   instellingen veranderen. Commando's van anderen worden genegeerd.
+3. Iedereen in de groep ziet de meldingen en kan aandelen volgen (`/volg`, `/stop`) en
+   filterwoorden beheren (`/woord`, `/woordweg`). Alleen de eigenaar (wie als eerste `/start`
+   stuurde) kan `/hier`, `/filterweg` en `/marktwaarde` met nieuwe waarden gebruiken.
+   Buiten de meldingengroep reageert de bot alleen op de eigenaar.
 4. Reageert de bot niet in de groep, gebruik dan `/hier@gebruikersnaamvandebot`.
 
 `/hier` in je eigen chat met de bot zet de meldingen weer terug naar daar.
