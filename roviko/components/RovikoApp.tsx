@@ -1,4 +1,5 @@
 'use client';
+import { finishKey, finishMood } from '@/lib/feel-copy';
 import { DailyScoreRule } from './atelier/Competition';
 import { FinishStage } from './ds/FinishStage';
 import { Character } from './ds/Character';
@@ -13,7 +14,7 @@ import { Progress } from '@/components/ui/progress';
 import { Toaster, toast } from 'sonner';
 import { APP_STORE_URL, BRAND, DEFAULT_SETTINGS, MODES, REGIONS } from '@/lib/config';
 import { messages, errorMessage, type Locale } from '@/i18n/messages';
-import { api, post, copyText, formatScore, sound, readPreference, writePreference, metric } from '@/lib/client';
+import { api, post, copyText, formatScore, sound, soundDefault, readPreference, writePreference, metric } from '@/lib/client';
 import { NextDiscovery } from './atelier/NextDiscovery';
 import { DailyResult } from './atelier/DailyResult';
 import { returnDestination, navigationState } from '@/lib/navigation';
@@ -54,6 +55,10 @@ import { A, Avatar, AvatarPicker, Choice, Empty, Loading, Logo, ModeEmoji } from
 const icons: any = { trail: Compass, capitals: Building2, flags: Flag, pinpoint: MapPin, borders: Route, order: ListOrdered, mixed: Globe2, daily: Sunrise };
 const PUBLIC_BOOT = { user: { id: '', name: 'Explorer', avatar: 0, guest: true, discoverable: true, friendCode: '' }, stats: { games: 0, score: 0, xp: 0, level: 1, levelProgress: 0, accuracy: 0, averageTime: 0, wins: 0, dailyStreak: 0, dailyCount: 0, dailyDone: false, bestStreak: 0, achievements: [], recent: [], weak: [], modes: [] }, community: { games: 0, players: 0 }, countryCount: 195, leaders: [], googleEnabled: false, isAdmin: false };
 function GameSettings({ value, onChange, multiplayer = false, disabled = false }: any) { const { t } = useApp(); const set = (k: string, v: any) => onChange({ ...value, [k]: v }); return <div className="settings-grid">{multiplayer && <fieldset className="mode-picker" disabled={disabled}><legend>{t('play')}</legend><div>{['mixed', ...MODES].map(v => <button type="button" key={v} aria-pressed={value.mode === v} className="mode-pick" onClick={() => set('mode', v)}><GameIcon mode={v} size="sm"/><span>{t(v)}</span></button>)}</div></fieldset>}{multiplayer ? <fieldset className="round-options" disabled={disabled}><legend>{t('rounds')}</legend><div>{[5,10,15,20].map(n=><button type="button" key={n} aria-pressed={value.count===n} className={'btn '+(value.count===n?'primary':'secondary')} onClick={()=>set('count',n)}>{n}</button>)}</div></fieldset> : <Choice label={t('rounds')} value={value.count} disabled={disabled} onChange={v => set('count', +v)} options={[5, 10, 15, 20].map(v => ({ value: v, label: v + ' ' + t('questions') }))}/>}{multiplayer && <Choice label={t('timer')} value={value.timer} disabled={disabled} onChange={v => set('timer', +v)} options={[5, 10, 15, 30, 0].map(v => ({ value: v, label: v ? v + ' sec' : t('unlimited') }))}/>}<Choice label={t('difficulty')} value={value.difficulty} disabled={disabled} onChange={v => set('difficulty', v)} options={['easy', 'medium', 'hard', 'mixed'].map(v => ({ value: v, label: t(v) }))}/><Choice label={t('region')} value={value.region} disabled={disabled} onChange={v => set('region', v)} options={REGIONS.map(v => ({ value: v, label: t(v) }))}/>{multiplayer && value.mode === 'mixed' && <fieldset className="enabled-modes" disabled={disabled}><legend>{t('includedModes')}</legend><p>{t('includedModesHelp')}</p>{MODES.map(m=>{const included=value.enabledModes??[...MODES];const checked=included.includes(m);return <label key={m}><input type="checkbox" checked={checked} disabled={disabled||(checked&&included.length===1)} onChange={()=>set('enabledModes',checked?included.filter((x:string)=>x!==m):[...included,m])}/><ModeEmoji mode={m}/><span><strong>{t(m)}</strong><small>{t(m+'Hint')}</small></span></label>;})}<small>{t('keepOneMode')}</small></fieldset>}{!multiplayer && value.mode === 'capitals' && <div className="switch-field"><div><label htmlFor="typed-choice">{t('typed')}</label><p>{t('typedHelp')}</p></div><Switch id="typed-choice" checked={!!value.typed} onCheckedChange={v => set('typed', v)}/></div>}</div>; }
+/** First visit: the phone's language (Dutch or Spanish, otherwise English) and its light or dark mode.
+ * A choice made in Settings is saved and always wins. */
+function deviceLocale() { try { for (const l of navigator.languages ?? [navigator.language]) { const c = (l || '').slice(0, 2).toLowerCase(); if (c === 'nl' || c === 'es' || c === 'en') return c; } } catch { /* no navigator */ } return 'en'; }
+function deviceTheme() { try { return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch { return 'light'; } }
 function useClock() { const [now, setNow] = useState(Date.now()); useEffect(() => { const id = setInterval(() => setNow(Date.now()), 200); return () => clearInterval(id); }, []); return now; }
 function seconds(ms: number) { return Math.max(0, Math.ceil(ms / 1000)); }
 function prettyTime(ms: number) { const total = Math.round(ms / 1000); return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`; }
@@ -74,7 +79,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     const refresh = useCallback(() => { if (!bootRequest.current) {
         bootRequest.current = api('/bootstrap').then(b => { setBoot(b); setBootLoaded(true); setFatal(''); return b; }).catch((e: any) => { setFatal(e.message); }).finally(() => { bootRequest.current = null; });
     } return bootRequest.current; }, []);
-    useEffect(() => { setPath(window.location.pathname); const savedRegion=readPreference('rv_region','World'); setRegionState(REGIONS.includes(savedRegion) ? savedRegion : 'World'); setMeasurement(readPreference('rv_metrics','off') === 'on'); const savedLocale=readPreference('rv_locale','en'); setLocale(savedLocale === 'nl' || savedLocale === 'es' ? savedLocale : 'en'); setTheme(readPreference('rv_theme', 'light') || 'light'); setMuted(readPreference('rv_sound', 'off') !== 'on'); setMusic(readPreference('rv_music', 'off') === 'on'); refresh(); const pop = () => setPath(window.location.pathname); window.addEventListener('popstate', pop); if ('serviceWorker' in navigator)
+    useEffect(() => { setPath(window.location.pathname); const savedRegion=readPreference('rv_region','World'); setRegionState(REGIONS.includes(savedRegion) ? savedRegion : 'World'); setMeasurement(readPreference('rv_metrics','off') === 'on'); const savedLocale=readPreference('rv_locale',deviceLocale()); setLocale(savedLocale === 'nl' || savedLocale === 'es' ? savedLocale : 'en'); setTheme(readPreference('rv_theme', deviceTheme()) || 'light'); setMuted(readPreference('rv_sound', soundDefault()) !== 'on'); setMusic(readPreference('rv_music', 'off') === 'on'); refresh(); const pop = () => setPath(window.location.pathname); window.addEventListener('popstate', pop); if ('serviceWorker' in navigator)
         navigator.serviceWorker.register('/sw.js').catch(() => { }); return () => window.removeEventListener('popstate', pop); }, [refresh]);
     useEffect(() => { document.documentElement.dataset.theme = theme; writePreference('rv_theme', theme); }, [theme]);
     useEffect(() => { document.documentElement.lang = locale; writePreference('rv_locale', locale); }, [locale]);
@@ -193,14 +198,14 @@ function SoloScreen({ id }: { id: string }) {
         const immediate = game.question.solution ? evaluateLearning(game.question.solution, value, game.streak) : null;
         if (immediate) {
             setGame({ ...game, phase: 'reveal', feedback: immediate, streak: immediate.streak, bestStreak: Math.max(game.bestStreak, immediate.streak) });
-            if (!muted) sound(immediate.correct ? 'correct' : 'incorrect');
+            sound(immediate.correct ? 'correct' : 'incorrect', immediate.streak);
         }
         const request = (hintSave.current ?? Promise.resolve()).catch(() => {}).then(() => post('/games/' + id + '/answer', { round: game.round, answer: value }));
         pendingSave.current = request;
         try {
             const saved = await request;
             setGame(saved);
-            if (!immediate && !muted) sound(saved.feedback.correct ? 'correct' : 'incorrect');
+            if (!immediate) sound(saved.feedback.correct ? 'correct' : 'incorrect', saved.streak);
         } catch (e) { fail(e); load(); }
         finally { sending.current = false; pendingSave.current = null; setSaving(false); }
     }, [game, id, muted, fail, load]);
@@ -222,6 +227,17 @@ function SoloScreen({ id }: { id: string }) {
         const timeout=setTimeout(()=>{if(document.visibilityState==='visible')nextRound.current();},3000);
         return ()=>clearTimeout(timeout);
     }, [autoNext,game?.phase,game?.round,saving,advancing,error]);
+    // Keyboard: Enter or Space goes on to the next question once the answer is shown (buttons and fields keep their own keys).
+    useEffect(() => {
+        if (game?.phase !== 'reveal') return;
+        const onKey = (e: KeyboardEvent) => {
+            if ((e.key !== 'Enter' && e.key !== ' ') || e.repeat || e.altKey || e.ctrlKey || e.metaKey) return;
+            const el = e.target as HTMLElement;
+            if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A', 'SUMMARY'].includes(el?.tagName) || document.querySelector('[role=dialog]')) return;
+            e.preventDefault(); nextRound.current();
+        };
+        window.addEventListener('keydown', onKey); return () => window.removeEventListener('keydown', onKey);
+    }, [game?.phase, game?.round]);
     if (error) return <Empty title={t(errorMessage(error))}><button className="btn secondary" onClick={load}>{t('retry')}</button></Empty>;
     if (!game) return <Loading/>;
     if (game.phase === 'finished') return <Results result={game}/>;
@@ -230,7 +246,7 @@ function SoloScreen({ id }: { id: string }) {
     return <div className="solo-game learning-game" data-mode={game.daily ? 'daily' : game.settings.mode}><GameHeader mode={guide === 'daily' ? 'daily' : guide} title={t(game.competition?.mode === 'trail' ? 'dailyTrail' : game.daily ? 'dailyTitle' : game.settings.mode === 'mixed' ? 'mixed' : game.question.mode)} edition={game.survival ? t('survivalEdition') : game.bonus ? t('bonusEdition') : game.daily && game.settings.mode === 'daily' ? t(game.question.mode) : editionLabel(game.daily, locale, t(game.practice ? 'reviewRoundLabel' : 'soloLearning'))} count={(game.round + 1) + ' / ' + game.total} unit={t('round')} progress={(game.round + (revealed ? 1 : 0)) / game.total} onExit={backToStart} exitLabel={t('back')} help={<HowToPlayButton key={guide} mode={guide} t={t} locale={locale} auto={game.settings.mode !== 'mixed'}/>}>{game.survival && <span className="game-life-chip" title={t('survivalRule')}><Heart size={14} fill="currentColor" aria-hidden="true"/>1</span>}{game.streak > 1 && <span className="game-streak-chip"><Flame size={15} aria-hidden="true"/>{game.streak}</span>}</GameHeader>
         {!game.daily && game.settings.region !== 'World' && <div className="game-region"><Globe2 size={15}/>{t('activeRegion').replace('{region}',t(game.settings.region))}</div>}<div className="auto-next-wrap"><label className="auto-next"><input type="checkbox" checked={autoNext} onChange={e=>{setAutoNext(e.target.checked);writePreference('rv_auto_next',e.target.checked?'on':'off');}}/>{t('autoNextAll')}</label>{autoNext && <small>{t('autoNextExplain')}</small>}</div>
         {game.competition && <DailyScoreRule mode={game.competition.mode} score={game.score} t={t}/>}
-        <div className="game-body"><Question key={game.question.id} question={game.question} feedback={game.feedback} locked={revealed || saving} onAnswer={answer} competitive={false} onHint={(count: number) => { const round = game.round; return hintSave.current = (hintSave.current ?? Promise.resolve()).catch(() => {}).then(() => post('/games/' + id + '/hint', { round, count })).then(g => { if (!sending.current) setGame((current:any) => current.round === round && current.phase === 'question' ? g : current); }).catch(fail); }} t={t} locale={locale} onReport={() => report(game.question)}/>{revealed && <div className="solo-next-row"><span className="save-status" role="status">{saving ? t('saving') : '✓ ' + t('saved')}</span><button className="btn primary next-button" onClick={next} disabled={advancing} aria-busy={advancing}>{t(game.round + 1 === game.total ? 'finish' : 'next')}<ArrowRight size={19}/></button></div>}</div>
+        <div className="game-body"><Question key={game.question.id} question={game.question} feedback={game.feedback} locked={revealed || saving} onAnswer={answer} competitive={false} streak={revealed ? game.streak : 0} onHint={(count: number) => { const round = game.round; return hintSave.current = (hintSave.current ?? Promise.resolve()).catch(() => {}).then(() => post('/games/' + id + '/hint', { round, count })).then(g => { if (!sending.current) setGame((current:any) => current.round === round && current.phase === 'question' ? g : current); }).catch(fail); }} t={t} locale={locale} onReport={() => report(game.question)}/>{revealed && <div className="solo-next-row"><span className="save-status" role="status">{saving ? t('saving') : '✓ ' + t('saved')}</span><button className="btn primary next-button" onClick={next} disabled={advancing} aria-busy={advancing}>{t(game.round + 1 === game.total ? 'finish' : 'next')}<ArrowRight size={19}/></button></div>}</div>
     </div>;
 }
 function DuelScreen({ practice }: { practice: boolean }) { const app = useApp(); return <DuelGame app={app} practice={practice}/>; }
@@ -261,11 +277,11 @@ function Results({ result, multiplayer = false, room, send }: any) {
     const correct = list.filter((a: any) => a.correct).length;
     const score = result.score;
     const wrong = list.filter((a: any) => !a.correct);
-    const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : result.competition?.mode==='trail'?'dailyTrail':result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed'), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+' '+t('points'):undefined, origin: window.location.origin }));
+    const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : result.competition?.mode==='trail'?'dailyTrail':result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed'), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points'):undefined, streak: result.daily ? boot?.stats?.dailyStreak : undefined, origin: window.location.origin }));
     const winners = room?.players ?? [];
     if (!multiplayer && result.competition) {
         const all = list.length > 0 && correct === list.length;
-        return <DailyFinish app={app} date={result.daily} mode={result.competition.mode} game={t(result.competition.mode === 'trail' ? 'dailyTrail' : 'dailyTitle')} headline={t(all ? 'finishPerfect' : 'finishNice')} mood={all ? 'cheer' : correct / Math.max(1, list.length) >= .5 ? 'happy' : 'wink'}
+        return <DailyFinish app={app} date={result.daily} mode={result.competition.mode} game={t(result.competition.mode === 'trail' ? 'dailyTrail' : 'dailyTitle')} headline={t(finishKey((score ?? 0) / 1000, all))} mood={finishMood((score ?? 0) / 1000, all)}
             summary={[{ icon: 'check', value: correct + '/' + list.length, label: t('finishCorrect') }, { icon: 'flame', value: String(result.bestStreak ?? 0), label: t('finishStreak') }]} trail={list.map((a: any) => !!a.correct)}
             onShare={share} onDone={backToStart} onAgain={() => start({ ...result.settings, mode: result.competition?.mode === 'trail' ? 'trail' : 'mixed' })}>
             {wrong.length > 0 && <details className="review-section result-review"><summary><h2>{t('learningReview')}</h2></summary><div className="review-list">{wrong.map((a: any, i: number) => <div key={i}><GameIcon mode={a.mode}/><div><strong>{a.answerLabel[locale]}</strong><p>{a.fact[locale]}</p></div></div>)}</div></details>}
@@ -302,8 +318,8 @@ function RoomScreen({ code }: {
             rejected: reason => { preferences.current.fail(new Error(reason)); answerPending.current = false; setPending(false); clearTimeout(acknowledgement.current); },
             state: (data, source) => {
                 data = withSpanish(data);
-                if (data.phase === 'reveal' && latest.current?.phase !== 'reveal' && !preferences.current.muted)
-                    sound(data.feedback?.correct ? 'correct' : 'incorrect');
+                if (data.phase === 'reveal' && latest.current?.phase !== 'reveal')
+                    sound(data.feedback?.correct ? 'correct' : 'incorrect', data.streak ?? 0);
                 // An HTTP reconnect snapshot also resolves an answer whose acknowledgement was lost.
                 if (source === 'snapshot' || data.answered || data.phase !== 'question' || data.round !== latest.current?.round || data.matchId !== latest.current?.matchId) { answerPending.current = false; setPending(false); clearTimeout(acknowledgement.current); }
                 if (data.preloadFlag && data.preloadFlag !== latest.current?.preloadFlag) { const img = new Image(); img.decoding = 'async'; img.src = data.preloadFlag; }

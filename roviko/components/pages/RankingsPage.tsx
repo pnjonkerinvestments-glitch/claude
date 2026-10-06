@@ -1,4 +1,5 @@
 'use client';
+import { plural } from '@/lib/plural';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Trophy } from 'lucide-react';
@@ -30,7 +31,7 @@ function DailyRankings() {
       <div className="segmented rank-tabs" role="tablist" aria-label={t('rankingsKicker')}>
         {tabs.map(k => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(tabLabel[k])}</button>)}
       </div>
-      {standing && <span className="muted">{t('rankingsPlayers').replace('{n}', n(standing.participants))}</span>}
+      {standing && <span className="muted">{plural(t, 'rankingsPlayers', standing.participants, '{n}', n(standing.participants))}</span>}
     </div>
     {error ? <ErrorState title={t('stateErrorTitle')} copy={t('stateErrorCopy')} onRetry={retry} retryLabel={t('retry')}/>
       : !standing ? <div className="rank-skeleton" aria-busy="true"><Skeleton className="sk-block sk-you"/>{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="sk-block sk-list-row"/>)}<span className="sr-only" role="status">{t('loading')}</span></div>

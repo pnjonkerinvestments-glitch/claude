@@ -15,7 +15,8 @@ const feedback = { mode: 'capitals', correct: true, correctAnswer: 'FRA', answer
 test('solo feedback displays the correct answer and fact without points; multiplayer retains points', () => {
     const props = { question: q, feedback, locked: true, onAnswer() {}, onReport() {}, t, locale: 'en' };
     const solo = renderToStaticMarkup(React.createElement(Question, { ...props, competitive: false }));
-    assert.match(solo, /You got it!/);
+    // 1.23: the heading is one of four warm variants, fixed per question.
+    assert.match(solo, /<strong>(Correct!|Nice one!|Spot on!|You got it!)<\/strong>/);
     assert.match(solo, /Paris is the capital/);
     assert.match(solo, /🎉/);
     assert.doesNotMatch(solo, /1,500|1500|points| pts/);

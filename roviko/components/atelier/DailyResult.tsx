@@ -1,4 +1,5 @@
 'use client';
+import { plural } from '@/lib/plural';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, Clock, Flame, Star, Users, X } from 'lucide-react';
 import { api } from '@/lib/client';
@@ -54,7 +55,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
     {trail && trail.length > 0 && <ol className="daily-result-trail" aria-label={summary?.[0]?.label}>{trail.map((ok, i) => <li key={i} className={ok ? 'is-right' : 'is-wrong'} aria-label={String(i + 1)}>{ok ? <Check size={13} strokeWidth={3}/> : <X size={13} strokeWidth={3}/>}</li>)}</ol>}</>}
     {stage && isBest && <p className="daily-result-best is-banner"><Star size={15} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</p>}
     <div className="daily-result-compare">
-      <p><Users size={17} aria-hidden="true"/>{!game ? t('loading') : players <= 1 ? t('resultFirstPlayer') : t('competitionRank').replace('{rank}', fmt(place)).replace('{count}', fmt(players))}</p>
+      <p><Users size={17} aria-hidden="true"/>{!game ? t('loading') : players <= 1 ? t('resultFirstPlayer') : plural(t, 'competitionRank', players, '{count}', fmt(players)).replace('{rank}', fmt(place))}</p>
       {beaten !== null && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}
       {day?.place ? <p className="daily-result-target">{t('resultDayRank').replace('{rank}', fmt(day.place)).replace('{count}', fmt(day.participants))} · {day.next ? t('rankTarget').replace('{n}', fmt(day.next.gap + 1)).replace('{name}', day.next.name).replace('{place}', fmt(day.next.place)) : t('rankLeading')}</p> : null}
     </div>

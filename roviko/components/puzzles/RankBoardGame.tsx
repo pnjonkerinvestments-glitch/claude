@@ -1,4 +1,6 @@
 'use client';
+import { finishKey } from '@/lib/feel-copy';
+import { sound } from '@/lib/client';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, Flag, Lock } from 'lucide-react';
 import type { RankView } from '@/lib/puzzles/rank';
@@ -22,6 +24,7 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
   const lang = locale as Lang, board = game.board!;
   const [pick, setPick] = useState<string | null>(null);
   useEffect(() => setPick(null), [game.round, game.phase]);
+  useEffect(() => { if (game.phase === 'reveal') sound('tap'); }, [game.phase, game.round]);
   const reveal = game.phase === 'reveal', finished = game.phase === 'finished', last = game.round + 1 === game.total;
   const round = board.rounds[Math.min(game.round, board.rounds.length - 1)], answer = reveal ? game.answers.at(-1) : undefined;
   const cat = (id?: string) => board.categories.find(c => c.id === id);
@@ -53,9 +56,9 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
     const mood = bestPicks >= 6 ? 'cheer' as const : bestPicks >= 3 ? 'happy' as const : 'wink' as const;
     return <section className="puzzle-game rank-game rank-board">{header}
       {game.competition
-        ? <DailyFinish app={app} date={game.daily!} mode="rank" game={t('rankRadar')} headline={t(bestPicks === game.total ? 'finishPerfect' : 'finishNice')} mood={mood} summary={summary} onShare={share} onDone={exit} onAgain={again} busy={busy}>{review}</DailyFinish>
+        ? <DailyFinish app={app} date={game.daily!} mode="rank" game={t('rankRadar')} headline={t(finishKey(total / 1000, bestPicks === game.total))} mood={mood} summary={summary} onShare={share} onDone={exit} onAgain={again} busy={busy}>{review}</DailyFinish>
         : <div className="daily-finish">
-          <FinishStage game={t('rankRadar')} headline={t(bestPicks === game.total ? 'finishPerfect' : 'finishNice')} mood={mood} score={total} max={1000} unit={t('points')} locale={locale}
+          <FinishStage game={t('rankRadar')} headline={t(finishKey(total / 1000, bestPicks === game.total))} mood={mood} score={total} max={1000} unit={t('points')} locale={locale}
             chips={summary}/>
           <div className="finish-actions"><button className="btn primary" disabled={busy} onClick={again}>{t('rankMore')}<ArrowRight size={17}/></button><button className="btn secondary" onClick={share}>{t('share')}</button></div>{review}</div>}
     </section>;

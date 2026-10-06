@@ -256,3 +256,16 @@ img[src*="/flags/"],img[src*="/api/flag/"],img[src*="/api/game-asset/"]{object-f
 [data-theme=dark] .home-hero-v2{background:radial-gradient(60% 85% at 80% 45%,rgba(91,211,168,.26),transparent 70%),#1b4a3d!important}
 [data-theme=dark] .app-footer{background:#132e27}
 @media(min-width:900px){.page-header.page-stage{min-height:210px!important;padding-left:44px!important}.ps-character{width:236px}.ps-copy{padding-bottom:38px}}
+
+/* 1.23 — game feel and fixes. Presentation only. */
+/* WCAG AA: the copyright line on the green footer was 4.3:1. */
+.app-footer .copyright{color:rgba(255,255,255,.66)}
+/* Side by Side on a phone: "One mistake. Run over." sits above the button instead of being squeezed beside it. */
+@media(max-width:760px){.puzzle-bottom:has(.btn.primary)>div{flex-wrap:wrap;justify-content:center}.puzzle-bottom:has(.btn.primary) .compare-out{flex:1 0 100%;margin:0 0 8px}}
+/* The answer heading pops in; a combo ("3 in a row!") gets a little extra bounce. */
+.answer-feedback .feedback-heading strong{display:inline-block;animation:fb-pop .42s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes fb-pop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.answer-feedback .feedback-heading strong{animation:none}}
+/* Touch screens have no real hover: a tapped spot must never make the next question's answer look chosen. */
+@media(hover:none){.answer-option:hover:not(:disabled):not(.is-selected){border-color:transparent!important;transform:none!important;box-shadow:var(--shadow-pill)!important}}
+@media(max-width:760px){.game-main:has(.compare-out){padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}}

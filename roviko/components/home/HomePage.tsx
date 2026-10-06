@@ -1,4 +1,5 @@
 'use client';
+import { plural } from '@/lib/plural';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, CalendarDays, Check, ChevronRight, Flame, ShieldCheck, Star, Target, Trophy } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -56,7 +57,7 @@ function WeekDots({ week, frozen, locale }: { week: { date: string; completed: b
 export function HomePage() {
   const app = useApp(), { t, locale, boot, bootLoaded, go, fail } = app;
   const { data: today, error: todayError, retry } = useToday(boot);
-  const { data: competition } = useCompetition(boot, today?.date);
+  const { data: competition } = useCompetition(boot, today?.date, !!today || todayError);
   const [fallbackDate] = useState(() => new Date().toISOString().slice(0, 10));
   const date = today?.date ?? fallbackDate;
   const [mysteryOpen, setMysteryOpen] = useState(false), [launching, setLaunching] = useState('');
@@ -103,7 +104,7 @@ export function HomePage() {
   const [mood, bubble]: [MascotMood, string] = !ready ? ['happy', t('heroBubble')]
     : allDone ? (nextBonus ? ['cheer', bonusLeft === BONUS_MODES.length ? t('mascotBonus') : t('mascotBonusLeft').replace('{n}', String(bonusLeft))] : ['cheer', t('mascotDone')])
     : savedByShield ? ['wink', t('freezeSaved')]
-    : atRisk ? ['worried', t('mascotRisk').replace('{n}', String(streak))]
+    : atRisk ? ['worried', plural(t, 'mascotRisk', streak)]
     : firstVisit ? ['happy', t('mascotFirst')]
     : completed > 0 ? ['cheer', t(left === 1 ? 'mascotLeftOne' : 'mascotLeft').replace('{n}', String(left)).replace('{game}', next ? name(next) : '')]
     : ['happy', t('mascotStart')];
@@ -160,7 +161,7 @@ export function HomePage() {
 
     {ready && boot.user.guest && (boot.stats.dailyCount ?? 0) > 0 && <aside className="guest-banner" aria-labelledby="guest-banner-title">
       <span className="guest-banner-icon" aria-hidden="true"><Flame size={22}/></span>
-      <div><strong id="guest-banner-title">{t('guestBannerTitle').replace('{n}', String(Math.max(1, streak)))}</strong><p>{t('guestBannerCopy')}</p></div>
+      <div><strong id="guest-banner-title">{plural(t, 'guestBannerTitle', Math.max(1, streak))}</strong><p>{t('guestBannerCopy')}</p></div>
       <button className="btn gold" onClick={() => app.setModal('signup')}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button>
     </aside>}
 
@@ -187,7 +188,7 @@ export function HomePage() {
     <section className="home-section motivation" aria-label={t('allGamesYourDay')}>
       <div className="motivation-quests"><DailyQuests date={date} sessions={sessions ?? []} t={t} compact art onPick={pickQuest}/></div>
       <div className="motivation-week journey-card">
-        <header><span className="week-flame" aria-hidden="true">{streak > 0 ? <Flame size={24} strokeWidth={2.2}/> : <CalendarDays size={24} strokeWidth={2.2}/>}</span><div><h2>{streak > 0 ? t('statusStreak').replace('{n}', String(streak)) : t('statusStreakZero')}</h2><p>{streak > 0 ? t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target)) : t('streakStartCopy')}</p></div><Character mood={streak > 0 ? 'cheer' : 'happy'} pose="wave" size={112} className="card-corner-art card-corner-character"/></header>
+        <header><span className="week-flame" aria-hidden="true">{streak > 0 ? <Flame size={24} strokeWidth={2.2}/> : <CalendarDays size={24} strokeWidth={2.2}/>}</span><div><h2>{streak > 0 ? plural(t, 'statusStreak', streak) : t('statusStreakZero')}</h2><p>{streak > 0 ? t('heroStreakGoal').replace('{n}', String(goal.remaining)).replace('{target}', String(goal.target)) : t('streakStartCopy')}</p></div><Character mood={streak > 0 ? 'cheer' : 'happy'} pose="wave" size={112} className="card-corner-art card-corner-character"/></header>
         {today?.week ? <WeekDots week={today.week} frozen={freeze?.frozenDates ?? []} locale={locale}/> : <Skeleton className="sk-block sk-week"/>}
         <A href="/scoring#streaks" className="week-shield"><ShieldCheck size={18} aria-hidden="true"/><span>{freeze?.available ? t('freezeReady').replace('{n}', String(freeze.available)) : t('freezeNext').replace('{n}', String(freeze?.nextIn ?? 7))}</span><ChevronRight size={18} aria-hidden="true"/></A>
       </div>

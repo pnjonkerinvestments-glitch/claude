@@ -1,5 +1,6 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { sound } from '@/lib/client';
 import { Check, Clock, Flame, Target, Trophy, X } from 'lucide-react';
 import { Character, type CharacterMood, type CharacterPose } from './Character';
 import type { MascotMood } from './Mascot';
@@ -31,6 +32,8 @@ export function FinishStage({ game, headline, mood, score, max, unit, locale, ch
   const ratio = score != null && max ? score / max : trail?.length ? trail.filter(Boolean).length / trail.length : 0;
   const shade: StageTone = tone ?? (ratio >= 0.8 ? 'gold' : 'forest');
   const face = (mood === 'happy' && shade === 'gold' ? 'cheer' : mood) as CharacterMood;
+  // A fanfare (and in the app a firm buzz) for a top result, a friendly close otherwise. Once per screen.
+  useEffect(() => { sound(shade === 'gold' ? 'win' : 'finish'); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return <section className={'finish-stage tone-' + shade} aria-label={game}>
     {shade === 'gold' && <div className="fs-confetti" aria-hidden="true">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ '--i': i } as React.CSSProperties}/>)}</div>}
     <p className="fs-kicker">{game}</p>

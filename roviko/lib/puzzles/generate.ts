@@ -1,4 +1,5 @@
 import { COUNTRIES, type Country } from '../game-engine/questions';
+import { dutchCapital } from '../../i18n/capitals-nl';
 import { random, shuffle, seedHash } from '../game-engine/scoring';
 import snapshot from '../data/comparisons.json';
 import silhouettes from '../data/silhouettes.json';
@@ -80,7 +81,7 @@ export function generateMosaic(size: 3 | 4 | 5, seed: string, focus?: string, fa
   const usedFacts = new Set<string>();
   const tiles: Tile[] = countries.flatMap((country, i) => kinds.slice(0, size).map((kind, j) => ({
     id: 'tile:' + seedHash(seed + ':' + i + ':' + j).toString(36), countryId: country.id, kind,
-    ...(kind === 'flag' ? { image: country.flag } : kind === 'shape' ? { path: (silhouettes as Record<string, string>)[country.id] } : kind === 'fact' ? numericCountryFact(country.id, factDate, usedFacts) : { text: kind === 'name' ? { en: country.name, nl: country.nl } : { en: country.capitals.join(' / '), nl: country.capitals.join(' / ') } }),
+    ...(kind === 'flag' ? { image: country.flag } : kind === 'shape' ? { path: (silhouettes as Record<string, string>)[country.id] } : kind === 'fact' ? numericCountryFact(country.id, factDate, usedFacts) : { text: kind === 'name' ? { en: country.name, nl: country.nl } : { en: country.capitals.join(' / '), nl: country.capitals.map(dutchCapital).join(' / ') } }),
   })));
   return { id: 'mosaic:' + seedHash(seed).toString(36), size, factEdition: FACT_EDITION, factDate, countries: countries.map(label), tiles: shuffle(tiles, rng) };
 }

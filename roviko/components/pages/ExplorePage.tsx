@@ -1,10 +1,12 @@
 'use client';
+import { plural } from '@/lib/plural';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Search, Shuffle, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DEFAULT_SETTINGS, REGIONS } from '@/lib/config';
 import { formatScore } from '@/lib/client';
 import { spanishCountry, spanishCapital, spanishContent } from '../../i18n/content';
+import { dutchCapital } from '../../i18n/capitals-nl';
 import { useApp } from '../app/context';
 import { A } from '../app/shared';
 import { EmptyState, ErrorState, PageHeader, SectionHeader, Skeleton } from '../ds/States';
@@ -52,7 +54,7 @@ export function ExplorePage() {
   useEffect(() => { setRecent(readRecent()); const slug = window.location.hash.slice(1); const hit = Object.keys(REGION_ART).find(r => REGION_ART[r] === slug); if (hit) setRegion(hit); }, []);
 
   const name = (c: Country) => locale === 'es' ? spanishCountry(c.name) : locale === 'nl' ? c.nl : c.name;
-  const capital = (c: Country) => c.capitals.map(n => locale === 'es' ? spanishCapital(n) : n).join(' / ');
+  const capital = (c: Country) => c.capitals.map(n => locale === 'es' ? spanishCapital(n) : locale === 'nl' ? dutchCapital(n) : n).join(' / ');
   const byId = useMemo(() => new Map((data ?? []).map(c => [c.id, c])), [data]);
   const today = new Date().toISOString().slice(0, 10);
   const picks = useMemo(() => data ? [...data].sort((a, b) => hash(today + a.id) - hash(today + b.id)).slice(0, 3) : [], [data, today]);
@@ -62,7 +64,7 @@ export function ExplorePage() {
   useEffect(() => { if (!needShapes) return; let on = true; fetch('/api/silhouettes?ids=' + needShapes).then(r => r.json()).then(v => { if (on) setShapes(v); }).catch(() => {}); return () => { on = false; }; }, [needShapes]);
   const filtering = showAll || query.trim() !== '' || region !== 'World';
   const reset = () => { setQuery(''); setRegion('World'); setShowAll(false); };
-  const visible = (data ?? []).filter(c => (region === 'World' || c.region === region) && [c.name, c.nl, spanishCountry(c.name), ...c.capitals, ...c.capitals.map(spanishCapital)].join(' ').toLowerCase().includes(query.trim().toLowerCase()))
+  const visible = (data ?? []).filter(c => (region === 'World' || c.region === region) && [c.name, c.nl, spanishCountry(c.name), ...c.capitals, ...c.capitals.map(spanishCapital), ...c.capitals.map(dutchCapital)].join(' ').toLowerCase().includes(query.trim().toLowerCase()))
     .sort((a, b) => name(a).localeCompare(name(b), locale));
   const stamps: { id: string }[] = boot.stats.stamps ?? [];
   const discovered = stamps.map(s => byId.get(s.id)).filter((c): c is Country => !!c).slice(-6).reverse();
@@ -88,7 +90,7 @@ export function ExplorePage() {
     {error ? <ErrorState title={t('stateErrorTitle')} copy={t('stateErrorCopy')} onRetry={() => setReload(n => n + 1)} retryLabel={t('retry')}/>
       : !data ? <div className="country-grid-v2" aria-busy="true">{Array.from({ length: 9 }, (_, i) => <Skeleton key={i} className="sk-country"/>)}<span className="sr-only" role="status">{t('loading')}</span></div>
       : filtering ? <section className="page-section" aria-labelledby="explore-results">
-          <SectionHeader id="explore-results" title={region === 'World' ? t('exploreAll') : t(region)} action={<span className="results-meta"><span className="muted">{t('exploreResults').replace('{n}', String(visible.length))}</span><button className="text-link" onClick={reset}>{t('exploreClear')}</button></span>}/>
+          <SectionHeader id="explore-results" title={region === 'World' ? t('exploreAll') : t(region)} action={<span className="results-meta"><span className="muted">{plural(t, 'exploreResults', visible.length)}</span><button className="text-link" onClick={reset}>{t('exploreClear')}</button></span>}/>
           {visible.length ? <div className="country-grid-v2">{visible.map(c => card(c, region === 'World'))}</div>
             : <EmptyState icon={Search} title={t('exploreEmptyTitle')} copy={t('exploreEmptyCopy')}><button className="btn secondary" onClick={reset}>{t('exploreClear')}</button></EmptyState>}
         </section>
@@ -106,7 +108,7 @@ export function ExplorePage() {
           <SectionHeader id="explore-regions" title={t('exploreByRegion')} action={<button className="text-link" onClick={() => { setShowAll(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{t('exploreAll')}<ArrowRight size={16} aria-hidden="true"/></button>}/>
           <div className="region-grid">{REGIONS.filter(r => r !== 'World').map(r => <button key={r} type="button" className="region-card scene-card" onClick={() => { setRegion(r); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <picture className="region-art"><source media="(min-width: 761px)" srcSet={'/art/banner-' + REGION_ART[r] + '.webp'} width={658} height={210}/><img src={'/art/scene-' + REGION_ART[r] + '.webp'} alt="" width={627} height={465} loading="lazy" decoding="async"/></picture>
-            <span className="region-copy"><strong>{t(r)}</strong><small>{t('exploreResults').replace('{n}', String(data.filter(c => c.region === r).length))}</small></span>
+            <span className="region-copy"><strong>{t(r)}</strong><small>{plural(t, 'exploreResults', data.filter(c => c.region === r).length)}</small></span>
             <span className="round-go" aria-hidden="true"><ArrowRight size={17}/></span>
           </button>)}</div>
         </section>

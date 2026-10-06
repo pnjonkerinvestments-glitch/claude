@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, List, RefreshCw, Share2, X } from 'lucide-react';
 import { api, post, copyText, sound } from '@/lib/client';
 import { BRAND } from '@/lib/config';
+import { shareCard, squares } from '@/lib/share';
 import { formatMetric } from '@/lib/puzzles/topics';
 import { duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel-shared';
 import { ResetCountdown } from '../atelier/ResetCountdown';
@@ -68,20 +69,19 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
       try {
         const next: Session = await post('/duels/' + session.id + '/play', { version: session.version, card: cardId });
         setSession(next); setBoard(next); setPlays(next.plays); notifyProgress();
-        if (blind) { sound(next.phase === 'finished' ? 'win' : 'tap'); setStep(next.plays.length); }
+        if (blind) { sound('tap'); setStep(next.plays.length); }
         else sound(next.rounds[step] && duelWon(next.rounds[step], cardId) ? 'correct' : 'incorrect');
       } catch { setReload(n => n + 1); } finally { setSending(false); }
       return;
     }
     const next = [...plays, cardId];
     setPlays(next); writePlays(board, next);
-    if (blind) { sound(next.length === total ? 'win' : 'tap'); setStep(next.length); }
+    if (blind) { sound('tap'); setStep(next.length); }
     else sound(duelWon(board.rounds[step], cardId) ? 'correct' : 'incorrect');
   }
   async function share() {
-    const trail = results.map(ok => ok ? '🟢' : '🔴').join('');
-    const url = new URL('/duel', window.location.origin).toString();
-    const text = `${BRAND.name} · ${t('duel')} · ${board!.date ?? ''}\n${trail} ${wins}/${total}\n${url}`;
+    const url = new URL('/duel', window.location.origin); url.searchParams.set('shared', 'duel');
+    const text = shareCard({ label: t('duel'), date: board!.date, trail: squares(results), score: session ? (session.score ?? 0).toLocaleString(loc) + '/' + (1000).toLocaleString(loc) + ' ' + t('points') : wins + '/' + total, streak: session ? app.boot?.stats?.dailyStreak : undefined, url: url.toString() });
     try { if (navigator.share) { await navigator.share({ text }); return; } } catch { /* fall back to copying */ }
     await copyText(text); setCopied(true);
   }

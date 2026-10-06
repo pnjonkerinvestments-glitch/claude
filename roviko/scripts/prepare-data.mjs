@@ -6,6 +6,9 @@ const records=selected.map(c=>({id:c.cca3,iso2:c.cca2.toLowerCase(),numeric:c.cc
 // The source capital list for Sri Lanka includes an outdated administrative entry.
 records.find(c=>c.id==='LKA').capitals=['Sri Jayawardenepura Kotte'];
 records.find(c=>c.id==='ZAF').capitals=['Pretoria','Cape Town','Bloemfontein'];
+// Eswatini (since 2018, also in Dutch): Mbabane is the administrative capital, Lobamba the royal and legislative one.
+records.find(c=>c.id==='SWZ').capitals=['Mbabane','Lobamba'];
+records.find(c=>c.id==='SWZ').nl='Eswatini';
 for(const p of ['lib/data','public/data','public/licenses','public/flags','public/shapes'])fs.mkdirSync(p,{recursive:true});
 fs.writeFileSync('lib/data/countries.json',JSON.stringify(records));
 fs.writeFileSync('public/data/countries.json',JSON.stringify(records));

@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight, Check, X, Flag, Share2, Radar } from 'lucide-rea
 import { Progress } from '@/components/ui/progress';
 import { api, post, sound } from '@/lib/client';
 import { BRAND } from '@/lib/config';
+import { shareCard, squares } from '@/lib/share';
 import { formatMetric } from '@/lib/puzzles/topics';
 import type { RankView, RankOption } from '@/lib/puzzles/rank';
 import { choicePlace, medalFor, medalSummary } from '@/lib/puzzles/rank-medals';
@@ -36,9 +37,9 @@ export function RankGame({ id, app }: { id: string; app: any }) {
       if(game.phase!=='question'||!game.question?.options.some(o=>o.id===answer)){lock.current=false;setBusy(false);return;}
       const correct=answer===game.question.correct;
       setGame({...game,phase:'reveal',answers:[...game.answers,{value:answer!,correct,countryId:game.question.country.id,questionId:game.question.id,responseTime:0,at:new Date().getTime()}]});
-      if(!muted)sound(correct?'correct':'incorrect');
+      sound(correct?'correct':'incorrect');
     }
-    try{const saved=await post('/ranks/'+id+'/'+action,{version:previous.version,...(answer?{answer}:{})});setGame(saved);if(game.competition&&action==='answer'&&!muted)sound(saved.answers.at(-1)?.correct?'correct':'incorrect');}
+    try{const saved=await post('/ranks/'+id+'/'+action,{version:previous.version,...(answer?{answer}:{})});setGame(saved);if(game.competition&&action==='answer')sound(saved.answers.at(-1)?.correct?'correct':'incorrect');}
     catch{
       // Reconcile an uncertain write. Never replay a guess automatically.
       try{const saved=await api('/ranks/'+id);setGame(saved);if(saved.version<=previous.version)setError('puzzleSaveError');}
@@ -60,7 +61,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
   const again=async()=>{if(lock.current)return;lock.current=true;setBusy(true);try{const fresh=await post('/ranks',{daily:false});go('/rank/'+fresh.id);}catch{setError('puzzleLoadError');}finally{lock.current=false;setBusy(false);}};
   if(game.board){
     const board=game.board;const pts=game.answers.reduce((n,a)=>n+(a.points??0),0);
-    const shareBoard=()=>copy(`${BRAND.name} · ${t('rankRadar')} · ${game.daily??new Date().toISOString().slice(0,10)}\n${game.answers.map(a=>a.correct?'🟩':(a.points??0)>=60?'🟨':'⬜').join('')}\n${pts.toLocaleString(locale)} ${t('points')}${board.optimal?' · '+fill('rbOptimal',{n:board.optimal.toLocaleString(locale)}):''}\n${new URL('/daily',location.origin)}`);
+    const shareBoard=()=>copy(shareCard({label:t('rankRadar'),date:game.daily,trail:game.answers.map(a=>a.correct?'🟩':(a.points??0)>=60?'🟨':'⬜').join(''),score:pts.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points')+(board.optimal?' · '+fill('rbOptimal',{n:board.optimal.toLocaleString(locale)}):''),streak:game.daily?app.boot?.stats?.dailyStreak:undefined,url:new URL('/daily?shared=rank',location.origin).toString()}));
     return <RankBoardGame game={game} app={app} busy={busy} error={error} save={save} again={again} share={shareBoard}/>;
   }
   return <section className="puzzle-game rank-game">
