@@ -15,7 +15,8 @@ import type { MascotMood } from '../ds/Mascot';
 import { Character, type CharacterMood, type CharacterPose } from '../ds/Character';
 import { Skeleton } from '../ds/States';
 import { launchDaily } from '../puzzles/PuzzleDeck';
-import { useCompetition, useResetLabel, useToday } from './useDay';
+import { useCompetition, useLeague, useResetLabel, useToday } from './useDay';
+import { TierBadge, leagueLine } from '../atelier/League';
 import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
 import { WelcomeCard, WelcomeTour, tourSeen } from './WelcomeTour';
@@ -111,6 +112,8 @@ export function HomePage() {
   const week = competition?.week;
   const weekLine = week?.place ? t('weekRankLine').replace('{rank}', n(week.place)).replace('{count}', n(week.participants)) : standing?.place ? t('resultDayRank').replace('{rank}', n(standing.place)).replace('{count}', n(standing.participants)) : '';
   const questsDone = useQuests(date, sessions ?? []).quests.filter(q => q.done).length;
+  const { data: league } = useLeague(boot);
+  const leagueRow = leagueLine(t, league);
 
   return <div className="home home-calm">
     <section className={'home-hero-v2' + (atRisk ? ' is-at-risk' : '') + (allDone ? ' is-done' : '')} aria-labelledby="home-title">
@@ -170,7 +173,9 @@ export function HomePage() {
         <p className="today-foot">{reset && <span>{t('heroResetIn')} <b>{reset}</b></span>}<A href="/daily" className="text-link">{t('todayAllGames')}<ArrowRight size={15} aria-hidden="true"/></A></p>
       </section>
       <aside className="home-side" aria-label={t('allGamesYourDay')}>
-        <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><Trophy size={20}/></span><span><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
+        {boot.user.guest
+          ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><Trophy size={20}/></span><span><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
+          : <A href="/leaderboard#league" className="side-row side-league"><span className="side-icon side-tier" aria-hidden="true"><TierBadge tier={league?.tier ?? 0} size={26}/></span><span><strong>{leagueRow.title}</strong><small>{leagueRow.sub || t('loading')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>}
         <details className="side-row quests-fold">
           <summary><span className="side-icon" aria-hidden="true"><Target size={20}/></span><span><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>
           <DailyQuests date={date} sessions={sessions ?? []} t={t} compact onPick={pickQuest}/>

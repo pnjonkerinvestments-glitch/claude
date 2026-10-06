@@ -7,7 +7,8 @@ import { api, formatScore } from '@/lib/client';
 import { useApp } from '../app/context';
 import { A, Avatar, Choice } from '../app/shared';
 import { EmptyState, ErrorState, PageHeader, SectionHeader, Skeleton } from '../ds/States';
-import { useCompetition } from '../home/useDay';
+import { useCompetition, useLeague } from '../home/useDay';
+import { LeagueCard } from '../atelier/League';
 
 type Leader = { name: string; avatar: number; score: number; place: number; me: number | boolean };
 type Entry = { id: string; name: string; avatar: number; score: number };
@@ -78,9 +79,11 @@ function FriendsRankings() {
 }
 
 export function RankingsPage() {
-  const { t } = useApp();
+  const { t, locale, boot, setModal, go } = useApp();
+  const { data: league } = useLeague(boot);
   return <div className="page rankings">
     <PageHeader art="spot-rank-radar" kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('rankingsLead')}/>
+    <div id="league"><LeagueCard league={league} t={t} locale={locale} onSignup={() => setModal('signup')} onPlay={() => go('/')}/></div>
     <DailyRankings/>
     <FriendsRankings/>
   </div>;

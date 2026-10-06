@@ -38,6 +38,9 @@ export const useToday = (player: Player) => useDaily<TodayState>('/puzzles/today
 /** Today's points, all-time points and both rankings. `ready` false waits (e.g. until today's date is known, so the homepage asks once). */
 export const useCompetition = (player: Player, date?: string, ready = true) => useDaily<CompetitionState>('/competition' + (date ? '?date=' + date : '?'), player, [date], ready);
 
+/** This week's league group (accounts) or an invitation (guests). */
+export const useLeague = (player: Player) => useDaily<import('../atelier/League').LeagueState>('/league', player);
+
 /** "3h 42m" until the next daily games, in the page language. Null until mounted, so server and client agree. */
 export function useResetLabel(t: (key: string) => string) {
   const [ms, setMs] = useState<number | null>(null);

@@ -2,6 +2,11 @@
 // Keys ending in _one are the singular of the key without it (see lib/plural.ts).
 export const v123Messages = {
   en: {
+    tierBronze: 'Bronze', tierSilver: 'Silver', tierGold: 'Gold', tierEmerald: 'Emerald', tierDiamond: 'Diamond', leagueTitle: 'Weekly league', leagueName: '{tier} league',
+    leagueDaysLeft: '{n} days left', leagueDaysLeft_one: '1 day left', leagueLastDay: 'Last day!', leagueUp: 'top {n} move up to {tier}', leagueTopTier: 'the highest league', leaguePlace: '#{place} of {size}',
+    leaguePromoZone: 'Promotion zone', leagueDemoZone: 'Demotion zone', leagueJoin: 'Finish a daily game to join this week\u2019s {name}.', leagueJoinShort: 'Play a daily game to join',
+    leagueHow: 'Every week a group of up to 20 players. The top 5 move up a league, the bottom 5 move down.', leagueGuest: 'With a free account you play in a weekly group of up to 20 players. The top 5 move up a league.', leagueGuestShort: 'Play in a weekly group with a free account', leagueGuestCta: 'Join with a free account',
+    leaguePromoted: 'Promoted to {tier}!', leagueDemoted: 'You\u2019re in {tier} this week. Climb back up!',
     allGamesMore: 'More games', allGamesTabBonus: 'Bonus tour', allGamesTabSurvival: 'Survival', allGamesTabClassic: 'Practise',
     welcomeTitle: 'Welcome to Roviko!', welcomeCopy: 'Six short geography games every day, the same questions for everyone. Start with the first question: no account needed.', welcomeStart: 'Play your first question', welcomeLater: 'Look around first',
     mpTitle: 'Play together', mpLeadShort: 'Ten quick questions against friends, a random player or the computer.', mpFriends: 'Play with friends', mpFriendsSub: 'Open a room and share the code', mpRandom: 'Random player', mpRandomSub: 'We find someone who wants to play', mpComputer: 'Against the computer', mpComputerSub: 'Easy, medium or hard. Doesn’t count for rankings',
@@ -22,6 +27,11 @@ export const v123Messages = {
     passportPeek_one: '1 country stamp collected', stampMilestone_one: '1 more country for your {region} stamp', exploreResults_one: '1 country',
   },
   nl: {
+    tierBronze: 'Brons', tierSilver: 'Zilver', tierGold: 'Goud', tierEmerald: 'Smaragd', tierDiamond: 'Diamant', leagueTitle: 'Weekcompetitie', leagueName: '{tier}groep',
+    leagueDaysLeft: 'nog {n} dagen', leagueDaysLeft_one: 'nog 1 dag', leagueLastDay: 'Laatste dag!', leagueUp: 'top {n} gaat naar {tier}', leagueTopTier: 'het hoogste niveau', leaguePlace: '#{place} van {size}',
+    leaguePromoZone: 'Promotiezone', leagueDemoZone: 'Degradatiezone', leagueJoin: 'Speel een dagspel en doe deze week mee in de {name}.', leagueJoinShort: 'Speel een dagspel en doe mee',
+    leagueHow: 'Elke week een groep van maximaal 20 spelers. De top 5 gaat een niveau omhoog, de onderste 5 omlaag.', leagueGuest: 'Met een gratis account speel je elke week in een groep van maximaal 20 spelers. De top 5 gaat een niveau omhoog.', leagueGuestShort: 'Speel elke week in een groep met een gratis account', leagueGuestCta: 'Doe mee met een gratis account',
+    leaguePromoted: 'Gepromoveerd naar {tier}!', leagueDemoted: 'Deze week speel je in {tier}. Klim weer omhoog!',
     allGamesMore: 'Meer spellen', allGamesTabBonus: 'Bonustour', allGamesTabSurvival: 'Overleven', allGamesTabClassic: 'Oefenen',
     welcomeTitle: 'Welkom bij Roviko!', welcomeCopy: 'Elke dag zes korte aardrijkskundespellen, voor iedereen dezelfde vragen. Begin met de eerste vraag: een account is niet nodig.', welcomeStart: 'Speel je eerste vraag', welcomeLater: 'Eerst rondkijken',
     mpTitle: 'Samen spelen', mpLeadShort: 'Tien snelle vragen tegen vrienden, een willekeurige speler of de computer.', mpFriends: 'Speel met vrienden', mpFriendsSub: 'Open een kamer en deel de code', mpRandom: 'Willekeurige speler', mpRandomSub: 'We zoeken iemand die ook wil spelen', mpComputer: 'Tegen de computer', mpComputerSub: 'Makkelijk, gemiddeld of moeilijk. Telt niet mee voor de ranglijst',
@@ -43,6 +53,11 @@ export const v123Messages = {
     passportPeek_one: '1 landenstempel verzameld', stampMilestone_one: 'Nog 1 land voor je stempel voor {region}', exploreResults_one: '1 land',
   },
   es: {
+    tierBronze: 'Bronce', tierSilver: 'Plata', tierGold: 'Oro', tierEmerald: 'Esmeralda', tierDiamond: 'Diamante', leagueTitle: 'Liga semanal', leagueName: 'Liga {tier}',
+    leagueDaysLeft: 'quedan {n} días', leagueDaysLeft_one: 'queda 1 día', leagueLastDay: '¡Último día!', leagueUp: 'los {n} primeros suben a {tier}', leagueTopTier: 'la liga más alta', leaguePlace: '#{place} de {size}',
+    leaguePromoZone: 'Zona de ascenso', leagueDemoZone: 'Zona de descenso', leagueJoin: 'Termina un juego diario y entra esta semana en la {name}.', leagueJoinShort: 'Juega un juego diario y entra',
+    leagueHow: 'Cada semana un grupo de hasta 20 jugadores. Los 5 primeros suben de liga y los 5 últimos bajan.', leagueGuest: 'Con una cuenta gratuita juegas cada semana en un grupo de hasta 20 jugadores. Los 5 primeros suben de liga.', leagueGuestShort: 'Juega cada semana en un grupo con una cuenta gratuita', leagueGuestCta: 'Únete con una cuenta gratuita',
+    leaguePromoted: '¡Has subido a {tier}!', leagueDemoted: 'Esta semana juegas en {tier}. ¡Vuelve a subir!',
     allGamesMore: 'Más juegos', allGamesTabBonus: 'Ruta extra', allGamesTabSurvival: 'Supervivencia', allGamesTabClassic: 'Practicar',
     welcomeTitle: '¡Bienvenido a Roviko!', welcomeCopy: 'Seis juegos cortos de geografía cada día, las mismas preguntas para todos. Empieza con la primera pregunta: no necesitas cuenta.', welcomeStart: 'Juega tu primera pregunta', welcomeLater: 'Primero echar un vistazo',
     mpTitle: 'Jugar juntos', mpLeadShort: 'Diez preguntas rápidas contra amigos, alguien al azar o el ordenador.', mpFriends: 'Jugar con amigos', mpFriendsSub: 'Abre una sala y comparte el código', mpRandom: 'Alguien al azar', mpRandomSub: 'Buscamos a alguien que quiera jugar', mpComputer: 'Contra el ordenador', mpComputerSub: 'Fácil, medio o difícil. No cuenta para la clasificación',
