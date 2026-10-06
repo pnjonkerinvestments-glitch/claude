@@ -286,10 +286,11 @@ img[src*="/flags/"],img[src*="/api/flag/"],img[src*="/api/game-asset/"]{object-f
 @media(prefers-reduced-motion:reduce){.streak-moment .sm-flame,.streak-moment .sm-week li.is-done i{animation:none}}
 [data-theme=dark] .streak-moment .sm-week i{background:#25453c}
 /* A shared result opened by a friend (1.23): a challenge card above the page. */
-.challenge-banner{position:relative;display:flex;align-items:center;gap:14px;max-width:var(--content,1120px);margin:0 auto 18px;padding:16px 60px 16px 14px;border-radius:26px;background:var(--color-surface);box-shadow:var(--shadow-card);border:2px solid var(--color-gold);animation:fb-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+.challenge-banner{position:relative;display:flex;align-items:center;gap:14px;max-width:var(--content,1120px);margin:0 auto 18px;padding:16px 14px 16px 14px;border-radius:26px;background:var(--color-surface);box-shadow:var(--shadow-card);border:2px solid var(--color-gold);animation:fb-pop .45s cubic-bezier(.34,1.56,.64,1) both}
 .challenge-banner strong{display:block;font:700 1.15rem/1.25 var(--font-display);color:var(--color-ink)}
 .challenge-banner p{margin:4px 0 10px;color:var(--color-ink-soft);font-size:.95rem}
 .challenge-banner .challenge-character{flex:0 0 auto}
-.challenge-banner .challenge-close{position:absolute;top:8px;right:8px}
-@media(max-width:480px){.challenge-banner{padding:14px 54px 14px 10px;gap:8px}.challenge-banner .challenge-character{width:64px;height:auto}}
+.challenge-banner>div{flex:1 1 auto;min-width:0}
+.challenge-banner .challenge-close{position:static;align-self:flex-start;flex:0 0 auto;width:36px;height:36px;min-height:36px;margin:-6px -6px 0 0}
+@media(max-width:480px){.challenge-banner{padding:14px 12px 14px 10px;gap:8px}.challenge-banner .challenge-character{width:64px;height:auto}}
 @media(prefers-reduced-motion:reduce){.challenge-banner{animation:none}}

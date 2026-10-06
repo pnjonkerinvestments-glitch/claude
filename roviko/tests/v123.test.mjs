@@ -5,7 +5,7 @@ import fs from 'node:fs';
 
 // 1.23: Dutch capitals, Eswatini, singular forms, warm feedback, finish headlines, share text, sound/vibration.
 fs.mkdirSync('.test-runtime', { recursive: true });
-await build({ stdin: { contents: "export {generateQuestions,evaluate,COUNTRIES} from './lib/game-engine/questions';export {dutchCapital} from './i18n/capitals-nl';export {plural} from './lib/plural';export {feedbackHeading,finishKey,finishMood,inARow} from './lib/feel-copy';export {editionNumber,squares,shareCard,shareResult,readChallenge} from './lib/share';export {parseShareText} from './lib/share-image';export {sound,soundDefault,formatScore} from './lib/client';export {messages} from './i18n/messages';", resolveDir: process.cwd() }, bundle: true, outfile: '.test-runtime/v123.mjs', format: 'esm', platform: 'node', logLevel: 'error' });
+await build({ stdin: { contents: "export {generateQuestions,evaluate,COUNTRIES} from './lib/game-engine/questions';export {dutchCapital} from './i18n/capitals-nl';export {plural} from './lib/plural';export {feedbackHeading,finishKey,finishMood,inARow} from './lib/feel-copy';export {editionNumber,squares,shareCard,shareResult,readChallenge} from './lib/share';export {parseShareText} from './lib/share-image';export {sound,soundDefault,formatScore} from './lib/client';export {messages} from './i18n/messages';export {withSpanish} from './i18n/content';", resolveDir: process.cwd() }, bundle: true, outfile: '.test-runtime/v123.mjs', format: 'esm', platform: 'node', logLevel: 'error' });
 const lib = await import('../.test-runtime/v123.mjs');
 const settings = (mode, typed = false) => ({ mode, count: 5, timer: 0, difficulty: 'medium', region: 'World', typed });
 const t = locale => k => lib.messages[locale][k] ?? lib.messages.en[k] ?? k;
@@ -22,6 +22,13 @@ test('capital questions use Dutch names in Dutch and accept them when typed', ()
   assert.equal(lib.evaluate(bolivia, 'La Paz', 0, 0, 0).correct, true);
   assert.equal(lib.evaluate(bolivia, 'Sucre', 0, 0, 0).correct, true);
   assert.equal(lib.dutchCapital('Nairobi'), 'Nairobi');
+});
+
+test('content saved before 1.23 also shows Dutch capitals', () => {
+  const [opt, country, list, clue, fact] = lib.withSpanish([{ en: 'Vienna', nl: 'Vienna' }, { en: 'Austria', nl: 'Oostenrijk' }, { en: 'Pretoria / Cape Town / Bloemfontein', nl: 'Pretoria / Cape Town / Bloemfontein' }, { en: 'My capital is Lisbon.', nl: 'Mijn hoofdstad is Lisbon.' }, { en: 'x', nl: 'Oostenrijk: hoofdstad Vienna. 83.871 km² oppervlakte.' }]);
+  assert.equal(opt.nl, 'Wenen'); assert.equal(opt.es, 'Viena'); assert.equal(country.nl, 'Oostenrijk');
+  assert.equal(list.nl, 'Pretoria / Kaapstad / Bloemfontein'); assert.equal(clue.nl, 'Mijn hoofdstad is Lissabon.');
+  assert.equal(fact.nl, 'Oostenrijk: hoofdstad Wenen. 83.871 km² oppervlakte.');
 });
 
 test('Eswatini has its current name and both capitals', () => {

@@ -77,7 +77,7 @@ Met een Mac kan het ook: `cd roviko-app && npm ci && npx cap sync ios && npx cap
 
 ### Aandachtspunten bij Apple
 
-- **Richtlijn 4.2 (minimale functionaliteit):** Apple wijst soms apps af die "alleen een website" zijn. Roviko heeft een eigen icoon en opstartscherm, een offline-scherm, dagelijkse herinneringen en opent externe links buiten de app. Dat helpt, maar goedkeuring is niet gegarandeerd. Wordt de app afgewezen, dan zijn de volgende stappen haptische feedback bij antwoorden en een widget met je reeks.
+- **Richtlijn 4.2 (minimale functionaliteit):** Apple wijst soms apps af die "alleen een website" zijn. Roviko heeft een eigen icoon en opstartscherm, een offline-scherm, dagelijkse herinneringen en opent externe links buiten de app. Dat helpt, maar goedkeuring is niet gegarandeerd. Wordt de app afgewezen, dan zijn de volgende stappen haptische feedback bij antwoorden en een widget met je reeks. Sinds website 1.23 gebruikt de app de Haptics-plugin al: een korte trilling bij goed, fout en het einde van een spel (uit te zetten in Instellingen). Er is daarvoor geen nieuwe app-build nodig, want de plugin zat al in de app.
 - **Richtlijn 4.8 (inloggen):** zet je Google-login aan op de site (`GOOGLE_CLIENT_ID`), dan eist Apple ook "Inloggen met Apple". Zolang alleen gastspel en e-mail-login aanstaan, is dat niet nodig.
 - **Reviewer-account:** geef in *App Review Information* een testaccount (e-mail en wachtwoord) op. Dan kan de reviewer ook de vrienden- en paspoortfuncties zien.
 

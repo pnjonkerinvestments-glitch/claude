@@ -504,3 +504,44 @@ Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 
 **Geen migratie, geen nieuwe geheimen, geen API-wijziging.**
 
 Getest: zie `docs/QA_1_22.md`.
+
+## 1.23.0: spelgevoel, delen en een reden om morgen terug te komen (6 oktober 2026)
+
+**Geen migratie, geen nieuwe geheimen, geen API-wijziging.** Spelregels en puntentelling zijn niet veranderd. Cacheversie `roviko-shell-v1.23.0`, `/api/version` geeft `1.23.0`. De dataset-sleutel blijft `atlas-2026-09-25-r6`, zodat de dagpuzzels dezelfde landen houden. Plan en onderbouwing: `docs/VERBETERPLAN_1_23.md`. Tests: `docs/QA_1_23.md`.
+
+**Bugs**
+- **Hoofdsteden in het Nederlands.** "Vienna", "Lisbon" en "Warsaw" stonden als antwoorden in de Nederlandse versie. Nu Wenen, Lissabon, Warschau en de rest (`i18n/capitals-nl.ts`), in vragen, uitleg, Clue Trail, Mosaic en Ontdekken. Typantwoorden accepteren de Nederlandse, Engelse en Spaanse naam. Dagpuzzels die al in de database staan, krijgen de Nederlandse naam bij het tonen (`withSpanish` in `i18n/content.ts`); er wordt niets in de database veranderd.
+- **Eswatini** heette in het Nederlands nog Swaziland en in het Spaans Suazilandia; nu Eswatini en Esuatini. Hoofdsteden: Mbabane (bestuurlijk) en Lobamba (koninklijk en wetgevend).
+- **Bolivia:** La Paz telt als getypt antwoord.
+- **Wereldduel** maakte geluid terwijl geluid uit stond.
+- **Getallen** volgden de taal van het toestel in plaats van die van Roviko ("1,493" op een Nederlandse pagina).
+- **Enkelvoud:** "1 dagen", "1 spelers" en "1 aanwijzingen" zijn nu "1 dag", "1 speler" en "1 aanwijzing" (EN/NL/ES).
+- **De homepagekop** brak af als "aardrijkskunderei / s."; nu "aardrijkskunde- / reis.".
+- **Na een fout antwoord** viel op de telefoon het goede antwoord of de uitleg achter de vaste knop. Het scherm schuift nu precies genoeg.
+- **Country Mosaic** zei altijd "Perfect!", ook met 0 punten.
+- **Side by Side:** "Eén fout. Run voorbij." stond in een smal kolommetje naast de knop.
+- Kleinere: contrast van de copyrightregel (WCAG AA), een dubbel ranglijstverzoek op de homepage, plakkende hover-rand op touchschermen, `/api/version` stond nog op 1.21.0.
+
+**Spelgevoel**
+- Warme, afwisselende koppen na een antwoord ("Top!", "Net niet!", "4 op rij!", "Bijna! 240 km ernaast") en eindkoppen naar je score ("Wereldklasse!", "Sterk gespeeld!", "Mooie reis!", "Morgen weer een kans!").
+- Geluid: een stijgend toontje bij goede antwoorden op rij en een fanfare op het eindscherm. In de app staat geluid standaard aan.
+- **Trillen in de app** (Capacitor Haptics, zat al in de app maar werd niet gebruikt): bij goed, fout en het einde. Uit te zetten in Instellingen.
+- Het antwoord en de kop springen even op; uit bij `prefers-reduced-motion`.
+- Enter of spatie gaat naar de volgende vraag.
+
+**Terugkomen en delen**
+- **Reeksmoment:** na het eerste dagspel van de dag een kort scherm met de vlam, "5 dagen op rij!", je week en hoe ver het volgende reeksschild is.
+- **Deeltekst als Wordle:** "Roviko #12 · Dagelijkse Omweg", 🟩🟥-vierkantjes, je punten en je reeks.
+- **Deelbeeld:** op telefoons gaat er een afbeelding mee in het deelmenu (in de browser getekend, geen server).
+- **Uitdaging:** wie een gedeelde link opent, ziet "Een vriend haalde 820 punten in Dagelijkse Omweg" en "Kun jij het beter?" met één knop.
+- "Beter dan 0% van de spelers" is "Iedereen begint ergens. Morgen een nieuwe kans!".
+
+**Eerste bezoek**
+- Taal en licht/donker volgen het toestel, tot je zelf iets kiest.
+
+**Snelheid**
+- Het logo in de kop is 10 KB in plaats van 35 KB; de homepage doet één ranglijstverzoek minder.
+
+**Bestanden:** nieuw `lib/feel-copy.ts`, `lib/haptics.ts`, `lib/plural.ts`, `lib/share-image.ts`, `i18n/v123.ts`, `i18n/capitals-nl.ts`, `components/ds/StreakMoment.tsx`, `components/home/ChallengeBanner.tsx`, `tests/v123.test.mjs`. CSS in `app/stage.css` (onderaan, gemarkeerd met 1.23).
+
+**Tests:** 159/159 (10 nieuw in `tests/v123.test.mjs`; drie bestaande tests aangepast aan de nieuwe deeltekst en feedbackkoppen).

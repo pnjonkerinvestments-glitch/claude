@@ -1,4 +1,4 @@
-# Game rules — Roviko 1.19.0
+# Game rules — Roviko 1.23.0
 
 These are the current rules. Documents for 1.9/v3 and earlier are historical. The requested daily competition replaces the earlier no-points policy **only for official daily games**.
 
@@ -37,7 +37,7 @@ Pinpoint accepts the chosen country's source geometry/islands with a declared 25
 
 The map supports two-finger zoom, pan, buttons, wheel input and keyboard interaction. A pinch/pan does not accidentally submit a pin. Pin placement is confirmed before answering.
 
-Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
+Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Since 1.23 the English, Dutch and Spanish name of a capital are all accepted (Vienna, Wenen, Viena), Dutch players see the Dutch name, Eswatini has two capitals (Mbabane, administrative; Lobamba, royal and legislative) and La Paz is accepted for Bolivia (Sucre stays the shown answer). Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
 
 Size Shuffle orders four countries by total area. Dragging or accessible move buttons only change the draft; **Confirm order** submits it. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A daily ordering round is all-or-nothing (200/0).
 
@@ -123,3 +123,12 @@ In single player (solo, practice and all official daily games) a tap on an answe
 
 The pre-round countdown shows 3, 2, 1 and then "Go!". During each reveal the room view adds `roundAnswers`: every player's answer (as a readable label), whether it was right and the points it earned; answers stay private until the reveal. The live ranking shows each player's answer with ✓/✗ and their "+points" for the round (previously the points were hidden behind the streak indicator). A finished match adds `history`: every round's question, correct answer and all players' answers and points, shown as a round-by-round review on the podium screen. In multiplayer Clue Trail the four clues appear one at a time, 2 seconds apart; answering earlier still earns more speed points.
 
+
+## Game feel, sharing and the streak moment (1.23)
+
+Nothing in this section changes points, rankings, streaks or which questions are asked.
+
+- **Answer headings** rotate between four warm variants per outcome, fixed per question, plus "3 in a row!" from three right answers in a row and "So close! 240 km away" for a map pin within 300 km of the country. **Finish headlines** follow the share of the maximum: perfect, ≥ 90 % world class, ≥ 70 % strong, ≥ 40 % nice, otherwise "tomorrow's another chance". Country Mosaic uses its points (before 1.23 it always said "Perfect!").
+- **Sound and vibration.** One setting decides for every game. Sound is on by default in the iOS/Android app and off on the website. The app vibrates on right, wrong and the finish (switch in Settings); the website never vibrates. Right answers in a row sound a semitone higher each, up to a fifth.
+- **Sharing.** Every share reads "Roviko #N · game", answer squares, the score (points for daily games), the streak and a link. Edition #1 is 25 September 2026 (UTC). A share never names countries, subjects or solutions; Rank Radar keeps its 🟩🟨⬜ row (best, close, weaker pick). A daily score is added to the link (`?s=820`); opening such a link shows a challenge card on the homepage or All games with one button into that game. The number in the link is a friend's claim, never stored or ranked.
+- **Streak moment.** After the first finished daily game of a UTC date the player sees, once per device, the streak count, this week and the next streak shield. The streak itself is unchanged and still derived from saved daily results.

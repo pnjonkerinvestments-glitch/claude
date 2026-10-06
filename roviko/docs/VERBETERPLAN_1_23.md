@@ -11,6 +11,12 @@ Datum: 6 oktober 2026. Basis: 1.22.1 (live op roviko.app, gelijk aan de zip `rov
 
 **Kort oordeel.** De basis is sterk: eerlijke puntentelling op de server, zes gevarieerde dagspellen, een mascotte met karakter, nette eindscènes en geen schermlekken (axe vond één contrastfout). Wat Roviko nog mist om als een echte game te voelen, zit in de **momenten**: wat er gebeurt na een tik (geluid staat uit, geen trilling, droge feedbacktekst), na een fout (het juiste antwoord valt op de telefoon soms achter de knop), na het eerste spel van de dag (je reeks groeit zonder feest) en bij delen (alleen tekst met ●○, zonder je punten). Daarnaast een paar echte bugs, waarvan de Engelse hoofdsteden in het Nederlands de belangrijkste is.
 
+## Status (6 oktober 2026, einde van de dag)
+
+- **Gebouwd en getest:** alle punten van A (A1–A20) en uit B: B1 (reeksmoment), B2 (deelbeeld) en B3 (uitdaging via gedeelde link). Zie `docs/CHANGES_SINCE_1_11.md` onder 1.23.0 en `docs/QA_1_23.md`.
+- **Open (B):** B4 grotere kaart op de telefoon, B5 dagoverzicht na zes spellen, B6 laadsnelheid (pagina's later laden; levert minder op dan gedacht, omdat de data al niet in de browserbundel zit), B7 CSS samenvoegen, B8 databewaking.
+- **Wacht op de eigenaar (C):** C1–C6.
+
 Impact: **hoog / middel / laag**. Moeite: **klein** (uren), **middel** (een dag), **groot** (meerdere dagen).
 
 ---
