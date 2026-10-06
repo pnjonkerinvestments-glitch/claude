@@ -57,7 +57,7 @@ export function BonusTour({ app, bonus, busy, featured }: { app: LaunchApp & { t
   </section>;
 }
 
-/** Under a finished bonus game: how you did against today's players and the next bonus game. */
+/** Under a finished bonus game: one card with how you did against today's players and one pill to the next bonus game. */
 export function BonusResult({ app, mode }: { app: LaunchApp & { t: (k: string) => string; busy?: boolean }; mode: string }) {
   const { t } = app;
   const [standing, setStanding] = useState<{ players: number; beaten: number } | null>(null), [next, setNext] = useState<BonusMode | null | undefined>();
@@ -69,13 +69,13 @@ export function BonusResult({ app, mode }: { app: LaunchApp & { t: (k: string) =
     return () => { active = false; };
   }, [mode]);
   const pct = standing && standing.players > 0 ? Math.round(standing.beaten / standing.players * 100) : null;
-  return <section className="daily-result bonus-result" aria-label={t('bonusKicker')}>
+  return <section className="daily-result has-stage bonus-result" aria-label={t('bonusKicker')}>
     <div className="daily-result-compare">
-      <p><Users size={17} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : pct === 0 ? t('beatenZero') : t('bonusBeaten').replace('{n}', String(pct))}</p>
+      <p><Users size={18} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : pct === 0 ? t('beatenZero') : t('bonusBeaten').replace('{n}', String(pct))}</p>
       {!!pct && <span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, pct) + '%' }}/></span>}
     </div>
-    {next === undefined ? null : next
-      ? <button className="btn primary btn-lg daily-result-next" disabled={!!launching || app.busy} onClick={() => open(next)}>{launching ? t('loading') : t('bonusCta').replace('{game}', t(next))}<ArrowRight size={19} aria-hidden="true"/></button>
-      : <div className="bonus-finale"><strong>{t('bonusDoneTitle')}</strong><p>{t('bonusDoneCopy')}</p><A href="/multiplayer" className="btn primary"><Swords size={17} aria-hidden="true"/>{t('navMultiplayer')}</A></div>}
+    {next === undefined ? <span className="daily-result-next is-pending" aria-hidden="true"/> : next
+      ? <button className="btn primary btn-lg daily-result-next" disabled={!!launching || app.busy} aria-busy={!!launching} onClick={() => open(next)}><GameIcon mode={next} size="sm"/><span>{launching ? t('loading') : t('bonusCta').replace('{game}', t(next))}</span><ArrowRight size={19} aria-hidden="true"/></button>
+      : <div className="bonus-finale"><strong>{t('bonusDoneTitle')}</strong><p>{t('bonusDoneCopy')}</p><A href="/multiplayer" className="btn primary btn-lg daily-result-next"><Swords size={18} aria-hidden="true"/>{t('navMultiplayer')}<ArrowRight size={19} aria-hidden="true"/></A></div>}
   </section>;
 }

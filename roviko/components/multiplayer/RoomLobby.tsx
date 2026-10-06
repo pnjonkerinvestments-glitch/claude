@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, Check, Copy, Crown, LogOut, Plus, Settings2, Share2, X } from 'lucide-react';
 import { BRAND } from '@/lib/config';
-import { Avatar } from '../app/shared';
+import { GlobeAvatar } from '../ds/GlobeAvatar';
 import { RoomScene } from '../ds/RoomScene';
 import { InvitePanel } from '../friends/Friends';
 import { LobbyComputer, removeComputer } from './Computer';
@@ -59,7 +59,7 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
 
       <ul className="lobby-avatars" aria-label={t('players')}>
         {room.players.map(p => <li key={p.id} className={(p.id === room.host ? 'is-host ' : '') + (p.ready ? 'is-ready ' : '') + (p.bot ? 'is-bot ' : '') + (p.id === me ? 'is-me' : '')}>
-          <span className="lobby-avatar"><Avatar id={p.avatar}/>{p.id === room.host && <Crown className="lobby-crown" size={20} strokeWidth={2.4} aria-label={t('host')}/>}{p.ready && p.id !== room.host && <span className="lobby-ready" aria-label={t('ready')}><Check size={12} strokeWidth={3.4}/></span>}</span>
+          <span className="lobby-avatar"><GlobeAvatar id={p.avatar} size={58}/>{p.id === room.host && <Crown className="lobby-crown" size={20} strokeWidth={2.4} aria-label={t('host')}/>}{p.ready && p.id !== room.host && <span className="lobby-ready" aria-label={t('ready')}><Check size={12} strokeWidth={3.4}/></span>}</span>
           <strong>{nameOf(p)}</strong>
           <small>{p.bot ? t('botLevel_' + (p.level ?? 'medium')) : p.connected === false ? t('reconnecting') : p.id === room.host ? t('host') : p.ready ? t('ready') : t('notReady')}</small>
           {p.bot && isHost && <button className="lobby-remove" onClick={() => removeComputer(code, p.id, fail)} aria-label={t('removeComputer').replace('{name}', p.name)}><X size={14}/></button>}

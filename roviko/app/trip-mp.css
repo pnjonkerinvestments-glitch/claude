@@ -1,1 +1,376 @@
 /* Roviko 1.23 trip style · multiplayer: question round, reveal with avatars, final results podium, lobby, Multiplayer tab. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
+
+/* ═════════ The live round ═════════ */
+.mp-live{max-width:1040px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+.mp-live-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.mp-live-main{display:grid;gap:12px;min-width:0;width:100%;max-width:720px;margin:0 auto}
+.mp-live-side{min-width:0;width:100%;max-width:720px;margin:0 auto}
+@media (min-width:1000px){
+  .mp-live-grid{grid-template-columns:minmax(0,1fr) 300px;gap:28px}
+  .mp-live-side{position:sticky;top:150px;margin-top:44px}
+}
+.mp-live>.game-header.trip-top{width:100%;max-width:none!important;margin:0!important}
+.mp-live .question-content{max-width:none!important;width:100%}
+
+/* The timer pill next to the coin pill; red and ticking for the last five seconds. */
+.mp-timer{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;min-height:40px;padding:0 13px 0 10px;border-radius:999px;background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums;transition:background .2s,color .2s}
+.mp-timer svg{color:var(--t-brand)}
+.mp-timer b{display:inline-block;min-width:1.25em;text-align:center;font-weight:600}
+.mp-timer.is-urgent{background:var(--t-red);color:var(--t-card);box-shadow:0 2px 3px rgba(200,51,63,.18),0 8px 18px rgba(200,51,63,.26)}
+.mp-timer.is-urgent svg{color:inherit}
+.mp-timer.is-urgent b{animation:mp-tick .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mp-tick{0%{transform:scale(1.4)}100%{transform:scale(1)}}
+@media (max-width:380px){
+  .mp-live .trip-top .game-header-row{gap:8px}
+  .mp-live .mp-timer{padding:0 10px 0 8px;gap:3px}
+  .mp-live .coin-pill{padding:0 11px 0 7px}
+}
+
+/* "ROUND 1/10 · MEDIUM" and the round dots, at the top of the question card. */
+.mp-kicker{display:grid!important;justify-items:start;gap:8px}
+.q-card .q-kicker:has(.mp-kicker){padding-right:0!important;justify-self:stretch!important}
+.mp-kicker .t-kicker{color:var(--t-brand)}
+.mp-dots{justify-content:flex-start}
+.mp-dots>li{transition:width .3s cubic-bezier(.34,1.56,.64,1),background .3s}
+.t-dots>li.is-past{background:color-mix(in srgb,var(--t-ink) 34%,transparent)}
+.mp-dots:has(>li:nth-child(13)){gap:4px}
+.mp-dots:has(>li:nth-child(13))>li{width:7px;height:7px}
+.mp-dots:has(>li:nth-child(13))>li.is-now{width:16px}
+
+/* Between rounds: a big number in a white circle, Roviko pointing at it. */
+.mp-countdown{display:grid;justify-items:center;gap:8px;padding:22px 0 6px;text-align:center}
+.mp-countdown .mp-kicker{justify-items:center}
+.mp-countdown .mp-dots{justify-content:center}
+.mp-countdown-title{margin:6px 0 0!important;color:var(--t-ink)!important;font:600 1.375rem/1.2 var(--font-display)!important;letter-spacing:-.005em}
+.mp-countdown-row{position:relative;margin-top:10px}
+.mp-countdown-roviko{position:absolute;right:calc(100% - 18px);bottom:-4px;z-index:1}
+.mp-countdown-ring{display:grid;place-items:center;width:172px;height:172px;border-radius:999px;background:var(--t-card);box-shadow:inset 0 0 0 9px var(--t-mint),var(--t-shadow-lift)}
+.mp-countdown-ring strong{display:block;color:var(--t-forest);font:600 5.75rem/1 var(--font-display);font-variant-numeric:tabular-nums;animation:mp-count .5s cubic-bezier(.34,1.56,.64,1) both}
+.mp-countdown-ring strong.is-go{font-size:2.75rem;color:var(--t-brand)}
+@keyframes mp-count{from{transform:scale(.35);opacity:0}to{transform:none;opacity:1}}
+@media (max-width:360px){.mp-countdown-ring{width:148px;height:148px}.mp-countdown-ring strong{font-size:4.75rem}.mp-countdown-roviko{width:100px;height:auto}}
+
+/* The reveal: who picked what as stacked mini avatars on the answer pills. */
+.mp-live .answer-option:has(.answer-marks){padding-left:84px!important;padding-right:84px!important}
+@media (max-width:380px){.mp-live .answer-option:has(.answer-marks){padding-left:76px!important;padding-right:56px!important}}
+.mp-live .answer-option .answer-marks{left:10px}
+.mp-picks{pointer-events:none}
+.mp-picks>*{margin-left:-11px;animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) .12s both}
+.mp-picks>*:first-child{margin-left:0}
+.mp-picks>*:nth-child(2){animation-delay:.2s}.mp-picks>*:nth-child(3){animation-delay:.28s}
+.mp-picks .globe-avatar{display:block;width:30px;height:30px;border:2px solid var(--t-card);background:var(--t-mint-2);overflow:visible}
+.mp-picks .globe-avatar.is-me{box-shadow:0 0 0 2px var(--t-gold)}
+.answer-option.is-correct .mp-picks .globe-avatar,.answer-option.is-correct .mp-picks-more{border-color:var(--t-forest)}
+.answer-option.is-wrong .mp-picks .globe-avatar,.answer-option.is-wrong .mp-picks-more{border-color:var(--t-red-soft)}
+.mp-picks-more{display:grid;place-items:center;min-width:34px;height:34px;padding:0 6px;border:2px solid var(--t-mint);border-radius:999px;background:var(--t-card);color:var(--t-ink);font:600 .8125rem/1 var(--font-display)}
+
+/* The question's own pieces and the reveal row share one grid, so the row sits right under the answers. */
+.mp-question{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.mp-question>.question-content{display:contents!important}
+.mp-question .answer-feedback,.mp-question .answer-feedback~*{order:2}
+.mp-question>.mp-reveal-row{order:1}
+.mp-question .report-link{order:3}
+
+/* Under the answers: your points for the round as a gold pill that pops, and when the next round starts. */
+.mp-reveal-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px}
+.mp-points-pop{margin:0}
+.mp-points-pop .t-points{min-height:44px;padding:0 18px;font-size:1.25rem;box-shadow:0 2px 3px rgba(201,141,31,.2),0 8px 20px rgba(201,141,31,.3);animation:mp-pop .6s cubic-bezier(.34,1.56,.64,1) .1s both}
+.mp-points-pop.is-zero .t-points{background:var(--t-card);color:var(--t-soft);box-shadow:var(--t-shadow)}
+@keyframes mp-pop{0%{transform:scale(.3) translateY(12px);opacity:0}60%{transform:scale(1.14)}100%{transform:none;opacity:1}}
+/* The gold pill says the points; the right pill says the answer. The card keeps the heading and the fact. */
+.mp-live .answer-feedback .feedback-heading>span:not([aria-hidden]){display:none!important}
+.mp-live .question-content:has(.answer-grid) .answer-feedback :is(.correction-label,.correct-answer,.your-answer-copy){display:none!important}
+.mp-live .answer-feedback .fact{margin:6px 0 0;color:var(--t-text)}
+.mp-live .report-link{justify-self:center}
+
+/* "Next round in 3": a quiet pill right under the answers. */
+.mp-next{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%;margin:0;padding:6px 6px 6px 18px;border-radius:999px;background:var(--t-card);box-shadow:var(--t-shadow);color:var(--t-soft);font:700 .9375rem/1.2 var(--font-sans);animation:mp-rise .4s cubic-bezier(.34,1.56,.64,1) .2s both}
+.mp-next strong{display:grid;place-items:center;min-width:32px;height:32px;border-radius:999px;background:var(--t-mint);color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+@keyframes mp-rise{from{transform:translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.mp-note{justify-self:center;text-align:center}
+.mp-end-round{justify-self:center}
+
+/* Losing the connection: one calm white pill above the game. */
+.room-screen>.connection-banner{display:flex!important;align-items:center;gap:10px;width:max-content;max-width:100%;margin:0 auto 12px!important;padding:6px 6px 6px 16px!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font-weight:700}
+.room-screen>.connection-banner svg{color:var(--t-brand);animation:mp-spin 1.2s linear infinite}
+.room-screen>.connection-banner .btn{min-height:36px;padding:0 14px}
+@keyframes mp-spin{to{transform:rotate(360deg)}}
+
+/* ═════════ Standings: one white card; a list beside the game, one row of avatars on phones ═════════ */
+.mp-board{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;padding:16px 12px 12px}
+.mp-board-title{margin:0 6px!important;color:var(--t-brand)!important}
+.mp-board-list{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin:0;padding:0;list-style:none}
+.mp-row{position:relative;display:flex;align-items:center;gap:10px;min-height:54px;padding:6px 10px 6px 4px;border-radius:18px;transition:background .2s}
+.mp-row.is-me{background:var(--t-mint)}
+.mp-row-rank{flex:0 0 22px;color:var(--t-soft);font:600 .9375rem/1 var(--font-display);text-align:center;font-variant-numeric:tabular-nums}
+.mp-row-avatar{position:relative;flex:0 0 40px;display:grid;place-items:center;width:40px;height:40px}
+.mp-row-avatar .globe-avatar{display:block;width:40px;height:40px;overflow:visible}
+.mp-row-badge{position:absolute;right:-4px;bottom:-3px;display:grid;place-items:center;width:19px;height:19px;border-radius:999px;background:var(--t-brand);color:var(--t-card);box-shadow:0 0 0 2px var(--t-card);animation:t-mark .4s cubic-bezier(.34,1.56,.64,1) both}
+.mp-row-badge.is-wrong{background:var(--t-red)}
+.mp-row-badge.is-done{background:var(--t-soft)}
+.mp-row.is-me .mp-row-badge{box-shadow:0 0 0 2px var(--t-mint)}
+.mp-row-name{flex:1 1 auto;display:grid;min-width:0}
+.mp-row-name strong{overflow:hidden;color:var(--t-ink);font:600 1rem/1.2 var(--font-display);text-overflow:ellipsis;white-space:nowrap}
+.mp-row-name small{overflow:hidden;color:var(--t-soft);font:700 .8125rem/1.3 var(--font-sans);text-overflow:ellipsis;white-space:nowrap}
+.mp-row.was-right .mp-row-name small{color:var(--t-brand)}
+.mp-row-gain{flex-shrink:0;padding:4px 8px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink);font:600 .8125rem/1.1 var(--font-display);font-variant-numeric:tabular-nums;animation:mp-pop .5s cubic-bezier(.34,1.56,.64,1) .15s both}
+.mp-row-score{flex-shrink:0;min-width:3em;color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);text-align:right;font-variant-numeric:tabular-nums}
+.mp-row .player-actions-btn{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;margin-right:-6px;border:0;border-radius:999px;background:transparent;color:var(--t-soft)}
+.mp-row .player-actions-btn:hover{background:var(--t-mint);color:var(--t-ink)}
+@media (max-width:999px){
+  .mp-board:not(.is-list){gap:6px;padding:12px 8px 8px}
+  .mp-board:not(.is-list) .mp-board-list{display:flex;gap:4px;overflow-x:auto;padding:2px 2px 4px;scrollbar-width:none;overscroll-behavior-x:contain}
+  .mp-board:not(.is-list) .mp-board-list::-webkit-scrollbar{display:none}
+  .mp-board:not(.is-list) .mp-row{flex:0 0 78px;flex-direction:column;justify-content:flex-start;gap:3px;min-height:0;padding:8px 4px 8px;text-align:center}
+  .mp-board:not(.is-list) .mp-row-rank{position:absolute;left:5px;top:6px;flex:none;font-size:.75rem}
+  .mp-board:not(.is-list) .mp-row-name{width:100%;flex:none}
+  .mp-board:not(.is-list) .mp-row-name strong{font-size:.875rem}
+  .mp-board:not(.is-list) .mp-row-name small{display:none}
+  .mp-board:not(.is-list) .mp-row-score{min-width:0;font-size:.9375rem;text-align:center}
+  .mp-board:not(.is-list) .mp-row-gain{order:9;padding:3px 7px;font-size:.75rem}
+}
+
+/* ═════════ Final results: avatars, the headline, your points, Roviko over the podium ═════════ */
+.mp-results{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:560px;margin:0 auto;padding-bottom:20px}
+.mpr-crowd{display:flex;flex-wrap:wrap;justify-content:center;margin:0 0 -2px;padding:0;list-style:none}
+.mpr-crowd li{margin-left:-10px;border-radius:999px;background:var(--t-card);box-shadow:0 0 0 3px var(--t-canvas);animation:mp-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+.mpr-crowd li:first-child{margin-left:0}
+.mpr-crowd li:nth-child(2){animation-delay:.05s}.mpr-crowd li:nth-child(3){animation-delay:.1s}.mpr-crowd li:nth-child(4){animation-delay:.15s}.mpr-crowd li:nth-child(5){animation-delay:.2s}.mpr-crowd li:nth-child(6){animation-delay:.25s}.mpr-crowd li:nth-child(7){animation-delay:.3s}.mpr-crowd li:nth-child(n+8){animation-delay:.35s}
+.mpr-crowd li.is-me{position:relative;z-index:1;box-shadow:0 0 0 3px var(--t-gold)}
+.mpr-crowd .globe-avatar{display:block;width:44px;height:44px;overflow:visible}
+.mpr-crowd-more{display:grid;place-items:center;width:44px;height:44px;color:var(--t-ink);font:600 .9375rem/1 var(--font-display)}
+.mpr-card{position:relative;display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:8px;padding:24px 18px 20px;overflow:hidden;text-align:center}
+.mpr-card>*{position:relative}
+.mpr-kicker{margin:0}
+.mpr-card .mp-dots{justify-content:center;max-width:300px}
+.mpr-headline{margin:10px 0 0!important;font-size:clamp(2.25rem,1.75rem + 2.2vw,3rem)!important;animation:mp-pop .6s cubic-bezier(.34,1.56,.64,1) both}
+.mpr-place{margin:0;color:var(--t-soft);font:700 1.0625rem/1.3 var(--font-sans)}
+.mpr-points{display:inline-flex;align-items:center;gap:8px;margin:2px 0 0;color:var(--t-soft);font:700 1rem/1 var(--font-sans)}
+.mpr-points strong{color:var(--t-ink);font:600 2rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.mpr-points .coin{animation:t-spin .9s ease-out .2s}
+.mpr-stage{display:grid;justify-items:center;width:100%;margin-top:4px}
+.mpr-roviko{position:relative;z-index:1;margin-bottom:4px}
+.mpr-podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:end;gap:8px;width:100%;max-width:400px;margin:0;padding:0;list-style:none}
+.mpr-podium.has-2{grid-template-columns:repeat(2,minmax(0,1fr));max-width:272px}
+.mpr-podium.has-1{grid-template-columns:minmax(0,1fr);max-width:136px}
+.mpr-step{grid-row:1;display:grid;justify-items:center;gap:6px;min-width:0}
+.mpr-step.place-1{grid-column:2}.mpr-step.place-2{grid-column:1}.mpr-step.place-3{grid-column:3}
+.mpr-podium.has-1 .mpr-step.place-1{grid-column:1}
+.mpr-step-avatar{display:block;border-radius:999px;animation:mp-pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.mpr-step-avatar .globe-avatar{display:block;overflow:visible;filter:drop-shadow(0 6px 8px rgba(22,59,50,.16))}
+.mpr-step.is-me .mpr-step-avatar{box-shadow:0 0 0 3px var(--t-gold);background:var(--t-card)}
+.mpr-step-block{display:grid;align-content:start;justify-items:center;gap:3px;width:100%;padding:12px 6px 10px;border-radius:20px 20px 8px 8px;background:var(--t-mint);color:var(--t-mint-ink);transform-origin:50% 100%;animation:mpr-rise .6s cubic-bezier(.34,1.56,.64,1) both}
+.mpr-step.place-1 .mpr-step-block{height:150px;background:var(--t-gold);color:var(--t-gold-ink);box-shadow:0 2px 3px rgba(201,141,31,.18),0 10px 22px rgba(201,141,31,.22)}
+.mpr-step.place-2 .mpr-step-block{height:124px}
+.mpr-step.place-3 .mpr-step-block{height:104px;background:var(--t-canvas);color:var(--t-ink);box-shadow:inset 0 0 0 2px var(--t-line)}
+.mpr-step.place-3 .mpr-step-block,.mpr-step.place-3 .mpr-step-avatar{animation-delay:.1s}
+.mpr-step.place-2 .mpr-step-block,.mpr-step.place-2 .mpr-step-avatar{animation-delay:.22s}
+.mpr-step.place-1 .mpr-step-block,.mpr-step.place-1 .mpr-step-avatar{animation-delay:.36s}
+.mpr-step-rank{font:600 2rem/1 var(--font-display)}
+.mpr-step.place-1 .mpr-step-rank{font-size:2.5rem}
+.mpr-step-name{max-width:100%;overflow:hidden;font:600 .9375rem/1.2 var(--font-display);text-overflow:ellipsis;white-space:nowrap}
+.mpr-step-score{opacity:.78;font:700 .8125rem/1.2 var(--font-sans);font-variant-numeric:tabular-nums}
+@keyframes mpr-rise{from{transform:scaleY(.2);opacity:0}to{transform:none;opacity:1}}
+.mpr-actions{display:grid;gap:10px;width:100%;max-width:400px;margin-top:16px}
+.mpr-actions .mpr-again{width:100%;min-height:56px;justify-content:center;font-size:1.125rem}
+.mpr-more{display:flex;flex-wrap:wrap;gap:8px}
+.mpr-more .btn{flex:1 1 140px;justify-content:center;min-width:0}
+.mpr-wait{margin:0;color:var(--t-soft);font-size:.875rem}
+/* A little confetti for a win. */
+.mpr-confetti{position:absolute!important;inset:0;overflow:hidden;pointer-events:none}
+.mpr-confetti i{position:absolute;top:-14px;left:var(--x);width:8px;height:13px;border-radius:2px;background:var(--t-gold);opacity:0;animation:mpr-fall 2.6s ease-in calc(var(--d) * 80ms + .3s) forwards}
+.mpr-confetti i:nth-child(3n+1){background:var(--t-brand)}
+.mpr-confetti i:nth-child(3n+2){background:var(--t-mint-2);width:10px;height:10px;border-radius:999px}
+@keyframes mpr-fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(560px) rotate(560deg)}}
+
+/* Folded below: everyone's place and every round. */
+.mpr-fold{padding:0;overflow:hidden}
+.mpr-fold>summary{display:flex;align-items:center;gap:10px;min-height:60px;padding:0 18px;cursor:pointer;list-style:none;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.mpr-fold>summary::-webkit-details-marker{display:none}
+.mpr-fold>summary small{padding:3px 9px;border-radius:999px;background:var(--t-mint);color:var(--t-mint-ink);font:700 .8125rem/1.2 var(--font-sans)}
+.mpr-chevron{flex-shrink:0;color:var(--t-soft);transition:transform .2s}
+.mpr-fold>summary .mpr-chevron{margin-left:auto}
+.mpr-fold[open]>summary .mpr-chevron,.mpr-review details[open]>summary .mpr-chevron{transform:rotate(180deg)}
+.mpr-fold .mp-board{padding:0 8px 10px;border-radius:0;background:transparent;box-shadow:none}
+.mpr-fold .mp-board-title{display:none}
+.mpr-review{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin:0;padding:0 10px 12px;list-style:none}
+.mpr-review details{border-radius:18px;background:color-mix(in srgb,var(--t-mint) 45%,transparent)}
+.mpr-review summary{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;list-style:none}
+.mpr-review summary::-webkit-details-marker{display:none}
+.mpr-review-num{display:grid;place-items:center;flex-shrink:0;width:28px;height:28px;border-radius:999px;background:var(--t-card);color:var(--t-ink);font:600 .875rem/1 var(--font-display)}
+.mpr-review-num.is-right{background:var(--t-brand);color:var(--t-card)}
+.mpr-review-num.is-wrong{background:var(--t-red-soft);color:var(--t-red-ink)}
+.mpr-review .game-icon{flex-shrink:0}
+.mpr-review-q{display:grid;flex:1 1 auto;gap:2px;min-width:0;text-align:left}
+.mpr-review-q strong{color:var(--t-ink);font:600 .9375rem/1.25 var(--font-display)}
+.mpr-review-q small{display:inline-flex;align-items:center;gap:4px;color:var(--t-brand);font:700 .8125rem/1.3 var(--font-sans)}
+.mpr-review ul{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;margin:0;padding:0 12px 10px;list-style:none}
+.mpr-review ul li{display:flex;align-items:center;gap:8px;min-height:40px;color:var(--t-text);font-size:.875rem}
+.mpr-review ul li .globe-avatar{flex-shrink:0;overflow:visible}
+.mpr-review ul li strong{max-width:34%;overflow:hidden;color:var(--t-ink);font:600 .875rem/1.2 var(--font-display);text-overflow:ellipsis;white-space:nowrap}
+.mpr-review-pick{display:inline-flex;flex:1 1 auto;align-items:center;gap:4px;min-width:0;overflow:hidden;color:var(--t-soft);text-overflow:ellipsis;white-space:nowrap}
+.mpr-review-pick svg{flex-shrink:0}
+.mpr-review li.was-right .mpr-review-pick svg{color:var(--t-brand)}
+.mpr-review li.was-wrong .mpr-review-pick svg{color:var(--t-red)}
+.mpr-review ul li b{flex-shrink:0;color:var(--t-ink);font:600 .875rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.mpr-review ul li.is-me{font-weight:700}
+
+@media (prefers-reduced-motion:reduce){
+  .mp-timer.is-urgent b,.mp-countdown-ring strong,.mp-picks>*,.mp-points-pop .t-points,.mp-next,.mp-row-badge,.mp-row-gain,.room-screen>.connection-banner svg,
+  .mpr-crowd li,.mpr-headline,.mpr-points .coin,.mpr-step-avatar,.mpr-step-block,.mpr-confetti i,.mp-dots>li{animation:none!important;transition:none!important}
+  .mpr-confetti{display:none}
+}
+
+/* ═════════ The Multiplayer tab: one white card, three mint choices, the room code ═════════ */
+.mp-calm,.room-lobby{grid-template-columns:minmax(0,1fr);max-width:600px!important;gap:16px!important}
+.mp-card,.lobby-card{padding:10px 10px 18px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.mp-card .room-scene,.lobby-card .room-scene{display:block;width:100%;height:auto;max-height:200px;border-radius:22px}
+.mp-head,.lobby-head{padding:18px 12px 4px!important}
+.mp-head h1,.lobby-head h1{color:var(--t-ink)!important;font:600 clamp(1.75rem,1.45rem + 1.3vw,2.25rem)/1.12 var(--font-display)!important;letter-spacing:-.012em}
+.mp-head p,.lobby-head p{margin-top:6px!important;color:var(--t-soft)!important;font-size:1rem!important;line-height:1.45}
+.mp-choices{gap:10px!important;padding:12px 4px 4px!important}
+.mp-choice{gap:14px!important;min-height:76px;padding:12px 16px 12px 12px!important;border-radius:22px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;transition:background .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.mp-choice:hover:not(:disabled){background:var(--t-mint-2)!important;transform:translateY(-1px)}
+.mp-choice:active:not(:disabled){transform:scale(.985)}
+.mp-choice:disabled{opacity:.6}
+.mp-choice-icon{width:48px!important;height:48px!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-forest)!important;box-shadow:0 1px 2px rgba(22,59,50,.08)}
+[data-theme=dark] .mp-choice-icon{color:var(--t-brand)!important}
+.mp-choice-copy strong{color:var(--t-ink);font:600 1.125rem/1.2 var(--font-display)!important}
+.mp-choice-copy small{color:var(--t-soft)!important;font-size:.875rem!important;line-height:1.35}
+.mp-choice>svg:last-child{flex-shrink:0;color:var(--t-ink)}
+.mp-choice-wrap.is-open{border-radius:22px;background:var(--t-mint)}
+.mp-choice-wrap.is-open>.mp-choice{background:transparent!important}
+.mp-computer{gap:12px!important;padding:2px 12px 14px!important;animation:mp-rise .35s cubic-bezier(.34,1.56,.64,1) both}
+.mp-computer .btn.primary{width:100%;min-height:52px;justify-content:center}
+.mp-code{padding:16px 12px 2px!important}
+.mp-code .field-label{color:var(--t-ink);font:600 1rem/1.2 var(--font-display)}
+.join-form .code-input,.mp-friend-add .code-input{border:2px solid var(--t-line)!important;border-radius:999px!important;background:var(--t-canvas)!important;color:var(--t-ink)!important;padding:0 20px!important}
+.join-form .code-input:focus,.mp-friend-add .code-input:focus{border-color:var(--t-brand)!important;background:var(--t-card)!important}
+.join-form .join-row .btn{border-radius:999px!important}
+.join-form .btn.primary:disabled{opacity:.45}
+.join-form .field-help{color:var(--t-soft)}
+
+/* The segmented choices (rounds, level): a mint track, the chosen one forest. */
+.segmented-pill{background:var(--t-mint)!important}
+.segmented-pill button{color:var(--t-mint-ink)!important}
+.segmented-pill button[aria-checked=true]{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;box-shadow:0 2px 6px rgba(22,59,50,.22)!important}
+.segmented-pill button:disabled:not([aria-checked=true]){color:var(--t-soft)!important}
+.segmented-pill button:not(:disabled):not([aria-checked=true]):hover{background:var(--t-mint-2)}
+
+/* Friends online (accounts), under the card. */
+.mp-friends{padding:18px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.mp-friends-head h2{color:var(--t-ink);font:600 1.25rem/1.2 var(--font-display)}
+.mp-friends-head>svg{color:var(--t-forest)}
+[data-theme=dark] .mp-friends-head>svg{color:var(--t-brand)}
+.mp-friends .friend-list-v2,.lobby-invite .friend-list-v2{padding:4px!important;border-radius:22px!important;background:color-mix(in srgb,var(--t-mint) 45%,transparent)!important;box-shadow:none!important}
+.mp-friends .friend-row,.lobby-invite .friend-row{border-radius:18px}
+.mp-friends .friend-row+.friend-row,.lobby-invite .friend-row+.friend-row{box-shadow:0 -1px 0 var(--t-line)}
+.mp-friends .friend-row.is-online .presence-dot,.lobby-invite .friend-row.is-online .presence-dot{background:var(--t-brand)}
+.mp-friends .friend-row.is-online .friend-info small,.lobby-invite .friend-row.is-online .friend-info small{color:var(--t-brand)}
+.mp-friends .friend-code{border-radius:999px;background:var(--t-mint);color:var(--t-mint-ink)}
+.mp-friends-empty{color:var(--t-soft)}
+
+/* ═════════ The waiting room ═════════ */
+.lobby-head{align-items:center!important}
+.lobby-count{padding:8px 16px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 1.125rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.lobby-settings{margin:12px 4px 4px!important;padding:14px!important;border-radius:22px!important;background:color-mix(in srgb,var(--t-mint) 45%,transparent)!important}
+.lobby-setting>span{color:var(--t-ink)!important;font:600 1rem/1.2 var(--font-display)!important}
+.lobby-more summary{min-height:36px;color:var(--t-brand)!important}
+.lobby-rules{color:var(--t-soft)!important}
+.lobby-avatars{gap:16px 6px!important;padding:20px 4px 10px!important}
+.lobby-avatars li{animation:mp-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+.lobby-avatar{width:68px!important;height:68px!important;background:var(--t-mint)!important;box-shadow:none!important}
+.lobby-avatar .globe-avatar{display:block;overflow:visible}
+.lobby-avatars li.is-me .lobby-avatar{box-shadow:0 0 0 3px var(--t-gold)!important}
+.lobby-crown{color:var(--t-gold)!important;fill:var(--t-gold)!important}
+.lobby-ready{background:var(--t-brand)!important;color:var(--t-card)!important;box-shadow:0 0 0 3px var(--t-card)!important;animation:t-mark .4s cubic-bezier(.34,1.56,.64,1) both}
+.lobby-avatars strong{color:var(--t-ink)!important;font:600 .9375rem/1.25 var(--font-display)!important}
+.lobby-avatars small{color:var(--t-soft)!important}
+.lobby-add{border:2px dashed color-mix(in srgb,var(--t-brand) 45%,transparent)!important;background:transparent!important;color:var(--t-brand)!important}
+.lobby-add:hover{background:var(--t-mint)!important}
+.lobby-avatars li.is-empty strong{color:var(--t-brand)!important}
+.lobby-remove{background:var(--t-card)!important;color:var(--t-soft)!important;box-shadow:var(--t-shadow)!important}
+.lobby-actions{gap:12px!important;padding:12px 6px 0!important}
+.lobby-actions>.btn-lg{min-height:58px;font-size:1.125rem}
+.lobby-actions>.btn.ready-btn{background:var(--t-mint)!important;color:var(--t-mint-ink)!important;border:2px solid var(--t-forest)!important;box-shadow:none!important}
+.lobby-actions>p{color:var(--t-soft)!important}
+.lobby-secondary{gap:8px!important}
+.lobby-secondary .btn{min-height:44px;border:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 .9375rem/1 var(--font-display)}
+.lobby-secondary .btn:hover:not(:disabled){background:var(--t-mint-2)!important}
+.lobby-secondary>.btn.ghost{width:44px;padding:0!important;justify-content:center}
+.lobby-secondary .lobby-computer.is-open{display:grid!important;flex-basis:100%;gap:10px;margin:4px 0 0;padding:14px;border-radius:22px;background:color-mix(in srgb,var(--t-mint) 45%,transparent)}
+.lobby-secondary .lobby-computer.is-open .lobby-computer-actions{display:flex;gap:8px;justify-content:center}
+.lobby-secondary .lobby-computer.is-open .btn.primary{background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
+.lobby-secondary .lobby-computer.is-open .btn.ghost{background:transparent!important}
+.lobby-invite{padding:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;overflow:hidden}
+.lobby-invite>summary{display:flex;align-items:center;min-height:60px;padding:0 20px;list-style:none;color:var(--t-ink)!important;font:600 1.0625rem/1.2 var(--font-display)!important}
+.lobby-invite>summary::-webkit-details-marker{display:none}
+.lobby-invite>summary::after{content:"";width:9px;height:9px;margin-left:auto;border-right:2.5px solid var(--t-soft);border-bottom:2.5px solid var(--t-soft);transform:translateY(-3px) rotate(45deg);transition:transform .2s}
+.lobby-invite[open]>summary::after{transform:translateY(2px) rotate(-135deg)}
+.lobby-invite .invite-panel{margin:0!important;padding:0 16px 16px!important}
+.lobby-foot .text-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--t-soft)!important;font-weight:700}
+
+/* Computer level: three mint tiles, the chosen one forest. Level colours stay on the little bars. */
+.level-picker legend{color:var(--t-ink);font:600 1rem/1.2 var(--font-display)}
+.level-option{border:0!important;border-radius:18px!important;background:var(--t-mint)!important;color:var(--t-mint-ink);transition:background .16s,transform .2s cubic-bezier(.34,1.56,.64,1)!important}
+.level-option:hover{background:var(--t-mint-2)!important}
+.level-option.is-selected{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;transform:translateY(-1px)}
+.level-option.is-selected small{color:color-mix(in srgb,var(--t-forest-ink) 78%,transparent)!important}
+.level-option strong{font:600 1rem/1.2 var(--font-display)!important}
+.level-option .level-dots i{background:color-mix(in srgb,var(--t-ink) 16%,transparent)}
+.level-option.is-selected .level-dots i:not(.on){background:color-mix(in srgb,var(--t-forest-ink) 30%,transparent)}
+
+/* ═════════ Quick match: Roviko looking out over the radar ═════════ */
+.quick-search{max-width:520px!important;margin:12px auto!important;padding:26px 20px 22px;gap:10px!important}
+.quick-search h1{color:var(--t-ink)!important;font:600 clamp(1.5rem,1.3rem + 1vw,1.875rem)/1.2 var(--font-display)!important}
+.quick-radar{width:200px!important;height:200px!important}
+.quick-radar>span{border-color:var(--t-brand)!important;background:color-mix(in srgb,var(--t-mint) 40%,transparent)}
+.quick-radar .quick-roviko{position:relative}
+.quick-elapsed{display:inline-flex;align-items:center;min-height:36px;padding:0 16px;border-radius:999px;background:var(--t-mint);color:var(--t-mint-ink)!important;font:600 1.0625rem/1 var(--font-display)!important}
+.quick-search .muted,.quick-soon{color:var(--t-soft)!important}
+.quick-search>.btn.ghost{margin-top:4px;color:var(--t-ink)}
+.quick-offer{padding:18px!important;border-radius:22px!important;background:color-mix(in srgb,var(--t-mint) 45%,transparent)!important;box-shadow:none!important}
+.quick-offer h2{color:var(--t-ink)}
+@media (max-width:420px){.quick-radar{width:168px!important;height:168px!important}.quick-radar .quick-roviko{width:100px;height:auto}}
+
+@media (prefers-reduced-motion:reduce){
+  .mp-computer,.lobby-avatars li,.lobby-ready,.level-option,.mp-choice{animation:none!important;transition:none!important}
+}
+
+/* "More settings" in the waiting room: one column, white pills on the soft well. */
+.lobby-more .settings-grid{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:16px!important;margin-top:4px}
+.lobby-more .settings-grid>*{min-width:0;max-width:100%;grid-column:auto!important}
+.lobby-more legend,.lobby-more .settings-grid label{color:var(--t-ink);font:600 .9375rem/1.25 var(--font-display)}
+.lobby-more .mode-picker>div{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important}
+.lobby-more .mode-pick{min-height:52px;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:none!important;text-align:left}
+.lobby-more .mode-pick[aria-pressed=true]{background:var(--t-card)!important;box-shadow:inset 0 0 0 2px var(--t-forest)!important}
+[data-theme=dark] .lobby-more .mode-pick[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--t-brand)!important}
+.lobby-more .mode-pick .game-icon{border-radius:999px!important}
+.lobby-more .enabled-modes>label{margin:6px 0!important;border:0!important;border-radius:18px!important;background:var(--t-card)!important}
+.lobby-more .enabled-modes input{accent-color:var(--t-forest)}
+.lobby-more .enabled-modes>p,.lobby-more .enabled-modes small,.lobby-more .enabled-modes>small{color:var(--t-soft)!important}
+.lobby-more .enabled-modes small{text-transform:none!important;letter-spacing:0!important}
+.mp-computer .segmented-pill{background:var(--t-card)!important}
+@media (hover:none){.level-option:hover:not(.is-selected){background:var(--t-mint)!important}.mp-choice:hover:not(:disabled){background:var(--t-mint)!important;transform:none}}
+
+/* Narrow phones: the level choice in two rows, three avatars a row, nothing wider than the screen. */
+.mpr-headline,.mpr-place,.mpr-kicker{max-width:100%;overflow-wrap:anywhere}
+@media (max-width:380px){
+  .segmented-pill[aria-labelledby=lobby-level]{display:grid!important;grid-template-columns:1fr 1fr;border-radius:22px!important}
+  .lobby-avatars{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .lobby-card,.mp-card{padding:8px 8px 16px!important}
+  .lobby-settings{padding:12px!important}
+}
+.mp-friend-add .code-input{font-size:1.125rem!important;letter-spacing:.16em!important;min-height:52px}
+.mp-friend-add .code-input::placeholder{letter-spacing:0;text-transform:none;font:600 .9375rem/1 var(--font-sans)}
+.mp-live .map-zoom-note{background:var(--t-mint)!important;color:var(--t-mint-ink)!important}
+.quick-offer-actions{display:grid!important;gap:8px!important}
+.quick-offer-actions .btn{width:100%;justify-content:center;white-space:normal;text-align:center}
+.lobby-computer .btn,.mp-computer .btn{white-space:normal;text-align:center}
+@media (max-width:380px){
+  .quick-search{padding:22px 14px 18px}
+  .quick-offer{padding:14px!important}
+  .level-options{grid-template-columns:minmax(0,1fr)!important;gap:6px!important}
+  .level-option{flex-direction:row!important;align-items:center;gap:10px!important;min-height:44px;padding:8px 14px!important;border-radius:999px!important}
+}
+.level-option.is-selected .level-dots i.on{background:var(--t-forest-ink)!important}

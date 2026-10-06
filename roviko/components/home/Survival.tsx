@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { GameScene } from '../ds/GameScene';
-import { ArrowRight, Heart, Skull, Trophy, Users } from 'lucide-react';
+import { ArrowRight, Heart, Trophy, Users } from 'lucide-react';
 import { api, post } from '@/lib/client';
 import { SURVIVAL_MODES, SURVIVAL_ROUNDS, type SurvivalMode, type SurvivalSession } from '@/lib/survival';
 import { GameIcon } from '../atelier/GameIcon';
@@ -42,7 +42,7 @@ export function SurvivalRuns({ app, survival, busy }: { app: LaunchApp; survival
   </section>;
 }
 
-/** Under a finished run: how far you got against today's players and the day's longest run. */
+/** Under a finished run: one card with how far you got against today's players, the day's longest run and the next run. */
 export function SurvivalResult({ app, mode, score, out }: { app: LaunchApp; mode: string; score: number; out?: boolean }) {
   const { t } = app;
   const [standing, setStanding] = useState<{ players: number; beaten: number; top?: number } | null>(null), [left, setLeft] = useState<SurvivalMode | null | undefined>();
@@ -54,13 +54,13 @@ export function SurvivalResult({ app, mode, score, out }: { app: LaunchApp; mode
     return () => { active = false; };
   }, [mode]);
   const pct = standing && standing.players > 0 ? Math.round(standing.beaten / standing.players * 100) : null;
-  return <section className="daily-result survival-result" aria-label={t('survivalKicker')}>
-    <p className={'survival-verdict' + (out ? ' is-out' : ' is-all')}>{out ? <Skull size={18} aria-hidden="true"/> : <Trophy size={18} aria-hidden="true"/>}{t(out ? 'survivalOutAt' : 'survivalAllTitle').replace('{n}', String(score))}</p>
+  return <section className="daily-result has-stage survival-result" aria-label={t('survivalKicker')}>
+    <p className="sr-only">{t(out ? 'survivalOutAt' : 'survivalAllTitle').replace('{n}', String(score))}</p>
     <div className="daily-result-compare">
-      <p><Users size={17} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : pct === 0 ? t('beatenZero') : t('bonusBeaten').replace('{n}', String(pct))}</p>
+      <p><Users size={18} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : pct === 0 ? t('beatenZero') : t('bonusBeaten').replace('{n}', String(pct))}</p>
       {!!pct && <span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, pct) + '%' }}/></span>}
       {standing?.top ? <small className="survival-top"><Trophy size={14} aria-hidden="true"/>{t('survivalTop').replace('{n}', String(standing.top))}</small> : null}
     </div>
-    {left ? <button className="btn primary btn-lg daily-result-next" disabled={!!launching} onClick={() => open(left)}>{launching ? t('loading') : t('survivalNext').replace('{game}', t(left))}<ArrowRight size={19} aria-hidden="true"/></button> : null}
+    {left ? <button className="btn primary btn-lg daily-result-next" disabled={!!launching} aria-busy={!!launching} onClick={() => open(left)}><GameIcon mode={left} size="sm"/><span>{launching ? t('loading') : t('survivalNext').replace('{game}', t(left))}</span><ArrowRight size={19} aria-hidden="true"/></button> : null}
   </section>;
 }

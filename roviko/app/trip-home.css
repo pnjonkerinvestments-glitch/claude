@@ -1,1 +1,143 @@
 /* Roviko 1.23 trip style · homepage, welcome card, challenge banner, All games page. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
+
+/* ═════════ Homepage: Roviko on the cream canvas, one forest pill, today's trip as a route ═════════
+   Phones: one column (hero, bonus tour and survival after 6/6, the route, the quiet side rows).
+   Desktop: the hero and the side rows on the left, the route on the right. */
+.home.home-trip{display:grid!important;grid-template-columns:minmax(0,1fr);gap:26px!important;width:100%;max-width:1060px;margin:0 auto}
+@media (min-width:980px){
+  .home.home-trip{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);column-gap:56px;row-gap:22px!important;align-items:start}
+  .home-trip>.th-hero{grid-column:1;grid-row:1}
+  .home-trip>.th-route{grid-column:2;grid-row:1/span 2}
+  .home-trip>.home-side{grid-column:1;grid-row:2}
+  .home-trip>.bonus-tour,.home-trip>.survival{grid-column:1/-1}
+  /* After 6/6 the bonus tour is the next step: it takes the right column, today's six move below. */
+  .home-trip.is-done>.bonus-tour{grid-column:2;grid-row:1/span 2}
+  .home-trip.is-done>.th-route{grid-column:1/-1;grid-row:auto}
+}
+
+/* Hero: no block, just Roviko, the headline, the pill and the day's progress. */
+.th-hero{display:grid;justify-items:center;gap:16px;padding:0;text-align:center}
+.th-stage{display:grid;justify-items:center;width:100%;min-width:0}
+.th-bubble{position:relative;z-index:2;max-width:min(320px,100%);padding:10px 18px;border-radius:20px;background:var(--t-card);color:var(--t-ink);font:600 1rem/1.3 var(--font-display);text-wrap:balance;box-shadow:var(--t-shadow);animation:th-bubble .55s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 100%}
+.th-bubble::after{content:'';position:absolute;left:50%;bottom:-7px;width:16px;height:16px;margin-left:-8px;background:inherit;border-radius:0 0 4px 0;transform:rotate(45deg)}
+.home-trip .hero-character{position:relative!important;left:auto!important;top:auto!important;z-index:1;width:184px!important;max-width:none;height:auto!important;margin:2px 0 -6px;filter:none!important}
+.home-trip .hero-character .character-shadow{opacity:.14}
+.th-title{max-width:15ch;margin:0!important;color:var(--t-ink)!important;font:600 clamp(2rem,1.55rem + 2vw,3rem)/1.08 var(--font-display)!important;letter-spacing:-.018em!important;text-wrap:balance}
+.th-title .hl{color:var(--t-brand)}
+.home-trip .th-cta{width:min(100%,400px);min-height:60px;margin-top:2px;font-size:1.1875rem!important;animation:th-pop .5s cubic-bezier(.34,1.56,.64,1) .1s both}
+.home-trip .th-cta svg{transition:transform .2s}
+.home-trip .th-cta:hover:not(:disabled) svg{transform:translateX(4px)}
+.home-trip .th-cta:disabled{opacity:1!important;cursor:progress}
+.th-reset-line{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin:0;padding:0 18px;border-radius:999px;background:var(--t-card);color:var(--t-soft);box-shadow:var(--t-shadow);font:700 .9375rem/1.2 var(--font-sans)}
+.th-nudge{display:inline-flex;align-items:center;gap:8px;max-width:400px;margin:-4px 0 0;padding:8px 16px 8px 12px;border-radius:999px;background:color-mix(in srgb,var(--t-gold) 26%,var(--t-card));color:var(--t-gold-ink);font:700 .9375rem/1.3 var(--font-sans);text-align:left}
+[data-theme=dark] .th-nudge{color:var(--t-gold-2)}
+.th-nudge .flame-mark{flex-shrink:0;animation:t-flicker 2.6s ease-in-out infinite;transform-origin:50% 90%}
+
+/* The day's progress: six segments (one per game) and two white pills, as in the game header. */
+.th-progress{display:grid;justify-items:center;gap:12px;width:min(100%,400px)}
+.th-segs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;width:100%;margin:0;padding:0;list-style:none}
+.th-segs>li{height:10px;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 11%,transparent);transition:background .4s}
+.th-segs>li.is-done{background:var(--t-forest);animation:th-seg .5s cubic-bezier(.34,1.56,.64,1) both}
+.th-segs>li.is-active{background:linear-gradient(90deg,var(--t-forest) 0 50%,color-mix(in srgb,var(--t-ink) 11%,transparent) 50%)}
+.th-segs>li.is-next.is-new{background:var(--t-mint-2);animation:th-glow 2.2s ease-in-out infinite}
+.th-progress-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:0;color:var(--t-soft);font:700 .9375rem/1.3 var(--font-sans)}
+.th-progress-line>span:first-child,.th-points{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow)}
+.th-progress-line b{font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--t-ink)}
+.th-points{padding-left:9px;text-decoration:none;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.th-points:hover{transform:translateY(-1px)}
+.th-points:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.th-dot{display:none}
+.is-first .th-progress-line{font-size:.9375rem}
+
+/* Today's trip: six white rows on a dotted route; done stops get a tick and their points. */
+.home-trip .home-today{padding:0!important;background:none!important;box-shadow:none!important;border-radius:0!important}
+.home-trip .today-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:0 4px 14px}
+.home-trip .today-head h2{margin:0;color:var(--t-ink);font:600 1.5rem/1.15 var(--font-display)}
+.th-reset{display:inline-flex;align-items:center;gap:6px;color:var(--t-soft);font:700 .875rem/1.2 var(--font-sans);font-variant-numeric:tabular-nums}
+.home-trip .today-list{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.home-trip .today-row{position:relative;animation:th-rise .45s cubic-bezier(.22,1,.36,1) both}
+.home-trip .today-row:nth-child(2){animation-delay:.04s}.home-trip .today-row:nth-child(3){animation-delay:.08s}.home-trip .today-row:nth-child(4){animation-delay:.12s}.home-trip .today-row:nth-child(5){animation-delay:.16s}.home-trip .today-row:nth-child(6){animation-delay:.2s}
+.home-trip .today-row button{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:12px 14px 12px 12px;border:0;border-radius:var(--t-radius-sm);background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow);text-align:left;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,background .2s}
+.home-trip .today-row button:hover:not(:disabled){background:var(--t-card);transform:translateY(-2px);box-shadow:var(--t-shadow-lift)}
+.home-trip .today-row button:active:not(:disabled){transform:scale(.985)}
+.home-trip .today-row button:focus-visible{outline:3px solid var(--t-brand);outline-offset:3px}
+.home-trip .today-row button:disabled{cursor:default}
+.home-trip .today-row.is-next button{box-shadow:0 0 0 2px var(--t-mint-2),var(--t-shadow-lift)}
+.home-trip .today-icon{position:relative;flex:0 0 auto;display:grid;place-items:center;width:44px;height:44px}
+.home-trip .today-icon .game-icon{width:44px;height:44px}
+.th-tick{position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:22px;height:22px;border-radius:999px;background:var(--t-forest);color:var(--t-forest-ink);box-shadow:0 0 0 2.5px var(--t-card);animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both}
+.home-trip .today-name{flex:1 1 auto;display:grid;gap:1px;min-width:0}
+.home-trip .today-name strong{overflow:hidden;color:var(--t-ink);font:600 1.125rem/1.2 var(--font-display);text-overflow:ellipsis;white-space:nowrap}
+.home-trip .today-name small{color:var(--t-soft);font:700 .8125rem/1.2 var(--font-sans)}
+.home-trip .today-row.is-next .today-name small{color:var(--t-brand)}
+.home-trip .today-end{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;color:var(--t-soft)}
+.th-score{display:inline-flex;align-items:center;gap:6px;color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.th-play{min-height:40px;padding:0 14px 0 18px;transition:background .2s}
+.home-trip .today-row button:hover:not(:disabled) .th-play{background:var(--t-mint-2)}
+.th-play svg{transition:transform .2s}
+.home-trip .today-row button:hover:not(:disabled) .th-play svg{transform:translateX(3px)}
+/* Later stops look like they wait their turn, but every one can be played in any order. */
+.home-trip .today-row.is-later button{background:color-mix(in srgb,var(--t-card) 55%,transparent);box-shadow:none}
+.home-trip .today-row.is-later .today-icon{opacity:.62;filter:saturate(.45)}
+.home-trip .today-row.is-later .today-name strong{color:color-mix(in srgb,var(--t-ink) 62%,var(--t-canvas))}
+.th-lock{color:color-mix(in srgb,var(--t-soft) 75%,transparent)}
+/* The route: a dashed line between the stops, solid once a stop is done. */
+.home-trip .today-row:not(:last-child)::after{content:'';position:absolute;z-index:1;left:32px;top:calc(100% - 12px);height:36px;border-left:3px dashed color-mix(in srgb,var(--t-ink) 16%,transparent);pointer-events:none}
+.home-trip .today-row.is-done:not(:last-child)::after{border-left-style:solid;border-left-color:var(--t-brand)}
+.home-trip .today-foot{display:flex;justify-content:center;margin:16px 0 0}
+.home-trip .today-foot .text-link{display:inline-flex;align-items:center;gap:6px;color:var(--t-brand);font:700 .9375rem/1.2 var(--font-sans)}
+
+/* Side rows: the league or the rankings, the folded quests, and for guests one compact save line. */
+.home-trip .home-side{display:grid;gap:12px;align-content:start}
+.home-trip .side-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border:0;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink);text-decoration:none}
+.home-trip a.side-row{transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.home-trip a.side-row:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
+.home-trip a.side-row:focus-visible,.home-trip .quests-fold summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:3px;border-radius:14px}
+.home-trip .side-row strong{color:var(--t-ink);font:600 1.0625rem/1.25 var(--font-display)}
+.home-trip .side-row small{display:block;color:var(--t-soft);font:600 .875rem/1.3 var(--font-sans)}
+.home-trip .side-row>svg,.home-trip .side-row .fold-chevron{flex-shrink:0;color:var(--t-soft)}
+.home-trip .side-icon{width:42px;height:42px;border-radius:999px;background:var(--t-mint);color:var(--t-brand)}
+.home-trip .side-rank .side-icon{background:color-mix(in srgb,var(--t-gold) 28%,var(--t-card));color:var(--t-gold-ink)}
+[data-theme=dark] .home-trip .side-rank .side-icon{color:var(--t-gold)}
+.home-trip .side-tier{background:var(--t-mint)}
+.home-trip .quests-fold{display:block}
+.home-trip .quests-fold summary{gap:14px}
+.home-trip .quests-fold .fold-count{color:var(--t-brand);font:600 1.0625rem/1 var(--font-display)}
+.home-trip .quests-fold[open] summary{margin-bottom:4px}
+.home-trip .guest-banner{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;margin:0!important;padding:12px 12px 12px 16px!important}
+.home-trip .guest-banner strong{font:700 .9375rem/1.3 var(--font-sans);color:var(--t-ink)}
+.home-trip .side-flame{background:color-mix(in srgb,var(--t-gold) 28%,var(--t-card))}
+.th-save{min-height:38px;padding:0 16px;font-size:.9375rem;cursor:pointer;white-space:nowrap}
+.th-save:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+@media (max-width:520px){.home-trip .guest-banner{grid-template-columns:auto minmax(0,1fr)}.home-trip .guest-banner .th-save{grid-column:2;justify-self:start;margin-top:6px}}
+
+@media (min-width:980px){
+  .th-hero{position:sticky;top:96px;padding-top:6px}
+  .home-trip .hero-character{width:236px!important}
+  .home-trip .today-head{padding-top:4px}
+}
+@media (max-width:760px){
+  .home.home-trip{gap:24px!important}
+  .th-hero{gap:14px}
+  .th-bubble{font-size:.9375rem;padding:9px 16px}
+  .home-trip .hero-character{width:164px!important}
+}
+@media (max-width:359px){
+  .home-trip .today-row button{gap:11px;padding:10px 10px 10px 10px;min-height:66px}
+  .home-trip .today-icon,.home-trip .today-icon .game-icon{width:40px;height:40px}
+  .home-trip .today-row:not(:last-child)::after{left:28px}
+  .home-trip .today-name strong{font-size:1.03rem}
+  .th-play{padding:0 10px 0 14px}
+  .th-progress-line{gap:6px}
+  .th-progress-line>span:first-child,.th-points{padding:0 11px}
+}
+
+@keyframes th-bubble{from{opacity:0;transform:translateY(8px) scale(.85)}to{opacity:1;transform:none}}
+@keyframes th-pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+@keyframes th-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes th-seg{from{transform:scaleX(.4)}to{transform:none}}
+@keyframes th-glow{0%,100%{opacity:1}50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){
+  .th-bubble,.home-trip .th-cta,.home-trip .today-row,.th-tick,.th-segs>li,.th-nudge .flame-mark{animation:none!important}
+  .home-trip .today-row button,.home-trip a.side-row,.th-points{transition:none!important}
+}

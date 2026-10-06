@@ -4,7 +4,7 @@ import { ArrowRight, Bot, Plus, Search, X } from 'lucide-react';
 import { post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { BOT_LEVELS, type BotLevel } from '@/lib/game-engine/bots';
-import { Mascot } from '../ds/Mascot';
+import { Character } from '../ds/Character';
 
 type T = (key: string) => string;
 /** How long a quick match searches before the computer is offered (matches the server). */
@@ -56,8 +56,8 @@ export function QuickSearch({ room, now, t, code, onCancel, fail }: { room: { cr
   const [level, setLevel] = useState<BotLevel>('medium'), [busy, setBusy] = useState(false), [dismissed, setDismissed] = useState(false);
   const waited = now - room.createdAt, offer = waited >= QUICK_SEARCH_MS && !dismissed;
   const computer = async () => { if (busy) return; setBusy(true); try { await post('/rooms/' + code + '/computer', { level }); } catch (e) { fail(e); setBusy(false); } };
-  return <section className={'quick-search' + (offer ? ' is-offer' : '')} aria-labelledby="quick-title">
-    <div className="quick-radar" aria-hidden="true"><span/><span/><span/><Mascot mood={offer ? 'wink' : 'curious'} size={120}/></div>
+  return <section className={'quick-search t-card' + (offer ? ' is-offer' : '')} aria-labelledby="quick-title">
+    <div className="quick-radar" aria-hidden="true"><span/><span/><span/><Character mood={offer ? 'wink' : 'curious'} pose={offer ? 'shrug' : 'point'} size={118} className="quick-roviko"/></div>
     <h1 id="quick-title">{t('quickSearching')}</h1>
     <p className="quick-elapsed" role="timer" aria-live="off">{t('quickElapsed').replace('{time}', clock(waited))}</p>
     {!offer ? <>
