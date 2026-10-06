@@ -5,11 +5,13 @@ import { questMessages } from './quests';
 import { redesignMessages } from './redesign';
 import { v119Messages } from './v119';
 import { v120Messages } from './v120';
+import { v121Messages } from './v121';
+import { v122Messages } from './v122';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -531,7 +533,7 @@ export const messages = {
     "heroStatToday": "Today",
     "heroStatCountries": "Countries found",
     "duel": "World Duel",
-    "duelTagline": "Beat Roviko with your 5 country cards. A new duel every day.",
+    "duelTagline": "Beat Roviko with your 7 country cards. A new duel every day.",
     "duelCardTitle": "New game",
     "duelPlay": "Play the duel",
     "duelIntro": "Roviko plays a country on a subject. Beat it with a card from your hand. Each card only once, so plan ahead!",
@@ -546,8 +548,8 @@ export const messages = {
     "duelTip": "{card} would have won this round. Every card only once: plan your route!",
     "duelNext": "Next duel",
     "duelResults": "See the result",
-    "duelResultTitle": "You won {n} of 5 duels",
-    "duelPerfect": "Perfect route! You beat Roviko 5–0.",
+    "duelResultTitle": "You won {n} of 7 duels",
+    "duelPerfect": "Perfect route! You beat Roviko 7–0.",
     "duelRoute": "The perfect route",
     "duelVs": "vs",
     "duelYourPick": "Your card",
@@ -632,7 +634,9 @@ export const messages = {
     "practiceSaved": "Practice saved separately",
     ...redesignMessages.en,
     ...v119Messages.en,
-    ...v120Messages.en
+    ...v120Messages.en,
+    ...v121Messages.en,
+    ...v122Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1153,7 +1157,7 @@ export const messages = {
     "heroStatToday": "Vandaag",
     "heroStatCountries": "Landen ontdekt",
     "duel": "Wereldduel",
-    "duelTagline": "Versla Roviko met je 5 landenkaarten. Elke dag een nieuw duel.",
+    "duelTagline": "Versla Roviko met je 7 landenkaarten. Elke dag een nieuw duel.",
     "duelCardTitle": "Nieuw spel",
     "duelPlay": "Speel het duel",
     "duelIntro": "Roviko speelt een land op een onderwerp. Versla het met een kaart uit je hand. Elke kaart maar één keer, dus denk vooruit!",
@@ -1168,8 +1172,8 @@ export const messages = {
     "duelTip": "{card} had deze ronde gewonnen. Elke kaart maar één keer: plan je route!",
     "duelNext": "Volgend duel",
     "duelResults": "Bekijk de uitslag",
-    "duelResultTitle": "Je won {n} van de 5 duels",
-    "duelPerfect": "Perfecte route! Je verslaat Roviko met 5–0.",
+    "duelResultTitle": "Je won {n} van de 7 duels",
+    "duelPerfect": "Perfecte route! Je verslaat Roviko met 7–0.",
     "duelRoute": "De perfecte route",
     "duelVs": "tegen",
     "duelYourPick": "Jouw kaart",
@@ -1256,8 +1260,10 @@ export const messages = {
     "lobby": "Wachtruimte",
     ...redesignMessages.nl,
     ...v119Messages.nl,
-    ...v120Messages.nl
+    ...v120Messages.nl,
+    ...v121Messages.nl,
+    ...v122Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;
-export function errorMessage(code: string) { return ({ NAME_INVALID: 'nameInvalid', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }
+export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }

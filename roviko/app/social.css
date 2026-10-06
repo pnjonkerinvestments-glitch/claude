@@ -1,0 +1,299 @@
+/*
+  Roviko 1.22 · social style — loaded after design.css, so it wins.
+  The website now speaks the same visual language as the Roviko videos and posts
+  (social/roviko-shorts, social/roviko-carousels):
+  - round pills everywhere (buttons, labels, chips), letter-spaced capitals for small labels;
+  - white cards with the soft two-layer shadow, a dark forest card for every question;
+  - answer pills with a round number badge that flood green (right) or red (wrong);
+  - maps in the post colours: light blue sea, mint land, white borders, in a white frame;
+  - Roviko talks in white speech bubbles; things arrive with a small spring.
+  Only presentation lives here: no game rule, flow or scoring depends on this file.
+*/
+
+/* ───────── Tokens ───────── */
+:root{
+  --radius-button:999px;--radius-card:26px;--radius-hero:34px;
+  --spring:cubic-bezier(.34,1.56,.64,1);--ease-out:cubic-bezier(.2,.7,.2,1);
+  --c-ocean:#36b3f5;--c-water:#cde8f6;--c-sand:#f8dfa6;--c-red:#e5484d;--c-navy:#06224f;--c-gold:#f6b84b;--c-green:#1f806b;--c-forest:#163b32;--c-mint:#ddede6;
+  --q-card:#163b32;--q-ink:#ffffff;--q-accent:#f6b84b;
+  --halo-a:rgba(31,128,107,.13);--halo-b:rgba(54,179,245,.12);--halo-c:rgba(246,184,75,.12);
+}
+:root[data-theme=light]{
+  --shadow-card:0 2px 4px rgba(22,59,50,.05),0 14px 34px rgba(22,59,50,.10);
+  --shadow-pop:0 2px 4px rgba(22,59,50,.07),0 22px 48px rgba(22,59,50,.16);
+  --shadow-pill:0 2px 3px rgba(22,59,50,.06),0 8px 20px rgba(22,59,50,.10);
+  --map-water:#cde8f6;--map-land:#b2d9c3;--map-border:#ffffff;--map-grid:#bcdcee;
+}
+:root,:root[data-theme=dark]{
+  --shadow-pop:0 2px 4px rgba(0,0,0,.3),0 22px 48px rgba(0,0,0,.4);
+  --shadow-pill:0 2px 3px rgba(0,0,0,.25),0 8px 20px rgba(0,0,0,.3);
+  --q-card:#1d4a3e;
+  --halo-a:rgba(91,200,166,.10);--halo-b:rgba(54,179,245,.08);--halo-c:rgba(246,184,75,.07);
+  --map-water:#163345;--map-land:#2c5547;--map-border:#163345;--map-grid:#1c3e52;
+}
+
+/* ───────── Canvas: cream with soft colour halos, like the videos ───────── */
+body{background:
+  radial-gradient(42rem 32rem at -8% -6%,var(--halo-a),transparent 70%),
+  radial-gradient(38rem 30rem at 108% 4%,var(--halo-b),transparent 70%),
+  radial-gradient(46rem 34rem at 50% 112%,var(--halo-c),transparent 70%),
+  var(--color-canvas);background-attachment:fixed}
+
+/* ───────── Type ───────── */
+h1,h2,h3,.modal-title,.display{font-weight:600;letter-spacing:-.015em}
+.hl{color:var(--color-brand)}
+[data-theme=dark] .hl{color:var(--color-brand-strong)}
+/* Small labels become pills: letter-spaced capitals, as on every video. */
+.kicker{display:inline-flex;align-items:center;gap:6px;width:max-content;max-width:100%;min-height:30px;padding:0 14px;border-radius:999px;background:var(--color-surface);color:var(--color-forest);box-shadow:var(--shadow-pill);font:800 .75rem/1.2 var(--font-sans);letter-spacing:.08em}
+[data-theme=dark] .kicker{color:var(--color-brand-strong);background:var(--color-surface-2)}
+.together .kicker{background:rgba(255,255,255,.12);color:var(--color-gold);box-shadow:none}
+.eyebrow,.rank-eyebrow{display:inline-flex!important;align-items:center;min-height:30px;padding:0 14px!important;border-radius:999px!important;background:var(--color-surface)!important;color:var(--color-forest)!important;box-shadow:var(--shadow-pill)!important;font-weight:800!important;font-size:.75rem!important;letter-spacing:.08em!important}
+[data-theme=dark] .eyebrow,[data-theme=dark] .rank-eyebrow{background:var(--color-surface-2)!important;color:var(--color-brand-strong)!important}
+
+/* ───────── Buttons: pills with a soft lift ───────── */
+.btn{border-radius:999px;font:600 1.0625rem/1.1 var(--font-display);letter-spacing:.005em;transition:background var(--speed) var(--ease),color var(--speed),transform 220ms var(--spring),box-shadow 220ms var(--ease-out)}
+.btn.primary,.primary.btn{box-shadow:0 2px 3px rgba(22,59,50,.10),0 10px 22px color-mix(in srgb,var(--color-brand) 32%,transparent)}
+.btn.primary:hover:not(:disabled),.btn.gold:hover:not(:disabled),.btn.hero-cta:hover:not(:disabled){transform:translateY(-2px)}
+.btn.primary:active:not(:disabled),.btn.gold:active:not(:disabled),.btn.secondary:active:not(:disabled){transform:translateY(1px) scale(.98)}
+.btn.gold,.btn.hero-cta{box-shadow:0 2px 3px rgba(22,59,50,.08),0 10px 22px rgba(201,141,31,.28)}
+.btn.secondary,.secondary.btn{box-shadow:var(--shadow-pill)}
+.btn-lg{border-radius:999px;min-height:58px;padding:0 30px;font-size:1.1875rem}
+.btn:disabled,.btn[aria-disabled=true]{box-shadow:none}
+.text-link{font-family:var(--font-display);font-weight:600;font-size:1rem}
+.icon-btn{border-radius:999px}
+.segmented{border-radius:999px}
+.segmented button{border-radius:999px;font-family:var(--font-display);font-weight:600;font-size:.9375rem}
+.app-tabs{border-radius:999px!important;border:0!important;box-shadow:var(--shadow-pill)}
+.app-tabs button{border-radius:999px!important;font-family:var(--font-display)!important;font-weight:600!important}
+.app-tabs button[data-state=active]{background:var(--color-forest)!important;color:#fff!important}
+
+/* ───────── Fields ───────── */
+.text-input,.select-trigger,.join-form input{border-radius:18px!important}
+.text-input:focus,.join-form input:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--color-brand) 20%,transparent)!important}
+
+/* ───────── Cards ───────── */
+.panel,.daily-quests,.competition-panel,.mystery-card,.howto-card,.native-reminder,.discovery-week,.tomorrow-preview,.goal-nudge,.review-card,.passport-peek,.streak-card,.source-card,
+.game-card,.tstop button,.motivation-week,.play-now-card,.detour-banner,.daily-result,.result-review,.rule-card,.fact-tiles li{border-radius:var(--radius-card)!important;box-shadow:var(--shadow-card)}
+.game-card,.tstop button{transition:transform 260ms var(--spring),box-shadow 260ms var(--ease-out)}
+.game-card:hover:not(:disabled),.tstop button:hover:not(:disabled){transform:translateY(-4px) rotate(-.4deg);box-shadow:var(--shadow-pop)}
+.game-card-title,.tstop-body strong{font-weight:600}
+.game-card-badge{min-height:28px;display:inline-flex;align-items:center;padding:0 12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.6875rem;box-shadow:var(--shadow-pill)}
+.app-modal{border-radius:var(--radius-hero)!important;box-shadow:0 30px 80px rgba(22,59,50,.26)!important}
+
+/* ───────── Top bar and tab bar ───────── */
+.topbar{background:color-mix(in srgb,var(--color-canvas) 82%,transparent);backdrop-filter:saturate(1.4) blur(14px);-webkit-backdrop-filter:saturate(1.4) blur(14px)}
+.topbar .logo,.footer-brand .logo{font-weight:700;letter-spacing:-.02em}
+.topnav a{font-family:var(--font-display);font-weight:600;font-size:1rem}
+.topnav a.is-active{background:var(--color-forest);color:#fff;box-shadow:var(--shadow-pill)}
+[data-theme=dark] .topnav a.is-active{background:var(--color-brand);color:var(--color-brand-ink)}
+.streak-chip,.passport-link{box-shadow:var(--shadow-pill)}
+.streak-chip{font-family:var(--font-display);font-weight:600;font-size:1rem}
+@media (max-width:760px){
+  /* A floating pill, as in the app screenshots. */
+  .tabbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;border:0;border-radius:28px;background:color-mix(in srgb,var(--color-surface) 92%,transparent);backdrop-filter:saturate(1.4) blur(16px);-webkit-backdrop-filter:saturate(1.4) blur(16px);box-shadow:0 2px 4px rgba(22,59,50,.06),0 16px 36px rgba(22,59,50,.18)}
+  .tabbar a{min-height:54px;border-radius:22px;font-family:var(--font-display);font-weight:600;font-size:.8125rem;transition:background var(--speed),color var(--speed)}
+  .tabbar a.is-active{background:var(--color-mint);color:var(--color-forest)}
+  [data-theme=dark] .tabbar a.is-active{background:var(--color-mint);color:var(--color-brand-strong)}
+  .tabbar a.is-active svg{fill:none}
+  .app-footer{padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+}
+
+/* ───────── Section headings ───────── */
+.atelier-section-heading h2,.home-section h2,.page-section>h2{letter-spacing:-.02em}
+
+/* ───────── Home hero: Roviko in a halo, talking in a white bubble ───────── */
+.home-hero-v2{border-radius:var(--radius-hero);box-shadow:var(--shadow-card);isolation:isolate}
+.home-hero-v2::before{right:-140px;top:-160px;width:560px;height:560px;opacity:1;background:
+  radial-gradient(circle at 52% 52%,color-mix(in srgb,var(--c-mint) 92%,transparent) 0 40%,transparent 41%),
+  radial-gradient(circle at 30% 70%,var(--halo-b),transparent 60%),
+  radial-gradient(circle at 75% 30%,var(--halo-c),transparent 60%);filter:none}
+[data-theme=dark] .home-hero-v2::before{background:radial-gradient(circle at 52% 52%,var(--color-mint) 0 40%,transparent 41%),radial-gradient(circle at 30% 70%,var(--halo-b),transparent 60%)}
+.hero-copy h1{font-weight:600;letter-spacing:-.025em}
+.hero-bubble{padding:12px 18px;border-radius:22px;background:var(--color-surface);color:var(--color-forest);font:600 1.0625rem/1.3 var(--font-display);box-shadow:0 2px 4px rgba(22,59,50,.06),0 16px 36px rgba(22,59,50,.16);animation:rv-bubble 520ms var(--spring) both}
+.hero-bubble::after{bottom:-8px;width:16px;height:16px;background:var(--color-surface)}
+[data-theme=dark] .hero-bubble{background:var(--color-surface-2);color:var(--color-ink)}
+[data-theme=dark] .hero-bubble::after{background:var(--color-surface-2)}
+.is-at-risk .hero-bubble{background:#fde6d3;color:#8a3d0f}
+.is-at-risk .hero-bubble::after{background:#fde6d3}
+@keyframes rv-bubble{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+.hero-bubble{transform-origin:50% 120%}
+.hero-ring-track{stroke-width:5}
+.hero-ring-arc{stroke-width:5}
+.hero-ring-arc.is-done{stroke-width:6}
+.hero-globe{animation:rv-hop 2.2s var(--ease-out) infinite}
+@keyframes rv-hop{0%,62%,100%{transform:translateY(0)}72%{transform:translateY(-10px)}82%{transform:translateY(0) scale(1.02,.98)}}
+.hero-stat{border-radius:22px}
+.hero-stat-icon{border-radius:999px}
+.hero-first{border-radius:999px!important;font-family:var(--font-display);font-weight:600}
+[data-theme=dark] .hero-first{color:var(--color-brand-strong)}
+.hero-detour-meta{font-weight:700}
+
+/* Trip stops: numbered badges, a gold ring on the next stop. */
+.tstop-num{width:32px;height:32px;font:700 .9375rem/1 var(--font-display);box-shadow:var(--shadow-pill)}
+.tstop.is-next button{box-shadow:0 0 0 3px var(--color-brand),var(--shadow-pop)}
+.week-dot{box-shadow:inset 0 0 0 1px var(--color-line)}
+
+/* ───────── Game screens ───────── */
+.game-header{border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:10px 14px 12px}
+.game-title strong{font-weight:600}
+.game-count{display:inline-flex!important;align-items:center;gap:4px;min-height:34px;padding:0 12px;border-radius:999px;background:var(--color-surface-2)}
+.game-count b{font-size:1rem!important}
+.game-count small{display:none}
+.game-progress-bar{height:10px;background:var(--color-surface-2)}
+.game-progress-bar i{background:var(--g,var(--color-brand));box-shadow:inset 0 -2px 0 rgba(0,0,0,.08)}
+
+/* The question sits on a dark forest card, white Fredoka type, as in the quiz videos. */
+.question-heading{display:grid;justify-items:center;gap:14px}
+.question-heading .eyebrow{margin:0!important}
+.question-heading h1,.question-heading h2,.comparison-heading h1{margin:0 auto;max-width:640px;padding:22px 28px;border-radius:var(--radius-card);background:var(--q-card);color:var(--q-ink)!important;box-shadow:var(--shadow-pop);line-height:1.22!important;text-wrap:balance;animation:rv-card 420ms var(--spring) both}
+.question-heading h1 b,.question-heading h1 strong{color:var(--q-accent)}
+@keyframes rv-card{from{transform:scale(.86) translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.question-country{display:inline-flex;align-items:center;gap:10px;min-height:44px;padding:0 18px 0 8px;border-radius:999px;background:var(--color-surface);box-shadow:var(--shadow-pill);font:600 1.125rem/1 var(--font-display)}
+.question-country img{width:36px;height:27px;object-fit:cover;border-radius:6px;box-shadow:0 0 0 1px var(--color-line)}
+
+/* The flag stands in a white frame, like the Flag a Day card. */
+.flag-stage img{padding:12px;background:#fff;border-radius:22px!important;box-shadow:var(--shadow-pop);filter:none!important;animation:rv-card 460ms var(--spring) both}
+.shape-stage{border-radius:var(--radius-card);background:var(--c-water);box-shadow:inset 0 0 0 10px #fff,var(--shadow-pop)}
+.shape-stage path{fill:var(--c-sand)!important;stroke:var(--c-forest)!important;stroke-width:1.2px!important}
+
+/* Answer pills: a round number badge; a correct answer floods green, a wrong one red. */
+.answer-grid{gap:12px!important}
+.answer-option{position:relative;isolation:isolate;overflow:hidden;min-height:68px!important;padding:10px 22px 10px 10px!important;border-radius:999px!important;border:2px solid transparent!important;background:var(--color-surface)!important;box-shadow:var(--shadow-pill)!important;font:600 1.125rem/1.25 var(--font-display)!important;color:var(--color-ink)!important;transition:transform 240ms var(--spring),box-shadow 240ms var(--ease-out),border-color var(--speed),color 300ms!important}
+.answer-option:hover:not(:disabled){border-color:var(--color-brand)!important;transform:translateY(-2px)!important;box-shadow:var(--shadow-card)!important}
+.answer-option:active:not(:disabled){transform:scale(.97)!important}
+.answer-key{display:grid!important;place-items:center;flex-shrink:0;width:46px!important;min-width:46px!important;height:46px!important;border-radius:999px!important;background:var(--color-mint)!important;color:var(--color-forest)!important;font:700 1.125rem/1 var(--font-display)!important;transition:background 300ms,color 300ms,transform 300ms var(--spring)}
+[data-theme=dark] .answer-key{color:var(--color-brand-strong)!important}
+.answer-option.is-selected:not(.is-correct):not(.is-wrong){border-color:var(--color-brand)!important}
+.answer-option.is-correct,.answer-option.is-wrong{color:#fff!important;opacity:1!important;border-color:transparent!important;background:var(--color-surface)!important}
+.answer-option.is-correct::before,.answer-option.is-wrong::before{content:'';position:absolute;z-index:-1;left:33px;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:var(--c-green);transform:scale(26);animation:rv-flood 560ms var(--ease-out) both}
+.answer-option.is-wrong::before{background:var(--c-red)}
+.answer-option.is-correct .answer-key,.answer-option.is-wrong .answer-key{background:#fff!important;color:var(--c-green)!important;animation:rv-mark 420ms var(--spring) both}
+.answer-option.is-wrong .answer-key{color:var(--c-red)!important}
+.answer-option.is-correct .answer-status,.answer-option.is-wrong .answer-status{color:rgba(255,255,255,.88)!important}
+.answer-option.is-wrong{animation:rv-shake 420ms ease-out}
+@keyframes rv-flood{from{transform:scale(0)}to{transform:scale(26)}}
+@keyframes rv-mark{from{transform:scale(.4) rotate(-30deg)}to{transform:none}}
+@keyframes rv-shake{0%,100%{translate:0}20%{translate:-7px}40%{translate:6px}60%{translate:-4px}80%{translate:2px}}
+.answer-option:disabled:not(.is-correct):not(.is-wrong){opacity:.6}
+.answer-option{flex-wrap:nowrap!important}
+.answer-option .option-country{flex:1;min-width:0}
+.answer-status{flex:none!important;width:auto!important;max-width:none!important;margin-left:auto;padding:4px 10px!important;border-radius:999px;background:rgba(255,255,255,.18)!important;font-family:var(--font-sans);font-weight:800;font-size:.6875rem!important;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap}
+.option-country img{border-radius:5px}
+/* New questions pop in one by one. */
+.answer-grid>.answer-option{animation:rv-pop 420ms var(--spring) both}
+.answer-grid>.answer-option:nth-child(2){animation-delay:50ms}.answer-grid>.answer-option:nth-child(3){animation-delay:100ms}.answer-grid>.answer-option:nth-child(4){animation-delay:150ms}
+.answer-grid>.answer-option.is-wrong{animation:rv-shake 420ms ease-out}
+@keyframes rv-pop{from{transform:scale(.6);opacity:0}to{transform:none;opacity:1}}
+
+/* Feedback: a pill that says right or wrong, then the answer and the fact. */
+.answer-feedback{border-radius:var(--radius-card)!important;box-shadow:var(--shadow-card)!important;padding:18px 20px!important;animation:rv-card 420ms var(--spring) both}
+.answer-feedback.good,.answer-feedback.bad{box-shadow:var(--shadow-card)!important}
+.feedback-heading{display:flex!important;align-items:center;gap:10px!important;font:600 1.0625rem/1.25 var(--font-display)!important}
+.answer-feedback,.answer-feedback.good,.answer-feedback.bad,[data-theme=light] .answer-feedback.good,[data-theme=light] .answer-feedback.bad{background:var(--color-surface)!important;border:0!important;color:var(--color-ink)!important}
+.feedback-heading>strong{color:var(--c-green)}
+.answer-feedback.bad .feedback-heading>strong{color:var(--c-red)}
+.feedback-heading>span[aria-hidden],.feedback-heading>svg{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;border-radius:999px;background:var(--color-mint);font-size:1.125rem}
+.answer-feedback.bad .feedback-heading>svg{padding:8px;background:var(--c-red);color:#fff!important;stroke-width:3}
+.answer-feedback p,.answer-feedback .fact,.answer-feedback.bad .fact,[data-theme=light] .answer-feedback.bad .fact{color:var(--color-ink-soft)!important}
+.your-answer-copy strong,.correct-answer{color:var(--color-ink)!important}
+.feedback-heading>span:not([aria-hidden]){margin-left:auto;display:inline-flex;align-items:center;min-height:30px;padding:0 12px;border-radius:999px;background:var(--color-mint);color:var(--color-forest);font-size:.9375rem}
+.correction-label{font-weight:800;letter-spacing:.06em;text-transform:uppercase;font-size:.6875rem!important;color:var(--color-ink-soft)}
+.correct-answer{font:600 1.25rem/1.25 var(--font-display)!important}
+
+/* Maps: post colours in a white frame. */
+.map-wrap{padding:10px;background:var(--color-surface)!important;border-radius:32px!important;box-shadow:var(--shadow-pop)!important}
+.map-wrap .world-map{border-radius:22px!important;box-shadow:none!important}
+.map-tools{top:22px!important;left:22px!important}
+.map-tools .icon-btn{border:0!important;border-radius:999px!important;background:var(--color-surface)!important;box-shadow:var(--shadow-pill)!important}
+.map-caption{background:transparent!important;padding:10px 8px 2px!important}
+
+/* Size order and clues: rows as pills with round numbers. */
+.order-item{border-radius:999px!important;border:0!important;box-shadow:var(--shadow-pill)!important;min-height:64px!important;padding:6px 10px 6px 8px!important;font-family:var(--font-display);font-weight:600}
+.order-num{display:grid!important;place-items:center;width:42px!important;height:42px;border-radius:999px;background:var(--color-mint);color:var(--color-forest)!important;font:700 1.0625rem/1 var(--font-display)!important}
+.order-item.order-correct{box-shadow:inset 0 0 0 2px var(--c-green),var(--shadow-pill)!important}
+.order-item.order-wrong{box-shadow:inset 0 0 0 2px var(--c-red),var(--shadow-pill)!important}
+.order-item .icon-btn{background:var(--color-surface-2)}
+.clue-slots li{border-radius:22px!important}
+.clue-slots li.is-open{background:var(--color-surface)!important;box-shadow:var(--shadow-pill)!important;border:0!important;font-weight:600;animation:rv-pop 380ms var(--spring) both}
+.clue-slots li>span{display:inline-grid!important;place-items:center;width:30px;height:30px;border-radius:999px;background:var(--color-mint);color:var(--color-forest);font:700 .9375rem/1 var(--font-display)}
+.trail-more{border-radius:999px!important}
+
+/* The way on, fixed to the bottom on phones, gets the same lifted pill. */
+@media (max-width:760px){
+  .solo-next-row,.rank-controls:has(.btn.primary),.puzzle-bottom:has(.btn.primary),.duel-next{background:linear-gradient(to top,var(--color-canvas) 62%,transparent)!important;box-shadow:none!important}
+  .question-heading h1,.question-heading h2,.comparison-heading h1{padding:18px 20px;font-size:1.375rem!important}
+  .answer-option{min-height:62px!important;font-size:1.0625rem!important}
+  .answer-key{width:42px!important;min-width:42px!important;height:42px!important}
+  .answer-option.is-correct::before,.answer-option.is-wrong::before{left:31px}
+}
+
+/* Narrow phones and long names: the check or cross in the badge says it; the label stays for screen readers. */
+@media (max-width:480px){
+  .answer-status{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+}
+/* Long words in big headlines (Dutch "aardrijkskundereis") wrap instead of running out of the card. */
+.hero-copy h1,.page-header h1{overflow-wrap:anywhere;hyphens:auto}
+@media (max-width:380px){
+  .hero-copy h1{font-size:2.125rem}
+  .btn-lg{min-height:54px;padding:0 20px;font-size:1.0625rem}
+  .hero-actions .btn-lg{width:100%}
+}
+
+/* ───────── Results ───────── */
+.daily-result-score strong{font-weight:600;letter-spacing:-.02em}
+.daily-result-compare{border-radius:22px}
+.daily-result-bar{height:12px}
+.learning-highlights span,.daily-result-best{border-radius:999px;box-shadow:var(--shadow-pill)}
+.result-review>summary{font-weight:600}
+
+/* ───────── Page headers: the illustration sits in a soft halo ───────── */
+.page-header.has-art{isolation:isolate}
+.page-header.has-art::after{content:'';position:absolute;z-index:-1;right:min(4%,40px);top:50%;width:min(300px,42%);aspect-ratio:1;translate:0 -50%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--c-mint) 85%,transparent) 0 52%,transparent 70%);pointer-events:none}
+[data-theme=dark] .page-header.has-art::after{background:radial-gradient(circle,var(--color-mint) 0 50%,transparent 70%)}
+.page-header h1{letter-spacing:-.025em}
+
+/* ───────── Levels in the post colours: Easy green, Medium blue, Hard red ───────── */
+.level-option{border-radius:22px;border:0!important;box-shadow:var(--shadow-pill);transition:transform 220ms var(--spring),background .2s,color .2s}
+.level-option:hover{transform:translateY(-2px)}
+.level-option strong{font:600 1.0625rem/1.2 var(--font-display)}
+.level-option.is-selected{transform:translateY(-1px)}
+.level-easy.is-selected{background:#1f806b!important;color:#fff}
+.level-medium.is-selected{background:#36b3f5!important;color:#06224f}
+.level-hard.is-selected{background:#e5484d!important;color:#fff}
+.level-option.is-selected small{color:inherit;opacity:.85}
+.level-easy .level-dots i.on{background:#1f806b}.level-medium .level-dots i.on{background:#36b3f5}.level-hard .level-dots i.on{background:#e5484d}
+.level-option.is-selected .level-dots i{background:rgba(255,255,255,.35)}.level-option.is-selected .level-dots i.on{background:#fff}
+.level-medium.is-selected .level-dots i.on{background:#06224f}
+
+/* ───────── Choice pills (rounds, difficulty, region pickers, explore filters) ───────── */
+.round-options .btn,.explore-filters button,.region-chips button,.chip,.filter-chip{border-radius:999px!important}
+.mode-pick{border:0!important;border-radius:20px!important;box-shadow:var(--shadow-pill);font:600 .9375rem/1.2 var(--font-display)!important;transition:transform 220ms var(--spring),box-shadow .2s}
+.mode-pick:hover:not(:disabled){transform:translateY(-2px)}
+.mode-pick[aria-pressed=true]{box-shadow:inset 0 0 0 2px var(--color-brand),var(--shadow-pill)!important;background:var(--color-mint)!important}
+/* Room settings on phones: the game picker and the rounds get the full width (they ran into each other). */
+@media (max-width:760px){.room-settings .settings-grid>.mode-picker,.room-settings .settings-grid>.round-options{grid-column:1/-1}}
+
+/* ───────── Footer: the end card of every video, small ───────── */
+.footer-brand .logo{font-size:1.75rem}
+.footer-brand .logo img{width:38px;height:38px}
+.footer-nav h2{letter-spacing:.1em}
+
+/* ───────── Daily result: the score as the hero, like the end of a video ───────── */
+.daily-result{padding:var(--space-6) var(--space-5)}
+.daily-result-score strong{color:var(--color-brand)!important}
+[data-theme=dark] .daily-result-score strong{color:var(--color-brand-strong)!important}
+.daily-result-score strong small{color:var(--color-ink-soft)!important}
+.daily-result-compare{background:var(--color-surface-2)}
+.daily-result-bar{background:var(--color-surface)!important;box-shadow:inset 0 0 0 1px var(--color-line)}
+.daily-result-bar i{background:linear-gradient(90deg,var(--c-green),#2fb48f)!important}
+.result-mascot{animation:rv-hop 2.2s var(--ease-out) infinite}
+
+/* ───────── Modals and the welcome tour ───────── */
+.app-modal .modal-title{letter-spacing:-.02em}
+[data-slot=dialog-overlay],[data-slot=alert-dialog-overlay]{background:rgba(22,59,50,.42)!important;backdrop-filter:blur(3px)!important}
+
+/* ───────── Motion ───────── */
+@media (prefers-reduced-motion:reduce){
+  .hero-globe,.hero-bubble,.result-mascot,.answer-grid>.answer-option,.answer-option.is-wrong,.question-heading h1,.flag-stage img,.answer-feedback,.clue-slots li.is-open{animation:none!important}
+  .answer-option.is-correct::before,.answer-option.is-wrong::before{animation:none!important;transform:scale(26)}
+}

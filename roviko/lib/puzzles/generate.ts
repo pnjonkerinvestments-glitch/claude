@@ -21,7 +21,14 @@ function metric(country: Country, topic: string): number | undefined {
   if (topic === 'north') return country.latlng[0];
   return (snapshot.topics as Record<string, { values: Record<string, number> }>)[topic]?.values[country.id];
 }
-export function generateComparisons(topicId: string, seed: string, count = 10, anchorId?: string, excluded: string[] = []): CompareRound[] {
+/** Side by Side since 1.21: 15 comparisons that get harder, and one mistake ends the run. */
+export const COMPARE_ROUNDS = 15;
+/**
+ * A chain of comparisons: the country on the right moves to the left for the next one. With `ramp`, the
+ * gap between the two values shrinks along the chain, from obvious (one value a fraction of the other)
+ * to close calls (a few per cent apart), so the run starts easy and ends hard.
+ */
+export function generateComparisons(topicId: string, seed: string, count = 10, anchorId?: string, excluded: string[] = [], ramp = false): CompareRound[] {
   const topic = TOPICS.find(t => t.id === topicId);
   if (!topic) throw new Error('INVALID_TOPIC');
   const rng = random(seed), pool = COUNTRIES.filter(c => Number.isFinite(metric(c, topicId)));
@@ -36,7 +43,10 @@ export function generateComparisons(topicId: string, seed: string, count = 10, a
       const a = values.get(c.id)!;
       return !used.has(c.id) && formatted.get(c.id) !== formatted.get(right.id) && Math.abs(a-b) / Math.max(1,Math.abs(a),Math.abs(b)) >= .025;
     });
-    const left = shuffle(candidates, rng)[0];
+    // Relative gap 0..1 between the two values; the target falls from 0.85 to 0.04 over the run.
+    const gap = (c: Country) => { const a = values.get(c.id)!; return Math.abs(a - b) / Math.max(1e-9, Math.abs(a), Math.abs(b)); };
+    const target = .85 - (.85 - .04) * (count > 1 ? i / (count - 1) : 0);
+    const left = ramp ? shuffle([...candidates].sort((x, y) => Math.abs(gap(x) - target) - Math.abs(gap(y) - target)).slice(0, 4), rng)[0] : shuffle(candidates, rng)[0];
     if (!left) throw new Error('QUESTION_UNAVAILABLE');
     picked.push([left,right]); used.add(left.id); right = left;
   }

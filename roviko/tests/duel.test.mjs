@@ -12,7 +12,7 @@ test('the same date always produces the same duel', () => {
   assert.deepEqual(generateDuel('roviko:duel:v1:' + dates[0]), generateDuel('roviko:duel:v1:' + dates[0]));
 });
 
-test('every duel has five distinct cards, five subjects and exactly one perfect route', () => {
+test('every duel has seven distinct cards, seven subjects and exactly one perfect route', () => {
   for (const date of dates) {
     const b = generateDuel('roviko:duel:v1:' + date);
     assert.equal(b.hand.length, DUEL_ROUNDS);

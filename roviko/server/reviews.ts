@@ -1,5 +1,5 @@
 import { COUNTRIES } from '../lib/game-engine/questions';
-import { one, run, rows } from './db';
+import { batch, one, run, rows } from './db';
 import type { Env, User } from './types';
 type Review = { countryId: string; mode: string; topic?: string; content: any; correct: boolean; at: number };
 export function reviewStatement(userId: string, value: Review) {
@@ -13,18 +13,27 @@ export async function recordReview(env: Env, user: User, value: Review) {
     if (!value.countryId) return;
     const statement = reviewStatement(user.id, value); await run(env, statement.sql, ...statement.args);
 }
-export async function reviewSession(env: Env, user: User, s: any, createdAt = Date.now()) {
+/** Review rows for the answers from index `from` on. Callers send them to D1 in one batch (one round trip). */
+export function reviewStatements(user: User, s: any, createdAt = Date.now(), from = 0) {
+    const out: { sql: string; args: any[] }[] = [];
+    const add = (value: Review) => { if (value.countryId) out.push(reviewStatement(user.id, value)); };
     for (const [i, answer] of s.answers.entries()) {
+        if (i < from) continue;
         const q = s.questions?.[i], at = answer.at ?? createdAt + i;
         if (s.mode === 'compare' && q) {
-            for (const country of q.countries) await recordReview(env, user, { countryId: country.id, mode: 'compare', topic: q.topic.id, content: { ...q, origin:s.id }, correct: answer.correct, at });
+            for (const country of q.countries) add({ countryId: country.id, mode: 'compare', topic: q.topic.id, content: { ...q, origin:s.id }, correct: answer.correct, at });
         } else if (s.mode === 'mosaic' && s.board) {
             const tiles = s.board.tiles.filter((t: any) => answer.value.includes(t.id));
             const anchor = tiles.find((t: any) => t.kind === 'name');
             if (!anchor) continue;
-            for (const tile of tiles.filter((t: any) => t.kind !== 'name')) await recordReview(env, user, { countryId: anchor.countryId, mode: tile.kind === 'capital' ? 'capitals' : tile.kind === 'flag' ? 'flags' : 'mosaic', content: { origin:s.id, country: s.board.countries.find((c:any) => c.id === anchor.countryId), clue: tile.kind }, correct: tile.countryId === anchor.countryId, at });
-        } else if (q) await recordReview(env, user, { countryId: q.countryId, mode: q.mode, content: { ...q, origin:s.id }, correct: answer.correct, at });
+            for (const tile of tiles.filter((t: any) => t.kind !== 'name')) add({ countryId: anchor.countryId, mode: tile.kind === 'capital' ? 'capitals' : tile.kind === 'flag' ? 'flags' : 'mosaic', content: { origin:s.id, country: s.board.countries.find((c:any) => c.id === anchor.countryId), clue: tile.kind }, correct: tile.countryId === anchor.countryId, at });
+        } else if (q) add({ countryId: q.countryId, mode: q.mode, content: { ...q, origin:s.id }, correct: answer.correct, at });
     }
+    return out;
+}
+export async function reviewSession(env: Env, user: User, s: any, createdAt = Date.now()) {
+    const statements = reviewStatements(user, s, createdAt);
+    if (statements.length) await batch(env, statements);
 }
 export async function pendingReviews(env: Env, id: string) {
     // Bounded adoption of existing learning history; no fabricated new attempts.

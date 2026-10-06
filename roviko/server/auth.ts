@@ -16,14 +16,19 @@ export async function getUser(req: Request, env: Env): Promise<User | null> { co
     throw new AppError('ACCOUNT_BLOCKED', 403); return user; }
 export async function requireUser(req: Request, env: Env) { const user = await getUser(req, env); if (!user)
     throw new AppError('SESSION_EXPIRED', 401); return user; }
-export function safeUser(u: User) { return { id: u.id, name: u.name, avatar: u.avatar, guest: !!u.guest, email: u.email, discoverable: !!u.discoverable, friendCode: u.id.slice(0, 8).toUpperCase() }; }
+export function safeUser(u: User) { return { id: u.id, name: u.name, avatar: u.avatar, guest: !!u.guest, email: u.email, emailVerified: !!u.email_verified, discoverable: !!u.discoverable, friendCode: u.id.slice(0, 8).toUpperCase() }; }
 export function sessionCookie(req: Request, token: string, maxAge = 2592000) { return `rv_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${new URL(req.url).protocol === 'https:' ? '; Secure' : ''}`; }
 export async function newSession(req: Request, env: Env, userId: string) { const token = crypto.randomUUID() + crypto.randomUUID(); await run(env, 'INSERT INTO auth_sessions(token,user_id,expires_at) VALUES (?,?,?)', await digest(token), userId, Date.now() + 30 * 86400000); return sessionCookie(req, token); }
-export async function guest(req: Request, env: Env) { await limit(env, 'guest:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 80); const id = crypto.randomUUID(); const name = 'Explorer ' + id.slice(0, 4).toUpperCase(); await run(env, 'INSERT INTO users(id,name,avatar,created_at) VALUES (?,?,?,?)', id, name, 0, Date.now()); return { user: await one(env, 'SELECT * FROM users WHERE id=?', id), cookie: await newSession(req, env, id) }; }
+// Guests get a friendly name ("Curious Fox 18") instead of a code; they can change it once they have an account.
+const ADJECTIVES = ['Curious', 'Brave', 'Swift', 'Sunny', 'Clever', 'Bold', 'Calm', 'Lucky', 'Jolly', 'Nimble', 'Witty', 'Merry', 'Keen', 'Bright', 'Gentle', 'Quick'];
+const ANIMALS = ['Fox', 'Owl', 'Otter', 'Panda', 'Koala', 'Falcon', 'Dolphin', 'Lynx', 'Turtle', 'Robin', 'Heron', 'Puffin', 'Badger', 'Gecko', 'Llama', 'Hare'];
+export function guestName() { const r = crypto.getRandomValues(new Uint8Array(3)); return ADJECTIVES[r[0] % ADJECTIVES.length] + ' ' + ANIMALS[r[1] % ANIMALS.length] + ' ' + (10 + r[2] % 90); }
+export async function guest(req: Request, env: Env) { await limit(env, 'guest:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 80); const id = crypto.randomUUID(); const name = guestName(); await run(env, 'INSERT INTO users(id,name,avatar,created_at) VALUES (?,?,?,?)', id, name, 0, Date.now()); return { user: await one(env, 'SELECT * FROM users WHERE id=?', id), cookie: await newSession(req, env, id) }; }
 // Names are the only player text others see: allowed characters only, and the EN/NL/ES filter in lib/name-filter.ts.
 export const nameSchema = z.string().trim().min(2).max(24).refine(v => /^[\p{L}\p{N} _.-]+$/u.test(v) && nameAllowed(v), 'NAME_INVALID');
+export const passwordSchema = z.string().min(12).max(128);
 const credentials = z.object({ email: z.string().email().max(254).transform(v => v.toLowerCase().trim()), password: z.string().min(12).max(128), name: nameSchema.optional() });
-async function hashPassword(password: string, salt: string) { const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']); return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, key, 256)); }
+export async function hashPassword(password: string, salt: string) { const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']); return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, key, 256)); }
 export async function auth(req: Request, env: Env, body: any, signup: boolean) {
     await limit(env, 'auth:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 12, 600000);
     const v = credentials.parse(body);

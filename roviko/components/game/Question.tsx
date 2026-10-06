@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { Character } from '../ds/Character';
 import { ArrowUp, ArrowDown, Check, X, LockKeyhole, Flag, GripVertical, Navigation } from 'lucide-react';
 const BorderMap = lazy(() => import('./BorderMap'));
 const WorldMap = lazy(() => import('./WorldMap'));
@@ -22,7 +23,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
     // Every clue has a fixed slot from the start, so answers never move down while clues appear.
     const clueSlots = q?.clueCount ?? q?.clues?.length ?? 0;
     const openClues = feedback ? clueSlots : competitive ? liveClues : cluesShown;
-    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag)) : '';
+    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag) + '?v=2') : '';
     const [hintPending,setHintPending]=useState(false);
     useEffect(()=>{if(q?.dailyPoints)setCluesShown(q.cluesShown??1);},[q?.cluesShown,q?.id]);
     const [answer, setAnswer] = useState<any>(null);
@@ -69,10 +70,11 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
     return <div className="question-content">
         <div className="question-heading"><span className="eyebrow">{t(q.mode + 'Hint')}</span><h1>{q.prompt[locale]}</h1>{q.country && <span className="question-country"><img src={q.country.flag} alt=""/>{q.country[locale]}</span>}</div>
         {q.clues && <section className="trail-clues" aria-label={t('trailClues')}><p>{t(competitive ? 'trailMultiplayerRule' : q.dailyPoints?'competitionTrail':'trailRule')}</p><ol className="clue-slots">{Array.from({ length: clueSlots }, (_, i) => { const clue = q.clues[i], open = !!clue && i < openClues; return <li key={i} className={open ? 'is-open' : 'is-pending'} aria-hidden={open ? undefined : true}><span>{i + 1}</span>{open ? <>{clue[locale]}{i === 3 && q.flag && <img className="clue-flag" src={flagSrc} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/>}</> : <em>{t('trailCluePending')}</em>}</li>; })}</ol>{!competitive && !locked && <button className="btn secondary trail-more" disabled={hintPending||busy||cluesShown >= clueSlots} onClick={async () => { const n = cluesShown + 1; if(!q.dailyPoints)setCluesShown(n); setHintPending(true); try{await onHint?.(n);}finally{setHintPending(false);} }}>{t('trailNextClue')} · {cluesShown}/{q.clueCount??q.clues.length}</button>}{!feedback && q.dailyPoints && <strong className="trail-available">{t('competitionAvailable').replace('{n}',String(q.availablePoints))}</strong>}{feedback && <small>{t('trailUsed').replace('{n}', String(feedback.cluesUsed ?? cluesShown))}</small>}</section>}
-        {q.mode === 'pinpoint' && <p className="map-rule">{t(q.mapRule === 'country-v1' ? 'mapCountryRule' : 'mapLegacyRule')} {q.dailyPoints?t('competitionDaily'):competitive?t('mapPointsRule'):null}</p>}
+        {q.mode === 'pinpoint' && q.zoom && !feedback && <p className="map-zoom-note">{t('mapZoomedNote')}</p>}
+        {q.shape && <div className="shape-stage"><svg viewBox="-10 -8 120 96" role="img" aria-label={t('shapeAlt')} preserveAspectRatio="xMidYMid meet"><path d={q.shape}/></svg></div>}
         {q.flag && q.mode !== 'trail' && <div className="flag-stage"><img fetchPriority="high" decoding="async" src={flagSrc} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
         {q.mode === 'pinpoint' ? <>
-            <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} onTap={competitive ? undefined : submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct}/></Suspense>
+            <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} onTap={competitive ? undefined : submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct} focus={q.zoom}/></Suspense>
             {!locked && <><p className="question-help">{t(competitive ? 'mapHint' : 'mapTapHint')}</p>{competitive && <button className="btn primary answer-submit" disabled={!answer || busy} onClick={() => submit(answer)}><Navigation size={17}/>{t('lockAnswer')}</button>}</>}
         </> : q.mode === 'order' ? <>
             <p className="question-help">{t(feedback ? 'orderReviewHelp' : 'orderHintGame')}</p>
@@ -96,6 +98,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
         })}</div>}
         {locked && !feedback && <div className="locked-note" role="status"><LockKeyhole size={17}/>{t(busy ? 'answerSending' : 'answerLocked')}</div>}
         {feedback && <div id="answer-explanation" className={'answer-feedback ' + (feedback.correct ? 'good' : 'bad')} role="status">
+            <Character mood={feedback.correct ? 'cheer' : 'shock'} pose={feedback.correct ? 'cheer' : 'shrug'} size={78} className="feedback-character"/>
             <div className="feedback-heading">{feedback.correct ? <span aria-hidden="true">🎉</span> : <X size={22}/>}<strong>{t(feedback.correct ? 'correct' : 'incorrect')}</strong>{(competitive || q.dailyPoints) && <span>+{(feedback.points??0).toLocaleString(locale)} {t('points')}</span>}</div>
             {q.mode === 'order' ? <><p>{unanswered ? t('noAnswerInTime') : feedback.correct ? t('orderAllRight') : t('orderWrongCount').replace('{n}', String(misplaced))}</p><strong className="correction-label">{t('correctOrder')}</strong><ol className="correct-order">{correctOrder.map((id: string) => { const o = q.options.find((o: any) => o.id === id); return o ? <li key={id}>{countryLabel(o)}</li> : null; })}</ol></> : <>
                 {!feedback.correct && pickedLabel && <p className="your-answer-copy">{t('yourAnswer')}: <strong>{pickedLabel}</strong></p>}

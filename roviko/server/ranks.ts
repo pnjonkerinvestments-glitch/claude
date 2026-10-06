@@ -7,10 +7,12 @@ import { dailyContent } from './daily-content';
 import { resultStatement } from './stats';
 import { generateRankRounds, type RankState, type RankView } from '../lib/puzzles/rank';
 import { choicePlace } from '../lib/puzzles/rank-medals';
+import { bestCategories, generateRankBoard, publicBoard, rankPoints } from '../lib/puzzles/rank-board';
 import type { Env, User } from './types';
 
 function view(s: RankState, version = 0): RankView {
-  const {questions,startedAt,turnAt,...rest}=s;
+  if(s.board){const {questions,startedAt,turnAt,board,...rest}=s;return {...rest,...(s.competition?{score:dailyScore(s)}:{}),version,total:board.rounds.length,learning:true,question:null,board:publicBoard(board,s.answers.map(a=>typeof a.value==='string'?a.value:undefined),s.round,s.phase==='finished')};}
+  const {questions,startedAt,turnAt,board,...rest}=s;
   // This untimed learning game reveals only the current solution for instant feedback.
   const question = s.phase === 'finished' ? null : s.competition && s.phase === 'question' ? {...questions[s.round],correct:undefined,options:questions[s.round].options.map(({id,emoji,label,explanation,unit})=>({id,emoji,label,explanation,unit}))} : questions[s.round];
   return {...rest,...(s.competition?{score:dailyScore(s)}:{}),version,total:questions.length,learning:true,question:question as RankView['question'],
@@ -24,11 +26,12 @@ export async function startRank(env: Env, user: User, input: unknown) {
   const ranked=!!daily&&settings.competition,kind='rank'+(ranked?COMPETITION_SUFFIX:'');
   if(daily){const existing=await one(env,'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?',user.id,daily,kind);if(existing){const s=JSON.parse(existing.state);await record(env,user,s);return view(s,existing.version);}}
   const id=crypto.randomUUID();
-  const generate=(seed:string)=>({questions:generateRankRounds(seed),settings:{mode:'rank'}});
-  const content=daily?await dailyContent(env,daily,kind,generate):generate(id);
+  const generate=(seed:string)=>({questions:[],board:generateRankBoard(seed),settings:{mode:'rank'}});
+  // New content key for the 1.21 board, so a day that already has the old six-question version is never mixed up.
+  const content=daily?await dailyContent(env,daily,kind.replace(/^rank/,'rank2'),generate):generate(id);
   const blocked=await rows(env,'SELECT question_id FROM disabled_questions');
   if(blocked.some((b:any)=>content.questions.some((q:any)=>q.id===b.question_id)))throw new AppError('QUESTION_UNAVAILABLE',503);
-  const s:RankState={id,...(ranked?{competition:{version:1,mode:'rank'} as const}:{}),mode:'rank',daily,phase:'question',round:0,questions:content.questions,datasetVersion:content.datasetVersion,answers:[],streak:0,bestStreak:0,startedAt:Date.now(),turnAt:Date.now()};
+  const s:RankState={id,...(ranked?{competition:{version:1,mode:'rank'} as const}:{}),mode:'rank',daily,phase:'question',round:0,questions:content.questions??[],...(content.board?{board:content.board}:{}),datasetVersion:content.datasetVersion,answers:[],streak:0,bestStreak:0,startedAt:Date.now(),turnAt:Date.now()};
   const inserted=await run(env,'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)',id,user.id,kind,daily,JSON.stringify(s),Date.now());
   if(!inserted.meta.changes&&daily){const saved=await one(env,'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?',user.id,daily,kind);return view(JSON.parse(saved.state),saved.version);}
   return view(s);
@@ -41,7 +44,16 @@ export async function rankAction(env: Env, user: User, id: string, action: strin
   const body=z.object({version:z.number().int().min(0),answer:z.string().max(40).optional()}).parse(input);
   if(body.version!==row.version)throw new AppError('STATE_CHANGED',409);
   if(s.phase==='finished')throw new AppError('ANSWER_LOCKED',409);
-  if(action==='answer'){
+  if(action==='answer'&&s.board){
+    if(s.phase!=='question')throw new AppError('ANSWER_LOCKED',409);
+    const r=s.board.rounds[s.round],used=new Set(s.answers.map(a=>a.value));
+    if(!body.answer||!s.board.categories.some(c=>c.id===body.answer)||used.has(body.answer))throw new AppError('INVALID_INPUT');
+    const points=rankPoints(r,body.answer),correct=bestCategories(r).includes(body.answer);
+    s.answers.push({value:body.answer,correct,points,countryId:r.country.id,questionId:r.id,responseTime:Math.max(0,Date.now()-s.turnAt),at:Date.now()});
+    s.streak=correct?s.streak+1:0;s.bestStreak=Math.max(s.bestStreak,s.streak);s.phase='reveal';
+  }else if(action==='next'&&s.board&&s.phase==='reveal'){
+    if(s.round+1===s.board.rounds.length)s.phase='finished';else{s.round++;s.phase='question';s.turnAt=Date.now();}
+  }else if(action==='answer'){
     if(s.phase!=='question')throw new AppError('ANSWER_LOCKED',409);
     const q=s.questions[s.round];
     if(!body.answer||!q.options.some(o=>o.id===body.answer))throw new AppError('INVALID_INPUT');
@@ -56,7 +68,7 @@ export async function rankAction(env: Env, user: User, id: string, action: strin
   await record(env,user,s);return view(s,row.version+1);
 }
 async function record(env: Env,user: User,s: RankState){
-  const statements=s.answers.map((a,i)=>({sql:'INSERT OR IGNORE INTO answers(session_id,round,user_id,question_id,country_id,mode,answer,correct,points,response_time,risk,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',args:[s.id,i,user.id,a.questionId,a.countryId,'rank',JSON.stringify(a.value),+a.correct,0,a.responseTime,0,a.at]}));
+  const statements=s.answers.map((a,i)=>({sql:'INSERT OR IGNORE INTO answers(session_id,round,user_id,question_id,country_id,mode,answer,correct,points,response_time,risk,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',args:[s.id,i,user.id,a.questionId,a.countryId,'rank',JSON.stringify(a.value),+a.correct,a.points??0,a.responseTime,0,a.at]}));
   if(s.phase==='finished'){
     statements.push(resultStatement(s.id,user.id,{settings:{mode:'rank'},answers:s.answers.map(a=>({...a,risk:0})),bestStreak:s.bestStreak}));
     if(s.daily)statements.push({sql:'INSERT OR IGNORE INTO daily_challenge_results(user_id,date,result_id,score) VALUES (?,?,?,?)',args:[user.id,s.daily,s.id,0]});

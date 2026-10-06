@@ -8,8 +8,8 @@ globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 globalThis.window={addEventListener(){},removeEventListener(){}};
 globalThis.document={title:''};
 fs.mkdirSync('.test-runtime',{recursive:true});
-await build({stdin:{contents:"export {RankGame,rankValue} from './components/puzzles/RankGame';export {rankValues,generateRankRounds,RANK_CATEGORIES} from './lib/puzzles/rank';export {messages} from './i18n/messages';export {shareResult} from './lib/share';",resolveDir:process.cwd()},outfile:'.test-runtime/rank.mjs',bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/*','react-dom','react-dom/*','lucide-react','radix-ui'],plugins:[{name:'transport',setup(b){b.onResolve({filter:/^@\/lib\/client$/},()=>({path:'transport',namespace:'mock'}));b.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export const api=(...args)=>globalThis.transport.api(...args);export const post=(...args)=>globalThis.transport.post(...args);export const sound=()=>{};'}));}}]});
-const {RankGame,rankValue,rankValues,generateRankRounds,RANK_CATEGORIES,messages,shareResult}=await import('../.test-runtime/rank.mjs');
+await build({stdin:{contents:"export {RankGame,rankValue} from './components/puzzles/RankGame';export {rankValues,generateRankRounds,RANK_CATEGORIES} from './lib/puzzles/rank';export {messages} from './i18n/messages';export {generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard} from './lib/puzzles/rank-board';export {shareResult} from './lib/share';",resolveDir:process.cwd()},outfile:'.test-runtime/rank.mjs',bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/*','react-dom','react-dom/*','lucide-react','radix-ui'],plugins:[{name:'transport',setup(b){b.onResolve({filter:/^@\/lib\/client$/},()=>({path:'transport',namespace:'mock'}));b.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export const api=(...args)=>globalThis.transport.api(...args);export const post=(...args)=>globalThis.transport.post(...args);export const sound=()=>{};'}));}}]});
+const {RankGame,rankValue,rankValues,generateRankRounds,RANK_CATEGORIES,messages,shareResult,generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard}=await import('../.test-runtime/rank.mjs');
 const clone=x=>structuredClone(x);
 const app={t:k=>messages.en[k]??k,locale:'en',go(){},refresh(){},muted:true,copy(){},report(){}};
 function state(){return {id:'rank-ui',mode:'rank',daily:'2026-09-22',phase:'question',round:0,total:6,version:0,learning:true,answers:[],streak:0,bestStreak:0,question:generateRankRounds('rank-ui')[0]};}
@@ -31,7 +31,7 @@ test('180 daily seeds produce six distinct countries and unambiguous, varied fou
   assert.equal(new Set(rounds.map(r=>r.correct)).size,6);
   for(const q of rounds){assert.equal(q.options.length,4);assert.equal(new Set(q.options.map(o=>o.id)).size,4);assert.ok(!['RUS','UKR','ISR','PSE'].includes(q.country.id));
    const winner=q.options.find(o=>o.id===q.correct);winners.add(winner.id);
-   for(const o of q.options){assert.ok(Number.isFinite(o.value));assert.ok(o.rank>=1&&o.rank<=o.coverage);assert.ok(o.coverage>=150);assert.ok(o.source&&o.sourceUrl);assert.ok(o.explanation.en&&o.explanation.nl);if(o.id==='age')assert.equal(o.referenceYear,2025);if(['population','income','forest'].includes(o.id))assert.equal(o.referenceYear,2023);if(o.id!==winner.id){assert.ok(o.rank>winner.rank);assert.ok(o.position-winner.position>=.08);assert.ok(o.topPercent-winner.topPercent>=8);}}
+   for(const o of q.options){assert.ok(Number.isFinite(o.value));assert.ok(o.rank>=1&&o.rank<=o.coverage);assert.ok(o.coverage>=150);assert.ok(o.source&&o.sourceUrl);assert.ok(o.explanation.en&&o.explanation.nl);if(o.id==='age')assert.equal(o.referenceYear,2025);if(['population','income','forest'].includes(o.id))assert.ok(o.referenceYear>=2023);if(o.id!==winner.id){assert.ok(o.rank>winner.rank);assert.ok(o.position-winner.position>=.08);assert.ok(o.topPercent-winner.topPercent>=8);}}
   }
  }
  assert.equal(winners.size,15);assert.equal(RANK_CATEGORIES.length,15);assert.notDeepEqual(generateRankRounds('today'),generateRankRounds('tomorrow'));
@@ -62,5 +62,19 @@ test('lost saved response reconciles once, while an unsaved guess requires expli
   assert.equal(r.root.findAll(n=>n.props.role==='alert').length,committed?0:1);
   if(!committed){assert.ok(cards(r).every(c=>c.props.disabled));await act(async()=>{r.root.findAll(n=>n.type==='button'&&n.children.includes(messages.en.retry))[0].props.onClick();});assert.ok(cards(r).every(c=>!c.props.disabled));}
   await act(async()=>r.unmount());
+ }
+});
+
+test('Rank Radar board: eight countries, eight full-coverage subjects, deterministic and with a reachable optimum',()=>{
+ for(const seed of ['2026-10-01','2026-10-02','x','y','z']){
+  const b=generateRankBoard(seed);assert.deepEqual(generateRankBoard(seed),b);
+  assert.equal(b.rounds.length,8);assert.equal(b.categories.length,8);assert.equal(new Set(b.rounds.map(r=>r.country.id)).size,8);
+  for(const r of b.rounds){assert.deepEqual(Object.keys(r.stats).sort(),b.categories.map(c=>c.id).sort());const best=bestCategories(r);assert.ok(best.length>=1);assert.ok(r.stats[best[0]].rank<=30);for(const id of best)assert.equal(rankPoints(r,id),125);for(const c of b.categories)assert.ok(rankPoints(r,c.id)>=0&&rankPoints(r,c.id)<=125);}
+  assert.equal(b.optimal,optimalTotal(b));assert.ok(b.optimal>0&&b.optimal<=1000);
+  // Played like GeoRankle: after two picks the third country is shown, later ones are anonymous, and only chosen places are visible.
+  const picks=[b.categories[0].id,b.categories[1].id],hidden=publicBoard(b,picks,2,false);
+  assert.deepEqual(Object.keys(hidden.rounds[1].stats),[picks[1]]);assert.ok(!hidden.rounds[1].best);assert.ok(hidden.rounds[2].country&&!hidden.rounds[2].stats);
+  assert.ok(hidden.rounds.slice(3).every(r=>!r.country&&!r.stats&&r.id));assert.equal(hidden.optimal,undefined);
+  const done=publicBoard(b,b.categories.map(c=>c.id),7,true);assert.equal(done.optimal,b.optimal);assert.ok(done.rounds.every(r=>r.country&&Object.keys(r.stats).length===8&&r.best.length));
  }
 });

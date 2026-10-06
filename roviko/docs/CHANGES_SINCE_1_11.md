@@ -435,3 +435,72 @@ Geen nieuwe migratie. Cacheversie `roviko-shell-v1.20.0`. Nieuwe route `GET /api
 - **Contact:** support@roviko.app in de footer en in het Paspoort, met ook een link naar de privacyverklaring.
 - **Wachtruimte van een kamer op de telefoon:** liep rechts buiten beeld. Opgelost en gecontroleerd op 320 en 390 px.
 - **Documenten voor de stores:** `docs/APP_REVIEW_NOTES.md` (tekst voor de reviewer) en `docs/STORE_PRIVACY.md` (privacylabels, Data safety, leeftijd).
+
+## 1.21.0: menu, account, Multiplayer-tab, eerlijke kaartvragen, competitie
+
+**Niet live zetten voordat Apple de app heeft goedgekeurd.** Nieuwe migratie: `drizzle/0007_yummy_dragon_lord.sql` (kolom `users.email_verified`, tabel `email_tokens`); de deployworkflow past hem vanzelf toe. Nieuwe optionele geheimen: `RESEND_API_KEY`, `MAIL_FROM`. Cacheversie `roviko-shell-v1.21.0`, dataset `atlas-2026-09-25-r6`.
+
+- **Menu (☰)** met Mijn account, Vrienden, Instellingen, Ranglijsten, Hoe speel je en Puntentelling.
+- **Mijn account** (`/account`): e-mail met bevestigd-badge en knop om te bevestigen, wachtwoord wijzigen, wachtwoord vergeten (via e-mail), vriendcode, gegevens downloaden, contact, privacy, uitloggen, account verwijderen, geblokkeerde spelers. Het Paspoort linkt ernaartoe ("Account en privacy").
+- **Instellingen** (`/settings`): geluidseffecten, zachte achtergrondmuziek (Web Audio, geen bestanden), taal, thema, dagherinnering in de app, optionele metingen.
+- **Huisknop in spellen** op de telefoon, zodat je altijd terug kunt naar het hoofdmenu.
+- **Multiplayer-tab** (was Friends): bovenaan vrienden die online zijn met uitnodigen, verzoeken en vriend toevoegen met code; daaronder spelen tegen een willekeurige speler en tegen de computer; daaronder een privékamer.
+- **Kaartvragen**: geen piepkleine eilanden meer (minimaal 3.000 km²); kleine landen openen ingezoomd met een korte hint; de regelregel onder de kaart is weg (staat in de uitleg).
+- **Daily Detour** begint makkelijk: vlag, dan hoofdstad, bekende landen in de eerste drie vragen, geen klein land op de kaart in de eerste vijf.
+- **Country Mosaic** compact: 4×4-raster zonder scrollen, opgeloste groepen als gekleurde balken, lange namen kleiner, op desktop maximaal 600px breed.
+- **Nieuwste data**: 2025/2024 waar betrouwbaar, anders 2023 (zie START_HERE).
+- **Competitie**: weekranglijst, vriendenranglijst, en overal "nog X punten tot plek N". Na de Detour zie je je dagplek en je doel.
+- **Uit het Grok-plan** (alleen wat nuttig was): nieuwe homepagetekst en een welkomstregel voor nieuwe spelers, delen via het deelmenu van de telefoon, een eenmalige vraag aan gasten om hun voortgang te bewaren na de eerste Detour, "lokale dag" in plaats van "middernacht (UTC)", vriendelijkere gastnamen (bijv. "Brave Otter 42"), en Ontdekken toont bij elk land de juiste afbeelding (of een neutrale kaart). Niet overgenomen: "Detour-first in plaats van 6/6" (botst met het competitie-element) en "Friends niet hernoemen" (de eigenaar wil Multiplayer).
+
+- **Bonustour**: zodra de zes spellen met punten klaar zijn, wijst de homepage (knop, mascotte en een uitgelicht blok bovenaan) naar zes klassieke spellen met elke dag andere landen, dezelfde voor iedereen. Na elk bonusspel zie je hoe je het deed ten opzichte van de spelers van vandaag en ga je met één knop door naar het volgende; na het laatste dagspel verwijst het resultaat direct naar de bonustour. Geen ranglijstpunten. Nieuwe migratie `drizzle/0008_rainy_amphibian.sql` (alleen een index voor die vergelijking).
+- **Rondleiding** bij het eerste bezoek (4 stappen, voor gasten een 5e over het gratis account), ook via het menu. Het aanmeldvenster toont wat een account oplevert, en gasten die al spelen zien op de homepage een blok "Je reeks staat alleen op dit apparaat".
+
+- **Na feedback (1 oktober):**
+  - Downloadscherm voor iPhone-bezoekers in de browser en een link "Download de iPhone-app" onderaan.
+  - Snellere antwoorden in de dagspellen: de server verwerkte na elk antwoord alle eerdere antwoorden opnieuw (bij vraag 20 tientallen databaseacties); nu één bundel per antwoord.
+  - Next Door: het gevraagde land blauw, het buurland oranje, met legenda.
+  - "Run it back" werkt voor iedereen en start direct een nieuwe wedstrijd.
+  - Multiplayer stabieler: geen herverbinding meer elke ~25 seconden en geen foutmeldingen bij tijdelijke drukte.
+  - Kaartvragen vanaf 3.000 km² (dus ook Fiji, Vanuatu, de Salomonseilanden, Cyprus).
+
+- **Na feedback (spelelement, 1 oktober):**
+  - **Rank Radar** opnieuw ontworpen (naar GeoRankle, maar beter): acht landen en acht onderwerpen per dag, elk onderwerp één keer. Je ziet alle landen vooraf, na elke keuze de plek van dat land in alle acht onderwerpen, tot 125 punten per land en aan het eind de best mogelijke score van de dag.
+  - **Side by Side**: 15 vragen, van makkelijk naar moeilijk; één fout en je run is voorbij.
+  - **World Duel**: 7 landen, en je ziet pas na je laatste kaart wie er won, in een overzicht per land waarin je elk duel kunt openen en doorklikken.
+  - **Overleven** (nieuw blok op de homepage en bij Alle spellen): drie dagelijkse runs waarin één fout je eruit gooit: Size Shuffle, Next Door en het nieuwe **Vormenjacht** (land herkennen aan zijn omtrek). Elke run wordt per vraag moeilijker. Je ziet hoeveel spelers je verslaat en de langste run van vandaag.
+  - Alle zes dagspellen geven elk account dezelfde vragen (dat was al zo; nu ook voor de nieuwe borden gecontroleerd en getest).
+  - Eindscherm van de dagspellen duidelijker, menu-knoppen goed uitgelijnd, elk land bij "Today's picks" een herkenbaar plaatje (vorm van het land als er geen foto is), alle afbeeldingen opnieuw scherp gemaakt (2×).
+
+Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 390×844 en 1280×800 van home, Multiplayer (gast en account), Account, Instellingen, Ranglijsten, Ontdekken, menu en Country Mosaic. Nog fysiek te controleren: muziek en geluid op een echte iPhone, e-mails zodra Resend is ingesteld.
+
+## 1.22.0: de social-stijl op de hele site (2 oktober 2026)
+
+**Waarom.** De video's en posts (shorts, Flag a Day, "Sounds fake", de Guess the country-carrousels) hebben een eigen, herkenbare beeldtaal gekregen. De website spreekt nu dezelfde taal, zodat iemand die via een video binnenkomt meteen herkent waar hij is.
+
+**Wat er verandert (alleen presentatie).**
+- Nieuwe laatste CSS-laag `app/social.css`, geladen na `design.css` (`app/layout.tsx`). De spellen, het spelverloop, de puntentelling en de API zijn niet veranderd.
+- **Knoppen en labels:** pillen. Knoppen in Fredoka met een zachte lift en een verende hover; kleine labels (kickers, eyebrows) als witte pillen in gespatieerde hoofdletters, zoals "SOUNDS FAKE · #1" in de video's.
+- **Kaarten:** grotere hoeken, de zachte dubbele schaduw uit de video's, spelkaarten die verend omhoog komen bij hover.
+- **Spelschermen:** elke vraag op een donkergroene kaart met witte tekst. De vlag staat in een witte lijst. De antwoorden zijn pillen met een rond cijferbolletje, en bij een antwoord loopt de pil groen (goed) of rood (fout) vol vanaf het bolletje, met een vinkje of kruisje en een kort schudje bij fout. Nieuwe antwoorden komen één voor één binnen. Feedback met een rond icoon, gekleurde kop en neutrale tekst. Sorteerlijsten en hints als pillen met ronde nummers.
+- **Kaart (Pinpoint, Daily Detour):** postkleuren: lichtblauwe zee, mintgroen land, witte grenzen, in een witte lijst. Donkere modus: diepblauwe zee, groen land.
+- **Homepage:** Roviko praat in een witte tekstballon (springt binnen), maakt kleine sprongetjes, de kernwoorden van de kop staan in merkgroen (`homeTitleHl` in `i18n/v121.ts`, EN/NL/ES), een kleurhalo achter de mascotte.
+- **Paginakoppen:** de illustratie staat in een zachte mintgroene halo.
+- **Navigatie:** de actieve tab is een donkergroene pil; op de telefoon zweeft de tabbalk als pil boven de pagina.
+- **Niveaus** (spelen tegen de computer): Easy groen, Medium blauw, Hard rood, zoals de niveaupillen in de carrousels.
+- **Achtergrond:** zachte groene, blauwe en gouden halo's op het crèmekleurige canvas, zoals in de video's.
+- **Uitslag:** de dagscore in merkgroen, een verlopende balk, de mascotte springt.
+- **Opgelost:** in de kamerinstellingen op de telefoon liepen de spelkiezer en de rondes over elkaar heen (bestond al in 1.21); ze krijgen nu de volle breedte.
+- Service worker-cache: `roviko-shell-v1.22.0`.
+
+**Tweede ronde (2 oktober 2026): de scènes uit de video's.**
+- **Roviko met armen en benen** (`components/ds/Character.tsx`): dezelfde tekening als in de video's (`social/roviko-shorts/lib/core.js`), met gezichten (blij, juichen, knipoog, bezorgd, geschrokken, verdrietig, nieuwsgierig, slaperig, cool) en houdingen (zwaaien, juichen, schouders ophalen, wijzen, handen in de zij). Het lichaam is `public/mascot-body.svg`. Staat in de hero, in elke paginakop, in de dagdoelen en de reeks, in de footer en in de feedback na elk antwoord (juicht bij goed, schrikt bij fout).
+- **Eindschermen** (`components/ds/FinishStage.tsx`): elk eind van een spel is een scène zoals in de video's: een donkergroen podium (goud bij een topscore, met confetti; een rood accent als een run voorbij is), het kopje als witte tekstballon met een gekleurd woord, Roviko die reageert, de score groot in wit, de cijfers als donkere pillen en het antwoordspoor als bolletjes. Geldt voor alle dagspellen (`DailyFinish`/`DailyResult`), de klassieke spellen, Overleven, oefenpuzzels, World Duel-oefening en het multiplayerpodium.
+- **Paginakoppen en de hero**: dezelfde donkergroene scène op elke pagina (`PageHeader` in `components/ds/States.tsx`), met Roviko in een houding die bij de pagina past; de hero van de homepage is groen met een gouden knop en Roviko in de voortgangsring. De wachtkamer van een kamer krijgt dezelfde kop. De footer is groen, Roviko staat erop.
+- **Spelcovers als vector** (`components/ds/GameScene.tsx`): de oude covers waren opgeschaalde, sterk gecomprimeerde bitmaps en daardoor wazig. Nu zijn het getekende scènes (scherp op elk scherm) voor de zes dagspellen, de zes klassieke spellen, de drie Overleven-runs, het mysterieland, de klassieke spellen en Multiplayer. Echte vlaggen uit `/flags/`. De bitmaps blijven staan voor de iOS-assets.
+- **Vlaggen in echte verhoudingen**: de 4:3-vlaggen van flag-icons zijn vervangen door de Wikipedia-vlaggen (publiek domein) uit svg-country-flags 1.2.10, met svgo geoptimaliseerd; elf vlaggen met een gedetailleerd wapen als scherpe WebP in een SVG (`scripts/import-flags.mjs`). Nepal, Zwitserland, Qatar en de rest hebben nu hun echte vorm; vlaggen worden nergens meer bijgesneden. De grote vlag in de vlaggenspellen staat er los en scherp, zonder lijst. `/api/flag/…` heeft `?v=2` gekregen zodat oude, een jaar gecachete vlaggen niet blijven hangen. Licentie: `public/licenses/flags-PD.txt`.
+- **Rank Radar zoals GeoRankle** (zie `GAME_RULES.md`): de landen komen één voor één en je weet nooit welk land hierna komt (de browser krijgt alleen gespeelde landen en het huidige land). Na een keuze zie je alleen de wereldplek (#) van het gekozen onderwerp, met de vlag van het land in de onderwerpenlijst; na twee seconden komt het volgende land (of meteen met de knop). Alle plekken, het beste onderwerp per land en de best mogelijke score zie je pas aan het eind. Puntentelling ongewijzigd.
+- Service worker-cache: `roviko-shell-v1.22.1`.
+
+**Geen migratie, geen nieuwe geheimen, geen API-wijziging.**
+
+Getest: zie `docs/QA_1_22.md`.

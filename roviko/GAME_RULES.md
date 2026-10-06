@@ -9,11 +9,11 @@ Six games are published once per UTC date: the Daily Detour (the day's main trip
 | Game | Rounds | Daily points |
 | --- | --- | --- |
 | Daily Detour (formerly World Trip) | 20: flags, capitals, map, borders and area ordering, four of each, shuffled, never the same type twice in a row | 50 per correct question; map credit is proportional to accuracy (map points ÷ 20). Editions saved before 1.18 keep five stops of 200 |
-| World Duel (daily since 1.19) | 5 duels, five cards, each card once | 200 per duel won. Values and the perfect route are only sent after a card is played |
+| World Duel (daily since 1.19) | 7 duels, seven cards, each card once (5 before 1.21) | `round(duelsWon / 7 * 1000)`. Since 1.21 the duel is blind: values, wins, score and the perfect route are only sent once all seven cards are played |
 | Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
-| Side by Side | 10 comparisons | Correct: 100; wrong: 0 |
+| Side by Side | 15 comparisons, from easy to hard; the first wrong answer ends the run (10 before 1.21) | `round(correct / 15 * 1000)` |
 | Country Mosaic | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |
-| Rank Radar | 6 countries | `round(correctAnswers / 6 * 1000)`, rounded once for the total |
+| Rank Radar | 8 countries, 8 subjects, each subject once (6 questions before 1.21) | Up to 125 per country (see Rank Radar); sum of the eight picks |
 
 A player can always finish Mosaic and learn after a mistake; a solved forfeited group earns 0. The same named country must anchor a paid hint. Mistakes/hints do not remove points already earned for other solved countries. Shuffle, changing an unsubmitted selection and reordering countries cost nothing.
 
@@ -55,7 +55,11 @@ The name is the feedback anchor. Incorrect clues are red with cross icons and �
 
 One dated numerical observation is selected per country each UTC day. Subjects include highest point, mean elevation, coastline, median age, area and WDI indicators. Units, source years and estimate labels are explicit. Missing data are never invented, and equal displayed clues are avoided within a board. A practice board keeps its creation date; a daily board keeps its published date. The earlier clue-only compatibility projection into `metrics-v2` preserves tile IDs, country matches, solved sets and version/history; old raw snapshots remain auditable.
 
-## Rank Radar
+## Rank Radar (1.21)
+
+Since 1.21 Rank Radar is a board, inspired by GeoRankle, and since 1.22 it is played like GeoRankle: the eight countries of the day arrive one at a time (the browser only receives played countries and the current one; later ones are anonymous ids), and eight subjects (tables with at least 150 countries) must each be used exactly once. For each country the player picks a subject; only that subject's world place (#) is then shown, next to the country's flag in the subject list, and the next country follows after about two seconds (or at once with the button). The other places, the best subject per country and the best possible total open after the last pick. A pick is worth 125 points when it is the country's strongest of the eight (best relative position), otherwise `round(125 * ((1 - chosenPosition) / (1 - bestPosition))^3)`. Every country is in the world top 30 of at least one subject; no subject is the best pick for more than two countries; at most three countries per continent. After the last country the best possible total for the day is shown (brute force over all 8! assignments). Daily content is shared under the key `rank2`; boards played before 1.21 keep the six-question rules below.
+
+## Rank Radar (before 1.21)
 
 Six distinct countries, four subject choices each and six different winning subjects. Choose the subject where the country has the strongest relative position among countries with observations. Fifteen subjects: population, forest share, area, life expectancy, urban share, GDP/person, internet use, fertility, agricultural land share, GDP, exports/GDP, highest point, mean elevation, coastline and median age.
 
@@ -78,6 +82,14 @@ Completing at least one daily game on a UTC date adds one daily streak entry. Th
 ## Rank Radar medals (1.12)
 
 Every choice also earns a medal for its place among the four subjects of that country: 🥇 best, 🥈 second, 🥉 third, ⚪ weakest. Place is `1 + count(options with a strictly better relative position)`, so ties share a medal. Medals are feedback only: daily points still follow the table above (`round(correctAnswers / 6 * 1000)`). The medal trail, the result summary (`n× best · n× 2nd · n× 3rd`) and the share text (`🥇🥈…`) use these places; a share never names countries or subjects. `GET /api/ranks/:id` adds `places` for answered rounds only, so medals survive a reload and nothing about an unanswered round is revealed.
+
+## World Duel (1.21)
+
+Seven country cards against seven of Roviko's countries, one subject per round, every card once. The duel is blind: you only see who won each duel after the last card, in an overview per country that opens each duel (both values, world ranks, the card the perfect route plays there, explanation and source). Boards are generated with exactly one perfect route by construction (each new round may only be won by its own card and by cards placed earlier), every pairing differs by at least 12% and at least four rounds can be won by more than one card. Daily content key `duel7`; five-round sessions from before 1.21 still finish under the old rules.
+
+## Survival runs (1.21)
+
+Three runs a day, the same 30 questions for everyone (`survival:<mode>` content per UTC date): Size Shuffle (four areas, ratios between neighbours shrink from about 3.5× to about 1.1×), Next Door (from familiar to obscure countries, wrong options moving from other continents to the same subregion) and Shape Shift (new: name the country from its north-up outline, same difficulty climb). The first wrong answer ends the run. The score is the number of right answers in a row; no ranking points. After a run you see the share of today's players you beat and the day's longest run.
 
 ## World Duel (extra, unranked)
 

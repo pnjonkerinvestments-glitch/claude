@@ -106,7 +106,7 @@ const DATASETS: Dataset[] = [
     downloads: [{ label: l('Clues and original sources', 'Hints en oorspronkelijke bronnen', 'Pistas y fuentes originales'), href: '/data/mosaic-facts.json' }] },
   { name: 'Natural Earth · world-atlas 2.0.2', provider: 'Natural Earth · Michael Bostock', year: '—', licence: 'Public domain · ISC', href: 'https://www.naturalearthdata.com/about/terms-of-use/', licenceHref: '/licenses/world-atlas-ISC.txt',
     usedFor: l('The world map in Pinpoint and your passport. Simplified geometry; very small countries may not be visible.', 'De wereldkaart in Pinpoint en in je paspoort. Vereenvoudigd; zeer kleine landen zijn niet altijd zichtbaar.', 'El mapa de Pinpoint y de tu pasaporte. Geometría simplificada; los países muy pequeños pueden no verse.'), downloads: [] },
-  { name: 'flag-icons 7.5.0', provider: 'Panayiotis Lipiridis', year: '—', licence: 'MIT', href: 'https://github.com/lipis/flag-icons', licenceHref: '/licenses/flags-MIT.txt',
+  { name: 'svg-country-flags 1.2.10', provider: 'Wikipedia · Hampus Nilsson', year: '—', licence: 'Public domain', href: 'https://github.com/hjnilsson/country-flags', licenceHref: '/licenses/flags-PD.txt',
     usedFor: l('Flag images in the games and on country cards.', 'Vlaggen in de spellen en op de landenkaarten.', 'Banderas en los juegos y en las tarjetas de países.'), downloads: [] },
 ];
 

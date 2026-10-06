@@ -2,7 +2,8 @@
 // Kept apart from duel.ts, which imports the full country and statistics data for generating boards on the server.
 import type { Localized } from './topics';
 
-export const DUEL_ROUNDS = 5;
+/** Seven rounds since 1.21 (five before). Boards carry their own length, so older sessions still finish. */
+export const DUEL_ROUNDS = 7;
 /** A duel only counts as clear when the two values differ by at least this share. */
 export const DUEL_MARGIN = 0.12;
 
@@ -15,7 +16,8 @@ export type DuelRound = {
   /** The value of every card in the player's hand for this round's subject. */
   hand: Record<string, DuelFact>;
 };
-export type DuelBoard = { seed: string; hand: DuelCard[]; rounds: DuelRound[]; solution: string[] };
+/** `blind` (since 1.21): results stay hidden until all cards are played. Older boards reveal each round. */
+export type DuelBoard = { seed: string; hand: DuelCard[]; rounds: DuelRound[]; solution: string[]; blind?: boolean };
 
 export function duelWon(round: DuelRound, cardId: string) {
   return (round.hand[cardId]?.value ?? -Infinity) > round.roviko.value;
