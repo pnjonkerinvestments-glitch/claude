@@ -112,11 +112,14 @@ test("aangekondigd dividend uit de screener: in eigen munt, vanaf 25% van de koe
   assert.deepEqual(rows.map((r) => [r.symbol, r.exDate, r.payDate]), [["OSL:DVD", "2026-10-08", "2026-10-16"]]);
 });
 
-test("vroege koersen: één regel per bedrijf (meeste volume), grootste beweging eerst", () => {
+test("vroege koersen: één regel per bedrijf (meeste volume), grootste beweging eerst, zonder schijnkoersen", () => {
   const gaps = parseGaps([
-    { s: "LS:GTY", d: ["Gateway Real Estate", "LS", "Germany", 0.38, "EUR", 15.9, 100, "DE000A0JJTG7"] },
-    { s: "TRADEGATE:GTY", d: ["Gateway Real Estate", "TRADEGATE", "Germany", 0.379, "EUR", 15.5, 9000, "DE000A0JJTG7"] },
-    { s: "LS:SBX", d: ["SynBiotic", "LS", "Germany", 0.88, "EUR", -22, 50, "DE000A3E5A59"] },
+    { s: "LS:GTY", d: ["Gateway Real Estate", "LS", "Germany", 0.38, "EUR", 15.9, 10000, "DE000A0JJTG7"] },
+    { s: "TRADEGATE:GTY", d: ["Gateway Real Estate", "TRADEGATE", "Germany", 0.379, "EUR", 15.5, 90000, "DE000A0JJTG7"] },
+    { s: "LS:SBX", d: ["SynBiotic", "LS", "Germany", 0.88, "EUR", -22, 5000, "DE000A3E5A59"] },
+    // Echte koppen uit de test van 6 oktober: geen handel van betekenis.
+    { s: "LS:A41BED", d: ["Alligator Bioscience AB", "LS", "Sweden", 0.0001, "EUR", -99.6, 1000, "SE1"] },
+    { s: "LS:A2PHDZ", d: ["Alterity", "LS", "Germany", 0.282, "EUR", 39, 1, "AU1"] },
   ]);
   assert.deepEqual(gaps.map((g) => g.symbol), ["LS:SBX", "TRADEGATE:GTY"]);
 });
@@ -249,10 +252,18 @@ function morningNet() {
     }
     if (columns.includes("ipo_offer_status")) {
       return body.filter[0].left === "ipo_offer_status"
-        ? [{ s: "SIX:INFOM", d: ["Infomaniak Network SA", "SIX", "Switzerland", "pending", null, null, 900e6] }]
+        ? [
+            { s: "SIX:INFOM", d: ["Infomaniak Network SA", "SIX", "Switzerland", "pending", null, null, 900e6] },
+            { s: "FWB:ADG", d: ["AMG Critical Materials N.V.", "FWB", "Netherlands", "pending", null, null, null] },
+          ]
         : [];
     }
-    if (columns.includes("change")) return [{ s: "TRADEGATE:GTY", d: ["Gateway Real Estate AG", "TRADEGATE", "Germany", 0.379, "EUR", 15.9, 9000, "DE1"] }];
+    if (columns.includes("change")) {
+      return [
+        { s: "TRADEGATE:GTY", d: ["Gateway Real Estate AG", "TRADEGATE", "Germany", 0.379, "EUR", 15.9, 9000, "DE1"] },
+        { s: "LS:A0PFSE", d: ["Pfisterer", "LS", "Germany", 14.5, "EUR", 19.8, 2000, "DE000PFSE001"] },
+      ];
+    }
     return null;
   };
   return { net, primary, other };
@@ -294,6 +305,9 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
       ev("d2", "dividend", "LSE:XYZ", "XYZ plc", "XYZ plc declares special dividend of 5p"),
       ev("i1", "insider", "XETR:R1B", "Rubean AG", "Rubean AG: M2 Venture GmbH, Kauf"),
       ev("i2", "insider", "XETR:R1B", "Rubean AG", "Rubean AG: Hans Meier, Kauf"),
+      ev("i3", "insider", "XETR:HFG", "HelloFresh SE", "HelloFresh SE: Fund, Erwerb von Aktien aufgrund ausgeübter Optionen"),
+      ev("i4", "insider", "XETR:HFG", "HelloFresh SE", "HelloFresh SE: Fund, Kauf"),
+      ev("n1", "ipo", "", "", "Dolomiti Energia, Ipo in stand-by"),
       ev("a1", "adhoc", "XETR:JST", "Jost AG", "PTA-Adhoc: Jost AG: Prognose angehoben"),
       ev("a0", "adhoc", "XETR:OLD", "Oud AG", "PTA-Adhoc: Oud AG: van gistermiddag", at("2026-10-05", "15:00")),
       ev("f1", "fda", "OMXCOP:GMAB", "", "Genmab Phase 3 Combo Cuts Risk by 51%"),
@@ -329,7 +343,7 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
   // Noteringen en IPO-kalender.
   assert.match(text, /Nieuw op de beurs<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX, Zwitserland\) · nieuw op de beurs/);
   assert.match(text, /<b>PFSE<\/b> Pfisterer Holding SE \(SIX, Duitsland\) · tweede notering, al genoteerd als XETR:PFSE/);
-  assert.match(text, /Beursgangen op komst<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX\) · datum nog niet bekend · marktwaarde ±\$900 mln/);
+  assert.match(text, /Beursgangen op komst<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX\) · datum nog niet bekend · marktwaarde ±\$900 mln\n\n/);
   // Overname met deadline.
   assert.match(text, /Übernahmeangebot von ABB zu 30 EUR<\/a>\n   ⏰ einde aanmeldtermijn: <b>vr 9 okt<\/b> \(over 3 dagen\)/);
   // Ad-hoc alleen sinds het slot van gisteren.
@@ -338,8 +352,10 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
   assert.match(text, /<b>GMAB<\/b> \(OMXCOP\): <a href="https:\/\/example.com\/f1">Genmab Phase 3/);
   // Insiders: cluster van twee aankopen.
   assert.match(text, /<b>R1B<\/b> Rubean AG: 2× aankoop · 🟢 <b>cluster: 2 aankopen in 14 dagen<\/b>/);
-  // Koersen en cijfers.
-  assert.match(text, /<b>GTY<\/b> Gateway Real Estate AG: <b>\+15,9%<\/b> naar €0,379 \(Tradegate\)/);
+  assert.match(text, /<b>HFG<\/b> HelloFresh SE: 1× aankoop · <a/, "opties uitoefenen is geen aankoop, dus geen cluster");
+  assert.match(text, /\n• <a href="https:\/\/example.com\/n1">Dolomiti Energia, Ipo in stand-by<\/a>/);
+  // Koersen (met de ticker van de hoofdnotering) en cijfers.
+  assert.match(text, /<b>PFSE<\/b> Pfisterer Holding SE: <b>\+19,8%<\/b> naar €14,50 \(L&amp;S\)\n• <b>GTY<\/b> Gateway Real Estate AG: <b>\+15,9%<\/b> naar €0,379 \(Tradegate\)/);
   assert.match(text, /<b>DEBS<\/b> boohoo group Plc · voorbeurs/);
   // In het eigen onderwerp (zoals runMorning het verstuurt).
   const { AlertSender } = await import("../src/alerts.ts");
@@ -359,6 +375,34 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
   await runDay({ store, net }, "2026-10-10", "08:35", "08:50", sent);
   assert.equal(sent.length, 0);
   assert.equal(Number(store.settings.get(SENT_KEY)), at("2026-10-07", "08:40"));
+});
+
+test("ochtendoverzicht: Telegram faalt helemaal → volgende minuut opnieuw; deels verstuurd → niet dubbel", async () => {
+  const { net } = morningNet();
+  const store = new MemoryStore();
+  for (let i = 0; i < 80; i++) {
+    await store.recordEvents(
+      [{ id: `e${i}`, filter: ["emissie", "overname", "fda", "index", "splitsing", "notering", "handelsstop", "insolventie"][i % 8], symbol: `XETR:E${i}`, name: `Bedrijf ${i}`, title: `Bedrijf ${i} kondigt een kapitaalverhoging aan ${"x".repeat(80)}`, url: "", lang: "de", published: at("2026-10-06", "07:00") }],
+      at("2026-10-06", "07:00"),
+    );
+  }
+  let calls = 0;
+  let failFrom = 0;
+  const send = async () => {
+    calls++;
+    if (calls >= failFrom) throw new Error("Telegram plat");
+  };
+  failFrom = 1;
+  await assert.rejects(runMorningStep({ store, config, fetcher: net.fetch, now: at("2026-10-06", "08:40") }, send));
+  assert.equal(store.settings.get("ochtend_datum"), undefined, "nog niet verstuurd");
+  calls = 0;
+  failFrom = 2;
+  const result = await runMorningStep({ store, config, fetcher: net.fetch, now: at("2026-10-06", "08:41") }, send);
+  assert.equal(result.sent, 1);
+  assert.match(result.errors[0], /deels verstuurd/);
+  assert.equal(store.settings.get("ochtend_datum"), "2026-10-06");
+  const again = await runMorningStep({ store, config, fetcher: net.fetch, now: at("2026-10-06", "08:42") }, send);
+  assert.equal(again.sent, undefined);
 });
 
 test("ochtendoverzicht uit: niets versturen, wel berichten lezen", async () => {

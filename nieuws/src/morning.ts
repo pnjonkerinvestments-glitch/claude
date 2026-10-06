@@ -23,7 +23,7 @@ import {
   toUnix,
 } from "./dates.ts";
 import type { NewListing } from "./listings.ts";
-import { LISTINGS_DONE_KEY, LISTINGS_JOB_KEY, newListings, sweepListings } from "./listings.ts";
+import { LISTINGS_DONE_KEY, LISTINGS_JOB_KEY, MAIN_EXCHANGES, newListings, sweepListings } from "./listings.ts";
 import { capRange, countryName } from "./screener.ts";
 import type { AgendaItem, EventRecord, Store } from "./store.ts";
 import { escapeHtml } from "./telegram.ts";
@@ -46,8 +46,8 @@ const PREP_MINUTES = 100;
 const GAP_MINUTES = 12;
 /** Tot zo lang na de geplande tijd wordt een gemist overzicht nog verstuurd. */
 const LATE_MINUTES = 120;
-/** Berichten lezen per run. */
-const STORIES_PER_RUN = 4;
+/** Berichten lezen per run (rekentijd: Workers Free geeft 10 ms per aanroep). */
+const STORIES_PER_RUN = 3;
 const KEEP_EVENTS_SECONDS = 45 * 24 * 3600;
 const MAX_LINES = 12;
 const MAX_MESSAGE = 3900;
@@ -88,8 +88,10 @@ export interface IpoRow {
 }
 
 export interface GapRow {
+  /** Ticker van de hoofdnotering als die bekend is, anders die van L&S of Tradegate. */
   symbol: string;
   name: string;
+  isin: string;
   exchange: string;
   country: string;
   close: number;
@@ -268,23 +270,31 @@ export function gapPayload(config: Config, capMin: number): unknown {
   };
 }
 
-/** Eén regel per bedrijf (ISIN), de beurs met het meeste volume, grootste bewegingen eerst. */
+/** Minimale omzet (in euro) voor een vroege koers; daaronder zegt een beweging niets. */
+const MIN_TURNOVER_EUR = 2500;
+
+/**
+ * Eén regel per bedrijf (ISIN), de beurs met het meeste volume, grootste bewegingen eerst.
+ * Bij L&S staan ook koersen zonder echte handel (−99% naar €0,00); die vallen af.
+ */
 export function parseGaps(rows: Array<{ s: string; d: unknown[] }>): GapRow[] {
   const byIsin = new Map<string, GapRow>();
   for (const row of rows) {
     const f = fields(GAP_COLUMNS, row);
     const change = num(f.change);
     const close = num(f.close);
-    if (change === null || !close) continue;
+    const volume = num(f.volume) ?? 0;
+    if (change === null || !close || close < 0.01 || Math.abs(change) >= 90 || close * volume < MIN_TURNOVER_EUR) continue;
     const gap: GapRow = {
       symbol: row.s,
       name: text(f.description),
+      isin: text(f.isin),
       exchange: text(f.exchange),
       country: text(f.country),
       close,
       currency: text(f.currency),
       change,
-      volume: num(f.volume) ?? 0,
+      volume,
     };
     const key = text(f.isin) || row.s;
     const existing = byIsin.get(key);
@@ -363,7 +373,8 @@ const STEPS: Step[] = [
         ...(await scanner(fetcher, ipoPayload(config, "pending", start))).rows,
         ...(await scanner(fetcher, ipoPayload(config, "recent", start))).rows,
       ];
-      const unique = new Map(rows.map((row) => [row.s, row]));
+      // Alleen de hoofdbeurzen: op Frankfurt en dergelijke staan ook "pending" regels van bestaande aandelen.
+      const unique = new Map(rows.filter((row) => MAIN_EXCHANGES.includes(row.s.split(":")[0])).map((row) => [row.s, row]));
       state.ipos = [...unique.values()].map((row) => {
         const f = fields(IPO_COLUMNS, row);
         return {
@@ -397,7 +408,7 @@ const STEPS: Step[] = [
   {
     // Koersen van aandelen met speciaal-dividendnieuws, om het bedrag naast de koers te leggen.
     name: "prijzen",
-    from: 40,
+    from: 15,
     async run({ store, fetcher, now }, state) {
       const since = await windowStart(store, now);
       const symbols = [
@@ -418,7 +429,15 @@ const STEPS: Step[] = [
     async run({ store, config, fetcher }, state) {
       const range = await capRange(store, config);
       const { rows } = await scanner(fetcher, gapPayload(config, range.min));
-      state.gaps = parseGaps(rows);
+      const gaps = parseGaps(rows);
+      // L&S noteert onder het WKN ("A2JNDN"); de ticker van de hoofdnotering zegt meer.
+      const primaries = new Map(
+        (await store.listingsByIsin(gaps.map((g) => g.isin))).filter((l) => l.primary).map((l) => [l.isin, l]),
+      );
+      state.gaps = gaps.map((g) => {
+        const primary = primaries.get(g.isin);
+        return primary ? { ...g, symbol: primary.symbol, name: primary.name || g.name } : g;
+      });
     },
   },
 ];
@@ -481,14 +500,37 @@ export async function runMorningStep(deps: MorningDeps, send: (html: string) => 
   const result: RunResult = { stories: 0, errors: [] };
   const local = localTime(now, config.timeZone);
   const today = local.date;
-  const workday = local.weekday <= 5;
   const untilDigest = config.digestMinutes - local.minutes;
-  const off = !!(await store.getSetting(OFF_KEY));
+  const active = local.weekday <= 5 && !(await store.getSetting(OFF_KEY)) && (await store.getSetting(SENT_DATE_KEY)) !== today;
+  const state = await loadDay(store, today);
+
+  // Om 08:40 gaat het overzicht voor alles, ook als een stap mislukte of nog niet aan de beurt kwam.
+  if (active && untilDigest <= 0 && untilDigest > -LATE_MINUTES) {
+    const messages = await composeDigest(deps, state);
+    let delivered = 0;
+    for (const message of messages) {
+      try {
+        await send(message);
+        delivered++;
+      } catch (error) {
+        // Niets verstuurd: volgende minuut opnieuw. Deels verstuurd: niet alles nog eens sturen.
+        if (!delivered) throw error;
+        result.errors.push(`overzicht deels verstuurd: ${error instanceof Error ? error.message : String(error)}`);
+        break;
+      }
+    }
+    await store.setSetting(SENT_KEY, String(now));
+    await store.setSetting(SENT_DATE_KEY, today);
+    result.sent = delivered;
+    await store.pruneEvents(now - KEEP_EVENTS_SECONDS);
+    await store.pruneAgenda(addDays(today, -7));
+    return result;
+  }
 
   // Noteringen: elke dag één ronde, vanaf de voorbereidingstijd (of meteen bij een nieuwe installatie).
+  const listingsDone = await store.getSetting(LISTINGS_DONE_KEY);
   const sweeping = !!(await store.getSetting(LISTINGS_JOB_KEY));
-  const listingsDue = (await store.getSetting(LISTINGS_DONE_KEY)) !== today && (untilDigest <= PREP_MINUTES || !(await store.getSetting(LISTINGS_DONE_KEY)));
-  if (sweeping || listingsDue) {
+  if (sweeping || (listingsDone !== today && (untilDigest <= PREP_MINUTES || !listingsDone))) {
     try {
       if (await sweepListings(store, config, deps.fetcher, now, today)) result.step = "noteringen";
     } catch (error) {
@@ -496,10 +538,8 @@ export async function runMorningStep(deps: MorningDeps, send: (html: string) => 
     }
   }
 
-  const state = await loadDay(store, today);
-  const sentToday = (await store.getSetting(SENT_DATE_KEY)) === today;
-  if (!result.step && workday && !off && !sentToday) {
-    // Alleen vóór het overzicht: om 08:40 gaat het overzicht voor, ook als er een stap mislukt of blijft liggen.
+  // De voorbereidende stappen, één per minuut, alleen vóór het overzicht.
+  if (!result.step && active) {
     const step = STEPS.find((s) => !state.done.includes(s.name) && untilDigest <= s.from && untilDigest > 0);
     if (step) {
       result.step = step.name;
@@ -511,17 +551,6 @@ export async function runMorningStep(deps: MorningDeps, send: (html: string) => 
       state.done.push(step.name);
       await store.setSetting(DAY_KEY, JSON.stringify(state));
     }
-  }
-
-  if (workday && !off && !sentToday && untilDigest <= 0 && untilDigest > -LATE_MINUTES && !result.step) {
-    const messages = await composeDigest(deps, state);
-    for (const message of messages) await send(message);
-    await store.setSetting(SENT_KEY, String(now));
-    await store.setSetting(SENT_DATE_KEY, today);
-    result.sent = messages.length;
-    await store.pruneEvents(now - KEEP_EVENTS_SECONDS);
-    await store.pruneAgenda(addDays(today, -7));
-    return result;
   }
 
   // Tijd over: persberichten lezen.
@@ -616,7 +645,7 @@ function percent(ratio: number): string {
 }
 
 function who(symbol: string, name: string): string {
-  if (!symbol) return escapeHtml(name || "?");
+  if (!symbol) return escapeHtml(name);
   return `<b>${escapeHtml(ticker(symbol))}</b>${name ? ` ${escapeHtml(name)}` : ` (${escapeHtml(symbol.split(":")[0])})`}`;
 }
 
@@ -642,7 +671,8 @@ function newsLines(events: EventRecord[], suffix?: (event: EventRecord) => strin
   return [...groups.values()].map((group) => {
     const [first] = group;
     const more = group.length > 1 ? ` (+${group.length - 1})` : "";
-    return `• ${who(first.symbol, first.name)}: ${link(first.title, first.url)}${more}${suffix?.(first) ?? ""}`;
+    const subject = who(first.symbol, first.name);
+    return `• ${subject ? `${subject}: ` : ""}${link(first.title, first.url)}${more}${suffix?.(first) ?? ""}`;
   });
 }
 
@@ -660,6 +690,12 @@ export const NEWS_SECTIONS: Array<[string, string]> = [
 ];
 
 const BUY = /(?<![a-z])(kauf|erwerb|buy|buys|bought|purchase|purchases|raises stake|achat|acquisto|compra|kop|kjop|kob|osto)(?![a-z])/;
+/** Geen echte aankoop: opties uitoefenen, toekenningen, aandelenplannen. */
+const NOT_A_BUY = /(option|optionen|ausgeubt|exercise|award|grant|vesting|ltip|aktienplan|share plan|zuteilung|bezugsrecht)/;
+const isBuy = (title: string) => {
+  const t = fold(title);
+  return BUY.test(t) && !SELL.test(t) && !NOT_A_BUY.test(t);
+};
 const SELL = /(?<![a-z])(verkauf|verausserung|sell|sells|sold|sale|disposal|vente|cessione|venta|salg|myynti)(?![a-z])/;
 
 function listingLine(listing: NewListing): string {
@@ -766,15 +802,15 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
     const symbols = [...new Set(insiders.map((e) => e.symbol).filter(Boolean))];
     const history = await store.eventsForSymbols("insider", symbols, now - 14 * 86400);
     const lines = new Map<string, string>();
-    const sorted = [...insiders].sort((a, b) => Number(BUY.test(fold(b.title))) - Number(BUY.test(fold(a.title))));
+    const sorted = [...insiders].sort((a, b) => Number(isBuy(b.title)) - Number(isBuy(a.title)));
     for (const event of sorted) {
       const key = event.symbol || event.id;
       if (lines.has(key)) continue;
       const own = insiders.filter((e) => (e.symbol || e.id) === key);
-      const buys = own.filter((e) => BUY.test(fold(e.title)) && !SELL.test(fold(e.title))).length;
+      const buys = own.filter((e) => isBuy(e.title)).length;
       const sells = own.filter((e) => SELL.test(fold(e.title))).length;
       const recentBuys = new Set(
-        history.filter((e) => e.symbol === event.symbol && BUY.test(fold(e.title)) && !SELL.test(fold(e.title))).map((e) => e.id),
+        history.filter((e) => e.symbol === event.symbol && isBuy(e.title)).map((e) => e.id),
       ).size;
       const what = [buys ? `${buys}× aankoop` : "", sells ? `${sells}× verkoop` : ""].filter(Boolean).join(", ") || `${own.length}× transactie`;
       const cluster = recentBuys >= 2 ? ` · 🟢 <b>cluster: ${recentBuys} aankopen in 14 dagen</b>` : "";
@@ -794,8 +830,8 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
     ),
   );
   const earnings = (state.earnings ?? []).map((e) => {
-    const when = e.done ? "al gepubliceerd" : e.time < 0 ? "voorbeurs" : e.time > 0 ? "nabeurs" : "tijd onbekend";
-    return `• ${who(e.symbol, e.name)} · ${when}`;
+    const when = e.done ? " · al gepubliceerd" : e.time < 0 ? " · voorbeurs" : e.time > 0 ? " · nabeurs" : "";
+    return `• ${who(e.symbol, e.name)}${when}`;
   });
   blocks.push(section("🗓️ <b>Cijfers vandaag</b>", earnings, 25));
 

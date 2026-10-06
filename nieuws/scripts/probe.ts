@@ -17,6 +17,9 @@ import {
 } from "../src/screener.ts";
 import type { UniverseEntry } from "../src/store.ts";
 import { parseTargetRows, targetsPayload } from "../src/targets.ts";
+import { listingsPayload, parseListings } from "../src/listings.ts";
+import { dividendPayload, earningsPayload, gapPayload, ipoPayload, parseDividends, parseGaps } from "../src/morning.ts";
+import { scanner } from "../src/tradingview.ts";
 
 const symbols = process.argv.slice(2).length ? process.argv.slice(2) : ["XETR:1INN"];
 const langs = ["de", "en"];
@@ -154,6 +157,39 @@ if (sample) {
   if (odd.length > rows.length * 0.02) {
     console.log(`!! ${odd.length} koersdoelen kloppen niet na terugrekenen`, odd.slice(0, 3));
     problems++;
+  }
+}
+
+// ---- ochtendoverzicht: alle screener-vragen moeten werken
+{
+  const today = Math.floor(Date.now() / 86400_000) * 86400;
+  const range = { min: config.capMinEur, max: config.capMaxEur };
+  const checks: Array<[string, unknown, (rows: Array<{ s: string; d: unknown[] }>) => string]> = [
+    ["noteringen (primair)", listingsPayload(config, "primary", 0), (rows) => `${parseListings(rows, true).filter((l) => l.isin).length} met ISIN`],
+    ["noteringen (overig)", listingsPayload(config, "other", 0), (rows) => `${rows.length} rijen`],
+    [
+      "dividend",
+      dividendPayload(config, today),
+      (rows) => `${rows.length} aangekondigd, ≥25%: ${parseDividends(rows, config).map((d) => `${d.symbol} ${Math.round((d.amount / d.close) * 100)}%`).join(", ") || "geen"}`,
+    ],
+    ["cijfers", earningsPayload(config, range, "earnings_release_next_date", today, today + 7 * 86400), (rows) => `${rows.length} deze week`],
+    ["IPO-kalender", ipoPayload(config, "pending", today), (rows) => rows.map((r) => r.s).join(", ") || "niets gepland"],
+    ["IPO's afgelopen week", ipoPayload(config, "recent", today), (rows) => rows.map((r) => r.s).join(", ") || "geen"],
+    ["vroege koersen", gapPayload(config, config.capMinEur), (rows) => `${rows.length} ruw, ${parseGaps(rows).length} na filter`],
+  ];
+  console.log("\n== ochtendoverzicht");
+  for (const [label, payload, describe] of checks) {
+    try {
+      const { rows, total } = await scanner(fetch, payload);
+      console.log(`  ${label}: ${total} · ${describe(rows)}`);
+      if (label.startsWith("noteringen") && rows.length < 100) {
+        console.log(`!! ${label}: verdacht weinig`);
+        problems++;
+      }
+    } catch (error) {
+      console.log(`!! ${label}: ${(error as Error).message}`);
+      problems++;
+    }
   }
 }
 

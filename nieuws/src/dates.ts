@@ -133,6 +133,13 @@ const MONTH_SHORT: Record<string, number> = {
   nov: 11, dec: 12, dez: 12,
 };
 const MONTH_ALT = Object.keys(MONTH_NAMES).concat(Object.keys(MONTH_SHORT)).sort((a, b) => b.length - a.length).join("|");
+const DAY_MONTH = new RegExp(
+  `\\b(\\d{1,2})(?:st|nd|rd|th|er|o)?\\.?\\s+(?:de\\s+|di\\s+)?(${MONTH_ALT})(\\.)?(?:,?\\s+(?:de\\s+)?(20\\d\\d))?\\b`,
+  "g",
+);
+const MONTH_DAY = new RegExp(`\\b(${MONTH_ALT})(\\.)?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?!\\.\\d|:\\d)(?:,?\\s+(20\\d\\d))?`, "g");
+/** Langer zoeken naar datums kost te veel rekentijd (Workers Free: 10 ms); de datums staan vooraan. */
+const MAX_TEXT = 3000;
 
 export interface FoundDate {
   date: string;
@@ -169,7 +176,7 @@ function monthNumber(raw: string, hasDot: boolean, hasYear: boolean, monthFirst:
 
 /** Alle datums in een tekst. `reference` is de publicatiedatum ("2026-10-06"). */
 export function findDates(text: string, reference: string): FoundDate[] {
-  const folded = fold(text);
+  const folded = fold(text.slice(0, MAX_TEXT));
   const found = new Map<number, FoundDate>();
   const add = (index: number, date: string | null, length = 0) => {
     if (date && !found.has(index)) {
@@ -181,17 +188,12 @@ export function findDates(text: string, reference: string): FoundDate[] {
     const year = m[3].length === 2 ? 2000 + Number(m[3]) : Number(m[3]);
     add(m.index, valid(year, +m[2], +m[1]), m[0].length);
   }
-  const dayMonth = new RegExp(
-    `\\b(\\d{1,2})(?:st|nd|rd|th|er|o)?\\.?\\s+(?:de\\s+|di\\s+)?(${MONTH_ALT})(\\.)?(?:,?\\s+(?:de\\s+)?(20\\d\\d))?\\b`,
-    "g",
-  );
-  for (const m of folded.matchAll(dayMonth)) {
+  for (const m of folded.matchAll(DAY_MONTH)) {
     const month = monthNumber(m[2], !!m[3], !!m[4], false);
     if (!month) continue;
     add(m.index, m[4] ? valid(+m[4], month, +m[1]) : guessYear(month, +m[1], reference), m[0].length);
   }
-  const monthDay = new RegExp(`\\b(${MONTH_ALT})(\\.)?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?!\\.\\d|:\\d)(?:,?\\s+(20\\d\\d))?`, "g");
-  for (const m of folded.matchAll(monthDay)) {
+  for (const m of folded.matchAll(MONTH_DAY)) {
     const month = monthNumber(m[1], !!m[2], !!m[4], true);
     if (!month) continue;
     add(m.index, m[4] ? valid(+m[4], month, +m[3]) : guessYear(month, +m[3], reference), m[0].length);
@@ -254,17 +256,26 @@ const KINDS: Array<{ label: string; words: string[] }> = [
 /** Een periode "van X tot Y": de tweede datum is het einde. */
 const UNTIL = /(?:(?:^|[\s(])(?:to|until|till|through|bis(?: zum)?|au|jusqu'au|a|al|fino al|hasta el|ate|tot|t\/m)\s+|\s[-–]\s*)$/;
 
+function wordPattern(word: string): string {
+  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return word.length <= 4 ? `${escaped}(?![a-z0-9])` : escaped;
+}
+
 /**
- * Laatste plek waar een woord begint (net als bij de filters mag het langer doorlopen:
- * "expire" vindt "expires"). Korte woorden (zoals "agm") alleen als heel woord, anders vindt
+ * Per soort één patroon. Een woord moet aan het begin van een woord staan en mag langer doorlopen
+ * ("expire" vindt "expires"); korte woorden (zoals "agm") alleen als heel woord, anders vindt
  * "egm" ook "segment".
  */
-export function lastWordIndex(text: string, word: string): number {
-  const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const tail = word.length <= 4 ? "(?![a-z0-9])" : "";
-  let last = -1;
-  for (const m of text.matchAll(new RegExp(`(?<![a-z0-9])${escaped}${tail}`, "g"))) last = m.index;
-  return last;
+const KIND_PATTERNS = KINDS.map((kind) => new RegExp(`(?<![a-z0-9])(?:${kind.words.map(wordPattern).join("|")})`, "g"));
+
+/** Laatste (of eerste) plek in de tekst waar een woord van deze soort staat, of -1. */
+function kindIndex(text: string, rank: number, last: boolean): number {
+  let found = -1;
+  for (const m of text.matchAll(KIND_PATTERNS[rank])) {
+    found = m.index;
+    if (!last) break;
+  }
+  return found;
 }
 
 export interface ClassifiedDate {
@@ -280,18 +291,14 @@ export function datesForAgenda(text: string, reference: string, today: string, h
     if (ahead < 0 || ahead > horizonDays) continue;
     let best: { label: string; at: number; rank: number } | null = null;
     KINDS.forEach((kind, rank) => {
-      for (const word of kind.words) {
-        const at = lastWordIndex(found.before, word);
-        if (at >= 0 && (!best || at > best.at)) best = { label: kind.label, at, rank };
-      }
+      const at = kindIndex(found.before, rank, true);
+      if (at >= 0 && (!best || at > best.at)) best = { label: kind.label, at, rank };
     });
     // Niets ervoor? Dan wat er direct na staat ("October 28 for listing of ...").
     if (!best) {
       KINDS.forEach((kind, rank) => {
-        for (const word of kind.words) {
-          const at = lastWordIndex(found.after, word);
-          if (at >= 0 && (!best || at < best.at)) best = { label: kind.label, at, rank };
-        }
+        const at = kindIndex(found.after, rank, false);
+        if (at >= 0 && (!best || at < best.at)) best = { label: kind.label, at, rank };
       });
     }
     const period = UNTIL.test(found.before.slice(-12));
