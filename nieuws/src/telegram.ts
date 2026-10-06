@@ -11,6 +11,8 @@ export interface TelegramMessage {
   fromName: string;
   /** Gezet als een groep is omgezet naar een supergroep (die krijgt een nieuw chat-id). */
   migrateTo?: string;
+  /** Onderwerp (topic) in een groep met Topics; leeg in het algemene onderwerp. */
+  threadId?: number;
 }
 
 export class TelegramError extends Error {
@@ -61,13 +63,22 @@ export class Telegram {
     return body.result;
   }
 
-  async send(chatId: string, html: string): Promise<void> {
-    await this.call("sendMessage", {
+  async send(chatId: string, html: string, threadId?: number): Promise<void> {
+    const payload: Record<string, unknown> = {
       chat_id: chatId,
       text: html,
       parse_mode: "HTML",
       link_preview_options: { is_disabled: true },
-    });
+    };
+    if (threadId) payload.message_thread_id = threadId;
+    await this.call("sendMessage", payload);
+  }
+
+  /** Maakt een onderwerp aan in een groep met Topics. Vereist dat de bot beheerder is met "Onderwerpen beheren". */
+  async createTopic(chatId: string, name: string): Promise<number> {
+    const result = (await this.call("createForumTopic", { chat_id: chatId, name })) as { message_thread_id?: number };
+    if (typeof result?.message_thread_id !== "number") throw new Error("Telegram gaf geen onderwerp-id terug");
+    return result.message_thread_id;
   }
 
   async updates(offset: number | null): Promise<TelegramUpdates> {
@@ -98,6 +109,8 @@ export class Telegram {
         text: message.text,
         fromId: String(message.from?.id ?? ""),
         fromName: String(message.from?.first_name ?? ""),
+        // Alleen echte onderwerpen; in gewone groepen is message_thread_id een antwoorddraad.
+        threadId: message.is_topic_message && typeof message.message_thread_id === "number" ? message.message_thread_id : undefined,
       });
     }
     return { messages, nextOffset };

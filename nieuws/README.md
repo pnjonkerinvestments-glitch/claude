@@ -47,6 +47,12 @@ Grafiek
   - `insolventie`: faillissement en surseance (Insolvenz, redressement judiciaire, composizione
     negoziata, administrators, ...)
   - `emissie`: aandelenemissies (placing, rights issue, Kapitalerhöhung, augmentation de capital, ...)
+  - `ipo`: beursgangen (IPO, Börsengang, introduction en bourse, quotazione in borsa, ...). Werkt over
+    al het nieuws uit de gekozen landen, niet alleen de selectie: een bedrijf dat naar de beurs
+    gaat staat nog niet in de screener. Instelbaar per filter met `/bereik <filter> europa|selectie`.
+
+  Woorden van hoogstens 4 letters (zoals `IPO`, `OPV`) tellen alleen als heel woord, zodat
+  `IPO` niet het Italiaanse "ipotesi" vindt.
 
   Een nieuw standaardfilter komt er bij een bestaande installatie vanzelf bij; een filter dat de
   groep zelf heeft weggehaald, komt niet terug. Hoofdletters en accenten maken niet uit, en een
@@ -65,6 +71,22 @@ Dit kijkt naar de cijfers, niet naar koppen: "street-high" komt in nieuws over E
 caps vrijwel nooit voor. TradingView rekent koersdoelen om naar euro; de bot rekent terug naar de
 eigen munt van het aandeel, zodat een wisselkoersbeweging geen valse melding geeft. Aan/uit met
 `/koersdoel aan` of `/koersdoel uit`.
+
+## Onderwerpen (Telegram Topics)
+
+In een groep met Topics kan elke soort melding een eigen onderwerp krijgen:
+
+1. Groepsinstellingen → Bewerken → **Topics** aanzetten (de groep wordt dan een supergroep; de
+   bot volgt het nieuwe chat-id vanzelf).
+2. De bot beheerder maken met het recht **Onderwerpen beheren**.
+3. In de groep `/onderwerpen maak` sturen. De bot maakt *📰 Volglijst*, *💶 Emissies*, *🚀 IPO's*
+   en *🎯 Koersdoelen* aan; al het andere (dividend, insolventie, ...) komt in *Algemeen*.
+
+Zonder beheerdersrecht kan het ook met de hand: zelf een onderwerp maken en daarin
+`/hier <soort>` sturen (`/hier volglijst`, `/hier emissie`, `/hier ipo`, `/hier koersdoel`,
+`/hier dividend`, ...). `/hier <soort> uit` zet een soort terug naar de standaardplek, en
+`/onderwerpen` laat de indeling zien. Raakt een melding meerdere filters met elk een eigen
+onderwerp, dan komt hij in elk van die onderwerpen.
 
 ## Delen in een Telegram-groep
 
@@ -116,6 +138,9 @@ eigen munt van het aandeel, zodat een wisselkoersbeweging geen valse melding gee
 | `/filterweg dividend` | hele filter weghalen |
 | `/filtertest` | treffers in de huidige nieuwsstromen tonen, zonder te melden |
 | `/koersdoel aan` / `uit` | street high/low-meldingen aan- of uitzetten |
+| `/bereik ipo europa` / `selectie` | filter over al het Europese nieuws of alleen de selectie (eigenaar) |
+| `/onderwerpen` / `/onderwerpen maak` | indeling bekijken / onderwerpen aanmaken (eigenaar) |
+| `/hier emissie` | deze soort melding naar dit onderwerp (eigenaar) |
 | `/marktwaarde 2,5 500` | bandbreedte in miljoen euro |
 | `/screener` | grootte van de selectie en wanneer die is bijgewerkt |
 

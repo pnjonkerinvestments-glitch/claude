@@ -3,12 +3,27 @@
 // een paar commando's die alles voor iedereen omgooien blijven bij de eigenaar. Buiten die
 // groep luistert de bot alleen naar de eigenaar.
 
-import { ALERT_CHAT_KEY, OWNER_USER_KEY, alertChat, ownerUser } from "./alerts.ts";
+import {
+  ALERT_CHAT_KEY,
+  ALERT_THREAD_KEY,
+  OWNER_USER_KEY,
+  TARGETS,
+  WATCHLIST,
+  alertChat,
+  filterCategory,
+  loadRoutes,
+  migrateChat,
+  ownerUser,
+  saveRoutes,
+} from "./alerts.ts";
 import type { Config } from "./config.ts";
+import { DEFAULT_FILTERS } from "./config.ts";
 import { PRIMED_PREFIX } from "./check.ts";
 import {
   CAP_MAX_KEY,
   CAP_MIN_KEY,
+  EUROPE_FILTERS_KEY,
+  europeFilters,
   UNIVERSE_DONE_KEY,
   UNIVERSE_JOB_KEY,
   capRange,
@@ -54,20 +69,26 @@ export const HELP = [
   "/filterweg dividend · hele filter weghalen 🔒",
   "/filtertest · treffers van de afgelopen uren tonen, zonder te melden",
   "/koersdoel aan|uit · meldingen bij een nieuw hoogste of laagste analistenkoersdoel",
+  "/bereik ipo europa|selectie · filter over heel Europa of alleen de small caps 🔒",
   "",
   "<b>Screener</b>",
   "/marktwaarde 2,5 500 · bandbreedte in miljoen euro 🔒",
   "/screener · hoeveel aandelen er in de selectie zitten",
   "",
+  "<b>Onderwerpen (Topics)</b>",
+  "/onderwerpen · waar welke melding heen gaat",
+  "/onderwerpen maak · onderwerpen Volglijst, Emissies, IPO's en Koersdoelen aanmaken 🔒",
+  "/hier emissie · meldingen van deze soort naar dit onderwerp 🔒",
+  "/hier · alle overige meldingen naar deze chat of dit onderwerp 🔒",
+  "",
   "<b>Overig</b>",
-  "/hier · meldingen voortaan naar deze chat of groep sturen 🔒",
   "/status · wanneer ik voor het laatst gekeken heb",
   "",
   "🔒 = alleen de beheerder",
 ].join("\n");
 
 /** Commando's die alles voor iedereen omgooien; die blijven bij de eigenaar. */
-const OWNER_ONLY = new Set(["/hier", "/filterweg"]);
+const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik"]);
 
 function findInList(watch: WatchEntry[], query: string): WatchEntry | undefined {
   const wanted = query.trim().toUpperCase();
@@ -140,7 +161,7 @@ async function list(deps: BotDeps): Promise<string> {
   ].join("\n");
 }
 
-async function latest(deps: BotDeps, chatId: string, args: string): Promise<string | null> {
+async function latest(deps: BotDeps, message: TelegramMessage, args: string): Promise<string | null> {
   const watch = await deps.store.listWatch();
   let entry = args.trim() ? findInList(watch, args) : watch[0];
   if (!entry && args.trim()) entry = (await resolve(deps, args))?.entry;
@@ -152,7 +173,7 @@ async function latest(deps: BotDeps, chatId: string, args: string): Promise<stri
   const items = [...seen.values()].sort((a, b) => b.published - a.published).slice(0, 3);
   if (!items.length) return `Geen nieuws gevonden voor ${escapeHtml(entry.symbol)}.`;
   for (const item of items.reverse()) {
-    await deps.telegram.send(chatId, formatNewsMessage({ entry, item, timeZone: deps.config.timeZone }));
+    await deps.telegram.send(message.chatId, formatNewsMessage({ entry, item, timeZone: deps.config.timeZone }), message.threadId);
   }
   return null;
 }
@@ -276,13 +297,16 @@ async function filterTest(deps: BotDeps): Promise<string> {
   const since = Math.floor(Date.now() / 1000) - 7 * 24 * 3600;
   const { scanned, matches } = await findMatches(deps, filters, since, errors);
   const lines = [`Ik heb ${scanned} recente koppen doorzocht (de nieuwsstromen reiken een paar uur tot dagen terug).`];
-  if (!matches.length) lines.push("Geen treffers binnen je selectie. Dat is normaal: speciaal dividend is zeldzaam.");
+  if (!matches.length) lines.push("Geen treffers. Dat is normaal: deze gebeurtenissen zijn zeldzaam.");
   for (const m of matches.slice(0, 10)) {
+    const who = m.entry
+      ? `<b>${escapeHtml(m.entry.symbol)}</b> ${escapeHtml(m.entry.name)} (${escapeHtml(countryName(m.entry.country))}, ${formatCap(m.entry.capEur)})`
+      : `<b>${escapeHtml(m.item.symbols.slice(0, 2).join(", ") || "Europa")}</b> (buiten de selectie)`;
     lines.push(
       "",
-      `• <b>${escapeHtml(m.entry.symbol)}</b> ${escapeHtml(m.entry.name)} (${escapeHtml(countryName(m.entry.country))}, ${formatCap(m.entry.capEur)})`,
+      `• ${who}`,
       `  ${escapeHtml(m.item.title)}`,
-      `  woord: "${escapeHtml(m.hits[0].word)}"`,
+      `  ${escapeHtml(m.hits[0].filter)}: "${escapeHtml(m.hits[0].word)}"`,
     );
   }
   if (matches.length > 10) lines.push("", `… en nog ${matches.length - 10}.`);
@@ -309,21 +333,150 @@ async function targetsSwitch(deps: BotDeps, args: string): Promise<string> {
   ].join("\n");
 }
 
-async function here(deps: BotDeps, message: TelegramMessage): Promise<string> {
+const CATEGORY_ALIASES: Record<string, string> = {
+  volglijst: WATCHLIST,
+  watchlist: WATCHLIST,
+  koersdoel: TARGETS,
+  koersdoelen: TARGETS,
+  emissies: filterCategory("emissie"),
+  ipos: filterCategory("ipo"),
+  "ipo's": filterCategory("ipo"),
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  [WATCHLIST]: "📰 Volglijst",
+  [TARGETS]: "🎯 Koersdoelen",
+};
+
+function categoryLabel(category: string): string {
+  return CATEGORY_LABELS[category] ?? `🔎 Filter ${category.replace(/^filter:/, "")}`;
+}
+
+/** "emissie" → "filter:emissie", "volglijst" → "volglijst"; null als de soort niet bestaat. */
+async function resolveCategory(deps: BotDeps, raw: string): Promise<string | null> {
+  const name = raw.trim().toLowerCase();
+  if (CATEGORY_ALIASES[name]) return CATEGORY_ALIASES[name];
+  const filters = groupFilters(await deps.store.listFilterWords());
+  if (filters.has(name) || DEFAULT_FILTERS[name]) return filterCategory(name);
+  return null;
+}
+
+async function here(deps: BotDeps, message: TelegramMessage, args: string): Promise<string> {
   if (deps.fixedChatId) return "De meldingenchat staat vast via TELEGRAM_CHAT_ID; haal die secret weg om /hier te gebruiken.";
-  await deps.store.setSetting(ALERT_CHAT_KEY, message.chatId);
-  return message.chatType === "private"
-    ? "✅ Meldingen komen vanaf nu weer hier, in je eigen chat."
-    : "✅ Vanaf nu komen alle meldingen in deze groep. Iedereen hier ziet ze; alleen de eigenaar kan instellingen veranderen.";
+  const [rawCategory = "", option = ""] = args.trim().split(/\s+/);
+  if (!rawCategory) {
+    await deps.store.setSetting(ALERT_CHAT_KEY, message.chatId);
+    if (message.threadId) await deps.store.setSetting(ALERT_THREAD_KEY, String(message.threadId));
+    else await deps.store.deleteSetting(ALERT_THREAD_KEY);
+    if (message.chatType === "private") return "✅ Meldingen komen vanaf nu hier, in je eigen chat.";
+    return message.threadId
+      ? "✅ Alle meldingen zonder eigen onderwerp komen vanaf nu in dit onderwerp."
+      : "✅ Vanaf nu komen de meldingen in deze groep. Iedereen hier ziet ze; alleen de eigenaar kan dit veranderen.";
+  }
+  const category = await resolveCategory(deps, rawCategory);
+  if (!category) {
+    return `Die soort ken ik niet. Kies uit: volglijst, koersdoel, of een filter (${[
+      ...groupFilters(await deps.store.listFilterWords()).keys(),
+    ].join(", ")}).`;
+  }
+  const routes = await loadRoutes(deps.store);
+  if (["uit", "weg", "off"].includes(option.toLowerCase())) {
+    delete routes[category];
+    await saveRoutes(deps.store, routes);
+    return `✅ ${categoryLabel(category)} gaat weer naar de standaardplek.`;
+  }
+  routes[category] = { chat: message.chatId, ...(message.threadId ? { thread: message.threadId } : {}) };
+  await saveRoutes(deps.store, routes);
+  // De groep is ook de meldingengroep (voor rechten van leden), als er nog geen was.
+  if (!(await deps.store.getSetting(ALERT_CHAT_KEY))) await deps.store.setSetting(ALERT_CHAT_KEY, message.chatId);
+  return `✅ ${categoryLabel(category)}: meldingen komen vanaf nu ${message.threadId ? "in dit onderwerp" : "in deze chat"}.`;
+}
+
+/** Standaardindeling bij /onderwerpen maak. */
+const DEFAULT_TOPICS: Array<[string, string]> = [
+  ["📰 Volglijst", WATCHLIST],
+  ["💶 Emissies", filterCategory("emissie")],
+  ["🚀 IPO's", filterCategory("ipo")],
+  ["🎯 Koersdoelen", TARGETS],
+];
+
+async function topics(deps: BotDeps, message: TelegramMessage, args: string): Promise<string> {
+  if (args.trim().toLowerCase() === "maak") {
+    if (message.chatType === "private") return "Dit werkt alleen in een groep met Topics.";
+    const routes = await loadRoutes(deps.store);
+    const made: string[] = [];
+    for (const [name, category] of DEFAULT_TOPICS) {
+      let thread: number;
+      try {
+        thread = await deps.telegram.createTopic(message.chatId, name);
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : String(error);
+        return [
+          `⚠️ Onderwerp "${escapeHtml(name)}" aanmaken lukte niet (${escapeHtml(reason)}).`,
+          "",
+          "Controleer: Topics staat aan in de groepsinstellingen, en de bot is beheerder met het recht <b>Onderwerpen beheren</b>.",
+          "Of maak de onderwerpen zelf en stuur in elk onderwerp /hier met de soort, bijvoorbeeld /hier emissie.",
+          made.length ? `\nWel gelukt: ${made.join(", ")}` : "",
+        ].join("\n");
+      }
+      routes[category] = { chat: message.chatId, thread };
+      await saveRoutes(deps.store, routes);
+      made.push(name);
+      await deps.telegram.send(message.chatId, `Hier komen de meldingen voor <b>${escapeHtml(name)}</b>.`, thread);
+    }
+    // Alles zonder eigen onderwerp (dividend, insolventie, ...) gaat naar het algemene onderwerp.
+    await deps.store.setSetting(ALERT_CHAT_KEY, message.chatId);
+    await deps.store.deleteSetting(ALERT_THREAD_KEY);
+    return `✅ Onderwerpen aangemaakt: ${made.join(", ")}. Overige meldingen komen in dit algemene onderwerp.`;
+  }
+  if (args.trim()) return "Gebruik /onderwerpen om de indeling te zien, of /onderwerpen maak om ze aan te maken.";
+
+  const routes = await loadRoutes(deps.store);
+  const chat = await alertChat(deps.store, deps.fixedChatId);
+  const thread = await deps.store.getSetting(ALERT_THREAD_KEY);
+  const filters = [...groupFilters(await deps.store.listFilterWords()).keys()].map(filterCategory);
+  const lines = ["<b>Waar gaan de meldingen heen?</b>"];
+  for (const category of [WATCHLIST, TARGETS, ...filters]) {
+    const route = routes[category];
+    const where = !route
+      ? "standaardplek"
+      : route.chat !== chat
+        ? `andere chat (${escapeHtml(route.chat)})`
+        : route.thread
+          ? `eigen onderwerp (#${route.thread})`
+          : "algemeen";
+    lines.push(`${categoryLabel(category)} → ${where}`);
+  }
+  lines.push("", `Standaardplek: ${chat ? (thread ? `onderwerp #${thread}` : "algemeen") : "nog niet ingesteld"}`);
+  lines.push("", "Aanpassen: stuur in een onderwerp /hier met de soort, bijvoorbeeld /hier emissie (/hier emissie uit zet het terug).");
+  return lines.join("\n");
+}
+
+async function scope(deps: BotDeps, args: string): Promise<string> {
+  const [rawName = "", choice = ""] = args.trim().toLowerCase().split(/\s+/);
+  const europe = await europeFilters(deps.store);
+  const filters = groupFilters(await deps.store.listFilterWords());
+  if (!rawName || !filters.has(rawName) || !["europa", "selectie"].includes(choice)) {
+    const list = [...filters.keys()].map((f) => `${escapeHtml(f)}: ${europe.has(f) ? "heel Europa" : "selectie"}`);
+    return ["<b>Bereik per filter</b>", ...list, "", "Aanpassen: /bereik ipo europa of /bereik ipo selectie"].join("\n");
+  }
+  if (choice === "europa") europe.add(rawName);
+  else europe.delete(rawName);
+  await deps.store.setSetting(EUROPE_FILTERS_KEY, JSON.stringify([...europe]));
+  return choice === "europa"
+    ? `✅ Filter ${escapeHtml(rawName)} kijkt nu naar al het nieuws uit de gekozen landen, ook buiten de €2,5–500 mln-selectie.`
+    : `✅ Filter ${escapeHtml(rawName)} kijkt nu alleen naar de aandelen in de selectie.`;
 }
 
 /** Verwerkt één binnengekomen bericht. */
 export async function handleMessage(deps: BotDeps, message: TelegramMessage): Promise<void> {
   // Groep is supergroep geworden: nieuw chat-id overnemen als dit de meldingenchat was.
   if (message.migrateTo) {
-    if ((await alertChat(deps.store)) === message.chatId) await deps.store.setSetting(ALERT_CHAT_KEY, message.migrateTo);
+    await migrateChat(deps.store, message.chatId, message.migrateTo);
     return;
   }
+  // Antwoorden in hetzelfde onderwerp als de vraag.
+  const answer = (html: string) => deps.telegram.send(message.chatId, html, message.threadId);
   const text = message.text.trim();
   const isGroup = message.chatType !== "private";
   // In groepen alleen op commando's reageren; gewone gesprekken gaan de bot niets aan.
@@ -339,7 +492,7 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
     if (command !== "/start") return;
     await deps.store.setSetting(OWNER_USER_KEY, message.fromId);
     await deps.store.setSetting(ALERT_CHAT_KEY, message.chatId);
-    await deps.telegram.send(message.chatId, `Hoi ${escapeHtml(message.fromName)}, deze bot is nu van jou.\n\n${HELP}`);
+    await answer(`Hoi ${escapeHtml(message.fromName)}, deze bot is nu van jou.\n\n${HELP}`);
     return;
   }
   // De eigenaar mag alles, overal. Anderen alleen in de meldingengroep, en niet alles.
@@ -347,8 +500,8 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
   if (!isOwner) {
     const inAlertGroup = isGroup && message.chatId === (await alertChat(deps.store, deps.fixedChatId));
     if (!inAlertGroup) return;
-    if (OWNER_ONLY.has(command) || (command === "/marktwaarde" && args.trim())) {
-      await deps.telegram.send(message.chatId, "🔒 Dat kan alleen de beheerder van de bot.");
+    if (OWNER_ONLY.has(command) || (["/marktwaarde", "/onderwerpen"].includes(command) && args.trim())) {
+      await answer("🔒 Dat kan alleen de beheerder van de bot.");
       return;
     }
   }
@@ -374,13 +527,20 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
       break;
     case "/laatste":
     case "/latest":
-      reply = await latest(deps, message.chatId, args);
+      reply = await latest(deps, message, args);
       break;
     case "/status":
       reply = await status(deps);
       break;
     case "/hier":
-      reply = await here(deps, message);
+      reply = await here(deps, message, args);
+      break;
+    case "/onderwerpen":
+    case "/topics":
+      reply = await topics(deps, message, args);
+      break;
+    case "/bereik":
+      reply = await scope(deps, args);
       break;
     case "/filters":
       reply = await showFilters(deps);
@@ -409,7 +569,7 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
     default:
       reply = `Dat commando ken ik niet.\n\n${HELP}`;
   }
-  if (reply) await deps.telegram.send(message.chatId, reply);
+  if (reply) await answer(reply);
 }
 
 /** Haalt nieuwe Telegram-berichten op en verwerkt ze. */
@@ -424,7 +584,7 @@ export async function processUpdates(deps: BotDeps, log?: (message: string) => v
     } catch (error) {
       const text = error instanceof Error ? error.message : String(error);
       log?.(`commando "${message.text}" mislukt: ${text}`);
-      await deps.telegram.send(message.chatId, `⚠️ Dat ging mis: ${escapeHtml(text)}`).catch(() => {});
+      await deps.telegram.send(message.chatId, `⚠️ Dat ging mis: ${escapeHtml(text)}`, message.threadId).catch(() => {});
     }
   }
 }

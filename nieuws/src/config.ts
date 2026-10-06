@@ -117,6 +117,24 @@ export const DEFAULT_FILTERS: Record<string, string[]> = {
     "claimemissie", "aandelenemissie", "nyemission", "riktad emission", "företrädesemission", "emisjon",
     "kapitalforhøjelse", "rettet emission", "osakeanti",
   ],
+  // Werkt standaard over al het Europese nieuws, niet alleen de selectie (zie /bereik).
+  // Getest tegen ruim 10.000 koppen: "debut", "listing", "cotation" en "admission to trading"
+  // gaven vooral ruis (Frans "début", obligaties, handelsstops) en staan er bewust niet in.
+  ipo: [
+    // Engels ("IPO" telt alleen als heel woord, niet in "ipotesi")
+    "IPO", "IPOs", "initial public offering", "intention to float", "market debut", "trading debut",
+    "begins trading on", "completes listing", "flotation", "first day of trading",
+    // Duits
+    "Börsengang", "Erstnotiz", "Börsendebüt", "Börsenneuling", "Börsenaspirant",
+    // Frans
+    "introduction en bourse", "première cotation",
+    // Italiaans
+    "quotazione in borsa", "quotazione a Piazza Affari", "prepara quotazione", "verso la quotazione", "debutto",
+    // Spaans en Portugees
+    "salida a bolsa", "OPV", "estreno bursátil", "debut bursátil", "oferta pública inicial", "entrada em bolsa",
+    // Nederlands, Scandinavisch en Fins
+    "beursgang", "beursnotering", "börsnotering", "børsnotering", "listautumisanti", "listautuminen",
+  ],
 };
 
 export function parseFeeds(raw: string): Feed[] {

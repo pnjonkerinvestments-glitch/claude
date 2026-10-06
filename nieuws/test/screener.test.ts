@@ -51,6 +51,44 @@ test("insolventie en emissie: echte koppen van begin oktober", () => {
   assert.equal(hit("POLYTEC HOLDING AG (PYT) LLB Invest Lowers Stake to 3.89%"), undefined);
 });
 
+test("IPO: korte woorden als heel woord, echte koppen van begin oktober", () => {
+  const ipo = groupFilters(DEFAULT_FILTERS.ipo.map((word) => ({ filter: "ipo", word })));
+  const hit = (title: string) => matchFilters(title, ipo)[0]?.word;
+  assert.equal(hit("IPO/Kreise: Panzerbauer KNDS könnte Börsengang noch weiter verschieben"), "IPO");
+  assert.equal(hit("FIT GROUP AG: IPO-VORBEREITUNG PRÄGT 2025 – STARKES WACHSTUM IM JAHR 2026"), "IPO");
+  assert.equal(hit("Dolomiti Energia, Ipo in stand-by, obiettivo era quotare 20% capitale - AD"), "IPO");
+  assert.equal(hit("Gens Aurea prepara quotazione a Piazza Affari, prima grande Ipo in tre anni"), "IPO");
+  assert.equal(hit("Uniper-Betriebsrat macht Druck für Börsengang"), "Börsengang");
+  assert.equal(hit("Unipol, AD: impatto uragani luglio atteso significativo, ma entro ipotesi budget e piano"), undefined);
+  assert.equal(hit("Transgene : de la visibilité financière jusqu'au début de l'année 2028"), undefined);
+  assert.equal(hit("Diadema, revoca quotazione da Euronext Growth Milan dal 10 giugno"), undefined);
+  assert.equal(hit("REG - HSBC Bank plc - Admission to Trading"), undefined);
+});
+
+test("IPO werkt over heel Europa, ook zonder aandeel in de selectie; dividend niet", async () => {
+  const { net, store, sent, run } = await screenerSetup();
+  for (const word of DEFAULT_FILTERS.ipo) await store.addFilterWord("ipo", word);
+  await run(NOW);
+  net.feeds.set("de", {
+    items: [
+      item("ipo:1", "Gens Aurea prepara quotazione a Piazza Affari, prima grande Ipo in tre anni", NOW + 30, { relatedSymbols: [] }),
+      item("div:1", "Groot bedrijf keert Sonderdividende uit", NOW + 30, { relatedSymbols: [{ symbol: "MIL:BIG" }] }),
+    ],
+  });
+  await run(NOW + 60);
+  assert.equal(sent.length, 1);
+  assert.match(sent[0], /Filter: ipo/);
+  assert.ok(!sent[0].includes("marktwaarde"), "geen selectie-gegevens bij een IPO zonder aandeel");
+  assert.ok(!sent[0].includes("Sonderdividende"));
+
+  // /bereik dividend europa zou ook het grote bedrijf melden.
+  await store.setSetting("filters_europe", JSON.stringify(["ipo", "dividend"]));
+  net.feeds.set("de", { items: [item("div:2", "Groot bedrijf keert Sonderdividende uit", NOW + 90, { relatedSymbols: [{ symbol: "MIL:BIG" }] })] });
+  await run(NOW + 120);
+  assert.equal(sent.length, 2);
+  assert.match(sent[1], /MIL:BIG<\/b> · buiten de selectie/);
+});
+
 test("eigen woorden in meerdere filters", () => {
   const filters = groupFilters([
     { filter: "dividend", word: "Sonderdividende" },
