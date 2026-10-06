@@ -64,3 +64,20 @@ export function Character({ mood = 'happy', pose = 'stand', size = 160, classNam
     <CharacterArt mood={mood} pose={pose}/>
   </svg>;
 }
+
+/**
+ * Roviko peeking over the top edge of a card: the top of the globe, the face and two hands holding the edge.
+ * Put it as the first child of a card with `position:relative`; the CSS sets its place (`.peek`).
+ * The face follows the moment (curious while you think, cheering or shocked after an answer).
+ */
+export function Peek({ mood = 'happy', size = 92, className = '' }: { mood?: CharacterMood; size?: number; className?: string }) {
+  const id = React.useId().replace(/:/g, '');
+  return <svg className={'peek mood-' + mood + (className ? ' ' + className : '')} viewBox="-128 -112 256 146" width={size} height={size * 146 / 256} aria-hidden="true" focusable="false">
+    <defs><clipPath id={'peek-' + id}><rect x="-128" y="-112" width="256" height="132"/></clipPath></defs>
+    <g className="peek-head" clipPath={`url(#peek-${id})`}>
+      <image href="/mascot-body.svg" x="-100" y="-100" width="200" height="200"/>
+      <g className="character-face"><Face mood={mood}/></g>
+    </g>
+    <g className="peek-hands" fill={INK}><ellipse cx="-74" cy="22" rx="17" ry="11"/><ellipse cx="74" cy="22" rx="17" ry="11"/></g>
+  </svg>;
+}
