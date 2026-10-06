@@ -14,6 +14,10 @@ export const CAP_MAX_KEY = "screen_cap_max";
 export const UNIVERSE_DONE_KEY = "universe_done";
 export const UNIVERSE_RANGE_KEY = "universe_range";
 export const UNIVERSE_JOB_KEY = "universe_job";
+/** Filters die over al het Europese nieuws werken, niet alleen over de selectie (JSON-lijst). */
+export const EUROPE_FILTERS_KEY = "filters_europe";
+/** Standaard: IPO's, want een bedrijf dat naar de beurs gaat, staat nog niet in de selectie. */
+export const DEFAULT_EUROPE_FILTERS = ["ipo"];
 const STARTED_KEY = "screen_started";
 
 /** Rijen per screener-verzoek; de selectie wordt over een paar runs opgehaald. */
@@ -179,15 +183,19 @@ export interface Hit {
 /**
  * Welke filters treffen deze kop? Een woord moet aan het begin van een woord in de kop staan,
  * maar mag langer doorlopen: "Sonderdividende" vindt ook "Sonderdividenden", en
- * "special dividend" ook "special dividends". Eén treffer per filter is genoeg.
+ * "special dividend" ook "special dividends". Korte woorden (tot 4 letters, zoals "IPO") moeten
+ * als heel woord voorkomen, anders vindt "IPO" ook het Italiaanse "ipotesi". Eén treffer per
+ * filter is genoeg.
  */
 export function matchFilters(title: string, filters: Map<string, string[]>): Hit[] {
   const haystack = normalize(title);
   const hits: Hit[] = [];
   for (const [filter, words] of filters) {
     for (const word of words) {
-      const needle = normalize(word).trimEnd();
-      if (needle.trim() && haystack.includes(needle)) {
+      const full = normalize(word);
+      const core = full.trim();
+      const needle = core.length <= 4 ? full : full.trimEnd();
+      if (core && haystack.includes(needle)) {
         hits.push({ filter, word });
         break;
       }
@@ -255,7 +263,7 @@ export function countryName(country: string): string {
 }
 
 export interface ScreenerMessageInput {
-  entry: UniverseEntry;
+  entry?: UniverseEntry;
   items: NewsItem[];
   hits: Hit[];
   summary?: string;
@@ -263,14 +271,19 @@ export interface ScreenerMessageInput {
 }
 
 export function formatScreenerMessage({ entry, items, hits, summary, timeZone }: ScreenerMessageInput): string {
-  const ticker = entry.symbol.split(":").pop() ?? entry.symbol;
   const filters = [...new Set(hits.map((h) => h.filter))];
   const words = [...new Set(hits.map((h) => h.word))];
-  const lines = [
-    `🔎 <b>Filter: ${escapeHtml(filters.join(", "))}</b> · "${escapeHtml(words.join('", "'))}"`,
-    `📰 <b>${escapeHtml(ticker)} · ${escapeHtml(entry.name)}</b>`,
-    `${escapeHtml(countryName(entry.country))} · marktwaarde ${formatCap(entry.capEur)}`,
-  ];
+  const lines = [`🔎 <b>Filter: ${escapeHtml(filters.join(", "))}</b> · "${escapeHtml(words.join('", "'))}"`];
+  if (entry) {
+    const ticker = entry.symbol.split(":").pop() ?? entry.symbol;
+    lines.push(
+      `📰 <b>${escapeHtml(ticker)} · ${escapeHtml(entry.name)}</b>`,
+      `${escapeHtml(countryName(entry.country))} · marktwaarde ${formatCap(entry.capEur)}`,
+    );
+  } else {
+    const symbols = [...new Set(items.flatMap((i) => i.symbols))].slice(0, 3);
+    if (symbols.length) lines.push(`📰 <b>${escapeHtml(symbols.join(", "))}</b> · buiten de selectie`);
+  }
   const sorted = [...items].sort((a, b) => b.published - a.published);
   for (const item of sorted) {
     lines.push("", `<b>${escapeHtml(item.title)}</b>`);
@@ -279,7 +292,8 @@ export function formatScreenerMessage({ entry, items, hits, summary, timeZone }:
     const itemLinks = links(item);
     if (itemLinks) lines.push(itemLinks);
   }
-  lines.push("", `<a href="${escapeHtml(chartUrl(entry.symbol))}">Grafiek</a>`);
+  const chartSymbol = entry?.symbol ?? items.find((i) => i.symbols.length)?.symbols[0];
+  if (chartSymbol) lines.push("", `<a href="${escapeHtml(chartUrl(chartSymbol))}">Grafiek</a>`);
   return lines.join("\n").slice(0, 4000);
 }
 
@@ -289,7 +303,8 @@ export interface ScreenDeps {
   store: Store;
   fetcher: Fetch;
   config: Config;
-  send: (html: string) => Promise<void>;
+  /** Verstuurt een melding; categories ("filter:emissie", ...) bepalen het onderwerp in de groep. */
+  send: (html: string, categories?: string[]) => Promise<void>;
   /** Huidige tijd in seconden. */
   now: number;
   log?: (message: string) => void;
@@ -305,10 +320,20 @@ export interface ScreenResult {
 export interface Match {
   item: FeedItem;
   hits: Hit[];
-  entry: UniverseEntry;
+  /** Leeg bij een treffer buiten de selectie (Europa-brede filters zoals IPO). */
+  entry?: UniverseEntry;
 }
 
 /** Zoekt in de huidige nieuwsstromen naar treffers binnen de selectie, zonder iets te onthouden. */
+export async function europeFilters(store: Store): Promise<Set<string>> {
+  const raw = await store.getSetting(EUROPE_FILTERS_KEY);
+  try {
+    return new Set(raw ? (JSON.parse(raw) as string[]) : DEFAULT_EUROPE_FILTERS);
+  } catch {
+    return new Set(DEFAULT_EUROPE_FILTERS);
+  }
+}
+
 export async function findMatches(
   deps: Pick<ScreenDeps, "store" | "fetcher" | "config">,
   filters: Map<string, string[]>,
@@ -317,18 +342,25 @@ export async function findMatches(
 ): Promise<{ scanned: number; matches: Match[] }> {
   const items = await fetchFeeds(deps.fetcher, deps.config.screenFeeds, errors);
   const candidates = items
-    .filter((item) => item.symbols.length && (!item.published || item.published >= since))
+    .filter((item) => !item.published || item.published >= since)
     .map((item) => ({ item, hits: matchFilters(item.title, filters) }))
     .filter((c) => c.hits.length);
   if (!candidates.length) return { scanned: items.length, matches: [] };
 
-  const universe = new Map(
-    (await deps.store.lookupUniverse([...new Set(candidates.flatMap((c) => c.item.symbols))])).map((e) => [e.symbol, e]),
-  );
+  const europe = await europeFilters(deps.store);
+  const symbols = [...new Set(candidates.flatMap((c) => c.item.symbols))];
+  const universe = new Map((await deps.store.lookupUniverse(symbols)).map((e) => [e.symbol, e]));
   const matches: Match[] = [];
   for (const candidate of candidates) {
     const symbol = candidate.item.symbols.find((s) => universe.has(s));
-    if (symbol) matches.push({ ...candidate, entry: universe.get(symbol)! });
+    if (symbol) {
+      matches.push({ ...candidate, entry: universe.get(symbol)! });
+      continue;
+    }
+    // Buiten de selectie telt alleen een filter dat over heel Europa werkt (de nieuwsstromen zelf
+    // zijn al beperkt tot de gekozen landen).
+    const wide = candidate.hits.filter((h) => europe.has(h.filter));
+    if (wide.length) matches.push({ item: candidate.item, hits: wide });
   }
   return { scanned: items.length, matches };
 }
@@ -358,7 +390,10 @@ export async function checkScreener(deps: ScreenDeps): Promise<ScreenResult> {
 
   // Per aandeel één bericht, ook als het nieuws in meerdere talen binnenkomt.
   const bySymbol = new Map<string, Match[]>();
-  for (const match of fresh) bySymbol.set(match.entry.symbol, [...(bySymbol.get(match.entry.symbol) ?? []), match]);
+  for (const match of fresh) {
+    const key = match.entry?.symbol ?? match.item.symbols[0] ?? `id:${match.item.id}`;
+    bySymbol.set(key, [...(bySymbol.get(key) ?? []), match]);
+  }
 
   for (const [symbol, group] of bySymbol) {
     try {
@@ -380,6 +415,7 @@ export async function checkScreener(deps: ScreenDeps): Promise<ScreenResult> {
           summary,
           timeZone: config.timeZone,
         }),
+        [...new Set(group.flatMap((m) => m.hits.map((h) => `filter:${h.filter}`)))],
       );
       await store.markSeen(group.map((m) => SEEN_PREFIX + m.item.id), symbol, now);
       result.alerted += group.length;

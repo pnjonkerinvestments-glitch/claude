@@ -116,6 +116,11 @@ export class FakeNet {
   /** Rijen voor de koersdoel-vraag (herkend aan de kolom price_target_high). */
   targetRows: unknown[] = [];
   scannerBodies: any[] = [];
+  /** message_thread_id per verstuurd bericht (zelfde volgorde als sent). */
+  sentThreads: Array<number | undefined> = [];
+  /** Aangemaakte onderwerpen. */
+  topics: string[] = [];
+  topicsFail = false;
   /** Telegram-fout met migrate_to_chat_id bij het eerste bericht naar deze chat. */
   migrateFrom: string | null = null;
 
@@ -134,7 +139,13 @@ export class FakeNet {
           );
         }
         this.sent.push({ chatId: String(body.chat_id), text: body.text });
+        this.sentThreads.push(body.message_thread_id);
         return Response.json({ ok: true, result: {} });
+      }
+      if (method === "createForumTopic") {
+        if (this.topicsFail) return Response.json({ ok: false, description: "not enough rights" }, { status: 400 });
+        this.topics.push(body.name);
+        return Response.json({ ok: true, result: { message_thread_id: 100 + this.topics.length } });
       }
       if (method === "getUpdates") {
         const result = this.updates;

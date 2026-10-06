@@ -6,7 +6,7 @@
 //   rekentijd, 50 uitgaande verzoeken en 50 databasevragen. Zo kan de screener de volglijst
 //   nooit laten vastlopen.
 
-import { AlertSender, alertChat } from "./alerts.ts";
+import { ALERT_THREAD_KEY, AlertSender, TARGETS, WATCHLIST, alertChat } from "./alerts.ts";
 import { LAST_RUN_KEY, LAST_SCREEN_KEY, processUpdates } from "./bot.ts";
 import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
@@ -81,8 +81,8 @@ export async function runWatch(env: Env, now = Math.floor(Date.now() / 1000)): P
       console.log("Nog geen eigenaar; stuur /start naar de bot.");
       return;
     }
-    const sender = new AlertSender(store, telegram, chatId);
-    const result = await checkNews({ store, fetcher, send: (html) => sender.send(html), config, now, log });
+    const sender = new AlertSender(store, telegram, chatId, Number(await store.getSetting(ALERT_THREAD_KEY)) || undefined);
+    const result = await checkNews({ store, fetcher, send: (html) => sender.send(html, [WATCHLIST]), config, now, log });
     for (const error of result.errors) console.error(error);
     if (result.alerted) console.log(`${result.alerted} melding(en) verstuurd.`);
     await store.setSetting(
@@ -107,13 +107,15 @@ export async function runScreen(env: Env, now = Math.floor(Date.now() / 1000)): 
     if (!chatId) return;
     const config = loadConfig(env);
     const fetcher = fetch.bind(globalThis);
-    const sender = new AlertSender(store, new Telegram(env.TELEGRAM_BOT_TOKEN, fetcher), chatId);
+    const thread = Number(await store.getSetting(ALERT_THREAD_KEY)) || undefined;
+    const sender = new AlertSender(store, new Telegram(env.TELEGRAM_BOT_TOKEN, fetcher), chatId, thread);
     const log = (text: string) => console.log(text);
     const errors: string[] = [];
     let scanned = 0;
     let alerted = 0;
     try {
-      const screen = await checkScreener({ store, fetcher, config, send: (html) => sender.send(html), now, log });
+      const send = (html: string, categories?: string[]) => sender.send(html, categories);
+      const screen = await checkScreener({ store, fetcher, config, send, now, log });
       scanned = screen.scanned;
       alerted = screen.alerted;
       errors.push(...screen.errors);
@@ -129,7 +131,7 @@ export async function runScreen(env: Env, now = Math.floor(Date.now() / 1000)): 
     }
     if (!refreshed) {
       try {
-        alerted += (await sweepTargets({ store, config, fetcher, send: (html) => sender.send(html), now })) ?? 0;
+        alerted += (await sweepTargets({ store, config, fetcher, send: (html) => sender.send(html, [TARGETS]), now })) ?? 0;
       } catch (error) {
         errors.push(`koersdoelen: ${message(error)}`);
       }

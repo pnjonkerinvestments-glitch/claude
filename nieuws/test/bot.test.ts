@@ -116,7 +116,7 @@ test("groep: /hier verlegt de meldingen, alleen de eigenaar telt", async () => {
   await handleMessage(bot, msg("/hier@NieuwsBot", { ...group, fromId: "1" }));
   assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-500");
   assert.equal(net.sent[0].chatId, "-500");
-  assert.match(net.sent[0].text, /alle meldingen in deze groep/);
+  assert.match(net.sent[0].text, /komen de meldingen in deze groep/);
 
 });
 
@@ -236,10 +236,74 @@ test("standaardfilters: nieuwe komen erbij, weggehaalde komen niet terug", async
   await store.setSetting("filters_seeded", "1");
   await seed(store, {} as never);
   const filters = new Set(store.words.map((w) => w.filter));
-  assert.deepEqual([...filters].sort(), ["emissie", "insolventie"]);
+  assert.deepEqual([...filters].sort(), ["emissie", "insolventie", "ipo"]);
 
   await store.removeFilter("emissie");
   await seed(store, {} as never);
   assert.ok(!store.words.some((w) => w.filter === "emissie"));
   assert.ok(!store.words.some((w) => w.filter === "dividend"));
+});
+
+test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldingen naar de juiste plek", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await store.addFilterWord("emissie", "rights issue");
+  const topic = (threadId: number | undefined, text: string, fromId = "1") =>
+    ({ ...msg(text, { chatId: "-100500", chatType: "supergroup", fromId }), threadId });
+
+  await handleMessage(bot, topic(undefined, "/hier"));
+  await handleMessage(bot, topic(11, "/hier volglijst"));
+  await handleMessage(bot, topic(22, "/hier emissies"));
+  await handleMessage(bot, topic(33, "/hier koersdoelen"));
+  assert.deepEqual(net.sentThreads.slice(-3), [11, 22, 33], "antwoord in het eigen onderwerp");
+  await handleMessage(bot, topic(44, "/hier onzin"));
+  assert.match(net.sent.at(-1)!.text, /Die soort ken ik niet/);
+
+  const { AlertSender, loadRoutes } = await import("../src/alerts.ts");
+  assert.deepEqual(await loadRoutes(store), {
+    volglijst: { chat: "-100500", thread: 11 },
+    "filter:emissie": { chat: "-100500", thread: 22 },
+    koersdoel: { chat: "-100500", thread: 33 },
+  });
+
+  const sender = new AlertSender(store, net.telegram(), "-100500");
+  net.sentThreads.length = 0;
+  await sender.send("volglijst", ["volglijst"]);
+  await sender.send("emissie en dividend", ["filter:emissie", "filter:dividend"]);
+  await sender.send("los");
+  assert.deepEqual(net.sentThreads, [11, 22, undefined, undefined], "dividend heeft geen onderwerp: naar algemeen");
+
+  await handleMessage(bot, topic(22, "/hier emissie uit"));
+  assert.equal((await loadRoutes(store))["filter:emissie"], undefined);
+
+  // Groepslid mag /hier en /onderwerpen maak niet.
+  await handleMessage(bot, topic(11, "/hier dividend", "7"));
+  assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
+  await handleMessage(bot, topic(11, "/onderwerpen", "7"));
+  assert.match(net.sent.at(-1)!.text, /Waar gaan de meldingen heen/);
+});
+
+test("/onderwerpen maak: vier onderwerpen aanmaken en koppelen", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
+  assert.deepEqual(net.topics, ["📰 Volglijst", "💶 Emissies", "🚀 IPO's", "🎯 Koersdoelen"]);
+  const { loadRoutes } = await import("../src/alerts.ts");
+  const routes = await loadRoutes(store);
+  assert.deepEqual(Object.keys(routes).sort(), ["filter:emissie", "filter:ipo", "koersdoel", "volglijst"]);
+  assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-100500");
+  assert.match(net.sent.at(-1)!.text, /Onderwerpen aangemaakt/);
+
+  net.topicsFail = true;
+  await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
+  assert.match(net.sent.at(-1)!.text, /Onderwerpen beheren/);
+});
+
+test("Topics aanzetten maakt een supergroep: ook de onderwerpen verhuizen mee", async () => {
+  const { store, bot } = deps();
+  await store.setSetting(ALERT_CHAT_KEY, "-500");
+  await store.setSetting("routes", JSON.stringify({ volglijst: { chat: "-500", thread: 3 } }));
+  await handleMessage(bot, { ...msg("", { chatId: "-500", chatType: "group" }), migrateTo: "-100500" });
+  assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-100500");
+  assert.deepEqual(JSON.parse((await store.getSetting("routes"))!), { volglijst: { chat: "-100500", thread: 3 } });
 });
