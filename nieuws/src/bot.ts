@@ -22,7 +22,9 @@ import { PRIMED_PREFIX } from "./check.ts";
 import {
   CAP_MAX_KEY,
   CAP_MIN_KEY,
+  DIGEST_ONLY_KEY,
   EUROPE_FILTERS_KEY,
+  digestOnlyFilters,
   europeFilters,
   UNIVERSE_DONE_KEY,
   UNIVERSE_JOB_KEY,
@@ -32,6 +34,8 @@ import {
   formatCap,
   groupFilters,
 } from "./screener.ts";
+import { addDays, formatDay, localTime, relativeDay } from "./dates.ts";
+import { DIGEST, OFF_KEY, SENT_DATE_KEY, nextDigest, previewDigest } from "./morning.ts";
 import type { Store, WatchEntry } from "./store.ts";
 import { TARGETS_OFF_KEY } from "./targets.ts";
 import type { Telegram, TelegramMessage } from "./telegram.ts";
@@ -42,6 +46,7 @@ import { fetchNews, searchSymbol } from "./tradingview.ts";
 export const OFFSET_KEY = "telegram_offset";
 export const LAST_RUN_KEY = "last_run";
 export const LAST_SCREEN_KEY = "last_screen";
+export const LAST_MORNING_KEY = "last_morning";
 
 export interface BotDeps {
   store: Store;
@@ -71,13 +76,21 @@ export const HELP = [
   "/koersdoel aan|uit · meldingen bij een nieuw hoogste of laagste analistenkoersdoel",
   "/bereik ipo europa|selectie · filter over heel Europa of alleen de small caps 🔒",
   "",
+  "<b>Ochtendoverzicht</b> (werkdagen 08:40)",
+  "/ochtend · overzicht nu tonen, en wanneer het volgende komt",
+  "/ochtend aan|uit · ochtendoverzicht aan- of uitzetten 🔒",
+  "/direct overname aan|uit · filter ook direct melden, of alleen in het ochtendoverzicht 🔒",
+  "/agenda · deadlines, PDUFA-datums, eerste handelsdagen, ex-dividend, ...",
+  "/agenda 23-10 PFSE einde aanmeldtermijn · zelf iets in de agenda zetten",
+  "/agendaweg 12 · agendapunt weghalen",
+  "",
   "<b>Screener</b>",
   "/marktwaarde 2,5 500 · bandbreedte in miljoen euro 🔒",
   "/screener · hoeveel aandelen er in de selectie zitten",
   "",
   "<b>Onderwerpen (Topics)</b>",
   "/onderwerpen · waar welke melding heen gaat",
-  "/onderwerpen maak · onderwerpen Volglijst, Emissies, IPO's en Koersdoelen aanmaken 🔒",
+  "/onderwerpen maak · onderwerpen Volglijst, Emissies, IPO's, Koersdoelen en Ochtendoverzicht aanmaken 🔒",
   "/hier emissie · meldingen van deze soort naar dit onderwerp 🔒",
   "/hier · alle overige meldingen naar deze chat of dit onderwerp 🔒",
   "",
@@ -88,7 +101,7 @@ export const HELP = [
 ].join("\n");
 
 /** Commando's die alles voor iedereen omgooien; die blijven bij de eigenaar. */
-const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik"]);
+const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik", "/direct"]);
 
 function findInList(watch: WatchEntry[], query: string): WatchEntry | undefined {
   const wanted = query.trim().toUpperCase();
@@ -187,6 +200,13 @@ async function status(deps: BotDeps): Promise<string> {
       new Date(at * 1000),
     );
   const lines = [`Volglijst om ${time(run.at)}: ${run.checked} aandelen bekeken, ${run.alerted} meldingen.`];
+  const rawMorning = await deps.store.getSetting(LAST_MORNING_KEY);
+  if (rawMorning) {
+    const morning = JSON.parse(rawMorning) as { at: number; step: string | null; sent: number; errors: string[] };
+    const what = morning.sent ? `overzicht verstuurd` : morning.step ? `stap ${morning.step}` : "niets te doen";
+    lines.push(`Ochtendoverzicht om ${time(morning.at)}: ${what}.`);
+    run.errors.push(...morning.errors);
+  }
   const rawScreen = await deps.store.getSetting(LAST_SCREEN_KEY);
   if (rawScreen) {
     const screen = JSON.parse(rawScreen) as { at: number; scanned: number; alerted: number; errors: string[] };
@@ -204,14 +224,17 @@ const FILTER_NAME = /^[a-z0-9_-]{1,30}$/;
 async function showFilters(deps: BotDeps): Promise<string> {
   const filters = groupFilters(await deps.store.listFilterWords());
   const lines: string[] = [];
+  const digestOnly = await digestOnlyFilters(deps.store);
   if (!filters.size) lines.push("Er zijn geen woordfilters. Maak er een met bijvoorbeeld /woord dividend Sonderdividende", "");
   for (const [name, words] of filters) {
-    lines.push(`<b>${escapeHtml(name)}</b> (${words.length} woorden)`, words.map(escapeHtml).join(" · "), "");
+    const where = digestOnly.has(name) ? " · alleen in het ochtendoverzicht" : "";
+    lines.push(`<b>${escapeHtml(name)}</b> (${words.length} woorden${where})`, words.map(escapeHtml).join(" · "), "");
   }
   lines.push(
     `🎯 <b>koersdoel</b> (street high/low): ${(await deps.store.getSetting(TARGETS_OFF_KEY)) ? "uit" : "aan"}`,
     "",
     "Hoofdletters en accenten maken niet uit; een woord vindt ook langere vormen (dividend → dividends).",
+    "Alle treffers staan ook in het ochtendoverzicht; /direct bepaalt of een filter daarnaast meteen meldt.",
   );
   return lines.join("\n");
 }
@@ -341,11 +364,14 @@ const CATEGORY_ALIASES: Record<string, string> = {
   emissies: filterCategory("emissie"),
   ipos: filterCategory("ipo"),
   "ipo's": filterCategory("ipo"),
+  ochtend: DIGEST,
+  ochtendoverzicht: DIGEST,
 };
 
 const CATEGORY_LABELS: Record<string, string> = {
   [WATCHLIST]: "📰 Volglijst",
   [TARGETS]: "🎯 Koersdoelen",
+  [DIGEST]: "☀️ Ochtendoverzicht",
 };
 
 function categoryLabel(category: string): string {
@@ -375,7 +401,7 @@ async function here(deps: BotDeps, message: TelegramMessage, args: string): Prom
   }
   const category = await resolveCategory(deps, rawCategory);
   if (!category) {
-    return `Die soort ken ik niet. Kies uit: volglijst, koersdoel, of een filter (${[
+    return `Die soort ken ik niet. Kies uit: volglijst, koersdoel, ochtend, of een filter (${[
       ...groupFilters(await deps.store.listFilterWords()).keys(),
     ].join(", ")}).`;
   }
@@ -398,6 +424,7 @@ const DEFAULT_TOPICS: Array<[string, string]> = [
   ["💶 Emissies", filterCategory("emissie")],
   ["🚀 IPO's", filterCategory("ipo")],
   ["🎯 Koersdoelen", TARGETS],
+  ["☀️ Ochtendoverzicht", DIGEST],
 ];
 
 async function topics(deps: BotDeps, message: TelegramMessage, args: string): Promise<string> {
@@ -405,7 +432,9 @@ async function topics(deps: BotDeps, message: TelegramMessage, args: string): Pr
     if (message.chatType === "private") return "Dit werkt alleen in een groep met Topics.";
     const routes = await loadRoutes(deps.store);
     const made: string[] = [];
-    for (const [name, category] of DEFAULT_TOPICS) {
+    const missing = DEFAULT_TOPICS.filter(([, category]) => !(routes[category]?.chat === message.chatId && routes[category]?.thread));
+    if (!missing.length) return "Alle onderwerpen bestaan al. Zie /onderwerpen.";
+    for (const [name, category] of missing) {
       let thread: number;
       try {
         thread = await deps.telegram.createTopic(message.chatId, name);
@@ -436,7 +465,7 @@ async function topics(deps: BotDeps, message: TelegramMessage, args: string): Pr
   const thread = await deps.store.getSetting(ALERT_THREAD_KEY);
   const filters = [...groupFilters(await deps.store.listFilterWords()).keys()].map(filterCategory);
   const lines = ["<b>Waar gaan de meldingen heen?</b>"];
-  for (const category of [WATCHLIST, TARGETS, ...filters]) {
+  for (const category of [WATCHLIST, TARGETS, DIGEST, ...filters]) {
     const route = routes[category];
     const where = !route
       ? "standaardplek"
@@ -466,6 +495,116 @@ async function scope(deps: BotDeps, args: string): Promise<string> {
   return choice === "europa"
     ? `✅ Filter ${escapeHtml(rawName)} kijkt nu naar al het nieuws uit de gekozen landen, ook buiten de €2,5–500 mln-selectie.`
     : `✅ Filter ${escapeHtml(rawName)} kijkt nu alleen naar de aandelen in de selectie.`;
+}
+
+async function morning(deps: BotDeps, message: TelegramMessage, args: string): Promise<string | null> {
+  const choice = args.trim().toLowerCase();
+  if (choice === "uit" || choice === "off") {
+    await deps.store.setSetting(OFF_KEY, "1");
+    return "☀️ Het ochtendoverzicht staat uit. Aanzetten: /ochtend aan";
+  }
+  if (choice === "aan" || choice === "on") {
+    await deps.store.deleteSetting(OFF_KEY);
+    return "☀️ Het ochtendoverzicht staat aan.";
+  }
+  const now = Math.floor(Date.now() / 1000);
+  const today = localTime(now, deps.config.timeZone).date;
+  const off = await deps.store.getSetting(OFF_KEY);
+  const sentToday = (await deps.store.getSetting(SENT_DATE_KEY)) === today;
+  await deps.telegram.send(
+    message.chatId,
+    off
+      ? "☀️ Het ochtendoverzicht staat <b>uit</b> (/ochtend aan). Zo zou het er nu uitzien:"
+      : `☀️ Volgende ochtendoverzicht: <b>${escapeHtml(nextDigest(deps.config, now, sentToday))}</b>. Zo ziet het er nu uit:`,
+    message.threadId,
+  );
+  for (const html of await previewDigest({ store: deps.store, config: deps.config, fetcher: deps.fetcher, now })) {
+    await deps.telegram.send(message.chatId, html, message.threadId);
+  }
+  return null;
+}
+
+const MONTHS_IN: Record<string, number> = {
+  jan: 1, feb: 2, mrt: 3, maa: 3, mar: 3, apr: 4, mei: 5, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, okt: 10, oct: 10, nov: 11, dec: 12,
+};
+
+/** "23-10", "23/10/2026", "2026-10-23", "23 okt" → "2026-10-23" (zonder jaar: eerstvolgende). */
+export function parseAgendaDate(raw: string, today: string): { date: string; rest: string } | null {
+  const text = raw.trim();
+  let y = 0;
+  let m = 0;
+  let d = 0;
+  let rest = "";
+  let match = text.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s*(.*)$/s);
+  if (match) [y, m, d, rest] = [+match[1], +match[2], +match[3], match[4]];
+  else if ((match = text.match(/^(\d{1,2})[-/.](\d{1,2})(?:[-/.](\d{2,4}))?\s*(.*)$/s))) {
+    [d, m, rest] = [+match[1], +match[2], match[4]];
+    y = match[3] ? (match[3].length === 2 ? 2000 + +match[3] : +match[3]) : 0;
+  } else if ((match = text.match(/^(\d{1,2})\s+([a-z]{3})[a-z]*\.?(?:\s+(\d{4}))?\s*(.*)$/is))) {
+    [d, m, rest] = [+match[1], MONTHS_IN[match[2].toLowerCase()] ?? 0, match[4]];
+    y = match[3] ? +match[3] : 0;
+  } else return null;
+  const make = (year: number) => {
+    const date = new Date(Date.UTC(year, m - 1, d));
+    return date.getUTCMonth() === m - 1 && date.getUTCDate() === d ? date.toISOString().slice(0, 10) : null;
+  };
+  const thisYear = Number(today.slice(0, 4));
+  let date = y ? make(y) : make(thisYear);
+  if (!y && date && date < today) date = make(thisYear + 1);
+  return date ? { date, rest: rest.trim() } : null;
+}
+
+async function agenda(deps: BotDeps, args: string): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  const today = localTime(now, deps.config.timeZone).date;
+  if (args.trim()) {
+    const parsed = parseAgendaDate(args, today);
+    if (!parsed || !parsed.rest) {
+      return "Gebruik: /agenda &lt;datum&gt; &lt;omschrijving&gt;\nBijvoorbeeld: /agenda 23-10 PFSE einde aanmeldtermijn bod";
+    }
+    if (parsed.rest.length > 200) return "Die omschrijving is te lang (maximaal 200 tekens).";
+    await deps.store.addAgenda(
+      [{ key: `eigen:${now}:${parsed.date}:${parsed.rest}`, date: parsed.date, kind: "eigen", label: parsed.rest, symbol: "", name: "", title: "", url: "" }],
+      now,
+    );
+    return `✅ In de agenda: <b>${escapeHtml(formatDay(parsed.date, today))}</b> (${relativeDay(parsed.date, today)}) · ${escapeHtml(parsed.rest)}`;
+  }
+  const items = await deps.store.listAgenda(today, addDays(today, 120));
+  if (!items.length) {
+    return "De agenda is leeg. De bot vult hem zelf uit persberichten (deadlines van biedingen, PDUFA-datums, eerste handelsdagen, ex-dividend), en je kunt zelf iets toevoegen: /agenda 23-10 omschrijving";
+  }
+  const lines = ["<b>Agenda</b> (komende 4 maanden)"];
+  for (const item of items.slice(0, 60)) {
+    const subject = item.symbol ? `<b>${escapeHtml(item.symbol.split(":").pop() ?? item.symbol)}</b> ${escapeHtml(item.name)} · ` : "";
+    const about = item.url ? ` · <a href="${escapeHtml(item.url)}">bron</a>` : "";
+    lines.push(`#${item.nr} ${escapeHtml(formatDay(item.date, today))} (${relativeDay(item.date, today)}) · ${subject}${escapeHtml(item.label)}${about}`);
+  }
+  if (items.length > 60) lines.push(`… en nog ${items.length - 60}`);
+  lines.push("", "Weghalen: /agendaweg &lt;nummer&gt;");
+  return lines.join("\n").slice(0, 4000);
+}
+
+async function agendaRemove(deps: BotDeps, args: string): Promise<string> {
+  const nr = Number(args.trim().replace(/^#/, ""));
+  if (!Number.isInteger(nr) || nr <= 0) return "Gebruik: /agendaweg &lt;nummer&gt; (zie /agenda)";
+  const item = await deps.store.removeAgenda(nr);
+  return item ? `🗑️ Weggehaald: ${escapeHtml(item.date)} · ${escapeHtml(item.label)}` : `Agendapunt #${nr} bestaat niet. Zie /agenda.`;
+}
+
+async function direct(deps: BotDeps, args: string): Promise<string> {
+  const [rawName = "", choice = ""] = args.trim().toLowerCase().split(/\s+/);
+  const quiet = await digestOnlyFilters(deps.store);
+  const filters = groupFilters(await deps.store.listFilterWords());
+  if (!rawName || !filters.has(rawName) || !["aan", "uit"].includes(choice)) {
+    const list = [...filters.keys()].map((f) => `${escapeHtml(f)}: ${quiet.has(f) ? "alleen ochtendoverzicht" : "direct én in het ochtendoverzicht"}`);
+    return ["<b>Direct melden per filter</b>", ...list, "", "Aanpassen: /direct overname aan of /direct overname uit"].join("\n");
+  }
+  if (choice === "aan") quiet.delete(rawName);
+  else quiet.add(rawName);
+  await deps.store.setSetting(DIGEST_ONLY_KEY, JSON.stringify([...quiet]));
+  return choice === "aan"
+    ? `✅ Filter ${escapeHtml(rawName)} meldt nu meteen, en staat ook in het ochtendoverzicht.`
+    : `✅ Filter ${escapeHtml(rawName)} staat nu alleen nog in het ochtendoverzicht.`;
 }
 
 /** Verwerkt één binnengekomen bericht. */
@@ -500,7 +639,7 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
   if (!isOwner) {
     const inAlertGroup = isGroup && message.chatId === (await alertChat(deps.store, deps.fixedChatId));
     if (!inAlertGroup) return;
-    if (OWNER_ONLY.has(command) || (["/marktwaarde", "/onderwerpen"].includes(command) && args.trim())) {
+    if (OWNER_ONLY.has(command) || (["/marktwaarde", "/onderwerpen", "/ochtend"].includes(command) && args.trim())) {
       await answer("🔒 Dat kan alleen de beheerder van de bot.");
       return;
     }
@@ -565,6 +704,19 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
       break;
     case "/screener":
       reply = await screenerStatus(deps);
+      break;
+    case "/ochtend":
+    case "/overzicht":
+      reply = await morning(deps, message, args);
+      break;
+    case "/agenda":
+      reply = await agenda(deps, args);
+      break;
+    case "/agendaweg":
+      reply = await agendaRemove(deps, args);
+      break;
+    case "/direct":
+      reply = await direct(deps, args);
       break;
     default:
       reply = `Dat commando ken ik niet.\n\n${HELP}`;

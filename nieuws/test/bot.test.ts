@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { handleMessage, processUpdates } from "../src/bot.ts";
+import { handleMessage, parseAgendaDate, processUpdates } from "../src/bot.ts";
 import { ALERT_CHAT_KEY, LEGACY_OWNER_KEY, OWNER_USER_KEY } from "../src/alerts.ts";
 import { parseWatchlist } from "../src/config.ts";
 import { formatNewsMessage } from "../src/telegram.ts";
@@ -236,12 +236,28 @@ test("standaardfilters: nieuwe komen erbij, weggehaalde komen niet terug", async
   await store.setSetting("filters_seeded", "1");
   await seed(store, {} as never);
   const filters = new Set(store.words.map((w) => w.filter));
-  assert.deepEqual([...filters].sort(), ["emissie", "insolventie", "ipo"]);
+  assert.deepEqual(
+    [...filters].sort(),
+    ["adhoc", "emissie", "fda", "handelsstop", "index", "insider", "insolventie", "ipo", "notering", "overname", "splitsing"],
+  );
 
   await store.removeFilter("emissie");
   await seed(store, {} as never);
   assert.ok(!store.words.some((w) => w.filter === "emissie"));
   assert.ok(!store.words.some((w) => w.filter === "dividend"));
+});
+
+test("nieuw standaardfilter krijgt zijn bereik ook als de groep dat al had aangepast", async () => {
+  const { seed } = await import("../src/index.ts");
+  const store = new MemoryStore();
+  await store.setSetting("seeded", "1");
+  await store.setSetting("filters_seeded_list", JSON.stringify(["dividend", "insolventie", "emissie", "ipo"]));
+  await store.setSetting("filters_europe", JSON.stringify(["ipo", "dividend"]));
+  await store.setSetting("filters_digest_only", JSON.stringify(["emissie"]));
+  await seed(store, {} as never);
+  assert.deepEqual(JSON.parse(store.settings.get("filters_europe")!).sort(), ["dividend", "ipo", "notering"]);
+  assert.ok(JSON.parse(store.settings.get("filters_digest_only")!).includes("overname"));
+  assert.ok(JSON.parse(store.settings.get("filters_digest_only")!).includes("emissie"));
 });
 
 test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldingen naar de juiste plek", async () => {
@@ -283,18 +299,40 @@ test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldin
   assert.match(net.sent.at(-1)!.text, /Waar gaan de meldingen heen/);
 });
 
-test("/onderwerpen maak: vier onderwerpen aanmaken en koppelen", async () => {
+test("/onderwerpen maak: vijf onderwerpen aanmaken en koppelen", async () => {
   const { net, store, bot } = deps();
   await store.setSetting(OWNER_USER_KEY, "1");
   await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
-  assert.deepEqual(net.topics, ["📰 Volglijst", "💶 Emissies", "🚀 IPO's", "🎯 Koersdoelen"]);
+  assert.deepEqual(net.topics, ["📰 Volglijst", "💶 Emissies", "🚀 IPO's", "🎯 Koersdoelen", "☀️ Ochtendoverzicht"]);
   const { loadRoutes } = await import("../src/alerts.ts");
   const routes = await loadRoutes(store);
-  assert.deepEqual(Object.keys(routes).sort(), ["filter:emissie", "filter:ipo", "koersdoel", "volglijst"]);
+  assert.deepEqual(Object.keys(routes).sort(), ["filter:emissie", "filter:ipo", "koersdoel", "ochtend", "volglijst"]);
   assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-100500");
   assert.match(net.sent.at(-1)!.text, /Onderwerpen aangemaakt/);
 
+  // Nog een keer: alles bestaat al, niets dubbel.
+  await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
+  assert.equal(net.topics.length, 5);
+  assert.match(net.sent.at(-1)!.text, /bestaan al/);
+});
+
+test("/onderwerpen maak bij een bestaande indeling: alleen het nieuwe onderwerp erbij", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await store.setSetting(
+    "routes",
+    JSON.stringify({
+      volglijst: { chat: "-100500", thread: 3 },
+      "filter:emissie": { chat: "-100500", thread: 4 },
+      "filter:ipo": { chat: "-100500", thread: 5 },
+      koersdoel: { chat: "-100500", thread: 6 },
+    }),
+  );
+  await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
+  assert.deepEqual(net.topics, ["☀️ Ochtendoverzicht"]);
+
   net.topicsFail = true;
+  await store.deleteSetting("routes");
   await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
   assert.match(net.sent.at(-1)!.text, /Onderwerpen beheren/);
 });
@@ -306,4 +344,72 @@ test("Topics aanzetten maakt een supergroep: ook de onderwerpen verhuizen mee", 
   await handleMessage(bot, { ...msg("", { chatId: "-500", chatType: "group" }), migrateTo: "-100500" });
   assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-100500");
   assert.deepEqual(JSON.parse((await store.getSetting("routes"))!), { volglijst: { chat: "-100500", thread: 3 } });
+});
+
+test("agendadatum: dag-maand, met jaar, ISO en maandnaam; zonder jaar de eerstvolgende", () => {
+  const today = "2026-10-06";
+  assert.deepEqual(parseAgendaDate("23-10 PFSE einde bod", today), { date: "2026-10-23", rest: "PFSE einde bod" });
+  assert.deepEqual(parseAgendaDate("23/10/2026 x", today), { date: "2026-10-23", rest: "x" });
+  assert.deepEqual(parseAgendaDate("2027-01-04 x", today), { date: "2027-01-04", rest: "x" });
+  assert.deepEqual(parseAgendaDate("3 mrt PDUFA Idorsia", today), { date: "2027-03-03", rest: "PDUFA Idorsia" });
+  assert.deepEqual(parseAgendaDate("1-10 al geweest", today), { date: "2027-10-01", rest: "al geweest" });
+  assert.equal(parseAgendaDate("31-02 x", today), null);
+  assert.equal(parseAgendaDate("morgen x", today), null);
+});
+
+test("/agenda: toevoegen, tonen en weghalen", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await handleMessage(bot, msg("/agenda"));
+  assert.match(net.sent.at(-1)!.text, /De agenda is leeg/);
+  await handleMessage(bot, msg("/agenda 23-10 PFSE einde aanmeldtermijn"));
+  assert.match(net.sent.at(-1)!.text, /✅ In de agenda: <b>.* 23 okt<\/b>.*PFSE einde aanmeldtermijn/);
+  await store.addAgenda(
+    [{ key: "a", date: "2099-01-01", kind: "overname", label: "te ver weg", symbol: "X:Y", name: "Y", title: "", url: "" }],
+    0,
+  );
+  await handleMessage(bot, msg("/agenda"));
+  assert.match(net.sent.at(-1)!.text, /#1 .* PFSE einde aanmeldtermijn/);
+  assert.ok(!net.sent.at(-1)!.text.includes("te ver weg"));
+  await handleMessage(bot, msg("/agendaweg 1"));
+  assert.match(net.sent.at(-1)!.text, /Weggehaald/);
+  assert.equal(store.agenda.length, 1);
+  await handleMessage(bot, msg("/agendaweg 99"));
+  assert.match(net.sent.at(-1)!.text, /bestaat niet/);
+  await handleMessage(bot, msg("/agenda 23-10"));
+  assert.match(net.sent.at(-1)!.text, /Gebruik/);
+});
+
+test("/direct: filter ook meteen melden of alleen in het ochtendoverzicht (alleen eigenaar)", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await store.setSetting(ALERT_CHAT_KEY, "-100");
+  await store.addFilterWord("overname", "takeover");
+  await store.addFilterWord("emissie", "placing");
+  await handleMessage(bot, msg("/direct"));
+  assert.match(net.sent.at(-1)!.text, /overname: alleen ochtendoverzicht/);
+  assert.match(net.sent.at(-1)!.text, /emissie: direct én in het ochtendoverzicht/);
+  await handleMessage(bot, msg("/direct overname aan"));
+  assert.ok(!JSON.parse((await store.getSetting("filters_digest_only"))!).includes("overname"));
+  await handleMessage(bot, msg("/direct emissie uit"));
+  assert.ok(JSON.parse((await store.getSetting("filters_digest_only"))!).includes("emissie"));
+  await handleMessage(bot, msg("/filters"));
+  assert.match(net.sent.at(-1)!.text, /<b>emissie<\/b> \(1 woorden · alleen in het ochtendoverzicht\)/);
+  await handleMessage(bot, msg("/direct emissie aan", { chatId: "-100", chatType: "supergroup", fromId: "2" }));
+  assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
+});
+
+test("/ochtend: laat het overzicht nu zien, in het onderwerp waar het gevraagd is; aan/uit", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await handleMessage(bot, { ...msg("/ochtend", { chatId: "-100", chatType: "supergroup", fromId: "1" }), threadId: 9 });
+  assert.match(net.sent[0].text, /Volgende ochtendoverzicht: <b>.* om 08:40/);
+  assert.match(net.sent[1].text, /☀️ <b>Ochtendoverzicht/);
+  assert.deepEqual(net.sentThreads, [9, 9]);
+  await handleMessage(bot, msg("/ochtend uit"));
+  assert.equal(await store.getSetting("ochtend_uit"), "1");
+  await handleMessage(bot, msg("/ochtend"));
+  assert.match(net.sent.at(-2)!.text, /staat <b>uit<\/b>/);
+  await handleMessage(bot, msg("/ochtend aan"));
+  assert.equal(await store.getSetting("ochtend_uit"), null);
 });

@@ -56,6 +56,36 @@ export function storyApiUrl(id: string, lang: string): string {
   return `https://news-headlines.tradingview.com/v3/story?${params}`;
 }
 
+const SCANNER_URL = "https://scanner.tradingview.com/global/scan?label-product=screener-stock";
+
+export interface ScannerRow {
+  s: string;
+  d: unknown[];
+}
+
+/** Eén vraag aan de TradingView-screener. */
+export async function scanner(fetcher: Fetch, payload: unknown): Promise<{ rows: ScannerRow[]; total: number }> {
+  const response = await fetcher(SCANNER_URL, {
+    method: "POST",
+    headers: { ...HEADERS, "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!response.ok) throw new Error(`screener HTTP ${response.status}`);
+  const body = (await response.json()) as { data?: unknown; totalCount?: unknown };
+  const rows: ScannerRow[] = [];
+  for (const raw of Array.isArray(body?.data) ? body.data : []) {
+    const row = raw as Partial<ScannerRow>;
+    if (typeof row?.s === "string" && Array.isArray(row.d)) rows.push({ s: row.s.toUpperCase(), d: row.d });
+  }
+  return { rows, total: typeof body?.totalCount === "number" ? body.totalCount : rows.length };
+}
+
+/** Kolommen van een screener-rij als object. */
+export function fields<T extends string>(columns: readonly T[], row: ScannerRow): Record<T, unknown> {
+  return Object.fromEntries(columns.map((c, i) => [c, row.d[i]])) as Record<T, unknown>;
+}
+
 export function chartUrl(symbol: string): string {
   return `${ORIGIN}/chart/?symbol=${encodeURIComponent(symbol)}`;
 }
@@ -169,6 +199,41 @@ export async function fetchNews(fetcher: Fetch, symbol: string, lang: string): P
 export interface StoryDetails {
   link?: string;
   summary?: string;
+  /** Volledige tekst van het bericht (zonder opmaak), voor datums en bedragen. */
+  text?: string;
+}
+
+/**
+ * TradingView geeft de tekst als boom ({"type":"p","children":[...]}). Dit maakt er platte tekst
+ * van, met een regelovergang per alinea of tabelrij.
+ */
+export function flattenStory(node: unknown, limit = 8000): string {
+  const out: string[] = [];
+  let length = 0;
+  const walk = (value: unknown) => {
+    if (length > limit) return;
+    if (typeof value === "string") {
+      out.push(value);
+      length += value.length;
+      return;
+    }
+    if (!value || typeof value !== "object") return;
+    const record = value as { type?: unknown; children?: unknown; params?: { text?: unknown } };
+    if (record.type === "symbol" && typeof record.params?.text === "string") {
+      out.push(record.params.text);
+      return;
+    }
+    if (Array.isArray(record.children)) for (const child of record.children) walk(child);
+    if (["p", "table-row", "*", "list", "h1", "h2", "h3"].includes(String(record.type))) out.push("\n");
+    else if (record.type === "table-data-cell") out.push(" | ");
+  };
+  walk(node);
+  return out
+    .join("")
+    .replace(/[ \t]+/g, " ")
+    .replace(/\s*\n\s*/g, "\n")
+    .trim()
+    .slice(0, limit);
 }
 
 /** Korte samenvatting en bronlink van één bericht. Mag mislukken; dan blijft de melding kaal. */
@@ -176,9 +241,17 @@ export async function fetchStory(fetcher: Fetch, id: string, lang: string): Prom
   const body = (await getJson(fetcher, storyApiUrl(id, lang))) as Record<string, unknown> | null;
   if (!body || typeof body !== "object") return {};
   const summary = str(body.shortDescription) || str(body.description);
+  let text = "";
+  try {
+    const ast = typeof body.astDescription === "string" ? JSON.parse(body.astDescription) : body.astDescription;
+    text = flattenStory(ast);
+  } catch {
+    // Geen of onleesbare tekst: dan alleen de samenvatting.
+  }
   return {
     link: absolute(str(body.link)),
     summary: summary ? stripTags(summary).slice(0, 600) : undefined,
+    text: text || (str(body.description) ? stripTags(str(body.description)) : undefined),
   };
 }
 
