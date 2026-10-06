@@ -6,6 +6,7 @@ import { api } from '@/lib/client';
 import type { PointMode } from '@/lib/daily-scoring';
 import { completedDailies, nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { StreakMoment, streakMomentSeen } from '../ds/StreakMoment';
+import { DaySummary } from './DaySummary';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CountUp } from '../ds/Celebration';
 import { FinishStage, type FinishStageProps } from '../ds/FinishStage';
@@ -15,7 +16,7 @@ import { nextBonusMode, type BonusMode } from '@/lib/bonus';
 import { useBonusLaunch } from '../home/BonusTour';
 
 type Standing = { score: number; place?: number; participants: number; next?: { name: string; gap: number; place: number } | null };
-type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; boot: { user?: { guest?: boolean }; stats: { dailyCount?: number; dailyStreak?: number; dailyDone?: boolean; streakFreezes?: { available?: number; nextIn?: number } } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
+type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; share?: (text: string) => void; boot: { user?: { guest?: boolean }; stats: { dailyCount?: number; dailyStreak?: number; dailyDone?: boolean; streakFreezes?: { available?: number; nextIn?: number } } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
 
 const SAVE_KEY = 'roviko:save-prompt';
 const readFlag = () => { try { return localStorage.getItem(SAVE_KEY) === 'done'; } catch { return true; } };
@@ -31,6 +32,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
   const bonusLaunch = useBonusLaunch({ go: app.go, fail });
   const lock = useRef(false);
+  const [scores, setScores] = useState<{ mode: string; score: number }[]>([]);
   // The streak moment: after the first finished daily game of the day, once, a moment after the score.
   const [week, setWeek] = useState<{ date: string; completed: boolean }[] | undefined>(), [firstToday, setFirstToday] = useState(false), [moment, setMoment] = useState(false);
   const streak = boot.stats.dailyStreak ?? 0;
@@ -41,7 +43,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   }, [firstToday, boot.stats.dailyDone, streak, date]);
   useEffect(() => {
     let active = true;
-    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); } }).catch(() => {});
+    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); } }).catch(() => {});
     api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions)); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
   }, [date, mode, boot.stats.dailyCount]);
@@ -72,6 +74,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       <strong id="save-prompt-title">{t('savePromptTitle')}</strong><p>{t('savePromptCopy')}</p>
       <div><button className="btn gold" onClick={() => { closeSave(); app.setModal?.('signup'); }}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={closeSave}>{t('savePromptLater')}</button></div>
     </aside>}
+    {next === null && scores.length >= 6 && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})}/>}
     {next === undefined ? null : next
       ? <button className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} onClick={go}>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}<ArrowRight size={19} aria-hidden="true"/></button>
       : bonusNext

@@ -1,12 +1,13 @@
 import { BRAND } from './config';
 import { DAY_MODES, type DayMode } from './daily-loop';
 
-/** Reads a shared link (?shared=daily&s=820): which daily game and how many points the friend got. */
-export function readChallenge(search: string): { mode: DayMode; points: number } | null {
-    const q = new URLSearchParams(search), mode = q.get('shared') as DayMode | null, s = q.get('s');
-    if (!mode || !(DAY_MODES as readonly string[]).includes(mode) || s === null || !/^\d{1,4}$/.test(s)) return null;
+/** Reads a shared link (?shared=daily&s=820, or ?shared=day&s=4210 for a whole day): which game and how many points the friend got. */
+export function readChallenge(search: string): { mode: DayMode | 'day'; points: number } | null {
+    const q = new URLSearchParams(search), mode = q.get('shared') as DayMode | 'day' | null, s = q.get('s');
+    if (!mode || !(mode === 'day' || (DAY_MODES as readonly string[]).includes(mode)) || s === null || !/^\d{1,4}$/.test(s)) return null;
     const points = Number(s);
-    return points <= 1000 ? { mode, points } : null;
+    // One game is worth at most 1,000; a whole day ("day") at most 6,000.
+    return points <= (mode === 'day' ? 6000 : 1000) ? { mode, points } : null;
 }
 
 /** Edition numbers like Wordle's: 25 September 2026 (the day roviko.app moved to its own hosting) is #1. */

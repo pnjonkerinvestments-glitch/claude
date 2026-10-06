@@ -491,3 +491,14 @@ a.side-row:hover{box-shadow:var(--shadow-card),0 0 0 2px var(--color-mint)}
 .league-zone{display:flex;align-items:center;gap:6px;margin:4px 0;padding:4px 10px;border-top:2px dashed;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
 .league-zone.is-up{border-color:color-mix(in srgb,var(--color-brand) 45%,transparent);color:var(--color-brand)}
 .league-zone.is-down{border-color:#f0b4ad;color:#c0392b}
+/* The whole day at a glance after the sixth game (1.23). */
+.day-summary{margin:14px 0 4px;padding:16px;border-radius:22px;background:var(--color-canvas)}
+.day-summary h3{margin:0 0 10px;font:700 1.2rem var(--font-display);color:var(--color-ink)}
+.day-scores{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.day-scores li{display:flex;align-items:center;gap:10px}
+.day-scores li>span:not(.game-icon){flex:1 1 auto;min-width:0;font-weight:600}
+.day-scores .game-icon{flex:0 0 32px;width:32px!important;height:32px!important}
+.day-scores li b{font:700 1rem var(--font-display)}
+.day-total{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:12px 0;padding-top:10px;border-top:1px solid var(--color-line,#e3e6df);color:var(--color-ink-soft)}
+.day-total b{font:700 1.6rem var(--font-display);color:var(--color-ink)}
+.day-summary .btn{width:100%;justify-content:center}

@@ -47,8 +47,8 @@ const ExplorePage = React.lazy(() => import('./pages/ExplorePage').then(m => ({ 
 const RankingsPage = React.lazy(() => import('./pages/RankingsPage').then(m => ({ default: m.RankingsPage })));
 const PassportPage = React.lazy(() => import('./pages/PassportPage').then(m => ({ default: m.PassportPage })));
 import { MultiplayerPage, RoomProblem } from './pages/MultiplayerPage';
-import { AccountPage } from './pages/AccountPage';
-import { SettingsPage } from './pages/SettingsPage';
+const AccountPage = React.lazy(() => import('./pages/AccountPage').then(m => ({ default: m.AccountPage })));
+const SettingsPage = React.lazy(() => import('./pages/SettingsPage').then(m => ({ default: m.SettingsPage })));
 import { LobbyComputer, QuickSearch, removeComputer } from './multiplayer/Computer';
 import { PlayerActions } from './multiplayer/PlayerActions';
 import { RoomLobby } from './multiplayer/RoomLobby';

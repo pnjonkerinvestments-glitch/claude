@@ -95,6 +95,8 @@ test('a shared daily score travels in the link and opens as a challenge', () => 
   assert.match(text, /https:\/\/roviko\.app\/daily\?shared=daily&s=820$/);
   assert.deepEqual(lib.readChallenge('?shared=daily&s=820'), { mode: 'daily', points: 820 });
   assert.deepEqual(lib.readChallenge('?shared=duel&s=600'), { mode: 'duel', points: 600 });
+  assert.deepEqual(lib.readChallenge('?shared=day&s=4210'), { mode: 'day', points: 4210 });
+  assert.equal(lib.readChallenge('?shared=day&s=7000'), null);
   for (const bad of ['?shared=daily', '?shared=daily&s=1200', '?shared=flags&s=8', '?shared=daily&s=-1', '?shared=daily&s=1e3', '?shared=<b>&s=5']) assert.equal(lib.readChallenge(bad), null, bad);
   const parsed = lib.parseShareText(text);
   assert.equal(parsed.head, 'Roviko #12'); assert.equal(parsed.game, 'Daily Detour'); assert.equal(parsed.score, '820/1,000 points'); assert.equal(parsed.streak, '3'); assert.deepEqual(parsed.rows, [['🟩', '🟥']]);

@@ -2,6 +2,7 @@
 // Keys ending in _one are the singular of the key without it (see lib/plural.ts).
 export const v123Messages = {
   en: {
+    dayDoneTitle: 'Your day is complete!', dayShare: 'Share your day', dayShareLabel: 'Day total', chTitleDay: 'A friend scored {n} points today',
     tierBronze: 'Bronze', tierSilver: 'Silver', tierGold: 'Gold', tierEmerald: 'Emerald', tierDiamond: 'Diamond', leagueTitle: 'Weekly league', leagueName: '{tier} league',
     leagueDaysLeft: '{n} days left', leagueDaysLeft_one: '1 day left', leagueLastDay: 'Last day!', leagueUp: 'top {n} move up to {tier}', leagueTopTier: 'the highest league', leaguePlace: '#{place} of {size}',
     leaguePromoZone: 'Promotion zone', leagueDemoZone: 'Demotion zone', leagueJoin: 'Finish a daily game to join this week\u2019s {name}.', leagueJoinShort: 'Play a daily game to join',
@@ -27,6 +28,7 @@ export const v123Messages = {
     passportPeek_one: '1 country stamp collected', stampMilestone_one: '1 more country for your {region} stamp', exploreResults_one: '1 country',
   },
   nl: {
+    dayDoneTitle: 'Je dag is compleet!', dayShare: 'Deel je dag', dayShareLabel: 'Dagtotaal', chTitleDay: 'Een vriend haalde vandaag {n} punten',
     tierBronze: 'Brons', tierSilver: 'Zilver', tierGold: 'Goud', tierEmerald: 'Smaragd', tierDiamond: 'Diamant', leagueTitle: 'Weekcompetitie', leagueName: '{tier}groep',
     leagueDaysLeft: 'nog {n} dagen', leagueDaysLeft_one: 'nog 1 dag', leagueLastDay: 'Laatste dag!', leagueUp: 'top {n} gaat naar {tier}', leagueTopTier: 'het hoogste niveau', leaguePlace: '#{place} van {size}',
     leaguePromoZone: 'Promotiezone', leagueDemoZone: 'Degradatiezone', leagueJoin: 'Speel een dagspel en doe deze week mee in de {name}.', leagueJoinShort: 'Speel een dagspel en doe mee',
@@ -53,6 +55,7 @@ export const v123Messages = {
     passportPeek_one: '1 landenstempel verzameld', stampMilestone_one: 'Nog 1 land voor je stempel voor {region}', exploreResults_one: '1 land',
   },
   es: {
+    dayDoneTitle: '¡Tu día está completo!', dayShare: 'Comparte tu día', dayShareLabel: 'Total del día', chTitleDay: 'Un amigo hizo {n} puntos hoy',
     tierBronze: 'Bronce', tierSilver: 'Plata', tierGold: 'Oro', tierEmerald: 'Esmeralda', tierDiamond: 'Diamante', leagueTitle: 'Liga semanal', leagueName: 'Liga {tier}',
     leagueDaysLeft: 'quedan {n} días', leagueDaysLeft_one: 'queda 1 día', leagueLastDay: '¡Último día!', leagueUp: 'los {n} primeros suben a {tier}', leagueTopTier: 'la liga más alta', leaguePlace: '#{place} de {size}',
     leaguePromoZone: 'Zona de ascenso', leagueDemoZone: 'Zona de descenso', leagueJoin: 'Termina un juego diario y entra esta semana en la {name}.', leagueJoinShort: 'Juega un juego diario y entra',

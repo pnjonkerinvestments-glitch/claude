@@ -5,6 +5,8 @@ const selected=countries.filter(c=>c.unMember||['PSE','VAT'].includes(c.cca3));
 const records=selected.map(c=>({id:c.cca3,iso2:c.cca2.toLowerCase(),numeric:c.ccn3,name:c.name.common,nl:c.translations.nld?.common??c.name.common,official:c.name.official,capitals:c.capital,region:c.region==='Americas'?(c.subregion==='South America'?'South America':'North America'):c.region,subregion:c.subregion,latlng:c.latlng,borders:c.borders.filter(id=>selected.some(c=>c.cca3===id)),area:c.area,languages:Object.values(c.languages),currencies:Object.values(c.currencies).map(v=>v.name),flag:'/flags/'+c.cca2.toLowerCase()+'.svg'}));
 // The source capital list for Sri Lanka includes an outdated administrative entry.
 records.find(c=>c.id==='LKA').capitals=['Sri Jayawardenepura Kotte'];
+// Sri Lanka is an island: the source lists India as a land border, which it is not (found by tests/data-sanity, 1.23).
+records.find(c=>c.id==='LKA').borders=[];
 records.find(c=>c.id==='ZAF').capitals=['Pretoria','Cape Town','Bloemfontein'];
 // Eswatini (since 2018, also in Dutch): Mbabane is the administrative capital, Lobamba the royal and legislative one.
 records.find(c=>c.id==='SWZ').capitals=['Mbabane','Lobamba'];
