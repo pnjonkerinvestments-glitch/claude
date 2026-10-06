@@ -29,6 +29,9 @@ test('content saved before 1.23 also shows Dutch capitals', () => {
   assert.equal(opt.nl, 'Wenen'); assert.equal(opt.es, 'Viena'); assert.equal(country.nl, 'Oostenrijk');
   assert.equal(list.nl, 'Pretoria / Kaapstad / Bloemfontein'); assert.equal(clue.nl, 'Mijn hoofdstad is Lissabon.');
   assert.equal(fact.nl, 'Oostenrijk: hoofdstad Wenen. 83.871 km² oppervlakte.');
+  const [border] = lib.withSpanish([{ en: 'Which country shares a land border with Belarus?', nl: 'Welk land heeft een landgrens met Wit-Rusland?' }]);
+  assert.equal(border.nl, 'Welk land heeft een landgrens met Belarus?');
+  assert.equal(lib.COUNTRIES.find(c => c.id === 'BLR').nl, 'Belarus');
 });
 
 test('Eswatini has its current name and both capitals', () => {

@@ -68,7 +68,7 @@ export function PassportPage() {
 
     <section className="page-section" aria-labelledby="passport-review">
       <SectionHeader id="passport-review" title={t('reviewKnowledge')} action={reviews.length > 0 && <button className="text-link" onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed' }, true)}>{t('reviewCardCta')}<ArrowRight size={16} aria-hidden="true"/></button>}/>
-      {reviews.length ? <div className="review-grid">{reviews.slice(0, 6).map(r => <article className="review-tile" key={r.key}>
+      {reviews.length ? <div className="review-grid">{reviews.slice(0, 3).map(r => <article className="review-tile" key={r.key}>
         {r.content.country?.flag && <img src={r.content.country.flag} alt="" width={40} height={28}/>}
         <div><strong>{r.content.country?.name?.[L] ?? r.content.countries?.find(c => c.id === r.country_id)?.name?.[L] ?? r.content.answerLabel?.[L] ?? r.country_id}</strong><small>{t(r.mode)}{r.content.topic && ' · ' + r.content.topic.label[L]}</small></div>
         <button className="btn secondary" onClick={async () => { try { const game = await post('/practice/' + encodeURIComponent(r.key)); go(game.href); } catch (e) { fail(e); } }}>{t('reviewAgain')}</button>
@@ -84,14 +84,14 @@ export function PassportPage() {
           <small>{earned ? <><Check size={12} aria-hidden="true"/>{t('unlocked')}</> : a.target + ' ' + t(METRIC_KEYS[a.metric] ?? a.metric)}</small>
         </div>; };
         const sorted = [...ACHIEVEMENTS].sort((a, b) => Number(s.achievements.includes(b.id)) - Number(s.achievements.includes(a.id)));
-        return <><div className="badge-grid">{sorted.slice(0, 12).map(badge)}</div>
-          {sorted.length > 12 && <details className="badge-more"><summary>{t('showAll')} ({sorted.length - 12})</summary><div className="badge-grid">{sorted.slice(12).map(badge)}</div></details>}</>;
+        return <><div className="badge-grid">{sorted.slice(0, 6).map(badge)}</div>
+          {sorted.length > 6 && <details className="badge-more"><summary>{t('showAll')} ({sorted.length - 6})</summary><div className="badge-grid">{sorted.slice(6).map(badge)}</div></details>}</>;
       })()}
     </section>
 
     <section className="page-section" aria-labelledby="passport-recent">
       <SectionHeader id="passport-recent" title={t('recentGames')}/>
-      {recent.length ? <ul className="recent-list">{recent.map(g => <li key={g.id}>
+      {recent.length ? <ul className="recent-list">{recent.slice(0, 4).map(g => <li key={g.id}>
         <ModeEmoji mode={g.mode}/><div><strong>{t(g.mode)}</strong><small>{new Date(g.created_at).toLocaleDateString(locale)} · {t(g.multiplayer ? 'multiplayer' : 'soloLearning')}</small></div>
         <b>{g.multiplayer ? formatScore(g.score) + ' ' + t('points') : `${g.correct}/${g.total}`}</b>
       </li>)}</ul> : <EmptyState title={t('noGames')} copy={t('exploreRecentEmpty')}><A href="/" className="btn primary">{t('tripStart')}</A></EmptyState>}

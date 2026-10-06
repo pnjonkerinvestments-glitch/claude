@@ -9,6 +9,8 @@ records.find(c=>c.id==='ZAF').capitals=['Pretoria','Cape Town','Bloemfontein'];
 // Eswatini (since 2018, also in Dutch): Mbabane is the administrative capital, Lobamba the royal and legislative one.
 records.find(c=>c.id==='SWZ').capitals=['Mbabane','Lobamba'];
 records.find(c=>c.id==='SWZ').nl='Eswatini';
+// The owner's choice (1.23): Belarus, the name the country uses itself, instead of Wit-Rusland.
+records.find(c=>c.id==='BLR').nl='Belarus';
 for(const p of ['lib/data','public/data','public/licenses','public/flags','public/shapes'])fs.mkdirSync(p,{recursive:true});
 fs.writeFileSync('lib/data/countries.json',JSON.stringify(records));
 fs.writeFileSync('public/data/countries.json',JSON.stringify(records));

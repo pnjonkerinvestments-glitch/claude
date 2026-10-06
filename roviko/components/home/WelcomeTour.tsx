@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Mascot } from '../ds/Mascot';
+import { Character } from '../ds/Character';
 
 export const TOUR_KEY = 'roviko:tour';
 export const tourSeen = () => { try { return localStorage.getItem(TOUR_KEY) === 'done'; } catch { return true; } };
@@ -24,7 +24,7 @@ export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup }:
   const close = () => { markSeen(); onOpenChange(false); };
   return <Dialog open={open} onOpenChange={v => { if (!v) close(); }}>
     <DialogContent className="app-modal welcome-tour">
-      <div className="tour-art" aria-hidden="true">{step.art ? <img src={step.art} alt="" width={480} height={270} decoding="async"/> : <Mascot mood="cheer" size={150}/>}</div>
+      <div className="tour-art" aria-hidden="true">{step.art ? <img src={step.art} alt="" width={480} height={270} decoding="async"/> : <Character mood="cheer" pose="wave" size={150}/>}</div>
       <p className="tour-step">{t('tourStepOf').replace('{n}', String(i + 1)).replace('{total}', String(steps.length))}</p>
       <DialogTitle className="modal-title">{t(step.key + 'Title')}</DialogTitle>
       <DialogDescription>{t(step.key + 'Copy')}</DialogDescription>
@@ -36,6 +36,23 @@ export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup }:
             {i > 0 ? <button className="btn ghost" onClick={() => setI(i - 1)}><ArrowLeft size={17} aria-hidden="true"/>{t('tourBack')}</button> : <button className="btn ghost" onClick={close}>{t('tourSkip')}</button>}
             {last ? <button className="btn primary" onClick={() => { close(); onStart(); }}>{t('tourStart')}<ArrowRight size={17} aria-hidden="true"/></button> : <button className="btn primary" onClick={() => setI(i + 1)}>{t('tourNext')}<ArrowRight size={17} aria-hidden="true"/></button>}
           </div>}
+    </DialogContent>
+  </Dialog>;
+}
+
+/**
+ * The first visit (1.23): one friendly card instead of a five-step tour, with the first question one tap
+ * away. The full tour stays in the menu ("Tour").
+ */
+export function WelcomeCard({ open, onOpenChange, t, onStart }: { open: boolean; onOpenChange: (v: boolean) => void; t: (k: string) => string; onStart: () => void }) {
+  const close = () => { markSeen(); onOpenChange(false); };
+  return <Dialog open={open} onOpenChange={v => { if (!v) close(); }}>
+    <DialogContent className="app-modal welcome-card">
+      <div className="welcome-art" aria-hidden="true"><Character mood="cheer" pose="wave" size={170}/></div>
+      <DialogTitle className="modal-title">{t('welcomeTitle')}</DialogTitle>
+      <DialogDescription>{t('welcomeCopy')}</DialogDescription>
+      <button className="btn primary btn-lg" onClick={() => { close(); onStart(); }} autoFocus>{t('welcomeStart')}<ArrowRight size={18} aria-hidden="true"/></button>
+      <button className="btn ghost" onClick={close}>{t('welcomeLater')}</button>
     </DialogContent>
   </Dialog>;
 }

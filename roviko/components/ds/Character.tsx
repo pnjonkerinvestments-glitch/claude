@@ -24,7 +24,7 @@ const ARMS: Record<CharacterPose, [number, number, number][]> = {
   hips: [[-118, 58, -40], [118, 58, -40]],
 };
 
-function Face({ mood }: { mood: CharacterMood }) {
+export function Face({ mood }: { mood: CharacterMood }) {
   const eye = (cx: number, big = 1) => <g><ellipse cx={cx} cy={-5.7} rx={11 * big} ry={11 * big} fill={INK}/><ellipse cx={cx - 3.5 * big} cy={-10.2} rx={3.6 * big} ry={3.4 * big} fill="#fff"/></g>;
   const happyEye = (cx: number) => <path d={`M${cx - 11} -2.7q11 -13 22 0`} stroke={INK} strokeWidth="5.4" strokeLinecap="round" fill="none"/>;
   const cheeks = <g fill={BLUSH} opacity=".55"><ellipse cx="-45" cy="10" rx="9" ry="5"/><ellipse cx="46" cy="10" rx="9" ry="5"/></g>;

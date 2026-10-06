@@ -2,6 +2,11 @@
 // Keys ending in _one are the singular of the key without it (see lib/plural.ts).
 export const v123Messages = {
   en: {
+    allGamesMore: 'More games', allGamesTabBonus: 'Bonus tour', allGamesTabSurvival: 'Survival', allGamesTabClassic: 'Practise',
+    welcomeTitle: 'Welcome to Roviko!', welcomeCopy: 'Six short geography games every day, the same questions for everyone. Start with the first question: no account needed.', welcomeStart: 'Play your first question', welcomeLater: 'Look around first',
+    mpTitle: 'Play together', mpLeadShort: 'Ten quick questions against friends, a random player or the computer.', mpFriends: 'Play with friends', mpFriendsSub: 'Open a room and share the code', mpRandom: 'Random player', mpRandomSub: 'We find someone who wants to play', mpComputer: 'Against the computer', mpComputerSub: 'Easy, medium or hard. Doesn’t count for rankings',
+    roomHeading: 'Room {code}', roomHostYou: 'You’re the host · up to {n} players', roomHostOther: '{name} is the host · up to {n} players', roomInviteSlot: 'Invite', roomMore: 'More settings', roomShareCode: 'Share code', difficultyMixed: 'Mixed',
+    todayTitle: 'Today', todayDone: 'Done', todayGo: 'Play', todayAllGames: 'All games and practice', weekRankLine: 'This week: #{rank} of {count}', weekRankEmpty: 'Play today to get on the board',
     beatenZero: 'Everyone starts somewhere. New chance tomorrow!',
     chTitle: 'A friend scored {n} points in {game}', chCopy: 'Same questions for everyone today. Can you beat it?', chPlay: 'Play {game}',
     smTitle: '{n} days in a row!', smTitle_one: 'Your streak has started!', smCopy: 'Play one game tomorrow and it keeps growing.', smWeek: 'This week',
@@ -17,6 +22,11 @@ export const v123Messages = {
     passportPeek_one: '1 country stamp collected', stampMilestone_one: '1 more country for your {region} stamp', exploreResults_one: '1 country',
   },
   nl: {
+    allGamesMore: 'Meer spellen', allGamesTabBonus: 'Bonustour', allGamesTabSurvival: 'Overleven', allGamesTabClassic: 'Oefenen',
+    welcomeTitle: 'Welkom bij Roviko!', welcomeCopy: 'Elke dag zes korte aardrijkskundespellen, voor iedereen dezelfde vragen. Begin met de eerste vraag: een account is niet nodig.', welcomeStart: 'Speel je eerste vraag', welcomeLater: 'Eerst rondkijken',
+    mpTitle: 'Samen spelen', mpLeadShort: 'Tien snelle vragen tegen vrienden, een willekeurige speler of de computer.', mpFriends: 'Speel met vrienden', mpFriendsSub: 'Open een kamer en deel de code', mpRandom: 'Willekeurige speler', mpRandomSub: 'We zoeken iemand die ook wil spelen', mpComputer: 'Tegen de computer', mpComputerSub: 'Makkelijk, gemiddeld of moeilijk. Telt niet mee voor de ranglijst',
+    roomHeading: 'Kamer {code}', roomHostYou: 'Jij bent host · tot {n} spelers', roomHostOther: '{name} is host · tot {n} spelers', roomInviteSlot: 'Uitnodigen', roomMore: 'Meer instellingen', roomShareCode: 'Deel code', difficultyMixed: 'Gemengd',
+    todayTitle: 'Vandaag', todayDone: 'Klaar', todayGo: 'Speel', todayAllGames: 'Alle spellen en oefenen', weekRankLine: 'Deze week: #{rank} van {count}', weekRankEmpty: 'Speel vandaag en sta op de ranglijst',
     beatenZero: 'Iedereen begint ergens. Morgen een nieuwe kans!',
     chTitle: 'Een vriend haalde {n} punten in {game}', chCopy: 'Vandaag krijgt iedereen dezelfde vragen. Kun jij het beter?', chPlay: 'Speel {game}',
     smTitle: '{n} dagen op rij!', smTitle_one: 'Je reeks is begonnen!', smCopy: 'Speel morgen één spel en hij groeit verder.', smWeek: 'Deze week',
@@ -33,6 +43,11 @@ export const v123Messages = {
     passportPeek_one: '1 landenstempel verzameld', stampMilestone_one: 'Nog 1 land voor je stempel voor {region}', exploreResults_one: '1 land',
   },
   es: {
+    allGamesMore: 'Más juegos', allGamesTabBonus: 'Ruta extra', allGamesTabSurvival: 'Supervivencia', allGamesTabClassic: 'Practicar',
+    welcomeTitle: '¡Bienvenido a Roviko!', welcomeCopy: 'Seis juegos cortos de geografía cada día, las mismas preguntas para todos. Empieza con la primera pregunta: no necesitas cuenta.', welcomeStart: 'Juega tu primera pregunta', welcomeLater: 'Primero echar un vistazo',
+    mpTitle: 'Jugar juntos', mpLeadShort: 'Diez preguntas rápidas contra amigos, alguien al azar o el ordenador.', mpFriends: 'Jugar con amigos', mpFriendsSub: 'Abre una sala y comparte el código', mpRandom: 'Alguien al azar', mpRandomSub: 'Buscamos a alguien que quiera jugar', mpComputer: 'Contra el ordenador', mpComputerSub: 'Fácil, medio o difícil. No cuenta para la clasificación',
+    roomHeading: 'Sala {code}', roomHostYou: 'Eres el anfitrión · hasta {n} jugadores', roomHostOther: '{name} es el anfitrión · hasta {n} jugadores', roomInviteSlot: 'Invitar', roomMore: 'Más ajustes', roomShareCode: 'Compartir código', difficultyMixed: 'Mixto',
+    todayTitle: 'Hoy', todayDone: 'Hecho', todayGo: 'Jugar', todayAllGames: 'Todos los juegos y práctica', weekRankLine: 'Esta semana: #{rank} de {count}', weekRankEmpty: 'Juega hoy y entra en la clasificación',
     beatenZero: 'Todos empiezan en algún sitio. ¡Mañana, otra oportunidad!',
     chTitle: 'Un amigo hizo {n} puntos en {game}', chCopy: 'Hoy todos tienen las mismas preguntas. ¿Puedes superarlo?', chPlay: 'Jugar a {game}',
     smTitle: '¡{n} días seguidos!', smTitle_one: '¡Tu racha ha empezado!', smCopy: 'Juega una partida mañana y seguirá creciendo.', smWeek: 'Esta semana',

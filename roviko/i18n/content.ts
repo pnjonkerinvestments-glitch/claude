@@ -44,7 +44,10 @@ export function localized(en:string,nl:string,es=spanishContent(en)) { return {e
 /** Also upgrades old saved sessions without altering their questions or results. */
 /** Dutch capital names for content saved before 1.23 (daily puzzles already stored with "Vienna" in Dutch). */
 const dutchList=(names:string)=>names.split(' / ').map(dutchCapital).join(' / ');
+/** Dutch country names changed since content was saved (1.23): Belarus and Eswatini. */
+const renamed=(nl:string)=>nl.replace(/Wit-Rusland/g,'Belarus').replace(/\bSwaziland\b/g,'Eswatini');
 function dutchCapitals(en:string, nl:string):string {
+  nl=renamed(nl);
   if(en===nl)return dutchList(nl);
   let m:RegExpMatchArray|null;
   if((m=nl.match(/^Mijn hoofdstad is (.+)\.$/)))return 'Mijn hoofdstad is '+dutchList(m[1])+'.';
