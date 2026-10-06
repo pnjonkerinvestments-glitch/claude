@@ -1,0 +1,46 @@
+name: Nieuwsmelder status
+
+# Alleen-lezen: toont de stand van de nieuwsmelder uit de D1-database (wanneer het
+# ochtendoverzicht verstuurd is, welke stappen liepen, fouten, aantallen). Handig om te
+# controleren of het ochtendoverzicht goed is gegaan zonder in Telegram te kijken.
+# Draait bij een push naar een claude/nieuws-status*-branch, of met de hand.
+
+on:
+  push:
+    branches:
+      - "claude/nieuws-status**"
+      - "claude/optimistic-knuth-ww8u3z"
+    paths:
+      - ".github/workflows/nieuws-status.yml"
+      - ".github/nieuws-status-trigger"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: nieuws
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: nieuws/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Stand uit D1
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          q() { echo; echo "== $1"; npx wrangler d1 execute nieuws-alert --remote --json --command "$2" | jq -c '.[0].results[]'; }
+          q "tijd (UTC)" "SELECT datetime('now') AS nu"
+          q "instellingen" "SELECT key, CASE WHEN key IN ('ochtend_verstuurd','listings_primed') THEN datetime(CAST(value AS INTEGER),'unixepoch') ELSE value END AS value FROM settings WHERE key IN ('ochtend_datum','ochtend_verstuurd','ochtend_uit','last_morning','last_screen','last_run','listings_done','listings_primed','listings_job','filters_digest_only','filters_europe')"
+          q "dagstand ochtend" "SELECT json_extract(value,'$.date') AS datum, json_extract(value,'$.done') AS stappen, json_extract(value,'$.errors') AS fouten, json_array_length(json_extract(value,'$.dividends')) AS dividend, json_array_length(json_extract(value,'$.earnings')) AS cijfers, json_array_length(json_extract(value,'$.ipos')) AS ipos, json_array_length(json_extract(value,'$.gaps')) AS koersen FROM settings WHERE key = 'ochtend_dag'"
+          q "onderwerp ochtend ingesteld?" "SELECT json_extract(value,'$.ochtend') IS NOT NULL AS ochtend_onderwerp FROM settings WHERE key = 'routes'"
+          q "treffers per filter (24 uur)" "SELECT filter, COUNT(*) AS n, SUM(checked) AS gelezen FROM events WHERE recorded_at > unixepoch() - 86400 GROUP BY filter ORDER BY n DESC"
+          q "agenda komende 14 dagen" "SELECT date, kind, label, symbol FROM agenda WHERE date >= date('now') AND date <= date('now','+14 days') ORDER BY date LIMIT 40"
+          q "noteringen" "SELECT is_primary, COUNT(*) AS n, datetime(MAX(first_seen),'unixepoch') AS laatst_nieuw FROM listings GROUP BY is_primary"
