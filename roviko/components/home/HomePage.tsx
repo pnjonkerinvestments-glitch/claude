@@ -1,7 +1,7 @@
 'use client';
 import { plural } from '@/lib/plural';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronRight, Clock, Lock, Target, Trophy } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Clock, Target, Trophy } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DAY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, type DayMode } from '@/lib/daily-loop';
 import { useApp } from '../app/context';
@@ -154,7 +154,7 @@ export function HomePage() {
               <span className="today-end">{state === 'done'
                 ? <span className="th-score">{points !== undefined ? <><Coin size={18}/><b>{n(points)}</b></> : <Check size={18} strokeWidth={3}/>}</span>
                 : isNext ? <span className="t-pill th-play">{t('todayGo')}<ArrowRight size={16} aria-hidden="true"/></span>
-                : later ? <Lock size={16} strokeWidth={2.4} className="th-lock"/> : <ChevronRight size={18}/>}</span>
+                : <ChevronRight size={18} className={later ? 'th-later' : undefined}/>}</span>
             </button>
           </li>;
         })}</ol>

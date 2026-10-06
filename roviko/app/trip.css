@@ -44,7 +44,7 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 [data-theme=dark] .btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--t-forest) 86%,#fff)!important}
 .btn.secondary,.secondary.btn{background:var(--t-card)!important;color:var(--t-ink)!important;border:2px solid var(--t-forest)!important;box-shadow:none!important}
 [data-theme=dark] .btn.secondary,[data-theme=dark] .secondary.btn{border-color:var(--t-mint-2)!important}
-.btn.secondary:hover:not(:disabled){background:var(--t-mint)!important}
+@media (hover:hover){.btn.secondary:hover:not(:disabled){background:var(--t-mint)!important}}
 .btn.ghost{color:var(--t-ink)}
 
 /* ───────── Top bar: logo, the gold streak pill in the middle, the menu ───────── */
@@ -139,6 +139,9 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 [data-theme=dark] .answer-option.is-correct .answer-key{background:var(--t-forest-ink)!important;color:var(--t-forest)!important}
 .answer-option.is-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important;animation:rv-shake 420ms ease-out!important}
 .answer-option.is-wrong .answer-key{background:var(--t-red)!important;color:#fff!important}
+/* Older layers add a green ring and a thick red bottom edge to revealed answers (with :disabled, so more specific). */
+.answer-option.is-correct,.answer-option.is-correct:disabled{border:2px solid var(--t-forest)!important;box-shadow:none!important}
+.answer-option.is-wrong,.answer-option.is-wrong:disabled{border:2px solid var(--t-red-soft)!important;box-shadow:none!important}
 [data-theme=dark] .answer-option.is-wrong .answer-key{color:#2a0d12!important}
 .answer-option .answer-status{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 .answer-option .answer-lock{position:absolute;right:20px;top:50%;margin-top:-7px}
@@ -205,4 +208,5 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 .t-stack>*{margin-left:-8px;border:2px solid var(--t-card);border-radius:999px;background:var(--t-card)}
 .t-stack>*:first-child{margin-left:0}
 /* In the app (notch) the sticky game bar also covers the status-bar strip above it while scrolling. */
-@media (max-width:760px){.game-header.trip-top{box-shadow:0 -48px 0 var(--t-canvas)!important}}
+@media (max-width:760px){.game-header.trip-top{box-shadow:0 -48px 0 16px var(--t-canvas)!important}}
+@media (min-width:761px){.game-header.trip-top{box-shadow:0 -24px 0 24px var(--t-canvas)!important}}

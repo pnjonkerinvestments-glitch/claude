@@ -29,14 +29,16 @@ test("renders the playable branded homepage before hydration", async () => {
   const html = await response.text();
   assert.match(html, /<title>Roviko/);
   assert.doesNotMatch(html, /codex-preview/);
-  // The calm hero (1.23): one heading, one primary action (the Daily Detour), the globe with one arc per scored game, and the streak.
+  // The calm trip hero (1.23 trip style): one heading, one primary action (the Daily Detour) and Roviko waving.
+  // The streak sits in the gold pill of the site header (after boot), so the hero does not repeat it.
   assert.equal((html.match(/<h1/g)||[]).length, 1);
   assert.match(html, /A small geography trip/);
   assert.match(html, /Start today(&#x27;|’|')s trip/);
   assert.match(html, /class="character pose-wave mood-happy[^"]*hero-character/);
-  assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 6);
-  assert.match(html, /class="hero-stat stat-streak/);
-  assert.match(html, /Day streak|day streak/i);
+  // Today's trip: one segment per scored game and a readable "0/6 today" line for screen readers.
+  const segs = html.slice(html.indexOf('class="th-segs"'), html.indexOf('</ol>', html.indexOf('class="th-segs"')));
+  assert.equal((segs.match(/<li /g)||[]).length, 6);
+  assert.match(html, /0\/6 today/);
   // Today: the Daily Detour and the five daily games as one short list, in the official order.
   assert.equal((html.match(/class="today-row /g)||[]).length, 6);
   const trip=html.slice(html.indexOf('class="today-list"'));

@@ -81,9 +81,9 @@
 .th-play svg{transition:transform .2s}
 .home-trip .today-row button:hover:not(:disabled) .th-play svg{transform:translateX(3px)}
 /* Later stops wait their turn (quieter, a small lock), but every one can be played in any order. */
-.home-trip .today-row.is-later .today-icon{opacity:.55;filter:saturate(.35)}
+.home-trip .today-row.is-later .today-icon{opacity:.8;filter:saturate(.7)}
 .home-trip .today-row.is-later .today-name strong{color:var(--t-soft)}
-.th-lock{color:color-mix(in srgb,var(--t-soft) 70%,transparent)}
+.th-later{color:color-mix(in srgb,var(--t-soft) 70%,transparent)}
 /* The route: a dashed line from stop to stop, solid green once a stop is done. */
 .home-trip .today-row:not(:last-child)::after{content:'';position:absolute;z-index:2;left:30px;top:calc(50% + 25px);height:calc(100% - 50px + 6px);border-left:3px dashed color-mix(in srgb,var(--t-ink) 15%,transparent);pointer-events:none}
 .home-trip .today-row.is-done:not(:last-child)::after{border-left-style:solid;border-left-color:var(--t-brand)}
