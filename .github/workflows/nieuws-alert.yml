@@ -55,6 +55,10 @@ jobs:
         with:
           node-version: "22"
       - run: npm run probe -- XETR:1INN XETR:SAP
+      - run: node scripts/explore.ts
+        if: always()
+        env:
+          WORDS: '["IPO", "IPOs", "initial public offering", "intention to float", "first day of trading", "admission to trading", "debut", "flotation", "listing", "public listing", "begins trading", "go public", "stock market debut", "Börsengang", "Erstnotiz", "Börsendebüt", "Notierungsaufnahme", "Zeichnungsfrist", "Börsenneuling", "introduction en bourse", "première cotation", "cotation", "admission aux négociations", "quotazione", "debutto", "ammissione alle negoziazioni", "matricola", "salida a bolsa", "OPV", "debut bursátil", "estreno bursátil", "oferta pública inicial", "entrada em bolsa", "beursgang", "beursnotering", "börsnotering", "notering", "børsnotering", "listautumisanti", "listautuminen"]'
 
   deploy:
     needs: test
