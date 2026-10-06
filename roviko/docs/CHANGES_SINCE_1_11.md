@@ -507,7 +507,7 @@ Getest: zie `docs/QA_1_22.md`.
 
 ## 1.23.0: spelgevoel, delen en een reden om morgen terug te komen (6 oktober 2026)
 
-**Geen migratie, geen nieuwe geheimen, geen API-wijziging.** Spelregels en puntentelling zijn niet veranderd. Cacheversie `roviko-shell-v1.23.0`, `/api/version` geeft `1.23.0`. De dataset-sleutel blijft `atlas-2026-09-25-r6`, zodat de dagpuzzels dezelfde landen houden. Plan en onderbouwing: `docs/VERBETERPLAN_1_23.md`. Tests: `docs/QA_1_23.md`.
+**Nieuwe migratie: `drizzle/0009_quiet_leagues.sql`** (alleen de tabel `league_members` met twee indexen; de deployworkflow past hem toe). Geen nieuwe geheimen. Nieuwe route `GET /api/league`. De puntentelling van dagspellen is niet veranderd. Cacheversie `roviko-shell-v1.23.0`, `/api/version` geeft `1.23.0`. De dataset-sleutel blijft `atlas-2026-09-25-r6`, zodat de dagpuzzels dezelfde landen houden. Plan en onderbouwing: `docs/VERBETERPLAN_1_23.md`. Tests: `docs/QA_1_23.md`.
 
 **Bugs**
 - **Hoofdsteden in het Nederlands.** "Vienna", "Lisbon" en "Warsaw" stonden als antwoorden in de Nederlandse versie. Nu Wenen, Lissabon, Warschau en de rest (`i18n/capitals-nl.ts`), in vragen, uitleg, Clue Trail, Mosaic en Ontdekken. Typantwoorden accepteren de Nederlandse, Engelse en Spaanse naam. Dagpuzzels die al in de database staan, krijgen de Nederlandse naam bij het tonen (`withSpanish` in `i18n/content.ts`); er wordt niets in de database veranderd.
@@ -544,4 +544,25 @@ Getest: zie `docs/QA_1_22.md`.
 
 **Bestanden:** nieuw `lib/feel-copy.ts`, `lib/haptics.ts`, `lib/plural.ts`, `lib/share-image.ts`, `i18n/v123.ts`, `i18n/capitals-nl.ts`, `components/ds/StreakMoment.tsx`, `components/home/ChallengeBanner.tsx`, `tests/v123.test.mjs`. CSS in `app/stage.css` (onderaan, gemarkeerd met 1.23).
 
-**Tests:** 159/159 (10 nieuw in `tests/v123.test.mjs`; drie bestaande tests aangepast aan de nieuwe deeltekst en feedbackkoppen).
+### Tweede deel: overzichtelijker, Multiplayer zoals het ontwerp, weekgroepen (keuzes van de eigenaar, 6 oktober)
+
+**Homepage, rustig.** Roviko in de ring met één knop en drie tellers; daaronder "Vandaag" als korte lijst van zes spellen en één kolom met de weekgroep (of de ranglijst voor gasten) en de dagdoelen (ingeklapt). Bonustour en Overleven pas na 6/6. Weg van de homepage: "Meer ontdekken", het weekblok, de puntenregel, de detourregel en de uitleglink. Kortere kop: "Elke dag een kleine wereldreis."
+
+**Multiplayer zoals het ontwerp van de eigenaar.**
+- De tab is één kaart: vijf Roviko-vrienden bij een meer (vector), "Samen spelen", drie keuzes (met vrienden, willekeurige speler, tegen de computer) en de kamercode.
+- De wachtkamer: "Kamer K7QMA", 1/12, "Jij bent host · tot 12 spelers", rondes en niveau als pillen, de spelers als ronde avatars met kroon voor de host, één grote knop. Spelsoort, tijd en regio onder "Meer instellingen".
+- Avatars zijn wereldbolletjes met een accessoire (zonnebril, muts, bloem, pet, bril, koptelefoon, safarihoed; de computer is een robotje) in plaats van emoji.
+- Opgelost: de moeilijkheid "Gemengd" heette "Rond de Wereld"; "room" heet in het Nederlands overal "kamer".
+
+**Weekcompetitie in groepen (alleen accounts).** Elke week groepen van maximaal 20 binnen Brons, Zilver, Goud, Smaragd of Diamant. Top 5 stijgt, onderste 5 daalt (groepen vanaf 10). Telt de gewone dagpunten van die week. Op de homepage één regel ("Bronsgroep · #4 van 20 · nog 3 dagen"), op de ranglijst een groepskaart met promotie- en degradatiezone. Gasten zien een uitnodiging.
+
+**Verder.**
+- Eerste bezoek: één welkomstkaart met "Speel je eerste vraag" in plaats van de rondleiding (die blijft in het menu).
+- Dagoverzicht na het zesde dagspel met "Deel je dag"; een gedeelde dag opent als uitdaging.
+- Alle spellen: bonustour, overleven en oefenen achter tabs. Paspoort: minder tegelijk.
+- Schone kleuren: paarse en blauwe interface-accenten (vastgezet antwoord, Mosaic, Clue Trail, ranglijsttabs, schildje) zijn merkgroen.
+- Belarus in plaats van Wit-Rusland (keuze van de eigenaar), ook in al opgeslagen puzzels.
+- Sri Lanka had in de bron een landgrens met India; die is weg. Gevonden door de nieuwe datacontrole `tests/data-sanity.test.mjs`.
+- Account- en instellingenpagina laden pas als je ze opent. Twee ongebruikte illustraties verwijderd.
+
+**Tests:** 166/166. Nieuw: `tests/v123.test.mjs` (10), `tests/league.test.mjs` (5, echte D1), `tests/data-sanity.test.mjs` (2). Aangepast aan bewuste wijzigingen: de deeltekst (`rank.test`, `reliability.test`), de feedbackkoppen (`learning-ui.test`) en de homepage (`rendered-html.test`).

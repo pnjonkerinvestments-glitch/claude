@@ -117,7 +117,7 @@ The daily streak counts consecutive UTC dates with at least one completed daily 
 
 ## One tap answers in single player (1.13)
 
-In single player (solo, practice and all official daily games) a tap on an answer is the answer: Rank Radar subjects and Pinpoint map taps no longer need a separate confirm button. The tapped card is outlined straight away and stays marked after the reveal. Arrow-key pin moves still need Enter, and multiplayer keeps the explicit lock button. Size Shuffle keeps its confirm button, because reordering is not an answer by itself. In daily Side by Side the carried country shows the value that was already revealed in the previous round; the new country's value stays hidden until the answer is saved.
+In single player (solo, practice and all official daily games) a tap on an answer is the answer: Pinpoint map taps no longer need a separate confirm button. (Since the 1.22 board, Rank Radar asks to lock a subject again, because each subject can be used only once; the owner confirmed this in 1.23.) The tapped card is outlined straight away and stays marked after the reveal. Arrow-key pin moves still need Enter, and multiplayer keeps the explicit lock button. Size Shuffle keeps its confirm button, because reordering is not an answer by itself. In daily Side by Side the carried country shows the value that was already revealed in the previous round; the new country's value stays hidden until the answer is saved.
 
 ## Multiplayer review and clues (1.13.2)
 
@@ -132,3 +132,11 @@ Nothing in this section changes points, rankings, streaks or which questions are
 - **Sound and vibration.** One setting decides for every game. Sound is on by default in the iOS/Android app and off on the website. The app vibrates on right, wrong and the finish (switch in Settings); the website never vibrates. Right answers in a row sound a semitone higher each, up to a fifth.
 - **Sharing.** Every share reads "Roviko #N · game", answer squares, the score (points for daily games), the streak and a link. Edition #1 is 25 September 2026 (UTC). A share never names countries, subjects or solutions; Rank Radar keeps its 🟩🟨⬜ row (best, close, weaker pick). A daily score is added to the link (`?s=820`); opening such a link shows a challenge card on the homepage or All games with one button into that game. The number in the link is a friend's claim, never stored or ranked.
 - **Streak moment.** After the first finished daily game of a UTC date the player sees, once per device, the streak count, this week and the next streak shield. The streak itself is unchanged and still derived from saved daily results.
+
+## Weekly leagues (1.23, accounts only)
+
+Every UTC week (Monday–Sunday) accounts that score daily points are placed in a group of at most 20 players within their league: Bronze, Silver, Gold, Emerald or Diamond. A player joins the week's group with their first daily points of that week; guests do not take part. The group ranks by the sum of that week's official daily points (the same ledger as every other ranking; nothing new is scored), ties share a place and blocked accounts are excluded. When a player scores again the next week, the top 5 of last week's group (with points) move up one league and, in groups of at least 10, the bottom 5 move down one; Bronze cannot go lower and Diamond is the top. After a week without points the player keeps their league. Leagues never change daily points, streaks or other rankings.
+
+## Data corrections (1.23)
+
+Sri Lanka has no land borders (the source listed India). Eswatini lists Mbabane and Lobamba. Dutch names: Belarus (owner's choice, formerly Wit-Rusland) and Eswatini (formerly Swaziland).

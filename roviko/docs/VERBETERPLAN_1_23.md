@@ -13,9 +13,12 @@ Datum: 6 oktober 2026. Basis: 1.22.1 (live op roviko.app, gelijk aan de zip `rov
 
 ## Status (6 oktober 2026, einde van de dag)
 
-- **Gebouwd en getest:** alle punten van A (A1–A20) en uit B: B1 (reeksmoment), B2 (deelbeeld) en B3 (uitdaging via gedeelde link). Zie `docs/CHANGES_SINCE_1_11.md` onder 1.23.0 en `docs/QA_1_23.md`.
-- **Open (B):** B4 grotere kaart op de telefoon, B5 dagoverzicht na zes spellen, B6 laadsnelheid (pagina's later laden; levert minder op dan gedacht, omdat de data al niet in de browserbundel zit), B7 CSS samenvoegen, B8 databewaking.
-- **Wacht op de eigenaar (C):** C1–C6.
+- **Gebouwd en getest:** alle punten van A (A1–A20); uit B: B1 (reeksmoment), B2 (deelbeeld), B3 (uitdaging), B5 (dagoverzicht), B8 (datacontrole, vond meteen de Sri Lanka-fout) en een deel van B6 (account en instellingen later laden).
+- **Keuzes van de eigenaar (C), allemaal gebouwd:** C1 welkomstkaart; C2 rustige homepage; C3 weekgroepen met niveaus, alleen accounts; C4 Rank Radar houdt "Vastzetten" (regel aangepast); C5 geluid op de website blijft standaard uit; C6 Belarus. Plus: Multiplayer-tab en wachtkamer naar het ontwerp van de eigenaar, schone kleuren, avatars als wereldbolletjes.
+- **Open:**
+  - B4 grotere kaart op de telefoon. Onderzocht: de breedte van het scherm is de grens (de wereld is twee keer zo breed als hoog). Groter kan alleen door in te zoomen op een werelddeel, en dat verklapt het antwoord. Dat is een spelregelkeuze, dus eerst overleggen.
+  - B6 rest: de teksten per taal apart laden (ongeveer 40 KB minder JavaScript), maar dan zie je bij het laden even Engels.
+  - B7 CSS samenvoegen.
 
 Impact: **hoog / middel / laag**. Moeite: **klein** (uren), **middel** (een dag), **groot** (meerdere dagen).
 
