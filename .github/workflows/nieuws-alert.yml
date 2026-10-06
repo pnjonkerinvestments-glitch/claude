@@ -55,6 +55,8 @@ jobs:
         with:
           node-version: "22"
       - run: npm run probe -- XETR:1INN XETR:SAP
+      - run: node scripts/explore.ts
+        if: always()
 
   deploy:
     needs: test
