@@ -73,7 +73,7 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 }
 
 /* ───────── Game header: close button, thin bar, coin pill ───────── */
-.game-header.trip-top{position:relative;display:grid;gap:10px;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+.game-header.trip-top{position:sticky;display:grid;gap:10px;padding:6px 0!important;background:var(--t-canvas)!important;border:0!important;box-shadow:none!important;border-radius:0!important}
 .trip-top .game-header-row{display:flex!important;align-items:center;gap:12px;min-height:48px}
 .trip-top .game-exit{flex-shrink:0;width:44px;height:44px;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;border:0!important}
 .trip-top .game-progress-bar{flex:1;min-width:40px;height:10px!important;margin:0!important;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 10%,transparent)!important;overflow:hidden}
@@ -204,3 +204,5 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 .t-stack{display:inline-flex;align-items:center}
 .t-stack>*{margin-left:-8px;border:2px solid var(--t-card);border-radius:999px;background:var(--t-card)}
 .t-stack>*:first-child{margin-left:0}
+/* In the app (notch) the sticky game bar also covers the status-bar strip above it while scrolling. */
+@media (max-width:760px){.game-header.trip-top{box-shadow:0 -48px 0 var(--t-canvas)!important}}
