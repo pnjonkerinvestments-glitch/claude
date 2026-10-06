@@ -1,1 +1,540 @@
 /* Roviko 1.23 trip style · Explore, Passport, Rankings, Settings, Account, Friends, How to play, scoring and info pages, dialogs. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
+/*
+  Every page here is a .trip-page: a cream canvas, the title as a big forest display line with at most one soft line
+  under it and Roviko next to it, then white rounded cards, mint pills and tabs with a mint active pill, forest buttons.
+  Only presentation: no rule, flow or data depends on this file.
+*/
+
+/* ═════════ Page frame ═════════ */
+.trip-page{display:grid!important;gap:30px!important;width:100%;max-width:1080px;margin:0 auto}
+.trip-page>*{min-width:0}
+.trip-page:is(.rankings,.settings-page,.account-page,.friends-v2,.scoring-page,.seo-page){max-width:760px}
+@media (max-width:760px){.trip-page{gap:26px!important}}
+
+/* ───── Page head: no dark block; a green kicker, the forest title, one soft line, Roviko beside it ───── */
+.page-header.page-stage{align-items:center!important;gap:0 12px!important;min-height:0!important;margin:0!important;padding:0 4px!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-ink)!important;overflow:visible!important}
+.page-header.page-stage::after{display:none!important}
+.page-stage .ps-copy{min-width:0;padding:6px 0 0!important}
+.page-stage .kicker{display:block!important;width:auto!important;min-height:0!important;margin:0!important;padding:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em!important;text-transform:uppercase}
+.page-stage h1{margin:6px 0 0!important;color:var(--t-ink)!important;font:600 clamp(2rem,1.55rem + 2vw,3rem)/1.08 var(--font-display)!important;letter-spacing:-.018em!important;text-wrap:balance;hyphens:manual!important;overflow-wrap:break-word!important}
+.page-stage .kicker+h1{margin-top:6px!important}
+.page-stage .back-pill+h1{margin-top:0!important}
+.page-stage .lead{max-width:46ch;margin:10px 0 0!important;color:var(--t-soft)!important;font:600 1rem/1.5 var(--font-sans)!important}
+.page-stage .ps-character{width:150px!important;height:auto!important;margin:0!important;filter:none!important;align-self:end}
+.page-stage .ps-character .character-shadow{opacity:.14}
+.page-stage .back-pill{display:inline-flex!important;align-items:center;gap:6px;min-height:40px;margin:0 0 14px!important;padding:0 16px 0 12px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:700 .9375rem/1 var(--font-sans)!important;cursor:pointer}
+.page-stage .back-pill:hover{background:var(--t-mint)!important}
+.page-stage .back-pill:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+@media (max-width:760px){
+  .page-header.page-stage{grid-template-columns:minmax(0,1fr) 96px!important}
+  .page-stage .ps-character{width:108px!important;margin:0 -8px 0 -12px!important}
+  .page-stage .lead{font-size:.9375rem!important}
+}
+@media (max-width:374px){
+  .page-header.page-stage{grid-template-columns:minmax(0,1fr) 76px!important}
+  .page-stage .ps-character{width:88px!important}
+  .page-stage h1{font-size:1.75rem!important}
+}
+
+/* ───── Section heads ───── */
+.trip-page .page-section{display:grid!important;gap:14px!important}
+.trip-page .section-header{display:flex!important;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:6px 16px;margin:0!important;padding:0 4px}
+.trip-page .section-header h2,.trip-page .page-section>h2,.trip-page .atelier-section-heading h2{margin:0!important;color:var(--t-ink)!important;font:600 1.5rem/1.15 var(--font-display)!important;letter-spacing:-.01em!important}
+.trip-page .section-header .kicker{display:block;min-height:0;margin:0 0 4px!important;padding:0!important;background:none!important;box-shadow:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
+.trip-page .section-header .muted,.trip-page .section-header p{color:var(--t-soft);font:700 .875rem/1.35 var(--font-sans)}
+.trip-page .section-lead{margin:-6px 0 0!important;padding:0 4px;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.trip-page .text-link{color:var(--t-brand);font-weight:800}
+.trip-page .text-link:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px;border-radius:8px}
+.trip-page .small-print{padding:0 4px;color:var(--t-soft);font:600 .8125rem/1.5 var(--font-sans)}
+@media (max-width:420px){.trip-page .section-header h2,.trip-page .page-section>h2,.trip-page .atelier-section-heading h2{font-size:1.375rem!important}}
+
+/* A quiet line when there is nothing yet: no box, one link on. */
+.trip-page .soft-note{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:18px 20px!important;border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-card) 55%,transparent)!important;box-shadow:inset 0 0 0 1.5px var(--t-line)!important;color:var(--t-soft)!important;font:600 .9375rem/1.45 var(--font-sans)}
+.trip-page .soft-note p{margin:0}
+
+/* ═════════ Shared pieces on these pages ═════════ */
+/* White cards with rows: settings, account, links. Icons sit in a mint circle. */
+.trip-page .settings-card{display:grid;padding:6px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;overflow:hidden}
+.trip-page .settings-card-row{display:flex!important;align-items:center;gap:14px!important;min-height:66px;padding:10px 14px 10px 10px!important;border:0;border-radius:var(--t-radius-sm)!important;background:none;color:var(--t-ink)!important;text-align:left;text-decoration:none;transition:background .18s}
+.trip-page .settings-card-row+.settings-card-row{box-shadow:0 -1px 0 var(--t-line)!important}
+.trip-page :is(a,button).settings-card-row:hover{background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card))!important}
+.trip-page .settings-card-row:focus-visible{outline:3px solid var(--t-brand);outline-offset:-3px}
+.trip-page .settings-card-row>svg:first-child,.trip-page .settings-card-row>.row-icon{box-sizing:content-box;flex:0 0 auto;width:20px;height:20px;padding:11px;border-radius:999px;background:var(--t-mint);color:var(--t-brand)!important}
+.trip-page .settings-card-row>svg:last-child:not(:first-child){color:var(--t-soft)!important;flex-shrink:0}
+.trip-page .settings-card-row>span,.trip-page .settings-card-row>label{flex:1 1 auto;display:grid;gap:1px;min-width:0}
+.trip-page .settings-card-row strong{color:var(--t-ink);font:600 1.0625rem/1.25 var(--font-display);overflow-wrap:anywhere}
+.trip-page .settings-card-row small{color:var(--t-soft)!important;font:600 .8125rem/1.35 var(--font-sans)!important}
+.trip-page .settings-card-row.is-danger strong{color:var(--t-red)!important}
+.trip-page .settings-card-row.is-danger>svg:first-child{background:var(--t-red-soft);color:var(--t-red)!important}
+.trip-page .settings-card .is-verified{background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
+.trip-page .settings-card-pad{display:grid;gap:10px;padding:16px 18px 20px!important}
+.trip-page .settings-label{display:flex!important;align-items:center;gap:8px;margin:4px 0 0!important;color:var(--t-ink)!important;font:600 1.0625rem/1.25 var(--font-display)!important}
+.trip-page .settings-label svg{color:var(--t-brand)}
+.trip-page .settings-label+.segmented{margin-bottom:6px}
+
+/* Switches: forest when on, a soft track when off. */
+.trip-page [data-slot=switch],.app-modal [data-slot=switch]{width:52px!important;height:30px!important;padding:3px!important;border:0!important;border-radius:999px!important;background:color-mix(in srgb,var(--t-ink) 16%,transparent)!important;box-shadow:none!important;cursor:pointer;flex-shrink:0}
+.trip-page [data-slot=switch][data-state=checked],.app-modal [data-slot=switch][data-state=checked]{background:var(--t-forest)!important}
+.trip-page [data-slot=switch-thumb],.app-modal [data-slot=switch-thumb]{width:24px!important;height:24px!important;background:#fff!important;box-shadow:0 1px 3px rgba(0,0,0,.2)!important;transition:transform .25s cubic-bezier(.34,1.56,.64,1)!important}
+.trip-page [data-slot=switch-thumb][data-state=checked],.app-modal [data-slot=switch-thumb][data-state=checked]{transform:translateX(22px)!important}
+[data-theme=dark] .trip-page [data-slot=switch-thumb][data-state=checked],[data-theme=dark] .app-modal [data-slot=switch-thumb][data-state=checked]{background:var(--t-forest-ink)!important}
+.trip-page [data-slot=switch]:focus-visible,.app-modal [data-slot=switch]:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+
+/* Tabs and filters: a white track, a mint pill for the one you are on. Inside a card the track is the canvas. */
+.trip-page .segmented{display:flex!important;gap:4px!important;width:max-content;max-width:100%;padding:5px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;overflow-x:auto;scrollbar-width:none}
+.trip-page .segmented::-webkit-scrollbar{display:none}
+.trip-page .segmented button{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:0 16px!important;border:0!important;border-radius:999px!important;background:transparent!important;color:var(--t-soft)!important;box-shadow:none!important;font:600 .9375rem/1.1 var(--font-display)!important;white-space:nowrap;cursor:pointer;transition:background .2s,color .2s}
+.trip-page .segmented button:hover{color:var(--t-ink)!important}
+.trip-page .segmented button:is([aria-pressed=true],[aria-selected=true]){background:var(--t-mint)!important;color:var(--t-ink)!important}
+.trip-page .segmented button:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+.trip-page .settings-card .segmented{width:100%;background:var(--t-canvas)!important;box-shadow:none!important}
+.trip-page .settings-card .segmented button:is([aria-pressed=true],[aria-selected=true]){background:var(--t-card)!important;box-shadow:0 1px 2px rgba(22,59,50,.08),0 4px 12px rgba(22,59,50,.1)!important;color:var(--t-ink)!important}
+[data-theme=dark] .trip-page .settings-card .segmented button:is([aria-pressed=true],[aria-selected=true]){background:var(--t-mint)!important;box-shadow:none!important}
+
+/* Selects (Choice) as white pills. */
+.trip-page .field>span,.app-modal .field>span{color:var(--t-ink);font:700 .875rem/1.3 var(--font-sans)}
+.trip-page .select-trigger,.app-modal .select-trigger{min-height:46px!important;padding:0 16px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 .9375rem/1.2 var(--font-display)!important}
+.app-modal .select-trigger{background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;box-shadow:none!important}
+
+/* Avatars: the little globes sit on a white disc. */
+.trip-page .avatar{background:var(--t-mint)!important;border-radius:999px}
+
+/* Lists of people: rankings, friends, recent games. One white card, rows split by a hairline, you in mint. */
+.trip-page :is(.leader-list,.recent-list,.friend-list-v2){list-style:none;display:grid;gap:0!important;margin:0;padding:6px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.trip-page .leader-list li{display:grid;grid-template-columns:36px 40px minmax(0,1fr) auto!important;align-items:center;gap:12px!important;min-height:60px;padding:8px 14px 8px 10px!important;border-radius:var(--t-radius-sm)!important;color:var(--t-ink)}
+.trip-page .leader-list li+li,.trip-page .recent-list li+li,.trip-page .friend-list-v2>li+li{box-shadow:0 -1px 0 var(--t-line)!important;border-top:0!important}
+.trip-page .leader-list li.is-you{background:var(--t-mint)!important;box-shadow:none!important}
+.trip-page .leader-list li.is-you+li{box-shadow:none!important}
+.trip-page .leader-list .avatar{width:40px!important;height:40px!important}
+.trip-page .leader-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 1.0625rem/1.2 var(--font-display)}
+.trip-page .leader-name small{color:var(--t-soft);font:700 .8125rem var(--font-sans)}
+.trip-page .leader-list strong{color:var(--t-ink);font:600 1.125rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.trip-page .place{display:grid;place-items:center;width:32px;height:32px;border-radius:999px;color:var(--t-soft);font:600 1rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+/* Medals keep their meaning (gold, silver, bronze); the number is always written in them. */
+.trip-page .place-medal{color:#2b2208!important}
+.trip-page .medal-1{background:var(--t-gold)!important;box-shadow:none!important}
+.trip-page .medal-2{background:#dfe4e8!important;box-shadow:none!important}
+.trip-page .medal-3{background:#eec39c!important;box-shadow:none!important}
+@media (max-width:420px){
+  .trip-page .leader-list li{grid-template-columns:30px 36px minmax(0,1fr) auto!important;gap:10px!important;padding:8px 12px 8px 8px!important}
+  .trip-page .leader-list .avatar{width:36px!important;height:36px!important}
+}
+
+/* ═════════ States: loading, empty, error ═════════ */
+.state{display:grid!important;justify-items:center;gap:10px!important;padding:30px 20px!important;border-radius:var(--t-radius)!important;text-align:center}
+.trip-page .state,.site-main>.state{background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.site-main>.state{max-width:560px;margin:24px auto 0}
+.state .state-icon{display:grid!important;place-items:center;width:64px!important;height:64px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-brand)!important;box-shadow:none!important}
+.state .state-character{width:132px;height:auto;margin-bottom:-4px}
+.state .state-character .character-shadow{opacity:.14}
+.state-title{max-width:28ch;margin:4px 0 0!important;color:var(--t-ink)!important;font:600 1.375rem/1.2 var(--font-display)!important;text-wrap:balance}
+.state-copy{max-width:42ch;margin:0!important;color:var(--t-soft)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+.state-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:8px}
+/* Skeletons: soft mint blocks with a slow shimmer. */
+.sk{background:color-mix(in srgb,var(--t-mint) 70%,var(--t-card))!important;border-radius:var(--t-radius-sm)}
+.sk::after{background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--t-card) 55%,transparent),transparent)!important}
+.sk-block.sk-card,.sk-block.sk-hero,.sk-block.sk-you,.sk-country{border-radius:var(--t-radius)!important}
+.sk-list-row{border-radius:var(--t-radius-sm)!important}
+
+/* ═════════ Explore ═════════ */
+.explore .explore-bar{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:10px!important;margin:-6px 0 0!important}
+.explore .search-field{min-width:0!important;min-height:54px;padding:0 6px 0 18px!important;border-radius:999px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-soft)}
+.explore .search-field:focus-within{box-shadow:var(--t-shadow),inset 0 0 0 2px var(--t-brand)!important}
+.explore .search-field input{color:var(--t-ink)!important;font:600 1rem var(--font-sans)!important}
+.explore .search-field input::placeholder{color:var(--t-soft);opacity:.85}
+.explore .explore-bar>.btn{min-height:54px;padding:0 20px!important;border:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 1rem/1 var(--font-display)!important}
+.explore .explore-bar>.btn:hover:not(:disabled){background:var(--t-mint-2)!important}
+.explore .explore-bar>.btn svg{color:var(--t-brand)}
+.explore .chip-row{display:flex;gap:8px!important;margin:-14px -16px 0!important;padding:4px 16px 8px!important;overflow-x:auto;scrollbar-width:none}
+.explore .chip{flex-shrink:0;min-height:42px;padding:0 18px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 .9375rem/1 var(--font-display)!important}
+.explore .chip:hover{background:color-mix(in srgb,var(--t-mint) 50%,var(--t-card))!important}
+.explore .chip[aria-pressed=true]{background:var(--t-mint)!important;color:var(--t-ink)!important;box-shadow:none!important}
+.explore .chip:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+@media (min-width:761px){.explore .chip-row{margin:-16px 0 0!important;padding:4px 2px 8px!important;flex-wrap:wrap}}
+.explore .results-meta{display:inline-flex;align-items:center;gap:14px}
+
+.explore .country-grid-v2{gap:10px!important}
+.trip-page .country-tile{min-height:72px;padding:12px 16px!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink)!important;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.trip-page .country-tile:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
+.trip-page .country-tile:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+/* Real flag proportions: never crop. */
+.trip-page .country-tile img{width:auto!important;height:auto!important;max-width:54px!important;max-height:36px!important;object-fit:contain!important;border-radius:5px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)!important;flex-shrink:0}
+.trip-page .country-tile strong{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)!important}
+.trip-page .country-tile small{color:var(--t-soft)!important}
+
+.explore .pick-card{border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink)!important;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .2s!important}
+.explore .pick-card:hover{transform:translateY(-3px)!important;box-shadow:var(--t-shadow-lift)!important}
+.explore .pick-card:focus-visible,.trip-page .region-card:focus-visible{outline:3px solid var(--t-brand);outline-offset:3px}
+.explore .pick-copy small{color:var(--t-brand)!important}
+.explore .pick-copy strong{color:var(--t-ink)!important}
+.explore .pick-copy span{color:var(--t-soft)!important}
+.trip-page .round-go{border:0!important;background:var(--t-mint)!important;color:var(--t-ink)!important;box-shadow:none!important}
+.trip-page .scene-card .round-go{background:var(--t-card)!important;box-shadow:0 4px 12px rgba(22,59,50,.14)!important}
+.trip-page .region-card{border-radius:var(--t-radius)!important;box-shadow:var(--t-shadow)!important;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.trip-page .region-card:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
+.explore .data-notice{justify-self:start;padding:0 4px;color:var(--t-soft)!important;font:700 .875rem/1.4 var(--font-sans)!important}
+.explore .data-notice:hover{color:var(--t-brand)!important}
+
+/* The country card. */
+.country-modal{display:grid;gap:6px}
+.country-modal .country-detail-flag{width:auto!important;height:auto!important;max-width:min(100%,240px)!important;max-height:150px!important;margin:4px 0 10px!important;object-fit:contain!important;border-radius:10px!important;box-shadow:0 0 0 1px rgba(22,59,50,.08),0 12px 28px rgba(22,59,50,.18)!important;animation:t-flag .45s cubic-bezier(.34,1.56,.64,1) both}
+[data-theme=dark] .country-modal .country-detail-flag{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 28px rgba(0,0,0,.45)!important}
+.country-modal .country-facts{display:grid;margin:8px 0 14px!important;padding:4px 16px!important;border-radius:var(--t-radius-sm);background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))}
+.country-modal .country-facts>div{display:grid;grid-template-columns:minmax(92px,auto) minmax(0,1fr);gap:12px;padding:10px 0!important;border:0!important}
+.country-modal .country-facts>div+div{box-shadow:0 -1px 0 var(--t-line)}
+.country-modal .country-facts dt{color:var(--t-soft);font:700 .8125rem/1.4 var(--font-sans)}
+.country-modal .country-facts dd{margin:0;color:var(--t-ink);font:700 .9375rem/1.4 var(--font-sans);overflow-wrap:anywhere}
+.country-modal>.text-link{justify-self:center;margin-top:4px;color:var(--t-soft)!important;font-size:.875rem}
+
+/* ═════════ Passport ═════════ */
+.passport .passport-cover{gap:18px!important;padding:24px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.passport .passport-cover-id{gap:16px!important;align-items:center}
+.passport .passport-cover .avatar.large{width:72px!important;height:72px!important;box-shadow:0 0 0 4px var(--t-mint)!important}
+.passport .passport-cover h2{margin:0!important;color:var(--t-ink)!important;font:600 1.625rem/1.15 var(--font-display)!important}
+.passport .passport-cover-id p{margin:2px 0 10px!important;color:var(--t-soft)!important;font:700 .9375rem/1.3 var(--font-sans)}
+.passport .passport-preview{margin:0 0 6px!important;padding:3px 10px!important;border-radius:999px;background:var(--t-gold)!important;color:var(--t-gold-ink)!important;font:800 .6875rem/1.4 var(--font-sans)!important;letter-spacing:.08em}
+.passport .passport-xp{max-width:300px;height:10px!important;border-radius:999px;background:var(--t-mint)!important;overflow:hidden}
+.passport .passport-xp>*{background:var(--t-forest)!important;border-radius:999px}
+.passport .passport-cover .btn.ghost{min-height:42px;padding:0 16px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-ink)!important}
+/* Five numbers in a row, no boxes; hairlines between them. */
+.passport .passport-stats{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:0!important;border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;overflow:hidden}
+.passport .passport-stat{display:grid;align-content:start;gap:2px;padding:14px 12px!important;background:none!important;text-align:center}
+.passport .passport-stat+.passport-stat{box-shadow:-1px 0 0 var(--t-line)}
+.passport .passport-stat strong{color:var(--t-ink)!important;font:600 1.5rem/1.1 var(--font-display)!important}
+.passport .passport-stat span{color:var(--t-soft)!important;font:700 .75rem/1.25 var(--font-sans)!important}
+@media (max-width:560px){
+  .passport .passport-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  .passport .passport-stat:nth-child(4){box-shadow:0 -1px 0 var(--t-line)!important}
+  .passport .passport-stat:nth-child(5){box-shadow:0 -1px 0 var(--t-line),-1px 0 0 var(--t-line)!important}
+  .passport .passport-stat{padding:12px 6px!important}
+  .passport .passport-stat strong{font-size:1.25rem!important}
+}
+.passport .passport-save{display:grid!important;gap:12px!important;padding:18px!important;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;color:var(--t-ink)!important}
+.passport .passport-save h3{margin:0 0 2px!important;color:var(--t-ink)!important;font:600 1.1875rem/1.2 var(--font-display)!important}
+.passport .passport-save p{margin:0!important;color:var(--t-text)!important;font:600 .9375rem/1.45 var(--font-sans)}
+.passport .passport-save-actions{gap:16px!important}
+.passport .passport-save .text-link{color:var(--t-ink)!important}
+
+/* The collection: one card with the counts and the map, the regions under it. */
+.passport .passport-collection{display:grid;gap:14px}
+.passport .atelier-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 4px}
+.passport .atelier-section-heading>span{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:var(--t-card);box-shadow:var(--t-shadow);color:var(--t-ink);font:600 .9375rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.passport .stamp-rule,.passport .stamp-region-rule{margin:0!important;padding:0 4px;color:var(--t-soft)!important;font:600 .875rem/1.5 var(--font-sans)!important}
+.passport .discovery-atlas{gap:16px!important;padding:16px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.passport .discovery-counts{border:0!important;background:none!important;box-shadow:none!important}
+.passport .discovery-counts strong{color:var(--t-ink)!important;font-family:var(--font-display)!important}
+.passport .discovery-counts span{color:var(--t-soft)!important}
+.passport .discovery-counts p{color:var(--t-brand)!important;font-weight:700}
+.passport .passport-map svg{border-radius:var(--t-radius-sm)}
+.passport .passport-map>p{color:var(--t-soft)}
+.passport .stamp-empty{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.passport .country-stamps>summary,.passport .badge-more>summary{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--t-brand);font:800 .9375rem/1.2 var(--font-sans);cursor:pointer}
+.passport .country-stamp{border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.passport .country-stamp img{width:auto!important;height:auto!important;max-width:60px!important;max-height:42px!important;object-fit:contain!important}
+
+/* Things to practise again. */
+.passport .review-tile{border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.passport .review-tile img{width:auto!important;height:auto!important;max-width:44px;max-height:30px;object-fit:contain}
+.passport .review-tile .btn{min-height:40px;border-radius:999px!important}
+
+/* Achievements: line icons in a round seal; earned ones fill forest, locked ones stay quiet. */
+.passport .badge-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))!important;gap:10px!important}
+.passport .badge{gap:6px!important;padding:18px 12px 16px!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.passport .badge-seal{width:52px!important;height:52px!important;border-radius:999px!important;background:color-mix(in srgb,var(--t-ink) 7%,var(--t-card))!important;color:var(--t-soft)!important;filter:none!important;opacity:1!important;box-shadow:none!important}
+.passport .badge.is-earned .badge-seal{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-mark .45s cubic-bezier(.34,1.56,.64,1) both}
+.passport .badge-lock{right:-3px!important;bottom:-3px!important;background:var(--t-card)!important;color:var(--t-soft)!important;box-shadow:0 0 0 2px var(--t-card)}
+.passport .badge strong{color:var(--t-ink);font:600 1rem/1.2 var(--font-display)!important}
+.passport .badge small{color:var(--t-soft)!important;font:700 .8125rem/1.3 var(--font-sans)!important}
+.passport .badge.is-earned small{color:var(--t-brand)!important}
+.passport .badge:not(.is-earned) strong{color:var(--t-soft)}
+@media (max-width:420px){.passport .badge-grid{grid-template-columns:1fr 1fr!important}}
+
+.passport .recent-list li{display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 14px 8px 10px!important}
+.passport .recent-list .game-icon{--gi-size:40px;width:40px;height:40px;flex-shrink:0}
+.passport .recent-list strong{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.passport .recent-list small{color:var(--t-soft)}
+.passport .recent-list b{color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+
+/* ═════════ Rankings ═════════ */
+.rankings .page-section{gap:14px!important}
+.rankings .rank-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 14px}
+.rankings .rank-head>.muted{padding:0 4px;color:var(--t-soft);font:700 .875rem/1.3 var(--font-sans)}
+/* You: a white card with your place and points. */
+.rankings .you-card{display:flex!important;flex-wrap:wrap;align-items:center;gap:14px!important;padding:18px 20px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.rankings .you-card .avatar{width:52px!important;height:52px!important;box-shadow:0 0 0 3px var(--t-mint)}
+.rankings .you-card small{color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em!important;text-transform:uppercase}
+.rankings .you-card strong{color:var(--t-ink);font:600 2rem/1.05 var(--font-display)!important}
+.rankings .you-card p{margin:4px 0 0!important;color:var(--t-soft)!important;font:600 .875rem/1.4 var(--font-sans)}
+.rankings .you-score{text-align:right}
+.rankings .you-score strong{font-size:1.75rem!important;font-variant-numeric:tabular-nums}
+.rankings .you-score small{display:block;color:var(--t-soft)!important;letter-spacing:.04em!important}
+.rankings .you-card .btn.primary{flex:1 1 100%;min-height:52px}
+.rankings .you-card.is-unranked .avatar{opacity:.85}
+@media (max-width:420px){.rankings .you-card{padding:16px!important;gap:12px!important}.rankings .you-card>div:nth-child(2){min-width:0!important;flex:1 1 0}}
+.rankings .rank-target,.trip-page .rank-target{justify-self:start;margin:0!important;padding:10px 16px!important;border-radius:999px!important;background:color-mix(in srgb,var(--t-gold) 26%,var(--t-card))!important;color:var(--t-ink)!important;font:700 .9375rem/1.35 var(--font-sans)!important}
+.rankings .rank-filters{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+.rankings .rank-filters .field{display:grid;gap:6px;min-width:170px}
+
+/* The weekly league card: tier shield, days left, your group with the up and down lines. */
+.trip-page .league-card{margin:0!important;padding:20px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink)}
+.trip-page .league-head{display:flex;align-items:center;gap:14px}
+.trip-page .league-head h2{margin:0!important;color:var(--t-ink)!important;font:600 1.375rem/1.2 var(--font-display)!important}
+.trip-page .league-head p{margin:3px 0 0!important;color:var(--t-soft)!important;font:600 .875rem/1.45 var(--font-sans)!important}
+.trip-page .league-place{padding:0 16px!important;min-height:40px;display:inline-flex;align-items:center;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-ink)!important;font:600 1.25rem/1 var(--font-display)!important}
+.trip-page .league-invite{margin:14px 0 16px!important;color:var(--t-text)!important;font:600 .9375rem/1.5 var(--font-sans)}
+.trip-page .league-card>.btn{width:100%;min-height:52px}
+.trip-page .league-change{margin:14px 0 0!important;padding:10px 16px!important;border-radius:999px!important;font:700 .9375rem/1.35 var(--font-sans)!important}
+.trip-page .league-change.is-up{background:var(--t-mint)!important;color:var(--t-ink)!important}
+.trip-page .league-change.is-down{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
+.trip-page .league-list{gap:2px!important;margin:14px 0 0!important}
+.trip-page .league-row{min-height:54px;padding:6px 12px 6px 6px!important;border-radius:var(--t-radius-sm)!important}
+.trip-page .league-row.is-you{background:var(--t-mint)!important}
+.trip-page .league-row .avatar{width:38px!important;height:38px!important}
+.trip-page .league-num{color:var(--t-soft)!important;font:600 1rem/1 var(--font-display)!important}
+.trip-page .league-row.zone-up .league-num{color:var(--t-brand)!important}
+.trip-page .league-row.zone-down .league-num{color:var(--t-red)!important}
+.trip-page .league-name{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)!important}
+.trip-page .league-row strong{color:var(--t-ink);font:600 1.0625rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.trip-page .league-zone{margin:6px 6px!important;padding:6px 6px 0!important;border-top:2px dashed!important;font:800 .6875rem/1.2 var(--font-sans)!important;letter-spacing:.08em!important}
+.trip-page .league-zone.is-up{border-color:color-mix(in srgb,var(--t-brand) 45%,transparent)!important;color:var(--t-brand)!important}
+.trip-page .league-zone.is-down{border-color:color-mix(in srgb,var(--t-red) 45%,transparent)!important;color:var(--t-red)!important}
+
+/* ═════════ Settings and account ═════════ */
+.settings-page .page-section,.account-page .page-section{gap:12px!important}
+.account-page .account-card{display:flex!important;flex-wrap:wrap;align-items:center;gap:14px 16px!important;padding:20px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink)}
+.account-page .account-card .avatar.large{width:64px!important;height:64px!important;box-shadow:0 0 0 4px var(--t-mint)}
+.account-page .account-id{flex:1 1 160px;display:grid;gap:2px;min-width:0}
+.account-page .account-id strong{color:var(--t-ink);font:600 1.5rem/1.15 var(--font-display);overflow-wrap:anywhere}
+.account-page .account-id small{color:var(--t-soft);font:700 .875rem/1.3 var(--font-sans)}
+.account-page .account-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;flex:1 1 100%}
+.account-page .account-card>.btn.secondary{min-height:44px}
+.account-page .settings-card-row .btn-sm{min-height:38px;padding:0 14px!important;border-radius:999px!important;font-size:.875rem!important}
+.account-page .blocked-players,.account-page section:last-of-type:not(.page-section){color:var(--t-ink)}
+
+/* ═════════ Friends ═════════ */
+.friends-v2 .friend-add{display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px 16px!important;padding:20px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.friends-v2 .friend-add h2{margin:0 0 2px!important;color:var(--t-ink)!important;font:600 1.375rem/1.2 var(--font-display)!important}
+.friends-v2 .friend-add .muted{margin:0;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.trip-page .friend-code{display:inline-grid!important;grid-template-columns:auto auto;align-items:center;column-gap:10px;min-height:56px;padding:8px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;color:var(--t-ink)!important;box-shadow:none!important;cursor:pointer;text-align:left;transition:background .2s,transform .22s cubic-bezier(.34,1.56,.64,1)}
+.trip-page .friend-code:hover{background:var(--t-mint-2)!important}
+.trip-page .friend-code:active{transform:scale(.97)}
+.trip-page .friend-code small{grid-column:1;color:var(--t-brand)!important;font:800 .6875rem/1.2 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
+.trip-page .friend-code b{grid-column:1;color:var(--t-ink)!important;font:600 1.375rem/1.1 var(--font-display)!important;letter-spacing:.08em}
+.trip-page .friend-code svg{grid-column:2;grid-row:1/span 2;color:var(--t-brand)}
+.friends-v2 .friend-form{grid-column:1/-1;display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:10px!important}
+.trip-page .code-input{min-height:52px;padding:0 18px!important;border:2px solid transparent!important;border-radius:999px!important;background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;color:var(--t-ink)!important;font:600 1.125rem/1 var(--font-display)!important;letter-spacing:.1em;box-shadow:none!important}
+.trip-page .code-input::placeholder{color:var(--t-soft);letter-spacing:.02em;font-weight:600;opacity:.85}
+.trip-page .code-input:focus{outline:0;border-color:var(--t-brand)!important}
+.friends-v2 .friend-form .btn{min-height:52px}
+@media (max-width:560px){.friends-v2 .friend-add{grid-template-columns:1fr}.friends-v2 .friend-code{justify-self:start}}
+@media (max-width:374px){.friends-v2 .friend-form{grid-template-columns:1fr}}
+.trip-page .friend-row{display:flex!important;align-items:center;gap:12px!important;min-height:64px;padding:8px 8px 8px 10px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:none!important;box-shadow:none!important}
+.trip-page .friend-avatar{position:relative;flex-shrink:0}
+.trip-page .friend-avatar .avatar{width:42px!important;height:42px!important}
+.trip-page .presence-dot{position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 25%,var(--t-card));box-shadow:0 0 0 2.5px var(--t-card)}
+.trip-page .friend-row.is-online .presence-dot{background:var(--t-brand)}
+.trip-page .friend-info{flex:1 1 auto;display:grid;min-width:0}
+.trip-page .friend-info strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.trip-page .friend-info small{color:var(--t-soft);font:700 .8125rem/1.3 var(--font-sans)}
+.trip-page .friend-row.is-online .friend-info small{color:var(--t-brand)}
+.trip-page .friend-row .btn-sm{min-height:40px;padding:0 14px!important;border-radius:999px!important;font-size:.875rem!important}
+.trip-page .row-actions{display:inline-flex;align-items:center;gap:8px}
+
+/* ═════════ How to play ═════════ */
+.howto-v2 .howto-tabs{display:flex!important;gap:16px!important;margin:-6px -16px 0!important;padding:4px 16px 10px!important;overflow-x:auto;scrollbar-width:none;border:0!important;background:none!important}
+.howto-v2 .howto-tabs::-webkit-scrollbar{display:none}
+.howto-v2 .howto-tab-group{display:flex!important;align-items:center;gap:8px!important;flex-shrink:0}
+.howto-v2 .howto-tab-label{flex-shrink:0;color:var(--t-brand)!important;font:800 .6875rem/1.2 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase;writing-mode:horizontal-tb}
+.howto-v2 .howto-tab{flex-shrink:0;display:inline-flex!important;align-items:center;gap:8px;min-height:46px;padding:0 16px 0 8px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 .9375rem/1 var(--font-display)!important;white-space:nowrap;cursor:pointer;transition:background .2s,transform .22s cubic-bezier(.34,1.56,.64,1)}
+.howto-v2 .howto-tab:hover{background:color-mix(in srgb,var(--t-mint) 50%,var(--t-card))!important}
+.howto-v2 .howto-tab[aria-selected=true]{background:var(--t-mint)!important;color:var(--t-ink)!important;box-shadow:none!important}
+.howto-v2 .howto-tab:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.howto-v2 .howto-tab .game-icon{--gi-size:30px;width:30px!important;height:30px!important}
+@media (min-width:1000px){.howto-v2 .howto-tabs{flex-wrap:wrap;margin:-6px 0 0!important;padding:4px 2px 10px!important;row-gap:12px!important}.howto-v2 .howto-tab-group{flex-wrap:wrap}}
+.howto-v2 .howto-panel{overflow:hidden;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)}
+.howto-v2 .howto-art{border-radius:0!important;background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card))!important}
+.howto-v2 .howto-body{display:grid;gap:10px}
+.howto-v2 .howto-body>.kicker{display:block!important;min-height:0!important;margin:0!important;padding:0!important;background:none!important;box-shadow:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
+.howto-v2 .howto-body h2{display:flex;align-items:center;gap:10px;margin:0!important;color:var(--t-ink)!important;font:600 clamp(1.625rem,1.35rem + 1.2vw,2.25rem)/1.15 var(--font-display)!important}
+.howto-v2 .howto-body h3{margin:10px 0 0!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
+.howto-v2 .howto-body p{margin:0;color:var(--t-text);font:600 1rem/1.55 var(--font-sans)}
+.howto-v2 .howto-goal{color:var(--t-ink)!important;font:600 1.125rem/1.45 var(--font-display)!important}
+.howto-v2 .howto-example{padding:14px 16px!important;border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-mint) 45%,var(--t-card))!important;border:0!important}
+.howto-v2 .howto-actions{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;margin-top:10px}
+/* Steps and the tip: also used in the dialog that opens in a game. */
+.howto-steps{display:grid;gap:0!important;margin:0;padding:0;list-style:none}
+.howto-steps>li{display:grid!important;grid-template-columns:34px minmax(0,1fr);align-items:start;gap:12px;padding:10px 0!important;border:0!important}
+.howto-steps>li+li{box-shadow:0 -1px 0 var(--t-line)}
+.howto-step-num{display:grid!important;place-items:center;width:34px!important;height:34px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-ink)!important;font:600 1rem/1 var(--font-display)!important;box-shadow:none!important}
+.howto-steps p{margin:5px 0 0!important;color:var(--t-ink)!important;font:600 1rem/1.45 var(--font-sans)!important}
+.howto-tip{display:flex!important;align-items:flex-start;gap:10px;margin:6px 0 0!important;padding:14px 16px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-gold) 20%,var(--t-card))!important;color:var(--t-ink)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+.howto-tip svg{flex-shrink:0;margin-top:2px;color:var(--t-gold-ink)}
+[data-theme=dark] .howto-tip svg{color:var(--t-gold)}
+.howto-tip b{color:var(--t-ink)}
+
+/* ═════════ Scoring ═════════ */
+.scoring-page .fact-cards{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin:0;padding:0;list-style:none}
+.scoring-page .fact-card{display:grid;align-content:start;padding:0!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;overflow:hidden}
+.scoring-page .fact-card-top{display:grid!important;justify-items:center;gap:8px!important;padding:18px 10px 16px!important;text-align:center}
+.scoring-page .fact-icon{display:grid!important;place-items:center;width:46px!important;height:46px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-brand)!important;box-shadow:none!important}
+.scoring-page .fact-card-top>div{display:grid;gap:4px}
+.scoring-page .fact-card strong{color:var(--t-ink)!important;font:600 1.75rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.scoring-page .fact-card-top span:not(.fact-icon){color:var(--t-soft)!important;font:700 .8125rem/1.3 var(--font-sans)!important}
+.scoring-page .fact-art{display:none!important}
+@media (max-width:640px){.scoring-page .fact-cards{grid-template-columns:1fr 1fr!important}}
+/* The six games: one white card with a row per game (the duplicate icon row is gone). */
+.scoring-page .five-games{display:none!important}
+.scoring-page .rule-grid{display:grid!important;grid-template-columns:1fr!important;gap:0!important;padding:6px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.scoring-page .rule-card{display:grid!important;grid-template-columns:44px minmax(0,1fr);align-items:start;gap:14px!important;padding:14px 14px 14px 10px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:none!important;box-shadow:none!important}
+.scoring-page .rule-card+.rule-card{box-shadow:0 -1px 0 var(--t-line)!important}
+.scoring-page .rule-card>.game-icon{--gi-size:44px;width:44px!important;height:44px!important}
+.scoring-page .rule-icon{display:grid!important;place-items:center;width:44px!important;height:44px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-brand)!important}
+.scoring-page .rule-card h3{margin:2px 0 4px!important;color:var(--t-ink)!important;font:600 1.125rem/1.2 var(--font-display)!important}
+.scoring-page .rule-card p{margin:0!important;color:var(--t-text)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+.scoring-page .section-header p.muted{margin:4px 0 0}
+.scoring-page .page-cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 20px}
+.scoring-page .page-cta .btn{min-height:56px}
+
+/* ═════════ Privacy, terms, sources ═════════ */
+.doc-page .doc-layout{display:grid;grid-template-columns:minmax(0,1fr);gap:18px!important}
+@media (min-width:980px){.doc-page .doc-layout{grid-template-columns:260px minmax(0,1fr)!important;gap:28px!important;align-items:start}.doc-page .doc-toc{position:sticky;top:90px}}
+.doc-page .doc-toc{padding:16px 10px 10px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.doc-page .doc-toc>p{margin:0 10px 6px!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
+.doc-page .doc-toc ol{display:grid;gap:0;margin:0;padding:0!important;list-style:none;border:0!important}
+.doc-page .doc-toc a{display:flex;align-items:center;min-height:40px;padding:6px 10px!important;border-radius:14px;color:var(--t-ink)!important;font:600 .9375rem/1.3 var(--font-sans)!important;text-decoration:none}
+.doc-page .doc-toc a:hover{background:var(--t-mint)}
+.doc-page .doc-toc a:focus-visible{outline:3px solid var(--t-brand);outline-offset:-2px}
+@media (max-width:979px){.doc-page .doc-toc ol{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}.doc-page .doc-toc a{min-height:38px;font-size:.875rem!important}}
+.doc-page .doc-body{display:grid;gap:4px;padding:24px 24px 26px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)}
+.doc-page .doc-body h2{margin:18px 0 4px!important;color:var(--t-ink)!important;font:600 1.3125rem/1.25 var(--font-display)!important;scroll-margin-top:90px}
+.doc-page .doc-body section:first-of-type h2,.doc-page .doc-body>h2:first-child{margin-top:4px!important}
+.doc-page .doc-body p{margin:0 0 10px!important;color:var(--t-text);font:500 1rem/1.65 var(--font-sans)}
+.doc-page .doc-updated{margin:0 0 6px!important;color:var(--t-soft)!important;font:700 .8125rem/1.4 var(--font-sans)!important}
+.doc-page .doc-body>.btn,.doc-page .doc-body>.text-link{justify-self:start;margin-top:10px}
+.doc-page .doc-todo{border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-gold) 20%,var(--t-card))!important;border:0!important;color:var(--t-ink)}
+@media (max-width:560px){.doc-page .doc-body{padding:20px 18px 22px!important}}
+.doc-page .dataset-grid{gap:12px!important}
+.doc-page .dataset-card{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)}
+.doc-page .dataset-card h2{color:var(--t-ink)!important;font:600 1.1875rem/1.25 var(--font-display)!important}
+.doc-page .dataset-card header p{color:var(--t-soft)!important}
+.doc-page .dataset-icon{border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-brand)!important}
+.doc-page .dataset-card dt{color:var(--t-brand)!important}
+.doc-page .dataset-card footer{border-top:1px solid var(--t-line)!important}
+.doc-page .doc-more{border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.doc-page .doc-more>summary{min-height:56px;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.doc-page .doc-links{display:flex;flex-wrap:wrap;gap:8px}
+.doc-page .doc-links a{display:inline-flex;align-items:center;min-height:36px;padding:0 14px;border-radius:999px;background:var(--t-mint);color:var(--t-ink);font:700 .8125rem/1 var(--font-sans);text-decoration:none}
+
+/* ═════════ SEO landing pages and not found ═════════ */
+.seo-page.trip-page{justify-items:center}
+.seo-card{position:relative;display:grid;justify-items:center;gap:12px;width:100%;max-width:560px;margin:56px auto 0;padding:56px 24px 28px;text-align:center}
+.seo-card .peek{position:absolute;left:50%;top:-50px;margin-left:-48px;pointer-events:none;animation:t-peek .5s cubic-bezier(.34,1.56,.64,1) both}
+.seo-card .peek .peek-head{animation:t-bob 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:0 20px}
+.seo-card .game-icon{--gi-size:64px;width:64px!important;height:64px!important}
+.seo-card .t-title{font-size:clamp(2rem,1.55rem + 2vw,2.75rem)}
+.seo-card p:not(.t-kicker){max-width:36ch;margin:0;color:var(--t-soft);font:600 1.0625rem/1.5 var(--font-sans)}
+.seo-card .btn{min-height:56px;margin-top:8px;padding:0 28px!important}
+.seo-card .seo-more{margin-top:2px;color:var(--t-soft)!important;font:700 .875rem/1.3 var(--font-sans)}
+.state.is-not-found{max-width:520px;margin:24px auto 0}
+
+/* ═════════ Dialogs ═════════ */
+[data-slot=dialog-overlay],[data-slot=alert-dialog-overlay]{background:rgba(22,59,50,.38)!important;backdrop-filter:blur(3px)!important}
+[data-theme=dark] :is([data-slot=dialog-overlay],[data-slot=alert-dialog-overlay]){background:rgba(0,0,0,.55)!important}
+.app-modal{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;color:var(--t-text)!important;box-shadow:0 30px 80px rgba(22,59,50,.24)!important;padding:28px 24px 24px!important}
+[data-theme=dark] .app-modal{box-shadow:0 30px 80px rgba(0,0,0,.55)!important}
+.app-modal .modal-title,.app-modal [data-slot=dialog-title],.app-modal [data-slot=alert-dialog-title]{margin:0!important;color:var(--t-ink)!important;font:600 1.625rem/1.15 var(--font-display)!important;letter-spacing:-.012em!important;text-wrap:balance}
+.app-modal [data-slot=dialog-description],.app-modal [data-slot=alert-dialog-description]{margin:0!important;color:var(--t-soft)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+/* The close button: a round mint button. */
+.app-modal>[data-slot=dialog-close]{top:14px!important;right:14px!important;display:grid;place-items:center;width:40px;height:40px;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-ink)!important;opacity:1!important;transition:background .2s,transform .22s cubic-bezier(.34,1.56,.64,1)}
+.app-modal>[data-slot=dialog-close]:hover{background:var(--t-mint-2)!important;transform:rotate(90deg)}
+.app-modal>[data-slot=dialog-close]:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px;box-shadow:none!important}
+.app-modal>[data-slot=dialog-close] svg{width:18px!important;height:18px!important}
+/* Forms: soft mint fields, a forest ring when you type. */
+.app-modal .form-stack{display:grid;gap:14px!important}
+.app-modal .field{display:grid;gap:6px}
+.app-modal .field>small{color:var(--t-soft);font:600 .8125rem/1.4 var(--font-sans)}
+.app-modal .text-input{width:100%;min-height:52px;padding:12px 18px!important;border:2px solid transparent!important;border-radius:18px!important;background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;color:var(--t-ink)!important;box-shadow:none!important;font:600 1rem/1.3 var(--font-sans)!important}
+.app-modal .text-input:focus{outline:0!important;border-color:var(--t-brand)!important;background:var(--t-card)!important}
+.app-modal textarea.text-input{min-height:110px;resize:vertical}
+.app-modal .btn.primary,.app-modal .btn.secondary{min-height:54px;border-radius:999px!important}
+.app-modal .switch-field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-radius:18px;background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card));color:var(--t-ink);font:600 .9375rem/1.4 var(--font-sans)}
+.app-modal .modal-logo,.app-modal .game-icon.modal-logo{--gi-size:60px;width:60px!important;height:60px!important;margin:0 auto 4px!important}
+/* Avatar picker: little globes in rings; yours gets a forest ring and a tick. */
+.avatar-picker{margin:0;padding:0;border:0}
+.avatar-picker legend{margin-bottom:8px;color:var(--t-ink);font:700 .875rem/1.3 var(--font-sans)}
+.avatar-picker>div{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(48px,1fr));gap:8px!important}
+.avatar-picker button{position:relative;display:grid;place-items:center;aspect-ratio:1;min-height:48px;padding:3px!important;border:0!important;border-radius:999px!important;background:color-mix(in srgb,var(--t-mint) 45%,var(--t-card))!important;box-shadow:none!important;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1)}
+.avatar-picker button:hover{transform:translateY(-2px)}
+.avatar-picker button.selected{background:var(--t-mint)!important;box-shadow:inset 0 0 0 3px var(--t-forest)!important;transform:scale(1.04)}
+.avatar-picker button>svg{position:absolute;right:-2px;bottom:-2px;width:18px!important;height:18px!important;padding:3px;border-radius:999px;background:var(--t-forest);color:var(--t-forest-ink);box-shadow:0 0 0 2px var(--t-card)}
+.avatar-picker button:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.avatar-picker .avatar{width:100%!important;height:100%!important;background:none!important}
+
+/* Sign up / sign in: Roviko waves above the title; the perks as three ticks in a mint card. */
+.auth-modal{display:grid;gap:12px!important;max-height:calc(100dvh - 24px);overflow-y:auto}
+.auth-modal .auth-hello{display:grid;justify-items:center;gap:8px;text-align:center}
+.auth-modal .auth-hello .character{width:112px;height:auto;margin:-6px 0 -8px}
+.auth-modal .auth-hello .character .character-shadow{opacity:.14}
+.auth-modal .auth-hello [data-slot=dialog-description]{max-width:34ch}
+.auth-modal .signup-perks{display:grid;gap:8px;margin:2px 0 0!important;padding:14px 16px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;color:var(--t-ink)!important}
+.auth-modal .signup-perks strong{color:var(--t-ink);font:600 1rem/1.2 var(--font-display)}
+.auth-modal .signup-perks ul{display:grid;gap:6px;margin:0;padding:0;list-style:none}
+.auth-modal .signup-perks li{display:flex;align-items:flex-start;gap:10px;color:var(--t-ink);font:600 .9375rem/1.4 var(--font-sans)}
+.auth-modal .signup-perks li svg{flex-shrink:0;width:20px!important;height:20px!important;padding:3px;border-radius:999px;background:var(--t-forest);color:var(--t-forest-ink)}
+.auth-modal .forgot-link{justify-self:end;min-height:36px;color:var(--t-brand)!important;font:700 .875rem var(--font-sans)!important}
+.auth-modal .auth-switch{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 8px;color:var(--t-soft);font:600 .9375rem/1.4 var(--font-sans)}
+.auth-modal .auth-switch .text-link{min-height:40px;color:var(--t-brand)!important;font-weight:800}
+@media (max-width:420px){.app-modal{padding:24px 18px 20px!important}.auth-modal .auth-hello .character{width:96px}}
+
+/* The how-to dialog in games. */
+.howto-modal{display:grid;gap:10px!important}
+.howto-modal .howto-badge{--gi-size:60px;width:60px!important;height:60px!important;margin:0 auto 2px!important}
+.howto-modal .modal-title{text-align:center}
+.howto-modal .howto-go{margin-top:6px}
+
+/* Delete account: the confirm is red, the way back is a mint pill. */
+.app-modal [data-slot=alert-dialog-footer]{gap:10px!important}
+.app-modal [data-slot=alert-dialog-footer] button{min-height:50px!important;padding:0 22px!important;border-radius:999px!important;font:600 1rem/1 var(--font-display)!important}
+.app-modal [data-slot=alert-dialog-cancel]{border:0!important;background:var(--t-mint)!important;color:var(--t-ink)!important;box-shadow:none!important}
+.app-modal .delete-button{border:0!important;background:var(--t-red)!important;color:#fff!important}
+[data-theme=dark] .app-modal .delete-button{color:#2a0d12!important}
+
+/* ═════════ The menu behind the burger ═════════ */
+.settings-menu.app-menu{width:min(calc(100vw - 24px),352px)!important;padding:10px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow-lift),0 0 0 1px var(--t-line)!important}
+.app-menu .app-menu-user{display:grid!important;gap:12px;margin:0 0 4px!important;padding:12px 12px 14px!important;border:0!important;border-bottom:1px solid var(--t-line)!important;border-radius:0!important;background:none!important}
+.app-menu .app-menu-user.is-guest{padding:14px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;margin-bottom:6px!important}
+.app-menu .app-menu-who .avatar{width:46px!important;height:46px!important;background:var(--t-card)!important}
+.app-menu .app-menu-name strong{color:var(--t-ink);font:600 1.125rem/1.2 var(--font-display)!important}
+.app-menu .app-menu-name small{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.app-menu .app-menu-cta{display:grid;grid-template-columns:1fr auto;gap:8px}
+.app-menu .app-menu-cta .btn{min-height:46px!important;border-radius:999px!important;font-size:.9375rem!important}
+.app-menu .app-menu-cta .btn.ghost{color:var(--t-ink)!important;background:transparent!important}
+.app-menu-links a{display:flex!important;align-items:center;gap:12px!important;min-height:52px;padding:6px 8px!important;border-radius:var(--t-radius-sm)!important;color:var(--t-ink)!important;text-decoration:none;transition:background .18s}
+.app-menu-links a:hover{background:color-mix(in srgb,var(--t-mint) 60%,var(--t-card))!important;color:var(--t-ink)!important}
+.app-menu-links a:focus-visible{outline:3px solid var(--t-brand);outline-offset:-3px}
+.app-menu-links a>svg:first-child{box-sizing:content-box;flex-shrink:0;width:19px;height:19px;padding:9px;border-radius:999px;background:var(--t-mint);color:var(--t-brand)}
+.app-menu-links a strong{color:var(--t-ink);font:600 1rem/1.2 var(--font-display)!important}
+.app-menu-links a small{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important}
+.app-menu-links .menu-chevron{color:var(--t-soft)!important;opacity:.7}
+.app-menu-links hr{margin:6px 10px!important;border:0!important;border-top:1px solid var(--t-line)!important}
+
+/* ═════════ Footer: light and quiet ═════════ */
+.app-footer{margin-top:72px!important;padding:32px 20px 28px!important;border:0!important;border-top:1px solid var(--t-line)!important;border-radius:0!important;background:none!important;color:var(--t-soft)!important}
+.app-footer .footer-character{display:none!important}
+.app-footer .footer-inner{max-width:1080px!important}
+.app-footer .footer-brand .logo,.app-footer .footer-brand .logo span{color:var(--t-ink)!important}
+.app-footer .footer-brand .logo .logo-period{color:var(--t-brand)!important}
+.app-footer .footer-brand p{color:var(--t-soft)!important;font:600 .9375rem/1.5 var(--font-sans)}
+.app-footer .footer-nav h2{margin:0 0 6px!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em!important;text-transform:uppercase}
+.app-footer .footer-nav a{min-height:36px;color:var(--t-soft)!important;font:700 .9375rem/1.3 var(--font-sans)!important;text-decoration:none}
+.app-footer .footer-nav a:hover{color:var(--t-ink)!important}
+.app-footer .footer-nav a:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px;border-radius:8px}
+.app-footer .copyright{color:var(--t-soft)!important;font:600 .8125rem/1.4 var(--font-sans)!important;opacity:.85}
+@media (max-width:760px){
+  .app-footer{margin-top:40px!important;padding:20px 16px calc(110px + env(safe-area-inset-bottom))!important}
+  .app-footer .footer-nav a{min-height:40px;font-size:.875rem!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .trip-page *,.app-modal,.app-modal *,.app-menu *,.seo-card .peek,.seo-card .peek .peek-head{animation:none!important;transition:none!important}
+}

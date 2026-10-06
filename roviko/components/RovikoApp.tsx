@@ -2,7 +2,6 @@
 import { finishKey, finishMood } from '@/lib/feel-copy';
 import { plural } from '@/lib/plural';
 import { DailyScoreRule } from './atelier/Competition';
-import { FinishStage } from './ds/FinishStage';
 import { Character } from './ds/Character';
 import { GameScene, type SceneMode } from './ds/GameScene';
 import { withSpanish } from '../i18n/content';
@@ -140,10 +139,13 @@ function AllGames() {
     // Bonus tour, survival and the classic games one at a time (1.23), so the page stays short.
     const [moreTab, setMoreTab] = useState<'bonus' | 'survival' | 'classic'>('bonus');
     useEffect(() => { if (location.hash === '#classic') setMoreTab('classic'); else if (location.hash === '#survival') setMoreTab('survival'); }, []);
-    return <div className="page all-games">
+    // Tabs as in the tab bar: a white pill with a mint pill for the open one; arrow keys move between them.
+    const TABS = ['bonus', 'survival', 'classic'] as const;
+    const tabKey = (e: React.KeyboardEvent, k: typeof TABS[number]) => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); const nextTab = TABS[(TABS.indexOf(k) + d + TABS.length) % TABS.length]; setMoreTab(nextTab); document.getElementById('tab-' + nextTab)?.focus(); };
+    return <div className="page all-games ag-trip">
         <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
         <PuzzleDeck app={app} dailyPage extras/>
-        <div className="more-games-tabs segmented-pill" role="tablist" aria-label={t('allGamesMore')}>{(['bonus', 'survival', 'classic'] as const).map(k => <button key={k} type="button" role="tab" id={'tab-' + k} aria-selected={moreTab === k} aria-checked={moreTab === k} aria-controls={'panel-' + k} onClick={() => setMoreTab(k)}>{t(k === 'bonus' ? 'allGamesTabBonus' : k === 'survival' ? 'allGamesTabSurvival' : 'allGamesTabClassic')}</button>)}</div>
+        <div className="more-games-tabs segmented-pill" role="tablist" aria-label={t('allGamesMore')}>{TABS.map(k => <button key={k} type="button" role="tab" id={'tab-' + k} aria-selected={moreTab === k} tabIndex={moreTab === k ? 0 : -1} aria-controls={'panel-' + k} onClick={() => setMoreTab(k)} onKeyDown={e => tabKey(e, k)}>{t(k === 'bonus' ? 'allGamesTabBonus' : k === 'survival' ? 'allGamesTabSurvival' : 'allGamesTabClassic')}</button>)}</div>
         {moreTab === 'bonus' && <div role="tabpanel" id="panel-bonus" aria-labelledby="tab-bonus">{today ? <BonusTour app={app} bonus={today.bonus} busy={busy}/> : <Loading variant="list"/>}</div>}
         {moreTab === 'survival' && <div role="tabpanel" id="panel-survival" aria-labelledby="tab-survival">{today ? <SurvivalRuns app={app} survival={today.survival} busy={busy}/> : <Loading variant="list"/>}</div>}
         {moreTab === 'classic' && <section id="classic" role="tabpanel" aria-labelledby="tab-classic" className="classic-section">

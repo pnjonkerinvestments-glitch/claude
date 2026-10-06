@@ -37,7 +37,7 @@ export function PassportPage() {
   const recent: Recent[] = s.recent ?? [];
   const L = locale as Locale;
 
-  return <div className="page passport">
+  return <div className="page passport trip-page">
     <PageHeader art="spot-world-trip" kicker={t('passportKicker')} title={t('passportTitle')} lead={t('passportSub')}/>
 
     <section className={'passport-cover' + (u.guest ? ' is-guest' : '')} aria-label={t('navPassport')}>

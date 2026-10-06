@@ -29,6 +29,8 @@
 .fs-hero{position:relative;display:grid;place-items:center;width:200px;height:170px;margin:0 auto 2px;pointer-events:none}
 .fs-hero .fs-halo{position:absolute;left:50%;top:41%;width:156px;height:156px;margin:-78px 0 0 -78px;border-radius:50%;background:var(--t-mint);animation:tf-halo .6s cubic-bezier(.34,1.56,.64,1) both}
 .fs-hero.tone-gold .fs-halo{background:radial-gradient(circle at 50% 50%,var(--t-gold-2) 0,color-mix(in srgb,var(--t-gold) 55%,transparent) 58%,color-mix(in srgb,var(--t-gold) 0%,transparent) 72%);width:190px;height:190px;margin:-95px 0 0 -95px}
+/* On the dark canvas the gold is a soft glow, not a brown disc. */
+[data-theme=dark] .fs-hero.tone-gold .fs-halo{background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--t-gold) 44%,transparent) 0,color-mix(in srgb,var(--t-gold) 16%,transparent) 50%,color-mix(in srgb,var(--t-gold) 0%,transparent) 71%)}
 .fs-hero.tone-out .fs-halo{background:var(--t-red-soft)}
 .fs-hero .character.fs-character{position:relative;width:190px!important;height:auto!important;flex:none;filter:none!important;animation:tf-pop .7s cubic-bezier(.34,1.56,.64,1) .08s both!important}
 /* Roviko's arms and legs are navy; on the dark canvas they get a soft light tone so they stay visible. */
@@ -54,7 +56,8 @@
 
 /* A little confetti for a top result: a few pieces in the trip colours that fall twice and stop. */
 .finish-stage.is-trip .fs-confetti,.day-summary.is-screen .fs-confetti{position:absolute;inset:-8px 0 auto;height:200px;z-index:-1;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
-.finish-stage.is-trip .fs-confetti i,.day-summary.is-screen .fs-confetti i{position:absolute;top:-14px;left:calc(5% + var(--i) * 8%);width:8px;height:12px;border-radius:3px;background:var(--t-gold);opacity:0;animation:tf-fall calc(2.8s + var(--i) * .14s) linear calc(var(--i) * .17s) 2 both}
+.finish-stage.is-trip .fs-confetti i,.day-summary.is-screen .fs-confetti i{position:absolute;top:-14px;left:var(--x,calc(5% + var(--i) * 8%));width:8px;height:12px;border-radius:3px;background:var(--t-gold);opacity:0;animation:tf-fall calc(2.6s + var(--d,0s) * .6) cubic-bezier(.3,.1,.6,1) var(--d,0s) 2 both}
+.fs-confetti i:nth-child(2n){--sway:-22px}
 .fs-confetti i:nth-child(3n){background:var(--t-brand)!important}
 .fs-confetti i:nth-child(3n+1){background:var(--t-gold-2)!important}
 .fs-confetti i:nth-child(4n){width:9px!important;height:9px!important;border-radius:50%!important;background:var(--t-mint-2)!important}
@@ -66,7 +69,7 @@
 .daily-result.has-stage .daily-result-compare>p:first-child svg{display:inline-block;margin:0 8px 0 0;vertical-align:-3px;color:var(--t-brand)}
 .daily-result.has-stage .daily-result-bar{width:100%;max-width:280px;height:8px!important;border-radius:999px;background:var(--t-mint)!important;box-shadow:none!important}
 .daily-result.has-stage .daily-result-bar i{background:var(--t-brand)!important;border-radius:999px;animation:tf-grow .9s cubic-bezier(.22,1,.36,1) .5s both;transform-origin:left}
-.daily-result.has-stage .daily-result-compare small{color:var(--t-soft)!important;font:700 .875rem/1.35 var(--font-sans)!important}
+.daily-result.has-stage .daily-result-compare small{color:var(--t-soft)!important;font:700 .875rem/1.35 var(--font-sans)!important;text-wrap:balance}
 .daily-result.has-stage .daily-result-target{max-width:40ch;margin:2px 0 0!important;padding:0!important;border-radius:0!important;background:none!important;color:var(--t-text)!important;font:700 .875rem/1.45 var(--font-sans)!important;text-wrap:balance}
 .daily-result.has-stage .survival-top{display:inline-flex;align-items:center;gap:6px}
 /* The one way on: a forest pill with the next game's logo. */
@@ -100,7 +103,7 @@
 .daily-finish .finish-actions,.learning-results .finish-actions.results-actions{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 4px!important;margin:0!important;grid-template-columns:none!important}
 .finish-quiet{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:var(--t-ink);box-shadow:none;font:700 .9375rem/1 var(--font-sans);cursor:pointer;transition:background .16s,transform .2s cubic-bezier(.34,1.56,.64,1)}
 .finish-quiet svg{color:var(--t-brand)}
-.finish-quiet:hover:not(:disabled){background:var(--t-mint)}
+@media (hover:hover){.finish-quiet:hover:not(:disabled){background:var(--t-mint)}}
 .finish-quiet:active:not(:disabled){transform:scale(.97)}
 .finish-quiet:focus-visible,.daily-finish .finish-again:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
 .finish-quiet:disabled{opacity:.5;cursor:default}
@@ -112,22 +115,23 @@
 .learning-results .results-note{margin:-4px 0 0!important;color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans);text-align:center}
 
 /* The review stays folded: one white row that opens. */
-:is(.daily-finish,.learning-results)>details{width:100%;margin:2px 0 0!important;padding:0 20px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
-:is(.daily-finish,.learning-results)>details>summary{display:flex!important;align-items:center;justify-content:space-between;gap:10px;min-height:56px!important;padding:0!important;border:0!important;border-radius:inherit;background:none!important;box-shadow:none!important;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)!important;list-style:none;cursor:pointer}
-:is(.daily-finish,.learning-results)>details>summary::-webkit-details-marker{display:none}
-:is(.daily-finish,.learning-results)>details>summary::marker{content:''}
-:is(.daily-finish,.learning-results)>details>summary::after{content:'';flex-shrink:0;width:9px;height:9px;margin:-4px 4px 0 0;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s}
-:is(.daily-finish,.learning-results)>details[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
-:is(.daily-finish,.learning-results)>details>summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
-:is(.daily-finish,.learning-results)>details[open]{padding-bottom:18px!important}
-:is(.daily-finish,.learning-results)>details>summary h2{display:inline-flex;align-items:center;gap:8px;margin:0;color:inherit;font:inherit!important}
-:is(.daily-finish,.learning-results)>details>summary svg{color:var(--t-brand)}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details{width:100%;margin:2px 0 0!important;padding:0 20px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary{display:flex!important;align-items:center;justify-content:space-between;gap:10px;min-height:56px!important;padding:0!important;border:0!important;border-radius:inherit;background:none!important;box-shadow:none!important;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)!important;list-style:none;cursor:pointer}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary::-webkit-details-marker{display:none}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary::marker{content:''}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary::after{content:'';flex-shrink:0;width:9px;height:9px;margin:-4px 4px 0 0;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details[open]{padding-bottom:18px!important}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary h2{display:inline-flex;align-items:center;gap:8px;margin:0;color:inherit;font:inherit!important}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary svg{color:var(--t-brand)}
 
 /* ───────── After a practice game: one forest pill on ───────── */
 .next-discovery{display:grid!important;gap:10px!important;justify-items:center;margin:0!important;padding:18px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;text-align:center}
 .next-discovery .t-kicker{margin:0!important;color:var(--t-brand)!important;font:800 .8125rem/1.3 var(--font-sans)!important;letter-spacing:.02em!important;text-transform:none!important}
 .next-discovery .nd-play{display:flex!important;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
 .next-discovery>*{min-width:0;max-width:100%}
+:is(.puzzle-finished,.learning-results,.daily-finish)>.next-discovery{width:100%!important;max-width:none!important;justify-self:stretch!important}
 .next-discovery .nd-play{height:auto!important;padding:8px 22px!important;white-space:normal!important;text-wrap:balance;text-align:center}
 .next-discovery .nd-play .game-icon{width:34px!important;height:34px!important;margin-left:-10px;border-radius:999px!important;box-shadow:none!important}
 .next-discovery .nd-play .game-icon svg{width:19px!important;height:19px!important}
@@ -157,10 +161,33 @@
 /* ───────── Bonus and survival cards share the result card ───────── */
 .learning-results .daily-result.has-stage{animation-delay:.25s}
 
+/* ───────── The daily puzzle games end on the same screen ─────────
+   Their game bar stays for the close button only: the game's name is already the stage's kicker,
+   a full progress bar and the help button say nothing any more once the game is over. */
+.puzzle-game:has(.finish-stage,.finish-wait,.day-summary.is-screen)>.game-header.trip-top .game-kicker{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.puzzle-game:has(.finish-stage,.finish-wait,.day-summary.is-screen)>.game-header.trip-top .game-progress-bar{visibility:hidden}
+.puzzle-game:has(.finish-stage,.finish-wait,.day-summary.is-screen)>.game-header.trip-top .howto-button{display:none!important}
+/* Practice ends (Side by Side, Country Mosaic, World Duel): the same column, the way on as the one forest pill. */
+.puzzle-finished,.duel-finished{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important;max-width:560px!important;margin:0 auto!important;padding:4px 0 calc(48px + env(safe-area-inset-bottom))!important;background:none!important;box-shadow:none!important}
+.puzzle-finished>*,.duel-finished>*{min-width:0;margin-top:0!important;margin-bottom:0!important}
+.puzzle-finished .mosaic-completed-countries{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;margin:-4px 0 0!important;padding:0!important;background:none!important}
+.puzzle-finished .mosaic-completed-countries span{display:inline-flex!important;align-items:center;gap:7px;min-height:34px;padding:0 13px 0 9px!important;border:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:700 .875rem/1 var(--font-sans)!important}
+.puzzle-finished .mosaic-completed-countries img{width:auto!important;height:16px!important;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.puzzle-finished>.puzzle-save{justify-self:center;color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans)}
+/* Their quiet buttons: Done, Share, another round. */
+.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions:has(>.btn),.duel-finished .duel-actions{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 4px!important;margin:0!important;padding:0!important;grid-template-columns:none!important}
+:is(.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn:not(.primary){display:inline-flex!important;align-items:center;justify-content:center;gap:7px!important;width:auto!important;min-height:44px!important;height:auto!important;padding:0 14px!important;border:0!important;border-radius:999px!important;background:transparent!important;color:var(--t-ink)!important;box-shadow:none!important;font:700 .9375rem/1 var(--font-sans)!important;letter-spacing:0!important;text-decoration:none!important}
+:is(.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn:not(.primary) svg{width:16px;height:16px;color:var(--t-brand)}
+@media (hover:hover){:is(.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn:not(.primary):hover:not(:disabled){background:var(--t-mint)!important}}
+/* A practice game without a next-game card keeps its own forest pill: full width, first. */
+:is(.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn.primary{flex:1 1 100%;display:flex!important;align-items:center;justify-content:center;gap:10px!important;width:100%!important;min-height:58px!important;height:auto!important;margin:0 0 6px!important;padding:8px 22px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important;white-space:normal!important;text-wrap:balance}
+.daily-finish .finish-again{text-decoration:none!important}
+
 /* ───────── The streak moment: the gold flame, the days, this week ───────── */
 .streak-moment.app-modal{display:grid;justify-items:center;gap:8px;text-align:center;padding:30px 26px 24px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;border:0!important;box-shadow:var(--t-shadow-lift)!important}
 .streak-moment .sm-flame{position:relative;display:grid!important;place-items:center;width:150px!important;height:150px!important;margin:0 auto 10px!important;border-radius:50%;background:none!important;box-shadow:none!important;color:inherit!important;animation:tf-flare .7s cubic-bezier(.34,1.56,.64,1) both!important}
 .streak-moment .sm-glow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 58%,var(--t-gold-2) 0,color-mix(in srgb,var(--t-gold) 45%,transparent) 50%,color-mix(in srgb,var(--t-gold) 0%,transparent) 71%)}
+[data-theme=dark] .streak-moment .sm-glow{background:radial-gradient(circle at 50% 58%,color-mix(in srgb,var(--t-gold) 44%,transparent) 0,color-mix(in srgb,var(--t-gold) 15%,transparent) 50%,color-mix(in srgb,var(--t-gold) 0%,transparent) 71%)}
 .streak-moment .sm-flame svg.flame-mark{position:relative!important;opacity:1!important;margin-top:-10px;filter:drop-shadow(0 8px 14px rgba(240,100,43,.25));animation:t-flicker 2.6s ease-in-out .8s infinite;transform-origin:50% 90%}
 .streak-moment .sm-flame b{position:absolute!important;left:50%;bottom:-6px;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;min-width:56px;height:44px;padding:0 14px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink)!important;box-shadow:0 0 0 4px var(--t-card),0 8px 18px rgba(201,141,31,.28);font:600 1.75rem/1 var(--font-display)!important;text-shadow:none!important;font-variant-numeric:tabular-nums;animation:tf-pop .55s cubic-bezier(.34,1.56,.64,1) .35s both}
 .streak-moment .modal-title{margin:4px 0 0;color:var(--t-ink);font:600 clamp(1.625rem,1.4rem + 1vw,2rem)/1.15 var(--font-display)!important;text-wrap:balance}
@@ -215,7 +242,7 @@
 @keyframes tf-dot{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
 @keyframes tf-grow{from{transform:scaleX(0)}to{transform:none}}
 @keyframes tf-flare{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.06)}100%{transform:none}}
-@keyframes tf-fall{0%{opacity:0;transform:translateY(0) rotate(0)}12%{opacity:.85}80%{opacity:.6}100%{opacity:0;transform:translateY(210px) rotate(320deg)}}
+@keyframes tf-fall{0%{opacity:0;transform:translate(0,0) rotate(0)}12%{opacity:.85}80%{opacity:.6}100%{opacity:0;transform:translate(var(--sway,22px),210px) rotate(320deg)}}
 @media (prefers-reduced-motion:reduce){
   .finish-stage.is-trip,.finish-stage.is-trip *,.day-summary.is-screen,.day-summary.is-screen *,.daily-result.has-stage,.daily-result.has-stage *,.streak-moment,.streak-moment *,.fs-best,.finish-quiet{animation:none!important;transition:none!important}
   .fs-confetti{display:none!important}

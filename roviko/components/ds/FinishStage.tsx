@@ -34,9 +34,11 @@ export function FinishHero({ mood, tone = 'forest' }: { mood: CharacterMood; ton
   </div>;
 }
 
+/** Where each confetti piece starts (% from the left) and how late it falls (s): scattered, so they never form a line. */
+const CONFETTI: [number, number][] = [[8, 0], [62, .55], [31, .2], [88, .9], [47, .35], [18, .75], [75, .1], [55, 1.15], [4, .6], [39, .95], [83, .4], [25, 1.3]];
 /** A little confetti for a top result: a few soft pieces in the trip colours that fall twice and stop. */
 export function FinishConfetti() {
-  return <div className="fs-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, i) => <i key={i} style={{ '--i': i } as React.CSSProperties}/>)}</div>;
+  return <div className="fs-confetti" aria-hidden="true">{CONFETTI.map(([x, d], i) => <i key={i} style={{ '--i': i, '--x': x + '%', '--d': d + 's' } as React.CSSProperties}/>)}</div>;
 }
 
 /**

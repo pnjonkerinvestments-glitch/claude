@@ -1,143 +1,338 @@
-/* Roviko 1.23 trip style · homepage, welcome card, challenge banner, All games page. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
+/* Roviko 1.23 trip style · homepage, welcome card, challenge, app prompt, All games page. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
 
-/* ═════════ Homepage: Roviko on the cream canvas, one forest pill, today's trip as a route ═════════
-   Phones: one column (hero, bonus tour and survival after 6/6, the route, the quiet side rows).
-   Desktop: the hero and the side rows on the left, the route on the right. */
-.home.home-trip{display:grid!important;grid-template-columns:minmax(0,1fr);gap:26px!important;width:100%;max-width:1060px;margin:0 auto}
+/* ═════════ Homepage ═════════
+   Phones: one column: Roviko + headline + one forest pill, (after 6/6: bonus tour, survival), today's trip card, the quiet side rows.
+   Desktop: Roviko, the pill and the side rows on the left; today's trip (and after 6/6 the bonus tour) on the right. */
+.home.home-trip{display:grid!important;grid-template-columns:minmax(0,1fr);gap:22px!important;width:100%;max-width:1080px;margin:0 auto}
+/* The DOM order is the reading order on phones: hero, (bonus tour, survival), today's trip, side rows. */
+.home-trip>.th-main{display:contents}
 @media (min-width:980px){
-  .home.home-trip{grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);column-gap:56px;row-gap:22px!important;align-items:start}
-  .home-trip>.th-hero{grid-column:1;grid-row:1}
-  .home-trip>.th-route{grid-column:2;grid-row:1/span 2}
+  .home.home-trip{grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr);grid-template-rows:auto 1fr;column-gap:56px;row-gap:24px!important;align-items:start}
+  .home-trip>.th-hero{grid-column:1;grid-row:1;padding-top:12px}
+  .home-trip>.th-main{grid-column:2;grid-row:1/span 2;display:grid;gap:24px;align-content:start;min-width:0}
   .home-trip>.home-side{grid-column:1;grid-row:2}
-  .home-trip>.bonus-tour,.home-trip>.survival{grid-column:1/-1}
-  /* After 6/6 the bonus tour is the next step: it takes the right column, today's six move below. */
-  .home-trip.is-done>.bonus-tour{grid-column:2;grid-row:1/span 2}
-  .home-trip.is-done>.th-route{grid-column:1/-1;grid-row:auto}
 }
+/* After 6/6 today's trip is a receipt: the same rows, a little tighter. */
+.home-trip.is-done .today-row button{min-height:56px;padding-block:7px}
+.home-trip.is-done .today-list{gap:4px}
+.home-trip.is-done .today-row:not(:last-child)::after{top:calc(50% + 24px);height:calc(100% - 48px + 4px)}
 
-/* Hero: no block, just Roviko, the headline, the pill and the day's progress. */
+/* ───── Hero: no block, just Roviko with a bubble, the headline and one pill ───── */
 .th-hero{display:grid;justify-items:center;gap:16px;padding:0;text-align:center}
 .th-stage{display:grid;justify-items:center;width:100%;min-width:0}
-.th-bubble{position:relative;z-index:2;max-width:min(320px,100%);padding:10px 18px;border-radius:20px;background:var(--t-card);color:var(--t-ink);font:600 1rem/1.3 var(--font-display);text-wrap:balance;box-shadow:var(--t-shadow);animation:th-bubble .55s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 100%}
+.th-bubble{position:relative;z-index:2;display:inline-flex;align-items:center;gap:8px;max-width:min(340px,100%);min-height:44px;margin:0;padding:10px 18px;border-radius:22px;background:var(--t-card);color:var(--t-ink);font:600 1rem/1.3 var(--font-display);text-wrap:balance;box-shadow:var(--t-shadow);animation:th-bubble .55s cubic-bezier(.34,1.56,.64,1) both;transform-origin:50% 100%}
 .th-bubble::after{content:'';position:absolute;left:50%;bottom:-7px;width:16px;height:16px;margin-left:-8px;background:inherit;border-radius:0 0 4px 0;transform:rotate(45deg)}
-.home-trip .hero-character{position:relative!important;left:auto!important;top:auto!important;z-index:1;width:184px!important;max-width:none;height:auto!important;margin:2px 0 -6px;filter:none!important}
+.th-bubble.is-empty{visibility:hidden;animation:none}
+/* A streak at risk: Roviko says it in the gold of the streak pill. */
+.th-bubble.is-risk{background:var(--t-gold);color:var(--t-gold-ink);text-align:left;box-shadow:0 2px 3px rgba(201,141,31,.18),0 10px 22px rgba(201,141,31,.24)}
+.th-bubble.is-risk .flame-mark{flex-shrink:0;animation:t-flicker 2.6s ease-in-out infinite;transform-origin:50% 90%}
+.home-trip .hero-character{position:relative!important;left:auto!important;top:auto!important;z-index:1;width:176px!important;max-width:none;height:auto!important;margin:2px 0 -6px;filter:none!important}
 .home-trip .hero-character .character-shadow{opacity:.14}
-.th-title{max-width:15ch;margin:0!important;color:var(--t-ink)!important;font:600 clamp(2rem,1.55rem + 2vw,3rem)/1.08 var(--font-display)!important;letter-spacing:-.018em!important;text-wrap:balance}
+.th-title{max-width:16ch;margin:0!important;color:var(--t-ink)!important;font:600 clamp(2rem,1.55rem + 2vw,3rem)/1.08 var(--font-display)!important;letter-spacing:-.018em!important;text-wrap:balance}
 .th-title .hl{color:var(--t-brand)}
-.home-trip .th-cta{width:min(100%,400px);min-height:60px;margin-top:2px;font-size:1.1875rem!important;animation:th-pop .5s cubic-bezier(.34,1.56,.64,1) .1s both}
-.home-trip .th-cta svg{transition:transform .2s}
+.home-trip .th-cta{width:min(100%,400px);min-height:60px;margin-top:2px;font-size:1.125rem!important;white-space:normal;text-wrap:balance;line-height:1.15;animation:th-pop .5s cubic-bezier(.34,1.56,.64,1) .1s both}
+.home-trip .th-cta svg{flex-shrink:0;transition:transform .2s}
 .home-trip .th-cta:hover:not(:disabled) svg{transform:translateX(4px)}
-.home-trip .th-cta:disabled{opacity:1!important;cursor:progress}
-.th-reset-line{display:inline-flex;align-items:center;gap:8px;min-height:44px;margin:0;padding:0 18px;border-radius:999px;background:var(--t-card);color:var(--t-soft);box-shadow:var(--t-shadow);font:700 .9375rem/1.2 var(--font-sans)}
-.th-nudge{display:inline-flex;align-items:center;gap:8px;max-width:400px;margin:-4px 0 0;padding:8px 16px 8px 12px;border-radius:999px;background:color-mix(in srgb,var(--t-gold) 26%,var(--t-card));color:var(--t-gold-ink);font:700 .9375rem/1.3 var(--font-sans);text-align:left}
-[data-theme=dark] .th-nudge{color:var(--t-gold-2)}
-.th-nudge .flame-mark{flex-shrink:0;animation:t-flicker 2.6s ease-in-out infinite;transform-origin:50% 90%}
+.home-trip:not(.is-ready) .th-cta:disabled{opacity:1!important;cursor:progress}
+.th-reset-line{display:inline-flex;align-items:center;gap:8px;min-height:46px;margin:0;padding:0 20px;border-radius:999px;background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow);font:700 .9375rem/1.2 var(--font-sans);font-variant-numeric:tabular-nums}
+.th-reset-line svg{color:var(--t-brand)}
 
-/* The day's progress: six segments (one per game) and two white pills, as in the game header. */
-.th-progress{display:grid;justify-items:center;gap:12px;width:min(100%,400px)}
-.th-segs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;width:100%;margin:0;padding:0;list-style:none}
-.th-segs>li{height:10px;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 11%,transparent);transition:background .4s}
-.th-segs>li.is-done{background:var(--t-forest);animation:th-seg .5s cubic-bezier(.34,1.56,.64,1) both}
-.th-segs>li.is-active{background:linear-gradient(90deg,var(--t-forest) 0 50%,color-mix(in srgb,var(--t-ink) 11%,transparent) 50%)}
-.th-segs>li.is-next.is-new{background:var(--t-mint-2);animation:th-glow 2.2s ease-in-out infinite}
-.th-progress-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin:0;color:var(--t-soft);font:700 .9375rem/1.3 var(--font-sans)}
-.th-progress-line>span:first-child,.th-points{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 14px;border-radius:999px;background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow)}
-.th-progress-line b{font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--t-ink)}
-.th-points{padding-left:9px;text-decoration:none;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
-.th-points:hover{transform:translateY(-1px)}
+/* ───── Today's trip: one white card with the progress and the six games as a route ───── */
+.home-trip .home-today.th-trip{display:block;padding:20px 14px 12px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.th-trip-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:0 8px}
+.th-trip-title{display:contents}
+.th-trip-head .th-reset{grid-column:1/-1;grid-row:2}
+.th-trip-head h2{margin:0;color:var(--t-ink);font:600 1.5rem/1.15 var(--font-display);letter-spacing:-.01em}
+.th-points{display:inline-flex;align-items:center;gap:6px;flex-shrink:0;min-height:38px;padding:0 14px 0 8px;border-radius:999px;background:var(--t-mint);color:var(--t-ink);text-decoration:none;transition:transform .2s cubic-bezier(.34,1.56,.64,1),background .2s}
+.th-points b{font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.th-points:hover{background:var(--t-mint-2);transform:translateY(-1px)}
 .th-points:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
-.th-dot{display:none}
-.is-first .th-progress-line{font-size:.9375rem}
+.th-progress{display:flex;align-items:center;gap:12px;padding:14px 8px 4px}
+.th-segs{flex:1 1 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:0;padding:0;list-style:none}
+.th-segs>li{height:10px;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 10%,transparent);transition:background .4s}
+.th-segs>li.is-done{background:var(--t-forest);animation:th-seg .5s cubic-bezier(.34,1.56,.64,1) both;transform-origin:0 50%}
+.th-segs>li.is-active{background:linear-gradient(90deg,var(--t-forest) 0 50%,color-mix(in srgb,var(--t-ink) 10%,transparent) 50%)}
+.th-segs>li.is-next.is-new{background:var(--t-mint-2);animation:th-glow 2.2s ease-in-out infinite}
+.th-count{flex-shrink:0;min-width:2.4em;color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums;text-align:right}
+.th-first{margin:6px 8px 0;color:var(--t-soft);font:700 .9375rem/1.35 var(--font-sans);text-align:left}
 
-/* Today's trip: six white rows on a dotted route; done stops get a tick and their points. */
-.home-trip .home-today{padding:0!important;background:none!important;box-shadow:none!important;border-radius:0!important}
-.home-trip .today-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;padding:0 4px 14px}
-.home-trip .today-head h2{margin:0;color:var(--t-ink);font:600 1.5rem/1.15 var(--font-display)}
-.th-reset{display:inline-flex;align-items:center;gap:6px;color:var(--t-soft);font:700 .875rem/1.2 var(--font-sans);font-variant-numeric:tabular-nums}
-.home-trip .today-list{display:grid;gap:12px;margin:0;padding:0;list-style:none}
+.home-trip .today-list{display:grid;gap:6px;margin:12px 0 0;padding:0;list-style:none}
 .home-trip .today-row{position:relative;animation:th-rise .45s cubic-bezier(.22,1,.36,1) both}
 .home-trip .today-row:nth-child(2){animation-delay:.04s}.home-trip .today-row:nth-child(3){animation-delay:.08s}.home-trip .today-row:nth-child(4){animation-delay:.12s}.home-trip .today-row:nth-child(5){animation-delay:.16s}.home-trip .today-row:nth-child(6){animation-delay:.2s}
-.home-trip .today-row button{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:12px 14px 12px 12px;border:0;border-radius:var(--t-radius-sm);background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow);text-align:left;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s,background .2s}
-.home-trip .today-row button:hover:not(:disabled){background:var(--t-card);transform:translateY(-2px);box-shadow:var(--t-shadow-lift)}
+.home-trip .today-row button{position:relative;z-index:1;display:flex;align-items:center;gap:14px;width:100%;min-height:66px;padding:10px 10px 10px 10px;border:0;border-radius:var(--t-radius-sm);background:transparent;color:var(--t-ink);box-shadow:none;text-align:left;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .2s,box-shadow .2s}
+.home-trip .today-row button:hover:not(:disabled){background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card))}
 .home-trip .today-row button:active:not(:disabled){transform:scale(.985)}
-.home-trip .today-row button:focus-visible{outline:3px solid var(--t-brand);outline-offset:3px}
+.home-trip .today-row button:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
 .home-trip .today-row button:disabled{cursor:default}
-.home-trip .today-row.is-next button{box-shadow:0 0 0 2px var(--t-mint-2),var(--t-shadow-lift)}
-.home-trip .today-icon{position:relative;flex:0 0 auto;display:grid;place-items:center;width:44px;height:44px}
+/* The next stop: a mint ring and a mint "Play" pill. */
+.home-trip .today-row.is-next button{background:var(--t-card);box-shadow:inset 0 0 0 2px var(--t-mint-2),0 6px 18px rgba(22,59,50,.08)}
+[data-theme=dark] .home-trip .today-row.is-next button{box-shadow:inset 0 0 0 2px var(--t-mint-2),0 6px 18px rgba(0,0,0,.3)}
+.home-trip .today-icon{position:relative;flex:0 0 auto;display:grid;place-items:center;width:44px;height:44px;background:none!important}
 .home-trip .today-icon .game-icon{width:44px;height:44px}
 .th-tick{position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:22px;height:22px;border-radius:999px;background:var(--t-forest);color:var(--t-forest-ink);box-shadow:0 0 0 2.5px var(--t-card);animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both}
 .home-trip .today-name{flex:1 1 auto;display:grid;gap:1px;min-width:0}
-.home-trip .today-name strong{overflow:hidden;color:var(--t-ink);font:600 1.125rem/1.2 var(--font-display);text-overflow:ellipsis;white-space:nowrap}
-.home-trip .today-name small{color:var(--t-soft);font:700 .8125rem/1.2 var(--font-sans)}
-.home-trip .today-row.is-next .today-name small{color:var(--t-brand)}
+.home-trip .today-name strong{display:-webkit-box;overflow:hidden;white-space:normal;text-overflow:clip;color:var(--t-ink);font:600 1.125rem/1.2 var(--font-display);-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow-wrap:break-word}
+.home-trip .today-name small{color:var(--t-soft);font:700 .8125rem/1.25 var(--font-sans)}
+.home-trip .today-row.is-next .today-name small,.home-trip .today-row.is-active .today-name small{color:var(--t-brand)}
 .home-trip .today-end{flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;color:var(--t-soft)}
 .th-score{display:inline-flex;align-items:center;gap:6px;color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
 .th-play{min-height:40px;padding:0 14px 0 18px;transition:background .2s}
 .home-trip .today-row button:hover:not(:disabled) .th-play{background:var(--t-mint-2)}
 .th-play svg{transition:transform .2s}
 .home-trip .today-row button:hover:not(:disabled) .th-play svg{transform:translateX(3px)}
-/* Later stops look like they wait their turn, but every one can be played in any order. */
-.home-trip .today-row.is-later button{background:color-mix(in srgb,var(--t-card) 55%,transparent);box-shadow:none}
-.home-trip .today-row.is-later .today-icon{opacity:.62;filter:saturate(.45)}
-.home-trip .today-row.is-later .today-name strong{color:color-mix(in srgb,var(--t-ink) 62%,var(--t-canvas))}
-.th-lock{color:color-mix(in srgb,var(--t-soft) 75%,transparent)}
-/* The route: a dashed line between the stops, solid once a stop is done. */
-.home-trip .today-row:not(:last-child)::after{content:'';position:absolute;z-index:1;left:32px;top:calc(100% - 12px);height:36px;border-left:3px dashed color-mix(in srgb,var(--t-ink) 16%,transparent);pointer-events:none}
+/* Later stops wait their turn (quieter, a small lock), but every one can be played in any order. */
+.home-trip .today-row.is-later .today-icon{opacity:.55;filter:saturate(.35)}
+.home-trip .today-row.is-later .today-name strong{color:var(--t-soft)}
+.th-lock{color:color-mix(in srgb,var(--t-soft) 70%,transparent)}
+/* The route: a dashed line from stop to stop, solid green once a stop is done. */
+.home-trip .today-row:not(:last-child)::after{content:'';position:absolute;z-index:2;left:30px;top:calc(50% + 25px);height:calc(100% - 50px + 6px);border-left:3px dashed color-mix(in srgb,var(--t-ink) 15%,transparent);pointer-events:none}
 .home-trip .today-row.is-done:not(:last-child)::after{border-left-style:solid;border-left-color:var(--t-brand)}
-.home-trip .today-foot{display:flex;justify-content:center;margin:16px 0 0}
-.home-trip .today-foot .text-link{display:inline-flex;align-items:center;gap:6px;color:var(--t-brand);font:700 .9375rem/1.2 var(--font-sans)}
+.th-trip-foot{display:flex;justify-content:center;margin:10px 0 0;padding:8px 8px 0;border-top:1px solid var(--t-line)}
+.th-reset{display:inline-flex;align-items:center;gap:6px;margin:0;color:var(--t-soft);font:700 .8125rem/1.2 var(--font-sans);font-variant-numeric:tabular-nums}
+.th-all{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--t-brand);font:700 .9375rem/1.2 var(--font-sans);text-decoration:none}
+.th-all:hover{text-decoration:underline}
+.th-all:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px;border-radius:8px}
 
-/* Side rows: the league or the rankings, the folded quests, and for guests one compact save line. */
+/* ───── Side rows: the league or the rankings, the folded quests, and for guests one compact save line ───── */
 .home-trip .home-side{display:grid;gap:12px;align-content:start}
 .home-trip .side-row{display:flex;align-items:center;gap:14px;padding:14px 16px;border:0;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink);text-decoration:none}
 .home-trip a.side-row{transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
 .home-trip a.side-row:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
 .home-trip a.side-row:focus-visible,.home-trip .quests-fold summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:3px;border-radius:14px}
-.home-trip .side-row strong{color:var(--t-ink);font:600 1.0625rem/1.25 var(--font-display)}
+.home-trip .side-copy{flex:1 1 auto;min-width:0}
+.home-trip .side-row strong{display:block;color:var(--t-ink);font:600 1.0625rem/1.25 var(--font-display)}
 .home-trip .side-row small{display:block;color:var(--t-soft);font:600 .875rem/1.3 var(--font-sans)}
 .home-trip .side-row>svg,.home-trip .side-row .fold-chevron{flex-shrink:0;color:var(--t-soft)}
-.home-trip .side-icon{width:42px;height:42px;border-radius:999px;background:var(--t-mint);color:var(--t-brand)}
-.home-trip .side-rank .side-icon{background:color-mix(in srgb,var(--t-gold) 28%,var(--t-card));color:var(--t-gold-ink)}
+.home-trip .side-icon{flex:0 0 auto;display:grid;place-items:center;width:42px;height:42px;border-radius:999px;background:var(--t-mint);color:var(--t-brand)}
+.home-trip .side-rank .side-icon,.home-trip .side-flame{background:color-mix(in srgb,var(--t-gold) 28%,var(--t-card));color:var(--t-gold-ink)}
 [data-theme=dark] .home-trip .side-rank .side-icon{color:var(--t-gold)}
-.home-trip .side-tier{background:var(--t-mint)}
-.home-trip .quests-fold{display:block}
-.home-trip .quests-fold summary{gap:14px}
+.home-trip .quests-fold{display:block!important}
+.home-trip .quests-fold summary{display:flex;align-items:center;gap:14px;list-style:none;cursor:pointer}
+.home-trip .quests-fold summary::-webkit-details-marker{display:none}
 .home-trip .quests-fold .fold-count{color:var(--t-brand);font:600 1.0625rem/1 var(--font-display)}
 .home-trip .quests-fold[open] summary{margin-bottom:4px}
-.home-trip .guest-banner{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 14px;margin:0!important;padding:12px 12px 12px 16px!important}
-.home-trip .guest-banner strong{font:700 .9375rem/1.3 var(--font-sans);color:var(--t-ink)}
-.home-trip .side-flame{background:color-mix(in srgb,var(--t-gold) 28%,var(--t-card))}
-.th-save{min-height:38px;padding:0 16px;font-size:.9375rem;cursor:pointer;white-space:nowrap}
+.home-trip .quests-fold .quest-list{gap:8px}
+.home-trip .quests-fold .quest-row{column-gap:12px;padding:10px 12px;border-radius:var(--t-radius-sm);background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;box-shadow:none!important;color:var(--t-ink)}
+.home-trip .quests-fold button.quest-row:hover{background:var(--t-mint)!important}
+.home-trip .quests-fold button.quest-row:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.home-trip .quests-fold .quest-icon,.home-trip .quests-fold .quest-icon .game-icon{width:42px!important;height:42px!important}
+.home-trip .quests-fold li.is-done .quest-icon{border-radius:999px!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
+.home-trip .quests-fold .quest-copy strong{color:var(--t-ink);font:600 1rem/1.25 var(--font-display)}
+.home-trip .quests-fold li.is-done .quest-copy strong{color:var(--t-soft)}
+.home-trip .quests-fold .quest-copy small{color:var(--t-soft);font:600 .8125rem/1.35 var(--font-sans)}
+.home-trip .quests-fold .quest-bar{background:color-mix(in srgb,var(--t-ink) 10%,transparent)!important}
+.home-trip .quests-fold .quest-bar i{background:var(--t-brand)!important}
+.home-trip .quests-fold .quest-count{color:var(--t-ink)}
+.home-trip .quests-fold .quest-go{display:grid;place-items:center;width:34px;height:34px;border-radius:999px;background:var(--t-card)!important;color:var(--t-ink);border:0!important;box-shadow:none!important}
+.home-trip .quests-fold .quest-chest{width:100%;min-height:52px;margin-top:10px;border-radius:999px!important;background:var(--t-gold)!important;color:var(--t-gold-ink)!important}
+.home-trip .guest-banner{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:6px 14px;margin:0!important;padding:12px 12px 12px 14px!important}
+.home-trip .guest-banner strong{font:700 .9375rem/1.3 var(--font-sans)}
+.th-save{min-height:40px;padding:0 16px;font-size:.9375rem;cursor:pointer;white-space:nowrap}
+.th-save:hover{background:var(--t-gold-2)}
 .th-save:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
-@media (max-width:520px){.home-trip .guest-banner{grid-template-columns:auto minmax(0,1fr)}.home-trip .guest-banner .th-save{grid-column:2;justify-self:start;margin-top:6px}}
+@media (max-width:520px){.home-trip .guest-banner{grid-template-columns:auto minmax(0,1fr)}.home-trip .guest-banner .th-save{grid-column:2;justify-self:start}}
 
+/* ───── After 6/6: the bonus tour and survival as calm white cards (also on the All games page) ───── */
+.bonus-tour.bt-trip,.survival.sv-trip{display:grid!important;gap:14px!important;padding:22px 18px 18px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)}
+.bt-trip .bonus-head,.sv-trip .survival-head{display:grid!important;gap:6px;justify-items:start;text-align:left}
+.bt-trip .bonus-head h2,.sv-trip .survival-head h2{margin:0!important;color:var(--t-ink);font:600 1.375rem/1.2 var(--font-display)!important;letter-spacing:-.008em;text-wrap:balance}
+.bt-trip .bonus-line,.sv-trip .survival-head p.muted{max-width:56ch;margin:0;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.sv-trip .t-kicker{display:inline-flex;align-items:center;gap:6px}
+.sv-trip .t-kicker svg{color:var(--t-red)}
+.bt-trip .t-dots{justify-content:flex-start;margin-top:4px}
+.bt-trip .bonus-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+@media (min-width:640px){.bt-trip .bonus-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media (min-width:980px){.home-trip .bt-trip .bonus-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+.bt-trip .bonus-stop button{border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;box-shadow:none!important;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s!important}
+.bt-trip .bonus-stop button:hover:not(:disabled){transform:translateY(-2px)}
+.bt-trip .bonus-stop button:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.bt-trip .bonus-stop.is-next button{background:var(--t-card)!important;box-shadow:inset 0 0 0 2px var(--t-mint-2),0 6px 18px rgba(22,59,50,.08)!important}
+.bt-trip .bonus-art{border-radius:var(--t-radius-sm) var(--t-radius-sm) 0 0;background:transparent!important}
+.bt-trip .bonus-check{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;box-shadow:0 0 0 2.5px var(--t-card);animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both}
+.bt-trip .bonus-body{gap:8px;padding:9px 12px 12px!important}
+.bt-trip .bonus-body .game-icon{display:inline-grid!important;flex-shrink:0}
+.bt-trip .bonus-body strong{color:var(--t-ink);font:600 1rem/1.2 var(--font-display)!important}
+.bt-trip .bonus-body small{color:var(--t-soft);font:700 .8125rem/1.25 var(--font-sans)!important}
+.bt-trip .bonus-stop.is-next .bonus-body small{color:var(--t-brand)!important}
+.bt-trip .bonus-complete{color:var(--t-brand)}
+.sv-trip .survival-grid{grid-template-columns:1fr!important;gap:8px!important}
+.sv-trip .survival-card>button{display:flex!important;align-items:stretch;width:100%;min-height:68px;padding:0!important;border-radius:var(--t-radius-sm)!important;background:color-mix(in srgb,var(--t-mint) 40%,var(--t-card))!important;box-shadow:none!important;overflow:hidden;transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .2s!important}
+.sv-trip .survival-card>button:hover:not(:disabled){transform:translateY(-2px);background:var(--t-mint)!important}
+.sv-trip .survival-card>button:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.sv-trip .survival-art{flex:0 0 112px;aspect-ratio:auto!important;height:auto!important;min-height:0!important;background:transparent!important}
+.sv-trip .survival-body{flex:1 1 auto;display:flex;align-items:center;gap:12px;min-width:0;padding:10px 12px!important}
+.sv-trip .survival-body>span:nth-child(2){flex:1 1 auto;display:grid;gap:2px;min-width:0}
+.sv-trip .survival-body strong{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)!important}
+.sv-trip .survival-body small{color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans)!important}
+.sv-trip .survival-new{position:static!important;display:inline-flex;padding:2px 8px!important;border-radius:999px;background:var(--t-gold)!important;color:var(--t-gold-ink)!important;font:800 .6875rem/1.3 var(--font-sans)!important;font-style:normal!important;letter-spacing:.02em}
+.sv-trip .survival-score{flex-shrink:0;display:grid;place-items:center;min-width:38px;height:38px;padding:0 10px;border-radius:999px;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;font:600 1.0625rem/1 var(--font-display)!important}
+.sv-trip .sv-play{flex-shrink:0;min-height:36px;padding:0 12px 0 14px;background:var(--t-card);font-size:.9375rem}
+.sv-trip .survival-card>button:hover:not(:disabled) .sv-play{background:var(--t-mint-2)}
+.sv-trip .survival-card.is-done .survival-art{filter:saturate(.7)}
+@media (max-width:760px){.sv-trip .survival-art{display:none!important}}
+@media (max-width:420px){.sv-trip .sv-play{padding:0 10px}.sv-trip .sv-play svg{display:none}}
+
+/* ═════════ First visit, the app prompt and a friend's challenge ═════════ */
+/* The welcome card: Roviko on a mint circle, one headline, one line, one forest pill and a quiet way out. */
+.app-modal.welcome-card,.app-modal.app-prompt{display:grid!important;justify-items:center;gap:12px!important;max-width:420px!important;padding:28px 24px 18px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:0 30px 80px rgba(22,59,50,.24)!important;text-align:center}
+.welcome-card .welcome-art{display:grid;place-items:center;width:160px;height:160px;margin:0 auto 6px;border-radius:999px;background:var(--t-mint)!important;animation:th-pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.welcome-card .welcome-art svg{width:150px;height:auto}
+.welcome-card .modal-title,.app-prompt .modal-title{margin:0!important;color:var(--t-ink)!important;font:600 1.75rem/1.15 var(--font-display)!important;letter-spacing:-.01em;text-wrap:balance}
+.welcome-card>p,.app-prompt>p{max-width:34ch;margin:0 0 6px!important;color:var(--t-soft)!important;font:600 1rem/1.5 var(--font-sans)!important}
+.welcome-card .btn,.app-prompt .tour-actions .btn{width:100%;min-height:56px;border-radius:999px!important;justify-content:center}
+.welcome-card .btn.ghost,.app-prompt .btn.ghost{min-height:46px;background:transparent!important;color:var(--t-ink)!important;box-shadow:none!important;font-weight:700}
+.welcome-card .btn.ghost:hover,.app-prompt .btn.ghost:hover{background:var(--t-mint)!important}
+/* The app prompt: the same card with three mint rows for what the app adds. */
+.app-prompt .app-prompt-art{display:grid;place-items:center;width:100%;padding:16px 0 4px!important;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important}
+.app-prompt .app-prompt-art .character{width:150px;height:auto}
+.app-prompt .app-prompt-phone{right:calc(50% - 104px)!important;bottom:14px!important;border-radius:16px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.app-prompt .tour-perks{display:grid;gap:8px;width:100%;margin:0 0 4px;padding:0;list-style:none}
+.app-prompt .tour-perks li{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 14px 6px 8px;border-radius:999px;background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card));color:var(--t-ink);font:700 .9375rem/1.3 var(--font-sans);text-align:left}
+.app-prompt .tour-perks li svg{flex:0 0 auto;box-sizing:content-box;width:16px;height:16px;margin:0!important;padding:9px;border-radius:999px;background:var(--t-card);color:var(--t-brand)!important}
+.app-prompt .tour-actions{display:grid!important;grid-template-columns:minmax(0,1fr);justify-content:stretch!important;gap:4px;width:100%}
+.app-prompt .app-store-btn{background:#0e0e10!important;color:#fff!important;box-shadow:0 10px 22px rgba(0,0,0,.18)!important}
+[data-theme=dark] .app-prompt .app-store-btn{background:#fff!important;color:#0e0e10!important}
+
+/* A friend's challenge (All games page; on the homepage the hero carries it): a white card with Roviko peeking over it. */
+.challenge-banner.ch-trip{position:relative;display:grid!important;grid-template-columns:minmax(0,1fr);justify-items:start;gap:8px;max-width:1080px;margin:52px auto 26px!important;padding:22px 20px 20px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;text-align:left;animation:th-rise .45s cubic-bezier(.22,1,.36,1) both}
+.ch-trip .peek{position:absolute;left:22px;top:-49px;z-index:2;pointer-events:none;animation:t-peek .5s cubic-bezier(.34,1.56,.64,1) both}
+.ch-trip .peek .peek-head{animation:t-bob 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:0 20px}
+.ch-trip .ch-score{gap:6px;padding:0 12px 0 7px}
+.ch-trip strong{display:block;max-width:30ch;color:var(--t-ink)!important;font:600 1.375rem/1.2 var(--font-display)!important;text-wrap:balance}
+.ch-trip p{margin:0 0 6px!important;color:var(--t-soft)!important;font:600 .9375rem/1.45 var(--font-sans)!important}
+.ch-trip .btn.primary{min-height:52px;border-radius:999px!important;padding:0 22px}
+.ch-trip .challenge-close{position:absolute!important;right:12px;top:12px;display:grid;place-items:center;width:40px!important;height:40px!important;min-height:40px!important;margin:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-ink)!important}
+.ch-trip .challenge-close:hover{background:var(--t-mint-2)!important}
+@media (max-width:480px){.ch-trip .btn.primary{width:100%;justify-content:center}}
+
+/* ═════════ All games (/daily): the same calm cards, mint pills and one forest pill for the next game ═════════ */
+.all-games.ag-trip{display:grid;gap:26px;max-width:1080px;margin:0 auto}
+.ag-trip>*{min-width:0}
+/* Page head: no dark block, a forest title on the cream canvas with Roviko next to it. */
+.ag-trip>.page-header.page-stage{align-items:center!important;gap:0 12px!important;margin:0!important;padding:0 4px!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-ink)!important;overflow:visible!important}
+.ag-trip>.page-stage::after{display:none!important}
+.ag-trip>.page-stage .ps-copy{padding:8px 0 0!important}
+.ag-trip>.page-stage .kicker{display:block!important;min-height:0!important;margin:0!important;padding:0!important;border-radius:0!important;background:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em!important;text-transform:uppercase}
+.ag-trip>.page-stage h1{margin:6px 0 0!important;color:var(--t-ink)!important;font:600 clamp(2rem,1.55rem + 2vw,3rem)/1.08 var(--font-display)!important;letter-spacing:-.018em!important;text-wrap:balance;hyphens:manual!important;overflow-wrap:normal!important}
+.ag-trip>.page-stage .lead{max-width:46ch;margin:10px 0 0!important;color:var(--t-soft)!important;font:600 1rem/1.5 var(--font-sans)!important}
+.ag-trip>.page-stage .ps-character{width:168px!important;margin:0!important;filter:none!important}
+.ag-trip>.page-stage .ps-character .character-shadow{opacity:.14}
+
+/* Section heads */
+.ag-trip .section-header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 16px;margin:0 0 16px;padding:0 4px}
+.ag-trip .section-header h2{margin:0;color:var(--t-ink);font:600 1.625rem/1.15 var(--font-display);letter-spacing:-.01em}
+.ag-trip .section-header .muted{margin:4px 0 0;color:var(--t-soft);font:600 .9375rem/1.4 var(--font-sans)}
+.ag-trip .deck-reset{min-height:40px;padding:0 16px!important;border-radius:999px;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-soft)!important;font:700 .875rem/1.2 var(--font-sans)!important}
+.ag-trip .deck-reset time{color:var(--t-ink)!important;font-variant-numeric:tabular-nums}
+.ag-trip .deck-v3{gap:16px!important}
+.ag-trip .deck-v3>.section-header{margin:0}
+.ag-trip .deck-extras{gap:16px!important;margin-top:14px}
+.ag-trip .deck-extras>.section-header{margin:0}
+
+/* The Daily Detour banner and the five daily cards: white cards, soft art, a mint or forest pill. */
+.ag-trip .detour-banner,.ag-trip .dcard{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
+.ag-trip .detour-banner{margin-bottom:0!important}
+.ag-trip .detour-banner.is-next,.ag-trip .dcard.is-next{box-shadow:0 0 0 2px var(--t-mint-2),var(--t-shadow-lift)!important}
+.ag-trip .dcard:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
+.ag-trip .detour-banner-body .kicker{display:flex!important;align-items:center;gap:8px;min-height:0!important;padding:0!important;background:none!important;box-shadow:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
+.ag-trip .detour-banner h3,.ag-trip .dcard h3{color:var(--t-ink)!important;font-family:var(--font-display)!important;font-weight:600!important}
+.ag-trip .detour-banner p:not(.kicker),.ag-trip .dcard p{color:var(--t-soft)!important}
+.ag-trip .dcard-points{display:none!important}
+.ag-trip .dcard-state{border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:0 2px 8px rgba(22,59,50,.1)!important}
+.ag-trip .dcard-state i{background:var(--t-gold)!important}
+.ag-trip .dcard.is-active .dcard-state i{background:var(--t-brand)!important}
+.ag-trip .dcard.is-done .dcard-state{background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
+.ag-trip .game-icon.dcard-logo{box-shadow:0 0 0 4px var(--t-card),0 6px 14px rgba(22,59,50,.08)!important}
+.ag-trip .dcard-start,.ag-trip .detour-banner-actions .btn{min-height:46px;border-radius:999px!important}
+.ag-trip .btn.ag-quiet{border:0!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important}
+.ag-trip .btn.ag-quiet:hover:not(:disabled){background:var(--t-mint-2)!important}
+.ag-trip .dcard-practice{color:var(--t-brand)!important}
+.ag-trip .dcard-help .howto-button{background:color-mix(in srgb,var(--t-card) 92%,transparent)!important;color:var(--t-ink)!important}
+
+/* Extras: two quiet cards */
+.ag-trip .extras-row .game-card{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.ag-trip .extras-row .game-card-title{color:var(--t-ink)!important;font-family:var(--font-display)!important;font-weight:600!important}
+.ag-trip .extras-row .game-card-tagline,.ag-trip .extras-row .game-card-meta{color:var(--t-soft)!important}
+.ag-trip .extras-row .game-card-cta{color:var(--t-brand)!important}
+
+/* Tabs: a white pill with a mint pill for the open tab, as in the tab bar */
+.ag-trip .more-games-tabs.segmented-pill{display:flex;gap:4px;width:min(100%,520px);justify-self:center;margin:6px 0 0;padding:5px!important;border-radius:999px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.ag-trip .more-games-tabs.segmented-pill button{flex:1 1 0;min-height:44px;padding:6px 10px;border:0;border-radius:999px!important;background:transparent!important;color:var(--t-soft)!important;box-shadow:none!important;font:600 1rem/1.1 var(--font-display)!important;cursor:pointer;transition:background .2s,color .2s}
+.ag-trip .more-games-tabs.segmented-pill button:hover{color:var(--t-ink)!important}
+.ag-trip .more-games-tabs.segmented-pill button[aria-selected=true]{background:var(--t-mint)!important;color:var(--t-ink)!important}
+.ag-trip .more-games-tabs.segmented-pill button:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+@media (max-width:420px){.ag-trip .more-games-tabs.segmented-pill{width:100%}.ag-trip .more-games-tabs.segmented-pill button{flex:1 1 auto;min-width:0;padding:6px 8px;font-size:.9375rem!important}}
+@media (max-width:374px){.ag-trip .more-games-tabs.segmented-pill button{padding:6px 6px;font-size:.875rem!important}}
+.ag-trip [role=tabpanel]{animation:th-rise .35s cubic-bezier(.22,1,.36,1) both}
+.ag-trip .bonus-tour{margin:0!important}
+
+/* Practise: region and "Surprise me", then the six classic games as white cards */
+.ag-trip .classic-section{display:grid;gap:16px}
+.ag-trip .classic-section>.section-header{margin:0}
+.ag-trip .classic-controls .select-trigger{border-radius:999px!important;background-color:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink)!important}
+.ag-trip .surprise-button{min-height:52px!important;border-radius:999px!important}
+.ag-trip .review-card{border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.ag-trip .review-card-icon{border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-brand)!important}
+.ag-trip .review-card .review-card-cta{border:0!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important}
+.ag-trip .ccard{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+.ag-trip .ccard:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
+.ag-trip .ccard-wave{color:var(--t-card)!important}
+.ag-trip .ccard-body strong{color:var(--t-ink)}
+.ag-trip .ccard-body small{color:var(--t-soft)}
+.ag-trip .game-icon.ccard-logo{box-shadow:0 0 0 4px var(--t-card),0 6px 14px rgba(22,59,50,.08)!important}
+.ag-trip .ccard-go{border:0!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important}
+.ag-trip .ccard:hover .ccard-go{background:var(--t-mint-2)!important}
+.ag-trip .ccard-settings{color:var(--t-soft)!important}
+.ag-trip .ccard-settings:hover{background:var(--t-mint)!important;color:var(--t-ink)!important}
+.ag-trip .native-reminder{border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+@media (max-width:760px){
+  .all-games.ag-trip{gap:22px}
+  .ag-trip>.page-header.page-stage{grid-template-columns:minmax(0,1fr) 92px!important}
+  .ag-trip>.page-stage .ps-character{width:104px!important;margin:0 -8px 0 -12px!important}
+  .ag-trip>.page-stage .lead{font-size:.9375rem!important}
+  .ag-trip .section-header h2{font-size:1.4375rem}
+  .ag-trip .dcard{border-radius:var(--t-radius-sm)!important}
+  .ag-trip .dcard-art{border-radius:var(--t-radius-sm) 0 0 var(--t-radius-sm)}
+  .ag-trip .detour-banner{border-radius:24px!important}
+  .ag-trip .dgrid{gap:10px!important}
+}
+/* Narrow phones: a finished or waiting game keeps only the arrow in its pill (the button's label says it all), so long names keep their room. */
+@media (max-width:420px){
+  .ag-trip .dcard.is-done .dcard-start{width:44px!important;min-width:44px;height:44px;min-height:44px!important;padding:0!important;font-size:0!important;gap:0}
+  .ag-trip .dcard.is-done .dcard-start svg{width:18px;height:18px}
+}
+@media (max-width:360px){
+  .ag-trip .dcard:not(.is-next) .dcard-start{width:44px!important;min-width:44px;height:44px;min-height:44px!important;padding:0!important;font-size:0!important;gap:0}
+  .ag-trip .dcard:not(.is-next) .dcard-start svg{width:18px;height:18px}
+}
+
+/* ───── Sizes ───── */
 @media (min-width:980px){
-  .th-hero{position:sticky;top:96px;padding-top:6px}
-  .home-trip .hero-character{width:236px!important}
-  .home-trip .today-head{padding-top:4px}
+  .home-trip .hero-character{width:232px!important}
 }
 @media (max-width:760px){
-  .home.home-trip{gap:24px!important}
   .th-hero{gap:14px}
   .th-bubble{font-size:.9375rem;padding:9px 16px}
-  .home-trip .hero-character{width:164px!important}
+  .home-trip .hero-character{width:160px!important}
 }
 @media (max-width:359px){
-  .home-trip .today-row button{gap:11px;padding:10px 10px 10px 10px;min-height:66px}
+  .home-trip .home-today.th-trip{padding:16px 8px 10px!important;border-radius:24px!important}
+  .th-trip-head h2{font-size:1.25rem}
+  .th-points{min-height:34px;padding:0 11px 0 7px}
+  .home-trip .today-row button{gap:11px;padding:9px 8px;min-height:62px}
   .home-trip .today-icon,.home-trip .today-icon .game-icon{width:40px;height:40px}
-  .home-trip .today-row:not(:last-child)::after{left:28px}
+  .home-trip .today-row:not(:last-child)::after{left:26.5px;top:calc(50% + 23px);height:calc(100% - 46px + 6px)}
   .home-trip .today-name strong{font-size:1.03rem}
-  .th-play{padding:0 10px 0 14px}
-  .th-progress-line{gap:6px}
-  .th-progress-line>span:first-child,.th-points{padding:0 11px}
+  .th-play{padding:0 10px 0 13px}
+  .th-play svg{display:none}
 }
 
 @keyframes th-bubble{from{opacity:0;transform:translateY(8px) scale(.85)}to{opacity:1;transform:none}}
 @keyframes th-pop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 @keyframes th-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-@keyframes th-seg{from{transform:scaleX(.4)}to{transform:none}}
+@keyframes th-seg{from{transform:scaleX(.3)}to{transform:none}}
 @keyframes th-glow{0%,100%{opacity:1}50%{opacity:.45}}
 @media (prefers-reduced-motion:reduce){
-  .th-bubble,.home-trip .th-cta,.home-trip .today-row,.th-tick,.th-segs>li,.th-nudge .flame-mark{animation:none!important}
-  .home-trip .today-row button,.home-trip a.side-row,.th-points{transition:none!important}
+  .th-bubble,.th-bubble .flame-mark,.home-trip .th-cta,.home-trip .today-row,.th-tick,.th-segs>li,.bt-trip .bonus-check,.welcome-card .welcome-art,.challenge-banner.ch-trip,.ch-trip .peek,.ch-trip .peek .peek-head,.ag-trip [role=tabpanel]{animation:none!important}
+  .home-trip .today-row button,.home-trip a.side-row,.th-points,.bt-trip .bonus-stop button,.sv-trip .survival-card>button,.ag-trip .dcard,.ag-trip .detour-banner,.ag-trip .ccard{transition:none!important}
 }

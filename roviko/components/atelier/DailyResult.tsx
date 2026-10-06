@@ -93,13 +93,14 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       {beaten !== null && beaten > 0 && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}
       {day?.place ? <p className="daily-result-target">{t('resultDayRank').replace('{rank}', fmt(day.place)).replace('{count}', fmt(day.participants))} · {day.next ? t('rankTarget').replace('{n}', fmt(day.next.gap + 1)).replace('{name}', day.next.name).replace('{place}', fmt(day.next.place)) : t('rankLeading')}</p> : null}
     </div>
-    {savePrompt}
     {dayDone && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})}/>}
     {next === undefined ? <span className="daily-result-next is-pending" aria-hidden="true"/> : next
       ? <button className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}</span><ArrowRight size={19} aria-hidden="true"/></button>
       : bonusNext
         ? <div className="daily-result-bonus"><p>{t('bonusAfterDaily')}</p><button className="btn primary btn-lg daily-result-next" disabled={!!bonusLaunch.launching || app.busy} onClick={() => bonusLaunch.open(bonusNext)}><GameIcon mode={bonusNext} size="sm"/><span>{bonusLaunch.launching ? t('loading') : t('bonusCta').replace('{game}', t(bonusNext))}</span><ArrowRight size={19} aria-hidden="true"/></button></div>
         : <p className="daily-result-done">{t('loopAllDone')} <ResetCountdown label={t('dayNewIn')} t={t}/></p>}
+    {/* The way on comes first; the once-per-guest save prompt waits quietly under it. */}
+    {savePrompt}
   </section>;
   if (!stage) return <>{card}{streakMoment}</>;
   return <>

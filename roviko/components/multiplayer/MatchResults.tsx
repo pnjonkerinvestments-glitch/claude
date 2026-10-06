@@ -89,7 +89,7 @@ export function MatchResults({ room, me, send, onShare, onHome, t, locale }: { r
       <p className="sr-only">{plural(t, 'mpRightCount', right).replace('{total}', String(total))}</p>
       <h1 id="mpr-title" className="t-title mpr-headline">{t(headline)}</h1>
       {place > 0 && <p className="mpr-place">{plural(t, 'mpPlaceOf', players.length).replace('{place}', ordinal(place, locale))}</p>}
-      <p className="mpr-points"><Coin size={28}/><strong><CountUp value={self?.score ?? 0} format={n => formatScore(n)}/></strong><span>{plural(t, 'scorePill', self?.score ?? 0, '{n}', '').trim()}</span></p>
+      <p className="mpr-points"><Coin size={28}/><strong><CountUp value={self?.score ?? 0} format={n => formatScore(n)}/></strong><span>{plural(t, 'mpPointsWord', self?.score ?? 0)}</span></p>
       <div className="mpr-stage">
         <Character mood={win ? 'cheer' : place && place <= 3 ? 'happy' : 'wink'} pose={win ? 'cheer' : place && place <= 3 ? 'wave' : 'hips'} size={132} className="mpr-roviko"/>
         <ol className={'mpr-podium has-' + podium.length} aria-label={t('mpPodium')}>
@@ -107,7 +107,7 @@ export function MatchResults({ room, me, send, onShare, onHome, t, locale }: { r
         <RematchButton room={room} me={me} send={send} t={t}/>
         <div className="mpr-more">
           <button className="btn secondary" onClick={onShare}><ArrowUpRight size={17} aria-hidden="true"/>{t('share')}</button>
-          <button className="btn ghost" onClick={onHome}><Home size={17} aria-hidden="true"/>{t('home')}</button>
+          <button className="btn ghost" onClick={onHome}><Home size={17} aria-hidden="true"/>{t('mpHome')}</button>
         </div>
       </div>
     </section>

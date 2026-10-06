@@ -9,8 +9,14 @@
   .mp-live-grid{grid-template-columns:minmax(0,1fr) 300px;gap:28px}
   .mp-live-side{position:sticky;top:150px;margin-top:44px}
 }
-.mp-live>.game-header.trip-top{width:100%;max-width:none!important;margin:0!important}
+.mp-live>.game-header.trip-top{width:100%;max-width:none!important;margin:0!important;z-index:30!important}
 .mp-live .question-content{max-width:none!important;width:100%}
+/* The sticky bar covers the page gutter and the gap above it, so no card edge or shadow peeks out while scrolling. */
+.mp-live>.game-header.trip-top{box-shadow:0 -20px 0 24px var(--t-canvas)!important}
+@media (max-width:760px){.mp-live>.game-header.trip-top{box-shadow:0 -48px 0 16px var(--t-canvas)!important}}
+/* After the reveal: the right pill is plain forest, a wrong pick plain soft red; no older rings or ledges. */
+.mp-live .answer-option.is-correct,.mp-live .answer-option.is-correct:disabled{border:2px solid var(--t-forest)!important;box-shadow:none!important}
+.mp-live .answer-option.is-wrong,.mp-live .answer-option.is-wrong:disabled{border:2px solid var(--t-red-soft)!important;box-shadow:none!important}
 
 /* The timer pill next to the coin pill; red and ticking for the last five seconds. */
 .mp-timer{display:inline-flex;align-items:center;gap:5px;flex-shrink:0;min-height:40px;padding:0 13px 0 10px;border-radius:999px;background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums;transition:background .2s,color .2s}
@@ -173,8 +179,10 @@
 @keyframes mpr-rise{from{transform:scaleY(.2);opacity:0}to{transform:none;opacity:1}}
 .mpr-actions{display:grid;gap:10px;width:100%;max-width:400px;margin-top:16px}
 .mpr-actions .mpr-again{width:100%;min-height:56px;justify-content:center;font-size:1.125rem}
-.mpr-more{display:flex;flex-wrap:wrap;gap:8px}
-.mpr-more .btn{flex:1 1 140px;justify-content:center;min-width:0}
+/* Then, quieter: share as an outline pill, home as a plain link, the same in every language. */
+.mpr-more{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:4px}
+.mpr-more .btn{width:100%;justify-content:center;min-width:0;white-space:normal;text-align:center}
+.mpr-more .btn.ghost{width:auto;min-height:44px}
 .mpr-wait{margin:0;color:var(--t-soft);font-size:.875rem}
 /* A little confetti for a win. */
 .mpr-confetti{position:absolute!important;inset:0;overflow:hidden;pointer-events:none}
@@ -350,6 +358,9 @@
 .lobby-more .enabled-modes input{accent-color:var(--t-forest)}
 .lobby-more .enabled-modes>p,.lobby-more .enabled-modes small,.lobby-more .enabled-modes>small{color:var(--t-soft)!important}
 .lobby-more .enabled-modes small{text-transform:none!important;letter-spacing:0!important}
+.lobby-more .field>span{color:var(--t-ink);font:600 .9375rem/1.25 var(--font-display)}
+.lobby-more .select-trigger{min-height:52px!important;padding:0 18px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:none!important;font:600 1rem/1.2 var(--font-display)!important}
+.lobby-more .select-trigger:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
 .mp-computer .segmented-pill{background:var(--t-card)!important}
 @media (hover:none){.level-option:hover:not(.is-selected){background:var(--t-mint)!important}.mp-choice:hover:not(:disabled){background:var(--t-mint)!important;transform:none}}
 
@@ -374,3 +385,13 @@
   .level-option{flex-direction:row!important;align-items:center;gap:10px!important;min-height:44px;padding:8px 14px!important;border-radius:999px!important}
 }
 .level-option.is-selected .level-dots i.on{background:var(--t-forest-ink)!important}
+
+/* Guests see the match as quiet pills (they cannot change it); the host keeps the segmented rows. */
+.lobby-summary{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0;padding:0;list-style:none}
+.lobby-summary .t-pill{min-height:38px;padding:0 14px;background:var(--t-card);font-size:.9375rem}
+.lobby-summary .t-pill .game-icon{--gi-size:24px;width:24px;height:24px;margin-left:-6px}
+.lobby-settings:has(.lobby-summary) .lobby-more>summary{width:max-content;max-width:100%;margin:0 auto}
+/* Report or block another player: a small white button on the avatar's corner, like the computer's ✕. */
+.lobby-avatars .player-actions-btn{position:absolute;top:-4px;left:calc(50% - 46px);display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:999px;background:var(--t-card);color:var(--t-soft);box-shadow:var(--t-shadow)}
+.lobby-avatars .player-actions-btn:hover{color:var(--t-ink)}
+.lobby-avatars .player-actions-btn svg{width:16px;height:16px}

@@ -81,8 +81,8 @@ function FriendsRankings() {
 export function RankingsPage() {
   const { t, locale, boot, setModal, go } = useApp();
   const { data: league } = useLeague(boot);
-  return <div className="page rankings">
-    <PageHeader art="spot-rank-radar" kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('rankingsLead')}/>
+  return <div className="page rankings trip-page">
+    <PageHeader art="spot-rank-radar" kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('pgRankLead')}/>
     <div id="league"><LeagueCard league={league} t={t} locale={locale} onSignup={() => setModal('signup')} onPlay={() => go('/')}/></div>
     <DailyRankings/>
     <FriendsRankings/>

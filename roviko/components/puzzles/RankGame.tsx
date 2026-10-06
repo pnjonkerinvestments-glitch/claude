@@ -4,11 +4,12 @@ import { DailyResult } from '../atelier/DailyResult';
 import { RankBoardGame } from './RankBoardGame';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
-import { Mascot } from '../ds/Mascot';
+import { Character } from '../ds/Character';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, X, Flag, Share2, Radar } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { api, post, sound } from '@/lib/client';
+import { api, post, sound, formatScore } from '@/lib/client';
+import { plural } from '@/lib/plural';
 import { BRAND } from '@/lib/config';
 import { shareCard, squares } from '@/lib/share';
 import { formatMetric } from '@/lib/puzzles/topics';
@@ -65,11 +66,11 @@ export function RankGame({ id, app }: { id: string; app: any }) {
     return <RankBoardGame game={game} app={app} busy={busy} error={error} save={save} again={again} share={shareBoard}/>;
   }
   return <section className="puzzle-game rank-game">
-    <GameHeader mode="rank" title={t('rankRadar')} edition={editionLabel(game.daily,lang,t('puzzleStartPractice'))} count={Math.min(game.round+1,game.total)+' / '+game.total} unit={t('countries')} progress={game.answers.length/game.total} onExit={()=>backToStart?backToStart():go('/daily')} exitLabel={t('back')} help={<HowToPlayButton mode="rank" t={t} locale={lang} auto={game.phase!=='finished'}/>}/>
+    <GameHeader mode="rank" title={t('rankRadar')} edition={editionLabel(game.daily,lang,t('puzzleStartPractice'))} count={Math.min(game.round+1,game.total)+' / '+game.total} unit={t('countries')} progress={game.answers.length/game.total} onExit={()=>backToStart?backToStart():go('/daily')} exitLabel={t('back')} help={<HowToPlayButton mode="rank" t={t} locale={lang} auto={game.phase!=='finished'}/>} score={game.competition&&game.phase!=='finished'?game.score??0:undefined} scoreLabel={plural(t,'scorePill',game.score??0,'{n}',formatScore(game.score??0))}/>
     {game.phase!=='finished'&&<ol className="rank-trail" aria-label={t('rankTrail')}>{Array.from({length:game.total},(_,i)=><li key={i} className={i<places.length?'is-done place-'+places[i]:i===game.round&&game.phase!=='finished'?'is-current':''}>{i<places.length?<span role="img" aria-label={t('rankPlace'+places[i])}>{medalFor(places[i])}</span>:<span aria-hidden="true">{i+1}</span>}</li>)}</ol>}
     {game.competition&&game.phase!=='finished'&&<DailyScoreRule t={t} mode="rank" score={game.score}/>}{error&&<div className="puzzle-error" role="alert"><span>{t(error)}</span><button className="btn secondary" onClick={load}>{t('retry')}</button></div>}
     {game.phase==='finished'?<div className={'rank-finished'+(game.competition?' is-daily':'')}>
-      <Mascot mood={medals[1]===game.total ? 'cheer' : 'happy'} size={132} className="result-mascot"/><p className="rank-eyebrow">{t('rankRadar')}</p><h1>{medals[1]===game.total?t('rankPerfectRun'):t('rankFinish')}</h1><p>{t('rankFinishCopy')}</p>
+      <Character mood={medals[1]===game.total ? 'cheer' : 'happy'} pose={medals[1]===game.total ? 'cheer' : 'wave'} size={150} className="result-mascot"/><p className="rank-eyebrow">{t('rankRadar')}</p><h1>{medals[1]===game.total?t('rankPerfectRun'):t('rankFinish')}</h1><p>{t('rankFinishCopy')}</p>
       <div className="rank-medal-row" aria-label={fill('rankMedalSummary',{gold:medals[1],silver:medals[2],bronze:medals[3]})}>{places.map((p,i)=><span key={i} className={'place-'+p} title={t('rankPlace'+p)} aria-hidden="true">{medalFor(p)}</span>)}</div>
       <p className="rank-medal-summary">{fill('rankMedalSummary',{gold:medals[1],silver:medals[2],bronze:medals[3]})} · {correct}/{game.total} {t('correctAnswers')}</p>
       {game.competition&&<DailyResult app={app} date={game.daily!} mode="rank"/>}

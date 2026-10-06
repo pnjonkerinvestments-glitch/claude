@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef, useState } from 'react';
 import { GameScene, type SceneMode } from '../ds/GameScene';
-import { ArrowRight, Check, Sparkles, Swords, Users } from 'lucide-react';
+import { ArrowRight, Check, Swords, Users } from 'lucide-react';
 import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { BONUS_MODES, BONUS_ROUNDS, bonusStateOf, nextBonusMode, type BonusMode, type BonusSession } from '@/lib/bonus';
@@ -28,22 +28,20 @@ export function useBonusLaunch(app: LaunchApp) {
 
 /**
  * Today's bonus tour: the six classic games with the day's countries. Shown on the homepage (first,
- * once the scored games are done) and on the all-games page.
+ * once the scored games are done; `featured` keeps it short there) and on the all-games page.
+ * Trip style (1.23): one white card, a small caps kicker with a row of dots, and six tiles.
  */
 export function BonusTour({ app, bonus, busy, featured }: { app: LaunchApp & { t: (k: string) => string }; bonus?: BonusSession[]; busy?: boolean; featured?: boolean }) {
   const { t } = app;
   const { open, launching } = useBonusLaunch(app);
   const done = BONUS_MODES.filter(m => bonusStateOf(bonus, m) === 'done').length, next = nextBonusMode(bonus);
-  return <section className={'home-section bonus-tour' + (featured ? ' is-featured' : '')} aria-labelledby="bonus-title">
+  return <section className={'home-section bonus-tour bt-trip' + (featured ? ' is-featured' : '')} aria-labelledby="bonus-title">
     <header className="bonus-head">
-      <span className="bonus-badge" aria-hidden="true"><Sparkles size={20}/></span>
-      <div>
-        <p className="kicker">{t('bonusKicker')} · {t('bonusProgress').replace('{n}', String(done))}</p>
-        <h2 id="bonus-title">{t('bonusTitle')}</h2>
-        {featured && <p className="muted">{t('bonusCopy')}</p>}
-      </div>
+      <p className="t-kicker is-caps">{t('bonusKicker')} · {t('bonusProgress').replace('{n}', String(done))}</p>
+      <h2 id="bonus-title">{t('bonusTitle')}</h2>
+      <p className="bonus-line">{featured ? t('homeBonusLine') : t('bonusCopy')}</p>
+      <ol className="t-dots" aria-hidden="true">{BONUS_MODES.map(m => <li key={m} className={bonusStateOf(bonus, m) === 'done' ? 'is-done' : m === next ? 'is-now' : ''}/>)}</ol>
     </header>
-    <span className="bonus-meter" aria-hidden="true"><i style={{ width: done / BONUS_MODES.length * 100 + '%' }}/></span>
     <ol className="bonus-grid">{BONUS_MODES.map(mode => {
       const state = bonusStateOf(bonus, mode), saved = bonus?.find(b => b.mode === mode), isNext = mode === next;
       return <li key={mode} className={'bonus-stop is-' + state + (isNext ? ' is-next' : '') + ' tone-' + mode}>

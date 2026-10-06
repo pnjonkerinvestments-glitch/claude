@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { ArrowRight, Check, Copy, Crown, LogOut, Plus, Settings2, Share2, X } from 'lucide-react';
 import { BRAND } from '@/lib/config';
+import { plural } from '@/lib/plural';
+import { GameIcon } from '../atelier/GameIcon';
 import { GlobeAvatar } from '../ds/GlobeAvatar';
 import { RoomScene } from '../ds/RoomScene';
 import { InvitePanel } from '../friends/Friends';
@@ -48,12 +50,21 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
       </header>
 
       <div className="lobby-settings" role="group" aria-label={t('settings')}>
+        {/* Guests cannot change anything: they see the match as a few quiet pills instead of greyed-out controls. */}
+        {!isHost && <ul className="lobby-summary">
+          <li className="t-pill"><GameIcon mode={String(room.settings.mode ?? 'mixed')} size="sm"/>{t(String(room.settings.mode ?? 'mixed'))}</li>
+          <li className="t-pill">{plural(t, 'mpRoundsPill', room.settings.count)}</li>
+          <li className="t-pill">{t(room.settings.difficulty === 'mixed' ? 'difficultyMixed' : room.settings.difficulty)}</li>
+          <li className="t-pill">{Number(room.settings.timer) ? plural(t, 'mpTimerPill', Number(room.settings.timer)) : t('unlimited')}</li>
+        </ul>}
+        {isHost && <>
         <div className="lobby-setting"><span id="lobby-rounds">{t('rounds')}</span>
           <div className="segmented-pill" role="radiogroup" aria-labelledby="lobby-rounds">{ROUNDS.map(n => <button key={n} type="button" role="radio" aria-checked={room.settings.count === n} disabled={!isHost || settingsBusy} onClick={() => set('count', n)}>{n}</button>)}</div>
         </div>
         <div className="lobby-setting"><span id="lobby-level">{t('difficulty')}</span>
           <div className="segmented-pill" role="radiogroup" aria-labelledby="lobby-level">{LEVELS.map(v => <button key={v} type="button" role="radio" aria-checked={room.settings.difficulty === v} disabled={!isHost || settingsBusy} onClick={() => set('difficulty', v)}>{t(v === 'mixed' ? 'difficultyMixed' : v)}</button>)}</div>
         </div>
+        </>}
         <details className="lobby-more"><summary><Settings2 size={16} aria-hidden="true"/>{t('roomMore')}</summary>{moreSettings}<p className="lobby-rules">{t('lobbyRules')}</p></details>
       </div>
 

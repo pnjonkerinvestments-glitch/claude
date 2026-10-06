@@ -1,1 +1,466 @@
 /* Roviko 1.23 trip style · daily games with their own screens: Rank Radar, World Duel, Side by Side, Country Mosaic, Clue Trail, Survival. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
+/*
+  Every daily game looks like one family with the solo question screen:
+  - the trip game bar on top (close button, thin bar, coin pill with the day's points);
+  - the playing field on a white card with a small green line ("Rank Radar · 1/8") and Roviko peeking over its edge;
+  - choices as light-mint pills or tiles; forest for picked, confirmed and right; soft red for wrong; gold for points;
+  - maps and shapes in the light-blue card; the way on as a forest pill, fixed at the bottom on phones;
+  - rules live behind the ? button, so the screen keeps only what you play with.
+  Presentation only: no rule, score or flow depends on this file.
+*/
+
+/* ───────── Shared: a white card with Roviko peeking over its top edge ───────── */
+.tp-card{position:relative;margin-top:44px;padding:22px 20px;border-radius:var(--t-radius);background:var(--t-card);box-shadow:var(--t-shadow);color:var(--t-text);text-align:center}
+.tp-card>.peek{position:absolute;right:18px;top:-49px;z-index:2;pointer-events:none;animation:t-peek .5s cubic-bezier(.34,1.56,.64,1) both}
+.tp-card>.peek .peek-head{animation:t-bob 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:0 20px}
+.tp-card>.peek.mood-cheer .peek-head{animation:t-hop .55s cubic-bezier(.34,1.56,.64,1) 2}
+.tp-card>.peek.mood-shock .peek-head,.tp-card>.peek.mood-worried .peek-head{animation:t-jolt .4s ease-out}
+.tp-kicker{display:block;margin:0;padding:0 72px 0 0;color:var(--t-brand);font:800 .8125rem/1.3 var(--font-sans);letter-spacing:.02em;text-align:left}
+.tp-card h1{color:var(--t-ink)}
+@media (max-width:480px){.tp-card{padding:18px 16px;border-radius:24px}}
+
+/* The ? in the game bar: quiet, round, a full-size target. */
+.trip-top .game-header-row>.howto-button{display:grid!important;place-items:center;width:44px!important;height:44px!important;min-width:44px;margin:0!important;padding:0!important;border:0!important;border-radius:999px!important;background:transparent!important;color:var(--t-soft)!important;box-shadow:none!important}
+@media (hover:hover){.trip-top .game-header-row>.howto-button:hover{background:var(--t-mint)!important;color:var(--t-ink)!important}}
+.trip-top .game-header-row>.howto-button:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+
+/* ───────── Rank Radar: the country on a card, the eight subjects as mint pills ───────── */
+.rank-board{max-width:600px!important}
+.rank-board .rb-hero.tp-card{display:grid!important;justify-items:center;gap:6px!important;width:100%;max-width:560px;margin:46px auto 14px!important;padding:18px 20px 20px!important}
+.rank-board .rb-hero .tp-kicker{justify-self:stretch}
+.rank-board .rb-hero-flag{margin:10px 0 4px!important}
+.rank-board .rb-hero-flag img{height:clamp(92px,24vw,124px)!important;width:auto!important;max-width:min(70vw,240px)!important;border-radius:8px!important;box-shadow:0 0 0 1px rgba(22,59,50,.08),0 12px 28px rgba(22,59,50,.18)!important}
+[data-theme=dark] .rank-board .rb-hero-flag img{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 28px rgba(0,0,0,.45)!important}
+.rank-board .rb-hero h1{margin:0!important;color:var(--t-ink)!important;font:600 clamp(1.75rem,1.45rem + 1.3vw,2.25rem)/1.1 var(--font-display)!important;letter-spacing:-.015em}
+.rank-board .rb-ask{display:flex;align-items:center;justify-content:center;min-height:32px;margin:0!important;color:var(--t-soft)!important;font:600 .9375rem/1.35 var(--font-sans)!important;text-wrap:balance}
+.rank-board .rb-gain .t-points{font-size:1.0625rem;animation:tp-pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.rank-board .rb-list{gap:10px!important;max-width:560px!important}
+.rank-board .rb-row{min-height:58px!important;padding:8px 12px 8px 9px!important;border:2px solid transparent!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 1.0625rem/1.2 var(--font-display)!important;transition:background .16s,border-color .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.rank-board .rb-row .rb-emoji{flex:0 0 40px!important;width:40px!important;height:40px!important;background:var(--t-card)!important;box-shadow:none!important}
+.rank-board .rb-row strong{color:inherit!important;font-weight:600!important}
+.rank-board .rb-row:hover:not(:disabled):not(.is-picked){background:var(--t-mint)!important;transform:none!important;box-shadow:none!important}
+@media (hover:hover){.rank-board .rb-row:hover:not(:disabled):not(.is-picked){background:var(--t-mint-2)!important;transform:translateY(-1px)!important}}
+.rank-board .rb-row:active:not(:disabled){transform:scale(.98)!important}
+.rank-board .rb-row:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:2px!important}
+.rank-board .rb-row.is-picked{border-color:var(--t-forest)!important;background:var(--t-mint-2)!important}
+.rank-board .rb-row.is-picked .rb-emoji{background:var(--t-card)!important}
+.rank-board .rb-tick{width:34px!important;height:34px!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both}
+/* A subject that is already spent: white, quiet, with the country that took it and its world place. */
+.rank-board .rb-row.is-used{background:var(--t-card)!important;border-color:var(--t-line)!important;color:var(--t-soft)!important}
+.rank-board .rb-row.is-used strong,.rank-board .rb-row.is-used .rb-emoji{opacity:.7!important}
+.rank-board .rb-row.is-used .rb-emoji{background:var(--t-canvas)!important}
+.rank-board .rb-row.is-used .rb-place b{color:var(--t-ink)!important}
+/* The pick you just made: forest, with the world place in a white pill. */
+.rank-board .rb-row.is-now{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.rank-board .rb-row.is-now .rb-emoji{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important}
+.rank-board .rb-place{gap:8px!important;padding:5px 12px 5px 6px!important;border-radius:999px}
+.rank-board .rb-place img{height:22px!important;border-radius:3px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.rank-board .rb-place b{font:600 1.125rem/1 var(--font-display)!important}
+.rank-board .rb-row.is-now .rb-place{background:var(--t-card);color:var(--t-ink)}
+.rank-board .rb-row.is-now .rb-place b{color:var(--t-ink)!important}
+/* The way on, fixed at the bottom. */
+.rank-board .rb-actions{max-width:560px!important;background:linear-gradient(to bottom,transparent,var(--t-canvas) 38%)!important}
+.rank-board .rb-actions .btn{min-height:58px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+.rank-board .rb-actions .btn:disabled{opacity:1!important;background:var(--t-mint-2)!important;color:var(--t-soft)!important;box-shadow:none!important}
+.rank-board .rb-timer{background:color-mix(in srgb,var(--t-forest-ink) 45%,transparent)!important}
+.rank-board .rank-footer{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;max-width:560px;margin:10px auto 0!important;color:var(--t-soft)}
+.rank-board .rank-footer .text-link,.rank-board .rank-footer a{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important}
+@media (max-width:360px){
+  .rank-board .rb-row{min-height:54px!important;padding:6px 10px 6px 7px!important;font-size:1rem!important;gap:10px!important}
+  .rank-board .rb-row .rb-emoji{flex-basis:36px!important;width:36px!important;height:36px!important;font-size:1.2rem!important}
+  .rank-board .rb-place{padding:4px 9px 4px 5px!important;gap:6px!important}
+}
+
+/* ───────── World Duel: the route, Roviko's card against yours on one white card, your hand as mint cards ───────── */
+.duel-game{max-width:640px!important}
+/* The route: every subject with Roviko's country, in one quiet row. */
+.duel-game .duel-route{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:6px!important;margin:6px 0 4px!important;padding:0!important}
+.duel-game .duel-route li{display:grid!important;justify-items:center;align-content:start;gap:5px!important;min-width:0;padding:7px 2px 8px!important;border:2px solid transparent!important;border-radius:16px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;transition:border-color .2s,background .2s}
+.duel-game .duel-route li>span:first-child{display:grid!important;place-items:center;width:30px!important;height:30px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font-size:1rem!important}
+.duel-game .duel-route li small{display:none!important}
+.duel-game .duel-route li>.duel-route-flags{display:flex!important;width:auto!important;height:auto!important;min-height:16px;border-radius:0!important;background:none!important}
+.duel-game .duel-route .duel-route-flags img{height:15px!important;width:auto!important;max-width:24px!important;border-radius:3px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)!important}
+.duel-game .duel-route .duel-route-flags img+img{margin-left:-5px;box-shadow:0 0 0 2px var(--t-card)!important}
+.duel-game .duel-route li.is-current{border-color:var(--t-forest)!important}
+.duel-game .duel-route li.is-played{background:var(--t-mint)!important;box-shadow:none!important}
+.duel-game .duel-route li.is-played>span:first-child{background:var(--t-card)!important}
+.duel-game .duel-route li.is-won{background:var(--t-mint)!important;box-shadow:none!important}
+.duel-game .duel-route li.is-won>span:first-child{background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
+.duel-game .duel-route li.is-lost{background:var(--t-red-soft)!important;box-shadow:none!important}
+.duel-game .duel-route li.is-lost>span:first-child{background:var(--t-red)!important;color:#fff!important}
+/* The match. */
+.duel-game .duel-arena.tp-card{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important;align-items:stretch;margin:52px 0 16px!important;padding:18px 18px 20px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)!important}
+.duel-game .duel-arena::before,.duel-game .duel-arena::after{display:none!important}
+.duel-game .duel-arena .duel-prompt{margin:0!important;color:var(--t-ink)!important;font:600 clamp(1.375rem,1.2rem + .8vw,1.75rem)/1.18 var(--font-display)!important;letter-spacing:-.01em;text-wrap:balance}
+.duel-game .duel-arena .duel-subject{display:inline-flex!important;justify-self:center;align-items:center;gap:6px;max-width:100%;margin:0!important;padding:6px 14px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 1rem/1.2 var(--font-display)!important;text-transform:none!important;letter-spacing:0!important;white-space:normal!important}
+.duel-game .duel-match{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:end;gap:10px;margin-top:4px}
+.duel-game .duel-side{display:grid!important;justify-items:stretch!important;gap:6px!important;min-width:0}
+.duel-game .duel-label{display:block;margin:0!important;color:var(--t-soft)!important;font:800 .6875rem/1.2 var(--font-sans)!important;letter-spacing:.08em!important;text-transform:uppercase;text-align:center}
+.duel-game .duel-vs{align-self:center;width:42px!important;height:42px!important;margin-top:18px;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-forest)!important;box-shadow:none!important;font:600 .9375rem/1 var(--font-display)!important}
+[data-theme=dark] .duel-game .duel-vs{color:var(--t-ink)!important}
+.duel-game .duel-arena .duel-card{display:grid!important;justify-items:center;align-content:center;gap:6px!important;min-height:118px!important;padding:12px 8px!important;border:2px solid transparent!important;border-radius:20px!important;background:var(--t-canvas)!important;color:var(--t-ink)!important;box-shadow:none!important}
+.duel-game .duel-arena .duel-card img{width:auto!important;height:40px!important;max-width:100%!important;border-radius:5px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 6px 14px rgba(22,59,50,.14)!important;object-fit:contain!important}
+.duel-game .duel-arena .duel-card strong{color:inherit;font:600 1.0625rem/1.15 var(--font-display)!important;overflow-wrap:anywhere;text-wrap:balance}
+.duel-game .duel-arena .duel-card.is-empty{border:2px dashed color-mix(in srgb,var(--t-forest) 35%,transparent)!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font-size:2rem!important}
+.duel-game .duel-arena .duel-card.is-empty span{animation:tp-wobble 2.4s ease-in-out infinite}
+.duel-game .duel-arena .duel-card.is-winner{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.duel-game .duel-arena .duel-card.is-beaten{opacity:1!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
+.duel-game .duel-arena .duel-value{font:600 .9375rem/1.1 var(--font-display)}
+/* Your hand: mint cards with real-shaped flags. */
+.duel-game .duel-hand{display:flex!important;flex-wrap:wrap;justify-content:center;gap:10px!important;margin:0!important}
+.duel-game .duel-hand>.duel-pick{flex:0 0 calc((100% - 30px)/4)!important;display:grid!important;justify-items:center;align-content:center;gap:6px!important;min-width:0;min-height:104px!important;padding:12px 6px!important;border:2px solid transparent!important;border-radius:20px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;filter:none!important;transition:background .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.duel-game .duel-hand>.duel-pick img{width:auto!important;height:34px!important;max-width:100%!important;border-radius:4px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 4px 10px rgba(22,59,50,.12)!important;object-fit:contain!important}
+.duel-game .duel-hand>.duel-pick strong{font:600 .9375rem/1.15 var(--font-display)!important;overflow-wrap:anywhere;text-wrap:balance}
+.duel-game .duel-hand>.duel-pick small{display:block;color:var(--t-soft)!important;font:800 .625rem/1.2 var(--font-sans)!important;letter-spacing:.06em;text-transform:uppercase}
+.duel-game .duel-hand>.duel-pick:hover:not(:disabled){background:var(--t-mint)!important;transform:none!important;border-color:transparent!important}
+@media (hover:hover){.duel-game .duel-hand>.duel-pick:hover:not(:disabled){background:var(--t-mint-2)!important;transform:translateY(-2px)!important}}
+.duel-game .duel-hand>.duel-pick:active:not(:disabled){transform:scale(.97)!important}
+.duel-game .duel-hand>.duel-pick:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:2px}
+.duel-game .duel-hand>.duel-pick:disabled{opacity:.5!important;background:transparent!important;border-color:var(--t-line)!important;cursor:default}
+.duel-game .duel-hint{max-width:40ch;margin:14px auto 0!important;color:var(--t-soft)!important;font:600 .875rem/1.45 var(--font-sans)!important;text-align:center;text-wrap:balance}
+/* An open practice duel: the result under the card, the way on as a forest pill. */
+.duel-game .duel-reveal{display:grid;gap:10px;margin:0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)!important;text-align:left}
+.duel-game .duel-reveal .duel-verdict{display:flex;align-items:center;gap:8px;color:var(--t-forest)!important;font:600 1.25rem/1.2 var(--font-display)!important}
+[data-theme=dark] .duel-game .duel-reveal .duel-verdict{color:var(--t-brand)!important}
+.duel-game .duel-reveal.bad .duel-verdict{color:var(--t-red)!important}
+.duel-game .duel-next{border-radius:999px!important;min-height:56px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+@media (max-width:480px){
+  .duel-game .duel-route{gap:4px!important}
+  .duel-game .duel-route li{padding:6px 1px 7px!important;border-radius:14px!important}
+  .duel-game .duel-route li>span:first-child{width:26px!important;height:26px!important;font-size:.875rem!important}
+  .duel-game .duel-arena.tp-card{padding:16px 14px 16px!important}
+  .duel-game .duel-arena .duel-card{min-height:104px!important;padding:10px 6px!important}
+  .duel-game .duel-arena .duel-card img{height:34px!important}
+  .duel-game .duel-arena .duel-card strong{font-size:1rem!important}
+  .duel-game .duel-vs{width:36px!important;height:36px!important;font-size:.8125rem!important}
+  .duel-game .duel-hand{gap:8px!important}
+  .duel-game .duel-hand>.duel-pick{flex-basis:calc((100% - 24px)/4)!important;min-height:92px!important;padding:10px 4px!important;border-radius:18px!important}
+  .duel-game .duel-hand>.duel-pick img{height:28px!important}
+  .duel-game .duel-hand>.duel-pick strong{font-size:.8125rem!important}
+}
+@media (max-width:360px){
+  .duel-game .duel-hand>.duel-pick{flex-basis:calc((100% - 16px)/3)!important}
+  .duel-game .duel-route li .duel-route-flags img{max-width:18px!important;height:12px!important}
+}
+/* The end: the overview folds like every review; practice keeps its own pill first. */
+.duel-overview{margin:0!important}
+.duel-overview>h2{margin:4px 0 10px!important;color:var(--t-ink)!important;font:600 1.1875rem/1.2 var(--font-display)!important}
+.daily-finish>.duel-review .duel-overview>h2{display:none}
+/* The rows: one white card with quiet lines (inside the folded review the review card is that card). */
+.duel-overview ol{display:grid!important;gap:0!important;margin:0!important;padding:4px 16px!important;border-radius:var(--t-radius-sm);background:var(--t-card);box-shadow:var(--t-shadow)}
+.duel-review .duel-overview ol{padding:0!important;background:none;box-shadow:none}
+.duel-overview li+li{border-top:1px solid var(--t-line)}
+.duel-overview .duel-row{padding:12px 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-ink)!important;transform:none!important}
+.duel-overview .duel-row-subject{color:var(--t-ink);font:600 1rem/1.25 var(--font-display)!important}
+.duel-overview .duel-row-match{color:var(--t-soft)!important;font:600 .875rem/1.3 var(--font-sans)!important}
+.duel-overview .duel-row-match img{height:15px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.duel-overview .duel-row-result{width:30px!important;height:30px!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
+.duel-overview .duel-row.lost .duel-row-result{background:var(--t-red)!important;color:#fff!important}
+[data-theme=dark] .duel-overview .duel-row.lost .duel-row-result{color:#2a0d12!important}
+.duel-overview .duel-row-go{color:var(--t-soft)!important}
+.duel-overview .duel-row:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:2px;border-radius:12px!important}
+@media (hover:hover){.duel-overview .duel-row:hover .duel-row-go{color:var(--t-ink)!important;transform:translateX(2px)}}
+/* One duel opened from the overview. */
+.duel-detail{margin:0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)!important}
+.duel-review .duel-detail{padding:4px 0 0!important;background:none!important;box-shadow:none!important}
+.duel-detail-head .btn.ghost{min-height:40px!important;padding:0 14px 0 10px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:700 .875rem/1 var(--font-sans)!important}
+.duel-detail-head small{color:var(--t-soft)!important}
+.duel-detail-subject{color:var(--t-ink);font:600 1.1875rem/1.2 var(--font-display)!important}
+.duel-detail .duel-verdict{font:600 1.25rem/1.2 var(--font-display)!important}
+.duel-detail.good .duel-verdict{color:var(--t-forest)!important}
+[data-theme=dark] .duel-detail.good .duel-verdict{color:var(--t-brand)!important}
+.duel-detail.bad .duel-verdict{color:var(--t-red)!important}
+.duel-bar>i{height:12px!important;background:color-mix(in srgb,var(--t-ink) 22%,transparent)!important}
+.duel-bar.is-you>i{background:var(--t-forest)!important}
+.duel-detail.bad .duel-bar.is-you>i,.duel-reveal.bad .duel-bar.is-you>i{background:var(--t-red)!important}
+.duel-bar>span,.duel-bar>b{color:var(--t-ink)}
+.duel-detail-best{border-radius:16px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 .9375rem/1.4 var(--font-sans)!important}
+.duel-detail .duel-explain,.duel-reveal .duel-explain{color:var(--t-soft);font:600 .875rem/1.5 var(--font-sans)}
+.duel-detail .duel-explain a,.duel-reveal .duel-explain a{color:var(--t-soft)}
+.duel-detail-nav .btn{min-height:50px!important;border-radius:999px!important;font:600 1rem/1.1 var(--font-display)!important}
+
+@keyframes tp-wobble{0%,100%{transform:none}50%{transform:translateY(-3px) rotate(-6deg)}}
+/* ───────── Side by Side: the subject on a card, two countries as big mint cards ───────── */
+.puzzle-game.puzzle-compare{max-width:640px!important}
+.puzzle-compare .comparison-heading.tp-card{display:grid!important;justify-items:center;gap:10px!important;max-width:none!important;margin:46px 0 16px!important;padding:18px 20px 22px!important}
+.puzzle-compare .comparison-heading .tp-kicker{justify-self:stretch}
+.game-main .puzzle-compare .comparison-heading>.tp-kicker{display:block!important}
+.puzzle-compare .topic-pill{display:inline-flex!important;align-items:center;gap:8px!important;min-height:36px;margin:2px 0 0!important;padding:0 14px 0 10px!important;border:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:700 .9375rem/1 var(--font-sans)!important}
+.puzzle-compare .topic-pill>span{font-size:1.125rem!important}
+.puzzle-compare .topic-pill small{padding-left:8px!important;border-left:1px solid color-mix(in srgb,var(--t-ink) 18%,transparent)!important;color:var(--t-soft)!important;font:700 .8125rem/1 var(--font-sans)!important}
+.puzzle-compare .comparison-heading h1{max-width:none!important;margin:0!important;padding:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-ink)!important;font:600 clamp(1.5rem,1.25rem + 1.1vw,2rem)/1.18 var(--font-display)!important;letter-spacing:-.01em!important;text-wrap:balance;animation:none!important}
+.puzzle-compare .comparison-cards{gap:12px!important;margin:0!important}
+.puzzle-compare .comparison-country{min-height:236px!important;padding:44px 10px 16px!important;border:2px solid transparent!important;border-radius:var(--t-radius)!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;outline:0!important;transition:background .16s,border-color .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.puzzle-compare .comparison-country>img{width:auto!important;height:64px!important;max-width:100%!important;margin:4px 0 14px!important;border:0!important;border-radius:6px!important;object-fit:contain!important;filter:none!important;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 10px 22px rgba(22,59,50,.16)!important}
+.puzzle-compare .comparison-country h2{margin:0!important;color:inherit!important;font:600 clamp(1.25rem,1.1rem + .7vw,1.625rem)/1.15 var(--font-display)!important;letter-spacing:-.01em!important;text-wrap:balance}
+.puzzle-compare .country-key{position:absolute!important;left:50%!important;top:12px!important;right:auto!important;transform:translateX(-50%);max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 11px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-soft)!important;box-shadow:none!important;font:800 .6875rem/1.1 var(--font-sans)!important;letter-spacing:.06em!important;text-transform:uppercase}
+.puzzle-compare .comparison-value{margin-top:12px!important;min-height:40px!important}
+.puzzle-compare .comparison-value>span{color:var(--t-brand)!important;font:700 .9375rem/1.2 var(--font-sans)!important}
+.puzzle-compare .comparison-value>strong{color:inherit!important;font:600 1.25rem/1.2 var(--font-display)!important}
+.puzzle-compare .comparison-country .your-choice{color:inherit;opacity:.8;font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.06em;text-transform:uppercase}
+.puzzle-compare .comparison-country:hover:not(:disabled):not(.is-picked){background:var(--t-mint)!important;transform:none!important;border-color:transparent!important}
+@media (hover:hover){.puzzle-compare .comparison-country:hover:not(:disabled):not(.is-picked){background:var(--t-mint-2)!important;transform:translateY(-2px)!important}}
+.puzzle-compare .comparison-country:active:not(:disabled){transform:scale(.98)!important}
+.puzzle-compare .comparison-country:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:3px!important}
+.puzzle-compare .comparison-country.is-picked:not(.winner):not(.wrong){border-color:var(--t-forest)!important;background:var(--t-mint-2)!important;box-shadow:none!important}
+.puzzle-compare .comparison-country.winner{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.puzzle-compare .comparison-country.winner .comparison-value>span{color:inherit!important}
+.puzzle-compare .comparison-country.winner .country-key{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important;color:inherit!important}
+.puzzle-compare .comparison-country.wrong{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;animation:rv-shake 420ms ease-out!important}
+.puzzle-compare .comparison-country.wrong .comparison-value>span{color:inherit!important}
+.puzzle-compare .comparison-country:disabled:not(.winner):not(.wrong){opacity:1!important}
+.puzzle-compare .comparison-or{width:44px!important;height:44px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 .9375rem/1 var(--font-display)!important;z-index:2}
+/* After a pick: one compact white card, like the solo feedback. */
+.puzzle-compare .comparison-reveal{display:flex!important;gap:12px!important;margin:14px 0 0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)!important}
+.puzzle-compare .comparison-reveal::after{display:none!important}
+.puzzle-compare .comparison-reveal>span{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:999px;background:var(--t-mint);font-size:1.125rem!important;line-height:1}
+.puzzle-compare .comparison-reveal.bad>span{background:var(--t-red);color:#fff;font-family:var(--font-display)!important}
+.puzzle-compare .comparison-reveal>div>strong:first-child{display:block;color:var(--t-forest);font:600 1.25rem/1.2 var(--font-display)!important}
+[data-theme=dark] .puzzle-compare .comparison-reveal>div>strong:first-child{color:var(--t-brand)}
+.puzzle-compare .comparison-reveal.bad>div>strong:first-child{color:var(--t-red)}
+.puzzle-compare .comparison-reveal p{margin:6px 0 0!important;color:var(--t-text)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+.puzzle-compare .comparison-reveal p strong{color:var(--t-ink)}
+.puzzle-compare .comparison-reveal .comparison-detail{color:var(--t-soft)!important;font-size:.875rem!important}
+.puzzle-compare .auto-next-wrap{margin:14px auto 0!important}
+/* The bar at the bottom: the way on as a forest pill (fixed on phones), report quiet on the left. */
+.puzzle-game .puzzle-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0 0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.puzzle-game .puzzle-bottom .text-link{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important}
+.puzzle-game .puzzle-bottom>div{display:flex;align-items:center;gap:12px}
+.puzzle-game .puzzle-bottom .btn.primary{min-height:56px!important;padding:0 26px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+.puzzle-game .puzzle-keyboard,.puzzle-game .puzzle-save{color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans)}
+.puzzle-game .compare-out{color:var(--t-red)!important;font:600 1.0625rem/1.2 var(--font-display)!important}
+@media (max-width:760px){
+  .puzzle-game .puzzle-bottom:has(.btn.primary){background:linear-gradient(to top,var(--t-canvas) 62%,transparent)!important}
+  .puzzle-game .puzzle-bottom:has(.btn.primary) .btn.primary{width:100%}
+}
+@media (hover:none){.puzzle-game .puzzle-keyboard{display:none!important}}
+.puzzle-game .puzzle-source{margin:14px 0 0!important;color:var(--t-soft)!important;font:600 .75rem/1.5 var(--font-sans)!important;text-align:center}
+.puzzle-game .puzzle-source a{color:var(--t-soft)!important}
+.puzzle-compare>.game-rule-help{margin:6px auto 0!important;max-width:44ch;color:var(--t-soft);font:600 .75rem/1.5 var(--font-sans);text-align:center}
+.puzzle-compare>.game-rule-help summary{cursor:pointer;color:var(--t-soft)}
+@media (max-width:480px){
+  .puzzle-compare .comparison-cards{gap:10px!important}
+  .puzzle-compare .comparison-country{min-height:208px!important;padding:40px 8px 14px!important;border-radius:24px!important}
+  .puzzle-compare .comparison-country>img{height:52px!important;margin-bottom:10px!important}
+  .puzzle-compare .comparison-or{width:38px!important;height:38px!important;font-size:.8125rem!important}
+}
+
+/* ───────── Country Mosaic: the ask on a card, the clues as mint tiles, solved countries in their group colours ───────── */
+.puzzle-game.puzzle-mosaic{max-width:620px!important}
+.puzzle-mosaic .mosaic-heading.tp-card{display:grid!important;justify-items:center;gap:6px!important;max-width:none!important;margin:46px 0 14px!important;padding:18px 20px 18px!important}
+.puzzle-mosaic .mosaic-heading>.tp-kicker{justify-self:stretch;margin:0!important;color:var(--t-brand)!important;font:800 .8125rem/1.3 var(--font-sans)!important}
+.puzzle-mosaic .mosaic-heading h1{margin:2px 0 0!important;color:var(--t-ink)!important;font:600 clamp(1.375rem,1.2rem + .8vw,1.75rem)/1.18 var(--font-display)!important;letter-spacing:-.01em!important}
+.puzzle-mosaic .mosaic-heading>p:not(.tp-kicker):not(.mosaic-edition-line){max-width:38ch;margin:0!important;color:var(--t-soft)!important;font:600 .9375rem/1.45 var(--font-sans)!important;text-wrap:balance}
+.puzzle-mosaic .mosaic-edition-line{display:inline-flex!important;align-items:center;gap:6px;margin:4px 0 0!important;padding:0!important;color:var(--t-soft)!important;font:700 .75rem/1.2 var(--font-sans)!important}
+.puzzle-mosaic .mosaic-edition-line time{padding:4px 9px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:700 .75rem/1 var(--font-sans)!important}
+/* The tiles. */
+.puzzle-mosaic .mosaic-board{gap:8px!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile{aspect-ratio:auto!important;min-height:clamp(86px,23vw,128px)!important;justify-content:center!important;padding:22px 4px 8px!important;position:relative;border:2px solid transparent!important;border-bottom-width:2px!important;border-radius:18px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;transition:background .16s,border-color .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile:hover:not(:disabled):not(.selected){border-color:transparent!important;background:var(--t-mint)!important;transform:none!important}
+@media (hover:hover){.puzzle-mosaic .mosaic-board .mosaic-tile:hover:not(:disabled):not(.selected){background:var(--t-mint-2)!important;transform:translateY(-1px)!important}}
+.puzzle-mosaic .mosaic-board .mosaic-tile:active:not(:disabled){transform:scale(.97)!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:2px}
+.puzzle-mosaic .mosaic-board .tile-kind{position:absolute!important;left:9px;top:8px;color:var(--t-soft)!important;font-weight:800!important}
+.puzzle-mosaic .mosaic-board .tile-tick{position:absolute!important;top:5px!important;right:5px!important;bottom:auto!important}
+.puzzle-mosaic .mosaic-board .tile-text,.puzzle-mosaic .mosaic-board .tile-stat strong{color:var(--t-ink)!important}
+.puzzle-mosaic .mosaic-board .tile-text{font-family:var(--font-display)!important;font-weight:600!important}
+.puzzle-mosaic .mosaic-board .tile-stat .stat-label,.puzzle-mosaic .mosaic-board .tile-stat .stat-unit{color:var(--t-soft)!important}
+.puzzle-mosaic .mosaic-board .tile-flag{border-radius:4px!important;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 4px 10px rgba(22,59,50,.14)!important;object-fit:contain}
+.puzzle-mosaic .mosaic-board .tile-shape{color:var(--t-forest)!important}
+.puzzle-mosaic .mosaic-board .tile-tick{width:20px!important;height:20px!important;border:2px solid color-mix(in srgb,var(--t-ink) 18%,transparent)!important;border-radius:999px!important;background:var(--t-card)!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile.selected{border-color:var(--t-forest)!important;background:var(--t-mint-2)!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile.selected .tile-tick{display:grid!important;place-items:center;border-color:var(--t-forest)!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;transform:none!important;animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both}
+/* After a check: the clues that fit in forest, the ones that don't in soft red. */
+.puzzle-mosaic .mosaic-board .mosaic-tile.clue-correct{border-color:var(--t-forest)!important;background:var(--t-mint-2)!important;color:var(--t-forest)!important;opacity:1!important}
+.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong,.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong:disabled{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important;animation:rv-shake 420ms ease-out}
+.puzzle-mosaic .mosaic-board .clue-correct .tile-kind,.puzzle-mosaic .mosaic-board .clue-correct .tile-verdict{color:var(--t-forest)!important}
+[data-theme=dark] .puzzle-mosaic .mosaic-board .clue-correct .tile-kind,[data-theme=dark] .puzzle-mosaic .mosaic-board .clue-correct .tile-verdict{color:var(--t-brand)!important}
+.puzzle-mosaic .mosaic-board .clue-wrong .tile-kind,.puzzle-mosaic .mosaic-board .clue-wrong .tile-verdict,.puzzle-mosaic .mosaic-board .clue-wrong .tile-text{color:var(--t-red-ink)!important}
+.puzzle-mosaic .mosaic-board .tile-verdict{max-width:100%;gap:4px!important;font-weight:800!important}
+.puzzle-mosaic .mosaic-board .tile-verdict>svg{flex-shrink:0}
+.puzzle-mosaic .mosaic-board .tile-verdict>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.puzzle-mosaic .mosaic-board .mosaic-tile:disabled:not(.clue-correct):not(.clue-wrong):not(.selected){opacity:.6}
+/* Solved countries: a row each, in the Mosaic group colours. */
+.puzzle-mosaic .mosaic-solved{gap:8px!important;margin:0 0 10px!important}
+.puzzle-mosaic .mosaic-group{border-radius:var(--t-radius-sm)!important;padding:12px 16px!important;animation:tp-pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.puzzle-mosaic .mosaic-group img{height:22px!important;width:auto!important;border-radius:4px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.puzzle-mosaic .mosaic-group>svg{color:inherit}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal summary{display:inline-flex!important;align-items:center;gap:6px;list-style:none;opacity:1!important;font:700 .8125rem/1.2 var(--font-sans)!important}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal summary::-webkit-details-marker{display:none}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal summary::after{content:'';width:6px;height:6px;margin:-3px 0 0 2px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal[open] summary::after{margin-top:3px;transform:rotate(-135deg)}
+.puzzle-mosaic .mosaic-group .mosaic-fact-reveal a{color:inherit}
+[data-theme=dark] .puzzle-mosaic .mosaic-group.group-0{background:#1e3a31!important;color:#d9efe5!important}
+[data-theme=dark] .puzzle-mosaic .mosaic-group.group-1{background:#3a2f14!important;color:#fbe2a6!important}
+[data-theme=dark] .puzzle-mosaic .mosaic-group.group-2{background:#1b2a44!important;color:#cfdcf5!important}
+[data-theme=dark] .puzzle-mosaic .mosaic-group.group-3{background:#33213b!important;color:#ecd6f4!important}
+/* The dock: which kinds you have, what happened, the tools and the check pill. */
+.puzzle-mosaic .mosaic-dock{margin-top:12px!important;border:0!important}
+.puzzle-mosaic .mosaic-selection-status{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;margin:0 0 8px!important;padding:0!important;list-style:none}
+.puzzle-mosaic .mosaic-selection-status li{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 11px 0 9px;border-radius:999px;background:var(--t-card);color:var(--t-soft);box-shadow:var(--t-shadow);font:700 .8125rem/1 var(--font-sans)!important;transition:background .16s,color .16s}
+.puzzle-mosaic .mosaic-selection-status li>span{display:grid;place-items:center;width:16px;height:16px;border-radius:999px;border:2px solid color-mix(in srgb,var(--t-ink) 20%,transparent);font-size:0!important}
+.puzzle-mosaic .mosaic-selection-status li.filled{background:var(--t-mint);color:var(--t-mint-ink);box-shadow:none}
+.puzzle-mosaic .mosaic-selection-status li.filled>span{border-color:var(--t-forest);background:var(--t-forest);color:var(--t-forest-ink);font-size:.625rem!important;font-weight:900}
+.puzzle-mosaic .mosaic-notice{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:8px;min-height:0!important;margin:0 0 10px!important;padding:0 4px!important;color:var(--t-text)!important;font:600 .9375rem/1.4 var(--font-sans)!important;text-align:center;text-wrap:balance}
+.puzzle-mosaic .mosaic-notice.is-idle{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
+.puzzle-mosaic .mosaic-notice.good{color:var(--t-forest)!important;font:600 1.0625rem/1.3 var(--font-display)!important}
+[data-theme=dark] .puzzle-mosaic .mosaic-notice.good{color:var(--t-brand)!important}
+.puzzle-mosaic .mosaic-notice.bad{color:var(--t-red-ink)!important}
+.puzzle-mosaic .mosaic-notice.bad>svg{flex-shrink:0;color:var(--t-red)}
+.puzzle-mosaic .mosaic-dock .mosaic-toolbar{display:flex!important;align-items:center;gap:10px!important}
+.puzzle-mosaic .mosaic-dock .mosaic-toolbar>div{display:flex!important;align-items:center;gap:6px!important;flex:none}
+.puzzle-mosaic .mosaic-toolbar .icon-btn{position:relative;display:grid!important;place-items:center;width:44px!important;min-width:44px!important;height:44px!important;padding:0!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.puzzle-mosaic .mosaic-toolbar .icon-btn small{position:absolute;right:-6px;top:-6px;padding:2px 5px;border-radius:999px;background:var(--t-red-soft);color:var(--t-red-ink);font:800 .625rem/1.2 var(--font-sans)}
+.puzzle-mosaic .mosaic-toolbar .icon-btn:disabled{opacity:.45!important;box-shadow:none!important}
+.puzzle-mosaic .mosaic-toolbar .btn.ghost{min-height:44px!important;padding:0 12px!important;border-radius:999px!important;background:transparent!important;color:var(--t-ink)!important;box-shadow:none!important;font:700 .875rem/1 var(--font-sans)!important}
+.puzzle-mosaic .mosaic-toolbar .btn.ghost:disabled{opacity:.4!important}
+.puzzle-mosaic .mosaic-dock .mosaic-toolbar{flex-wrap:wrap!important}
+.puzzle-mosaic .mosaic-dock .mosaic-toolbar>div{order:2;width:100%;justify-content:center}
+.puzzle-mosaic .mosaic-dock .mosaic-check{order:1!important;flex:1 1 100%!important;width:100%;justify-content:center;gap:10px!important;min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+.puzzle-mosaic .mosaic-check:disabled{opacity:1!important;background:var(--t-mint-2)!important;color:var(--t-soft)!important;box-shadow:none!important}
+.puzzle-mosaic .mosaic-check .selection-count{padding:4px 8px!important;border-radius:999px!important;background:color-mix(in srgb,var(--t-forest-ink) 18%,transparent)!important;color:inherit!important;font:700 .8125rem/1 var(--font-sans)!important}
+.puzzle-mosaic .mosaic-check:disabled .selection-count{background:var(--t-card)!important}
+.puzzle-mosaic>.puzzle-bottom{justify-content:center}
+@media (max-width:480px){
+  .puzzle-mosaic .mosaic-board{gap:7px!important}
+  .puzzle-mosaic .mosaic-board .mosaic-tile{border-radius:16px!important}
+}
+@media (max-width:360px){
+  .puzzle-mosaic .mosaic-board .mosaic-tile{padding:20px 3px 6px!important}
+  .puzzle-mosaic .mosaic-board .tile-kind{left:7px;top:7px;font-size:.5rem!important}
+  .puzzle-mosaic .mosaic-board .tile-tick{width:16px!important;height:16px!important;top:4px!important;right:4px!important}
+  .puzzle-mosaic .mosaic-selection-status li{padding:0 9px 0 7px;font-size:.75rem!important}
+}
+/* The practice end: the quiet buttons of every end screen. */
+.puzzle-finished>.finish-actions{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 4px!important;margin:0!important;padding:0!important}
+
+/* ───────── Clue Trail: the clues in one white card, numbered; hidden ones wait with a dashed number ───────── */
+.solo-game .trail-clues>p{display:none!important}
+.trail-clues{display:grid!important;justify-items:center;gap:12px!important;margin:0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
+.trail-clues .clue-slots{display:grid!important;gap:0!important;width:100%;max-width:none!important;margin:0!important;padding:4px 18px!important;border-radius:var(--t-radius-sm);background:var(--t-card);box-shadow:var(--t-shadow);list-style:none}
+.trail-clues .clue-slots li{display:flex!important;align-items:center;gap:12px!important;min-height:54px!important;margin:0!important;padding:8px 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-ink)!important;font:600 1rem/1.35 var(--font-sans)!important;text-align:left}
+.trail-clues .clue-slots li+li{border-top:1px solid var(--t-line)!important}
+.trail-clues .clue-slots li>span{flex:0 0 32px;display:grid!important;place-items:center;width:32px!important;height:32px!important;border-radius:999px;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;font:600 .9375rem/1 var(--font-display)!important}
+.trail-clues .clue-slots li.is-open{animation:tp-clue .4s cubic-bezier(.34,1.56,.64,1) both!important}
+.trail-clues .clue-slots li.is-open>span{animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both}
+.trail-clues .clue-slots li.is-pending>span{background:transparent!important;border:2px dashed color-mix(in srgb,var(--t-ink) 22%,transparent);color:var(--t-soft)!important}
+.trail-clues .clue-slots li.is-pending em{color:var(--t-soft)!important;font:600 .9375rem/1.3 var(--font-sans)!important;font-style:normal!important;opacity:.8}
+.trail-clues .clue-flag{height:30px!important;width:auto!important;max-width:60px!important;margin-left:auto!important;border-radius:4px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 4px 10px rgba(22,59,50,.14)!important;object-fit:contain!important}
+.trail-clues .trail-more{min-height:48px!important;padding:0 20px!important;border:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 1rem/1.1 var(--font-display)!important}
+@media (hover:hover){.trail-clues .trail-more:hover:not(:disabled){background:var(--t-mint-2)!important}}
+.trail-clues .trail-more:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.trail-clues .trail-more:disabled{opacity:.5!important}
+.trail-clues .trail-available{display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink)!important;font:600 .9375rem/1 var(--font-display)!important}
+.trail-clues>small{color:var(--t-soft);font:700 .8125rem/1.3 var(--font-sans)}
+@keyframes tp-clue{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+
+/* ───────── Size Shuffle: the countries as mint pills you sort; right places turn forest ───────── */
+.order-list{display:grid!important;gap:10px!important;width:100%;max-width:none!important;margin:0 auto!important}
+.order-list .order-item{display:flex!important;align-items:center;gap:10px!important;min-height:62px!important;padding:6px 8px 6px 8px!important;border:2px solid transparent!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 1.0625rem/1.2 var(--font-display)!important;cursor:grab;transition:background .16s,transform .22s cubic-bezier(.34,1.56,.64,1)}
+.order-list .order-item .order-num{flex:0 0 40px;width:40px!important;height:40px!important;background:var(--t-card)!important;color:var(--t-forest)!important;font:600 1.0625rem/1 var(--font-display)!important}
+[data-theme=dark] .order-list .order-item .order-num{color:var(--t-ink)!important}
+.order-list .order-item>svg{flex-shrink:0;color:var(--t-soft)}
+.order-list .order-item .option-country{flex:1 1 auto;min-width:0;justify-content:flex-start;gap:9px}
+.order-list .order-item .option-country img{height:20px!important;width:auto!important;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.order-list .order-item .order-controls{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+.order-list .order-item .icon-btn{width:42px!important;min-width:42px!important;height:42px!important;padding:0!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:none!important}
+.order-list .order-item .icon-btn:disabled{opacity:.35!important}
+.order-list .order-item .icon-btn:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+.order-list .order-item.order-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.order-list .order-item.order-correct .order-num{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important;color:inherit!important}
+.order-list .order-item.order-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
+.order-list .order-item.order-wrong .order-num{color:var(--t-red-ink)!important}
+.order-list .order-item.order-solution{background:var(--t-mint)!important}
+.order-list .order-item:is(.order-correct,.order-wrong,.order-solution){cursor:default}
+.order-list .order-item{flex-wrap:nowrap!important}
+.order-list .order-verdict{display:inline-flex!important;align-items:center;gap:5px;margin-left:auto;flex:0 0 auto!important;width:auto!important;max-width:none!important;white-space:nowrap;padding-right:8px;color:inherit!important;font:700 .8125rem/1.2 var(--font-sans)!important}
+.solo-game .question-help,.question-content>.question-help{max-width:44ch;margin:0 auto!important;color:var(--t-soft)!important;font:600 .875rem/1.45 var(--font-sans)!important;text-align:center;text-wrap:balance}
+.answer-feedback .correct-order{display:grid;gap:4px;margin:6px 0 0;padding-left:1.4em;color:var(--t-ink);font:600 .9375rem/1.4 var(--font-sans)}
+@media (max-width:360px){
+  .order-list .order-item{gap:7px!important;padding:5px 6px!important;font-size:.9375rem!important}
+  .order-list .order-item .order-num{flex-basis:34px;width:34px!important;height:34px!important}
+  .order-list .order-item>svg{display:none}
+  .order-list .order-item .icon-btn{width:38px!important;min-width:38px!important;height:38px!important}
+}
+
+/* ───────── Typed capitals: one white pill to type in, forest when right, soft red when wrong ───────── */
+.typed-form{display:grid!important;gap:10px!important;width:100%;max-width:460px;margin:0 auto!important}
+.typed-form .text-input{width:100%;min-height:60px!important;padding:0 24px!important;border:2px solid transparent!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 1.1875rem/1.2 var(--font-display)!important;text-align:center}
+.typed-form .text-input::placeholder{color:var(--t-soft);opacity:.8}
+.typed-form .text-input:focus{border-color:var(--t-forest)!important;box-shadow:0 0 0 4px var(--t-mint-2),var(--t-shadow)!important;outline:none}
+.typed-form .text-input.input-correct{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1}
+.typed-form .text-input.input-wrong{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1;animation:rv-shake 420ms ease-out}
+.typed-form .btn.primary{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+.typed-form .btn.primary:disabled{opacity:1!important;background:var(--t-mint-2)!important;color:var(--t-soft)!important;box-shadow:none!important}
+
+/* ───────── Maps: the help line, the zoom note and the map's own buttons ───────── */
+.map-zoom-note{display:block;width:fit-content;margin:0 auto!important;padding:6px 14px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:700 .8125rem/1.3 var(--font-sans)!important}
+.map-wrap{--map-water:var(--t-sky)}
+.map-wrap .world-map{box-shadow:none!important}
+.map-wrap .map-tools{gap:6px!important;padding:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}
+.map-wrap .map-tools .icon-btn{width:42px!important;height:42px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.map-wrap .map-tools .icon-btn:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+.map-wrap .world-map:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.map-wrap .map-caption{color:var(--t-soft)!important;font:600 .75rem/1.4 var(--font-sans)!important}
+.map-wrap .map-caption a{color:var(--t-soft)!important}
+.map-wrap .map-legend .right{color:var(--t-forest)}
+[data-theme=dark] .map-wrap .map-legend .right{color:var(--t-brand)}
+.map-wrap .map-legend .wrong{color:var(--t-red)}
+.question-content .answer-submit{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+/* The neighbours map after a Next Door answer: the light-blue card, a legend of mint pills. */
+.border-reveal-map{margin:0!important;padding:12px!important;border-radius:var(--t-radius)!important;background:var(--t-sky)!important;box-shadow:var(--t-shadow)!important}
+.border-reveal-map svg{display:block;width:100%;max-height:280px}
+.border-reveal-map .bm-target,.border-reveal-map .bm-neighbor{stroke:var(--t-sky)!important}
+.border-reveal-map figcaption{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
+.border-reveal-map figcaption span{min-height:30px;padding:0 12px 0 9px;border-radius:999px;background:var(--t-card);color:var(--t-ink)!important;font:700 .8125rem/1 var(--font-sans)}
+
+/* ───────── Shape Shift: the outline in the light-blue card, inside the question card ───────── */
+.q-card .shape-stage{width:min(100%,320px)!important;aspect-ratio:5/4;border-radius:22px!important;background:var(--t-sky)!important;box-shadow:none!important}
+.q-card .shape-stage svg{animation:t-flag .45s cubic-bezier(.34,1.56,.64,1) both}
+.q-card .shape-stage path{fill:var(--t-card)!important;stroke:var(--t-forest)!important;stroke-width:1.4px!important}
+[data-theme=dark] .q-card .shape-stage path{fill:var(--t-mint-2)!important;stroke:var(--t-brand)!important}
+@media (max-width:480px){.q-card .shape-stage{width:min(100%,280px)!important}}
+
+/* ───────── Mystery country: clues in a cream block, the four answers as mint pills ───────── */
+.mystery-card{display:grid!important;gap:14px!important;padding:20px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)!important;text-align:left}
+.mystery-modal .mystery-card{padding:0!important;box-shadow:none!important}
+.mystery-card .mystery-head{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px!important;margin:0!important}
+.mystery-card .mystery-badge{display:grid!important;place-items:center;width:52px!important;height:52px!important;border-radius:999px!important;background:var(--t-mint)!important;box-shadow:none!important;overflow:hidden}
+.mystery-card .mystery-badge .game-icon{width:52px!important;height:52px!important;border-radius:999px!important;box-shadow:none!important}
+.mystery-card .mystery-badge.has-flag{background:none!important;border-radius:6px!important;width:auto!important;height:auto!important;animation:t-flag .45s cubic-bezier(.34,1.56,.64,1) both}
+.mystery-card .mystery-badge.has-flag img{display:block;height:36px;width:auto;border-radius:5px;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 6px 14px rgba(22,59,50,.16)}
+.mystery-card .mystery-kicker{display:block;color:var(--t-brand)!important;font:800 .6875rem/1.3 var(--font-sans)!important;letter-spacing:.08em!important;text-transform:uppercase}
+.mystery-card h2{margin:2px 0 0!important;color:var(--t-ink)!important;font:600 1.375rem/1.15 var(--font-display)!important;text-wrap:balance}
+.mystery-card .howto-button{width:44px!important;height:44px!important;border-radius:999px!important;background:transparent!important;color:var(--t-soft)!important;box-shadow:none!important}
+.mystery-card .mystery-clues{display:grid!important;gap:0!important;margin:0!important;padding:4px 16px!important;border-radius:var(--t-radius-sm);background:var(--t-canvas);list-style:none}
+.mystery-card .mystery-clues li{display:flex!important;align-items:flex-start;gap:12px!important;margin:0!important;padding:12px 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-ink)!important;font:600 .9375rem/1.45 var(--font-sans)!important}
+.mystery-card .mystery-clues li+li{border-top:1px solid var(--t-line)!important}
+.mystery-card .mystery-clues li>span{flex:0 0 28px;display:grid;place-items:center;width:28px;height:28px;margin-top:-2px;border-radius:999px;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;font:600 .875rem/1 var(--font-display)!important}
+.mystery-card .mystery-hint{justify-self:center;display:inline-flex!important;align-items:center;gap:7px;min-height:44px;padding:0 18px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 .9375rem/1 var(--font-display)!important;text-decoration:none!important}
+.mystery-card .mystery-options{display:grid!important;grid-template-columns:1fr!important;gap:10px!important;margin:0!important}
+@media (min-width:600px){.mystery-card .mystery-options{grid-template-columns:1fr 1fr!important}}
+.mystery-card .mystery-option{position:relative;display:flex!important;align-items:center;justify-content:center!important;gap:10px;min-height:56px!important;padding:8px 48px!important;border:2px solid transparent!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 1.0625rem/1.2 var(--font-display)!important;text-align:center;transition:background .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.mystery-card .mystery-option:hover:not(:disabled){background:var(--t-mint)!important;transform:none!important;border-color:transparent!important}
+@media (hover:hover){.mystery-card .mystery-option:hover:not(:disabled){background:var(--t-mint-2)!important;transform:translateY(-1px)!important}}
+.mystery-card .mystery-option:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:2px}
+.mystery-card .mystery-option>span{flex:0 1 auto!important;min-width:0}
+.mystery-card .mystery-option img{flex-shrink:0;width:auto!important;height:20px!important;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.mystery-card .mystery-option>svg{position:absolute;right:12px;top:50%;width:30px!important;height:30px!important;margin-top:-15px;padding:6px;border-radius:999px;background:var(--t-card);color:var(--t-forest)}
+.mystery-card .mystery-option:disabled:not(.is-correct):not(.is-wrong){opacity:.55!important}
+.mystery-card .mystery-option.is-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.mystery-card .mystery-option.is-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important}
+.mystery-card .mystery-option.is-wrong>svg{background:var(--t-red);color:#fff}
+.mystery-card .mystery-reveal{display:grid;gap:6px;margin:0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-canvas)!important;box-shadow:none!important;color:var(--t-text)!important}
+.mystery-card .mystery-reveal::after{display:none!important}
+.mystery-card .mystery-verdict{color:var(--t-forest)!important;font:600 1.25rem/1.2 var(--font-display)!important}
+[data-theme=dark] .mystery-card .mystery-verdict{color:var(--t-brand)!important}
+.mystery-card.is-wrong .mystery-verdict{color:var(--t-red)!important}
+.mystery-card .mystery-reveal p{margin:0!important;color:var(--t-text)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+.mystery-card .mystery-reveal .mystery-source{color:var(--t-soft)!important;font-size:.75rem!important}
+.mystery-card .mystery-reveal .mystery-source a{color:var(--t-soft)!important}
+
+@keyframes tp-pop{0%{opacity:0;transform:scale(.5)}60%{opacity:1}100%{transform:none}}
+
+@media (prefers-reduced-motion:reduce){
+  .tp-card>.peek,.tp-card>.peek .peek-head,.rank-board .rb-gain .t-points,.rank-board .rb-tick,.rank-board .rb-row.is-now,.mystery-card .mystery-option.is-correct,.mystery-card .mystery-badge.has-flag,.trail-clues .clue-slots li.is-open,.trail-clues .clue-slots li.is-open>span,.order-list .order-item.order-correct,.typed-form .text-input.input-wrong,.q-card .shape-stage svg,.puzzle-mosaic .mosaic-group,.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong,.puzzle-mosaic .mosaic-tile.selected .tile-tick,.puzzle-compare .comparison-country.winner,.puzzle-compare .comparison-country.wrong,.duel-game .duel-arena .duel-card.is-empty span,.duel-game .duel-arena .duel-card.is-winner{animation:none!important}
+}

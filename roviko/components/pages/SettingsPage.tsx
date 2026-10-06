@@ -18,8 +18,8 @@ export function SettingsPage() {
   const [app, setApp] = useState(false), [haptics, setHaptics] = useState(true);
   useEffect(() => { setApp(isNativeApp()); setHaptics(readPreference('rv_haptics', 'on') === 'on'); }, []);
   const toggleHaptics = (on: boolean) => { setHaptics(on); writePreference('rv_haptics', on ? 'on' : 'off'); };
-  return <div className="page settings-page">
-    <PageHeader kicker={t('menuSettingsNote')} title={t('settingsTitle')}/>
+  return <div className="page settings-page trip-page">
+    <PageHeader title={t('settingsTitle')} lead={t('menuSettingsNote')}/>
 
     <section className="page-section" aria-labelledby="settings-sound">
       <SectionHeader id="settings-sound" title={t('settingsSoundTitle')}/>

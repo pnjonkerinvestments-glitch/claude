@@ -73,8 +73,8 @@ export function HowToPlayPage({ t, locale, onPlay, busy = false, initialMode = '
     const next = e.key === 'ArrowRight' ? HOW_TO_PLAY_ORDER[(i + 1) % HOW_TO_PLAY_ORDER.length] : e.key === 'ArrowLeft' ? HOW_TO_PLAY_ORDER[(i - 1 + HOW_TO_PLAY_ORDER.length) % HOW_TO_PLAY_ORDER.length] : null;
     if (next) { e.preventDefault(); pick(next); requestAnimationFrame(() => document.getElementById('howto-tab-' + next)?.focus()); }
   };
-  return <div className="page howto-v2">
-    <PageHeader art="howto-hero" kicker={t('howKicker')} title={t('howTitle')} lead={t('howLead')}/>
+  return <div className="page howto-v2 trip-page">
+    <PageHeader art="howto-hero" kicker={t('howKicker')} title={t('howTitle')} lead={t('pgHowLead')}/>
     <div className="howto-tabs" role="tablist" aria-label={t('howTitle')} onKeyDown={onKey}>
       {HOW_TO_PLAY_GROUPS.map(g => <div key={g.key} className="howto-tab-group" role="presentation"><span className="howto-tab-label" role="presentation">{t(g.key)}</span>
         {g.modes.map(m => <button key={m} id={'howto-tab-' + m} role="tab" aria-selected={mode === m} aria-controls="howto-panel" tabIndex={mode === m ? 0 : -1} className="howto-tab" onClick={() => pick(m)}><GameIcon mode={m} size="sm"/>{howToGame(m, t)}</button>)}

@@ -1,6 +1,6 @@
 'use client';
 import React, { useRef, useState } from 'react';
-import { ArrowRight, Check, Shuffle, Trophy } from 'lucide-react';
+import { ArrowRight, Check, Shuffle } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,7 +10,7 @@ import { post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { TOPICS } from '@/lib/puzzles/topics';
 import type { PuzzleMode } from '@/lib/puzzles/model';
-import { DAILY_MODES, dailyStateOf, type DailyMode, type DayMode } from '@/lib/daily-loop';
+import { DAILY_MODES, dailyStateOf, nextDailyMode, type DailyMode, type DayMode } from '@/lib/daily-loop';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { MysteryCountry } from '../atelier/MysteryCountry';
 import { NativeReminder } from '../atelier/NativeReminder';
@@ -57,21 +57,22 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
   // Practice under each tile, like a "random" round: unranked, never touches today's shared puzzle.
   const practiceFor = (mode: DayMode) => mode === 'rank' ? play('rank', false) : mode === 'duel' ? go('/duel/practice') : mode === 'daily' || mode === 'trail' ? start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'trail' : 'mixed', region: app.region ?? 'World' }) : setPractice(mode);
   const [mysteryOpen, setMysteryOpen] = useState(false);
+  // Only the next game gets the forest pill; the others are quiet mint pills (one main action per screen).
+  const next = today ? nextDailyMode(today.sessions) : null;
   const stateLabel = (state: string) => t(!today ? 'dailyStatusPending' : state === 'done' ? 'dailyDoneState' : state === 'active' ? 'dailyActiveState' : 'dailyNewState');
   return <><section className={'puzzle-deck-section deck-v3 ' + (dailyPage ? 'daily-deck' : '')} aria-labelledby="today-title">
     <header className="section-header deck-head">
       <div><h2 id="today-title">{t('allGamesDaily')}</h2><p className="muted">{t('allGamesDailyNote')}</p></div>
       {dailyPage && <ResetCountdown className="deck-reset" label={t('resetIn').split('{time}')[0].trim()} t={t}/>}
     </header>
-    {(() => { const state = stateOf('daily'); return <article className={'detour-banner is-' + state}>
+    {(() => { const state = stateOf('daily'); return <article className={'detour-banner is-' + state + (next === 'daily' ? ' is-next' : '')}>
       <div className="detour-banner-art"><GameCover mode="daily"/></div>
       <div className="detour-banner-body">
         <p className="kicker"><GameIcon mode="daily" size="sm"/>{t('detourBannerKicker')}</p>
         <h3>{title('daily')}</h3>
         <p>{t('dailyCardCopy')}</p>
-        <small className="dcard-points"><Trophy size={14} strokeWidth={2.4} aria-hidden="true"/>{t('competitionGameMax')}</small>
         <div className="detour-banner-actions">
-          <button className="btn primary" disabled={app.busy || !!busy} onClick={() => launch('daily')}>{app.busy ? t('loading') : t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'detourPlay')}<ArrowRight size={18} aria-hidden="true"/></button>
+          <button className={'btn ' + (next === 'daily' ? 'primary' : 'ag-quiet')} disabled={app.busy || !!busy} onClick={() => launch('daily')}>{app.busy ? t('loading') : t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'agResume' : 'detourPlay')}<ArrowRight size={18} aria-hidden="true"/></button>
           <span className="dcard-help"><HowToPlayButton mode="daily" t={t} locale={locale}/></span>
         </div>
       </div>
@@ -79,8 +80,8 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
     <div className="dgrid">
       {modes.map(mode => {
         const state = stateOf(mode), name = title(mode);
-        const cta = t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'puzzleResume' : 'dailyStart');
-        return <article key={mode} className={'dcard dcard-' + mode + ' is-' + state}>
+        const cta = t(state === 'done' ? 'puzzleViewResult' : state === 'active' ? 'agResume' : 'dailyStart');
+        return <article key={mode} className={'dcard dcard-' + mode + ' is-' + state + (next === mode ? ' is-next' : '')}>
           <div className="dcard-art">
             <GameCover mode={mode}/>
             <span className={'dcard-state state-' + state}>{state === 'done' ? <Check size={13} strokeWidth={3} aria-hidden="true"/> : <i aria-hidden="true"/>}{stateLabel(state)}</span>
@@ -90,8 +91,7 @@ export function PuzzleDeck({ app, dailyPage = false, extras = false }: { app: an
             <GameIcon mode={mode} className="dcard-logo"/>
             <h3>{name}</h3>
             <p>{t(mode + 'CardCopy')}</p>
-            <small className="dcard-points"><Trophy size={14} strokeWidth={2.4} aria-hidden="true"/>{t('competitionGameMax')}</small>
-            <button className="btn primary dcard-start" disabled={app.busy || !!busy} onClick={() => launch(mode)} aria-label={cta + ' · ' + name}>{app.busy || busy === mode ? t('loading') : cta}<ArrowRight size={18} aria-hidden="true"/></button>
+            <button className={'btn dcard-start ' + (next === mode ? 'primary' : 'ag-quiet')} disabled={app.busy || !!busy} onClick={() => launch(mode)} aria-label={cta + ' · ' + name}>{app.busy || busy === mode ? t('loading') : cta}<ArrowRight size={18} aria-hidden="true"/></button>
             <button className="text-link dcard-practice" disabled={app.busy || !!busy} onClick={() => practiceFor(mode)}><Shuffle size={15} aria-hidden="true"/>{t(PRACTICE_LABELS[mode])}</button>
           </div>
         </article>;

@@ -12,7 +12,7 @@ import { HowToPlayButton } from '../atelier/HowToPlay';
 import { DailyFinish } from '../atelier/DailyFinish';
 import { FinishStage } from '../ds/FinishStage';
 import { GameHeader, editionLabel } from '../game/GameHeader';
-import { Mascot } from '../ds/Mascot';
+import { Peek, type CharacterMood } from '../ds/Character';
 import { notifyProgress } from '../atelier/DailyQuests';
 
 type Board = DuelBoard & { date: string | null };
@@ -89,7 +89,8 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
   const newPractice = () => { setSession(null); setBoard(null); setPlays([]); setStep(0); setCopied(false); setDetail(null); setNonce(Math.random().toString(36).slice(2, 10)); };
   const exit = () => app.backToStart ? app.backToStart() : go('/');
 
-  const header = <GameHeader mode="duel" title={t('duel')} edition={editionLabel(board.date, loc, t('duelPractice'))} count={Math.min(step + 1, total) + ' / ' + total} unit={t('duelRounds')} progress={Math.min(plays.length, total) / total} onExit={exit} exitLabel={t('back')} help={<HowToPlayButton mode="duel" t={t} locale={loc} auto={!finished}/>}/>;
+  // The duel is blind: no running score, so the bar has no coin; the card carries "World Duel · 3/7".
+  const header = <GameHeader kicker={false} mode="duel" title={t('duel')} edition={editionLabel(board.date, loc, t('duelPractice'))} count={Math.min(step + 1, total) + ' / ' + total} unit={t('duelRounds')} progress={Math.min(plays.length, total) / total} onExit={exit} exitLabel={t('back')} help={<HowToPlayButton mode="duel" t={t} locale={loc} auto={!finished}/>}/>;
 
   // The route: every subject with Roviko's country up front, so the whole hand can be planned.
   const route = <ol className={'duel-route' + (blind ? ' is-blind' : '')} aria-label={t('duelRoute')}>
@@ -106,56 +107,65 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     const headline = wins === total ? t('duelPerfect') : fill(t('duelResultTitle'), { n: wins });
     if (session?.competition) return <section className="puzzle-game duel-game" aria-labelledby="duel-title">{header}
       <DailyFinish app={app} date={board.date!} mode="duel" game={t('duel')} headline={headline} mood={wins === total ? 'cheer' : wins >= 4 ? 'happy' : 'wink'}
-        summary={[{ icon: 'check', value: wins + '/' + total, label: t('duelWonShort') }]} trail={results} onShare={share} onDone={exit} onAgain={newPractice}>{overview}</DailyFinish>
+        summary={[{ icon: 'check', value: wins + '/' + total, label: t('duelWonShort') }]} trail={results} onShare={share} onDone={exit} onAgain={newPractice}>
+        <details className="result-review duel-review"><summary><h2>{t('duelOverviewTitle')}</h2></summary>{overview}</details>
+      </DailyFinish>
     </section>;
     return <section className="puzzle-game duel-game" aria-labelledby="duel-title">{header}
       <div className="duel-finished">
         <FinishStage game={t('duel')} headline={headline} mood={wins === total ? 'cheer' : wins >= 4 ? 'happy' : 'wink'} locale={locale} score={wins} max={total} unit={t('duelWonShort')} trail={results} titleId="duel-title"/>
-        {overview}
         <div className="duel-actions">
-          <button className="btn secondary" onClick={share}><Share2 size={18}/>{t(copied ? 'copied' : 'share')}</button>
           <button className="btn primary" onClick={newPractice}><RefreshCw size={18}/>{t('duelNew')}</button>
+          <button className="btn secondary" onClick={share}><Share2 size={18}/>{t(copied ? 'copied' : 'share')}</button>
         </div>
+        {overview}
         {board.date && !session?.competition && <ResetCountdown label={t('duelNextDaily')} t={t}/>}
       </div>
     </section>;
   }
 
+  // Roviko plays the other side: cool while you choose; in an open duel it gasps when you win and cheers when it does.
+  const mood: CharacterMood = revealed ? duelWon(round, played) ? 'shock' : 'cheer' : 'cool';
+  const kicker = fill(t('questionOf'), { game: t('duel'), n: Math.min(step + 1, total), total });
   return <section className="puzzle-game duel-game" aria-labelledby="duel-title">{header}{route}
-    <div className="duel-arena">
-      <div className="duel-side duel-roviko">
-        <Mascot mood="curious" size={64} className="duel-mascot"/>
-        <span className="duel-label">{t('duelRovikoPlays')}</span>
-        <div className={'duel-card is-roviko' + (revealed ? duelWon(round, played) ? ' is-beaten' : ' is-winner' : '')}>
-          <img src={round.roviko.flag} alt=""/><strong>{name(round.roviko)}</strong>
-          {revealed && <b className="duel-value">{value(round, round.roviko.value)}</b>}
+    <div className={'duel-arena tp-card' + (revealed ? duelWon(round, played) ? ' is-won' : ' is-lost' : '')} key={step}>
+      <Peek mood={mood} key={mood}/>
+      <p className="tp-kicker">{kicker}</p>
+      {!revealed ? <h1 id="duel-title" className="duel-prompt">{t('duelPrompt').replace('{subject}', tr(round.category.label).toLowerCase())}</h1>
+        : <p className="duel-subject"><span aria-hidden="true">{round.category.emoji}</span>{tr(round.category.label)}</p>}
+      <div className="duel-match">
+        <div className="duel-side duel-roviko">
+          <span className="duel-label">{t('duelRovikoPlays')}</span>
+          <div className={'duel-card is-roviko' + (revealed ? duelWon(round, played) ? ' is-beaten' : ' is-winner' : '')}>
+            <img src={round.roviko.flag} alt=""/><strong>{name(round.roviko)}</strong>
+            {revealed && <b className="duel-value">{value(round, round.roviko.value)}</b>}
+          </div>
         </div>
-      </div>
-      <span className="duel-vs" aria-hidden="true">VS</span>
-      <div className="duel-side duel-you">
-        <span className="duel-subject"><span aria-hidden="true">{round.category.emoji}</span>{tr(round.category.label)}</span>
-        {revealed ? <div className={'duel-card is-yours ' + (duelWon(round, played) ? 'is-winner' : 'is-beaten')}>
-          <img src={cardOf(played).flag} alt=""/><strong>{name(cardOf(played))}</strong>
-          <b className="duel-value">{value(round, round.hand[played].value)}</b>
-        </div> : <div className="duel-card is-empty" aria-hidden="true">?</div>}
+        <span className="duel-vs" aria-hidden="true">VS</span>
+        <div className="duel-side duel-you">
+          <span className="duel-label">{t('duelYourCard')}</span>
+          {revealed ? <div className={'duel-card is-yours ' + (duelWon(round, played) ? 'is-winner' : 'is-beaten')}>
+            <img src={cardOf(played).flag} alt=""/><strong>{name(cardOf(played))}</strong>
+            <b className="duel-value">{value(round, round.hand[played].value)}</b>
+          </div> : <div className="duel-card is-empty" aria-hidden="true"><span>{round.category.emoji}</span></div>}
+        </div>
       </div>
     </div>
 
     {!revealed ? <>
-      <h1 id="duel-title" className="duel-prompt">{t('duelPrompt').replace('{subject}', tr(round.category.label).toLowerCase())}</h1>
-      <p className="duel-hint">{blind ? t(step === 0 ? 'duelBlindIntro' : 'duelBlindHint') : t(step === 0 ? 'duelIntro' : 'duelPlanAhead')}</p>
       <div className="duel-hand" role="group" aria-label={t('duelYourHand')}>
         {board.hand.map(c => { const at = plays.indexOf(c.id), used = at >= 0; return <button key={c.id} className="duel-card duel-pick" disabled={used || sending} onClick={() => play(c.id)}>
           <img src={c.flag} alt=""/><strong>{name(c)}</strong>{used && <small>{blind ? board.rounds[at].category.emoji + ' ' + t('duelUsed') : t('duelUsed')}</small>}
         </button>; })}
       </div>
+      {step > 0 && <p className="duel-hint">{blind ? t('duelBlindHint') : t('duelPlanAhead')}</p>}
       {blind && step === total && session && session.phase !== 'finished' ? <p className="duel-hint">{t('loading')}</p> : null}
     </> : <div className={'duel-reveal ' + (duelWon(round, played) ? 'good' : 'bad')} role="status">
       <strong className="duel-verdict">{duelWon(round, played) ? <><Check size={22}/>{t('duelWin')}</> : <><X size={22}/>{t('duelLose')}</>}</strong>
       <DuelBars round={round} card={cardOf(played)} name={name} value={value}/>
       {!duelWon(round, played) && board.solution[step] !== played && <p>{t('duelTip').replace('{card}', name(cardOf(board.solution[step])))}</p>}
       <p className="duel-explain">{tr(round.category.explanation)} <small>{round.roviko.referenceYear ? round.roviko.referenceYear + ' · ' : ''}<a href={round.roviko.sourceUrl} target="_blank" rel="noopener noreferrer">{round.roviko.source}</a></small></p>
-      <button className="btn hero-cta duel-next" onClick={() => setStep(s => s + 1)}>{t(step + 1 >= total ? 'duelResults' : 'duelNext')}<ArrowRight size={20}/></button>
+      <button className="btn primary duel-next" onClick={() => setStep(s => s + 1)}>{t(step + 1 >= total ? 'duelResults' : 'duelNext')}<ArrowRight size={20}/></button>
     </div>}
   </section>;
 }

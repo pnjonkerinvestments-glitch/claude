@@ -79,8 +79,8 @@ export function ExplorePage() {
   const surprise = () => { if (data?.length) open(data[Math.floor(Math.random() * data.length)]); };
   const card = (c: Country, showRegion = false) => <CountryCard key={c.id} country={c} name={name(c)} capital={capital(c)} region={showRegion ? t(c.region) : undefined} onOpen={() => open(c)}/>;
 
-  return <div className="page explore">
-    <PageHeader art="explore-hero" kicker={t('exploreKicker')} title={t('exploreTitle2')} lead={t('exploreLead')}/>
+  return <div className="page explore trip-page">
+    <PageHeader art="explore-hero" kicker={t('explore')} title={t('exploreTitle2')} lead={t('pgExploreLead')}/>
     <div className="explore-bar" role="search">
       <label className="search-field"><Search size={19} aria-hidden="true"/><input type="search" aria-label={t('searchCountries')} placeholder={t('searchCountries')} value={query} onChange={e => setQuery(e.target.value)}/>{query && <button className="icon-btn" aria-label={t('exploreClear')} onClick={() => setQuery('')}><X size={18}/></button>}</label>
       <button className="btn secondary" onClick={surprise} disabled={!data}><Shuffle size={18} aria-hidden="true"/>{t('exploreSurprise')}</button>
