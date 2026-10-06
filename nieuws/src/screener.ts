@@ -4,7 +4,8 @@
 // handvol nieuwsstromen per land en taal; zo passen duizenden aandelen in één minuut.
 
 import type { Config, Feed } from "./config.ts";
-import type { Store, UniverseEntry } from "./store.ts";
+import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, PATTERNS } from "./config.ts";
+import type { EventRecord, Store, UniverseEntry } from "./store.ts";
 import { escapeHtml, links, meta } from "./telegram.ts";
 import type { Fetch, NewsItem } from "./tradingview.ts";
 import { chartUrl, cleanSummary, fetchStory, parseNewsResponse } from "./tradingview.ts";
@@ -16,8 +17,10 @@ export const UNIVERSE_RANGE_KEY = "universe_range";
 export const UNIVERSE_JOB_KEY = "universe_job";
 /** Filters die over al het Europese nieuws werken, niet alleen over de selectie (JSON-lijst). */
 export const EUROPE_FILTERS_KEY = "filters_europe";
-/** Standaard: IPO's, want een bedrijf dat naar de beurs gaat, staat nog niet in de selectie. */
-export const DEFAULT_EUROPE_FILTERS = ["ipo"];
+/** Standaard: IPO's en noteringen, want een bedrijf dat naar de beurs gaat, staat nog niet in de selectie. */
+export { DEFAULT_EUROPE_FILTERS };
+/** Filters die niet direct melden, alleen in het ochtendoverzicht staan (JSON-lijst). */
+export const DIGEST_ONLY_KEY = "filters_digest_only";
 const STARTED_KEY = "screen_started";
 
 /** Rijen per screener-verzoek; de selectie wordt over een paar runs opgehaald. */
@@ -200,6 +203,10 @@ export function matchFilters(title: string, filters: Map<string, string[]>): Hit
         break;
       }
     }
+    if (hits.at(-1)?.filter === filter) continue;
+    // Vaste patronen tellen alleen voor een filter dat (nog) bestaat.
+    const pattern = PATTERNS[filter]?.find((p) => p.pattern.test(title));
+    if (pattern) hits.push({ filter, word: pattern.label });
   }
   return hits;
 }
@@ -324,15 +331,40 @@ export interface Match {
   entry?: UniverseEntry;
 }
 
-/** Zoekt in de huidige nieuwsstromen naar treffers binnen de selectie, zonder iets te onthouden. */
-export async function europeFilters(store: Store): Promise<Set<string>> {
-  const raw = await store.getSetting(EUROPE_FILTERS_KEY);
+async function filterSet(store: Store, key: string, fallback: string[]): Promise<Set<string>> {
+  const raw = await store.getSetting(key);
   try {
-    return new Set(raw ? (JSON.parse(raw) as string[]) : DEFAULT_EUROPE_FILTERS);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : fallback);
   } catch {
-    return new Set(DEFAULT_EUROPE_FILTERS);
+    return new Set(fallback);
   }
 }
+
+export function europeFilters(store: Store): Promise<Set<string>> {
+  return filterSet(store, EUROPE_FILTERS_KEY, DEFAULT_EUROPE_FILTERS);
+}
+
+/** Filters die alleen in het ochtendoverzicht komen. */
+export function digestOnlyFilters(store: Store): Promise<Set<string>> {
+  return filterSet(store, DIGEST_ONLY_KEY, DEFAULT_DIGEST_ONLY);
+}
+
+/** Een treffer als regel voor het ochtendoverzicht, één per filter. */
+export function eventRecords(match: Match): EventRecord[] {
+  const symbol = match.entry?.symbol ?? match.item.symbols[0] ?? "";
+  return [...new Set(match.hits.map((h) => h.filter))].map((filter) => ({
+    id: match.item.id,
+    filter,
+    symbol,
+    name: match.entry?.name ?? "",
+    title: match.item.title,
+    url: match.item.link ?? match.item.storyUrl ?? "",
+    lang: match.item.lang,
+    published: match.item.published,
+  }));
+}
+
+/** Zoekt in de huidige nieuwsstromen naar treffers binnen de selectie, zonder iets te onthouden. */
 
 export async function findMatches(
   deps: Pick<ScreenDeps, "store" | "fetcher" | "config">,
@@ -383,14 +415,28 @@ export async function checkScreener(deps: ScreenDeps): Promise<ScreenResult> {
   result.scanned = scanned;
   if (!matches.length) return result;
 
-  // Al gemeld door de screener (f:id), of al via de volglijst gemeld (kale id)? Dan niet nog eens.
+  // Al gezien door de screener (f:id)? Dan is het ook al bewaard voor het ochtendoverzicht.
   const seen = await store.seenIds(matches.flatMap((m) => [SEEN_PREFIX + m.item.id, m.item.id]));
-  const fresh = matches.filter((m) => !seen.has(SEEN_PREFIX + m.item.id) && !seen.has(m.item.id));
+  const fresh = matches.filter((m) => !seen.has(SEEN_PREFIX + m.item.id));
   result.matched = fresh.length;
+  if (!fresh.length) return result;
+
+  // Alles bewaren voor het ochtendoverzicht. Filters die alleen daar staan, melden niet direct.
+  await store.recordEvents(fresh.flatMap(eventRecords), now);
+  const digestOnly = await digestOnlyFilters(store);
+  const quiet: Match[] = [];
+  const direct: Match[] = [];
+  for (const match of fresh) {
+    const hits = match.hits.filter((h) => !digestOnly.has(h.filter));
+    // Al via de volglijst gemeld (kale id)? Dan niet nog eens.
+    if (hits.length && !seen.has(match.item.id)) direct.push({ ...match, hits });
+    else quiet.push(match);
+  }
+  await store.markSeen(quiet.map((m) => SEEN_PREFIX + m.item.id), "ochtend", now);
 
   // Per aandeel één bericht, ook als het nieuws in meerdere talen binnenkomt.
   const bySymbol = new Map<string, Match[]>();
-  for (const match of fresh) {
+  for (const match of direct) {
     const key = match.entry?.symbol ?? match.item.symbols[0] ?? `id:${match.item.id}`;
     bySymbol.set(key, [...(bySymbol.get(key) ?? []), match]);
   }
