@@ -269,3 +269,27 @@ img[src*="/flags/"],img[src*="/api/flag/"],img[src*="/api/game-asset/"]{object-f
 /* Touch screens have no real hover: a tapped spot must never make the next question's answer look chosen. */
 @media(hover:none){.answer-option:hover:not(:disabled):not(.is-selected){border-color:transparent!important;transform:none!important;box-shadow:var(--shadow-pill)!important}}
 @media(max-width:760px){.game-main:has(.compare-out){padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}}
+/* The streak moment (1.23): a flame that flares up, the count in it, this week as dots. */
+.streak-moment{text-align:center;align-items:center}
+.streak-moment .sm-flame{position:relative;display:grid;place-items:center;width:132px;height:132px;margin:4px auto 6px;border-radius:50%;background:radial-gradient(circle at 50% 60%,#ffe2a8,#f6b84b 58%,#f08a2b);color:#fff;box-shadow:0 10px 30px rgba(240,138,43,.35);animation:sm-flare .7s cubic-bezier(.34,1.56,.64,1) both}
+.streak-moment .sm-flame svg{position:absolute;opacity:.35}
+.streak-moment .sm-flame b{position:relative;font:700 3.25rem/1 var(--font-display);text-shadow:0 2px 0 rgba(160,70,0,.35)}
+.streak-moment .sm-week{display:flex;justify-content:center;gap:8px;margin:14px 0 6px;padding:0;list-style:none}
+.streak-moment .sm-week li{display:grid;justify-items:center;gap:4px;font-size:.75rem;font-weight:700;color:var(--color-ink-soft,#5b6660)}
+.streak-moment .sm-week i{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--color-mint,#DDEDE6);color:#fff}
+.streak-moment .sm-week li.is-done i{background:#f6a33b;animation:sm-dot .45s cubic-bezier(.34,1.56,.64,1) both;animation-delay:calc(var(--i) * 70ms + .3s)}
+.streak-moment .sm-week li.is-today i{outline:3px solid var(--color-brand,#1F806B);outline-offset:2px}
+.streak-moment .sm-shield{display:flex;align-items:center;justify-content:center;gap:6px;margin:6px 0 14px;font-size:.9rem;color:var(--color-ink-soft,#5b6660)}
+.streak-moment .btn{width:100%}
+@keyframes sm-flare{0%{transform:scale(.3) rotate(-12deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes sm-dot{0%{transform:scale(0)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.streak-moment .sm-flame,.streak-moment .sm-week li.is-done i{animation:none}}
+[data-theme=dark] .streak-moment .sm-week i{background:#25453c}
+/* A shared result opened by a friend (1.23): a challenge card above the page. */
+.challenge-banner{position:relative;display:flex;align-items:center;gap:14px;max-width:var(--content,1120px);margin:0 auto 18px;padding:16px 60px 16px 14px;border-radius:26px;background:var(--color-surface);box-shadow:var(--shadow-card);border:2px solid var(--color-gold);animation:fb-pop .45s cubic-bezier(.34,1.56,.64,1) both}
+.challenge-banner strong{display:block;font:700 1.15rem/1.25 var(--font-display);color:var(--color-ink)}
+.challenge-banner p{margin:4px 0 10px;color:var(--color-ink-soft);font-size:.95rem}
+.challenge-banner .challenge-character{flex:0 0 auto}
+.challenge-banner .challenge-close{position:absolute;top:8px;right:8px}
+@media(max-width:480px){.challenge-banner{padding:14px 54px 14px 10px;gap:8px}.challenge-banner .challenge-character{width:64px;height:auto}}
+@media(prefers-reduced-motion:reduce){.challenge-banner{animation:none}}

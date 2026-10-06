@@ -2,6 +2,10 @@
 // Keys ending in _one are the singular of the key without it (see lib/plural.ts).
 export const v123Messages = {
   en: {
+    beatenZero: 'Everyone starts somewhere. New chance tomorrow!',
+    chTitle: 'A friend scored {n} points in {game}', chCopy: 'Same questions for everyone today. Can you beat it?', chPlay: 'Play {game}',
+    smTitle: '{n} days in a row!', smTitle_one: 'Your streak has started!', smCopy: 'Play one game tomorrow and it keeps growing.', smWeek: 'This week',
+    smShield: '{n} more play days to a streak shield', smShield_one: 'One more play day to a streak shield', smShieldFull: 'Both streak shields are ready for a day off', smContinue: 'Keep going',
     fbRight1: 'Correct!', fbRight2: 'Nice one!', fbRight3: 'Spot on!', fbRight4: 'You got it!',
     fbWrong1: 'Not this time', fbWrong2: 'Oops, not this one', fbWrong3: 'Good try!', fbWrong4: 'The next one’s yours',
     fbStreak: '{n} in a row!', fbNear: 'So close! {n} km away',
@@ -13,6 +17,10 @@ export const v123Messages = {
     passportPeek_one: '1 country stamp collected', stampMilestone_one: '1 more country for your {region} stamp', exploreResults_one: '1 country',
   },
   nl: {
+    beatenZero: 'Iedereen begint ergens. Morgen een nieuwe kans!',
+    chTitle: 'Een vriend haalde {n} punten in {game}', chCopy: 'Vandaag krijgt iedereen dezelfde vragen. Kun jij het beter?', chPlay: 'Speel {game}',
+    smTitle: '{n} dagen op rij!', smTitle_one: 'Je reeks is begonnen!', smCopy: 'Speel morgen één spel en hij groeit verder.', smWeek: 'Deze week',
+    smShield: 'Nog {n} speeldagen tot een reeksschild', smShield_one: 'Nog 1 speeldag tot een reeksschild', smShieldFull: 'Je twee reeksschilden staan klaar voor een vrije dag', smContinue: 'Verder',
     fbRight1: 'Helemaal goed!', fbRight2: 'Top!', fbRight3: 'Knap gedaan!', fbRight4: 'Goed zo!',
     fbWrong1: 'Net niet!', fbWrong2: 'Helaas, deze niet', fbWrong3: 'Goed geprobeerd!', fbWrong4: 'De volgende is voor jou',
     fbStreak: '{n} op rij!', fbNear: 'Bijna! {n} km ernaast',
@@ -25,6 +33,10 @@ export const v123Messages = {
     passportPeek_one: '1 landenstempel verzameld', stampMilestone_one: 'Nog 1 land voor je stempel voor {region}', exploreResults_one: '1 land',
   },
   es: {
+    beatenZero: 'Todos empiezan en algún sitio. ¡Mañana, otra oportunidad!',
+    chTitle: 'Un amigo hizo {n} puntos en {game}', chCopy: 'Hoy todos tienen las mismas preguntas. ¿Puedes superarlo?', chPlay: 'Jugar a {game}',
+    smTitle: '¡{n} días seguidos!', smTitle_one: '¡Tu racha ha empezado!', smCopy: 'Juega una partida mañana y seguirá creciendo.', smWeek: 'Esta semana',
+    smShield: 'Faltan {n} días de juego para un escudo de racha', smShield_one: 'Falta 1 día de juego para un escudo de racha', smShieldFull: 'Tus dos escudos de racha están listos para un día libre', smContinue: 'Seguir',
     fbRight1: '¡Correcto!', fbRight2: '¡Muy bien!', fbRight3: '¡Exacto!', fbRight4: '¡Lo tienes!',
     fbWrong1: '¡Esta no!', fbWrong2: 'Uy, esta no', fbWrong3: '¡Buen intento!', fbWrong4: 'La próxima es tuya',
     fbStreak: '¡{n} seguidas!', fbNear: '¡Casi! A {n} km',

@@ -71,8 +71,8 @@ export function BonusResult({ app, mode }: { app: LaunchApp & { t: (k: string) =
   const pct = standing && standing.players > 0 ? Math.round(standing.beaten / standing.players * 100) : null;
   return <section className="daily-result bonus-result" aria-label={t('bonusKicker')}>
     <div className="daily-result-compare">
-      <p><Users size={17} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : t('bonusBeaten').replace('{n}', String(pct))}</p>
-      {pct !== null && <span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, pct) + '%' }}/></span>}
+      <p><Users size={17} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : pct === 0 ? t('beatenZero') : t('bonusBeaten').replace('{n}', String(pct))}</p>
+      {!!pct && <span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, pct) + '%' }}/></span>}
     </div>
     {next === undefined ? null : next
       ? <button className="btn primary btn-lg daily-result-next" disabled={!!launching || app.busy} onClick={() => open(next)}>{launching ? t('loading') : t('bonusCta').replace('{game}', t(next))}<ArrowRight size={19} aria-hidden="true"/></button>

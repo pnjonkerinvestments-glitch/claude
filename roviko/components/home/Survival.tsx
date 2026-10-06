@@ -57,8 +57,8 @@ export function SurvivalResult({ app, mode, score, out }: { app: LaunchApp; mode
   return <section className="daily-result survival-result" aria-label={t('survivalKicker')}>
     <p className={'survival-verdict' + (out ? ' is-out' : ' is-all')}>{out ? <Skull size={18} aria-hidden="true"/> : <Trophy size={18} aria-hidden="true"/>}{t(out ? 'survivalOutAt' : 'survivalAllTitle').replace('{n}', String(score))}</p>
     <div className="daily-result-compare">
-      <p><Users size={17} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : t('bonusBeaten').replace('{n}', String(pct))}</p>
-      {pct !== null && <span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, pct) + '%' }}/></span>}
+      <p><Users size={17} aria-hidden="true"/>{!standing ? t('loading') : pct === null ? t('bonusFirst') : pct === 0 ? t('beatenZero') : t('bonusBeaten').replace('{n}', String(pct))}</p>
+      {!!pct && <span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, pct) + '%' }}/></span>}
       {standing?.top ? <small className="survival-top"><Trophy size={14} aria-hidden="true"/>{t('survivalTop').replace('{n}', String(standing.top))}</small> : null}
     </div>
     {left ? <button className="btn primary btn-lg daily-result-next" disabled={!!launching} onClick={() => open(left)}>{launching ? t('loading') : t('survivalNext').replace('{game}', t(left))}<ArrowRight size={19} aria-hidden="true"/></button> : null}

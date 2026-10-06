@@ -5,7 +5,7 @@ import fs from 'node:fs';
 
 // 1.23: Dutch capitals, Eswatini, singular forms, warm feedback, finish headlines, share text, sound/vibration.
 fs.mkdirSync('.test-runtime', { recursive: true });
-await build({ stdin: { contents: "export {generateQuestions,evaluate,COUNTRIES} from './lib/game-engine/questions';export {dutchCapital} from './i18n/capitals-nl';export {plural} from './lib/plural';export {feedbackHeading,finishKey,finishMood,inARow} from './lib/feel-copy';export {editionNumber,squares,shareCard} from './lib/share';export {sound,soundDefault,formatScore} from './lib/client';export {messages} from './i18n/messages';", resolveDir: process.cwd() }, bundle: true, outfile: '.test-runtime/v123.mjs', format: 'esm', platform: 'node', logLevel: 'error' });
+await build({ stdin: { contents: "export {generateQuestions,evaluate,COUNTRIES} from './lib/game-engine/questions';export {dutchCapital} from './i18n/capitals-nl';export {plural} from './lib/plural';export {feedbackHeading,finishKey,finishMood,inARow} from './lib/feel-copy';export {editionNumber,squares,shareCard,shareResult,readChallenge} from './lib/share';export {parseShareText} from './lib/share-image';export {sound,soundDefault,formatScore} from './lib/client';export {messages} from './i18n/messages';", resolveDir: process.cwd() }, bundle: true, outfile: '.test-runtime/v123.mjs', format: 'esm', platform: 'node', logLevel: 'error' });
 const lib = await import('../.test-runtime/v123.mjs');
 const settings = (mode, typed = false) => ({ mode, count: 5, timer: 0, difficulty: 'medium', region: 'World', typed });
 const t = locale => k => lib.messages[locale][k] ?? lib.messages.en[k] ?? k;
@@ -78,6 +78,16 @@ test('share text has an edition number, squares, points and streak, and never a 
   assert.equal(lib.squares(Array.from({ length: 12 }, (_, i) => i % 3 !== 0)), '🟥🟩🟩🟥🟩🟩🟥🟩🟩🟥\n🟩🟩');
   const text = lib.shareCard({ label: 'Rank Radar', date: '2026-10-06', trail: '🟩🟨', score: '820/1,000 points', streak: 1, url: 'https://roviko.app/daily?shared=rank' });
   assert.equal(text, 'Roviko #12 · Rank Radar\n🟩🟨\n820/1,000 points\nhttps://roviko.app/daily?shared=rank');
+});
+
+test('a shared daily score travels in the link and opens as a challenge', () => {
+  const text = lib.shareResult({ mode: 'daily', label: 'Daily Detour', date: '2026-10-06', correct: 15, total: 20, answers: [true, false], detail: '820/1,000 points', points: 820, streak: 3, origin: 'https://roviko.app' });
+  assert.match(text, /https:\/\/roviko\.app\/daily\?shared=daily&s=820$/);
+  assert.deepEqual(lib.readChallenge('?shared=daily&s=820'), { mode: 'daily', points: 820 });
+  assert.deepEqual(lib.readChallenge('?shared=duel&s=600'), { mode: 'duel', points: 600 });
+  for (const bad of ['?shared=daily', '?shared=daily&s=1200', '?shared=flags&s=8', '?shared=daily&s=-1', '?shared=daily&s=1e3', '?shared=<b>&s=5']) assert.equal(lib.readChallenge(bad), null, bad);
+  const parsed = lib.parseShareText(text);
+  assert.equal(parsed.head, 'Roviko #12'); assert.equal(parsed.game, 'Daily Detour'); assert.equal(parsed.score, '820/1,000 points'); assert.equal(parsed.streak, '3'); assert.deepEqual(parsed.rows, [['🟩', '🟥']]);
 });
 
 test('sound follows the setting everywhere; the app vibrates, the website never does', () => {

@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Check, ChevronRight, List, RefreshCw, Share2, X 
 import { api, post, copyText, sound } from '@/lib/client';
 import { BRAND } from '@/lib/config';
 import { shareCard, squares } from '@/lib/share';
+import { shareWithImage } from '@/lib/share-image';
 import { formatMetric } from '@/lib/puzzles/topics';
 import { duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel-shared';
 import { ResetCountdown } from '../atelier/ResetCountdown';
@@ -80,9 +81,9 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
     else sound(duelWon(board.rounds[step], cardId) ? 'correct' : 'incorrect');
   }
   async function share() {
-    const url = new URL('/duel', window.location.origin); url.searchParams.set('shared', 'duel');
-    const text = shareCard({ label: t('duel'), date: board!.date, trail: squares(results), score: session ? (session.score ?? 0).toLocaleString(loc) + '/' + (1000).toLocaleString(loc) + ' ' + t('points') : wins + '/' + total, streak: session ? app.boot?.stats?.dailyStreak : undefined, url: url.toString() });
-    try { if (navigator.share) { await navigator.share({ text }); return; } } catch { /* fall back to copying */ }
+    const url = new URL('/daily', window.location.origin); url.searchParams.set('shared', 'duel');
+    const text = shareCard({ label: t('duel'), date: board!.date, trail: squares(results), score: session ? (session.score ?? 0).toLocaleString(loc) + '/' + (1000).toLocaleString(loc) + ' ' + t('points') : wins + '/' + total, streak: session ? app.boot?.stats?.dailyStreak : undefined, url: url.toString(), points: session ? session.score ?? 0 : undefined });
+    try { if (navigator.share) { if (await shareWithImage(text)) return; await navigator.share({ text }); return; } } catch { /* fall back to copying */ }
     await copyText(text); setCopied(true);
   }
   const newPractice = () => { setSession(null); setBoard(null); setPlays([]); setStep(0); setCopied(false); setDetail(null); setNonce(Math.random().toString(36).slice(2, 10)); };
