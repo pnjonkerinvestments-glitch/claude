@@ -1,7 +1,8 @@
 'use client';
 import { useSyncExternalStore } from 'react';
+import { RIcon } from '../ds/RovikoIcons';
 import { Character } from '../ds/Character';
-import { Check, ChevronRight, Crown, Flame, Gift, Target } from 'lucide-react';
+import { Check, ChevronRight, Crown } from 'lucide-react';
 import { GameIcon } from './GameIcon';
 import { addCrown, allQuestsDone, questsFor, type Quest } from '@/lib/daily-quests';
 export type { Quest };
@@ -40,22 +41,22 @@ export function DailyQuests({ date, sessions, t, compact = false, art = false, o
   const titleId = 'quests-title' + (compact ? '-loop' : '');
   return <section className={'daily-quests quests-v3' + (done ? ' is-complete' : '') + (compact ? ' is-compact' : '') + (art ? ' has-art' : '')} aria-labelledby={titleId}>
     <header>
-      <span className="quests-badge" aria-hidden="true">{done ? <Crown size={24} strokeWidth={2.2}/> : <Target size={24} strokeWidth={2.2}/>}</span>
+      <span className="quests-badge" aria-hidden="true">{done ? <RIcon name="crown" size={34}/> : <RIcon name="target" size={34}/>}</span>
       <div><h2 id={titleId}>{t('questsTitle')}</h2><p>{compact ? t('questsLead') : t('questsIntro')}</p></div>
       {crowns > 0 && <span className="quests-crowns" aria-label={t('questCrowns').replace('{n}', String(crowns))}><Crown size={15} strokeWidth={2.4} aria-hidden="true"/>{crowns}</span>}
       {art && <Character mood="cheer" pose="cheer" size={118} className="card-corner-art card-corner-character"/>}
     </header>
     <ul className="quest-list">{quests.map(q => {
       const body = <>
-        <span className={'quest-icon quest-icon-' + q.kind} aria-hidden="true">{q.done ? <Check size={20} strokeWidth={2.8}/> : q.kind === 'games' ? <Flame size={22} strokeWidth={2.2}/> : <GameIcon mode={q.kind === 'mode' ? q.mode! : q.kind === 'detour' ? 'daily' : q.kind}/>}</span>
+        <span className={'quest-icon quest-icon-' + q.kind} aria-hidden="true">{q.done ? <Check size={20} strokeWidth={2.8}/> : q.kind === 'games' ? <RIcon name="flame" size={30}/> : <GameIcon mode={q.kind === 'mode' ? q.mode! : q.kind === 'detour' ? 'daily' : q.kind}/>}</span>
         <span className="quest-copy"><strong>{label(q)}</strong><small>{sub(q)}</small><span className="quest-bar" aria-hidden="true"><i style={{ width: q.progress / q.target * 100 + '%' }}/></span></span>
         <b className="quest-count">{q.progress}/{q.target}<span className="sr-only"> · {t(q.done ? 'dailyDoneState' : 'dailyNewState')}</span></b>
         {onPick && !q.done && <span className="quest-go" aria-hidden="true"><ChevronRight size={18}/></span>}
       </>;
       return <li key={q.id} className={q.done ? 'is-done' : ''}>{onPick && !q.done ? <button type="button" className="quest-row" onClick={() => onPick(q)}>{body}</button> : <div className="quest-row">{body}</div>}</li>;
     })}</ul>
-    {done && !crowned && <button className="btn hero-cta quest-chest" onClick={claim}><Gift size={19} strokeWidth={2.3} aria-hidden="true"/>{t('questChest')}</button>}
-    {done && !!crowned && <p className="quest-crowned" role="status"><Crown size={20} strokeWidth={2.3} aria-hidden="true"/>{t('questCrownWon').replace('{n}', String(crowns))}</p>}
+    {done && !crowned && <button className="btn hero-cta quest-chest" onClick={claim}><RIcon name="gift" size={24}/>{t('questChest')}</button>}
+    {done && !!crowned && <p className="quest-crowned" role="status"><RIcon name="crown" size={26}/>{t('questCrownWon').replace('{n}', String(crowns))}</p>}
     {!compact && !done && <ResetCountdown className="quest-reset" label={t('questNew')} t={t}/>}
   </section>;
 }

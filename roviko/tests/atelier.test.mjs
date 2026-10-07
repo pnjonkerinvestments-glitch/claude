@@ -80,9 +80,11 @@ test('1.17 illustrations: every artwork the interface references exists and stay
 });
 
 test('1.17 every game has its own logo, used wherever a game is named', () => {
-  const icon = fs.readFileSync('components/atelier/GameIcon.tsx', 'utf8');
-  for (const mode of ['rank', 'daily', 'compare', 'mosaic', 'trail', 'duel', 'mystery', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'room']) assert.match(icon, new RegExp('\\n  ' + mode + ': <>'), 'logo for ' + mode);
-  assert.doesNotMatch(icon, /lucide-react/, 'logos are drawn, not borrowed icons');
+  // Since 1.24 the logos are cartoon stickers in components/ds/RovikoIcons.tsx; GameIcon puts them on the game's tile.
+  const icon = fs.readFileSync('components/atelier/GameIcon.tsx', 'utf8'), drawings = fs.readFileSync('components/ds/RovikoIcons.tsx', 'utf8');
+  for (const mode of ['rank', 'daily', 'compare', 'mosaic', 'trail', 'duel', 'mystery', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'shape', 'mixed', 'room']) assert.match(drawings, new RegExp('\\n  ' + mode + ': <'), 'logo for ' + mode);
+  assert.match(icon, /ICONS\[mode\]/, 'GameIcon draws the Roviko sticker');
+  for (const f of [icon, drawings]) assert.doesNotMatch(f, /lucide-react/, 'logos are drawn, not borrowed icons');
   for (const f of ['components/puzzles/PuzzleDeck.tsx', 'components/RovikoApp.tsx', 'components/pages/ScoringPage.tsx', 'components/atelier/DailyQuests.tsx', 'components/atelier/HowToPlay.tsx']) assert.match(fs.readFileSync(f, 'utf8'), /<GameIcon /, f + ' shows game logos');
   assert.doesNotMatch(fs.readFileSync('components/puzzles/PuzzleDeck.tsx', 'utf8'), /puzzle-sticker/);
 });

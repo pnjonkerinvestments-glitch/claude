@@ -1,6 +1,6 @@
 name: Roviko preview
 
-# Zet de werkversie (branches claude/upbeat-sagan-8igsaj en, voor 1.23, claude/peaceful-newton-0b5oqb)
+# Zet de werkversie (branches claude/upbeat-sagan-8igsaj, claude/peaceful-newton-0b5oqb (1.23) en claude/roviko-icons-continent (1.24))
 # op een aparte testlink. De laatste push wint; beide branches delen dezelfde preview.
 # worker "roviko-preview" met een eigen, lege database "roviko-preview-eu" (West-Europa).
 # Raakt de live worker "roviko", roviko.app en de live database NIET aan.
@@ -9,7 +9,7 @@ name: Roviko preview
 
 on:
   push:
-    branches: [claude/upbeat-sagan-8igsaj, claude/peaceful-newton-0b5oqb]
+    branches: [claude/upbeat-sagan-8igsaj, claude/peaceful-newton-0b5oqb, claude/roviko-icons-continent]
     paths:
       - "roviko/**"
       - ".github/workflows/roviko-preview.yml"

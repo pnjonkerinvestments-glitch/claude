@@ -3,7 +3,6 @@ import { finishKey, finishMood } from '@/lib/feel-copy';
 import { plural } from '@/lib/plural';
 import { DailyScoreRule } from './atelier/Competition';
 import { Character, Peek } from './ds/Character';
-import { GameScene, type SceneMode } from './ds/GameScene';
 import { withSpanish } from '../i18n/content';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { RotateCcw, Sparkles } from 'lucide-react';
@@ -142,23 +141,24 @@ function AllGames() {
     const TABS = ['bonus', 'survival', 'classic'] as const;
     const tabKey = (e: React.KeyboardEvent, k: typeof TABS[number]) => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); const nextTab = TABS[(TABS.indexOf(k) + d + TABS.length) % TABS.length]; setMoreTab(nextTab); document.getElementById('tab-' + nextTab)?.focus(); };
     return <div className="page all-games ag-trip">
-        <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
-        <PuzzleDeck app={app} dailyPage extras/>
+        <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')}/>
+        <PuzzleDeck app={app}/>
         <div className="more-games-tabs segmented-pill" role="tablist" aria-label={t('allGamesMore')}>{TABS.map(k => <button key={k} type="button" role="tab" id={'tab-' + k} aria-selected={moreTab === k} tabIndex={moreTab === k ? 0 : -1} aria-controls={'panel-' + k} onClick={() => setMoreTab(k)} onKeyDown={e => tabKey(e, k)}>{t(k === 'bonus' ? 'allGamesTabBonus' : k === 'survival' ? 'allGamesTabSurvival' : 'allGamesTabClassic')}</button>)}</div>
         {moreTab === 'bonus' && <div role="tabpanel" id="panel-bonus" aria-labelledby="tab-bonus">{today ? <BonusTour app={app} bonus={today.bonus} busy={busy}/> : <Loading variant="list"/>}</div>}
         {moreTab === 'survival' && <div role="tabpanel" id="panel-survival" aria-labelledby="tab-survival">{today ? <SurvivalRuns app={app} survival={today.survival} busy={busy}/> : <Loading variant="list"/>}</div>}
         {moreTab === 'classic' && <section id="classic" role="tabpanel" aria-labelledby="tab-classic" className="classic-section">
+          <PuzzleDeck app={app} section="practice"/>
           <header className="section-header"><div><h2 id="classic-title">{t('allGamesClassic')}</h2><p className="muted">{t('allGamesClassicNote')}</p></div></header>
           <div className="classic-controls"><Choice label={t('region')} value={region} onChange={setRegion} options={REGIONS.map(v => ({ value: v, label: v === 'World' ? t('allRegions') : t(v) }))}/><button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><Sparkles size={17} aria-hidden="true"/>{t('surpriseMe')}</button></div>
           {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true"><RotateCcw size={22} strokeWidth={2.2}/></span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><span className="btn secondary review-card-cta">{t('reviewCardCta')}<ArrowRight size={17}/></span></button>}
-          <div className="classic-grid">{MODES.map(mode => <article className={'ccard tone-' + mode} key={mode}>
-            <button className="ccard-main" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}>
-              <span className="ccard-art" aria-hidden="true"><GameScene mode={mode as SceneMode} shape="wide"/><svg className="ccard-wave" viewBox="0 0 400 36" preserveAspectRatio="none"><path d="M0 20C70 4 150 2 230 16s130 22 170 6V36H0Z" fill="currentColor"/></svg></span>
-              <span className="ccard-body"><GameIcon mode={mode} className="ccard-logo"/><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span>
-              <span className="ccard-go" aria-hidden="true"><ArrowRight size={18}/></span>
+          <ul className="ag-list ag-card classic-list">{MODES.map(mode => <li className="ag-row has-side" key={mode}>
+            <button type="button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}>
+              <span className="ag-icon"><GameIcon mode={mode}/></span>
+              <span className="ag-name"><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span>
+              <span className="ag-end"><ArrowRight size={18} aria-hidden="true"/></span>
             </button>
-            <button className="icon-btn ccard-settings" disabled={busy} aria-label={t('gameSettings').replace('{game}', t(mode))} title={t('gameSettings').replace('{game}', t(mode))} onClick={() => playMode(mode)}><Settings2 size={16}/></button>
-          </article>)}</div>
+            <button type="button" className="icon-btn ag-side" disabled={busy} aria-label={t('gameSettings').replace('{game}', t(mode))} title={t('gameSettings').replace('{game}', t(mode))} onClick={() => playMode(mode)}><Settings2 size={17}/></button>
+          </li>)}</ul>
         </section>}
     </div>;
 }

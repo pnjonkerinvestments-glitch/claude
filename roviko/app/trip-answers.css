@@ -1,0 +1,38 @@
+/*
+  Roviko 1.24 · a lighter green for a right answer. Loaded after the trip layers.
+  Was the dark forest green (--t-forest), the same as the main buttons. Now a fresh light green with dark text
+  (7.4:1 light, 8.8:1 dark, WCAG AA) and a white check, so "right" never looks like a button and still differs
+  clearly from the pale mint of the secondary buttons. The dark main buttons stay exactly as they are.
+*/
+:root,:root[data-theme=light]{--t-right:#7ed9a6;--t-right-edge:#3fae74;--t-right-ink:#0f3a2b}
+:root[data-theme=dark]{--t-right:#4cc88a;--t-right-edge:#7ee0b0;--t-right-ink:#05170f}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--t-right:#4cc88a;--t-right-edge:#7ee0b0;--t-right-ink:#05170f}}
+
+/* Answer pills: solo, daily games and multiplayer alike. */
+.answer-option.is-correct,.answer-option.is-correct:disabled,.mp-live .answer-option.is-correct,.mp-live .answer-option.is-correct:disabled{background:var(--t-right)!important;color:var(--t-right-ink)!important;border:2px solid var(--t-right-edge)!important}
+.answer-option.is-correct .option-country,.answer-option.is-correct strong,.answer-option.is-correct span{color:inherit!important}
+.answer-option.is-correct .answer-key,[data-theme=dark] .answer-option.is-correct .answer-key{background:#fff!important;color:#1f806b!important;box-shadow:0 0 0 2px var(--t-right-edge)}
+.answer-option.is-correct .mp-picks .globe-avatar,.answer-option.is-correct .mp-picks-more{border-color:var(--t-right-edge)}
+/* The other places a right answer lights up. */
+.mystery-card .mystery-option.is-correct{background:var(--t-right)!important;color:var(--t-right-ink)!important}
+.puzzle-compare .comparison-country.winner{background:var(--t-right)!important;color:var(--t-right-ink)!important;border:2px solid var(--t-right-edge)!important}
+.puzzle-compare .comparison-country.winner .country-key{background:rgba(255,255,255,.6)!important;color:var(--t-right-ink)!important}
+.duel-game .duel-arena .duel-card.is-winner{background:var(--t-right)!important;color:var(--t-right-ink)!important}
+
+/* ── Next Door: the continent map after the answer ── */
+.border-reveal-map.is-continent{padding:10px!important}
+.border-reveal-map.is-continent svg{width:min(100%,calc(340px * var(--ar,1.6)));height:auto;max-height:none;aspect-ratio:var(--ar,1.6);margin-inline:auto;border-radius:calc(var(--t-radius) - 6px);overflow:hidden}
+.border-reveal-map .bm-sea{fill:var(--t-sky)}
+.border-reveal-map .bm-land{fill:#c9e3cf;stroke:#fff;stroke-width:1.1px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.border-reveal-map .bm-land.is-other{fill:#eaeee6;stroke:#f6f8f4}
+.border-reveal-map .bm-land.is-target,.border-reveal-map .bm-dot.is-target{fill:#f6b84b;stroke:#163b32;stroke-width:1.6px}
+.border-reveal-map .bm-land.is-answer,.border-reveal-map .bm-dot.is-answer{fill:var(--t-right);stroke:#163b32;stroke-width:1.6px}
+.border-reveal-map .bm-land.is-wrong,.border-reveal-map .bm-dot.is-wrong{fill:#e5484d;stroke:#163b32;stroke-width:1.6px}
+.border-reveal-map .bm-dot{vector-effect:non-scaling-stroke}
+.border-reveal-map.is-continent .target i{background:#f6b84b!important}
+.border-reveal-map.is-continent .neighbor i{background:var(--t-right)!important}
+.border-reveal-map.is-continent .wrong i{background:#e5484d!important}
+.border-reveal-map figcaption i{box-shadow:0 0 0 1.5px #163b32}
+[data-theme=dark] .border-reveal-map .bm-land.is-region{fill:#2f5547;stroke:#163345}
+[data-theme=dark] .border-reveal-map .bm-land.is-other{fill:#1f3830;stroke:#163345}
+[data-theme=dark] .border-reveal-map .bm-land.is-target,[data-theme=dark] .border-reveal-map .bm-land.is-answer,[data-theme=dark] .border-reveal-map .bm-land.is-wrong{stroke:#0b1a14}

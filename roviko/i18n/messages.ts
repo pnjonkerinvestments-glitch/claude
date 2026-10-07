@@ -8,12 +8,13 @@ import { v120Messages } from './v120';
 import { v121Messages } from './v121';
 import { v122Messages } from './v122';
 import { v123Messages } from './v123';
+import { v124Messages } from './v124';
 import { tripMessages } from './trip';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v124Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -640,7 +641,8 @@ export const messages = {
     ...v121Messages.en,
     ...v122Messages.en,
     ...v123Messages.en,
-    ...tripMessages.en
+    ...tripMessages.en,
+    ...v124Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1268,7 +1270,8 @@ export const messages = {
     ...v121Messages.nl,
     ...v122Messages.nl,
     ...v123Messages.nl,
-    ...tripMessages.nl
+    ...tripMessages.nl,
+    ...v124Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;

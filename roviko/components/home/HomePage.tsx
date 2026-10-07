@@ -1,7 +1,8 @@
 'use client';
 import { plural } from '@/lib/plural';
+import { RIcon } from '../ds/RovikoIcons';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronRight, Clock, Target, Trophy } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Clock } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DAY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, type DayMode } from '@/lib/daily-loop';
 import { useApp } from '../app/context';
@@ -171,10 +172,10 @@ export function HomePage() {
         <button className="t-pill is-gold th-save" onClick={() => app.setModal('signup')}>{t('savePromptCta')}</button>
       </div>}
       {boot.user.guest
-        ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><Trophy size={20}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
+        ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><RIcon name="trophy" size={30}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
         : <A href="/leaderboard#league" className="side-row side-league"><span className="side-icon side-tier" aria-hidden="true"><TierBadge tier={league?.tier ?? 0} size={26}/></span><span className="side-copy"><strong>{leagueRow.title}</strong><small>{leagueRow.sub || t('loading')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>}
       <details className="side-row quests-fold">
-        <summary><span className="side-icon" aria-hidden="true"><Target size={20}/></span><span className="side-copy"><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>
+        <summary><span className="side-icon" aria-hidden="true"><RIcon name="target" size={30}/></span><span className="side-copy"><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>
         <DailyQuests date={date} sessions={sessions ?? []} t={t} compact onPick={pickQuest}/>
       </details>
     </aside>

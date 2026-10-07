@@ -1,0 +1,54 @@
+/*
+  Roviko 1.24 · icons — loaded after the trip layers. Only the icons change; the trip look stays as it is.
+  Every icon is a cartoon sticker from components/ds/RovikoIcons.tsx (flat colours, thick dark outline,
+  Roviko the globe). Game logos sit on a soft tile in their own colour. In dark mode each sticker gets a thin
+  light rim, so the dark outline still reads on a dark background (as a real sticker would).
+*/
+.r-icon{display:block;flex:0 0 auto;overflow:visible}
+[data-theme=dark] .r-icon{filter:drop-shadow(0 0 .6px rgba(233,243,238,.9)) drop-shadow(0 0 .6px rgba(233,243,238,.9))}
+
+/* ── Game logos: the sticker on its game-coloured tile ── */
+.game-icon{background:color-mix(in srgb,var(--g) 15%,#fff)!important;color:inherit!important}
+.game-icon>svg.game-logo{width:80%!important;height:80%!important}
+[data-theme=dark] .game-icon{background:color-mix(in srgb,var(--g) 34%,#1b2722)!important}
+/* Small round logos inside buttons and summaries keep their tile, slightly bigger drawing. */
+.daily-result .daily-result-next .game-icon svg,.next-discovery .nd-play .game-icon svg,.day-summary.is-screen .day-scores .game-icon svg{width:26px!important;height:26px!important}
+.daily-result .daily-result-next .game-icon,.next-discovery .nd-play .game-icon{background:#fff!important}
+@media (max-width:560px){.day-summary.is-screen .day-scores .game-icon svg{width:23px!important;height:23px!important}}
+.lobby-summary .t-pill .game-icon svg,.game-kicker .game-icon svg{width:22px!important;height:22px!important}
+
+/* ── Tab bar ── */
+.tabbar a .tab-icon{width:30px;height:30px;transition:transform 220ms cubic-bezier(.34,1.56,.64,1)}
+.tabbar a:not(.is-active) .tab-icon{filter:saturate(.7);opacity:.9}
+[data-theme=dark] .tabbar a:not(.is-active) .tab-icon{filter:saturate(.7) drop-shadow(0 0 .6px rgba(233,243,238,.9)) drop-shadow(0 0 .6px rgba(233,243,238,.9))}
+.tabbar a.is-active .tab-icon{transform:translateY(-1px) scale(1.06)}
+
+/* ── Menu ── */
+.app-menu-links .menu-icon{width:28px;height:28px}
+
+/* ── Multiplayer choices ── */
+.mp-choice-icon .r-icon{width:38px;height:38px}
+
+/* ── Rows on Passport, Account and Friends ── */
+.settings-card-row>.r-icon:first-child,.trip-page .settings-card-row>.r-icon.row-icon{box-sizing:content-box;width:28px!important;height:28px!important;padding:7px!important;border-radius:999px;background:var(--t-mint)!important}
+.mp-friends-head>.r-icon,.friends-v2 .r-icon{flex:0 0 auto}
+#invite-panel-title{display:flex;align-items:center;gap:8px}
+
+/* ── Home side rows and daily quests ── */
+.side-icon .r-icon{width:30px;height:30px}
+.side-icon:has(.r-icon){background:var(--t-mint)!important}
+.quests-badge .r-icon{width:34px;height:34px}
+.quest-icon:has(.r-icon){background:var(--t-mint)!important}
+.quest-icon .r-icon{width:30px;height:30px}
+.quest-chest .r-icon{width:24px;height:24px}
+.quest-crowned{display:flex;align-items:center;gap:8px}
+
+/* ── Achievements: earned stickers on a warm seal, the rest greyed out until you earn them ── */
+.badge-seal .r-icon{width:36px;height:36px}
+.badge.is-earned .badge-seal{background:color-mix(in srgb,var(--t-gold,#f6b84b) 30%,var(--t-card))!important}
+.badge:not(.is-earned) .badge-seal .r-icon,.badge:not(.is-earned) .badge-seal .game-icon{filter:grayscale(1);opacity:.45}
+.badge-seal .game-icon{background:none!important}
+.badge-seal .game-icon>svg.game-logo{width:100%!important;height:100%!important}
+
+@media (prefers-reduced-motion:reduce){.tabbar a .tab-icon{transition:none}.tabbar a.is-active .tab-icon{transform:none}}
+.state-icon>.r-icon{width:40px;height:40px}

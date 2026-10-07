@@ -1,7 +1,8 @@
 'use client';
 import { ProfileEditDialog } from './AccountPage';
+import { RIcon } from '../ds/RovikoIcons';
 import React, { useState, useSyncExternalStore } from 'react';
-import { ArrowRight, Award, BadgeCheck, Brain, CalendarCheck, Check, CircleCheckBig, Compass, Crown, Earth, Flame, Footprints, Gem, GraduationCap, Lightbulb, LockKeyhole, MapIcon, Medal, PartyPopper, Plane, Rocket, Settings2, Sparkles, Star, Sunrise, Target, Trophy, UserRound, Users, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Check, LockKeyhole, Settings2 } from 'lucide-react';
 import { plural } from '@/lib/plural';
 import { Progress } from '@/components/ui/progress';
 import { ACHIEVEMENTS } from '@/lib/achievements';
@@ -19,12 +20,12 @@ type Recent = { id: string; mode: string; created_at: number; multiplayer: numbe
 
 const crownsSnapshot = () => { try { const v = JSON.parse(localStorage.getItem('roviko:crowns') ?? '[]'); return Array.isArray(v) ? v.length : 0; } catch { return 0; } };
 const subscribeCrowns = (cb: () => void) => { window.addEventListener('roviko:progress', cb); window.addEventListener('storage', cb); return () => { window.removeEventListener('roviko:progress', cb); window.removeEventListener('storage', cb); }; };
-/** Every achievement has its own line icon (a collection should look like one); achievements for one game show that game's own logo. */
-const BADGE_ICON: Record<string, LucideIcon> = {
-  first: Footprints, games10: MapIcon, games50: Compass, games100: Plane, games500: Earth,
-  correct10: Lightbulb, correct100: Brain, correct1000: GraduationCap, xp500: Sparkles, xp2500: Star, xp10000: Rocket, xp50000: Crown,
-  streak5: Zap, streak10: Target, streak20: Medal, daily1: Sunrise, daily7: CalendarCheck, daily30: Flame,
-  win1: Trophy, win10: Award, win100: Gem, multi1: Users, multi25: PartyPopper, perfect1: CircleCheckBig, perfect10: BadgeCheck,
+/** Every achievement has its own Roviko sticker (components/ds/RovikoIcons.tsx); achievements for one game show that game's own logo. */
+const BADGE_ICON: Record<string, string> = {
+  first: 'footprints', games10: 'map', games50: 'compass', games100: 'plane', games500: 'earth',
+  correct10: 'lightbulb', correct100: 'brain', correct1000: 'graduation', xp500: 'sparkles', xp2500: 'star', xp10000: 'rocket', xp50000: 'crown',
+  streak5: 'zap', streak10: 'target', streak20: 'medal', daily1: 'sunrise', daily7: 'calendar', daily30: 'flame',
+  win1: 'trophy', win10: 'award', win100: 'gem', multi1: 'users', multi25: 'party', perfect1: 'checkCircle', perfect10: 'badgeCheck',
 };
 const GAME_METRICS = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
 
@@ -91,7 +92,7 @@ export function PassportPage() {
       <SectionHeader id="passport-achievements" title={t('passportAchievements')} action={<span className="muted">{s.achievements.length} / {ACHIEVEMENTS.length} {t('unlocked')}</span>}/>
       {(() => {
         const badge = (a: typeof ACHIEVEMENTS[number]) => { const earned = s.achievements.includes(a.id); return <div className={'badge' + (earned ? ' is-earned' : '')} key={a.id}>
-          <span className="badge-seal" aria-hidden="true">{GAME_METRICS.includes(a.metric) ? <GameIcon mode={a.metric} size="sm"/> : React.createElement(BADGE_ICON[a.id] ?? Sparkles, { size: 24, strokeWidth: 2.2 })}{!earned && <LockKeyhole size={12} className="badge-lock"/>}</span>
+          <span className="badge-seal" aria-hidden="true">{GAME_METRICS.includes(a.metric) ? <GameIcon mode={a.metric} size="sm"/> : <RIcon name={BADGE_ICON[a.id] ?? 'sparkles'} size={34}/>}{!earned && <LockKeyhole size={12} className="badge-lock"/>}</span>
           <strong>{a[L] ?? a.en}</strong>
           <small>{earned ? <><Check size={12} aria-hidden="true"/>{t('unlocked')}</> : goal(a.metric, a.target)}</small>
         </div>; };
@@ -111,8 +112,8 @@ export function PassportPage() {
 
     <section className="page-section" aria-label={t('passportSettings')}>
       <div className="settings-card">
-        <A href="/account" className="settings-card-row"><UserRound size={19} aria-hidden="true"/><span><strong>{t('accountAndPrivacy')}</strong><small>{t('accountAndPrivacyNote')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
-        <A href="/friends" className="settings-card-row"><Users size={19} aria-hidden="true"/><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
+        <A href="/account" className="settings-card-row"><RIcon name="account" size={32} className="row-icon"/><span><strong>{t('accountAndPrivacy')}</strong><small>{t('accountAndPrivacyNote')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
+        <A href="/friends" className="settings-card-row"><RIcon name="friends" size={32} className="row-icon"/><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
       </div>
     </section>
 

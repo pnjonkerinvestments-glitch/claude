@@ -139,7 +139,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
             {typeof feedback.distance === 'number' && <p>{t(feedback.mapRule === 'country-v1' ? 'mapBoundaryDistance' : 'mapDistanceExplanation').replace('{n}', feedback.distance.toLocaleString(locale))}</p>}
             <p className="fact">{feedback.fact[locale]}</p>
         </div>}
-        {feedback?.borderCountries && <Suspense fallback={<p>{t('loading')}</p>}><BorderMap ids={feedback.borderCountries} names={[q.country?.[locale] ?? '', feedback.answerLabel[locale]]} t={t}/></Suspense>}
+        {feedback?.borderCountries && <Suspense fallback={<p>{t('loading')}</p>}><BorderMap ids={feedback.borderCountries} names={[q.country?.[locale] ?? '', feedback.answerLabel[locale]]} picked={feedback.correct ? undefined : chosen ?? undefined} pickedName={feedback.correct ? undefined : pickedLabel} t={t}/></Suspense>}
         <button className="report-link" onClick={onReport}><Flag size={13}/>{t('report')}</button>
     </div>;
 }
