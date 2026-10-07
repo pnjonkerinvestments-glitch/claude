@@ -171,7 +171,8 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 .solo-next-row .save-status{color:var(--t-soft)}
 
 @media (prefers-reduced-motion:reduce){
-  .streak-pill .flame-mark,.coin-pill,.coin-pill .coin,.coin-gain,.q-card .peek,.q-card .peek .peek-head,.q-card .flag-stage img,.answer-option,.answer-option .answer-key{animation:none!important}
+  .coin-gain{display:none!important}
+  .streak-pill .flame-mark,.coin-pill,.coin-pill .coin,.q-card .peek,.q-card .peek .peek-head,.q-card .flag-stage img,.answer-option,.answer-option .answer-key{animation:none!important}
 }
 
 /* ───────── Solo game column: header, card and answers share one width ───────── */
@@ -210,3 +211,14 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 /* In the app (notch) the sticky game bar also covers the status-bar strip above it while scrolling. */
 @media (max-width:760px){.game-header.trip-top{box-shadow:0 -48px 0 16px var(--t-canvas)!important}}
 @media (min-width:761px){.game-header.trip-top{box-shadow:0 -24px 0 24px var(--t-canvas)!important}}
+
+/* Phones: the game bar sits at the very top, so the "+50" floats down from the coin pill instead of up. */
+@media (max-width:760px){
+  .coin-gain{top:auto;bottom:-12px;animation-name:t-float-down}
+}
+@keyframes t-float-down{0%{opacity:0;transform:translateY(-6px)}20%{opacity:1;transform:translateY(4px)}100%{opacity:0;transform:translateY(22px)}}
+
+/* Dark mode: Roviko's navy arms, legs and hands are light, so they stay visible on dark cards. */
+[data-theme=dark] .character :is(.character-legs path,.character-arm path){stroke:var(--t-soft)}
+[data-theme=dark] .character :is(.character-legs ellipse,.character-arm circle){fill:var(--t-soft)}
+[data-theme=dark] .peek .peek-hands{fill:var(--t-soft)}
