@@ -71,12 +71,14 @@ test('the promotion is applied when the player returns the next week', async () 
   assert.equal(now.members.length, 1); assert.equal(now.members[0].score, 400, 'only this week counts');
 });
 
-test('a saved daily result joins the league; a guest result never does', async () => {
-  const acc = await addUser('lg-rec'), g = await addUser('lg-rec-guest', true);
-  for (const u of [acc, g]) {
-    await db.prepare('INSERT INTO game_sessions(id,user_id,kind,date,state,completed,created_at) VALUES (?,?,?,?,?,1,?)').bind(u.id + ':s', u.id, 'daily', '2026-10-06', '{}', Date.now()).run();
-    await lib.recordCompetition(env, u, { id: u.id + ':s', daily: '2026-10-06', phase: 'finished', answers: Array.from({ length: 20 }, () => ({ correct: true, mode: 'flags' })), competition: { version: 1, mode: 'daily' } });
+test('a saved daily result joins the league; a guest result never does; an old week never does', async () => {
+  const today = new Date().toISOString().slice(0, 10), old = new Date(Date.now() - 14 * 86400000).toISOString().slice(0, 10);
+  const acc = await addUser('lg-rec'), g = await addUser('lg-rec-guest', true), late = await addUser('lg-rec-old');
+  for (const [u, date] of [[acc, today], [g, today], [late, old]]) {
+    await db.prepare('INSERT INTO game_sessions(id,user_id,kind,date,state,completed,created_at) VALUES (?,?,?,?,?,1,?)').bind(u.id + ':s', u.id, 'daily', date, '{}', Date.now()).run();
+    await lib.recordCompetition(env, u, { id: u.id + ':s', daily: date, phase: 'finished', answers: Array.from({ length: 20 }, () => ({ correct: true, mode: 'flags' })), competition: { version: 1, mode: 'daily' } });
   }
   assert.equal(Number((await db.prepare("SELECT COUNT(*) n FROM league_members WHERE user_id='lg-rec'").first()).n), 1);
   assert.equal(Number((await db.prepare("SELECT COUNT(*) n FROM league_members WHERE user_id='lg-rec-guest'").first()).n), 0);
+  assert.equal(Number((await db.prepare("SELECT COUNT(*) n FROM league_members WHERE user_id='lg-rec-old'").first()).n), 0, 'reopening an old game starts no past membership');
 });

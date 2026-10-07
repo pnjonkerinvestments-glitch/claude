@@ -12,7 +12,8 @@ export async function recordCompetition(env: Env, user: User, s: {id:string; dai
     SELECT ?,?,?,?,?,1,? WHERE EXISTS(SELECT 1 FROM game_sessions WHERE id=? AND user_id=? AND date=? AND completed=1)`,
     user.id,s.daily,s.competition.mode,s.id,dailyScore(s),Date.now(),s.id,user.id,s.daily);
   // Accounts join this week's league group with their first points of the week. Never blocks the saved result.
-  if (!user.guest) { try { await ensureLeague(env, user, s.daily); } catch { /* joins on the next visit instead */ } }
+  // Only this week's points join a league: reopening an old finished game must not start a membership for a past week.
+  if (!user.guest && weekStart(s.daily) === weekStart(new Date().toISOString().slice(0, 10))) { try { await ensureLeague(env, user, s.daily); } catch { /* joins on the next visit instead */ } }
 }
 type Scope = { date?: string; since?: string; mode?: string; userIds?: string[] };
 async function ranking(env: Env, user: User, scope: Scope = {}) {
