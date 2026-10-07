@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.24.0 (in ontwikkeling)
+## 1.24.0 (live sinds 7 oktober 2026; Size Shuffle dagspel vanaf 8 oktober)
 
 ### Dagelijkse Size Shuffle in plaats van Country Mosaic
 

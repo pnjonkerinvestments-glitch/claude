@@ -34,7 +34,7 @@ test('next daily resumes a started game first, then the first unplayed one, and 
   assert.equal(completedDailies(all), 6);
   assert.equal(completedDailies(all, ['rank', 'duel', 'compare', 'order', 'trail']), 5);
   // A day before the switch keeps Country Mosaic; its lineup is passed in.
-  const before = dayModesFor('2026-10-08');
+  const before = dayModesFor('2026-10-07');
   assert.equal(nextDailyMode([{ mode: 'rank', completed: true }, { mode: 'mosaic' }], before), 'mosaic');
   const old = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'].map(mode => ({ mode, completed: true }));
   assert.equal(nextDailyMode(old, before), null);

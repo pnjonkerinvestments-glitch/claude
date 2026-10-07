@@ -9,7 +9,7 @@ export * from './bonus';
  * The lineup is chosen per UTC date, so nobody ever gets seven daily games on the switch day: dates before it keep
  * Mosaic, this date and later get Size Shuffle. The lead sets it to the first UTC day after the release.
  */
-export const SHUFFLE_FROM = '2026-10-09';
+export const SHUFFLE_FROM = '2026-10-08';
 /** The five daily games from SHUFFLE_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
 export const DAILY_MODES = ['rank', 'duel', 'compare', 'order', 'trail'] as const;
 /** The five daily games before SHUFFLE_FROM (1.19–1.23): Country Mosaic in fourth place. */
