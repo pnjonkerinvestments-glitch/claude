@@ -14,10 +14,10 @@ const untilReset = () => 86400000 - Date.now() % 86400000 + 600;
  * Loads one daily endpoint for the signed-in (or guest) player, reloads it when the tab
  * becomes visible again and right after the 00:00 UTC reset.
  */
-function useDaily<T>(path: string, player: Player, deps: unknown[] = []) {
+function useDaily<T>(path: string, player: Player, deps: unknown[] = [], ready = true) {
   const [data, setData] = useState<T | null>(null), [error, setError] = useState(false), [reload, setReload] = useState(0);
   useEffect(() => {
-    if (!player.user.id) return;
+    if (!player.user.id || !ready) return;
     let active = true, version = 0, timer: ReturnType<typeof setTimeout>;
     const load = async () => {
       clearTimeout(timer); const mine = ++version;
@@ -29,14 +29,17 @@ function useDaily<T>(path: string, player: Player, deps: unknown[] = []) {
     load(); document.addEventListener('visibilitychange', visible);
     return () => { active = false; clearTimeout(timer); document.removeEventListener('visibilitychange', visible); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [player.user.id, path, reload, ...deps]);
+  }, [player.user.id, path, reload, ready, ...deps]);
   return { data, error, retry: () => setReload(n => n + 1) };
 }
 
 /** Today's five daily games and how far the player got with each. */
 export const useToday = (player: Player) => useDaily<TodayState>('/puzzles/today?competition=1', player);
-/** Today's points, all-time points and both rankings. */
-export const useCompetition = (player: Player, date?: string) => useDaily<CompetitionState>('/competition' + (date ? '?date=' + date : '?'), player, [date]);
+/** Today's points, all-time points and both rankings. `ready` false waits (e.g. until today's date is known, so the homepage asks once). */
+export const useCompetition = (player: Player, date?: string, ready = true) => useDaily<CompetitionState>('/competition' + (date ? '?date=' + date : '?'), player, [date], ready);
+
+/** This week's league group (accounts) or an invitation (guests). */
+export const useLeague = (player: Player) => useDaily<import('../atelier/League').LeagueState>('/league', player);
 
 /** "3h 42m" until the next daily games, in the page language. Null until mounted, so server and client agree. */
 export function useResetLabel(t: (key: string) => string) {

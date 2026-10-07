@@ -504,3 +504,94 @@ Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 
 **Geen migratie, geen nieuwe geheimen, geen API-wijziging.**
 
 Getest: zie `docs/QA_1_22.md`.
+
+## 1.23.0: spelgevoel, delen en een reden om morgen terug te komen (6–7 oktober 2026, live sinds 7 oktober)
+
+**Nieuwe migratie: `drizzle/0009_quiet_leagues.sql`** (alleen de tabel `league_members` met twee indexen; de deployworkflow past hem toe). Geen nieuwe geheimen. Nieuwe route `GET /api/league`. De puntentelling van dagspellen is niet veranderd. Cacheversie `roviko-shell-v1.23.0`, `/api/version` geeft `1.23.0`. De dataset-sleutel blijft `atlas-2026-09-25-r6`, zodat de dagpuzzels dezelfde landen houden. Plan en onderbouwing: `docs/VERBETERPLAN_1_23.md`. Tests: `docs/QA_1_23.md`.
+
+**Bugs**
+- **Hoofdsteden in het Nederlands.** "Vienna", "Lisbon" en "Warsaw" stonden als antwoorden in de Nederlandse versie. Nu Wenen, Lissabon, Warschau en de rest (`i18n/capitals-nl.ts`), in vragen, uitleg, Clue Trail, Mosaic en Ontdekken. Typantwoorden accepteren de Nederlandse, Engelse en Spaanse naam. Dagpuzzels die al in de database staan, krijgen de Nederlandse naam bij het tonen (`withSpanish` in `i18n/content.ts`); er wordt niets in de database veranderd.
+- **Eswatini** heette in het Nederlands nog Swaziland en in het Spaans Suazilandia; nu Eswatini en Esuatini. Hoofdsteden: Mbabane (bestuurlijk) en Lobamba (koninklijk en wetgevend).
+- **Bolivia:** La Paz telt als getypt antwoord.
+- **Wereldduel** maakte geluid terwijl geluid uit stond.
+- **Getallen** volgden de taal van het toestel in plaats van die van Roviko ("1,493" op een Nederlandse pagina).
+- **Enkelvoud:** "1 dagen", "1 spelers" en "1 aanwijzingen" zijn nu "1 dag", "1 speler" en "1 aanwijzing" (EN/NL/ES).
+- **De homepagekop** brak af als "aardrijkskunderei / s."; nu "aardrijkskunde- / reis.".
+- **Na een fout antwoord** viel op de telefoon het goede antwoord of de uitleg achter de vaste knop. Het scherm schuift nu precies genoeg.
+- **Country Mosaic** zei altijd "Perfect!", ook met 0 punten.
+- **Side by Side:** "Eén fout. Run voorbij." stond in een smal kolommetje naast de knop.
+- Kleinere: contrast van de copyrightregel (WCAG AA), een dubbel ranglijstverzoek op de homepage, plakkende hover-rand op touchschermen, `/api/version` stond nog op 1.21.0.
+
+**Spelgevoel**
+- Warme, afwisselende koppen na een antwoord ("Top!", "Net niet!", "4 op rij!", "Bijna! 240 km ernaast") en eindkoppen naar je score ("Wereldklasse!", "Sterk gespeeld!", "Mooie reis!", "Morgen weer een kans!").
+- Geluid: een stijgend toontje bij goede antwoorden op rij en een fanfare op het eindscherm. In de app staat geluid standaard aan.
+- **Trillen in de app** (Capacitor Haptics, zat al in de app maar werd niet gebruikt): bij goed, fout en het einde. Uit te zetten in Instellingen.
+- Het antwoord en de kop springen even op; uit bij `prefers-reduced-motion`.
+- Enter of spatie gaat naar de volgende vraag.
+
+**Terugkomen en delen**
+- **Reeksmoment:** na het eerste dagspel van de dag een kort scherm met de vlam, "5 dagen op rij!", je week en hoe ver het volgende reeksschild is.
+- **Deeltekst als Wordle:** "Roviko #12 · Dagelijkse Omweg", 🟩🟥-vierkantjes, je punten en je reeks.
+- **Deelbeeld:** op telefoons gaat er een afbeelding mee in het deelmenu (in de browser getekend, geen server).
+- **Uitdaging:** wie een gedeelde link opent, ziet "Een vriend haalde 820 punten in Dagelijkse Omweg" en "Kun jij het beter?" met één knop.
+- "Beter dan 0% van de spelers" is "Iedereen begint ergens. Morgen een nieuwe kans!".
+
+**Eerste bezoek**
+- Taal en licht/donker volgen het toestel, tot je zelf iets kiest.
+
+**Snelheid**
+- Het logo in de kop is 10 KB in plaats van 35 KB; de homepage doet één ranglijstverzoek minder.
+
+**Bestanden:** nieuw `lib/feel-copy.ts`, `lib/haptics.ts`, `lib/plural.ts`, `lib/share-image.ts`, `i18n/v123.ts`, `i18n/capitals-nl.ts`, `components/ds/StreakMoment.tsx`, `components/home/ChallengeBanner.tsx`, `tests/v123.test.mjs`. CSS in `app/stage.css` (onderaan, gemarkeerd met 1.23).
+
+### Tweede deel: overzichtelijker, Multiplayer zoals het ontwerp, weekgroepen (keuzes van de eigenaar, 6 oktober)
+
+**Homepage, rustig.** Roviko in de ring met één knop en drie tellers; daaronder "Vandaag" als korte lijst van zes spellen en één kolom met de weekgroep (of de ranglijst voor gasten) en de dagdoelen (ingeklapt). Bonustour en Overleven pas na 6/6. Weg van de homepage: "Meer ontdekken", het weekblok, de puntenregel, de detourregel en de uitleglink. Kortere kop: "Elke dag een kleine wereldreis."
+
+**Multiplayer zoals het ontwerp van de eigenaar.**
+- De tab is één kaart: vijf Roviko-vrienden bij een meer (vector), "Samen spelen", drie keuzes (met vrienden, willekeurige speler, tegen de computer) en de kamercode.
+- De wachtkamer: "Kamer K7QMA", 1/12, "Jij bent host · tot 12 spelers", rondes en niveau als pillen, de spelers als ronde avatars met kroon voor de host, één grote knop. Spelsoort, tijd en regio onder "Meer instellingen".
+- Avatars zijn wereldbolletjes met een accessoire (zonnebril, muts, bloem, pet, bril, koptelefoon, safarihoed; de computer is een robotje) in plaats van emoji.
+- Opgelost: de moeilijkheid "Gemengd" heette "Rond de Wereld"; "room" heet in het Nederlands overal "kamer".
+
+**Weekcompetitie in groepen (alleen accounts).** Elke week groepen van maximaal 20 binnen Brons, Zilver, Goud, Smaragd of Diamant. Top 5 stijgt, onderste 5 daalt (groepen vanaf 10). Telt de gewone dagpunten van die week. Op de homepage één regel ("Bronsgroep · #4 van 20 · nog 3 dagen"), op de ranglijst een groepskaart met promotie- en degradatiezone. Gasten zien een uitnodiging.
+
+**Verder.**
+- Eerste bezoek: één welkomstkaart met "Speel je eerste vraag" in plaats van de rondleiding (die blijft in het menu).
+- Dagoverzicht na het zesde dagspel met "Deel je dag"; een gedeelde dag opent als uitdaging.
+- Alle spellen: bonustour, overleven en oefenen achter tabs. Paspoort: minder tegelijk.
+- Schone kleuren: paarse en blauwe interface-accenten (vastgezet antwoord, Mosaic, Clue Trail, ranglijsttabs, schildje) zijn merkgroen.
+- Belarus in plaats van Wit-Rusland (keuze van de eigenaar), ook in al opgeslagen puzzels.
+- Sri Lanka had in de bron een landgrens met India; die is weg. Gevonden door de nieuwe datacontrole `tests/data-sanity.test.mjs`.
+- Account- en instellingenpagina laden pas als je ze opent. Twee ongebruikte illustraties verwijderd.
+
+**Tests:** 166/166. Nieuw: `tests/v123.test.mjs` (10), `tests/league.test.mjs` (5, echte D1), `tests/data-sanity.test.mjs` (2). Aangepast aan bewuste wijzigingen: de deeltekst (`rank.test`, `reliability.test`), de feedbackkoppen (`learning-ui.test`) en de homepage (`rendered-html.test`).
+
+### Derde deel: de trip-stijl naar de voorbeelden van de eigenaar (7 oktober)
+
+De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vijf voorbeelden: een spelscherm met vlag, een kaartvraag, een multiplayerronde, de multiplayeruitslag en een eindscherm. Alles volgt nu die stijl. Spelregels, punten, tijden en wat de server stuurt zijn niet veranderd.
+
+**De basis (`app/trip.css`).** Crème achtergrond zonder kleurhalo's, witte afgeronde kaarten, koppen in donkergroen, knoppen als donkergroene pillen. Bovenaan elke pagina een gouden reekspil ("🔥 7 dagen reeks"; zonder reeks "Begin je reeks"); op de telefoon logo links, pil in het midden, menu rechts. De zwevende tabbalk heeft een mintgroene pil voor de pagina waar je bent.
+
+**Spelen.** Elk spel heeft dezelfde bovenbalk: een rond sluitkruisje, een dunne voortgangsbalk en een witte pil met een gouden munt en je punten. Die pil wipt op en toont "+50" als er punten bijkomen. De vraag staat op een witte kaart met een groen regeltje ("Dagelijkse Omweg · 1/20") en een grote vraag; Roviko gluurt over de rand, kijkt vrolijk, juicht bij goed en schrikt bij fout. Vlaggen staan groot met een schaduw op de kaart. Antwoorden zijn mintgroene pillen over de hele breedte, zonder cijferbolletje (toetsen 1–4 werken nog); goed wordt donkergroen met ✓, een fout gekozen antwoord zacht rood met ✗. Kaarten staan in een lichtblauwe kaart. Na een antwoord één compacte witte kaart met de kop, gouden punten en het weetje. De regels staan achter de ?-knop, ook op desktop.
+
+**Dagspellen met een eigen scherm.** Rank Radar, Wereldduel, Side by Side, Country Mosaic, Clue Trail, Overleven, Size Shuffle en getypte hoofdsteden zijn één familie met de vraagkaart: witte kaart met Roviko, mintgroene keuzes, donkergroen voor gekozen en goed, zacht rood voor fout, gouden "+67 pt" bij punten. Bij het Wereldduel is het overzicht per land op het eindscherm ingeklapt. Mosaic past op 320 px, ook met lange Spaanse en Nederlandse woorden. De oude Rank Radar van vóór 1.21 (alleen nog voor opgeslagen spellen) ziet er hetzelfde uit.
+
+**Eindschermen.** Geen gekleurd podium meer, maar Roviko groot op crème, de kop in donkergroen, je punten met een munt, je antwoorden als stipjes, daaronder één witte kaart met je plek en één knop "Volgende: <spel>" met het spellogo. Delen en Klaar zijn rustige tekstknoppen. Na het zesde spel: "Mooie reis. Morgen weer?", je dagtotaal van 6.000, je plek, de zes spellen met punten, een knop "Bonustour" en een omlijnde knop "Daag een vriend uit". Het reeksmoment heeft een gouden vlam, je aantal dagen en de week als stipjes. Na een lage score staat er "Elke reis telt!" in plaats van "Morgen weer een kans!" (er staan dan vaak nog spellen klaar).
+
+**Multiplayer.** Een ronde: sluitkruisje, voortgang, een tijdpil (rood onder 6 seconden) en je punten; op de vraagkaart "RONDE 1/10 · GEMIDDELD" met een stipje per ronde; na de onthulling staan de avatars van de spelers op het antwoord dat ze kozen en krijg je je punten als gouden pil. De tussenstand is een witte kaart (op desktop ernaast, op de telefoon compact). De uitslag: alle avatars bovenaan, "EINDSTAND · 10 RONDES", "Jij wint!" of je plaats, "1e van 12 spelers", je punten, een juichende Roviko boven een podium (goud in het midden, mint links, crème rechts) en "Nog een keer". De terugblik per ronde en alle spelers zijn ingeklapt. De Multiplayer-tab, het zoeken naar een tegenstander en de wachtkamer volgen dezelfde stijl; gasten in de wachtkamer zien de instellingen als vaste pillen.
+
+**Homepage.** Geen donkergroen blok meer: Roviko zwaait met een tekstballon, de kop, één knop ("Begin de reis van vandaag" of "Verder: <spel>"). Daaronder "Reis van vandaag": één witte kaart met de resettijd, zes balkjes, de zes spellen als route (vinkje en punten met munt bij gespeelde spellen, "Speel" bij het volgende). Daarnaast de weekgroep of ranglijst en de dagdoelen. Een gedeelde uitdaging staat in de tekstballon. Alle spellen (`/daily`) heeft dezelfde kop en kaarten.
+
+**Overige pagina's.** Ontdekken, Paspoort, Ranglijst, Instellingen, Account, Vrienden, Uitleg, Punten, privacy/voorwaarden/bronnen, de quizpagina's en 404: lichte paginakop met een klein label, een grote donkergroene titel en één korte regel, witte kaarten, tabs met een mintgroene pil. Het aanmeldvenster heeft een zwaaiende Roviko. Paspoort: elk van de 30 prestaties een eigen icoon (spellen met hun logo), en de doelen staan er goed ("10 spellen gespeeld" in plaats van "1 Games played"). Lege blokken zijn verborgen.
+
+**Fouten gevonden en opgelost.**
+- De puntenuitleg (`/scoring` en de notities in spellen) beschreef Rank Radar en Side by Side nog zoals vóór 1.21 (zes landen, tien vergelijkingen). Nu: acht landen tot 125 punten, en vijftien vergelijkingen waarbij de eerste fout stopt.
+- Nederlands: overal "kamer" in plaats van "room" ("Gewonnen kamers", "Kopieer kamercode").
+- Schakelaars staken uit hun baan als ze aan stonden; dialoogtitels liepen onder het sluitkruisje.
+- Multiplayeruitslag met precies 1 punt toonde "1 1 punt"; de knop naar huis heette in het Spaans hetzelfde als opnieuw spelen.
+- In donker waren Roviko's armen en benen bijna onzichtbaar.
+
+**Bestanden.** Nieuw: `app/trip.css`, `app/trip-home.css`, `trip-puzzles.css`, `trip-mp.css`, `trip-finish.css`, `trip-pages.css`, `i18n/trip.ts`, `components/ds/Coin.tsx` (munt, muntpil, vlam), `components/multiplayer/Live.tsx`, `components/multiplayer/MatchResults.tsx`. `Peek` in `components/ds/Character.tsx`. Aangepast: `GameHeader`, `Question`, de eindschermen, de homepage, de dagspellen en de pagina's. Geen nieuwe migratie, geen nieuwe afbeeldingen.
+
+**Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).

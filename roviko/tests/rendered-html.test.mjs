@@ -29,30 +29,29 @@ test("renders the playable branded homepage before hydration", async () => {
   const html = await response.text();
   assert.match(html, /<title>Roviko/);
   assert.doesNotMatch(html, /codex-preview/);
-  // The hero: heading, one primary action (the Daily Detour), the globe with one arc per scored game, and the streak.
-  assert.match(html, /Your daily trip/);
-  assert.match(html, /Where shall we go today\?/);
+  // The calm trip hero (1.23 trip style): one heading, one primary action (the Daily Detour) and Roviko waving.
+  // The streak sits in the gold pill of the site header (after boot), so the hero does not repeat it.
   assert.equal((html.match(/<h1/g)||[]).length, 1);
+  assert.match(html, /A small geography trip/);
   assert.match(html, /Start today(&#x27;|’|')s trip/);
   assert.match(html, /class="character pose-wave mood-happy[^"]*hero-character/);
-  assert.equal((html.match(/class="hero-ring-arc /g)||[]).length, 6);
-  assert.match(html, /20 mixed questions/);
-  assert.match(html, /class="hero-stat stat-streak/);
-  assert.match(html, /Day streak|day streak/i);
-  // Today's trip: the Daily Detour and the five daily games as stops, in the official order.
-  assert.match(html, /Six stops, up to 6,000 points/);
-  assert.equal((html.match(/class="tstop /g)||[]).length, 6);
-  const trip=html.slice(html.indexOf('Six stops, up to 6,000 points'));
+  // Today's trip: one segment per scored game and a readable "0/6 today" line for screen readers.
+  const segs = html.slice(html.indexOf('class="th-segs"'), html.indexOf('</ol>', html.indexOf('class="th-segs"')));
+  assert.equal((segs.match(/<li /g)||[]).length, 6);
+  assert.match(html, /0\/6 today/);
+  // Today: the Daily Detour and the five daily games as one short list, in the official order.
+  assert.equal((html.match(/class="today-row /g)||[]).length, 6);
+  const trip=html.slice(html.indexOf('class="today-list"'));
   const order=['Daily Detour','Rank Radar','World Duel','Side by Side','Country Mosaic','Daily Clue Trail'].map(n=>trip.indexOf(n));
-  assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'stops in order');
-  // Reasons to come back: quests and the week with the streak shield are visible on the homepage.
+  assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'games in order');
+  // One side column: the rankings and the daily quests (folded), and a way to all games.
   assert.match(html, /Daily quests/);
-  assert.match(html, /class="motivation-week[ "]/);
-  assert.match(html, /How scoring works/);
-  // More to explore: exactly three secondary cards and a way to all games.
-  assert.equal((html.match(/class="game-card game-card-/g)||[]).length, 3);
+  assert.match(html, /class="side-row quests-fold"/);
+  assert.match(html, /href="\/leaderboard"/);
   assert.match(html, /href="\/daily"/);
-  // Friends and rooms live in their own tab; the homepage stays short.
+  // Calm: no extra card rows, week panel or bonus blocks before the six games are done.
+  assert.doesNotMatch(html, /class="game-card game-card-/);
+  assert.doesNotMatch(html, /class="motivation-week[ "]/);
   assert.doesNotMatch(html, /class="together"/);
   // No rules or formulas on the homepage.
   assert.doesNotMatch(html, /Your daily scorecard/);

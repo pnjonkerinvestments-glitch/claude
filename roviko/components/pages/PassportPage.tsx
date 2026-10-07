@@ -1,7 +1,8 @@
 'use client';
 import { ProfileEditDialog } from './AccountPage';
 import React, { useState, useSyncExternalStore } from 'react';
-import { ArrowRight, Check, LockKeyhole, Settings2, UserRound, Users } from 'lucide-react';
+import { ArrowRight, Award, BadgeCheck, Brain, CalendarCheck, Check, CircleCheckBig, Compass, Crown, Earth, Flame, Footprints, Gem, GraduationCap, Lightbulb, LockKeyhole, MapIcon, Medal, PartyPopper, Plane, Rocket, Settings2, Sparkles, Star, Sunrise, Target, Trophy, UserRound, Users, Zap, type LucideIcon } from 'lucide-react';
+import { plural } from '@/lib/plural';
 import { Progress } from '@/components/ui/progress';
 import { ACHIEVEMENTS } from '@/lib/achievements';
 import { DEFAULT_SETTINGS } from '@/lib/config';
@@ -10,15 +11,22 @@ import type { Locale } from '@/i18n/messages';
 import { useApp } from '../app/context';
 import { A, Avatar, ModeEmoji } from '../app/shared';
 import { PassportCollection } from '../atelier/PassportCollection';
-import { EmptyState, PageHeader, SectionHeader } from '../ds/States';
+import { GameIcon } from '../atelier/GameIcon';
+import { PageHeader, SectionHeader } from '../ds/States';
 
 type Review = { key: string; country_id: string; mode: string; content: { country?: { flag?: string; name?: Record<string, string> }; countries?: { id: string; name: Record<string, string> }[]; answerLabel?: Record<string, string>; fact?: Record<string, string>; topic?: { label: Record<string, string>; explanation: Record<string, string> } } };
 type Recent = { id: string; mode: string; created_at: number; multiplayer: number | boolean; score: number; correct: number; total: number };
 
 const crownsSnapshot = () => { try { const v = JSON.parse(localStorage.getItem('roviko:crowns') ?? '[]'); return Array.isArray(v) ? v.length : 0; } catch { return 0; } };
 const subscribeCrowns = (cb: () => void) => { window.addEventListener('roviko:progress', cb); window.addEventListener('storage', cb); return () => { window.removeEventListener('roviko:progress', cb); window.removeEventListener('storage', cb); }; };
-const METRIC_KEYS: Record<string, string> = { games: 'gamesPlayed', correct: 'correctAnswer', xp: 'xp', bestStreak: 'streak', dailyCount: 'daily', dailyStreak: 'dailyStreak', wins: 'wins', multiGames: 'multiplayer', perfect: 'perfect' };
-const BADGES = ['🧭', '🏔️', '⭐', '🚩', '🏆', '☀️'];
+/** Every achievement has its own line icon (a collection should look like one); achievements for one game show that game's own logo. */
+const BADGE_ICON: Record<string, LucideIcon> = {
+  first: Footprints, games10: MapIcon, games50: Compass, games100: Plane, games500: Earth,
+  correct10: Lightbulb, correct100: Brain, correct1000: GraduationCap, xp500: Sparkles, xp2500: Star, xp10000: Rocket, xp50000: Crown,
+  streak5: Zap, streak10: Target, streak20: Medal, daily1: Sunrise, daily7: CalendarCheck, daily30: Flame,
+  win1: Trophy, win10: Award, win100: Gem, multi1: Users, multi25: PartyPopper, perfect1: CircleCheckBig, perfect10: BadgeCheck,
+};
+const GAME_METRICS = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
 
 /** One number in the travel log. */
 function PassportStat({ value, label }: { value: React.ReactNode; label: string }) {
@@ -36,8 +44,12 @@ export function PassportPage() {
   const reviews: Review[] = s.reviews ?? [];
   const recent: Recent[] = s.recent ?? [];
   const L = locale as Locale;
+  /** What an achievement still asks for, e.g. "10 games played" or "10 games of Flag Signal". */
+  const goal = (metric: string, n: number) => GAME_METRICS.includes(metric)
+    ? plural(t, 'pgGoal_mode', n, '{n}', n.toLocaleString(locale)).replace('{game}', t(metric))
+    : plural(t, 'pgGoal_' + metric, n, '{n}', n.toLocaleString(locale));
 
-  return <div className="page passport">
+  return <div className="page passport trip-page">
     <PageHeader art="spot-world-trip" kicker={t('passportKicker')} title={t('passportTitle')} lead={t('passportSub')}/>
 
     <section className={'passport-cover' + (u.guest ? ' is-guest' : '')} aria-label={t('navPassport')}>
@@ -59,46 +71,45 @@ export function PassportPage() {
         <PassportStat value={crowns} label={t('statCrowns')}/>
       </div>
       {u.guest && <div className="passport-save">
-        <div><h3>{t('passportGuestTitle')}</h3><p>{t('passportGuestCopy')}</p></div>
-        <div className="passport-save-actions"><button className="btn gold" onClick={() => setModal('signup')}>{t('passportSave')}<ArrowRight size={18} aria-hidden="true"/></button><button className="text-link on-dark" onClick={() => setModal('login')}>{t('signIn')}</button></div>
+        <div><h3>{t('passportGuestTitle')}</h3><p>{t('pgPassportSave')}</p></div>
+        <div className="passport-save-actions"><button className="btn primary" onClick={() => setModal('signup')}>{t('passportSave')}<ArrowRight size={18} aria-hidden="true"/></button><button className="text-link on-dark" onClick={() => setModal('login')}>{t('signIn')}</button></div>
       </div>}
     </section>
 
     <PassportCollection stats={s} t={t} locale={locale} go={go} onStart={() => start({ ...DEFAULT_SETTINGS, mode: 'flags', count: 5 })}/>
 
-    <section className="page-section" aria-labelledby="passport-review">
-      <SectionHeader id="passport-review" title={t('reviewKnowledge')} action={reviews.length > 0 && <button className="text-link" onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed' }, true)}>{t('reviewCardCta')}<ArrowRight size={16} aria-hidden="true"/></button>}/>
-      {reviews.length ? <div className="review-grid">{reviews.slice(0, 6).map(r => <article className="review-tile" key={r.key}>
+    {reviews.length > 0 && <section className="page-section" aria-labelledby="passport-review">
+      <SectionHeader id="passport-review" title={t('reviewKnowledge')} action={<button className="text-link" onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed' }, true)}>{t('reviewCardCta')}<ArrowRight size={16} aria-hidden="true"/></button>}/>
+      <div className="review-grid">{reviews.slice(0, 3).map(r => <article className="review-tile" key={r.key}>
         {r.content.country?.flag && <img src={r.content.country.flag} alt="" width={40} height={28}/>}
         <div><strong>{r.content.country?.name?.[L] ?? r.content.countries?.find(c => c.id === r.country_id)?.name?.[L] ?? r.content.answerLabel?.[L] ?? r.country_id}</strong><small>{t(r.mode)}{r.content.topic && ' · ' + r.content.topic.label[L]}</small></div>
         <button className="btn secondary" onClick={async () => { try { const game = await post('/practice/' + encodeURIComponent(r.key)); go(game.href); } catch (e) { fail(e); } }}>{t('reviewAgain')}</button>
-      </article>)}</div> : <div className="soft-note"><p>{t('emptyPractice')}</p></div>}
-    </section>
+      </article>)}</div>
+    </section>}
 
     <section className="page-section" aria-labelledby="passport-achievements">
       <SectionHeader id="passport-achievements" title={t('passportAchievements')} action={<span className="muted">{s.achievements.length} / {ACHIEVEMENTS.length} {t('unlocked')}</span>}/>
       {(() => {
-        const badge = (a: typeof ACHIEVEMENTS[number]) => { const i = ACHIEVEMENTS.indexOf(a), earned = s.achievements.includes(a.id); return <div className={'badge' + (earned ? ' is-earned' : '')} key={a.id}>
-          <span className="badge-seal" aria-hidden="true">{BADGES[i % 6]}{!earned && <LockKeyhole size={12} className="badge-lock"/>}</span>
+        const badge = (a: typeof ACHIEVEMENTS[number]) => { const earned = s.achievements.includes(a.id); return <div className={'badge' + (earned ? ' is-earned' : '')} key={a.id}>
+          <span className="badge-seal" aria-hidden="true">{GAME_METRICS.includes(a.metric) ? <GameIcon mode={a.metric} size="sm"/> : React.createElement(BADGE_ICON[a.id] ?? Sparkles, { size: 24, strokeWidth: 2.2 })}{!earned && <LockKeyhole size={12} className="badge-lock"/>}</span>
           <strong>{a[L] ?? a.en}</strong>
-          <small>{earned ? <><Check size={12} aria-hidden="true"/>{t('unlocked')}</> : a.target + ' ' + t(METRIC_KEYS[a.metric] ?? a.metric)}</small>
+          <small>{earned ? <><Check size={12} aria-hidden="true"/>{t('unlocked')}</> : goal(a.metric, a.target)}</small>
         </div>; };
         const sorted = [...ACHIEVEMENTS].sort((a, b) => Number(s.achievements.includes(b.id)) - Number(s.achievements.includes(a.id)));
-        return <><div className="badge-grid">{sorted.slice(0, 12).map(badge)}</div>
-          {sorted.length > 12 && <details className="badge-more"><summary>{t('showAll')} ({sorted.length - 12})</summary><div className="badge-grid">{sorted.slice(12).map(badge)}</div></details>}</>;
+        return <><div className="badge-grid">{sorted.slice(0, 6).map(badge)}</div>
+          {sorted.length > 6 && <details className="badge-more"><summary>{t('showAll')} ({sorted.length - 6})</summary><div className="badge-grid">{sorted.slice(6).map(badge)}</div></details>}</>;
       })()}
     </section>
 
-    <section className="page-section" aria-labelledby="passport-recent">
+    {recent.length > 0 && <section className="page-section" aria-labelledby="passport-recent">
       <SectionHeader id="passport-recent" title={t('recentGames')}/>
-      {recent.length ? <ul className="recent-list">{recent.map(g => <li key={g.id}>
+      <ul className="recent-list">{recent.slice(0, 4).map(g => <li key={g.id}>
         <ModeEmoji mode={g.mode}/><div><strong>{t(g.mode)}</strong><small>{new Date(g.created_at).toLocaleDateString(locale)} · {t(g.multiplayer ? 'multiplayer' : 'soloLearning')}</small></div>
         <b>{g.multiplayer ? formatScore(g.score) + ' ' + t('points') : `${g.correct}/${g.total}`}</b>
-      </li>)}</ul> : <EmptyState title={t('noGames')} copy={t('exploreRecentEmpty')}><A href="/" className="btn primary">{t('tripStart')}</A></EmptyState>}
-    </section>
+      </li>)}</ul>
+    </section>}
 
-    <section className="page-section" aria-labelledby="passport-account">
-      <SectionHeader id="passport-account" title={t('passportSettings')}/>
+    <section className="page-section" aria-label={t('passportSettings')}>
       <div className="settings-card">
         <A href="/account" className="settings-card-row"><UserRound size={19} aria-hidden="true"/><span><strong>{t('accountAndPrivacy')}</strong><small>{t('accountAndPrivacyNote')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>
         <A href="/friends" className="settings-card-row"><Users size={19} aria-hidden="true"/><span><strong>{t('friendsList')}</strong><small>{t('friendsListCopy')}</small></span><ArrowRight size={17} aria-hidden="true"/></A>

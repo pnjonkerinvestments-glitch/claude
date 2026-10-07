@@ -1,4 +1,5 @@
 'use client';
+import { plural } from '@/lib/plural';
 import { useEffect, useState } from 'react';
 import { Trophy, RefreshCw } from 'lucide-react';
 import { api } from '@/lib/client';
@@ -26,7 +27,7 @@ export function CompetitionPanel({app,date,mode}:{app:any;date?:string;mode?:Poi
     if(!date)timer=setTimeout(load,86400000-Date.now()%86400000+700);
     return()=>{active=false;clearTimeout(timer);document.removeEventListener('visibilitychange',visible);};
   },[boot.user.id,date,mode,reload]);
-  const rank=(r:any)=>r?.place?t('competitionRank').replace('{rank}',r.place.toLocaleString(locale)).replace('{count}',r.participants.toLocaleString(locale)):t('competitionNoRank');
+  const rank=(r:any)=>r?.place?plural(t,'competitionRank',r.participants,'{count}',r.participants.toLocaleString(locale)).replace('{rank}',r.place.toLocaleString(locale)):t('competitionNoRank');
   const fmt=(n:number)=>n.toLocaleString(locale);
   const standings=data?.[tab];
   const {data:today}=useToday(mode?boot:{user:{id:''}});
@@ -36,13 +37,13 @@ export function CompetitionPanel({app,date,mode}:{app:any;date?:string;mode?:Poi
   const previousBest:number|undefined=mode?data?.personalBest?.[mode]?.best:undefined;
   // A personal best only exists once there is an earlier result to beat.
   const isBest=!!mode&&!!data?.game&&previousBest!==undefined&&data.game.score>previousBest;
-  const stages:Stage[]=mode&&data?.game?[...(data.game.score>0?[{key:'points' as const,text:t('celebratePoints').replace('{n}',fmt(data.game.score))}]:[]),...(isBest?[{key:'best' as const,text:t('celebrateBest')}]:[]),...(streak>0?[{key:'streak' as const,text:t('celebrateStreak').replace('{n}',String(streak))}]:[]),...(questDone?[{key:'quest' as const,text:t('celebrateQuest')}]:[])]:[];
+  const stages:Stage[]=mode&&data?.game?[...(data.game.score>0?[{key:'points' as const,text:t('celebratePoints').replace('{n}',fmt(data.game.score))}]:[]),...(isBest?[{key:'best' as const,text:t('celebrateBest')}]:[]),...(streak>0?[{key:'streak' as const,text:plural(t,'celebrateStreak',streak)}]:[]),...(questDone?[{key:'quest' as const,text:t('celebrateQuest')}]:[])]:[];
   return <section className={'competition-panel'+(mode?' competition-result':'')} aria-label={t(mode?'competitionGame':'competitionTitle')}>
     <header><span className="competition-medal" aria-hidden="true"><Trophy size={22} strokeWidth={2.2}/></span><div><h2>{t(mode?'competitionScoreSaved':'competitionTitle')}</h2><p>{mode?t(titles[mode]):t('competitionIntro')}</p></div><button className="icon-btn" disabled={loading} aria-label={t('competitionRefresh')} onClick={()=>setReload(n=>n+1)}><RefreshCw size={17}/></button></header>
     {error&&<p role="alert">{t('competitionLoadError')}</p>}
     {!data&&!error&&<p role="status">{t('loading')}</p>}
     {data&&<>
-      {mode&&data.game&&<Celebration stages={stages} points={data.game.score} format={fmt}/>}{mode&&data.game&&<div className="competition-game-result"><strong>{fmt(data.game.score)}<small> / {fmt(1000)}</small></strong><b>{rank(data.game)}</b><p>{t('competitionParticipants').replace('{count}',fmt(data.game.participants))}</p>{previousBest!==undefined&&<p className="previous-best">{t(isBest?'bestBeaten':'bestPrevious').replace('{n}',fmt(previousBest))}</p>}</div>}
+      {mode&&data.game&&<Celebration stages={stages} points={data.game.score} format={fmt}/>}{mode&&data.game&&<div className="competition-game-result"><strong>{fmt(data.game.score)}<small> / {fmt(1000)}</small></strong><b>{rank(data.game)}</b><p>{plural(t,'competitionParticipants',data.game.participants,'{count}',fmt(data.game.participants))}</p>{previousBest!==undefined&&<p className="previous-best">{t(isBest?'bestBeaten':'bestPrevious').replace('{n}',fmt(previousBest))}</p>}</div>}
       <div className="competition-totals">{(['today','total'] as const).map(key=><div key={key}><span>{t(key==='today'?'competitionToday':'competitionAllTime')}</span><strong>{fmt(data[key].score)}{key==='today'&&<small> / {fmt(data.maxPerDay)}</small>}</strong><p>{rank(data[key])}</p></div>)}</div>
       {!mode&&<div className="competition-stamps">{(['daily','rank','duel','compare','mosaic','trail'] as PointMode[]).map(m=>{const result=data.scores.find((s:any)=>s.mode===m);return <div key={m} className={result?'is-scored':''}><span>{t(titles[m])}</span><b>{result?fmt(result.score):'—'}<small> / {fmt(1000)}</small></b></div>;})}</div>}
       <details className="competition-standings"><summary>{t('competitionLeaderboard')}</summary><div className="competition-tabs" role="group" aria-label={t('competitionLeaderboard')}><button aria-pressed={tab==='today'} onClick={()=>setTab('today')}>{t('competitionLeaderboard')}</button><button aria-pressed={tab==='total'} onClick={()=>setTab('total')}>{t('competitionTotalLeaders')}</button></div><ol>{standings.leaders.map((p:any,i:number)=><li key={i} className={p.me?'is-me':''}><b>#{p.place}</b><span>{p.me?t('competitionYou'):p.name}</span><strong>{fmt(p.score)}</strong></li>)}</ol>{!standings.leaders.length&&<p>{t('competitionNoRank')}</p>}<p>{t('competitionTies')}</p></details>

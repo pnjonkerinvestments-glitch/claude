@@ -48,7 +48,7 @@ export function EmptyState({ title, copy, icon: Icon = Compass, art, children, c
 /** Something went wrong: human words, a retry and a way back. */
 export function ErrorState({ title, copy, onRetry, retryLabel, children }: { title: React.ReactNode; copy?: React.ReactNode; onRetry?: () => void; retryLabel?: string; children?: React.ReactNode }) {
   return <div className="state state-error" role="alert">
-    <span className="state-icon" aria-hidden="true"><img src="/globe-logo.webp" alt="" width={56} height={56} className="state-globe"/></span>
+    <Character mood="worried" pose="shrug" size={132} className="state-character"/>
     <h2 className="state-title">{title}</h2>
     {copy && <p className="state-copy">{copy}</p>}
     <div className="state-actions">{onRetry && <button className="btn primary" onClick={onRetry}>{retryLabel}</button>}{children}</div>
@@ -69,8 +69,9 @@ const STAGE: Record<string, [CharacterMood, CharacterPose]> = {
   'explore-hero': ['curious', 'point'], 'spot-rank-radar': ['cool', 'hips'], 'scoring-hero': ['cheer', 'cheer'], 'friends-hero': ['cheer', 'cheer'],
 };
 /**
- * Page title block as a scene from the videos (1.22): a forest-green stage with the kicker pill, the H1 in white,
- * one calm sentence and Roviko in a pose that fits the page. `back` adds a quiet "Back" pill for pages outside the tab bar.
+ * Page title block (1.23 trip style, app/trip-pages.css): on the cream canvas a small green kicker, the big forest
+ * title, at most one short line and Roviko in a pose that fits the page. `back` adds a quiet "Back" pill for pages
+ * outside the tab bar.
  */
 export function PageHeader({ kicker, title, lead, art, back, children }: { kicker?: React.ReactNode; title: React.ReactNode; lead?: React.ReactNode; art?: string; back?: string; children?: React.ReactNode }) {
   const [mood, pose] = (art && STAGE[art]) || ['happy', 'stand'];

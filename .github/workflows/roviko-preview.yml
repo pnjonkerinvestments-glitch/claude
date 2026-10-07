@@ -1,6 +1,7 @@
 name: Roviko preview
 
-# Zet de werkversie (branch claude/upbeat-sagan-8igsaj) op een aparte testlink:
+# Zet de werkversie (branches claude/upbeat-sagan-8igsaj en, voor 1.23, claude/peaceful-newton-0b5oqb)
+# op een aparte testlink. De laatste push wint; beide branches delen dezelfde preview.
 # worker "roviko-preview" met een eigen, lege database "roviko-preview-eu" (West-Europa).
 # Raakt de live worker "roviko", roviko.app en de live database NIET aan.
 # De iPhone-app laadt roviko.app en ziet deze preview dus ook niet.
@@ -8,7 +9,7 @@ name: Roviko preview
 
 on:
   push:
-    branches: [claude/upbeat-sagan-8igsaj]
+    branches: [claude/upbeat-sagan-8igsaj, claude/peaceful-newton-0b5oqb]
     paths:
       - "roviko/**"
       - ".github/workflows/roviko-preview.yml"

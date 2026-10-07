@@ -1,0 +1,224 @@
+/*
+  Roviko 1.23 · trip style — the last CSS layer (after stage.css), following the owner's mock-ups:
+  - a plain cream canvas with white rounded cards and dark forest headings;
+  - a gold "🔥 7-day streak" pill at the top of every page, a floating tab bar with a mint active pill;
+  - in games: a round close button, a thin progress bar and a white score pill with a gold coin;
+    the question on a white card with Roviko peeking over its top edge;
+  - answers as full-width light-mint pills without number badges; the right one fills forest green with a ✓;
+  - maps in a rounded light-blue card; buttons as forest pills.
+  Only presentation lives here: no game rule, flow or scoring depends on this file.
+  Area files (trip-*.css) follow this one and only use the tokens below.
+*/
+
+/* ───────── Tokens ───────── */
+:root,:root[data-theme=light]{
+  --t-canvas:#f6f3e9;--t-card:#ffffff;--t-ink:#163b32;--t-text:#2b3a34;--t-soft:#5f6d66;
+  --t-mint:#ddede6;--t-mint-2:#cfe6db;--t-mint-ink:#163b32;
+  --t-forest:#163b32;--t-forest-ink:#ffffff;--t-brand:#1f806b;
+  --t-gold:#f6b84b;--t-gold-2:#fbd27f;--t-gold-ink:#5a3a06;
+  --t-red:#c8333f;--t-red-soft:#fbe4e2;--t-red-ink:#9b1c2c;
+  --t-sky:#d6ecf7;--t-line:rgba(22,59,50,.08);
+  --t-shadow:0 1px 2px rgba(22,59,50,.05),0 10px 28px rgba(22,59,50,.08);
+  --t-shadow-lift:0 2px 4px rgba(22,59,50,.06),0 18px 40px rgba(22,59,50,.13);
+  --t-radius:28px;--t-radius-sm:20px;
+}
+:root[data-theme=dark]{
+  --t-canvas:#0f1613;--t-card:#17221d;--t-ink:#e9f3ee;--t-text:#d6e2dc;--t-soft:#9fb0a7;
+  --t-mint:#1e3a31;--t-mint-2:#26473c;--t-mint-ink:#d9efe5;
+  --t-forest:#5bc8a6;--t-forest-ink:#07140f;--t-brand:#5bc8a6;
+  --t-gold:#f6b84b;--t-gold-2:#f8c66a;--t-gold-ink:#3a2504;
+  --t-red:#ff8fa0;--t-red-soft:#3a1f26;--t-red-ink:#ffb3be;
+  --t-sky:#163345;--t-line:rgba(238,242,236,.08);
+  --t-shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
+  --t-shadow-lift:0 2px 4px rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.42);
+}
+
+/* ───────── Canvas and type ───────── */
+body{background:var(--t-canvas)!important;background-image:none!important}
+h1,h2,h3,.modal-title{color:var(--t-ink)}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+
+/* ───────── Buttons: forest pills; gold stays for the one big daily start ───────── */
+.btn.primary,.primary.btn{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;border-color:transparent!important;box-shadow:0 2px 3px rgba(22,59,50,.12),0 10px 22px rgba(22,59,50,.18)!important}
+.btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--t-forest) 88%,#000)!important}
+[data-theme=dark] .btn.primary:hover:not(:disabled){background:color-mix(in srgb,var(--t-forest) 86%,#fff)!important}
+.btn.secondary,.secondary.btn{background:var(--t-card)!important;color:var(--t-ink)!important;border:2px solid var(--t-forest)!important;box-shadow:none!important}
+[data-theme=dark] .btn.secondary,[data-theme=dark] .secondary.btn{border-color:var(--t-mint-2)!important}
+@media (hover:hover){.btn.secondary:hover:not(:disabled){background:var(--t-mint)!important}}
+.btn.ghost{color:var(--t-ink)}
+
+/* ───────── Top bar: logo, the gold streak pill in the middle, the menu ───────── */
+.topbar{background:color-mix(in srgb,var(--t-canvas) 92%,transparent)!important}
+.streak-pill{display:inline-flex!important;align-items:center;gap:7px;min-height:40px;padding:0 16px 0 12px!important;border-radius:999px!important;background:var(--t-gold)!important;color:var(--t-gold-ink)!important;box-shadow:0 2px 3px rgba(201,141,31,.18),0 8px 18px rgba(201,141,31,.22)!important;text-decoration:none;white-space:nowrap}
+.streak-pill b{color:inherit!important;font:600 1rem/1 var(--font-display)!important;letter-spacing:.005em}
+.streak-pill:not(.is-on){background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.streak-pill .flame-mark{flex-shrink:0}
+.streak-pill.is-on .flame-mark{animation:t-flicker 2.6s ease-in-out infinite;transform-origin:50% 90%}
+@keyframes t-flicker{0%,100%{transform:scale(1) rotate(0)}40%{transform:scale(1.06,1.1) rotate(-3deg)}70%{transform:scale(.98,1.02) rotate(2deg)}}
+.topnav a.is-active{background:var(--t-mint)!important;color:var(--t-ink)!important;box-shadow:none!important}
+@media (max-width:760px){
+  .topbar-inner{display:grid!important;grid-template-columns:44px 1fr 44px;gap:8px!important}
+  .topbar .logo span,.topbar .logo>:not(img){display:none}
+  .topbar-logo{width:44px;justify-content:center}
+  .topbar-right{display:contents!important}
+  .topbar-right .streak-pill{grid-column:2;justify-self:center}
+  .topbar-right .nav-icon{grid-column:3;justify-self:end}
+}
+
+/* ───────── Floating tab bar: white, a mint pill for the page you are on ───────── */
+@media (max-width:760px){
+  .tabbar{background:var(--t-card)!important;box-shadow:var(--t-shadow-lift)!important}
+  .tabbar a{color:var(--t-soft)!important}
+  .tabbar a.is-active{background:var(--t-mint)!important;color:var(--t-ink)!important}
+}
+
+/* ───────── Game header: close button, thin bar, coin pill ───────── */
+.game-header.trip-top{position:sticky;display:grid;gap:10px;padding:6px 0!important;background:var(--t-canvas)!important;border:0!important;box-shadow:none!important;border-radius:0!important}
+.trip-top .game-header-row{display:flex!important;align-items:center;gap:12px;min-height:48px}
+.trip-top .game-exit{flex-shrink:0;width:44px;height:44px;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;border:0!important}
+.trip-top .game-progress-bar{flex:1;min-width:40px;height:10px!important;margin:0!important;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 10%,transparent)!important;overflow:hidden}
+.trip-top .game-progress-bar i{display:block;height:100%;border-radius:999px;background:var(--t-forest)!important;box-shadow:none!important;transition:width .5s var(--ease-out,ease)}
+.trip-top .howto-help,.trip-top>.game-header-row>button.icon-btn:not(.game-exit){flex-shrink:0;width:40px;height:40px;border-radius:999px;background:transparent;color:var(--t-soft)}
+.game-kicker{display:flex;align-items:center;gap:8px;margin:0;color:var(--t-brand);font:800 .8125rem/1.2 var(--font-sans);letter-spacing:.02em}
+[data-theme=dark] .game-kicker{color:var(--t-brand)}
+.game-kicker .game-title{display:inline!important;min-width:0}
+.game-kicker .game-title strong{font-weight:800;color:inherit}
+.game-kicker .game-count{display:inline!important;min-height:0!important;padding:0!important;background:none!important}
+.game-kicker .game-count b{font-size:inherit!important;font-weight:800}
+.game-kicker small{margin-left:auto;color:var(--t-soft);font-weight:700}
+.game-kicker .game-icon{--gi-size:24px;width:24px;height:24px}
+.game-streak-chip,.game-life-chip{display:inline-flex;align-items:center;gap:4px;min-height:36px;padding:0 12px;border-radius:999px;background:var(--t-card);color:#d4561c;box-shadow:var(--t-shadow);font:600 .9375rem/1 var(--font-display)}
+[data-theme=dark] .game-streak-chip{color:#ffb07a}
+
+/* The coin pill; it pops when the score goes up and the gain floats away. */
+.coin-pill{position:relative;display:inline-flex;align-items:center;gap:6px;flex-shrink:0;min-height:40px;padding:0 14px 0 9px;border-radius:999px;background:var(--t-card);color:var(--t-ink);box-shadow:var(--t-shadow);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.coin-pill.is-gain{animation:t-pop .45s cubic-bezier(.34,1.56,.64,1)}
+.coin-pill.is-gain .coin{animation:t-spin .6s ease-out}
+.coin-gain{position:absolute;right:10px;top:-4px;padding:2px 8px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink);font:600 .8125rem/1.2 var(--font-display);pointer-events:none;animation:t-float 1.3s ease-out forwards}
+@keyframes t-pop{0%{transform:scale(1)}40%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes t-spin{from{transform:rotateY(0)}to{transform:rotateY(360deg)}}
+@keyframes t-float{0%{opacity:0;transform:translateY(6px)}20%{opacity:1;transform:translateY(-4px)}100%{opacity:0;transform:translateY(-30px)}}
+
+/* ───────── The question card with Roviko peeking over its edge ───────── */
+.question-content{display:grid;gap:14px}
+.q-card{position:relative;margin-top:44px;padding:22px 20px 22px;border-radius:var(--t-radius);background:var(--t-card);box-shadow:var(--t-shadow);text-align:center}
+.q-card .peek{position:absolute;right:18px;top:-49px;z-index:2;pointer-events:none;animation:t-peek .5s cubic-bezier(.34,1.56,.64,1) both}
+.q-card .peek .peek-head{animation:t-bob 3.2s ease-in-out infinite;transform-box:view-box;transform-origin:0 20px}
+.q-card .peek.mood-cheer .peek-head{animation:t-hop .55s cubic-bezier(.34,1.56,.64,1) 2}
+.q-card .peek.mood-shock .peek-head{animation:t-jolt .4s ease-out}
+@keyframes t-peek{from{transform:translateY(22px);opacity:0}to{transform:none;opacity:1}}
+@keyframes t-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+@keyframes t-hop{0%,100%{transform:translateY(0)}45%{transform:translateY(-12px)}}
+@keyframes t-jolt{0%,100%{transform:translateY(0)}30%{transform:translateY(-6px) rotate(-4deg)}60%{transform:translateY(0) rotate(3deg)}}
+.q-card .question-heading{display:grid!important;justify-items:center;gap:8px!important;margin:0!important;padding:0!important;background:none!important;box-shadow:none!important}
+.q-card .q-kicker,.q-card .question-heading .eyebrow{display:block!important;min-height:0!important;padding:0 72px 0 0!important;margin:0!important;justify-self:start;background:none!important;box-shadow:none!important;border-radius:0!important;color:var(--t-brand)!important;font:800 .8125rem/1.3 var(--font-sans)!important;letter-spacing:.02em!important;text-transform:none!important;text-align:left}
+.q-card .question-heading h1{max-width:none!important;margin:0!important;padding:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;color:var(--t-ink)!important;font:600 clamp(1.5rem,1.25rem + 1.1vw,2rem)/1.18 var(--font-display)!important;letter-spacing:-.01em!important;text-wrap:balance;animation:none!important}
+.q-card .question-heading h1 b,.q-card .question-heading h1 strong{color:var(--t-brand)}
+.q-card .question-country{margin-top:2px}
+.q-card .flag-stage{display:flex!important;justify-content:center;align-items:center;margin:18px 0 4px!important;padding:0!important}
+.q-card .flag-stage img{width:auto!important;height:auto!important;max-width:100%!important;max-height:210px!important;border-radius:10px!important;box-shadow:0 0 0 1px rgba(22,59,50,.08),0 12px 28px rgba(22,59,50,.18)!important;animation:t-flag .45s cubic-bezier(.34,1.56,.64,1) both!important}
+[data-theme=dark] .q-card .flag-stage img{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 28px rgba(0,0,0,.45)!important}
+@keyframes t-flag{from{transform:scale(.9) rotate(-2deg);opacity:0}to{transform:none;opacity:1}}
+.q-card .shape-stage{margin:14px auto 0!important}
+@media (max-width:480px){.q-card{padding:18px 16px 18px;border-radius:24px}.q-card .flag-stage img{max-height:176px!important}}
+
+/* ───────── Answers: full-width mint pills, centred, no number badges ───────── */
+.answer-grid{display:grid!important;grid-template-columns:1fr!important;gap:10px!important}
+@media (min-width:761px){.answer-grid{grid-template-columns:1fr 1fr!important;gap:12px!important}}
+.answer-option{position:relative;display:flex!important;align-items:center;justify-content:center!important;gap:10px;min-height:60px!important;padding:10px 54px!important;border-radius:999px!important;border:2px solid transparent!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:600 1.125rem/1.2 var(--font-display)!important;text-align:center!important;transition:background .16s,transform .22s cubic-bezier(.34,1.56,.64,1),border-color .16s!important;isolation:isolate;overflow:hidden}
+.answer-option::before{display:none!important}
+.answer-option .option-country{flex:0 1 auto!important;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:0;max-width:100%;overflow-wrap:normal!important}
+.answer-option .option-country>span{min-width:0;overflow-wrap:break-word}
+.answer-option .option-country img{flex-shrink:0;width:auto!important;height:22px!important;max-width:none!important;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.answer-option:hover:not(:disabled){background:var(--t-mint-2)!important;transform:translateY(-1px)!important;border-color:transparent!important;box-shadow:none!important}
+.answer-option:active:not(:disabled){transform:scale(.98)!important}
+.answer-option.is-selected:not(.is-correct):not(.is-wrong){border-color:var(--t-forest)!important;background:var(--t-mint-2)!important}
+.answer-option:disabled:not(.is-correct):not(.is-wrong){opacity:.55!important}
+.answer-option .answer-key{position:absolute;right:10px;top:50%;display:grid!important;place-items:center;width:34px!important;min-width:34px!important;height:34px!important;margin-top:-17px;border-radius:999px!important;background:#fff!important;color:var(--t-forest)!important;font-size:0!important;animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both!important}
+.answer-option.is-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+[data-theme=dark] .answer-option.is-correct .answer-key{background:var(--t-forest-ink)!important;color:var(--t-forest)!important}
+.answer-option.is-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important;animation:rv-shake 420ms ease-out!important}
+.answer-option.is-wrong .answer-key{background:var(--t-red)!important;color:#fff!important}
+/* Older layers add a green ring and a thick red bottom edge to revealed answers (with :disabled, so more specific). */
+.answer-option.is-correct,.answer-option.is-correct:disabled{border:2px solid var(--t-forest)!important;box-shadow:none!important}
+.answer-option.is-wrong,.answer-option.is-wrong:disabled{border:2px solid var(--t-red-soft)!important;box-shadow:none!important}
+[data-theme=dark] .answer-option.is-wrong .answer-key{color:#2a0d12!important}
+.answer-option .answer-status{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+.answer-option .answer-lock{position:absolute;right:20px;top:50%;margin-top:-7px}
+.answer-option .answer-marks{position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex}
+@keyframes t-mark{from{transform:scale(0) rotate(-30deg)}to{transform:none}}
+@keyframes t-right{0%{transform:scale(1)}40%{transform:scale(1.035)}100%{transform:scale(1)}}
+@media (hover:none){.answer-option:hover:not(:disabled):not(.is-selected){background:var(--t-mint)!important;transform:none!important}}
+
+/* ───────── After an answer: one compact white card ───────── */
+.answer-feedback{padding:16px 18px!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;text-align:left}
+.answer-feedback .feedback-heading{min-height:0!important;padding-right:0!important;font:600 1.25rem/1.2 var(--font-display)!important}
+.answer-feedback .feedback-heading>strong{color:var(--t-forest)!important}
+[data-theme=dark] .answer-feedback .feedback-heading>strong{color:var(--t-brand)!important}
+.answer-feedback.bad .feedback-heading>strong{color:var(--t-red)!important}
+.answer-feedback .feedback-heading>span[aria-hidden]{background:var(--t-mint)!important}
+.answer-feedback .feedback-heading>span:not([aria-hidden]){margin-left:auto;display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border-radius:999px;background:var(--t-gold)!important;color:var(--t-gold-ink)!important;font:600 .9375rem/1 var(--font-display)}
+.answer-feedback .feedback-character{display:none}
+.answer-feedback .correction-label{color:var(--t-soft)}
+.answer-feedback .correct-answer{color:var(--t-ink);font-weight:800}
+
+/* ───────── Maps: a rounded light-blue card ───────── */
+.map-wrap,.world-map-wrap{border-radius:var(--t-radius)!important;background:var(--t-sky)!important;padding:8px!important;box-shadow:var(--t-shadow)!important}
+.map-wrap .world-map{border-radius:22px!important}
+
+/* ───────── The way on: a forest pill at the bottom ───────── */
+.next-button{min-height:56px}
+.solo-next-row .save-status{color:var(--t-soft)}
+
+@media (prefers-reduced-motion:reduce){
+  .coin-gain{display:none!important}
+  .streak-pill .flame-mark,.coin-pill,.coin-pill .coin,.q-card .peek,.q-card .peek .peek-head,.q-card .flag-stage img,.answer-option,.answer-option .answer-key{animation:none!important}
+}
+
+/* ───────── Solo game column: header, card and answers share one width ───────── */
+.solo-game{max-width:720px!important}
+.solo-game .game-body,.solo-game .question-content{max-width:none!important;width:100%}
+.solo-game .game-header.trip-top{margin-bottom:6px!important}
+/* The coin pill shows the running score; the rules sit behind the ? button, as on phones. */
+.game-main .solo-game .daily-score-rule{display:none!important}
+.solo-game .auto-next-wrap{margin:14px auto 0!important}
+.solo-game .report-link{justify-self:center}
+
+/* ───────── Shared pieces for every screen (use these in the area files) ─────────
+   .t-card        white rounded card with the soft shadow
+   .t-kicker      small green line above a title ("Daily Detour · 1/20", "ROUND 1/10 · MEDIUM" with .is-caps)
+   .t-title       big forest display title
+   .t-pill        light-mint pill (a chip or a quiet button); .t-pill.is-forest filled forest; .t-pill.is-gold gold
+   .t-dots        a row of small round dots (rounds, stops): <ol class="t-dots"><li class="is-done|is-now"/></ol>
+   .t-points      the gold "+1,583" points pill
+   .t-stack       stacked mini avatars (negative overlap) */
+.t-card{border-radius:var(--t-radius);background:var(--t-card);box-shadow:var(--t-shadow);color:var(--t-text)}
+.t-kicker{margin:0;color:var(--t-brand);font:800 .8125rem/1.3 var(--font-sans);letter-spacing:.02em}
+.t-kicker.is-caps{text-transform:uppercase;letter-spacing:.09em;font-size:.75rem}
+.t-title{margin:0;color:var(--t-ink);font:600 clamp(1.625rem,1.35rem + 1.2vw,2.25rem)/1.15 var(--font-display);letter-spacing:-.012em;text-wrap:balance}
+.t-pill{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 16px;border-radius:999px;background:var(--t-mint);color:var(--t-mint-ink);border:0;font:600 1rem/1.1 var(--font-display);text-decoration:none}
+.t-pill.is-forest{background:var(--t-forest);color:var(--t-forest-ink)}
+.t-pill.is-gold{background:var(--t-gold);color:var(--t-gold-ink)}
+.t-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:0;padding:0;list-style:none}
+.t-dots>li{width:9px;height:9px;border-radius:999px;background:color-mix(in srgb,var(--t-ink) 14%,transparent)}
+.t-dots>li.is-done{background:var(--t-brand)}
+.t-dots>li.is-miss{background:color-mix(in srgb,var(--t-red) 70%,transparent)}
+.t-dots>li.is-now{width:22px;background:var(--t-forest)}
+.t-points{display:inline-flex;align-items:center;gap:4px;min-height:32px;padding:0 12px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink);font:600 .9375rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.t-stack{display:inline-flex;align-items:center}
+.t-stack>*{margin-left:-8px;border:2px solid var(--t-card);border-radius:999px;background:var(--t-card)}
+.t-stack>*:first-child{margin-left:0}
+/* In the app (notch) the sticky game bar also covers the status-bar strip above it while scrolling. */
+@media (max-width:760px){.game-header.trip-top{box-shadow:0 -48px 0 16px var(--t-canvas)!important}}
+@media (min-width:761px){.game-header.trip-top{box-shadow:0 -24px 0 24px var(--t-canvas)!important}}
+
+/* Phones: the game bar sits at the very top, so the "+50" floats down from the coin pill instead of up. */
+@media (max-width:760px){
+  .coin-gain{top:auto;bottom:-12px;animation-name:t-float-down}
+}
+@keyframes t-float-down{0%{opacity:0;transform:translateY(-6px)}20%{opacity:1;transform:translateY(4px)}100%{opacity:0;transform:translateY(22px)}}
+
+/* Dark mode: Roviko's navy arms, legs and hands are light, so they stay visible on dark cards. */
+[data-theme=dark] .character :is(.character-legs path,.character-arm path){stroke:var(--t-soft)}
+[data-theme=dark] .character :is(.character-legs ellipse,.character-arm circle){fill:var(--t-soft)}
+[data-theme=dark] .peek .peek-hands{fill:var(--t-soft)}

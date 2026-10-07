@@ -3,15 +3,15 @@ import React from 'react';
 import { Anchor, Bird, Check, Compass, Leaf, Mountain, Rocket, Ship, Sunrise } from 'lucide-react';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { BRAND } from '@/lib/config';
+import { GlobeAvatar } from '../ds/GlobeAvatar';
 import { GameIcon } from '../atelier/GameIcon';
 import { useApp } from './context';
 export { EmptyState as Empty, PageSkeleton as Loading } from '../ds/States';
 
 export const avatars = [Compass, Rocket, Mountain, Anchor, Leaf, Bird, Sunrise, Ship];
 export function Avatar({ id = 0, size = '', name }: { id?: number; size?: string; name?: string }) {
-    // Ids from 100 are computer players.
-    const emoji = id >= 100 ? '🤖' : ['🧭', '🚀', '🏔️', '⚓', '🌿', '🦜', '🌅', '⛵'][id % 8] ?? '🧭';
-    return <span className={'avatar avatar-' + (id >= 100 ? 'bot' : id) + ' ' + size} aria-label={name}><span className="avatar-emoji" aria-hidden="true">{emoji}</span></span>;
+    // Ids from 100 are computer players. Since 1.23 every avatar is a little Roviko globe (no emoji).
+    return <span className={'avatar avatar-globe avatar-' + (id >= 100 ? 'bot' : id) + ' ' + size} aria-label={name} role={name ? 'img' : undefined}><GlobeAvatar id={id}/></span>;
 }
 export function ModeEmoji({ mode }: { mode: string }) { return <GameIcon mode={mode} className="mode-emoji"/>; }
 export function Logo() { return <span className="logo"><img src="/globe-logo.webp" alt=""/><span>{BRAND.name.toLowerCase()}<span className="logo-period">.</span></span></span>; }

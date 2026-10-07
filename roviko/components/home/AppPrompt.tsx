@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight, Bell, Check, Maximize2, Smartphone } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { APP_STORE_URL } from '@/lib/config';
-import { Mascot } from '../ds/Mascot';
+import { Character } from '../ds/Character';
 
 const KEY = 'roviko:app-prompt';
 const QUIET_FOR = 14 * 86400000;
@@ -32,11 +32,11 @@ export function useAppPrompt() {
   return { open, decided, close: () => { remember(); setOpen(false); } };
 }
 
-/** Straight away on the homepage for iPhone visitors in the browser: the app, or carry on here. */
+/** Straight away on the homepage for iPhone visitors in the browser: the app, or carry on here (trip style: Roviko on mint, three mint perk rows, one black App Store pill). */
 export function AppPrompt({ open, onClose, t }: { open: boolean; onClose: () => void; t: (k: string) => string }) {
   return <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
     <DialogContent className="app-modal app-prompt">
-      <div className="app-prompt-art" aria-hidden="true"><Mascot mood="cheer" size={120}/><span className="app-prompt-phone"><Smartphone size={30}/></span></div>
+      <div className="app-prompt-art" aria-hidden="true"><Character mood="cheer" pose="wave" size={150}/><span className="app-prompt-phone"><Smartphone size={30}/></span></div>
       <DialogTitle className="modal-title">{t('appPromptTitle')}</DialogTitle>
       <DialogDescription>{t('appPromptCopy')}</DialogDescription>
       <ul className="tour-perks">

@@ -8,7 +8,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT=true;
 globalThis.window={addEventListener(){},removeEventListener(){}};
 globalThis.document={title:''};
 fs.mkdirSync('.test-runtime',{recursive:true});
-await build({stdin:{contents:"export {RankGame,rankValue} from './components/puzzles/RankGame';export {rankValues,generateRankRounds,RANK_CATEGORIES} from './lib/puzzles/rank';export {messages} from './i18n/messages';export {generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard} from './lib/puzzles/rank-board';export {shareResult} from './lib/share';",resolveDir:process.cwd()},outfile:'.test-runtime/rank.mjs',bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/*','react-dom','react-dom/*','lucide-react','radix-ui'],plugins:[{name:'transport',setup(b){b.onResolve({filter:/^@\/lib\/client$/},()=>({path:'transport',namespace:'mock'}));b.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export const api=(...args)=>globalThis.transport.api(...args);export const post=(...args)=>globalThis.transport.post(...args);export const sound=()=>{};'}));}}]});
+await build({stdin:{contents:"export {RankGame,rankValue} from './components/puzzles/RankGame';export {rankValues,generateRankRounds,RANK_CATEGORIES} from './lib/puzzles/rank';export {messages} from './i18n/messages';export {generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard} from './lib/puzzles/rank-board';export {shareResult} from './lib/share';",resolveDir:process.cwd()},outfile:'.test-runtime/rank.mjs',bundle:true,format:'esm',platform:'node',jsx:'automatic',external:['react','react/*','react-dom','react-dom/*','lucide-react','radix-ui'],plugins:[{name:'transport',setup(b){b.onResolve({filter:/^@\/lib\/client$/},()=>({path:'transport',namespace:'mock'}));b.onLoad({filter:/.*/,namespace:'mock'},()=>({contents:'export const api=(...args)=>globalThis.transport.api(...args);export const post=(...args)=>globalThis.transport.post(...args);export const sound=()=>{};export const formatScore=v=>new Intl.NumberFormat("en").format(v??0);'}));}}]});
 const {RankGame,rankValue,rankValues,generateRankRounds,RANK_CATEGORIES,messages,shareResult,generateRankBoard,rankPoints,bestCategories,optimalTotal,publicBoard}=await import('../.test-runtime/rank.mjs');
 const clone=x=>structuredClone(x);
 const app={t:k=>messages.en[k]??k,locale:'en',go(){},refresh(){},muted:true,copy(){},report(){}};
@@ -39,7 +39,7 @@ test('180 daily seeds produce six distinct countries and unambiguous, varied fou
 test('revealed units stay explicit and spoiler-free shares exclude country and subject answers',()=>{
  const q=generateRankRounds('units')[0];assert.equal(rankValue({value:2962,unit:'m'},'en'),'2,962 m');assert.equal(rankValue({value:50.5,unit:'percent'},'nl'),'50,5%');
  const share=shareResult({mode:'rank',label:'Rank Radar',date:'2026-09-22',correct:4,total:6,answers:[true,false,true,false,true,true],origin:'https://roviko.test'});
- assert.match(share,/● ○ ● ○ ● ●/);assert.match(share,/\/daily\?shared=rank/);assert.ok(!share.includes(q.country.name.en));assert.ok(!share.includes(q.correct));
+ assert.match(share,/🟩🟥🟩🟥🟩🟩/);assert.match(share,/\/daily\?shared=rank/);assert.ok(!share.includes(q.country.name.en));assert.ok(!share.includes(q.correct));
 });
 test('one tap answers: wrong choice turns red, identifies the winner and blocks duplicate saves and early next',async()=>{
  let saved=state(),writes=0;const wait=deferred();const wrong=saved.question.options.find(o=>o.id!==saved.question.correct);

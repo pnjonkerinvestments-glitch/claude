@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { withSpanish, spanishCountry } from '../../i18n/content';
-import { Check, Lightbulb, Search, X } from 'lucide-react';
+import { Check, Lightbulb, X } from 'lucide-react';
+import { GameIcon } from './GameIcon';
 import { mysteryOfTheDay, type MysteryCountryData, type MysteryFact } from '@/lib/daily-loop';
 import { ResetCountdown } from './ResetCountdown';
 import { HowToPlayButton } from './HowToPlay';
@@ -35,7 +36,7 @@ export function MysteryCountry({ date, t, locale }: { date: string; t: (k: strin
   const choose = (id: string) => { if (answered) return; setPicked(id); writeSaved(key, { hints, picked: id }); };
   return <section className={'mystery-card' + (answered ? correct ? ' is-right' : ' is-wrong' : '')} aria-labelledby="mystery-title">
     <div className="mystery-head">
-      <span className="mystery-badge" aria-hidden="true">{answered ? <img src={answer.flag} alt=""/> : <Search size={26} strokeWidth={2.3}/>}</span>
+      <span className={'mystery-badge' + (answered ? ' has-flag' : '')} aria-hidden="true">{answered ? <img src={answer.flag} alt=""/> : <GameIcon mode="mystery" size="lg"/>}</span>
       <div><span className="mystery-kicker">{t('competitionWarmup')}</span><h2 id="mystery-title">{t('mysteryTitle')}</h2></div>
       <HowToPlayButton mode="mystery" t={t} locale={locale}/>
     </div>

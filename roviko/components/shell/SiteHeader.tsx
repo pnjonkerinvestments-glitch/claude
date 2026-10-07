@@ -1,10 +1,12 @@
 'use client';
+import { plural } from '@/lib/plural';
 import React from 'react';
-import { BookOpen, ChevronRight, Compass, Flame, HelpCircle, Home, LogIn, Menu, Settings2, Swords, Trophy, UserRound, Users, Play, Sparkles } from 'lucide-react';
+import { BookOpen, ChevronRight, Compass, HelpCircle, Home, LogIn, Menu, Settings2, Swords, Trophy, UserRound, Users, Play, Sparkles } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { BRAND } from '@/lib/config';
 import { useApp } from '../app/context';
 import { A, Avatar, Logo } from '../app/shared';
+import { FlameMark } from '../ds/Coin';
 
 const NAV = [
   { href: '/', key: 'play', icon: Play, match: (p: string) => p === '/' || p === '/daily' || p.startsWith('/duel') || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
@@ -58,7 +60,7 @@ export function SiteHeader({ path, hideTabs }: { path: string; hideTabs: boolean
           {NAV.map(item => { const active = item.match(path); return <A key={item.key} href={item.href} className={active ? 'is-active' : ''} aria-current={active ? 'page' : undefined}>{t(item.key)}</A>; })}
         </nav>
         <div className="topbar-right">
-          {bootLoaded && <A href="/profile" className={'streak-chip' + (streak > 0 ? ' is-on' : '')} aria-label={streak > 0 ? t('statusStreak').replace('{n}', String(streak)) : t('statusStreakZero')}><Flame size={17} strokeWidth={2.4} aria-hidden="true"/><b>{streak}</b></A>}
+          {bootLoaded && <A href="/profile" className={'streak-chip streak-pill' + (streak > 0 ? ' is-on' : '')}><FlameMark size={20} off={streak === 0}/><b>{streak > 0 ? plural(t, 'streakPill', streak) : t('streakPillZero')}</b></A>}
           <AppMenu/>
           <A href="/profile" className={'passport-link' + (passportActive ? ' is-active' : '')} aria-current={passportActive ? 'page' : undefined} aria-label={t('navPassport')}>
             {bootLoaded && !boot.user.guest ? <Avatar id={boot.user.avatar}/> : <span className="passport-icon" aria-hidden="true"><BookOpen size={18}/></span>}

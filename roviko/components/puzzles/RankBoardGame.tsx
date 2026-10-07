@@ -1,9 +1,13 @@
 'use client';
+import { finishKey } from '@/lib/feel-copy';
+import { sound, formatScore } from '@/lib/client';
+import { plural } from '@/lib/plural';
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, Flag, Lock } from 'lucide-react';
 import type { RankView } from '@/lib/puzzles/rank';
 import { DailyFinish } from '../atelier/DailyFinish';
 import { FinishStage } from '../ds/FinishStage';
+import { Peek, type CharacterMood } from '../ds/Character';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 
@@ -22,6 +26,7 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
   const lang = locale as Lang, board = game.board!;
   const [pick, setPick] = useState<string | null>(null);
   useEffect(() => setPick(null), [game.round, game.phase]);
+  useEffect(() => { if (game.phase === 'reveal') sound('tap'); }, [game.phase, game.round]);
   const reveal = game.phase === 'reveal', finished = game.phase === 'finished', last = game.round + 1 === game.total;
   const round = board.rounds[Math.min(game.round, board.rounds.length - 1)], answer = reveal ? game.answers.at(-1) : undefined;
   const cat = (id?: string) => board.categories.find(c => c.id === id);
@@ -38,7 +43,10 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
     return () => window.clearTimeout(timer);
   }, [reveal, last, busy, error, game.round]);
 
-  const header = <GameHeader mode="rank" title={t('rankRadar')} edition={editionLabel(game.daily, lang, t('puzzleStartPractice'))} count={Math.min(game.round + 1, game.total) + ' / ' + game.total} unit={t('countries')} progress={game.answers.length / game.total} onExit={exit} exitLabel={t('back')} help={<HowToPlayButton mode="rank" t={t} locale={lang} auto={!finished}/>}/>;
+  // Daily games show the running points in the coin pill; practice has no points.
+  const score = game.competition && !finished ? game.score ?? total : undefined;
+  const header = <GameHeader mode="rank" title={t('rankRadar')} edition={editionLabel(game.daily, lang, t('puzzleStartPractice'))} count={Math.min(game.round + 1, game.total) + ' / ' + game.total} unit={t('countries')} progress={game.answers.length / game.total} onExit={exit} exitLabel={t('back')} help={<HowToPlayButton mode="rank" t={t} locale={lang} auto={!finished}/>}
+    kicker={false} score={score} scoreLabel={score === undefined ? undefined : plural(t, 'scorePill', score, '{n}', formatScore(score))}/>;
 
   if (finished) {
     const review = <details className="result-review rb-review" open={!game.competition}><summary>{t('rankReview')}</summary><ol>{board.rounds.map((r, i) => {
@@ -53,9 +61,9 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
     const mood = bestPicks >= 6 ? 'cheer' as const : bestPicks >= 3 ? 'happy' as const : 'wink' as const;
     return <section className="puzzle-game rank-game rank-board">{header}
       {game.competition
-        ? <DailyFinish app={app} date={game.daily!} mode="rank" game={t('rankRadar')} headline={t(bestPicks === game.total ? 'finishPerfect' : 'finishNice')} mood={mood} summary={summary} onShare={share} onDone={exit} onAgain={again} busy={busy}>{review}</DailyFinish>
+        ? <DailyFinish app={app} date={game.daily!} mode="rank" game={t('rankRadar')} headline={t(finishKey(total / 1000, bestPicks === game.total))} mood={mood} summary={summary} onShare={share} onDone={exit} onAgain={again} busy={busy}>{review}</DailyFinish>
         : <div className="daily-finish">
-          <FinishStage game={t('rankRadar')} headline={t(bestPicks === game.total ? 'finishPerfect' : 'finishNice')} mood={mood} score={total} max={1000} unit={t('points')} locale={locale}
+          <FinishStage game={t('rankRadar')} headline={t(finishKey(total / 1000, bestPicks === game.total))} mood={mood} score={total} max={1000} unit={t('points')} locale={locale}
             chips={summary}/>
           <div className="finish-actions"><button className="btn primary" disabled={busy} onClick={again}>{t('rankMore')}<ArrowRight size={17}/></button><button className="btn secondary" onClick={share}>{t('share')}</button></div>{review}</div>}
     </section>;
@@ -63,12 +71,18 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
 
   const chosen = answer && cat(answer.value), chosenStat = chosen ? round.stats?.[chosen.id] : undefined;
   const usedBy = new Map(game.answers.map((a, i) => [a.value, i]));
+  // Roviko reacts to the pick: a hop for the country's best subject, a wink for a good one, a gasp for a weak one.
+  const gained = answer?.points ?? 0;
+  const mood: CharacterMood = !reveal || !answer ? 'happy' : answer.correct ? 'cheer' : gained >= 60 ? 'wink' : 'shock';
   return <section className="puzzle-game rank-game rank-board">{header}
-    <header className="rb-hero" key={round.id}>
+    <header className={'rb-hero tp-card' + (reveal ? answer?.correct ? ' is-right' : ' is-revealed' : '')} key={round.id}>
+      <Peek mood={mood} key={mood}/>
+      <p className="tp-kicker">{fill(t('questionOf'), { game: t('rankRadar'), n: Math.min(game.round + 1, game.total), total: game.total })}</p>
       {round.country && <span className="rb-hero-flag"><img className="flag-img" src={round.country.flag} alt=""/></span>}
-      <p className="rb-kicker">{fill(t('rbRound'), { n: game.round + 1, total: game.total })}</p>
       <h1>{name(round)}</h1>
-      <p className="rb-ask">{fill(t('rbPrompt'), { country: name(round) })}</p>
+      {reveal && game.competition && answer
+        ? <p className="rb-ask rb-gain"><span className="t-points" aria-hidden="true">+{formatScore(gained)}</span><span className="sr-only">{plural(t, 'tpPointsGained', gained, '{n}', formatScore(gained))}</span></p>
+        : <p className="rb-ask">{fill(t('rbPrompt'), { country: name(round) })}</p>}
     </header>
     {error && <div className="puzzle-error" role="alert"><span>{t(error)}</span></div>}
     <p className="sr-only" role="status">{reveal && chosen && chosenStat ? fill(t('rbPicked'), { subject: chosen.label[lang] ?? chosen.label.en, rank: chosenStat.rank, count: chosenStat.coverage }) : ''}</p>
@@ -88,7 +102,6 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
         ? <button className="btn primary btn-lg rb-next" disabled={busy || !!error} onClick={() => save('next')}>{t(last ? 'finish' : 'rbNextCountry')}<ArrowRight size={18}/>{!last && <i className="rb-timer" style={{ animationDuration: AUTO_NEXT_MS + 'ms' }} aria-hidden="true"/>}</button>
         : <button className="btn primary btn-lg" disabled={!pick || busy || !!error} onClick={() => pick && save('answer', pick)}>{pick ? <><Lock size={17} aria-hidden="true"/>{fill(t('rbLock'), { subject: cat(pick)?.label[lang] ?? '' })}</> : t('rbChoose')}</button>}
     </div>
-    <p className="rb-note">{t('rbIntro')} {t('rbRankOne')}</p>
     <div className="rank-footer"><button className="text-link muted" onClick={() => report({ id: round.id, mode: 'rank' })}><Flag size={14}/>{t('reportIssue')}</button><a href="/sources">{t('sources')}</a></div>
   </section>;
 }

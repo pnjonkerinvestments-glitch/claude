@@ -24,7 +24,7 @@ const ARMS: Record<CharacterPose, [number, number, number][]> = {
   hips: [[-118, 58, -40], [118, 58, -40]],
 };
 
-function Face({ mood }: { mood: CharacterMood }) {
+export function Face({ mood }: { mood: CharacterMood }) {
   const eye = (cx: number, big = 1) => <g><ellipse cx={cx} cy={-5.7} rx={11 * big} ry={11 * big} fill={INK}/><ellipse cx={cx - 3.5 * big} cy={-10.2} rx={3.6 * big} ry={3.4 * big} fill="#fff"/></g>;
   const happyEye = (cx: number) => <path d={`M${cx - 11} -2.7q11 -13 22 0`} stroke={INK} strokeWidth="5.4" strokeLinecap="round" fill="none"/>;
   const cheeks = <g fill={BLUSH} opacity=".55"><ellipse cx="-45" cy="10" rx="9" ry="5"/><ellipse cx="46" cy="10" rx="9" ry="5"/></g>;
@@ -62,5 +62,22 @@ export function CharacterArt({ mood = 'happy', pose = 'stand' }: { mood?: Charac
 export function Character({ mood = 'happy', pose = 'stand', size = 160, className = '', animate = true }: { mood?: CharacterMood; pose?: CharacterPose; size?: number; className?: string; animate?: boolean }) {
   return <svg className={'character pose-' + pose + ' mood-' + mood + (animate ? ' is-animated' : '') + (className ? ' ' + className : '')} viewBox="-170 -120 340 290" width={size} height={size * 290 / 340} aria-hidden="true" focusable="false">
     <CharacterArt mood={mood} pose={pose}/>
+  </svg>;
+}
+
+/**
+ * Roviko peeking over the top edge of a card: the top of the globe, the face and two hands holding the edge.
+ * Put it as the first child of a card with `position:relative`; the CSS sets its place (`.peek`).
+ * The face follows the moment (curious while you think, cheering or shocked after an answer).
+ */
+export function Peek({ mood = 'happy', size = 92, className = '' }: { mood?: CharacterMood; size?: number; className?: string }) {
+  const id = React.useId().replace(/:/g, '');
+  return <svg className={'peek mood-' + mood + (className ? ' ' + className : '')} viewBox="-128 -112 256 146" width={size} height={size * 146 / 256} aria-hidden="true" focusable="false">
+    <defs><clipPath id={'peek-' + id}><rect x="-128" y="-112" width="256" height="132"/></clipPath></defs>
+    <g className="peek-head" clipPath={`url(#peek-${id})`}>
+      <image href="/mascot-body.svg" x="-100" y="-100" width="200" height="200"/>
+      <g className="character-face"><Face mood={mood}/></g>
+    </g>
+    <g className="peek-hands" fill={INK}><ellipse cx="-74" cy="22" rx="17" ry="11"/><ellipse cx="74" cy="22" rx="17" ry="11"/></g>
   </svg>;
 }

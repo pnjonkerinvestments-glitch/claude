@@ -1,3 +1,4 @@
+import { plural } from '@/lib/plural';
 import React from 'react';
 import { Check, ShieldCheck, Sparkles } from 'lucide-react';
 import type { Locale } from '@/i18n/messages';
@@ -18,7 +19,7 @@ export function DailyRhythm({ week, date, tomorrowTopic, locale, t, frozen = [] 
   const completed = week.filter(day => day.completed).length;
   return <div className="daily-return-shelf">
     <section className="discovery-week" aria-label={t('discoveryWeek')}>
-      <div className="discovery-week-heading"><strong>{t('discoveryWeek')}</strong><span>{t('weekPlayed').replace('{n}', String(completed))}</span></div>
+      <div className="discovery-week-heading"><strong>{t('discoveryWeek')}</strong><span>{plural(t, 'weekPlayed', completed)}</span></div>
       <ol className="week-stamps">
         {week.map(day => {
           const value = new Date(day.date + 'T12:00:00Z');

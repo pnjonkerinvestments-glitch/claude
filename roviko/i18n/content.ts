@@ -1,5 +1,6 @@
 import terms from './terms-es.json';
 import countryNames from './countries-es.json';
+import { dutchCapital } from './capitals-nl';
 /** Translations for data-generated content and previously saved bilingual games.
  * Names, templates and units are translated; IDs, values and source credits are untouched. */
 const capitals: Record<string,string> = {
@@ -41,12 +42,24 @@ export function spanishContent(en:string):string {
 }
 export function localized(en:string,nl:string,es=spanishContent(en)) { return {en,nl,es}; }
 /** Also upgrades old saved sessions without altering their questions or results. */
+/** Dutch capital names for content saved before 1.23 (daily puzzles already stored with "Vienna" in Dutch). */
+const dutchList=(names:string)=>names.split(' / ').map(dutchCapital).join(' / ');
+/** Dutch country names changed since content was saved (1.23): Belarus and Eswatini. */
+const renamed=(nl:string)=>nl.replace(/Wit-Rusland/g,'Belarus').replace(/\bSwaziland\b/g,'Eswatini');
+function dutchCapitals(en:string, nl:string):string {
+  nl=renamed(nl);
+  if(en===nl)return dutchList(nl);
+  let m:RegExpMatchArray|null;
+  if((m=nl.match(/^Mijn hoofdstad is (.+)\.$/)))return 'Mijn hoofdstad is '+dutchList(m[1])+'.';
+  if((m=nl.match(/^(.+?): (hoofdstad(?:en)?) (.+?)\. (.*)$/)))return m[1]+': '+m[2]+' '+dutchList(m[3])+'. '+m[4];
+  return nl;
+}
 export function withSpanish<T>(value:T):T {
   if(Array.isArray(value))return value.map(withSpanish) as T;
   if(!value || typeof value!=='object')return value;
   const source=value as Record<string,unknown>;
   const out=Object.fromEntries(Object.entries(source).map(([k,v])=>[k,withSpanish(v)]));
-  if(typeof source.en==='string'&&typeof source.nl==='string'&&!source.es)out.es=spanishContent(source.en);
+  if(typeof source.en==='string'&&typeof source.nl==='string'){ if(!source.es)out.es=spanishContent(source.en); out.nl=dutchCapitals(source.en,source.nl); }
   if(typeof source.name==='string'&&typeof source.nl==='string'&&!source.es)out.es=spanishCountry(source.name);
   return out as T;
 }

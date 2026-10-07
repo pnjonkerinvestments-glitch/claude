@@ -2,6 +2,8 @@ import { DAILY_POINT_MODES, DAILY_TOTAL_MAX, dailyScore, type Competition } from
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';
+import { weekStart } from './week';
+import { ensureLeague } from './league';
 
 /** Only completed, canonical, server-owned daily sessions can write this immutable ledger. */
 export async function recordCompetition(env: Env, user: User, s: {id:string; daily:string|null; phase:string; answers:any[]; competition?:Competition}) {
@@ -9,6 +11,9 @@ export async function recordCompetition(env: Env, user: User, s: {id:string; dai
   await run(env, `INSERT OR IGNORE INTO daily_scores(user_id,date,mode,session_id,score,scoring_version,created_at)
     SELECT ?,?,?,?,?,1,? WHERE EXISTS(SELECT 1 FROM game_sessions WHERE id=? AND user_id=? AND date=? AND completed=1)`,
     user.id,s.daily,s.competition.mode,s.id,dailyScore(s),Date.now(),s.id,user.id,s.daily);
+  // Accounts join this week's league group with their first points of the week. Never blocks the saved result.
+  // Only this week's points join a league: reopening an old finished game must not start a membership for a past week.
+  if (!user.guest && weekStart(s.daily) === weekStart(new Date().toISOString().slice(0, 10))) { try { await ensureLeague(env, user, s.daily); } catch { /* joins on the next visit instead */ } }
 }
 type Scope = { date?: string; since?: string; mode?: string; userIds?: string[] };
 async function ranking(env: Env, user: User, scope: Scope = {}) {
@@ -24,8 +29,7 @@ async function ranking(env: Env, user: User, scope: Scope = {}) {
   const next = summary?.place > 1 ? await one(env, cte + ' SELECT name,score,place FROM ranked WHERE score>? ORDER BY score ASC,user_id LIMIT 1',...args,summary.score) : null;
   return {...summary,leaders,next:next?{name:next.name,score:Number(next.score),place:Number(next.place),gap:Number(next.score)-Number(summary.score)}:null};
 }
-/** Monday of the (UTC) week that contains this date: the weekly ranking runs Monday to Sunday. */
-export function weekStart(date: string) { const d = new Date(date + 'T00:00:00Z'); return new Date(d.getTime() - ((d.getUTCDay() + 6) % 7) * 86400000).toISOString().slice(0, 10); }
+export { weekStart } from './week';
 export async function competitionSummary(env: Env, user: User, date: string, mode?: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date+'T00:00:00Z')) || new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date || (mode && !DAILY_POINT_MODES.includes(mode as any))) throw new AppError('INVALID_INPUT');
   const yesterday = new Date(Date.parse(date+'T00:00:00Z')-86400000).toISOString().slice(0,10);

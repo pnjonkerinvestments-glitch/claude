@@ -1,0 +1,249 @@
+/* Roviko 1.23 trip style · end screens: FinishStage, daily result, day summary, streak moment, solo results. Loaded after trip.css; uses only its tokens (--t-*) and shared pieces (.t-card, .t-pill, ...). */
+/*
+  The end of every game on the cream canvas, following the owner's mock-ups:
+  - Roviko big on a soft halo (mint; gold for a top result; rose when a run is over), reacting to the result;
+  - a small green kicker with the game, the headline big in forest, the score big with a gold coin;
+  - the stats as small mint pills and the answers as a row of dots (green right, rose miss);
+  - one white card with your place today and ONE forest pill on to the next game; Share and Done stay quiet;
+  - after the sixth game the day summary: Roviko cheering, "Nice trip. Same time tomorrow?", the six games in
+    one compact card, a forest pill to the bonus tour and an outline pill to challenge a friend.
+  Presentation only: no rule, score or flow depends on this file.
+*/
+
+/* ───────── Column ───────── */
+.daily-finish{display:grid!important;gap:14px!important;max-width:560px!important;margin:0 auto!important;padding:4px 0 calc(48px + env(safe-area-inset-bottom))!important}
+.learning-results{display:grid!important;gap:14px;max-width:560px!important;margin:0 auto!important;padding:4px 0 calc(48px + env(safe-area-inset-bottom))}
+.learning-results>*{margin-top:0!important;margin-bottom:0!important}
+.daily-finish>*,.learning-results>*{min-width:0}
+.daily-finish,.learning-results,.daily-result.has-stage,.daily-result.has-stage .daily-result-compare,.next-discovery{grid-template-columns:minmax(0,1fr)!important}
+/* While the result loads, nothing jumps: the space is kept and the quiet buttons wait. */
+.finish-wait{min-height:min(72vh,620px)}
+.daily-finish:has(>.finish-wait)>:not(.finish-wait){visibility:hidden}
+
+/* ───────── The stage: Roviko, headline, score on the cream canvas ───────── */
+.finish-stage.is-trip{
+  --stage-ink:var(--t-ink);--stage-soft:var(--t-soft);--stage-chip:var(--t-mint);--stage-chip-ink:var(--t-mint-ink);--stage-num:var(--t-brand);--stage-bg:transparent;--stage-glow:transparent;
+  position:relative;isolation:isolate;overflow:visible!important;display:flex!important;flex-direction:column;align-items:center;gap:8px!important;
+  width:100%;margin:0 auto!important;padding:4px 0 6px!important;border-radius:0!important;background:none!important;box-shadow:none!important;color:var(--t-text)!important;text-align:center;
+  animation:tf-in .45s ease-out both!important}
+.fs-hero{position:relative;display:grid;place-items:center;width:200px;height:170px;margin:0 auto 2px;pointer-events:none}
+.fs-hero .fs-halo{position:absolute;left:50%;top:41%;width:156px;height:156px;margin:-78px 0 0 -78px;border-radius:50%;background:var(--t-mint);animation:tf-halo .6s cubic-bezier(.34,1.56,.64,1) both}
+.fs-hero.tone-gold .fs-halo{background:radial-gradient(circle at 50% 50%,var(--t-gold-2) 0,color-mix(in srgb,var(--t-gold) 55%,transparent) 58%,color-mix(in srgb,var(--t-gold) 0%,transparent) 72%);width:190px;height:190px;margin:-95px 0 0 -95px}
+/* On the dark canvas the gold is a soft glow, not a brown disc. */
+[data-theme=dark] .fs-hero.tone-gold .fs-halo{background:radial-gradient(circle at 50% 50%,color-mix(in srgb,var(--t-gold) 44%,transparent) 0,color-mix(in srgb,var(--t-gold) 16%,transparent) 50%,color-mix(in srgb,var(--t-gold) 0%,transparent) 71%)}
+.fs-hero.tone-out .fs-halo{background:var(--t-red-soft)}
+.fs-hero .character.fs-character{position:relative;width:190px!important;height:auto!important;flex:none;filter:none!important;animation:tf-pop .7s cubic-bezier(.34,1.56,.64,1) .08s both!important}
+/* Roviko's arms and legs are navy; on the dark canvas they get a soft light tone so they stay visible. */
+[data-theme=dark] .fs-hero .character-legs path,[data-theme=dark] .fs-hero .character-arm path{stroke:var(--t-soft)}
+[data-theme=dark] .fs-hero .character-legs ellipse,[data-theme=dark] .fs-hero .character-arm circle{fill:var(--t-soft)}
+.finish-stage.is-trip .fs-kicker,.day-summary.is-screen .fs-kicker{display:block!important;min-height:0!important;margin:0!important;padding:0!important;border-radius:0!important;background:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em!important;text-transform:uppercase}
+.finish-stage.is-trip .fs-title,.day-summary.is-screen .fs-title{max-width:18ch;margin:0!important;padding:0!important;background:none!important;box-shadow:none!important;transform:none!important;color:var(--t-ink)!important;font:600 clamp(1.875rem,1.45rem + 1.7vw,2.625rem)/1.1 var(--font-display)!important;letter-spacing:-.015em!important;text-wrap:balance;animation:tf-rise .5s ease-out .12s both}
+.finish-stage.is-trip .fs-title:focus,.day-summary.is-screen .fs-title:focus{outline:none}
+.fs-score{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;flex-wrap:wrap;gap:2px 10px!important;margin:2px 0 0!important;padding:0!important;animation:tf-rise .5s ease-out .2s both}
+.fs-score strong{animation:tf-land .45s cubic-bezier(.34,1.56,.64,1) .8s both;color:var(--t-ink)!important;font:600 clamp(3rem,2.45rem + 2.6vw,4.25rem)/1 var(--font-display)!important;letter-spacing:-.03em;font-variant-numeric:tabular-nums;text-shadow:none!important}
+.fs-score .fs-of{align-self:flex-end;padding-bottom:.6em;color:var(--t-soft);font:700 1rem/1.2 var(--font-sans);letter-spacing:0;white-space:nowrap}
+.fs-score .fs-coin{flex-shrink:0;width:46px;height:46px;filter:drop-shadow(0 4px 8px rgba(201,141,31,.28));animation:tf-coin .9s cubic-bezier(.34,1.56,.64,1) .25s both}
+.finish-stage.is-trip .fs-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px!important;margin:4px 0 0!important;padding:0;list-style:none}
+.finish-stage.is-trip .fs-chips li{display:inline-flex;align-items:center;gap:6px!important;min-height:34px!important;padding:0 13px 0 11px!important;border-radius:999px;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:700 .875rem/1 var(--font-sans)!important}
+.finish-stage.is-trip .fs-chips li svg{color:var(--t-brand)!important}
+.finish-stage.is-trip .fs-chips li b{color:var(--t-ink)!important;font:600 1rem/1 var(--font-display)!important}
+.finish-stage.is-trip .fs-chips li span{opacity:1!important;color:var(--t-soft);font:700 .8125rem/1 var(--font-sans)!important}
+.finish-stage.is-trip .fs-trail{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;max-width:196px!important;margin:6px auto 0!important;padding:0;list-style:none}
+.finish-stage.is-trip .fs-trail li{display:block!important;width:13px!important;height:13px!important;border-radius:999px;background:var(--t-brand)!important;box-shadow:none!important;animation:tf-dot .4s cubic-bezier(.34,1.56,.64,1) both!important;animation-delay:calc(.4s + var(--i) * 35ms)!important}
+.finish-stage.is-trip .fs-trail li.is-miss{background:color-mix(in srgb,var(--t-red) 62%,transparent)!important}
+.finish-stage.is-trip .fs-sub{max-width:34ch;margin:0;color:var(--t-soft)!important;font:600 .9375rem/1.45 var(--font-sans)}
+.fs-best{display:inline-flex;align-items:center;gap:6px;min-height:34px;margin:2px 0 0;padding:0 14px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink);box-shadow:0 2px 3px rgba(201,141,31,.18),0 8px 18px rgba(201,141,31,.2);font:600 .9375rem/1 var(--font-display);animation:tf-pop .6s cubic-bezier(.34,1.56,.64,1) .7s both}
+
+/* A little confetti for a top result: a few pieces in the trip colours that fall twice and stop. */
+.finish-stage.is-trip .fs-confetti,.day-summary.is-screen .fs-confetti{position:absolute;inset:-8px 0 auto;height:200px;z-index:-1;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(#000 70%,transparent);mask-image:linear-gradient(#000 70%,transparent)}
+.finish-stage.is-trip .fs-confetti i,.day-summary.is-screen .fs-confetti i{position:absolute;top:-14px;left:var(--x,calc(5% + var(--i) * 8%));width:8px;height:12px;border-radius:3px;background:var(--t-gold);opacity:0;animation:tf-fall calc(2.6s + var(--d,0s) * .6) cubic-bezier(.3,.1,.6,1) var(--d,0s) 2 both}
+.fs-confetti i:nth-child(2n){--sway:-22px}
+.fs-confetti i:nth-child(3n){background:var(--t-brand)!important}
+.fs-confetti i:nth-child(3n+1){background:var(--t-gold-2)!important}
+.fs-confetti i:nth-child(4n){width:9px!important;height:9px!important;border-radius:50%!important;background:var(--t-mint-2)!important}
+
+/* ───────── The card under it: your place today and the way on ───────── */
+.daily-result.has-stage{display:grid!important;gap:14px!important;width:100%;max-width:none!important;margin:0!important;padding:18px 18px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;text-align:center;animation:tf-rise .5s ease-out .3s both}
+.daily-result.has-stage .daily-result-compare{display:grid;gap:8px;justify-items:center;margin:0!important;padding:4px 2px 0!important;border-radius:0!important;background:none!important}
+.daily-result.has-stage .daily-result-compare>p:first-child{display:block;margin:0;color:var(--t-ink)!important;font:600 1.1875rem/1.25 var(--font-display)!important;text-wrap:balance}
+.daily-result.has-stage .daily-result-compare>p:first-child svg{display:inline-block;margin:0 8px 0 0;vertical-align:-3px;color:var(--t-brand)}
+.daily-result.has-stage .daily-result-bar{width:100%;max-width:280px;height:8px!important;border-radius:999px;background:var(--t-mint)!important;box-shadow:none!important}
+.daily-result.has-stage .daily-result-bar i{background:var(--t-brand)!important;border-radius:999px;animation:tf-grow .9s cubic-bezier(.22,1,.36,1) .5s both;transform-origin:left}
+.daily-result.has-stage .daily-result-compare small{color:var(--t-soft)!important;font:700 .875rem/1.35 var(--font-sans)!important;text-wrap:balance}
+.daily-result.has-stage .daily-result-target{max-width:40ch;margin:2px 0 0!important;padding:0!important;border-radius:0!important;background:none!important;color:var(--t-text)!important;font:700 .875rem/1.45 var(--font-sans)!important;text-wrap:balance}
+.daily-result.has-stage .survival-top{display:inline-flex;align-items:center;gap:6px}
+/* The one way on: a forest pill with the next game's logo. */
+.daily-result .daily-result-next{display:flex!important;align-items:center;justify-content:center;gap:10px!important;width:100%;min-height:58px!important;height:auto!important;margin:0!important;padding:8px 22px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important;letter-spacing:.005em;text-decoration:none;white-space:normal!important}
+.daily-result.has-stage>*,.daily-result.has-stage .daily-result-compare>*{min-width:0;max-width:100%}
+.daily-result .daily-result-next>span{min-width:0;white-space:normal;text-wrap:balance;text-align:center}
+.daily-result .daily-result-next .game-icon{width:34px!important;height:34px!important;margin-left:-10px;border-radius:999px!important;box-shadow:none!important}
+.daily-result .daily-result-next .game-icon svg{width:19px!important;height:19px!important}
+.daily-result .daily-result-next>svg:last-child{flex-shrink:0;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.daily-result .daily-result-next:hover:not(:disabled)>svg:last-child{transform:translateX(3px)}
+.daily-result .daily-result-next.is-pending{display:block!important;visibility:hidden;background:none!important;box-shadow:none!important}
+.daily-result.has-stage .daily-result-bonus{display:grid;gap:10px}
+.daily-result.has-stage .daily-result-bonus p{margin:0;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.daily-result.has-stage .daily-result-done{display:grid;gap:4px;margin:0;color:var(--t-ink);font:600 1.0625rem/1.35 var(--font-display)}
+.daily-result.has-stage .daily-result-done .reset-countdown,.ds-reset .reset-countdown{color:var(--t-soft);font:700 .875rem/1.3 var(--font-sans)}
+.daily-result.has-stage .daily-result-done time,.ds-reset time{padding:4px 10px;border-radius:999px;background:var(--t-mint)!important;color:var(--t-ink)!important;font:600 .9375rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.bonus-result .bonus-finale{display:grid;gap:8px;justify-items:center;padding:0!important;border-radius:0!important;background:none!important}
+.bonus-result .bonus-finale strong{color:var(--t-ink);font:600 1.25rem/1.2 var(--font-display)}
+.bonus-result .bonus-finale p{max-width:38ch;margin:0 0 4px;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.survival-result .survival-verdict{display:none}
+
+/* Once per guest, after the Detour: keep your streak with a free account. Quiet, inside the card. */
+:is(.daily-result,.daily-finish,.learning-results) .save-prompt{display:grid;gap:4px;margin:0!important;padding:14px 16px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-canvas)!important;text-align:left}
+:is(.daily-result,.daily-finish,.learning-results) .save-prompt strong{color:var(--t-ink);font:600 1.0625rem/1.25 var(--font-display)}
+:is(.daily-result,.daily-finish,.learning-results) .save-prompt p{margin:0 0 6px!important;color:var(--t-soft)!important;font:600 .875rem/1.45 var(--font-sans)}
+:is(.daily-result,.daily-finish,.learning-results) .save-prompt>div{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+:is(.daily-result,.daily-finish,.learning-results) .save-prompt .btn{min-height:44px!important;padding:0 16px!important;border-radius:999px!important;font-size:.9375rem!important}
+:is(.daily-result,.daily-finish,.learning-results) .save-prompt .btn.ghost{color:var(--t-soft)!important;background:none!important;box-shadow:none!important}
+
+/* ───────── Quiet actions: Share, Done, another round ───────── */
+.daily-finish .finish-actions,.learning-results .finish-actions.results-actions{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 4px!important;margin:0!important;grid-template-columns:none!important}
+.finish-quiet{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:44px;padding:0 14px;border:0;border-radius:999px;background:transparent;color:var(--t-ink);box-shadow:none;font:700 .9375rem/1 var(--font-sans);cursor:pointer;transition:background .16s,transform .2s cubic-bezier(.34,1.56,.64,1)}
+.finish-quiet svg{color:var(--t-brand)}
+@media (hover:hover){.finish-quiet:hover:not(:disabled){background:var(--t-mint)}}
+.finish-quiet:active:not(:disabled){transform:scale(.97)}
+.finish-quiet:focus-visible,.daily-finish .finish-again:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.finish-quiet:disabled{opacity:.5;cursor:default}
+.daily-finish .finish-again{display:block!important;justify-self:center;max-width:100%;min-height:40px!important;padding:10px 12px!important;color:var(--t-soft)!important;font:700 .875rem/1.35 var(--font-sans)!important;text-align:center;text-wrap:balance}
+.daily-finish .finish-again svg{display:inline-block;margin:0 6px 0 0;vertical-align:-3px}
+/* The day summary has its own share ("Challenge a friend"); one share per screen. */
+.daily-finish:has(.day-summary.is-screen) .finish-share{display:none}
+.daily-finish>.puzzle-save{justify-self:center;margin:-4px 0 0;color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans)}
+.learning-results .results-note{margin:-4px 0 0!important;color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans);text-align:center}
+
+/* The review stays folded: one white row that opens. */
+:is(.daily-finish,.learning-results,.puzzle-finished)>details{width:100%;margin:2px 0 0!important;padding:0 20px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary{display:flex!important;align-items:center;justify-content:space-between;gap:10px;min-height:56px!important;padding:0!important;border:0!important;border-radius:inherit;background:none!important;box-shadow:none!important;color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)!important;list-style:none;cursor:pointer}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary::-webkit-details-marker{display:none}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary::marker{content:''}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary::after{content:'';flex-shrink:0;width:9px;height:9px;margin:-4px 4px 0 0;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details[open]>summary::after{margin-top:4px;transform:rotate(-135deg)}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details[open]{padding-bottom:18px!important}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary h2{display:inline-flex;align-items:center;gap:8px;margin:0;color:inherit;font:inherit!important}
+:is(.daily-finish,.learning-results,.puzzle-finished)>details>summary svg{color:var(--t-brand)}
+
+/* ───────── After a practice game: one forest pill on ───────── */
+.next-discovery{display:grid!important;gap:10px!important;justify-items:center;margin:0!important;padding:18px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;text-align:center}
+.next-discovery .t-kicker{margin:0!important;color:var(--t-brand)!important;font:800 .8125rem/1.3 var(--font-sans)!important;letter-spacing:.02em!important;text-transform:none!important}
+.next-discovery .nd-play{display:flex!important;align-items:center;justify-content:center;gap:10px;width:100%;min-height:58px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+.next-discovery>*{min-width:0;max-width:100%}
+:is(.puzzle-finished,.learning-results,.daily-finish)>.next-discovery{width:100%!important;max-width:none!important;justify-self:stretch!important}
+.next-discovery .nd-play{height:auto!important;padding:8px 22px!important;white-space:normal!important;text-wrap:balance;text-align:center}
+.next-discovery .nd-play .game-icon{width:34px!important;height:34px!important;margin-left:-10px;border-radius:999px!important;box-shadow:none!important}
+.next-discovery .nd-play .game-icon svg{width:19px!important;height:19px!important}
+.next-discovery .nd-note{max-width:36ch;margin:0;color:var(--t-soft);font:600 .875rem/1.45 var(--font-sans);text-wrap:balance}
+
+/* ───────── The day is complete: the mock's end screen ───────── */
+.day-summary.is-screen{position:relative;isolation:isolate;display:flex!important;flex-direction:column;align-items:center;gap:8px;width:100%;margin:0!important;padding:4px 0 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;text-align:center;animation:tf-in .45s ease-out both}
+.day-summary.is-screen .ds-dots{display:flex;gap:6px;margin:0 0 2px;padding:0;list-style:none}
+.day-summary.is-screen .ds-dots li{width:20px;height:8px;border-radius:999px;background:var(--t-brand);animation:tf-dot .4s cubic-bezier(.34,1.56,.64,1) both;animation-delay:calc(.25s + var(--i) * 60ms)}
+.day-summary.is-screen .ds-place{display:inline-flex;align-items:center;min-height:34px;margin:2px 0 0;padding:0 14px;border-radius:999px;background:var(--t-mint);color:var(--t-mint-ink);font:700 .875rem/1 var(--font-sans);animation:tf-rise .5s ease-out .3s both}
+.day-summary.is-screen .day-scores{display:grid!important;gap:0!important;width:100%;margin:8px 0 0!important;padding:4px 16px!important;border-radius:var(--t-radius);background:var(--t-card);box-shadow:var(--t-shadow);list-style:none;text-align:left;animation:tf-rise .5s ease-out .35s both}
+.day-summary.is-screen .day-scores li{display:flex!important;align-items:center;gap:12px!important;min-height:54px;border-top:1px solid var(--t-line)}
+.day-summary.is-screen .day-scores li:first-child{border-top:0}
+.day-summary.is-screen .day-scores li>span:not(.game-icon){flex:1 1 auto;min-width:0;color:var(--t-ink);font:700 .9375rem/1.25 var(--font-sans)!important}
+.day-summary.is-screen .day-scores .game-icon{flex:0 0 34px;width:34px!important;height:34px!important;border-radius:999px!important}
+.day-summary.is-screen .day-scores .game-icon svg{width:19px!important;height:19px!important}
+.day-summary.is-screen .day-scores li>b{color:var(--t-ink);font:600 1.0625rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.day-summary.is-screen .day-scores li>b.t-points{color:var(--t-gold-ink);animation:tf-pop .55s cubic-bezier(.34,1.56,.64,1) .9s both}
+.day-summary.is-screen .ds-actions{display:grid;gap:10px;width:100%;margin:10px 0 0}
+.day-summary.is-screen .ds-actions .btn{width:100%;min-height:58px!important;height:auto!important;margin:0;padding:8px 22px!important;white-space:normal!important;text-wrap:balance;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+.day-summary.is-screen .ds-reset{margin:2px 0 0}
+@media (min-width:600px){.day-summary.is-screen .ds-actions{grid-template-columns:1fr 1fr}}
+/* The compact card version (under an older six-question Rank Radar result). */
+.day-summary:not(.is-screen){margin:0!important;padding:14px 16px!important;border-radius:var(--t-radius-sm)!important;background:var(--t-canvas)!important;text-align:left}
+.day-summary:not(.is-screen) h3{color:var(--t-ink)}
+
+/* ───────── Bonus and survival cards share the result card ───────── */
+.learning-results .daily-result.has-stage{animation-delay:.25s}
+
+/* ───────── The daily puzzle games end on the same screen ─────────
+   Their game bar stays for the close button only: the game's name is already the stage's kicker,
+   a full progress bar and the help button say nothing any more once the game is over. */
+.puzzle-game:has(.finish-stage,.finish-wait,.day-summary.is-screen)>.game-header.trip-top .game-kicker{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.puzzle-game:has(.finish-stage,.finish-wait,.day-summary.is-screen)>.game-header.trip-top .game-progress-bar{visibility:hidden}
+.puzzle-game:has(.finish-stage,.finish-wait,.day-summary.is-screen)>.game-header.trip-top .howto-button{display:none!important}
+/* Practice ends (Side by Side, Country Mosaic, World Duel): the same column, the way on as the one forest pill. */
+.puzzle-finished,.duel-finished{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:14px!important;max-width:560px!important;margin:0 auto!important;padding:4px 0 calc(48px + env(safe-area-inset-bottom))!important;background:none!important;box-shadow:none!important}
+.puzzle-finished>*,.duel-finished>*{min-width:0;margin-top:0!important;margin-bottom:0!important}
+.puzzle-finished .mosaic-completed-countries{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;margin:-4px 0 0!important;padding:0!important;background:none!important}
+.puzzle-finished .mosaic-completed-countries span{display:inline-flex!important;align-items:center;gap:7px;min-height:34px;padding:0 13px 0 9px!important;border:0!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:700 .875rem/1 var(--font-sans)!important}
+.puzzle-finished .mosaic-completed-countries img{width:auto!important;height:16px!important;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.puzzle-finished>.puzzle-save{justify-self:center;color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans)}
+/* Their quiet buttons: Done, Share, another round. */
+.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions:has(>.btn),.duel-finished .duel-actions{display:flex!important;flex-wrap:wrap;justify-content:center;gap:2px 4px!important;margin:0!important;padding:0!important;grid-template-columns:none!important}
+:is(.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn:not(.primary){display:inline-flex!important;align-items:center;justify-content:center;gap:7px!important;width:auto!important;min-height:44px!important;height:auto!important;padding:0 14px!important;border:0!important;border-radius:999px!important;background:transparent!important;color:var(--t-ink)!important;box-shadow:none!important;font:700 .9375rem/1 var(--font-sans)!important;letter-spacing:0!important;text-decoration:none!important}
+:is(.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn:not(.primary) svg{width:16px;height:16px;color:var(--t-brand)}
+@media (hover:hover){:is(.puzzle-finished .puzzle-results-actions,.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn:not(.primary):hover:not(:disabled){background:var(--t-mint)!important}}
+/* A practice game without a next-game card keeps its own forest pill: full width, first. */
+:is(.daily-finish>.finish-actions,.duel-finished .duel-actions)>.btn.primary{flex:1 1 100%;display:flex!important;align-items:center;justify-content:center;gap:10px!important;width:100%!important;min-height:58px!important;height:auto!important;margin:0 0 6px!important;padding:8px 22px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important;white-space:normal!important;text-wrap:balance}
+.daily-finish .finish-again{text-decoration:none!important}
+
+/* ───────── The streak moment: the gold flame, the days, this week ───────── */
+.streak-moment.app-modal{display:grid;justify-items:center;gap:8px;text-align:center;padding:30px 26px 24px!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;border:0!important;box-shadow:var(--t-shadow-lift)!important}
+.streak-moment .sm-flame{position:relative;display:grid!important;place-items:center;width:150px!important;height:150px!important;margin:0 auto 10px!important;border-radius:50%;background:none!important;box-shadow:none!important;color:inherit!important;animation:tf-flare .7s cubic-bezier(.34,1.56,.64,1) both!important}
+.streak-moment .sm-glow{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 50% 58%,var(--t-gold-2) 0,color-mix(in srgb,var(--t-gold) 45%,transparent) 50%,color-mix(in srgb,var(--t-gold) 0%,transparent) 71%)}
+[data-theme=dark] .streak-moment .sm-glow{background:radial-gradient(circle at 50% 58%,color-mix(in srgb,var(--t-gold) 44%,transparent) 0,color-mix(in srgb,var(--t-gold) 15%,transparent) 50%,color-mix(in srgb,var(--t-gold) 0%,transparent) 71%)}
+.streak-moment .sm-flame svg.flame-mark{position:relative!important;opacity:1!important;margin-top:-10px;filter:drop-shadow(0 8px 14px rgba(240,100,43,.25));animation:t-flicker 2.6s ease-in-out .8s infinite;transform-origin:50% 90%}
+.streak-moment .sm-flame b{position:absolute!important;left:50%;bottom:-6px;transform:translateX(-50%);display:inline-flex;align-items:center;justify-content:center;min-width:56px;height:44px;padding:0 14px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink)!important;box-shadow:0 0 0 4px var(--t-card),0 8px 18px rgba(201,141,31,.28);font:600 1.75rem/1 var(--font-display)!important;text-shadow:none!important;font-variant-numeric:tabular-nums;animation:tf-pop .55s cubic-bezier(.34,1.56,.64,1) .35s both}
+.streak-moment .modal-title{margin:4px 0 0;color:var(--t-ink);font:600 clamp(1.625rem,1.4rem + 1vw,2rem)/1.15 var(--font-display)!important;text-wrap:balance}
+.streak-moment>p:not(.sm-shield){margin:0;max-width:30ch;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.streak-moment .sm-week{display:flex;justify-content:center;gap:6px!important;margin:10px 0 2px!important;padding:0;list-style:none}
+.streak-moment .sm-week li{display:grid;justify-items:center;gap:5px;color:var(--t-soft)!important;font:800 .6875rem/1 var(--font-sans)!important;letter-spacing:.04em;text-transform:uppercase}
+.streak-moment .sm-week i{display:grid!important;place-items:center;width:32px!important;height:32px!important;border-radius:50%;background:var(--t-mint)!important;color:inherit!important}
+.streak-moment .sm-week li.is-done i{background:var(--t-gold-2)!important;animation:tf-dot .45s cubic-bezier(.34,1.56,.64,1) both!important;animation-delay:calc(var(--i) * 70ms + .3s)!important}
+.streak-moment .sm-week li.is-today i{outline:2.5px solid var(--t-forest)!important;outline-offset:2px}
+.streak-moment .sm-week li.is-today span{color:var(--t-ink)!important}
+.streak-moment .sm-shield{display:block;max-width:32ch;text-align:center;text-wrap:balance;margin:4px 0 8px!important;color:var(--t-soft)!important;font:700 .8125rem/1.35 var(--font-sans)!important}
+.streak-moment .sm-shield svg{display:inline-block;margin:0 6px 0 0;vertical-align:-3px;color:var(--t-brand)}
+.streak-moment .btn{width:100%;min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.1 var(--font-display)!important}
+@media (max-width:400px){
+  .streak-moment.app-modal{padding:26px 18px 20px!important}
+  .streak-moment .sm-week{gap:4px!important}
+  .streak-moment .sm-week i{width:28px!important;height:28px!important}
+}
+
+/* ───────── The staged celebration on the competition page: mint pills, the points in gold ───────── */
+.celebrate-chip{min-height:40px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;font:700 .9375rem/1 var(--font-sans)!important}
+.celebrate-chip svg{color:var(--t-brand)}
+.celebrate-chip.is-points{min-height:46px!important;background:var(--t-gold)!important;color:var(--t-gold-ink)!important;font-family:var(--font-display)!important}
+.celebrate-chip.is-points svg{color:inherit}
+.celebrate-chip.is-best{background:var(--t-gold-2)!important;color:var(--t-gold-ink)!important}
+
+/* ───────── Phones ───────── */
+@media (max-width:480px){
+  .fs-hero{width:180px;height:154px}
+  .fs-hero .character.fs-character{width:172px!important}
+  .fs-hero .fs-halo{width:140px;height:140px;margin:-70px 0 0 -70px}
+  .fs-hero.tone-gold .fs-halo{width:170px;height:170px;margin:-85px 0 0 -85px}
+  .fs-score .fs-coin{width:40px;height:40px}
+  .daily-result.has-stage{padding:16px 14px!important}
+  .day-summary.is-screen .day-scores{padding:2px 14px!important}
+  .day-summary.is-screen .day-scores li{min-height:46px}
+  .day-summary.is-screen .day-scores .game-icon{flex-basis:30px;width:30px!important;height:30px!important}
+  .day-summary.is-screen .day-scores .game-icon svg{width:17px!important;height:17px!important}
+}
+@media (max-width:360px){
+  .fs-score strong{font-size:2.75rem!important}
+  .finish-quiet{padding:0 14px}
+}
+
+/* ───────── Motion ───────── */
+@keyframes tf-in{from{opacity:0}to{opacity:1}}
+@keyframes tf-land{0%,100%{transform:none}45%{transform:scale(1.08)}}
+@keyframes tf-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes tf-pop{0%{opacity:0;transform:translateY(16px) scale(.6)}60%{opacity:1}100%{opacity:1;transform:none}}
+@keyframes tf-halo{from{opacity:0;transform:scale(.4)}to{opacity:1;transform:none}}
+@keyframes tf-coin{0%{opacity:0;transform:scale(.3) rotateY(0)}60%{opacity:1;transform:scale(1.12) rotateY(300deg)}100%{transform:scale(1) rotateY(360deg)}}
+@keyframes tf-dot{from{opacity:0;transform:scale(.2)}to{opacity:1;transform:none}}
+@keyframes tf-grow{from{transform:scaleX(0)}to{transform:none}}
+@keyframes tf-flare{0%{opacity:0;transform:scale(.4)}70%{opacity:1;transform:scale(1.06)}100%{transform:none}}
+@keyframes tf-fall{0%{opacity:0;transform:translate(0,0) rotate(0)}12%{opacity:.85}80%{opacity:.6}100%{opacity:0;transform:translate(var(--sway,22px),210px) rotate(320deg)}}
+@media (prefers-reduced-motion:reduce){
+  .finish-stage.is-trip,.finish-stage.is-trip *,.day-summary.is-screen,.day-summary.is-screen *,.daily-result.has-stage,.daily-result.has-stage *,.streak-moment,.streak-moment *,.fs-best,.finish-quiet{animation:none!important;transition:none!important}
+  .fs-confetti{display:none!important}
+}

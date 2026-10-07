@@ -67,8 +67,8 @@ export function AccountPage() {
   }, []);
   const verify = async () => { setSending(true); try { await post('/auth/verify/send'); setSent(true); toast.success(t('emailVerifySent').replace('{email}', u.email ?? '')); } catch (e) { const m = (e as Error)?.message; toast.error(t(errorMessage(m))); } finally { setSending(false); } };
 
-  return <div className="page account-page">
-    <PageHeader kicker={t('myAccountNote')} title={t('myAccount')}/>
+  return <div className="page account-page trip-page">
+    <PageHeader title={t('myAccount')} lead={t('myAccountNote')}/>
 
     <section className="account-card" aria-label={t('myAccount')}>
       <Avatar id={u.avatar} size="large"/>

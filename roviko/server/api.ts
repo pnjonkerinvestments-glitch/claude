@@ -1,5 +1,6 @@
 import { changePassword, mailEnabled, requestReset, resetPassword, sendVerification, verifyEmail } from './account';
 import { competitionSummary } from './competition';
+import { leagueStanding } from './league';
 import { startRank, rankAction } from './ranks';
 import { startDuel, duelAction } from './duel';
 import { pruneExpired } from './retention';
@@ -154,9 +155,10 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             const b = z.object({ event: z.enum(['shared_result_opened','room_connection_failed','room_reconnected','answer_save_failed']), mode: z.enum(['daily','compare','mosaic','rank','flags','capitals','trail','pinpoint','borders','order','mixed','multiplayer']), context: z.string().max(100).default('') }).parse(await body(req));
             await limit(env, 'metrics:' + user.id, 20); await measure(req, env, user, b.event, b.mode, new Date().toISOString().slice(0,10) + ':' + b.context); return json({ ok:true });
         }
+        if(path[0]==='league' && method==='GET') return json(await leagueStanding(env,user,new Date().toISOString().slice(0,10)));
         if(path[0]==='competition' && method==='GET') return json(await competitionSummary(env,user,url.searchParams.get('date')??new Date().toISOString().slice(0,10),url.searchParams.get('mode')??undefined));
         if (path[0] === 'export') {
-            const data = { dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
+            const data = { dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), leagues:await rows(env,'SELECT week,tier,group_no,joined_at FROM league_members WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
             return json(data, 200, { 'Content-Disposition': 'attachment; filename="roviko-account.json"' });
         }
         if (path[0] === 'ranks') {

@@ -22,11 +22,14 @@ function play(notes: Note[], master = 1) {
   }
 }
 
-export type Effect = 'correct' | 'incorrect' | 'countdown' | 'win' | 'tap';
-/** Short, soft effects: a rising two-note chime for right, a low muted note for wrong. */
-export function effect(type: Effect) {
+export type Effect = 'correct' | 'incorrect' | 'countdown' | 'win' | 'tap' | 'finish';
+/** Short, soft effects: a rising two-note chime for right (a semitone higher for every extra answer in a row,
+ * up to a fifth), a low muted note for wrong, a fanfare for a top result and a friendly two-note close otherwise. */
+export function effect(type: Effect, streak = 0) {
   try {
-    if (type === 'correct') play([{ f: 659.25, at: 0, len: .16 }, { f: 987.77, at: .09, len: .28 }]);
+    const up = Math.pow(2, Math.min(7, Math.max(0, streak - 1)) / 12);
+    if (type === 'correct') play([{ f: 659.25 * up, at: 0, len: .16 }, { f: 987.77 * up, at: .09, len: .28 }]);
+    else if (type === 'finish') play([{ f: 523.25, at: 0, len: .2 }, { f: 783.99, at: .12, len: .4 }]);
     else if (type === 'incorrect') play([{ f: 196, at: 0, len: .26, type: 'sine', vol: .06 }, { f: 174.61, at: .08, len: .3, type: 'sine', vol: .045 }]);
     else if (type === 'countdown') play([{ f: 523.25, at: 0, len: .12, type: 'sine', vol: .04 }]);
     else if (type === 'tap') play([{ f: 880, at: 0, len: .06, type: 'sine', vol: .02 }]);

@@ -7,11 +7,13 @@ import { v119Messages } from './v119';
 import { v120Messages } from './v120';
 import { v121Messages } from './v121';
 import { v122Messages } from './v122';
+import { v123Messages } from './v123';
+import { tripMessages } from './trip';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -636,7 +638,9 @@ export const messages = {
     ...v119Messages.en,
     ...v120Messages.en,
     ...v121Messages.en,
-    ...v122Messages.en
+    ...v122Messages.en,
+    ...v123Messages.en,
+    ...tripMessages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -677,8 +681,8 @@ export const messages = {
     "guestNote": "Geen account nodig. Wel een nieuwsgierige blik.",
     "roomEyebrow": "NEEM JE VRIENDEN MEE",
     "roomTitle": "Goede vrienden.\nGoede tegenstanders.",
-    "roomCopy": "Eén roomcode. Tot 12 spelers. Een hele wereld te winnen.",
-    "codePlaceholder": "VUL ROOMCODE IN",
+    "roomCopy": "Eén kamercode. Tot 12 spelers. Een hele wereld te winnen.",
+    "codePlaceholder": "VUL KAMERCODE IN",
     "join": "Doe mee",
     "dailyTag": "ÉÉN DAG. VIJF HALTES.",
     "dailyTitle": "Dagelijkse Omweg",
@@ -728,7 +732,7 @@ export const messages = {
     "how2": "Doe een ontdekking",
     "how2copy": "Waag een gok. Leer iets nieuws.",
     "how3": "Neem je vrienden mee",
-    "how3copy": "Eén roomcode begint een gezonde rivaliteit.",
+    "how3copy": "Eén kamercode begint een gezonde rivaliteit.",
     "footerCopy": "Blijf nieuwsgierig. Speel samen.",
     "privacy": "Privacy",
     "terms": "Voorwaarden",
@@ -760,7 +764,7 @@ export const messages = {
     "retry": "Probeer opnieuw",
     "connectionError": "We zijn even de weg kwijt. Probeer het opnieuw.",
     "roomCode": "Kamercode",
-    "copyCode": "Kopieer roomcode",
+    "copyCode": "Kopieer kamercode",
     "copyLink": "Kopieer uitnodigingslink",
     "copied": "Gekopieerd!",
     "displayName": "Spelersnaam",
@@ -774,8 +778,8 @@ export const messages = {
     "setReady": "Ik ben klaar",
     "notReadyButton": "Toch nog even wachten",
     "waitingHost": "Wachten tot de host start…",
-    "leaveRoom": "Room verlaten",
-    "soloTest": "Je kunt een room ook alleen starten.",
+    "leaveRoom": "Kamer verlaten",
+    "soloTest": "Je kunt een kamer ook alleen starten.",
     "connected": "Verbonden",
     "reconnecting": "Opnieuw verbinden… Je plek blijft bewaard.",
     "offline": "Je bent offline. Verbind opnieuw om verder te spelen.",
@@ -848,7 +852,7 @@ export const messages = {
     "allTime": "Altijd",
     "dailyPeriod": "Vandaag",
     "xp": "XP",
-    "wins": "Gewonnen rooms",
+    "wins": "Gewonnen kamers",
     "totalScore": "Totale score",
     "rank": "Plek",
     "player": "Ontdekker",
@@ -886,7 +890,7 @@ export const messages = {
     "decline": "Afwijzen",
     "block": "Blokkeer verzoeken",
     "pending": "Verzoek verstuurd",
-    "invite": "Kopieer roomuitnodiging",
+    "invite": "Kopieer kameruitnodiging",
     "friendSaved": "Vriendschapsverzoek verstuurd.",
     "accountTitle": "Bewaar je plek in de wereld.",
     "accountCopy": "Sla je voortgang op en schrijf je eigen aardrijkskundeverhaal.",
@@ -931,8 +935,8 @@ export const messages = {
     "termsTitle": "Een paar spelregels",
     "sourceTitle": "Goede spellen beginnen bij goede bronnen.",
     "signInForFriends": "Log in om vrienden toe te voegen",
-    "roomNotFound": "We vinden deze room niet. Controleer de code van vijf tekens.",
-    "roomFull": "Deze room is vol. Er passen 12 spelers in.",
+    "roomNotFound": "We vinden deze kamer niet. Controleer de code van vijf tekens.",
+    "roomFull": "Deze kamer is vol. Er passen 12 spelers in.",
     "invalidCode": "Gebruik de code van vijf tekens van je host.",
     "authError": "Dit e-mailadres en wachtwoord komen niet overeen.",
     "emailUnavailable": "Er bestaat al een account met dit e-mailadres. Probeer in te loggen.",
@@ -1047,7 +1051,7 @@ export const messages = {
     "playHomeCopy": "Elke dag een nieuwe ontdekking. Vind je volgende favoriete aardrijkskundespel.",
     "playHomeHello": "Speel ergens iets nieuws",
     "playFriendTitle": "Zin in een vriendschappelijke strijd?",
-    "playFriendCopy": "Eén roomcode. Je favoriete mensen. Een wereld vol vragen.",
+    "playFriendCopy": "Eén kamercode. Je favoriete mensen. Een wereld vol vragen.",
     "playClassics": "Ontdek verder",
     "playClassicsCopy": "Zes manieren om de wereld te leren kennen. Kies je favoriet.",
     "puzzleReview": "Bekijk wat je hebt ontdekt",
@@ -1262,7 +1266,9 @@ export const messages = {
     ...v119Messages.nl,
     ...v120Messages.nl,
     ...v121Messages.nl,
-    ...v122Messages.nl
+    ...v122Messages.nl,
+    ...v123Messages.nl,
+    ...tripMessages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;

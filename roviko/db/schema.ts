@@ -63,3 +63,9 @@ export const emailTokens = sqliteTable('email_tokens', {
   expiresAt: integer('expires_at').notNull(),
   createdAt: integer('created_at').notNull(),
 }, t => [index('email_tokens_user').on(t.userId)]);
+// 1.23: weekly leagues for accounts. A player joins a group of their tier (0 bronze … 4 diamond) the first time
+// they score daily points in a UTC week (Monday–Sunday). Points come from daily_scores; nothing else is stored.
+export const leagueMembers = sqliteTable('league_members', {
+  week: text('week').notNull(), userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  tier: integer('tier').notNull(), groupNo: integer('group_no').notNull(), joinedAt: integer('joined_at').notNull(),
+}, t => [primaryKey({ columns: [t.week, t.userId] }), index('league_group').on(t.week, t.tier, t.groupNo), index('league_user').on(t.userId, t.week)]);

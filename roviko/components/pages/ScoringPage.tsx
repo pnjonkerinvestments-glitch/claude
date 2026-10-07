@@ -21,8 +21,8 @@ export function ScoringPage() {
     ['once', <RotateCcw key="i" size={26} strokeWidth={2}/>, '1×', t('scoringOnce'), 'fact-once'],
     ['timer', <InfinityIcon key="i" size={28} strokeWidth={2.2}/>, '∞', t('scoringNoTimer'), 'fact-timer'],
   ];
-  return <div className="page scoring-page">
-    <PageHeader back={t('backLabel')} art="scoring-hero" kicker={t('scoringKicker')} title={t('scoringTitle')} lead={t('scoringLead')}/>
+  return <div className="page scoring-page trip-page">
+    <PageHeader back={t('backLabel')} art="scoring-hero" kicker={t('scoringKicker')} title={t('scoringTitle')} lead={t('pgScoringLead')}/>
     <ul className="fact-cards">{facts.map(([key, icon, big, label, art]) => <li key={key} className={'fact-card fact-' + key}>
       <div className="fact-card-top"><span className="fact-icon" aria-hidden="true">{icon}</span><div><strong>{big}</strong><span>{label}</span></div></div>
       <img className="fact-art" src={'/art/' + art + '.webp'} alt="" aria-hidden="true" width={794} height={266} loading="lazy" decoding="async"/>

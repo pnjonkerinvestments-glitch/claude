@@ -1,4 +1,4 @@
-# Game rules — Roviko 1.19.0
+# Game rules — Roviko 1.23.0
 
 These are the current rules. Documents for 1.9/v3 and earlier are historical. The requested daily competition replaces the earlier no-points policy **only for official daily games**.
 
@@ -37,7 +37,7 @@ Pinpoint accepts the chosen country's source geometry/islands with a declared 25
 
 The map supports two-finger zoom, pan, buttons, wheel input and keyboard interaction. A pinch/pan does not accidentally submit a pin. Pin placement is confirmed before answering.
 
-Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
+Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Since 1.23 the English, Dutch and Spanish name of a capital are all accepted (Vienna, Wenen, Viena), Dutch players see the Dutch name, Eswatini has two capitals (Mbabane, administrative; Lobamba, royal and legislative) and La Paz is accepted for Bolivia (Sucre stays the shown answer). Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
 
 Size Shuffle orders four countries by total area. Dragging or accessible move buttons only change the draft; **Confirm order** submits it. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A daily ordering round is all-or-nothing (200/0).
 
@@ -117,9 +117,30 @@ The daily streak counts consecutive UTC dates with at least one completed daily 
 
 ## One tap answers in single player (1.13)
 
-In single player (solo, practice and all official daily games) a tap on an answer is the answer: Rank Radar subjects and Pinpoint map taps no longer need a separate confirm button. The tapped card is outlined straight away and stays marked after the reveal. Arrow-key pin moves still need Enter, and multiplayer keeps the explicit lock button. Size Shuffle keeps its confirm button, because reordering is not an answer by itself. In daily Side by Side the carried country shows the value that was already revealed in the previous round; the new country's value stays hidden until the answer is saved.
+In single player (solo, practice and all official daily games) a tap on an answer is the answer: Pinpoint map taps no longer need a separate confirm button. (Since the 1.22 board, Rank Radar asks to lock a subject again, because each subject can be used only once; the owner confirmed this in 1.23.) The tapped card is outlined straight away and stays marked after the reveal. Arrow-key pin moves still need Enter, and multiplayer keeps the explicit lock button. Size Shuffle keeps its confirm button, because reordering is not an answer by itself. In daily Side by Side the carried country shows the value that was already revealed in the previous round; the new country's value stays hidden until the answer is saved.
 
 ## Multiplayer review and clues (1.13.2)
 
 The pre-round countdown shows 3, 2, 1 and then "Go!". During each reveal the room view adds `roundAnswers`: every player's answer (as a readable label), whether it was right and the points it earned; answers stay private until the reveal. The live ranking shows each player's answer with ✓/✗ and their "+points" for the round (previously the points were hidden behind the streak indicator). A finished match adds `history`: every round's question, correct answer and all players' answers and points, shown as a round-by-round review on the podium screen. In multiplayer Clue Trail the four clues appear one at a time, 2 seconds apart; answering earlier still earns more speed points.
 
+
+## Game feel, sharing and the streak moment (1.23)
+
+Nothing in this section changes points, rankings, streaks or which questions are asked.
+
+- **Answer headings** rotate between four warm variants per outcome, fixed per question, plus "3 in a row!" from three right answers in a row and "So close! 240 km away" for a map pin within 300 km of the country. **Finish headlines** follow the share of the maximum: perfect, ≥ 90 % world class, ≥ 70 % strong, ≥ 40 % nice, otherwise "tomorrow's another chance". Country Mosaic uses its points (before 1.23 it always said "Perfect!").
+- **Sound and vibration.** One setting decides for every game. Sound is on by default in the iOS/Android app and off on the website. The app vibrates on right, wrong and the finish (switch in Settings); the website never vibrates. Right answers in a row sound a semitone higher each, up to a fifth.
+- **Sharing.** Every share reads "Roviko #N · game", answer squares, the score (points for daily games), the streak and a link. Edition #1 is 25 September 2026 (UTC). A share never names countries, subjects or solutions; Rank Radar keeps its 🟩🟨⬜ row (best, close, weaker pick). A daily score is added to the link (`?s=820`); opening such a link shows a challenge card on the homepage or All games with one button into that game. The number in the link is a friend's claim, never stored or ranked.
+- **Streak moment.** After the first finished daily game of a UTC date the player sees, once per device, the streak count, this week and the next streak shield. The streak itself is unchanged and still derived from saved daily results.
+
+## Weekly leagues (1.23, accounts only)
+
+Every UTC week (Monday–Sunday) accounts that score daily points are placed in a group of at most 20 players within their league: Bronze, Silver, Gold, Emerald or Diamond. A player joins the week's group with their first daily points of that week; guests do not take part. The group ranks by the sum of that week's official daily points (the same ledger as every other ranking; nothing new is scored), ties share a place and blocked accounts are excluded. When a player scores again the next week, the top 5 of last week's group (with points) move up one league and, in groups of at least 10, the bottom 5 move down one; Bronze cannot go lower and Diamond is the top. After a week without points the player keeps their league. Leagues never change daily points, streaks or other rankings.
+
+## Data corrections (1.23)
+
+Sri Lanka has no land borders (the source listed India). Eswatini lists Mbabane and Lobamba. Dutch names: Belarus (owner's choice, formerly Wit-Rusland) and Eswatini (formerly Swaziland).
+
+## Trip style (1.23, presentation only)
+
+The owner's mock-ups restyled every screen (cream canvas, white cards, a coin score pill, mint answer pills without number badges, Roviko peeking over the question card, podium results in multiplayer). No rule, round, timer, score or server contract changed: keys 1–4 still answer, Rank Radar still locks a subject, the Duel stays blind until the last card, Mosaic hints still cost 125. Points shown as "+50" or "+1,583" come from what the server already sent (the points of that answer, or the difference between two totals); the browser never computes daily points itself. The daily-points texts on `/scoring` and in the in-game notes now describe Rank Radar (eight countries, up to 125 each) and Side by Side (fifteen comparisons, the first wrong answer ends the run) as they have worked since 1.21; before, they still described the six-question and ten-comparison versions.

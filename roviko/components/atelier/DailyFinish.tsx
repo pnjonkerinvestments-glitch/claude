@@ -8,9 +8,9 @@ import { DailyResult, type ResultSummary } from './DailyResult';
 type FinishApp = Parameters<typeof DailyResult>[0]['app'];
 
 /**
- * The end of every daily game, the same everywhere: a stage like the social videos (Roviko, the points, the trail),
- * one card with how you did against today's players and the way on, then Share and Done side by side.
- * Practising again and the review sit below.
+ * The end of every daily game, the same everywhere: Roviko and the points on the cream canvas, one card with
+ * your place today and one forest pill on to the next game, then a quiet Share and Done. Practising again and
+ * the review (folded) sit below. After the sixth game the day summary takes the place of the stage and card.
  */
 export function DailyFinish({ app, date, mode, game, headline, mood, summary, trail, onShare, onDone, onAgain, busy, children }: {
   app: FinishApp; date: string; mode: PointMode; game: string; headline: string; mood: MascotMood;
@@ -20,8 +20,8 @@ export function DailyFinish({ app, date, mode, game, headline, mood, summary, tr
   return <section className="daily-finish">
     <DailyResult app={app} date={date} mode={mode} summary={summary} trail={trail} stage={{ game, headline, mood, chips: summary, trail }}/>
     <div className="finish-actions">
-      <button className="btn secondary" disabled={busy} onClick={onShare}><Share2 size={17} aria-hidden="true"/>{t('share')}</button>
-      <button className="btn secondary" onClick={onDone}><Check size={17} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button>
+      <button className="finish-quiet finish-share" disabled={busy} onClick={onShare}><Share2 size={16} aria-hidden="true"/>{t('share')}</button>
+      <button className="finish-quiet" onClick={onDone}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button>
     </div>
     {onAgain && <button className="text-link finish-again" disabled={busy} onClick={onAgain}><RefreshCw size={15} aria-hidden="true"/>{t('finishPractice')}</button>}
     {children}

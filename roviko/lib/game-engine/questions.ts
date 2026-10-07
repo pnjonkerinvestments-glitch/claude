@@ -1,4 +1,5 @@
 import { spanishCapital, spanishCountry } from '../../i18n/content';
+import { dutchCapital } from '../../i18n/capitals-nl';
 import data from '../data/countries.json';
 import silhouettes from '../data/silhouettes.json';
 import { locateInCountry, type Polygons } from './geometry';
@@ -90,7 +91,7 @@ function rampOrder(c: Country, pool: Country[], level: number, rng: () => number
     }
     return null;
 }
-const aliases: Record<string, string[]> = { CHN: ['Peking'], UKR: ['Kiev', 'Kyiv'], MEX: ['Mexico City', 'Mexico-stad', 'Ciudad de Mexico'], CZE: ['Prague', 'Praag', 'Praha'], RUS: ['Moscow', 'Moskou', 'Moskva'], EGY: ['Cairo', 'Caïro'], ITA: ['Rome', 'Roma'], AUT: ['Vienna', 'Wenen', 'Wien'], BEL: ['Brussels', 'Brussel', 'Bruxelles'], DNK: ['Copenhagen', 'Kopenhagen'], GRC: ['Athens', 'Athene'], POL: ['Warsaw', 'Warschau'], PRT: ['Lisbon', 'Lissabon', 'Lisboa'], SWE: ['Stockholm'], HUN: ['Budapest', 'Boedapest'], ROU: ['Bucharest', 'Boekarest'], SRB: ['Belgrade', 'Belgrado'], ESP: ['Madrid'], KOR: ['Seoul'], THA: ['Bangkok', 'Krung Thep'] };
+const aliases: Record<string, string[]> = { CHN: ['Peking'], UKR: ['Kiev', 'Kyiv'], MEX: ['Mexico City', 'Mexico-stad', 'Ciudad de Mexico'], CZE: ['Prague', 'Praag', 'Praha'], RUS: ['Moscow', 'Moskou', 'Moskva'], EGY: ['Cairo', 'Caïro'], ITA: ['Rome', 'Roma'], AUT: ['Vienna', 'Wenen', 'Wien'], BEL: ['Brussels', 'Brussel', 'Bruxelles'], DNK: ['Copenhagen', 'Kopenhagen'], GRC: ['Athens', 'Athene'], POL: ['Warsaw', 'Warschau'], PRT: ['Lisbon', 'Lissabon', 'Lisboa'], SWE: ['Stockholm'], HUN: ['Budapest', 'Boedapest'], ROU: ['Bucharest', 'Boekarest'], SRB: ['Belgrade', 'Belgrado'], ESP: ['Madrid'], KOR: ['Seoul'], THA: ['Bangkok', 'Krung Thep'], BOL: ['La Paz'] };
 /** Pin questions only use countries a player can realistically find and tap on a phone-sized world map:
  *  at least 3,000 km² (so Fiji, Vanuatu and Cyprus count, tiny atolls and microstates do not). Small ones open zoomed in. */
 const PIN_MIN_AREA = 3000;
@@ -105,7 +106,7 @@ function subregionBox(c: Country): [number, number, number, number] {
 }
 function namesOverlap(a: Country, b: Country) { return [a.name, a.nl, spanishCountry(a.name)].some((name,i) => name.toLocaleLowerCase().includes([b.name,b.nl,spanishCountry(b.name)][i].toLocaleLowerCase())); }
 function nameOption(c: Country): Option { return { id: c.id, en: c.name, nl: c.nl, flag: c.flag }; }
-function capitalOption(c: Country): Option { return { id: c.id, en: c.capitals[0], nl: c.capitals[0] }; }
+function capitalOption(c: Country): Option { return { id: c.id, en: c.capitals[0], nl: dutchCapital(c.capitals[0]) }; }
 export function generateQuestions(settings: Settings, seed: string, exclude: string[] = [], weak: string[] = [], focus?: string, blocked: string[] = []) {
     const rng = random(seed);
     const enabled = shuffle(MODES.filter(m => !settings.enabledModes || settings.enabledModes.includes(m)), rng);
@@ -141,7 +142,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         const daily = seed.startsWith('daily:');
         const mode = settings.mode === 'daily' ? detourOrder[i] : settings.mode === 'mixed' ? enabled[i % enabled.length] : settings.mode;
         let candidates = pool.filter(c => !(mode === 'capitals' || mode === 'trail') || (!GEOGRAPHY_POLICY.excludeSensitiveCapitalQuestions.includes(c.id) && c.capitals.length));
-        if (mode === 'capitals' || mode === 'trail') candidates = candidates.filter(c => ![...c.capitals,...c.capitals.map(spanishCapital)].some(cap => { const a = cap.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return [c.name,c.nl,spanishCountry(c.name)].some(n => { const b=n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return b.includes(a) || a.includes(b); }); }));
+        if (mode === 'capitals' || mode === 'trail') candidates = candidates.filter(c => ![...c.capitals,...c.capitals.map(spanishCapital),...c.capitals.map(dutchCapital)].some(cap => { const a = cap.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return [c.name,c.nl,spanishCountry(c.name)].some(n => { const b=n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return b.includes(a) || a.includes(b); }); }));
         if (mode === 'borders')
             candidates = candidates.filter(c => c.borders.some(id => COUNTRIES.some(n => n.id === id && !namesOverlap(c,n))) && !['PSE', 'ISR', 'RUS', 'UKR'].includes(c.id));
         if (mode === 'pinpoint')
@@ -170,7 +171,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
                 continue;
         }
         used.add(id);
-        const q: Question = { id, mode, countryId: c.id, prompt: { en: '', nl: '' }, options: [], correct: c.id, answerLabel: { en: c.name, nl: c.nl }, fact: { en: `${c.name} is in ${c.subregion}. ${c.capitals.length ? 'Its capital ' + (c.capitals.length > 1 ? 'cities are ' : 'is ') + c.capitals.join(' / ') + '.' : ''}`, nl: `${c.nl}: ${c.capitals.length ? 'hoofdstad' + (c.capitals.length > 1 ? 'en' : '') + ' ' + c.capitals.join(' / ') + '. ' : ''}${c.area.toLocaleString('nl-NL')} km² oppervlakte.` }, difficulty: settings.difficulty };
+        const q: Question = { id, mode, countryId: c.id, prompt: { en: '', nl: '' }, options: [], correct: c.id, answerLabel: { en: c.name, nl: c.nl }, fact: { en: `${c.name} is in ${c.subregion}. ${c.capitals.length ? 'Its capital ' + (c.capitals.length > 1 ? 'cities are ' : 'is ') + c.capitals.join(' / ') + '.' : ''}`, nl: `${c.nl}: ${c.capitals.length ? 'hoofdstad' + (c.capitals.length > 1 ? 'en' : '') + ' ' + c.capitals.map(dutchCapital).join(' / ') + '. ' : ''}${c.area.toLocaleString('nl-NL')} km² oppervlakte.` }, difficulty: settings.difficulty };
         const others = COUNTRIES.filter(x => x.id !== c.id && x.capitals.length);
         const nearby = shuffle(others.filter(x => x.region === c.region), rng);
         const far = shuffle(others.filter(x => x.region !== c.region), rng);
@@ -186,8 +187,8 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         else if (mode === 'capitals') {
             q.prompt = { en: `${c.capitals.length > 1 ? 'Which is a capital' : 'What is the capital'} of ${c.name}?`, nl: `${c.capitals.length > 1 ? 'Welke stad is een hoofdstad' : 'Wat is de hoofdstad'} van ${c.nl}?` };
             q.options = shuffle([c, ...plausible.filter(x => !x.capitals.some(a => c.capitals.includes(a))).filter((x, i, a) => a.findIndex(y => y.capitals[0] === x.capitals[0]) === i).slice(0, 3)], rng).map(capitalOption);
-            q.answerLabel = { en: c.capitals.join(' / '), nl: c.capitals.join(' / ') };
-            q.aliases = [...c.capitals, ...c.capitals.map(spanishCapital), ...(aliases[c.id] ?? [])];
+            q.answerLabel = { en: c.capitals.join(' / '), nl: c.capitals.map(dutchCapital).join(' / ') };
+            q.aliases = [...c.capitals, ...c.capitals.map(spanishCapital), ...c.capitals.map(dutchCapital), ...(aliases[c.id] ?? [])];
             q.typed = !!settings.typed;
         }
         else if (mode === 'trail') {
@@ -197,7 +198,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.clues = [
                 { en: 'Start your search in ' + c.region + '.', nl: 'Begin je zoektocht in ' + (regionNL[c.region] ?? c.region) + '.' },
                 { en: neighbor ? 'I share a land border with ' + neighbor.name + '.' : 'I have no land borders with other countries in this atlas.', nl: neighbor ? 'Ik deel een landgrens met ' + neighbor.nl + '.' : 'Ik heb geen landgrenzen met andere landen in deze atlas.' },
-                { en: 'My capital is ' + c.capitals[0] + '.', nl: 'Mijn hoofdstad is ' + c.capitals[0] + '.', es: 'Mi capital es ' + spanishCapital(c.capitals[0]) + '.' },
+                { en: 'My capital is ' + c.capitals[0] + '.', nl: 'Mijn hoofdstad is ' + dutchCapital(c.capitals[0]) + '.', es: 'Mi capital es ' + spanishCapital(c.capitals[0]) + '.' },
                 { en: 'My flag looks like this.', nl: 'Mijn vlag ziet er zo uit.', es: 'Mi bandera tiene este aspecto.' }
             ];
             q.flag = c.iso2;

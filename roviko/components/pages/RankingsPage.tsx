@@ -1,4 +1,5 @@
 'use client';
+import { plural } from '@/lib/plural';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Trophy } from 'lucide-react';
@@ -6,7 +7,8 @@ import { api, formatScore } from '@/lib/client';
 import { useApp } from '../app/context';
 import { A, Avatar, Choice } from '../app/shared';
 import { EmptyState, ErrorState, PageHeader, SectionHeader, Skeleton } from '../ds/States';
-import { useCompetition } from '../home/useDay';
+import { useCompetition, useLeague } from '../home/useDay';
+import { LeagueCard } from '../atelier/League';
 
 type Leader = { name: string; avatar: number; score: number; place: number; me: number | boolean };
 type Entry = { id: string; name: string; avatar: number; score: number };
@@ -30,7 +32,7 @@ function DailyRankings() {
       <div className="segmented rank-tabs" role="tablist" aria-label={t('rankingsKicker')}>
         {tabs.map(k => <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{t(tabLabel[k])}</button>)}
       </div>
-      {standing && <span className="muted">{t('rankingsPlayers').replace('{n}', n(standing.participants))}</span>}
+      {standing && <span className="muted">{plural(t, 'rankingsPlayers', standing.participants, '{n}', n(standing.participants))}</span>}
     </div>
     {error ? <ErrorState title={t('stateErrorTitle')} copy={t('stateErrorCopy')} onRetry={retry} retryLabel={t('retry')}/>
       : !standing ? <div className="rank-skeleton" aria-busy="true"><Skeleton className="sk-block sk-you"/>{Array.from({ length: 6 }, (_, i) => <Skeleton key={i} className="sk-block sk-list-row"/>)}<span className="sr-only" role="status">{t('loading')}</span></div>
@@ -46,7 +48,7 @@ function DailyRankings() {
           {standing.leaders.map((p: Leader, i: number) => <li key={i} className={p.me ? 'is-you' : ''}>
             <Place place={p.place}/><Avatar id={p.avatar}/><span className="leader-name">{p.me ? t('competitionYou') : p.name}</span><strong>{n(p.score)}</strong>
           </li>)}
-        </ol> : <EmptyState icon={Trophy} title={t('rankingsEmptyTitle')} copy={t('rankingsEmptyCopy')}><A href="/" className="btn primary">{t('tripStart')}</A></EmptyState>}
+        </ol> : <EmptyState icon={Trophy} title={t('rankingsEmptyTitle')} copy={t('rankingsEmptyCopy')}/>/* the way to today's games is already the button in "Your position" */}
         <p className="muted small-print">{t('scoringTies')} <A href="/scoring" className="text-link">{t('scoringLink')}</A></p>
       </>}
   </section>;
@@ -77,9 +79,11 @@ function FriendsRankings() {
 }
 
 export function RankingsPage() {
-  const { t } = useApp();
-  return <div className="page rankings">
-    <PageHeader art="spot-rank-radar" kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('rankingsLead')}/>
+  const { t, locale, boot, setModal, go } = useApp();
+  const { data: league } = useLeague(boot);
+  return <div className="page rankings trip-page">
+    <PageHeader art="spot-rank-radar" kicker={t('rankingsKicker')} title={t('rankingsTitle')} lead={t('pgRankLead')}/>
+    <div id="league"><LeagueCard league={league} t={t} locale={locale} onSignup={() => setModal('signup')} onPlay={() => go('/')}/></div>
     <DailyRankings/>
     <FriendsRankings/>
   </div>;
