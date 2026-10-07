@@ -1,0 +1,130 @@
+[
+ {
+  "t": 0.01,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 2.2927,
+  "beat": 4.6,
+  "sfx": "collapse",
+  "gain": -7
+ },
+ {
+  "t": 2.492,
+  "beat": 5,
+  "sfx": "whoosh",
+  "gain": -10
+ },
+ {
+  "t": 2.6914,
+  "beat": 5.4,
+  "sfx": "pin",
+  "gain": -7
+ },
+ {
+  "t": 2.9904,
+  "beat": 6,
+  "sfx": "slide",
+  "gain": -7
+ },
+ {
+  "t": 3.7131,
+  "beat": 7.45,
+  "sfx": "mention",
+  "gain": -7,
+  "rate": 1
+ },
+ {
+  "t": 4.2115,
+  "beat": 8.45,
+  "sfx": "error",
+  "gain": -6,
+  "rate": 1
+ },
+ {
+  "t": 4.9093,
+  "beat": 9.85,
+  "sfx": "mention",
+  "gain": -7,
+  "rate": 1.06
+ },
+ {
+  "t": 5.4077,
+  "beat": 10.85,
+  "sfx": "error",
+  "gain": -6,
+  "rate": 1.05
+ },
+ {
+  "t": 6.1055,
+  "beat": 12.25,
+  "sfx": "mention",
+  "gain": -7,
+  "rate": 1.12
+ },
+ {
+  "t": 6.6039,
+  "beat": 13.25,
+  "sfx": "error",
+  "gain": -6,
+  "rate": 1.1
+ },
+ {
+  "t": 7.4761,
+  "beat": 15,
+  "sfx": "impact",
+  "gain": -4
+ },
+ {
+  "t": 7.5259,
+  "beat": 15.1,
+  "sfx": "correct",
+  "gain": -5
+ },
+ {
+  "t": 7.7253,
+  "beat": 15.5,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 8.3732,
+  "beat": 16.8,
+  "sfx": "tick",
+  "gain": -10
+ },
+ {
+  "t": 8.9962,
+  "beat": 18.05,
+  "sfx": "slide",
+  "gain": -8,
+  "rate": 1.25
+ },
+ {
+  "t": 9.8186,
+  "beat": 19.7,
+  "sfx": "mention",
+  "gain": -7
+ },
+ {
+  "t": 11.2141,
+  "beat": 22.5,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 11.3387,
+  "beat": 22.75,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 11.5132,
+  "beat": 23.1,
+  "sfx": "expand",
+  "gain": -10
+ }
+]
