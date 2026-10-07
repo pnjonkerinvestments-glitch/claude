@@ -1,0 +1,77 @@
+[
+ {
+  "t": 0.0109,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 1.4181,
+  "beat": 2.6,
+  "sfx": "pin",
+  "gain": -5
+ },
+ {
+  "t": 1.6362,
+  "beat": 3,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 3.0543,
+  "beat": 5.6,
+  "sfx": "pin",
+  "gain": -5,
+  "rate": 1.1
+ },
+ {
+  "t": 3.2724,
+  "beat": 6,
+  "sfx": "pop",
+  "gain": -8,
+  "rate": 1.1
+ },
+ {
+  "t": 4.6905,
+  "beat": 8.6,
+  "sfx": "whoosh",
+  "gain": -6
+ },
+ {
+  "t": 5.1813,
+  "beat": 9.5,
+  "sfx": "expand",
+  "gain": -8
+ },
+ {
+  "t": 5.454,
+  "beat": 10,
+  "sfx": "boing",
+  "gain": -6
+ },
+ {
+  "t": 7.472,
+  "beat": 13.7,
+  "sfx": "mention",
+  "gain": -7
+ },
+ {
+  "t": 9.5446,
+  "beat": 17.5,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 9.6809,
+  "beat": 17.75,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 9.8718,
+  "beat": 18.1,
+  "sfx": "expand",
+  "gain": -10
+ }
+]

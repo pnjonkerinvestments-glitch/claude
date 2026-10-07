@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko posts: real screens of roviko.app 1.24</title>
+<!--
+  Three photo carousels built from real screens of roviko.app 1.24 (local test data only): the six daily games, the
+  whole-map answer of Next Door, and game night for up to 12 friends. real.html?post=1&slide=0 draws one slide on a
+  1080x1920 canvas; build/render.mjs cuts TikTok 3:4 (y 150-1590) and Instagram 4:5 (y 285-1635). Content sits in y 300-1552.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+b { color: #1F806B; font-weight: inherit; }
+</style>
+<script src="../../roviko-launch-film/assets/mascot.js"></script>
+<script src="../../roviko-carousels/data/geo.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="../../roviko-shorts/lib/core.js"></script>
+<script src="../../roviko-shorts/lib/extras.js"></script>
+<script>
+const SCR = '../../roviko-shorts/screens/';
+const POSTS = {
+  1: { name: 'six-games', slides: [
+    { cover: true, kicker: 'ROVIKO · 6 DAILY GAMES', title: ['6 games.', '5 minutes.', '<b>Every day.</b>'], sub: 'Swipe to see them all →', tiles: ['🧭', '📡', '⚔️', '⚖️', '🧩', '🔎'] },
+    { kicker: 'GAME 1 · DAILY DETOUR', title: ['Daily Detour'], sub: '20 quick questions: flags, capitals,\nmaps, neighbours and sizes.', shot: 'detour-q' },
+    { kicker: 'GAME 2 · RANK RADAR', title: ['Rank Radar'], sub: '8 countries, 8 subjects. Pick where\neach country ranks highest.', shot: 'rank-reveal' },
+    { kicker: 'GAME 3 · WORLD DUEL', title: ['World Duel'], sub: '7 cards. Which of your countries\nbeats Roviko’s on this stat?', shot: 'duel' },
+    { kicker: 'GAME 4 · SIDE BY SIDE', title: ['Side by Side'], sub: 'Which one has more? From easy\nto hard. One mistake ends it.', shot: 'compare-a' },
+    { kicker: 'GAME 5 · COUNTRY MOSAIC', title: ['Country Mosaic'], sub: 'Match the flag, name, shape\nand a fact of 4 countries.', shot: 'mosaic-pick' },
+    { kicker: 'GAME 6 · CLUE TRAIL', title: ['Clue Trail'], sub: '5 countries. The fewer clues you\nneed, the more points you get.', shot: 'trail' },
+    { cta: true, kicker: 'YOUR TURN', title: ['Which one is', 'your <b>favourite</b>? 👇'], sub: 'Up to 1,000 points per game. New every day.\nFree, no account needed: roviko.app' },
+  ] },
+  2: { name: 'whole-map', slides: [
+    { cover: true, kicker: 'NEW ON ROVIKO', title: ['Wrong answer?', 'Now you see', 'the <b>whole map</b> 🗺️'], sub: 'Swipe →', shot: 'border2-map', tilt: 4 },
+    { kicker: 'STEP 1', title: ['Pick the neighbour'], sub: 'Which country shares a land border\nwith Bolivia? You get 4 options.', shot: 'border2-q' },
+    { kicker: 'STEP 2', title: ['Oops 🙈'], sub: 'Ivory Coast was a bold choice.\nThe right answer turns green.', shot: 'border2-a' },
+    { kicker: 'STEP 3', title: ['See exactly where'], sub: 'The whole continent, with every border:\nthe country, the answer and your pick.', shot: 'border2-map' },
+    { cta: true, kicker: 'YOUR TURN', title: ['Name all <b>5</b> of', 'Switzerland’s', 'neighbours 👇'], sub: 'Play Next Door at roviko.app' },
+  ] },
+  3: { name: 'game-night', slides: [
+    { cover: true, kicker: 'GAME NIGHT IDEA', title: ['A geography', 'battle for up to', '<b>12 friends</b> 🎮'], sub: 'Here’s how it works →', shot: 'mp-results', tilt: -4 },
+    { kicker: 'STEP 1', title: ['Make a room'], sub: 'Share the code. Pick the rounds\nand the level. Up to 12 players.', shot: 'mp-lobby' },
+    { kicker: 'STEP 2', title: ['Everyone answers'], sub: 'Same question, same time.\nThe clock is ticking.', shot: 'mp-round' },
+    { kicker: 'STEP 3', title: ['See who picked what 👀'], sub: 'Every player’s avatar lands\non the answer they chose.', shot: 'mp-reveal' },
+    { kicker: 'STEP 4', title: ['Podium. Rematch?'], sub: 'Points for right and fast answers.\nNo friends online? Play the computer.', shot: 'mp-results' },
+    { cta: true, kicker: 'YOUR TURN', title: ['Tag your', 'game night', '<b>crew</b> 👇'], sub: 'Start a room at roviko.app' },
+  ] },
+};
+const P = POSTS[+(Q.get('post') || 1)], SL = P.slides[+(Q.get('slide') || 0)], N = P.slides.length, I = +(Q.get('slide') || 0);
+S(document.body, { width: 1080, height: 1920 }); S(stage, { width: 1080, height: 1920, background: C.cream });
+Halo(stage, 540, 900, 1700);
+const pill = (txt, y, bg = C.forest, fg = C.white) => { const e = Tag(stage, txt, { bg, fg, size: 26, h: 56, z: 10 }); centreX(e, y); return e; };
+// progress dots, bottom of the safe area
+const dots = el(stage, { left: 0, top: 1528, width: 1080, height: 20, display: 'flex', justifyContent: 'center', gap: '12px', zIndex: 10 },
+  P.slides.map((_, i) => `<span style="width:${i === I ? 34 : 14}px;height:14px;border-radius:7px;background:${i === I ? C.forest : 'rgba(22,59,50,.2)'};display:block"></span>`).join(''));
+function phone(name, cx, top, w, tilt = 0, z = 6) {
+  const h = w * 844 / 390, f = el(stage, { left: cx - w / 2 - 14, top: top - 14, width: w + 28, height: h + 28, borderRadius: w * 0.14, background: C.forest, zIndex: z,
+    transform: `rotate(${tilt}deg)`, boxShadow: '0 50px 90px rgba(22,59,50,.2), 0 14px 30px rgba(22,59,50,.14)' });
+  el(f, { left: 14, top: 14, width: w, height: h, borderRadius: w * 0.115, overflow: 'hidden' }, `<img src="${SCR}${name}.jpg" style="width:${w}px;height:${h}px;display:block">`);
+  return f;
+}
+const title = (lines, y, size) => el(stage, { left: 60, top: y, width: 960, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 600, fontSize: size, lineHeight: size * 1.12 + 'px', color: C.forest, zIndex: 10 }, lines.join('<br>'));
+const sub = (txt, y, size = 34) => el(stage, { left: 80, top: y, width: 920, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 700, fontSize: size, lineHeight: size * 1.35 + 'px', color: 'rgba(22,59,50,.8)', whiteSpace: 'pre', zIndex: 10 }, txt);
+function mascot(x, y, r, st) { const box = el(stage, { left: x - r * 1.7, top: y - r * 1.7, width: r * 3.4, height: r * 3.4, zIndex: 12 }); const m = Mascot(box, r * 3.4); S(m.svg, { left: 0, top: 0 }); drawMascot(m, st); }
+if (SL.cover && SL.shot) {
+  pill(SL.kicker, 318); title(SL.title, 400, 84);
+  phone(SL.shot, 560, 790, 330, SL.tilt);
+  mascot(250, 1380, 92, { look: [0.8, -0.6], mouth: 'grin', happy: 1, cheeks: 0.8, legs: 1, arms: [[-118, -92, -22, 11], [118, -92, -22, 11]] });
+  const s = Tag(stage, SL.sub, { bg: C.gold, fg: C.forest, font: 'Fredoka', weight: 600, size: 36, h: 76, ls: '0', z: 12 }); LAYOUT.push(() => S(s, { left: 640, top: 1400 }));
+} else if (SL.cover) {
+  pill(SL.kicker, 318); title(SL.title, 400, 104);
+  const tiles = el(stage, { left: 0, top: 800, width: 1080, display: 'flex', justifyContent: 'center', gap: '18px', zIndex: 10 },
+    SL.tiles.map(e => `<span style="width:130px;height:130px;border-radius:34px;background:#fff;display:grid;place-items:center;font-size:66px;box-shadow:0 12px 28px rgba(22,59,50,.14)">${e}</span>`).join(''));
+  mascot(540, 1180, 120, { look: [0, -0.3], mouth: 'grin', happy: 1, cheeks: 0.8, legs: 1, arms: [[-118, -92, -22, 11], [118, -92, -22, 11]] });
+  const s = Tag(stage, SL.sub, { bg: C.gold, fg: C.forest, font: 'Fredoka', weight: 600, size: 38, h: 80, ls: '0', z: 12 }); centreX(s, 1420);
+} else if (SL.cta) {
+  pill(SL.kicker, 318); title(SL.title, 420, 96);
+  mascot(540, 1020, 150, { look: [0, -0.2], mouth: 'smile', cheeks: 0.6, legs: 1, arms: [[-118, -92, -22, 11], [112, 66, 22, 10]] });
+  sub(SL.sub, 1290, 36);
+  const u = Tag(stage, 'roviko.app', { bg: C.green, fg: C.white, font: 'Fredoka', weight: 600, size: 44, h: 88, ls: '0', z: 12 }); centreX(u, 1410);
+} else {
+  pill(SL.kicker, 318); title(SL.title, 392, 70);
+  sub(SL.sub, 480, 34);
+  phone(SL.shot, 540, 600, 418);
+}
+window.filmReady = (async () => { await document.fonts.load('600 40px Fredoka'); await document.fonts.load('700 20px Manrope'); await document.fonts.load('800 20px Manrope'); await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.decode().catch(() => {}))); await paintHalos(); LAYOUT.forEach(f => f()); return true; })();
+</script>
+</body>
+</html>

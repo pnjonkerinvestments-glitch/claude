@@ -81,3 +81,56 @@ function setupStage(bg = C.cream) {
   S(document.body, { width: 1080, height: 1920, background: bg });
   S(stage, { width: 1080, height: 1920, background: bg });
 }
+
+// ------------------------------------------------------------------ third batch (shorts 11-20)
+const FLAG_DIR = '../../roviko/public/flags/';
+// a group-chat message: round flag avatar, the sender's name and a bubble. set(pIn, pOut, dy)
+function FlagMsg(parent, { flag, emoji = null, name, text, x = 80, y, w = 860, size = 36, z = 30, bg = C.white, fg = C.forest }) {
+  const box = el(parent, { left: x, top: y, width: w, height: 150, zIndex: z, transformOrigin: '0% 30%' });
+  el(box, { left: 0, top: 8, width: 88, height: 88, borderRadius: 44, overflow: 'hidden', background: '#fff', boxShadow: '0 0 0 4px #fff, 0 8px 18px rgba(22,59,50,.18)' },
+    flag ? `<img src="${FLAG_DIR}${flag}.svg" style="width:100%;height:100%;object-fit:cover;display:block">` : emoji ? `<div style="width:88px;height:88px;display:grid;place-items:center;font-size:52px;background:${C.mint}">${emoji}</div>` : '');
+  el(box, { left: 112, top: 0, fontFamily: 'Manrope', fontWeight: 800, fontSize: 24, color: 'rgba(22,59,50,.6)', whiteSpace: 'pre' }, name);
+  const bub = el(box, { left: 112, top: 34, padding: '14px 26px', borderRadius: '8px 30px 30px 30px', background: bg, fontFamily: 'Manrope', fontWeight: 700, fontSize: size,
+    lineHeight: size * 1.28 + 'px', color: fg, whiteSpace: 'pre', boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 14px 32px rgba(22,59,50,.14)' }, text);
+  return { box, bub, set(p, out = 0, dy = 0) {
+    const s = lerp(0.2, 1, clamp(p, 0, 1.2)) * (1 - E.inBack(clamp(out)));
+    S(box, { transform: `translateY(${dy.toFixed(1)}px) scale(${s})` }); show(box, p > 0.001 && out < 1);
+  } };
+}
+// a map of every country in an equal-area projection around (lon, lat), fitted so `fit` fills the box {x, y, w, h}.
+// Returns the svg, one path per country id, and pt(lon, lat) -> screen px.
+// flat: a plain lon/lat (equirectangular) map, so lines of latitude and longitude stay straight; bounds: [lon0, lat0, lon1, lat1] instead of fit
+function WorldMap(parent, { lon, lat, fit = [], bounds = null, flat = false, box, pad = 0.1, land = '#CFE9DA', stroke = '#FFFFFF', sw = 2, sea = null, z = 5, only = null }) {
+  const kx = Math.cos(rad(lat));
+  const P = flat ? (lo, la) => [rad(lo - lon) * kx, -rad(la - lat), 1] : laea(lon, lat);
+  const pts = bounds ? [P(bounds[0], bounds[1]), P(bounds[2], bounds[3])] : fit.flatMap(id => geoCentre(id).near.flatMap(poly => poly[0])).map(([a, b]) => P(a, b));
+  const bb = bboxOf(pts);
+  const R = Math.min(box.w * (1 - pad) / (bb[2] - bb[0]), box.h * (1 - pad) / (bb[3] - bb[1]));
+  const ox = box.x + box.w / 2 - R * (bb[0] + bb[2]) / 2, oy = box.y + box.h / 2 - R * (bb[1] + bb[3]) / 2;
+  const pt = (lo, la) => { const [x, y] = P(lo, la); return [ox + R * x, oy + R * y]; };
+  const ringD = r => {
+    const q = r.map(([lo, la]) => P(lo, la));
+    if (q.some(p => p[2] < 0.05)) return '';
+    if (flat && q.some(p => Math.abs(p[0]) > 2.6)) return '';
+    let d = '', last = null;
+    q.forEach(([x, y], i) => { const X = ox + R * x, Y = oy + R * y; if (last && i < q.length - 1 && Math.hypot(X - last[0], Y - last[1]) < 1.2) return; d += (d ? 'L' : 'M') + X.toFixed(1) + ' ' + Y.toFixed(1); last = [X, Y]; });
+    return d + 'Z';
+  };
+  const wrap = el(parent, { left: 0, top: 0, width: 1080, height: 1920, zIndex: z, transformOrigin: `${box.x + box.w / 2}px ${box.y + box.h / 2}px` });
+  const svg = svgEl(wrap, 'svg', { width: 1080, height: 1920 }); svg.style.position = 'absolute';
+  if (sea) svgEl(svg, 'rect', { x: box.x, y: box.y, width: box.w, height: box.h, rx: 40, fill: sea });
+  if (sea) S(svg, { clipPath: `inset(${box.y}px ${1080 - box.x - box.w}px ${1920 - box.y - box.h}px ${box.x}px round 40px)` });
+  const paths = {};
+  for (const id in GEO) {
+    if (only && !only.includes(id)) continue;
+    const d = GEO[id].map(poly => poly.map(ringD).join('')).join('');
+    if (d) paths[id] = svgEl(svg, 'path', { d, fill: land, stroke, 'stroke-width': sw, 'stroke-linejoin': 'round' });
+  }
+  return { wrap, svg, paths, pt, R };
+}
+// a flag card (white frame, true ratio), centred at (x, y) with height h
+function FlagCard(parent, code, x, y, h, z = 20) {
+  const e = el(parent, { left: x - h, top: y - h / 2, width: 2 * h, height: h, zIndex: z, display: 'flex', justifyContent: 'center', alignItems: 'center', transformOrigin: '50% 50%' },
+    `<img src="${FLAG_DIR}${code}.svg" style="height:${h}px;border-radius:${h * 0.06}px;box-shadow:0 0 0 ${Math.max(4, h * 0.035)}px #fff, 0 16px 40px rgba(22,59,50,.2);display:block">`);
+  return e;
+}

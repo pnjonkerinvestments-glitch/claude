@@ -3,7 +3,8 @@
   python3 social/daily-posts/build.py <out_dir> [first] [last]   ->  <out_dir>/Dag-01 … (+ one zip per day)
 
 A day = 1 "Guess the country" carousel, 1 funny Roviko video, 1 "Sounds fake" fact, 1 "Flag a Day" video.
-Days 1-10 are complete (10 carousels, 10 funny videos, 10 facts, 30 flags).
+Days 1-20 are complete (20 carousels, 20 funny videos, 20 facts, 30 flags). The five real-app films and three real-screen posts
+are bundled separately with viral.py.
 """
 import shutil
 import sys
@@ -239,6 +240,211 @@ Flag a Day · Day 10/30 🔥
 📌 Save this and test your friends.
 Play with up to 12 friends at roviko.app
 #fyp #foryou #flags #quiz #geography""", "Did you get it in 3 seconds? Be honest 😅")),
+    # ------------------------------------------------------------------ days 11-20 (round 3 and 4 map challenges, funny shorts 11-20, facts 11-20, flags 11-20)
+    dict(post=11, funny='roviko-short-11-groupchat.mp4', fact=11, flag=11,
+         car=('Europe, round 3', """Europe round 3 🇪🇺 Number 5 is smaller than Wales 👀
+5 countries. Every swipe gets harder.
+✋ Guess BEFORE you swipe. No googling.
+🏆 Your rank is on the last slide.
+Comment your score like this: 4/5
+#fyp #foryou #geography #quiz #guessthecountry""", "Did number 5 get you? Be honest 👀"),
+         fun=('If countries had a group chat', """If countries had a group chat 💬
+Canada says sorry, Switzerland stays neutral and the Netherlands wants to split the bill 🧾
+Which country are YOU in the group chat? 👇
+Meet them all at roviko.app
+#fyp #foryou #funny #geography #countries""", "Which country should join the chat next? Best idea gets its own message 👇"),
+         fact_c=('Canada shares a land border with Denmark', """Canada has a land border with… DENMARK? 🇨🇦🇩🇰
+Only the USA, USA & Denmark, or USA & Russia? Comment A, B or C 👇
+One "wait, really?!" fact a day 👉 roviko.app (link in bio). No account needed.
+#fyp #foryou #didyouknow #funfacts #geography""", "B 🇩🇰 In 2022 Canada and Denmark (Greenland) split tiny Hans Island in half, so now they share a land border. Before that they 'fought' over it for decades by leaving bottles of whisky and schnapps on the island 🥃 ✅ or ❌?"),
+         flag_c=('Portugal, EASY', """Quick one before your coffee ☕
+Flag a Day · Day 11/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Flags, maps and capitals at roviko.app
+#fyp #foryou #flags #quiz #geography""", "Got it before 2 or before 1? ⏱️")),
+    dict(post=12, funny='roviko-short-12-nolabels.mp4', fact=12, flag=12,
+         car=('Africa, round 3', """Africa round 3 🌍 Number 5 is the "land of a thousand hills"
+5 countries. Harder with every swipe.
+👀 Type your guess in the comments before you swipe.
+Stuck? The hard ones come with a hint.
+Last slide = your rank. Tourist or Legend?
+#fyp #foryou #geography #quiz #guessthecountry""", "Which number fooled you? 1, 2, 3, 4 or 5? 👇"),
+         fun=('Me vs a map without labels', """Me: "I'm really good at geography" 😎
+Also me, the same map without labels: 💀
+Did you get it before Roviko? 👇
+Maps without labels, every day at roviko.app
+#fyp #foryou #funny #geography #relatable""", "It was Chad 🇹🇩 Which country do YOU always mix up on a blank map? 👇"),
+         fact_c=('Russia and the USA are 4 km apart', """Russia and the USA are only ___ apart 😳
+4 km, 80 km or 800 km? Comment A, B or C 👇
+Think you'd know? Test yourself every day at roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #geography""", "A: about 4 km (3.8 km) 🇷🇺🇺🇸 Big Diomede (Russia) and Little Diomede (USA) sit in the Bering Strait, with the date line between them. Nicknames: Tomorrow Island and Yesterday Isle 🗓️ ✅ or ❌?"),
+         flag_c=('Indonesia, TRAP', """Two countries, almost the same flag. Which one is THIS? 🪤
+Flag a Day · Day 12/30 🔥
+✅ or ❌? Comment it and keep your streak going 🔥
+Daily geography trips at roviko.app
+#fyp #foryou #flags #quiz #geography""", "Team Indonesia or team Monaco? 👇")),
+    dict(post=13, funny='roviko-short-13-italy.mp4', fact=13, flag=13,
+         car=('Asia, round 3', """Asia round 3 🌏 One of these is double landlocked 👀
+5 countries. Harder with every swipe.
+✍️ Keep count as you go. The answer is always one swipe away.
+🏆 The last slide tells you if you're a Tourist or a Legend.
+Drop your score: __/5
+#fyp #foryou #geography #quiz #guessthecountry""", "Which one is double landlocked? Comment the number 👇"),
+         fun=('Italy has 2 countries inside it', """Italy has 2 countries INSIDE it 🇮🇹🤯
+San Marino 🇸🇲 and Vatican City 🇻🇦, a country inside a city.
+Name the 3rd country that sits completely inside another one 👇
+Geography is weird. Play it daily at roviko.app
+#fyp #foryou #funny #geography #italy""", "Answer: Lesotho 🇱🇸, completely surrounded by South Africa. Who got it? 🙋"),
+         fact_c=('In Ethiopia it is still 2019', """In one country it's still 2019 right now 📅
+Ethiopia, Japan or Nepal? A, B or C 👇
+Facts like this, as a 5-minute daily quiz 👉 roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #geography""", "Ethiopia 🇪🇹 uses its own calendar, about 7 to 8 years behind. Its year has 12 months of 30 days plus a mini month of 5 or 6 days, and New Year is on 11 September 🎉 ✅ or ❌?"),
+         flag_c=('Argentina, EASY', """Easy one… or is it? 👀
+Flag a Day · Day 13/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Play with up to 12 friends at roviko.app
+#fyp #foryou #flags #quiz #geography""", "What's your streak so far? 🔥")),
+    dict(post=14, funny='roviko-short-14-twinflags.mp4', fact=14, flag=14,
+         car=('The Americas, round 3', """The Americas round 3 🌎 Number 5 speaks Dutch 👀
+5 countries. Every swipe gets harder.
+✋ Guess first, then swipe. No googling.
+🏆 Your rank is waiting on the last slide.
+Comment your score + the one that fooled you 👇
+#fyp #foryou #geography #quiz #guessthecountry""", "Did you know number 5 speaks Dutch? 🇸🇷👇"),
+         fun=('Flags that are basically the same flag', """Flags that are basically the same flag 😵‍💫
+Chad vs Romania. Indonesia vs Monaco. Ireland vs Ivory Coast. Australia vs New Zealand.
+Which pair gets you every time? 👇
+Spot the difference daily at roviko.app
+#fyp #foryou #funny #flags #geography""", "Chad and Romania: the blue is just a tiny bit darker on Chad's flag. Did you know? 👀"),
+         fact_c=('South Africa has 3 capitals', """One country has THREE capital cities 🏛️🏛️🏛️
+South Africa, Bolivia or the Netherlands? A, B or C 👇
+Play one geography quiz a day at roviko.app (link in bio). No account needed.
+#fyp #foryou #didyouknow #funfacts #geography""", "South Africa 🇿🇦: Pretoria (government), Cape Town (parliament) and Bloemfontein (courts). Bonus: the Dutch government and parliament sit in The Hague, not in the capital Amsterdam 🇳🇱 ✅ or ❌?"),
+         flag_c=('Sri Lanka, HARD', """Hard mode 😈 Only real flag nerds get this in 3 seconds
+Flag a Day · Day 14/30 🔥
+✍️ Comment your answer before the timer hits 0.
+📌 Save this and test your friends.
+#fyp #foryou #flags #quiz #geography""", "Did you get it in 3 seconds? Be honest 😅")),
+    dict(post=15, funny='roviko-short-15-memory.mp4', fact=15, flag=15,
+         car=('Around the world, round 3', """Around the world, round 3 🌍 Number 5 is completely surrounded by one country
+5 continents. 5 countries. 1 legend.
+✋ Guess before you swipe. The last slide tells you if you're a Geography legend.
+Comment your total: __/5
+#fyp #foryou #geography #quiz #guessthecountry""", "Who got 5/5? 👑 Show yourself."),
+         fun=('I drew Europe from memory', """I drew Europe from memory ✏️ 10/10, no notes.
+Then I checked the real map… 💀
+Rate my Europe 1 to 10 👇 (be nice)
+Learn the real map at roviko.app
+#fyp #foryou #funny #geography #europe""", "Try it yourself: draw Europe from memory and post it. Tag us, we'll rate it 😅"),
+         fact_c=('Only 2 countries do not border Brazil', """Brazil borders every South American country except TWO 🇧🇷
+Chile & Ecuador, Peru & Chile, or Colombia & Ecuador? A, B or C 👇
+Fewer geography fails, starting today 👉 roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #geography""", "A: Chile 🇨🇱 and Ecuador 🇪🇨. Brazil has 10 neighbours, and one of them is France, through French Guiana 🇫🇷 ✅ or ❌?"),
+         flag_c=('Türkiye, EASY', """Free point today. Don't blow it 👀
+Flag a Day · Day 15/30 🔥
+✅ or ❌? Comment it and keep your streak going 🔥
+Daily geography trips at roviko.app
+#fyp #foryou #flags #quiz #geography""", "Halfway there! What's your streak? 🔥")),
+    dict(post=16, funny='roviko-short-16-bigger.mp4', fact=16, flag=16,
+         car=('Europe, round 4', """Europe round 4 🇪🇺 The final Europe challenge. Number 5 is evil 😈
+5 countries. Every swipe gets harder.
+✋ Guess BEFORE you swipe. No googling.
+🏆 Your rank is on the last slide.
+Comment your score like this: 3/5
+#fyp #foryou #geography #quiz #guessthecountry""", "Round 1, 2, 3 or 4: which Europe round was hardest? 👇"),
+         fun=('Roviko is very sure which one is bigger', """Roviko is VERY sure which one is bigger 😎
+Japan or Germany? Brazil or Australia? Mongolia or Iran?
+Did you beat Roviko? Comment your score /3 👇
+Play Side by Side daily at roviko.app
+#fyp #foryou #funny #geography #quiz""", "Roviko got 0/3. Which one surprised you most? 👇"),
+         fact_c=('Nepal has the only non-rectangular flag', """Only ONE country's flag is not a rectangle 🚩
+Nepal, Switzerland or Bhutan? A, B or C 👇
+One "wait, really?!" fact a day 👉 roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #flags""", "Nepal 🇳🇵: two stacked triangles. And 8 of the world's 10 highest mountains are in Nepal, including Everest (8,849 m) ✅ or ❌?"),
+         flag_c=('Mongolia, MEDIUM', """Medium mode. 3 seconds. No pausing 👀
+Flag a Day · Day 16/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Flags, maps and capitals at roviko.app
+#fyp #foryou #flags #quiz #geography""", "Got it before 2 or before 1? ⏱️")),
+    dict(post=17, funny='roviko-short-17-africa.mp4', fact=17, flag=17,
+         car=('Africa, round 4', """Africa round 4 🌍 Number 5 has the same name as its capital
+5 countries. Harder with every swipe.
+👀 Type your guess in the comments before you swipe.
+Last slide = your rank. Tourist or Legend?
+#fyp #foryou #geography #quiz #guessthecountry""", "Name another country with the same name as its capital 👇"),
+         fun=('POV: your friend has been to Africa', """POV: your friend has "been to Africa" 🌍✈️
+"Which country?" "…Africa." 💀
+Africa is 54 countries. Name 5 that aren't Egypt 👇
+All 54, every day at roviko.app
+#fyp #foryou #funny #geography #africa""", "54 countries, and we want to see all of them in the comments. Go 👇"),
+         fact_c=('Istanbul lies on two continents', """One city lies on TWO continents 🌉
+Cairo, Istanbul or Moscow? A, B or C 👇
+Facts like this, as a 5-minute daily quiz 👉 roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #geography""", "Istanbul 🇹🇷: the Bosphorus splits it between Europe and Asia. Bonus: it's not the capital, Ankara is ✅ or ❌?"),
+         flag_c=('Australia, TRAP', """TRAP 🪤 This flag has a twin. Which one is it?
+Flag a Day · Day 17/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Play with up to 12 friends at roviko.app
+#fyp #foryou #flags #quiz #geography""", "Team Australia or team New Zealand? 👇")),
+    dict(post=18, funny='roviko-short-18-pronounce.mp4', fact=18, flag=18,
+         car=('Asia, round 4', """Asia round 4 🌏 One of these has a capital most people get wrong 👀
+5 countries. Harder with every swipe.
+✍️ Keep count as you go. The answer is always one swipe away.
+Drop your score: __/5
+#fyp #foryou #geography #quiz #guessthecountry""", "Which capital did you get wrong? 👇"),
+         fun=("Countries you've been pronouncing wrong", """Countries you've been pronouncing wrong 🗣️
+Kiribati = KIRR-i-bass. Lesotho = leh-SOO-too. Niger = nee-ZHAIR. Nauru = nah-OO-roo.
+Which one did you say wrong? 👇
+Know them, say them right at roviko.app
+#fyp #foryou #funny #geography #learnontiktok""", "Kiribati got me for years 😅 Which country name should we do next? 👇"),
+         fact_c=('Europe and Africa are 14 km apart', """Europe and Africa are only ___ apart 😳
+14 km, 140 km or 400 km? Comment A, B or C 👇
+Play one geography quiz a day at roviko.app (link in bio). No account needed.
+#fyp #foryou #didyouknow #funfacts #geography""", "A: about 14 km, across the Strait of Gibraltar 🇪🇸🇲🇦 On a clear day you can see Morocco from Spain. Bonus: Spain has two cities in Africa, Ceuta and Melilla ✅ or ❌?"),
+         flag_c=('Jamaica, MEDIUM', """This one splits the comments every time 👀
+Flag a Day · Day 18/30 🔥
+✅ or ❌? Comment it and keep your streak going 🔥
+Daily geography trips at roviko.app
+#fyp #foryou #flags #quiz #geography""", "What's your streak so far? 🔥")),
+    dict(post=19, funny='roviko-short-19-onegame.mp4', fact=19, flag=19,
+         car=('The Americas, round 4', """The Americas round 4 🌎 Number 3 connects two continents
+5 countries. Every swipe gets harder.
+✋ Guess first, then swipe. No googling.
+Comment your score + the one that fooled you 👇
+#fyp #foryou #geography #quiz #guessthecountry""", "Be honest: did number 5 fool you? 😅"),
+         fun=('Me at 20:00: just ONE quick game', """Me at 20:00: "just ONE quick game" 😌
+Me at 02:47: 💀
+Tag the friend who always says "one more game" 👇
+Six games a day at roviko.app (then stop. maybe.)
+#fyp #foryou #funny #relatable #gaming""", "What time did YOU stop last night? 🕒👇"),
+         fact_c=("Algeria is Africa's biggest country", """Africa's biggest country is NOT DR Congo or Nigeria 🌍
+Nigeria, DR Congo or Algeria? A, B or C 👇
+Test yourself every day at roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #geography""", "Algeria 🇩🇿: about 2.38 million km², number 1 since Sudan split in 2011. That's more than 4 times mainland France 🇫🇷 ✅ or ❌?"),
+         flag_c=('Vietnam, EASY', """3 seconds is plenty for this one… right? ⏱️
+Flag a Day · Day 19/30 🔥
+✍️ Comment your answer before the timer hits 0.
+Send this to the friend who never gets flags right 👀
+#fyp #foryou #flags #quiz #geography""", "Which flag should we do tomorrow? 👇")),
+    dict(post=20, funny='roviko-short-20-illegal.mp4', fact=20, flag=20,
+         car=('Around the world, round 4', """The final boss, round 4 🌍👑
+5 continents. 5 countries. 1 legend.
+✋ Guess before you swipe. The last slide tells you if you're a Geography legend.
+Did all 20 challenges? Comment your total: __/100
+#fyp #foryou #geography #quiz #guessthecountry""", "Who did all 20 map challenges? 👑 Drop your total."),
+         fun=('Map facts that feel illegal', """Map facts that feel illegal 🚨
+Rome is further north than New York. Reno is further west than Los Angeles. And from Detroit, Canada is to the SOUTH.
+Drop a map fact that feels illegal 👇
+#fyp #foryou #funny #geography #maps""", "Best illegal map fact in the comments gets its own video 👀👇"),
+         fact_c=('The highest mountain of the Netherlands is a volcano', """The highest mountain in the Netherlands is… 🇳🇱
+A dune, a volcano or a hill in Limburg? Comment A, B or C 👇
+One "wait, really?!" fact a day 👉 roviko.app (link in bio)
+#fyp #foryou #didyouknow #funfacts #netherlands""", "B: a volcano 🌋 Mount Scenery (887 m) on Saba in the Caribbean, part of the Netherlands since 2010. In Europe the Dutch top is the Vaalserberg: 322 m ✅ or ❌?"),
+         flag_c=('Kazakhstan, MEDIUM', """Medium mode 👀 Gold on blue. 3 seconds. Go.
+Flag a Day · Day 20/30 🔥
+✍️ Comment your answer before the timer hits 0.
+📌 Save this and test your friends.
+#fyp #foryou #flags #quiz #geography""", "Got it before 2 or before 1? ⏱️")),
 ]
 
 LINE = '=' * 60

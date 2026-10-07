@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 12: "Me: I'm good at geography. Also me: the same map without labels"</title>
+<!--
+  Roviko short 12: "Me: I'm good at geography. Also me: the same map without labels"
+  14 s, 1080x1920, 120 BPM ("Funkee Monkeee", Mixkit, from song beat 48). Roviko in sunglasses next to a labelled map of Africa.
+  The labels fall off, one country lights up gold: "Which country is this?" His shades slide down; he guesses Niger, Sudan and
+  finally "…Africa?", each one crossed out. It floods green: Chad. Deadpan stare. "I knew that." Did you know it?
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 120.384, DIL = TEMPO / 130, END = 28, DURATION = END * 60 / TEMPO;
+const TL = { strip: 4.6, q: 5.4, g: [7.4, 9.8, 12.2], x: 1.0, reveal: 15, stare: 16.4, knew: 18, cap2: 19.6, end: 22.4, hop: 26, blink2: 24.6 };
+setupStage(C.cream);
+const world = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+Halo(world, 540, 900, 1700);
+const BOX = { x: 110, y: 400, w: 860, h: 800 };
+const mapCard = el(uiL, { left: BOX.x - 14, top: BOX.y - 14, width: BOX.w + 28, height: BOX.h + 28, borderRadius: 54, background: C.white, zIndex: 4, boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+const map = WorldMap(uiL, { lon: 18, lat: 2, fit: ['DZA', 'ZAF', 'SOM', 'SEN', 'EGY'], box: BOX, pad: 0.06, sea: '#BFE4F8', land: '#CFE9DA', z: 5 });
+const tcd = map.paths.TCD;
+const LBL = [['Egypt', 30, 26.5], ['Nigeria', 8, 9.5], ['Kenya', 38, 0.5], ['South Africa', 24, -30], ['Algeria', 2.5, 28], ['DR Congo', 23, -3], ['Ethiopia', 39.5, 8.5], ['Mali', -2, 17.5]];
+const labels = LBL.map(([n, lo, la]) => { const e = Tag(uiL, n, { bg: C.white, fg: C.forest, size: 24, h: 46, z: 8 }); const [x, y] = map.pt(lo, la); LAYOUT.push(() => S(e, { left: x - e.getBoundingClientRect().width / 2, top: y - 23 })); return e; });
+const qTag = Tag(uiL, 'Which country is this? 🤔', { bg: C.forest, fg: C.white, font: 'Fredoka', weight: 600, size: 38, h: 78, ls: '0', z: 9 });
+centreX(qTag, 1150);
+const [cx, cy] = map.pt(18.6, 15.4);
+const ansTag = Tag(uiL, '🇹🇩 Chad', { bg: C.green, fg: C.white, font: 'Fredoka', weight: 600, size: 46, h: 86, ls: '0', z: 9 });
+LAYOUT.push(() => S(ansTag, { left: cx - ansTag.getBoundingClientRect().width / 2, top: cy - 140 }));
+const MX = 250, MY = 1360, MR = 92;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const GUESS = ['Niger?', 'Sudan??', '…Africa?'];
+const guesses = GUESS.map(g => Bubble(uiL, g, { x: 400, y: 1270, w: 330, size: 46, tail: 'left', z: 35 }));
+const xs = GUESS.map(() => el(uiL, { left: 690, top: 1262, width: 76, height: 76, borderRadius: 38, background: C.red, zIndex: 36, display: 'grid', placeItems: 'center', transformOrigin: '50% 50%' }, icon('close', 44, C.white, 4)));
+const knew = Bubble(uiL, 'I knew that. 😎', { x: 400, y: 1270, w: 380, size: 46, tail: 'left', z: 35 });
+const cap1 = Caption(capL, ['Me: “I’m really good', 'at geography” 😎'], { cy: 250, size: 60 });
+const cap1b = Caption(capL, ['Also me, the same map', '<i>without labels:</i>'], { cy: 250, size: 60 });
+const cap2 = Caption(capL, ['Be honest: did you', 'get it before me? 👇'], { cy: 250, size: 60 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Maps without labels. Every day.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+ev(TL.strip, 'collapse', -7); ev(TL.strip + 0.4, 'whoosh', -10);
+ev(TL.q, 'pin', -7); ev(TL.q + 0.6, 'slide', -7);
+TL.g.forEach((b, i) => { ev(b + 0.05, 'mention', -7, { rate: 1 + i * 0.06 }); ev(b + TL.x + 0.05, 'error', -6, { rate: 1 + i * 0.05 }); });
+ev(TL.reveal, 'impact', -4); ev(TL.reveal + 0.1, 'correct', -5); ev(TL.reveal + 0.5, 'pop', -8);
+ev(TL.stare + 0.4, 'tick', -10);
+ev(TL.knew + 0.05, 'slide', -8, { rate: 1.25 });
+ev(TL.cap2 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  const mOut = segB(t, TL.end - 0.5, TL.end - 0.1, E.inBack);
+  const mp = spB(t, -1.4, 2, 0.62) * (1 - mOut);
+  S(mapCard, { transform: `scale(${mp})` }); S(map.wrap, { transform: `scale(${mp})` }); show(mapCard, mp > 0.001); show(map.wrap, mp > 0.001);
+  labels.forEach((e, i) => { const p = spB(t, -1.2 + i * 0.08, 2.6, 0.6), fall = segB(t, TL.strip + i * 0.05, TL.strip + 0.5 + i * 0.05, E.inCubic);
+    S(e, { transform: `translateY(${fall * 900}px) rotate(${fall * (i % 2 ? 40 : -40)}deg) scale(${p})` }); show(e, p > 0.001 && fall < 1); });
+  // Chad: gold while asked (pulsing), red flashes at each wrong guess, green on the reveal
+  let col = '#CFE9DA';
+  if (b >= TL.q) col = mixc('#CFE9DA', C.gold, segB(t, TL.q, TL.q + 0.4));
+  TL.g.forEach(g => { if (b >= g + TL.x && b < g + TL.x + 0.5) col = C.red; });
+  if (b >= TL.reveal) col = mixc(C.gold, '#2FBF71', segB(t, TL.reveal, TL.reveal + 0.3));
+  tcd.setAttribute('fill', col); tcd.setAttribute('stroke', b >= TL.q ? C.forest : '#fff'); tcd.setAttribute('stroke-width', b >= TL.q ? 4 : 2);
+  const qp = spB(t, TL.q + 0.5, 2.6, 0.55) * (1 - segB(t, TL.reveal - 0.2, TL.reveal + 0.1, E.inBack)); S(qTag, { transform: `scale(${qp})` }); show(qTag, qp > 0.001);
+  const ap = spB(t, TL.reveal + 0.4, 2.6, 0.55) * (1 - mOut); S(ansTag, { transform: `scale(${ap}) rotate(${-3 * ap}deg)` }); show(ansTag, ap > 0.001);
+  guesses.forEach((g, i) => { const nx = i < 2 ? TL.g[i + 1] - 0.15 : TL.reveal - 0.2; g.set(spB(t, TL.g[i], 2.4, 0.6), segB(t, nx, nx + 0.3));
+    const xp = spB(t, TL.g[i] + TL.x, 3, 0.5) * (1 - segB(t, nx, nx + 0.3, E.inBack)); S(xs[i], { transform: `scale(${xp}) rotate(${(1 - clamp(xp)) * -50}deg)` }); show(xs[i], xp > 0.001); });
+  knew.set(spB(t, TL.knew, 2.4, 0.6), segB(t, TL.cap2 + 1, TL.cap2 + 1.3));
+  // Roviko: smug in shades, the shades slide down when the labels fall, panic guesses, deadpan stare, shades back on
+  const smug = b < TL.strip, panic = b >= TL.strip && b < TL.reveal, stare = b >= TL.stare && b < TL.knew;
+  const shadesOn = b < TL.strip + 0.5 || b >= TL.knew ? 1 : 0;
+  const drop = b < TL.strip ? 0 : b < TL.knew ? segB(t, TL.strip + 0.2, TL.strip + 0.7, E.outBack) : 1 - segB(t, TL.knew, TL.knew + 0.4);
+  const guessing = TL.g.some(g => b >= g && b < g + TL.x);
+  drawMascot(mascot, { look: stare ? [0, 0] : panic ? [0.6, -0.9] : [0.4, -0.6], mouth: smug || b >= TL.knew ? 'smile' : stare ? 'flat' : guessing ? 'o' : panic ? 'wobble' : 'flat',
+    brows: panic ? 'worried' : null, brow: smug || b >= TL.knew ? 1 : 0, sweat: panic ? clamp((b - TL.strip) / 1.5) : 0, eyesBig: panic ? 0.35 : 0,
+    shades: { on: b >= TL.knew ? segB(t, TL.knew, TL.knew + 0.3) : shadesOn, drop: b >= TL.knew ? 0 : drop }, legs: 1,
+    hop: smug || b >= TL.knew ? bop(b, 6) : 0, blink: stare ? (b > TL.stare + 0.8 && b < TL.stare + 1.0 ? 1 : 0) : blinkAt(t, [3.2]),
+    arms: smug ? [[-90, 40, 30, 10], [90, 40, -30, 10]] : panic ? [[-34, -6, -30, 11], [104, 62, 22, 10]] : [[-112, 66, 22, 10], [70, -80, -20, 11]] });
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.strip - 0.3, TL.strip));
+  cap1b.set(spB(t, TL.strip, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

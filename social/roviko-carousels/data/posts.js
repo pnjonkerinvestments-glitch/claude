@@ -1,4 +1,4 @@
-// The carousel posts (1-5, then round 2: 6-10). Facts are checked against roviko/public/data/countries.json (capital, neighbours, area).
+// The carousel posts (1-5, then round 2: 6-10, round 3: 11-15, round 4: 16-20). Facts are checked against roviko/public/data/countries.json (capital, neighbours, area).
 // view: span = degrees of longitude across the 1080 px frame (smaller = closer)
 window.LEVELS = [
   { label: 'Easy', bg: '#1F806B', fg: '#FFFFFF' },
@@ -77,5 +77,75 @@ window.POSTS = [
     { id: 'LKA', name: 'Sri Lanka', flag: 'lk', span: 14, hint: 'An island just south of India', fact: 'Capital: Sri Jayawardenepura Kotte' },
     { id: 'PNG', name: 'Papua New Guinea', flag: 'pg', span: 30, hint: 'Shares an island with Indonesia', fact: 'Capital: Port Moresby · over 800 languages' },
     { id: 'OMN', name: 'Oman', flag: 'om', span: 28, hint: 'On the Arabian Peninsula', fact: 'Capital: Muscat · 3 land neighbours' },
+  ] },
+  { n: 11, region: 'Europe', next: 'Africa', countries: [
+    { id: 'IRL', name: 'Ireland', flag: 'ie', span: 22, fact: 'Capital: Dublin · its only land neighbour is the UK' },
+    { id: 'AUT', name: 'Austria', flag: 'at', span: 22, fact: 'Capital: Vienna · 8 land neighbours' },
+    { id: 'CZE', name: 'Czechia', flag: 'cz', span: 22, hint: 'Landlocked, in Central Europe', fact: 'Capital: Prague · 4 land neighbours' },
+    { id: 'EST', name: 'Estonia', flag: 'ee', span: 22, hint: 'The northernmost Baltic state', fact: 'Capital: Tallinn · over 2,000 islands' },
+    { id: 'MNE', name: 'Montenegro', flag: 'me', span: 16, hint: 'On the Adriatic, in the Balkans', fact: 'Capital: Podgorica · smaller than Wales' },
+  ] },
+  { n: 12, region: 'Africa', next: 'Asia', countries: [
+    { id: 'KEN', name: 'Kenya', flag: 'ke', span: 32, fact: 'Capital: Nairobi · the equator runs right through it' },
+    { id: 'GHA', name: 'Ghana', flag: 'gh', span: 26, fact: 'Capital: Accra · 3 land neighbours' },
+    { id: 'AGO', name: 'Angola', flag: 'ao', span: 36, hint: 'On the Atlantic, in southern Africa', fact: 'Capital: Luanda · one part of it (Cabinda) is cut off from the rest' },
+    { id: 'TCD', name: 'Chad', flag: 'td', span: 40, hint: 'Landlocked, with 6 neighbours', fact: 'Capital: N’Djamena · named after Lake Chad' },
+    { id: 'RWA', name: 'Rwanda', flag: 'rw', span: 14, hint: 'Landlocked, the “land of a thousand hills”', fact: 'Capital: Kigali · one of Africa’s smallest countries' },
+  ] },
+  { n: 13, region: 'Asia', next: 'the Americas', countries: [
+    { id: 'SAU', name: 'Saudi Arabia', flag: 'sa', span: 40, fact: 'Capital: Riyadh · 7 land neighbours' },
+    { id: 'PHL', name: 'Philippines', flag: 'ph', span: 30, fact: 'Capital: Manila · over 7,000 islands' },
+    { id: 'AFG', name: 'Afghanistan', flag: 'af', span: 30, hint: 'Landlocked, between Iran and Pakistan', fact: 'Capital: Kabul · 6 land neighbours' },
+    { id: 'NPL', name: 'Nepal', flag: 'np', span: 22, hint: 'Landlocked, between two giants', fact: 'Capital: Kathmandu · home of Mount Everest' },
+    { id: 'UZB', name: 'Uzbekistan', flag: 'uz', span: 32, hint: 'One of only 2 double-landlocked countries', fact: 'Capital: Tashkent · 5 land neighbours' },
+  ] },
+  { n: 14, region: 'The Americas', next: 'the world', countries: [
+    { id: 'BRA', name: 'Brazil', flag: 'br', span: 60, fact: 'Capital: Brasília (not Rio) · the 5th-largest country' },
+    { id: 'COL', name: 'Colombia', flag: 'co', span: 34, fact: 'Capital: Bogotá · coasts on 2 oceans' },
+    { id: 'ECU', name: 'Ecuador', flag: 'ec', span: 22, hint: 'Named after the equator', fact: 'Capital: Quito · it owns the Galápagos Islands' },
+    { id: 'GTM', name: 'Guatemala', flag: 'gt', span: 16, hint: 'In Central America, next to Mexico', fact: 'Capital: Guatemala City · 4 land neighbours' },
+    { id: 'SUR', name: 'Suriname', flag: 'sr', span: 18, hint: 'The smallest country in South America', fact: 'Capital: Paramaribo · Dutch is the official language' },
+  ] },
+  { n: 15, region: 'Around the world', next: 'Europe', countries: [
+    { id: 'ITA', name: 'Italy', flag: 'it', span: 24, fact: 'Capital: Rome · shaped like a boot' },
+    { id: 'IDN', name: 'Indonesia', flag: 'id', span: 60, fact: 'Capital: Jakarta · over 17,000 islands' },
+    { id: 'ETH', name: 'Ethiopia', flag: 'et', span: 32, hint: 'Landlocked, on the Horn of Africa', fact: 'Capital: Addis Ababa · it has its own calendar' },
+    { id: 'FIN', name: 'Finland', flag: 'fi', span: 26, hint: 'Between Sweden and Russia', fact: 'Capital: Helsinki · about 188,000 lakes' },
+    { id: 'LSO', name: 'Lesotho', flag: 'ls', span: 12, hint: 'Completely surrounded by one country', fact: 'Capital: Maseru · even its lowest point is about 1,400 m high' },
+  ] },
+  { n: 16, region: 'Europe', next: 'Africa', countries: [
+    { id: 'FRA', name: 'France', flag: 'fr', span: 26, fact: 'Capital: Paris · 8 land neighbours in Europe' },
+    { id: 'ROU', name: 'Romania', flag: 'ro', span: 22, fact: 'Capital: Bucharest · on the Black Sea' },
+    { id: 'BGR', name: 'Bulgaria', flag: 'bg', span: 20, hint: 'On the Black Sea, south of the Danube', fact: 'Capital: Sofia · 5 land neighbours' },
+    { id: 'SVK', name: 'Slovakia', flag: 'sk', span: 18, hint: 'Landlocked, in Central Europe', fact: 'Capital: Bratislava · it borders Austria and Hungary' },
+    { id: 'ALB', name: 'Albania', flag: 'al', span: 14, hint: 'On the Adriatic, next to Greece', fact: 'Capital: Tirana · 3 land neighbours' },
+  ] },
+  { n: 17, region: 'Africa', next: 'Asia', countries: [
+    { id: 'ZAF', name: 'South Africa', flag: 'za', span: 34, fact: 'Capitals: Pretoria, Cape Town and Bloemfontein' },
+    { id: 'TZA', name: 'Tanzania', flag: 'tz', span: 30, fact: 'Capital: Dodoma · home of Kilimanjaro' },
+    { id: 'CMR', name: 'Cameroon', flag: 'cm', span: 26, hint: 'Where West and Central Africa meet', fact: 'Capital: Yaoundé · 6 land neighbours' },
+    { id: 'MRT', name: 'Mauritania', flag: 'mr', span: 30, hint: 'On the Atlantic, mostly Sahara', fact: 'Capital: Nouakchott · home of the “Eye of the Sahara”' },
+    { id: 'DJI', name: 'Djibouti', flag: 'dj', span: 12, hint: 'On the Horn of Africa, by the Red Sea', fact: 'Capital: Djibouti (same name as the country)' },
+  ] },
+  { n: 18, region: 'Asia', next: 'the Americas', countries: [
+    { id: 'CHN', name: 'China', flag: 'cn', span: 64, fact: 'Capital: Beijing · 14 land neighbours' },
+    { id: 'TUR', name: 'Turkey', flag: 'tr', span: 30, fact: 'Capital: Ankara (not Istanbul)' },
+    { id: 'MMR', name: 'Myanmar', flag: 'mm', span: 26, hint: 'Between India and Thailand', fact: 'Capital: Naypyidaw (not Yangon)' },
+    { id: 'JOR', name: 'Jordan', flag: 'jo', span: 16, hint: 'Almost landlocked, with a tiny Red Sea coast', fact: 'Capital: Amman · home of Petra' },
+    { id: 'BTN', name: 'Bhutan', flag: 'bt', span: 12, hint: 'Landlocked, in the Himalayas', fact: 'Capital: Thimphu · between India and China' },
+  ] },
+  { n: 19, region: 'The Americas', next: 'the world', countries: [
+    { id: 'USA', name: 'United States', flag: 'us', span: 70, fact: 'Capital: Washington, D.C. · 2 land neighbours' },
+    { id: 'VEN', name: 'Venezuela', flag: 've', span: 30, fact: 'Capital: Caracas · home of Angel Falls, the highest waterfall' },
+    { id: 'PAN', name: 'Panama', flag: 'pa', span: 16, hint: 'Where two continents meet', fact: 'Capital: Panama City · the Panama Canal cuts it in two' },
+    { id: 'HND', name: 'Honduras', flag: 'hn', span: 16, hint: 'In Central America, on 2 seas', fact: 'Capital: Tegucigalpa · 3 land neighbours' },
+    { id: 'SLV', name: 'El Salvador', flag: 'sv', span: 12, hint: 'The smallest country in Central America', fact: 'Capital: San Salvador · no Caribbean coast' },
+  ] },
+  { n: 20, region: 'Around the world', next: null, countries: [
+    { id: 'GBR', name: 'United Kingdom', flag: 'gb', span: 22, fact: 'Capital: London · 1 land neighbour: Ireland' },
+    { id: 'PAK', name: 'Pakistan', flag: 'pk', span: 32, fact: 'Capital: Islamabad (not Karachi)' },
+    { id: 'SDN', name: 'Sudan', flag: 'sd', span: 34, hint: 'On the Nile, south of Egypt', fact: 'Capital: Khartoum · where the Blue and White Nile meet' },
+    { id: 'ARM', name: 'Armenia', flag: 'am', span: 14, hint: 'Landlocked, in the Caucasus', fact: 'Capital: Yerevan · 4 land neighbours' },
+    { id: 'ERI', name: 'Eritrea', flag: 'er', span: 18, hint: 'On the Red Sea, next to Ethiopia', fact: 'Capital: Asmara · 3 land neighbours' },
   ] },
 ];

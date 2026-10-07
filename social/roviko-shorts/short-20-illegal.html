@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko short 20: "Map facts that feel illegal"</title>
+<!--
+  Roviko short 20: "Map facts that feel illegal"
+  16 s, 1080x1920, 120 BPM ("Life is a Dream", Mixkit, from song beat 48). Three flat (lon/lat) maps, so latitude lines
+  stay straight: Rome (41.9°N) is further north than New York (40.7°N); Reno (119.8°W) is further west than Los Angeles
+  (118.2°W); and from Detroit, Canada (Windsor) is to the south. Roviko gets more upset each time: "the map lied to me".
+  "Drop a map fact that feels illegal."
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script>
+const TEMPO = 119.998, DIL = TEMPO / 130, END = 32, DURATION = END * 60 / TEMPO;
+const TL = { f: [-0.4, 6.0, 12.4], line: 1.6, label: 2.6, wow: 3.4, lied: 18.4, cap2: 21.6, end: 25.4, hop: 29.4, blink2: 27.6 };
+setupStage(C.cream);
+const world = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+Halo(world, 540, 900, 1700);
+const BOX = { x: 120, y: 520, w: 840, h: 620 };
+const FACTS = [
+  { title: 'Rome is further <b>NORTH</b> than New York', lon: -34, lat: 42, bounds: [-80, 28, 18, 52],
+    a: ['Rome', 12.50, 41.90, 'it'], b: ['New York', -74.01, 40.71, 'us'], line: 'lat', at: 41.90 },
+  { title: 'Reno is further <b>WEST</b> than Los Angeles', lon: -119, lat: 37, bounds: [-125, 32.5, -113.5, 41.5],
+    a: ['Reno', -119.81, 39.53, 'us'], b: ['Los Angeles', -118.24, 34.05, 'us'], line: 'lon', at: -119.81 },
+  { title: 'From Detroit, Canada is to the <b>SOUTH</b>', lon: -83, lat: 42.3, bounds: [-83.32, 42.17, -82.80, 42.45], two: true,
+    a: ['Detroit 🇺🇸', -83.05, 42.33, null], b: ['Windsor 🇨🇦', -83.03, 42.29, null], line: 'arrow' },
+];
+const facts = FACTS.map(F => {
+  const g = el(uiL, { width: 1080, height: 1920, zIndex: 10, transformOrigin: '540px 830px' });
+  const fr = el(g, { left: BOX.x - 14, top: BOX.y - 14, width: BOX.w + 28, height: BOX.h + 28, borderRadius: 54, background: C.white, boxShadow: '0 4px 10px rgba(22,59,50,.08), 0 30px 70px rgba(22,59,50,.18)' });
+  const m = WorldMap(g, { lon: F.lon, lat: F.lat, bounds: F.bounds, flat: true, box: BOX, pad: 0.0, sea: '#BFE4F8', land: '#CFE9DA', z: 2 });
+  if (F.two) { if (m.paths.USA) m.paths.USA.setAttribute('fill', '#CFE9DA'); if (m.paths.CAN) { m.paths.CAN.setAttribute('fill', '#F7D9A8'); m.paths.CAN.setAttribute('stroke-width', 6); } }
+  const lsvg = svgEl(g, 'svg', { width: 1080, height: 1920 }); S(lsvg, { position: 'absolute', zIndex: 4, clipPath: `inset(${BOX.y}px ${1080 - BOX.x - BOX.w}px ${1920 - BOX.y - BOX.h}px ${BOX.x}px round 40px)` });
+  const A = m.pt(F.a[1], F.a[2]), B = m.pt(F.b[1], F.b[2]);
+  let line;
+  if (F.line === 'lat') { const y = m.pt(0, F.at)[1]; line = svgEl(lsvg, 'path', { d: `M${BOX.x} ${y}H${BOX.x + BOX.w}`, stroke: C.red, 'stroke-width': 6, 'stroke-dasharray': '18 12', fill: 'none' }); }
+  else if (F.line === 'lon') { const x = m.pt(F.at, 0)[0]; line = svgEl(lsvg, 'path', { d: `M${x} ${BOX.y}V${BOX.y + BOX.h}`, stroke: C.red, 'stroke-width': 6, 'stroke-dasharray': '18 12', fill: 'none' }); }
+  else line = svgEl(lsvg, 'path', { d: `M${A[0]} ${A[1] + 40}L${B[0]} ${B[1] - 30}`, stroke: C.red, 'stroke-width': 14, 'stroke-linecap': 'round', fill: 'none', 'marker-end': 'url(#ah)' });
+  if (F.line === 'arrow') { const d = svgEl(svgEl(lsvg, 'defs'), 'marker', { id: 'ah', markerWidth: 4, markerHeight: 4, refX: 2, refY: 2, orient: 'auto' }); svgEl(d, 'path', { d: 'M0 0L4 2L0 4z', fill: C.red }); }
+  const dot = (p, col) => el(g, { left: p[0] - 18, top: p[1] - 18, width: 36, height: 36, borderRadius: 18, background: col, border: `6px solid ${C.forest}`, zIndex: 6, transformOrigin: '50% 50%' });
+  const da = dot(A, C.gold), db = dot(B, C.ocean);
+  const tag = (txt, p, up) => { const e = Tag(g, txt, { bg: C.white, fg: C.forest, font: 'Fredoka', weight: 600, size: 36, h: 70, ls: '0', z: 7 });
+    LAYOUT.push(() => { const w = e.getBoundingClientRect().width; S(e, { left: clamp(p[0] - w / 2, BOX.x + 10, BOX.x + BOX.w - w - 10), top: up ? p[1] - 96 : p[1] + 28 }); }); return e; };
+  const ta = tag(F.a[0], A, true), tb = tag(F.b[0], B, false);
+  const title = Caption(g, [F.title], { cy: 440, size: 46, z: 8 });
+  return { g, fr, m, line, da, db, ta, tb, title };
+});
+const MX = 220, MY = 1370, MR = 92;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const WOWS = ['Wait… what? 😳', 'WHAT?! 🤯', 'I can’t. 😵‍💫'];
+const wows = WOWS.map(w => Bubble(uiL, w, { x: 380, y: 1270, w: 420, size: 46, tail: 'left', z: 35 }));
+const lied = Bubble(uiL, 'The map lied to me 😭', { x: 370, y: 1270, w: 580, size: 46, tail: 'left', z: 35 });
+const cap1 = Caption(capL, ['Map facts that', 'feel <i>illegal</i> 🚨'], { cy: 236, size: 62 });
+const cap2 = Caption(capL, ['Drop a map fact that', 'feels <i>illegal</i> 👇'], { cy: 236, size: 60 });
+const endCard = EndCard(stage, { my: 690, tagline: 'The map is wilder than you think.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+TL.f.forEach((b0, i) => { if (i) ev(b0, 'whoosh', -8); ev(Math.max(0.1, b0 + 0.5), 'pin', -8); ev(b0 + 0.8, 'pin', -8, { rate: 1.1 }); ev(b0 + TL.line, 'swoosh', -9);
+  ev(b0 + TL.label, 'pop', -9); ev(b0 + TL.wow, 'boing', -7, { rate: 1 + i * 0.1 }); });
+ev(TL.lied, 'thud', -8); ev(TL.lied + 0.1, 'mention', -8);
+ev(TL.cap2 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  let cur = 0;
+  facts.forEach((f, i) => {
+    const b0 = TL.f[i], next = i < 2 ? TL.f[i + 1] - 0.3 : TL.end - 0.5;
+    if (b >= b0) cur = i;
+    const out = segB(t, next, next + 0.3, E.inBack), g = spB(t, b0, 2.1, 0.62);
+    show(f.g, g > 0.001 && out < 1); S(f.g, { transform: `translateX(${-out * 300}px) scale(${lerp(0.3, 1, clamp(g, 0, 1.1)) * (1 - out)})` });
+    [[f.da, 0.5], [f.db, 0.8]].forEach(([d, k]) => { const p = spB(t, b0 + k, 2.8, 0.45); S(d, { transform: `scale(${p})` }); show(d, p > 0.001); });
+    [[f.ta, 0.6], [f.tb, 0.9]].forEach(([e, k]) => { const p = spB(t, b0 + k, 2.6, 0.55); S(e, { transform: `scale(${p})` }); show(e, p > 0.001); });
+    const lp = segB(t, b0 + TL.line, b0 + TL.line + 0.6, E.outCubic); f.line.style.display = lp > 0 ? '' : 'none';
+    f.line.style.clipPath = `inset(0 ${(1 - lp) * 100}% 0 0)`;
+    f.title.set(spB(t, b0 + TL.label, 1.9, 0.62), out);
+  });
+  wows.forEach((w, i) => { const b0 = TL.f[i] + TL.wow; w.set(spB(t, b0, 2.4, 0.55), segB(t, (i < 2 ? TL.f[i + 1] : TL.lied) - 0.3, (i < 2 ? TL.f[i + 1] : TL.lied))); });
+  lied.set(spB(t, TL.lied, 2.4, 0.55), segB(t, TL.cap2 + 1, TL.cap2 + 1.3));
+  const shock = b >= TL.f[cur] + TL.wow && b < (cur < 2 ? TL.f[cur + 1] : TL.lied), sad = b >= TL.lied && b < TL.cap2 + 1;
+  drawMascot(mascot, { look: shock ? [0, 0] : [0.7, -0.9], mouth: shock ? 'o' : sad ? 'frown' : b >= TL.cap2 + 1 ? 'grin' : 'smile', eyesBig: shock ? 0.3 + 0.15 * cur : 0,
+    brows: shock ? 'up' : sad ? 'worried' : null, sweat: shock && cur >= 1 || sad ? 1 : 0, legs: 1, hop: shock || sad ? 0 : bop(b, 5), blink: blinkAt(t, [2.6, 9.4, 23.4]),
+    tilt: shock && cur === 2 ? Math.sin(t * 12) * 5 : 0,
+    arms: shock ? (cur === 2 ? [[-70, -96, -30, 11], [70, -96, -30, 11]] : [[-92, -58, -30, 11], [92, -58, -30, 11]]) : sad ? [[-34, -6, -30, 11], [34, -6, -30, 11]] : [[-112, 66, 22, 10], [112, 66, 22, 10]] });
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

@@ -40,3 +40,19 @@ node build/shots.mjs            # renders every slide of every post (or: node bu
 - Outlines: Natural Earth via world-atlas (public domain).
 - Flags: flag-icons (MIT), the same files the app uses.
 - Captions and hashtags: `CAPTIONS.md`.
+
+## Round 3 and 4 (posts 11-20)
+| Post | Region | Easy → Legend |
+|---|---|---|
+| 11 | Europe | Ireland, Austria, Czechia, Estonia, Montenegro |
+| 12 | Africa | Kenya, Ghana, Angola, Chad, Rwanda |
+| 13 | Asia | Saudi Arabia, Philippines, Afghanistan, Nepal, Uzbekistan |
+| 14 | The Americas | Brazil, Colombia, Ecuador, Guatemala, Suriname |
+| 15 | Around the world | Italy, Indonesia, Ethiopia, Finland, Lesotho |
+| 16 | Europe | France, Romania, Bulgaria, Slovakia, Albania |
+| 17 | Africa | South Africa, Tanzania, Cameroon, Mauritania, Djibouti |
+| 18 | Asia | China, Turkey, Myanmar, Jordan, Bhutan |
+| 19 | The Americas | United States, Venezuela, Panama, Honduras, El Salvador |
+| 20 | Around the world | United Kingdom, Pakistan, Sudan, Armenia, Eritrea |
+
+Same map style as round 2. Captions for 11-20 are in `social/daily-posts/build.py`.

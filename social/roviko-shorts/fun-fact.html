@@ -6,7 +6,7 @@
 <!--
   "Sounds fake, but it's true": a country fact as a 20 s quiz. 1080x1920 (TikTok / Reels), 110 BPM ("Aerobic Fashion",
   Mixkit, from song beat 50, so its 4-beat break lands under the knock-outs and its drop on the reveal).
-    fun-fact.html?n=1   (1 border, 2 pyramids, 3 rivers, 4 lakes, 5 landlocked)
+    fun-fact.html?n=1   (1 border, 2 pyramids, 3 rivers, 4 lakes, 5 landlocked … 11-20 use the data-driven `generic` map scene)
   Frame 1 is the thumbnail: the hook, the question and the A/B/C answers. "Comment A, B or C" + 3-2-1 (the viewer answers
   in the comments); time's up on the break; the wrong answers are knocked out one by one (the tempting one last);
   the true one floods green on the drop. Then the fact is shown on a map, then the bonus fact promised by the top pill from frame 1
@@ -25,6 +25,7 @@ svg { overflow: visible; }
 </style>
 <script src="../roviko-launch-film/assets/mascot.js"></script>
 <script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
 <script src="data/funfacts.js"></script>
 </head>
 <body>
@@ -603,6 +604,86 @@ const SCENES = {
       towers.forEach((e, i) => { const tq = spB(t, TL.bonus + 0.8 + i * 0.25, 2.8, 0.5); S(e, { transform: `scale(${tq})`, transformOrigin: '50% 0' }); show(e, tq > 0.001); });
       S(gauge, { height: 540 * segB(t, TL.bonus + 0.7, TL.bonus + 2.0, E.inOutCubic) });
       lDepth.pop(t, TL.bonus + 1.4); lTowers.pop(t, TL.bonus + 2.0); lDeep.pop(t, TL.bonus + 2.6);
+    };
+  },
+  // 11-20: one data-driven map explainer (F.map, and F.map2 for the bonus when it needs another place).
+  // Items: floods (a country or ring fills from a point), pins (pulsing rings), lines (drawn on), labels and big flags.
+  // `b` is in beats after the explain or the bonus start ('bonus: true'); explain items leave when the bonus comes.
+  generic() {
+    const mk = spec => {
+      const hi = {}; (spec.hi || []).forEach(([id, col]) => { hi[id] = col; });
+      (spec.floods || []).forEach(f => { if (typeof f.id === 'string' && !(f.id in hi)) hi[f.id] = LAND; });
+      const extra = (spec.rings || []).map(([ring, fill]) => ({ ring, fill }));
+      return MapCard({ lon: spec.lon, lat: spec.lat, fit: spec.fit || null, pad: spec.pad ?? 0.2, R: spec.R || null, shift: spec.shift || [0, 0], hi, extra });
+    };
+    const maps = [mk(F.map)];
+    if (F.map2) { maps.push(mk(F.map2)); S(maps[1].outer, { zIndex: 3 }); }
+    const at = (m, p) => p.px ? p.px : m.scr(...p.at).slice(0, 2);
+    const t0 = it => (it.bonus ? TL.bonus : TL.explain) + it.b;
+    const mapOf = it => maps[it.map2 ? 1 : 0];
+    let fid = 0;
+    const floods = [], pins = [], lines = [], labels = [], imgs = [];
+    const add = (spec, mi) => {
+      const m = maps[mi];
+      (spec.floods || []).forEach(f => {
+        const d = typeof f.id === 'string' ? m.dOf(f.id) : f.id.map(r => m.ringD(r)).join('');
+        const [x, y] = at(m, f);
+        const id = 'gf' + fid++;
+        const fl = flood(m.defs, id, x, y, f.r || 900);
+        svgEl(m.svg, 'path', { d, fill: f.fill || C.gold, stroke: f.stroke || C.forest, 'stroke-width': f.sw || 3, 'stroke-linejoin': 'round', 'clip-path': `url(#${id})` });
+        floods.push({ fl, b: t0(f), dur: f.dur || 1.0 });
+        ev(t0(f), 'land', -6, { rate: f.rate || 1 });
+      });
+      (spec.lines || []).forEach(l => {
+        const pts = l.pts.map(p => m.scr(...p).slice(0, 2));
+        const d = 'M' + pts.map(p => p.map(v => v.toFixed(1)).join(' ')).join('L');
+        const p = svgEl(m.svg, 'path', { d, fill: 'none', stroke: l.color || C.red, 'stroke-width': l.w || 8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': '1 1', 'stroke-dashoffset': 1 });
+        lines.push({ p, b: t0(l), out: l.bonus ? null : TL.bonus - 0.3 });
+        ev(t0(l), 'swoosh', -9);
+      });
+      (spec.pins || []).forEach(pn => {
+        const [x, y] = at(m, pn), r = pn.r || 30;
+        const e = el(m.layer, { left: x - r, top: y - r, width: 2 * r, height: 2 * r, borderRadius: r, border: `${Math.max(5, r / 5)}px solid ${pn.color || C.red}`, background: pn.fill || 'rgba(255,255,255,.55)', zIndex: 5, transformOrigin: '50% 50%' });
+        pins.push({ e, b: t0(pn), out: pn.bonus || pn.keep ? null : TL.bonus - 0.3 });
+        ev(t0(pn), 'pin', -7);
+      });
+      (spec.labels || []).forEach(lb => {
+        const L = Label(m.over, lb.t, { flag: lb.flag || null, size: lb.size || 32, h: lb.h || 62, bg: lb.bg === 'red' ? C.red : lb.bg === 'forest' ? C.forest : lb.bg === 'gold' ? C.gold : lb.bg === 'green' ? C.green : C.white,
+          fg: ['red', 'forest', 'green'].includes(lb.bg) ? C.white : C.forest, z: 10 });
+        const p = lb.px ? lb.px : (([x, y]) => [x + (lb.dx || 0), y + (lb.dy || 0)])(m.scr(...lb.at).slice(0, 2));
+        L.at(...p);
+        labels.push({ L, b: t0(lb), out: lb.bonus || lb.keep ? null : TL.bonus - 0.3 });
+        ev(t0(lb), 'pop', -9, { rate: 0.95 + (labels.length % 4) * 0.06 });
+      });
+      (spec.flags || []).forEach(fg => {
+        const h = fg.h || 220;
+        const e = el(m.over, { left: fg.px[0] - h * 0.75, top: fg.px[1] - h / 2, width: h * 1.5, height: h, zIndex: 9, transformOrigin: '50% 50%', display: 'flex', justifyContent: 'center', alignItems: 'center' },
+          `<img src="${FLAGS}${fg.code}.svg" style="height:${h}px;max-width:${h * 1.5}px;filter:drop-shadow(0 12px 22px rgba(22,59,50,.25))">`);
+        imgs.push({ e, b: t0(fg), out: fg.bonus || fg.keep ? null : TL.bonus - 0.3 });
+        ev(t0(fg), 'boing', -8);
+      });
+    };
+    add(F.map, 0); if (F.map2) add(F.map2, 1);
+    const bottom = (txt, bonus, mi) => txt ? (() => { const L = Label(maps[mi].over, txt, { size: 28, h: 58, bg: C.forest, fg: C.white }).at(540, 1024); ev((bonus ? TL.bonus : TL.explain) + (bonus ? 2.4 : 3.6), 'pop', -9); return { L, b: (bonus ? TL.bonus + 2.4 : TL.explain + 3.6), out: bonus ? null : TL.bonus - 0.3 }; })() : null;
+    const bots = [bottom(F.map.bottom, false, 0), bottom((F.map2 || F.map).bonusBottom, true, F.map2 ? 1 : 0)].filter(Boolean);
+    ev(TL.explain + 0.9, 'expand', -9);
+    if (F.map2) { ev(TL.bonus + 0.05, 'swoosh', -8); }
+    return (t, b) => {
+      if (F.map2) {
+        const p = spB(t, TL.explain + 0.1, 2.1, 0.62), q = segB(t, TL.bonus - 0.35, TL.bonus, E.inBack);
+        S(maps[0].outer, { transform: `scale(${lerp(0.3, 1, clamp(p, 0, 1.1)) * (1 - q)})` }); show(maps[0].outer, p > 0.001 && q < 1);
+        const p2 = spB(t, TL.bonus, 2.1, 0.62), q2 = segB(t, TL.end - 0.4, TL.end - 0.05, E.inBack);
+        S(maps[1].outer, { transform: `scale(${lerp(0.3, 1, clamp(p2, 0, 1.1)) * (1 - q2)})` }); show(maps[1].outer, p2 > 0.001 && q2 < 1);
+      } else cardIn(maps[0], t);
+      floods.forEach(f => f.fl(t, f.b, f.b + f.dur));
+      lines.forEach(l => { const d = segB(t, l.b, l.b + 0.9, E.inOutCubic), o = l.out != null ? segB(t, l.out, l.out + 0.3, E.lin) : 0;
+        l.p.setAttribute('stroke-dashoffset', (1 - d).toFixed(3)); l.p.style.opacity = d > 0.001 && o < 1 ? 1 : 0; });
+      pins.forEach(pn => { const o = pn.out != null ? E.inBack(segB(t, pn.out, pn.out + 0.3, E.lin)) : 0, q = spB(t, pn.b, 2.6, 0.5) * (1 - o);
+        S(pn.e, { transform: `scale(${q * (1 + 0.07 * Math.sin(t * 7))})` }); show(pn.e, q > 0.001); });
+      labels.forEach(l => l.L.pop(t, l.b, l.out));
+      bots.forEach(l => l.L.pop(t, l.b, l.out));
+      imgs.forEach(im => { const o = im.out != null ? E.inBack(segB(t, im.out, im.out + 0.3, E.lin)) : 0, q = spB(t, im.b, 2.4, 0.5) * (1 - o);
+        S(im.e, { transform: `scale(${q}) rotate(${(1 - clamp(q)) * -14}deg)` }); show(im.e, q > 0.001); });
     };
   },
 };

@@ -1,0 +1,76 @@
+/*
+  Roviko short 14: "Flags that are basically the same flag"
+  14.5 s, 1080x1920, 124 BPM ("Take this Higher", Mixkit, from song beat 38). Four look-alike pairs, one every 4.5 beats:
+  Chad / Romania (almost the same blue), Indonesia / Monaco (only the shape differs), Ireland / Ivory Coast (mirrored) and
+  Australia / New Zealand (count the stars). Roviko's eyes go back and forth until they spin. "Which pair gets you every time?"
+*/
+const TEMPO = 124.01, DIL = TEMPO / 130, END = 30, DURATION = END * 60 / TEMPO;
+const TL = { pair: [-0.4, 4.4, 8.9, 13.4], spin: 18, cap2: 20.8, end: 24, hop: 28, blink2: 26.4 };
+setupStage(C.cream);
+const world = el(stage, { width: 1080, height: 1920, zIndex: 1 });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const capL = el(stage, { width: 1080, height: 1920, zIndex: 50 });
+Halo(world, 540, 900, 1700);
+const PAIRS = [
+  ['td', 'Chad', 'ro', 'Romania', 'Almost the same blue 🔵'],
+  ['id', 'Indonesia', 'mc', 'Monaco', 'Only the shape is different 📐'],
+  ['ie', 'Ireland', 'ci', 'Ivory Coast', 'Mirrored! 🪞'],
+  ['au', 'Australia', 'nz', 'New Zealand', 'Count the stars ⭐'],
+];
+const pairs = PAIRS.map(([a, an, b2, bn, diff]) => {
+  const g = el(uiL, { width: 1080, height: 1920, zIndex: 10, transformOrigin: '540px 800px' });
+  const fa = FlagCard(g, a, 300, 720, 190), fb = FlagCard(g, b2, 780, 720, 190);
+  const ta = Tag(g, an, { bg: C.white, fg: C.forest, font: 'Fredoka', weight: 600, size: 38, h: 72, ls: '0', z: 12 });
+  const tb = Tag(g, bn, { bg: C.white, fg: C.forest, font: 'Fredoka', weight: 600, size: 38, h: 72, ls: '0', z: 12 });
+  LAYOUT.push(() => { S(ta, { left: 300 - ta.getBoundingClientRect().width / 2, top: 860 }); S(tb, { left: 780 - tb.getBoundingClientRect().width / 2, top: 860 }); });
+  const vs = el(g, { left: 500, top: 680, width: 80, height: 80, borderRadius: 40, background: C.forest, color: C.white, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 32, lineHeight: '80px', textAlign: 'center', zIndex: 13, transformOrigin: '50% 50%' }, 'vs');
+  const d = Tag(g, diff, { bg: C.gold, fg: C.forest, font: 'Fredoka', weight: 600, size: 40, h: 82, ls: '0', z: 12 });
+  centreX(d, 1000);
+  return { g, fa, fb, ta, tb, vs, d };
+});
+const count = Tag(uiL, '1 / 4', { bg: C.forest, fg: C.white, size: 28, h: 58, z: 12 });
+centreX(count, 470);
+const MX = 230, MY = 1340, MR = 96;
+const mBox = el(uiL, { left: MX - MR * 1.7, top: MY - MR * 1.7, width: MR * 3.4, height: MR * 3.4, zIndex: 30 });
+const mascot = Mascot(mBox, MR * 3.4); S(mascot.svg, { left: 0, top: 0 });
+const say = Bubble(uiL, 'They’re ALL the<br>same flag!! 😵‍💫', { x: 380, y: 1210, w: 480, size: 44, tail: 'left', z: 35 });
+const cap1 = Caption(capL, ['Flags that are basically', 'the <i>same flag</i> 😵‍💫'], { cy: 250, size: 60 });
+const cap2 = Caption(capL, ['Which pair gets you', '<b>every time</b>? 👇'], { cy: 250, size: 60 });
+const endCard = EndCard(stage, { my: 690, tagline: 'Spot the difference. Every day.' });
+
+ev(0.02, 'pop', -12, { rate: 1.1 });
+TL.pair.forEach((b, i) => { if (i) ev(b, 'whoosh', -8); ev(Math.max(0.1, b + 0.2), 'pop', -8, { rate: 0.95 + i * 0.05 }); ev(b + 0.5, 'pop', -8, { rate: 1.05 + i * 0.05 }); ev(b + 1.6, 'boing', -8, { rate: 1 + i * 0.06 }); });
+ev(TL.spin, 'swoosh', -8); ev(TL.spin + 0.3, 'mention', -7);
+ev(TL.cap2 + 0.1, 'mention', -7);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  let cur = 0;
+  pairs.forEach((p, i) => {
+    const b0 = TL.pair[i], next = i < 3 ? TL.pair[i + 1] - 0.3 : TL.spin - 0.3;
+    if (b >= b0) cur = i;
+    const out = segB(t, next, next + 0.3, E.inBack);
+    const g = spB(t, b0, 2.2, 0.62); show(p.g, g > 0.001 && out < 1);
+    S(p.g, { transform: `translateX(${-out * 300}px) scale(${(1 - out)})` });
+    const fa = spB(t, b0 + 0.2, 2.6, 0.55), fb = spB(t, b0 + 0.5, 2.6, 0.55);
+    S(p.fa, { transform: `scale(${fa}) rotate(${-3 + Math.sin(t * 2) * 1.5}deg)` }); S(p.fb, { transform: `scale(${fb}) rotate(${3 - Math.sin(t * 2) * 1.5}deg)` });
+    S(p.ta, { transform: `scale(${fa})` }); S(p.tb, { transform: `scale(${fb})` });
+    const v = spB(t, b0 + 0.6, 3, 0.5); S(p.vs, { transform: `scale(${v})` });
+    const dp = spB(t, b0 + 1.6, 2.6, 0.5); S(p.d, { transform: `scale(${dp}) rotate(${-2 * dp}deg)` }); show(p.d, dp > 0.001);
+  });
+  count.textContent = `${cur + 1} / 4`;
+  const cp = spB(t, -1, 2.6, 0.55) * (1 - segB(t, TL.spin - 0.3, TL.spin, E.inBack)); S(count, { transform: `scale(${cp})` }); show(count, cp > 0.001);
+  say.set(spB(t, TL.spin + 0.2, 2.4, 0.55), segB(t, TL.cap2 + 1.5, TL.cap2 + 1.8));
+  // Roviko: eyes ping-pong between the two flags, faster every pair, then they spin
+  const spinning = b >= TL.spin && b < TL.cap2 + 1.5;
+  const speed = 3 + cur * 2.5, ang = (b - TL.spin) * 4.2;
+  drawMascot(mascot, { look: spinning ? [Math.cos(ang), Math.sin(ang)] : [Math.sin(t * speed) * 0.9, -0.8], mouth: spinning ? 'wobble' : b >= TL.cap2 + 1.5 ? 'grin' : 'flat',
+    eyesBig: spinning ? 0.4 : 0.1 * cur, brows: !spinning && cur >= 2 ? 'worried' : null, sweat: cur >= 3 || spinning ? 1 : 0, tilt: spinning ? Math.sin(ang) * 8 : 0, legs: 1,
+    hop: spinning ? 0 : bop(b, 5), arms: spinning ? [[-60, -60, -30, 11], [60, -60, -30, 11]] : [[-112, 66, 22, 10], [112, 66, 22, 10]], blink: blinkAt(t, [2.4, 11.2]) });
+  cap1.set(spB(t, -1.5, 1.9, 0.62), segB(t, TL.cap2 - 0.2, TL.cap2 + 0.15));
+  cap2.set(spB(t, TL.cap2, 1.9, 0.62), segB(t, TL.end - 0.05, TL.end + 0.2));
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);

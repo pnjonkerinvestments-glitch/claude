@@ -1,6 +1,6 @@
 """Cut each short's song to picture on beat lines.
 
-  python3 build/music_cut.py <short>   (sydney, streak, gamenight, flagaday, greenland, wronganswers, austria, stages, moon, lobby, uk, funfact)  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
+  python3 build/music_cut.py <short>   (sydney … uk, groupchat … illegal, funfact)  ->  audio/<short>/music.wav (48 kHz stereo, 24-bit)
 
 Every short plays at its song's measured tempo, so one film beat is one song beat. A piece is
 (film beat, song beat[, film beat where it stops with a tape-stop]). Grids from build/analyze_music.py.
@@ -34,6 +34,23 @@ SHORTS = {
     'moon': dict(song='aerobic-fashion', end=24, fade=1.0, pieces=[(0, 31, None)]),
     'lobby': dict(song='life-is-a-dream', end=40, fade=1.2, pieces=[(0, 48, None)]),
     'uk': dict(song='funkee-monkeee', end=30, fade=1.0, pieces=[(0, 32, None)]),
+    # funny shorts 11-20 (same four songs, rotated; each starts on a known-good beat line)
+    'groupchat': dict(song='life-is-a-dream', end=32, fade=1.0, pieces=[(0, 48, None)]),
+    'nolabels': dict(song='funkee-monkeee', end=28, fade=1.0, pieces=[(0, 48, None)]),
+    'italy': dict(song='aerobic-fashion', end=24, fade=1.0, pieces=[(0, 63, None)]),
+    'twinflags': dict(song='take-this-higher', end=30, fade=1.0, pieces=[(0, 38, None)]),
+    'memory': dict(song='funkee-monkeee', end=30, fade=1.0, pieces=[(0, 16, None)]),
+    'bigger': dict(song='aerobic-fashion', end=30, fade=1.0, pieces=[(0, 31, None)]),
+    'africa': dict(song='life-is-a-dream', end=32, fade=1.0, pieces=[(0, 16, None)]),
+    'pronounce': dict(song='funkee-monkeee', end=30, fade=1.0, pieces=[(0, 32, None)]),
+    'onegame': dict(song='take-this-higher', end=32, fade=1.0, pieces=[(0, 38, None)]),
+    'illegal': dict(song='life-is-a-dream', end=32, fade=1.0, pieces=[(0, 48, None)]),
+    # five real-app films (viral.html?v=N)
+    'viral-1': dict(song='take-this-higher', end=34, fade=1.0, pieces=[(0, 38, None)]),
+    'viral-2': dict(song='funkee-monkeee', end=28, fade=1.0, pieces=[(0, 48, None)]),
+    'viral-3': dict(song='life-is-a-dream', end=30, fade=1.0, pieces=[(0, 48, None)]),
+    'viral-4': dict(song='aerobic-fashion', end=26, fade=1.0, pieces=[(0, 31, None)]),
+    'viral-5': dict(song='funkee-monkeee', end=24, fade=1.0, pieces=[(0, 16, None)]),
     # Sounds fake, but it's true: from song beat 50, so the break (song 59-62) sits under time's up and the knock-outs
     # (film 9-12) and the drop (song 63) lands on the reveal (film 13)
     'funfact': dict(song='aerobic-fashion', end=36, fade=1.0, pieces=[(0, 50, None)]),

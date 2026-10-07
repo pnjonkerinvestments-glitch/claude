@@ -194,3 +194,34 @@
 - **Latitudes:** Wellington 41.3°S is the southernmost capital of a sovereign country. Canberra is at 35.3°S and Buenos Aires at 34.6°S. Reykjavik, the northernmost, is at 64.1°N.
 - **Lake Baikal:** about 23,600 km³, more than the 5 Great Lakes together (Superior 12,100 + Michigan 4,900 + Huron 3,540 + Ontario 1,640 + Erie 480 ≈ 22,700 km³). Maximum depth 1,642 m. The Eiffel Tower is 330 m tall.
 - **Sources:** [Scandinavia Standard: Sweden's 267,570 islands](https://www.scandinaviastandard.com/t-sweden-267570-islands-official-count/) · [timeanddate: country with the most time zones](https://www.timeanddate.com/time/country-with-the-most-time-zones.html) · [The Local: France's 12 time zones](https://www.thelocal.fr/20220325/reader-question-how-does-france-have-12-different-time-zones) · [WorldAtlas: Baikal vs the Great Lakes](https://www.worldatlas.com/lakes/how-lake-baikal-holds-more-water-than-all-the-great-lakes-combined.html) · [Lake Baikal (Wikipedia)](https://en.wikipedia.org/wiki/Lake_Baikal)
+
+---
+
+## Facts 11-20 (round 3)
+The captions and pinned comments for facts 11-20 are in `social/daily-posts/build.py` (days 11-20), with exactly five hashtags each: `#fyp #foryou` and three on the topic. All ten use the data-driven `generic` map scene in `fun-fact.html` (`map`, and `map2` for a bonus in another place).
+
+| # | Question | Answer | Bonus |
+|---|---|---|---|
+| 11 | Which countries share a land border with Canada? | USA & Denmark (Hans Island, split in 2022) | The "Whisky War", 1984-2022 |
+| 12 | How far apart are Russia and the USA? | About 4 km (Big and Little Diomede, 3.8 km) | The date line runs between them |
+| 13 | In which country is it still 2019? | Ethiopia (its own calendar, 7-8 years behind) | 13 months: 12 × 30 days + 5 or 6 days |
+| 14 | Which country has 3 capital cities? | South Africa (Pretoria, Cape Town, Bloemfontein) | The Dutch government sits in The Hague |
+| 15 | Which 2 South American countries don't border Brazil? | Chile and Ecuador | One of Brazil's 10 neighbours is France |
+| 16 | Which country's flag is not a rectangle? | Nepal | 8 of the 10 highest mountains are in Nepal |
+| 17 | Which city lies on two continents? | Istanbul | Turkey's capital is Ankara |
+| 18 | How far is Europe from Africa? | About 14 km (Strait of Gibraltar) | Ceuta and Melilla: Spain in Africa |
+| 19 | Africa's biggest country? | Algeria (2.38 million km²) | More than 4× mainland France (0.55 million km²) |
+| 20 | The highest mountain of the Netherlands is…? | A volcano: Mount Scenery on Saba, 887 m | In Europe the top is the Vaalserberg, 322 m |
+
+## Facts checked (round 3)
+- **Hans Island:** on 14 June 2022 Canada and Denmark agreed to split the island along a ravine, which created a land border between Canada and Greenland (Denmark). From 1984 both sides left bottles of whisky and schnapps on the island ("Whisky War").
+- **Diomede Islands:** Big Diomede (Russia) and Little Diomede (USA) are about 3.8 km apart; the International Date Line runs between them; nicknames Tomorrow Island and Yesterday Isle.
+- **Ethiopian calendar:** 13 months (12 × 30 days plus Pagume, 5 days or 6 in a leap year); about 7 years and 8 months behind the Gregorian calendar; New Year (Enkutatash) on 11 September (12 September in the year before a Gregorian leap year).
+- **South Africa:** executive capital Pretoria, legislative Cape Town, judicial Bloemfontein. The Netherlands: capital Amsterdam (constitution), government and parliament in The Hague.
+- **Brazil:** borders Argentina, Bolivia, Colombia, Guyana, Paraguay, Peru, Suriname, Uruguay, Venezuela and France (French Guiana); not Chile or Ecuador.
+- **Nepal:** the only national flag that is not rectangular. Of the 10 highest mountains, 8 lie (partly) in Nepal: Everest, Kangchenjunga, Lhotse, Makalu, Cho Oyu, Dhaulagiri, Manaslu, Annapurna (not K2 and Nanga Parbat). Everest: 8,849 m (2020 survey).
+- **Istanbul:** on both banks of the Bosphorus, in Europe and Asia; the capital of Türkiye is Ankara.
+- **Strait of Gibraltar:** about 14 km at its narrowest (Punta Oliveros/Tarifa area to Punta Cires). Ceuta and Melilla are Spanish cities on the African coast.
+- **Algeria:** 2,381,741 km², the largest country in Africa since South Sudan's independence in 2011 (DR Congo: 2,344,858 km²). Mainland France: about 551,695 km² (roviko.app data).
+- **Saba:** a special municipality of the Netherlands since 10 October 2010; Mount Scenery, 887 m, is the highest point of the Kingdom; the Vaalserberg (322.4 m) is the highest point of the European Netherlands.
+- **Sources:** [Hans Island agreement (Government of Canada)](https://www.canada.ca/en/global-affairs/news/2022/06/canada-and-the-kingdom-of-denmark-together-with-greenland-reach-historic-agreement-on-long-standing-boundary-disputes.html) · [Diomede Islands (Britannica)](https://www.britannica.com/place/Diomede-Islands) · [Ethiopian calendar (Britannica)](https://www.britannica.com/topic/Ethiopian-calendar) · [South Africa's capitals (South African Government)](https://www.gov.za/about-sa/south-africas-provinces) · [Saba (Government of the Netherlands)](https://www.government.nl/topics/caribbean-parts-of-the-kingdom)

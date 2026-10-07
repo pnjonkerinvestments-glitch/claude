@@ -226,3 +226,13 @@ Folder `x/`: nine image posts at **1600 × 900 (16:9)**, which X shows uncropped
 **All texts are in [`x/POSTS.md`](x/POSTS.md):** bio, pinned post, the text per image post (with character count and alt text), replies with the answers, and five text-only posts to go in between (a question, a poll and so on). The texts live in `build/post_copy.py`.
 
 Regenerate: `python3 build/x.py && node build/render.mjs x/`, then `python3 build/package.py` for `x/POSTS.md` and the zip with everything ready to post (every image next to its caption and alt text).
+
+---
+
+## Real screens of roviko.app 1.24 (3 carousels)
+`real/real.html?post=N&slide=S`, rendered by `real/render.mjs` into `real/post-N-<name>/tiktok/` (1080×1440) and `/instagram/` (1080×1350). The phone screens are real screens of the site (`social/roviko-shorts/screens/`), captured from a local copy with local test data only.
+1. **six-games** (8 slides): the six daily games, one per slide.
+2. **whole-map** (5 slides): Next Door now shows the whole continent after a wrong answer.
+3. **game-night** (6 slides): multiplayer for up to 12 friends, step by step.
+
+Captions and the posting plan are in `social/daily-posts/viral.py`.

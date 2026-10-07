@@ -195,3 +195,14 @@ The formats are ones that keep doing well on TikTok and Reels: the true-size map
 - `fun-fact.html?n=N`: a shared quiz with one map explainer per fact. The map comes from `../roviko-carousels/data/geo.js`, plus French Guiana from Natural Earth 1:110m.
 - `build/funfacts.sh [first] [last]`: sound cues, mix, render and MP4.
 - Music: "Aerobic Fashion" from song beat 50 (the `funfact` entry in `build/music_cut.py`).
+
+## Real-app films (5) for roviko.app 1.24
+`viral.html?v=1..5`, built from `src/viral.js`: a big phone with real screens of roviko.app 1.24 (`screens/`, captured from a local copy of the site at 390x844 with local test data only, never the live database), a pointer that taps, circle wipes between screens, punch-ins, Roviko reacting next to the phone, and the end card. `build/viral.sh` builds `out/viral/roviko-real-1.mp4` … `-5.mp4`. Captions: `social/daily-posts/viral.py`.
+
+| | Film | Screens |
+|---|---|---|
+| 1 | "This site makes you better at geography in 5 min a day" | home, flags, Next Door + continent map, Rank Radar, Side by Side, multiplayer, streak |
+| 2 | "POV: you get it wrong… and it shows you exactly where" | Next Door (Bolivia), the continent map |
+| 3 | "Guess the flag before I do (I'm bad at this)" | four flag questions, Roviko gets 1/4 |
+| 4 | "Game night idea: a geography battle" | room, round, reveal with avatars, podium |
+| 5 | "Where does Austria rank highest? I said forest. #52." | Rank Radar |

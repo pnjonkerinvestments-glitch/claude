@@ -127,3 +127,31 @@ Each one ends on a question for the comments. The caption repeats that question,
 - The old "Russia is bigger than Pluto" claim is no longer true: with New Horizons' radius of 1,188 km, Pluto's surface is about 17.7 million km², more than Russia's 17.1 million.
 - Great Britain is the island with England, Scotland and Wales. The United Kingdom is Great Britain plus Northern Ireland. Ireland is a separate country.
 - All names are made up. There are no other brands and no store badges. The only call to action is roviko.app.
+
+---
+
+## Funny shorts 11-20
+Captions, pinned comments and hashtags (`#fyp #foryou` + three on the topic) are in `social/daily-posts/build.py`, days 11-20. Pages are generated from `src/short-N-name.js` with `build/mkshort.py`; `build/funny10.sh` builds them.
+
+| | File | Hook | Song |
+|---|---|---|---|
+| 11 | `out/roviko-short-11-groupchat.mp4` | "If countries had a group chat" | Life is a Dream |
+| 12 | `out/roviko-short-12-nolabels.mp4` | "Me: I'm good at geography / the same map without labels" | Funkee Monkeee |
+| 13 | `out/roviko-short-13-italy.mp4` | "Italy has 2 countries inside it" | Aerobic Fashion |
+| 14 | `out/roviko-short-14-twinflags.mp4` | "Flags that are basically the same flag" | Take this Higher |
+| 15 | `out/roviko-short-15-memory.mp4` | "I drew Europe from memory" | Funkee Monkeee |
+| 16 | `out/roviko-short-16-bigger.mp4` | "Roviko is very sure which one is bigger" (0/3) | Aerobic Fashion |
+| 17 | `out/roviko-short-17-africa.mp4` | "POV: your friend has 'been to Africa'" (54 countries) | Life is a Dream |
+| 18 | `out/roviko-short-18-pronounce.mp4` | "Countries you've been pronouncing wrong" | Funkee Monkeee |
+| 19 | `out/roviko-short-19-onegame.mp4` | "Me at 20:00: just ONE quick game" | Take this Higher |
+| 20 | `out/roviko-short-20-illegal.mp4` | "Map facts that feel illegal" | Life is a Dream |
+
+### Facts checked (11-20)
+- Vatican City walks: its border is about 3.2 km. Russia spans 11 time zones.
+- San Marino: 61 km², completely surrounded by Italy. Vatican City: about 0.49 km², inside Rome. The third enclaved country is Lesotho (inside South Africa).
+- Look-alike flags: Chad and Romania (Chad's blue is a little darker), Indonesia and Monaco (different proportions), Ireland and Ivory Coast (mirrored), Australia and New Zealand (New Zealand's stars are red, four of them).
+- Areas (roviko.app data): Japan 377,930 km² > Germany 357,114; Brazil 8,515,767 > Australia 7,692,024; Iran 1,648,195 > Mongolia 1,564,110.
+- Africa has 54 UN member states.
+- Pronunciations: Kiribati /ˈkɪrɪbæs/, Lesotho /ləˈsuːtuː/, Niger /niːˈʒɛər/, Nauru /nɑːˈuːruː/.
+- Latitudes and longitudes: Rome 41.9°N, New York 40.7°N; Reno 119.8°W, Los Angeles 118.2°W; Windsor (Canada, 42.29°N) lies south of downtown Detroit (42.33°N).
+- The six daily games in short 19 are the real ones on roviko.app (Daily Detour, Rank Radar, World Duel, Side by Side, Country Mosaic, Clue Trail), plus the bonus tour and Survival.
