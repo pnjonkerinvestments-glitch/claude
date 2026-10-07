@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 /**
  * The reveal map after a Next Door answer. It shows the whole region around the asked country, every country with its
@@ -76,7 +76,8 @@ function sharedBorder(a: Polygon[], b: Polygon[]): number[][][] {
     return lines;
 }
 
-type Built = { viewBox: string; land: { id: string; d: string; home: boolean }[]; marks: { id: string; role: Role; d: string; ring?: [number, number, number]; dot: boolean }[]; border: string; regionName: string; offMap: Set<string> };
+type Mark = { id: string; role: Role; d: string; ring?: [number, number, number]; dot: boolean; pointer?: { x: number; y: number; r: number; angle: number } };
+type Built = { viewBox: string; land: { id: string; d: string; home: boolean }[]; marks: Mark[]; border: string; regionName: string };
 type Role = 'target' | 'neighbor' | 'picked';
 
 function build(world: World, countries: Country[], ids: string[], pickedId?: string): Built | null {
@@ -90,7 +91,7 @@ function build(world: World, countries: Country[], ids: string[], pickedId?: str
     for (const id of [answerId, pickedId]) {
         if (!id || !world[id]) continue;
         const box = mainBox(world[id]), grown = union(frame, box);
-        if (area(grown) <= area(frame) * 2.2) frame = grown; else if (!meets(frame, box)) offMap.add(id);
+        if (area(grown) <= area(frame) * 2.5) frame = grown; else if (!meets(frame, box)) offMap.add(id);
     }
     // Never zoom in closer than ~14 degrees, so even a fallback frame shows a neighbourhood.
     const grow = (lo: number, hi: number, min: number) => hi - lo >= min ? [lo, hi] : [(lo + hi) / 2 - min / 2, (lo + hi) / 2 + min / 2];
@@ -129,11 +130,19 @@ function build(world: World, countries: Country[], ids: string[], pickedId?: str
     const highlighted = new Set(roles.map(r => r[0]));
     const region = home?.region;
     const land = Object.entries(world).filter(([id]) => !highlighted.has(id)).map(([id, polys]) => ({ id, d: pathOf(polys, false), home: meta.get(id)?.region === region })).filter(c => c.d);
-    const marks = roles.map(([id, role]) => {
+    const marks = roles.map(([id, role]): Mark => {
         const box = mainBox(world[id]), cx = (box[0] + box[2]) / 2 * k, cy = -(box[1] + box[3]) / 2;
-        const size = Math.max((box[2] - box[0]) * k, box[3] - box[1]);
+        const bw = (box[2] - box[0]) * k, bh = box[3] - box[1], size = Math.max(bw, bh);
+        // Thin countries (Israel, The Gambia) count by their area too: their long side alone would skip the ring they need.
+        const small = Math.min(size, Math.sqrt(bw * bh) * 1.25) < w * .045;
+        // A wrong pick on the other side of the world (New Zealand for Ireland): a coral arrow on the edge of the map points its way.
+        if (offMap.has(id)) {
+            const r = w * .045, mx = x0 + w / 2, my = y0 + h / 2, dx = cx - mx, dy = cy - my;
+            const s = Math.min(Math.abs(dx) > 1e-6 ? (w / 2 - r * 1.6) / Math.abs(dx) : Infinity, Math.abs(dy) > 1e-6 ? (h / 2 - r * 1.6) / Math.abs(dy) : Infinity);
+            return { id, role, d: pathOf(world[id], true), dot: false, pointer: { x: mx + dx * s, y: my + dy * s, r, angle: Math.atan2(dy, dx) * 180 / Math.PI } };
+        }
         // A ring around countries that would be a few pixels on a phone (Eswatini, Luxembourg, San Marino).
-        const ring: [number, number, number] | undefined = size < w * .045 ? [cx, cy, Math.max(w * .03, size * .8)] : undefined;
+        const ring: [number, number, number] | undefined = small ? [cx, cy, Math.max(w * .03, size * .8)] : undefined;
         // Under ~1.5% of the width the shape itself is a speck: a dot in its colour marks the spot.
         return { id, role, d: pathOf(world[id], true), ring, dot: size < w * .016 };
     });
@@ -144,7 +153,7 @@ function build(world: World, countries: Country[], ids: string[], pickedId?: str
         line.forEach(([lon, lat], i) => { const x = lon * k, y = -lat; if (last && i < line.length - 1 && Math.abs(x - last[0]) < tol && Math.abs(y - last[1]) < tol) return; d += (last ? 'L' : 'M') + fmt(x) + ',' + fmt(y); last = [x, y]; });
         return d;
     }).join('');
-    return { viewBox: [x0, y0, w, h].map(fmt).join(' '), land, marks, border, regionName: home?.region ?? '', offMap };
+    return { viewBox: [x0, y0, w, h].map(fmt).join(' '), land, marks, border, regionName: home?.region ?? '' };
 }
 
 const ICON: Record<Role, string> = { target: '?', neighbor: '✓', picked: '✕' };
@@ -159,20 +168,48 @@ export default function BorderMap({ ids, names, picked, t }: Props) {
     }, [retry]);
     const pickedId = picked?.id;
     const map = useMemo(() => data ? build(data[0], data[1], ids, pickedId) : null, [data, ids.join(','), pickedId]);
-    if (failed) return <figure className="border-reveal-map bm-state"><p>{t('mapFailed')} <button className="text-link" onClick={() => setRetry(n => n + 1)}>{t('retry')}</button></p></figure>;
+    // The region label sits in the corner that covers the least of the coloured countries (Greece hid under it top left).
+    const figRef = useRef<HTMLElement>(null), [corner, setCorner] = useState<{ top: number; left: number } | null>(null);
+    useLayoutEffect(() => {
+        const fig = figRef.current, svg = fig?.querySelector('svg'), tag = fig?.querySelector<HTMLElement>('.bm-region-name');
+        if (!fig || !svg || !tag) return;
+        const place = () => {
+            const f = fig.getBoundingClientRect(), s = svg.getBoundingClientRect(), lw = tag.offsetWidth, lh = tag.offsetHeight, mx = 20, my = 18;
+            if (!s.width || !lw) return;
+            const rects = [...svg.querySelectorAll<SVGGraphicsElement>('.bm-mark, .bm-ring, .bm-pointer, .bm-shared')].map(el => el.getBoundingClientRect());
+            const spots = [[my, mx], [my, s.width - lw - mx], [s.height - lh - my, mx], [s.height - lh - my, s.width - lw - mx]];
+            let best = spots[0], least = Infinity;
+            for (const [top, left] of spots) {
+                const x0 = s.left - f.left + left - 6, y0 = s.top - f.top + top - 6, x1 = x0 + lw + 12, y1 = y0 + lh + 12;
+                const cover = rects.reduce((sum, r) => sum + Math.max(0, Math.min(x1, r.right - f.left) - Math.max(x0, r.left - f.left)) * Math.max(0, Math.min(y1, r.bottom - f.top) - Math.max(y0, r.top - f.top)), 0);
+                if (cover < least - 1) { least = cover; best = [top, left]; }
+            }
+            const next = { top: Math.round(s.top - f.top + best[0]), left: Math.round(s.left - f.left + best[1]) };
+            setCorner(c => c && c.top === next.top && c.left === next.left ? c : next);
+        };
+        place();
+        const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
+        ro?.observe(fig);
+        return () => ro?.disconnect();
+    }, [map]);
+    if (failed) return <figure className="border-reveal-map bm-state"><p role="status">{t('mapFailed')} <button className="text-link" onClick={() => setRetry(n => n + 1)}>{t('retry')}</button></p></figure>;
     if (!data) return <figure className="border-reveal-map bm-state" aria-busy="true"><p role="status">{t('loading')}</p></figure>;
     if (!map) return null;
     const label = (role: Role) => role === 'target' ? names[0] : role === 'neighbor' ? names[1] : picked?.name ?? '';
     const legend = map.marks.slice().sort((a, b) => ['target', 'neighbor', 'picked'].indexOf(a.role) - ['target', 'neighbor', 'picked'].indexOf(b.role));
     const region = t(map.regionName);
-    return <figure className="border-reveal-map bm-region">
+    return <figure ref={figRef} className="border-reveal-map bm-region">
         <svg viewBox={map.viewBox} preserveAspectRatio="xMidYMid meet" role="img" aria-label={t('borderMapLabel') + ': ' + names.join(' / ')}>
             <g className="bm-land">{map.land.map(c => <path key={c.id} className={c.home ? 'bm-home' : 'bm-far'} d={c.d} fillRule="evenodd" vectorEffect="non-scaling-stroke"/>)}</g>
             {map.marks.map(m => <path key={m.id} className={'bm-mark bm-' + m.role} d={m.d} fillRule="evenodd" vectorEffect="non-scaling-stroke"/>)}
             {map.border && <path className="bm-shared" d={map.border} fill="none" vectorEffect="non-scaling-stroke"/>}
             {map.marks.filter(m => m.ring).map(m => <g key={'ring' + m.id} className={'bm-ring bm-ring-' + m.role}><circle cx={m.ring![0]} cy={m.ring![1]} r={m.ring![2]} className="bm-ring-halo" vectorEffect="non-scaling-stroke"/><circle cx={m.ring![0]} cy={m.ring![1]} r={m.ring![2]} vectorEffect="non-scaling-stroke"/>{m.dot && <circle className="bm-dot" cx={m.ring![0]} cy={m.ring![1]} r={m.ring![2] * .28} vectorEffect="non-scaling-stroke"/>}</g>)}
+            {map.marks.filter(m => m.pointer).map(({ id, role, pointer: p }) => <g key={'ptr' + id} className={'bm-pointer bm-pointer-' + role} transform={`translate(${p!.x} ${p!.y})`}>
+                <circle r={p!.r} vectorEffect="non-scaling-stroke"/>
+                <path d={`M${p!.r * -.42},${p!.r * -.5}L${p!.r * .55},0L${p!.r * -.42},${p!.r * .5}Z`} transform={`rotate(${p!.angle})`} vectorEffect="non-scaling-stroke"/>
+            </g>)}
         </svg>
-        {map.regionName && <span className="bm-region-name" aria-hidden="true">{region}</span>}
+        {map.regionName && <span className="bm-region-name" style={corner ?? undefined} aria-hidden="true">{region}</span>}
         <figcaption>{legend.map(m => <span key={m.id} className={'bm-key ' + (m.role === 'target' ? 'target' : m.role === 'neighbor' ? 'neighbor' : 'picked')}>
             <i aria-hidden="true">{ICON[m.role]}</i>{label(m.role)}{m.role === 'picked' && <b className="sr-only"> ({t('yourAnswer')})</b>}{m.role === 'neighbor' && <b className="sr-only"> ({t('correctAnswerLabel')})</b>}
         </span>)}</figcaption>

@@ -229,31 +229,45 @@
 .ag-trip .deck-extras{gap:16px!important;margin-top:14px}
 .ag-trip .deck-extras>.section-header{margin:0}
 
-/* The Daily Detour banner and the five daily cards: white cards, soft art, a mint or forest pill. */
-.ag-trip .detour-banner,.ag-trip .dcard{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;transition:transform .22s cubic-bezier(.34,1.56,.64,1),box-shadow .2s}
-.ag-trip .detour-banner{margin-bottom:0!important}
-.ag-trip .detour-banner.is-next,.ag-trip .dcard.is-next{box-shadow:0 0 0 2px var(--t-mint-2),var(--t-shadow-lift)!important}
-.ag-trip .dcard:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
-.ag-trip .detour-banner-body .kicker{display:flex!important;align-items:center;gap:8px;min-height:0!important;padding:0!important;background:none!important;box-shadow:none!important;color:var(--t-brand)!important;font:800 .75rem/1.3 var(--font-sans)!important;letter-spacing:.09em;text-transform:uppercase}
-.ag-trip .detour-banner h3,.ag-trip .dcard h3{color:var(--t-ink)!important;font-family:var(--font-display)!important;font-weight:600!important}
-.ag-trip .detour-banner p:not(.kicker),.ag-trip .dcard p{color:var(--t-soft)!important}
-.ag-trip .dcard-points{display:none!important}
-.ag-trip .dcard-state{border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:0 2px 8px rgba(22,59,50,.1)!important}
-.ag-trip .dcard-state i{background:var(--t-gold)!important}
-.ag-trip .dcard.is-active .dcard-state i{background:var(--t-brand)!important}
-.ag-trip .dcard.is-done .dcard-state{background:var(--t-forest)!important;color:var(--t-forest-ink)!important}
-.ag-trip .game-icon.dcard-logo{box-shadow:0 0 0 4px var(--t-card),0 6px 14px rgba(22,59,50,.08)!important}
-.ag-trip .dcard-start,.ag-trip .detour-banner-actions .btn{min-height:46px;border-radius:999px!important}
-.ag-trip .btn.ag-quiet{border:0!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important}
-.ag-trip .btn.ag-quiet:hover:not(:disabled){background:var(--t-mint-2)!important}
-.ag-trip .dcard-practice{color:var(--t-brand)!important}
-.ag-trip .dcard-help .howto-button{background:color-mix(in srgb,var(--t-card) 92%,transparent)!important;color:var(--t-ink)!important}
-
-/* Extras: two quiet cards */
-.ag-trip .extras-row .game-card{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
-.ag-trip .extras-row .game-card-title{color:var(--t-ink)!important;font-family:var(--font-display)!important;font-weight:600!important}
-.ag-trip .extras-row .game-card-tagline,.ag-trip .extras-row .game-card-meta{color:var(--t-soft)!important}
-.ag-trip .extras-row .game-card-cta{color:var(--t-brand)!important}
+/* ───── Calm lists (1.24): the six daily games as one white list card like "Today's trip", the extras as compact rows ───── */
+.ag-calm .ag-day,.ag-calm .ag-extras,.ag-calm .ag-practise{display:block;margin:0;padding:20px 14px 12px}
+.ag-day-head{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:8px 12px;padding:0 8px}
+.ag-day-head h2{margin:0;color:var(--t-ink);font:600 1.5rem/1.15 var(--font-display);letter-spacing:-.01em}
+.ag-day-head p{margin:4px 0 0;color:var(--t-soft);font:600 .9375rem/1.4 var(--font-sans)}
+.ag-calm .ag-day-head .deck-reset{min-height:34px;padding:0 12px!important;box-shadow:none!important;background:var(--t-mint)!important;font-size:.8125rem!important}
+.ag-list{display:grid;gap:4px;margin:12px 0 0;padding:0;list-style:none}
+.ag-row button{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:9px 10px;border:0;border-radius:var(--t-radius-sm);background:transparent;color:var(--t-ink);box-shadow:none;text-align:left;font:inherit;cursor:pointer;transition:transform .22s cubic-bezier(.34,1.56,.64,1),background .2s,box-shadow .2s}
+.ag-row button:hover:not(:disabled){background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card))}
+.ag-row button:active:not(:disabled){transform:scale(.985)}
+.ag-row button:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+.ag-row button:disabled{cursor:default}
+.ag-row.is-next button{background:var(--t-card);box-shadow:inset 0 0 0 2px var(--t-mint-2),0 6px 18px rgba(22,59,50,.08)}
+[data-theme=dark] .ag-row.is-next button{box-shadow:inset 0 0 0 2px var(--t-mint-2),0 6px 18px rgba(0,0,0,.3)}
+.ag-icon{position:relative;flex:0 0 auto;display:grid;place-items:center;width:44px;height:44px}
+.ag-icon .game-icon{width:44px;height:44px}
+.ag-tick{position:absolute;right:-5px;bottom:-5px;display:grid;place-items:center;width:22px;height:22px;border-radius:999px;background:var(--t-forest);color:var(--t-forest-ink);box-shadow:0 0 0 2.5px var(--t-card)}
+.ag-copy{flex:1 1 auto;display:grid;gap:2px;min-width:0}
+.ag-copy strong{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display);overflow-wrap:break-word}
+.ag-copy small{color:var(--t-soft);font:700 .8125rem/1.3 var(--font-sans)}
+.ag-row.is-active .ag-copy small{color:var(--t-brand)}
+.ag-end{flex:0 0 auto;display:inline-flex;align-items:center;color:var(--t-soft)}
+.ag-score{display:inline-flex;align-items:center;gap:6px;color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+.ag-pill{min-height:38px;padding:0 14px;font-size:.9375rem;white-space:nowrap}
+.ag-pill.is-main{padding:0 12px 0 16px;background:var(--t-forest);color:var(--t-forest-ink)}
+.ag-row button:hover:not(:disabled) .ag-pill:not(.is-main){background:var(--t-mint-2)}
+.ag-chev{color:color-mix(in srgb,var(--t-soft) 75%,transparent)}
+.ag-list.is-compact .ag-row button{min-height:58px}
+.ag-list.is-compact .ag-icon,.ag-list.is-compact .ag-icon .game-icon{width:40px;height:40px}
+.ag-day-foot{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 18px;margin:10px 0 0;padding:6px 8px 0;border-top:1px solid var(--t-line)}
+.ag-foot-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--t-brand);font:700 .9375rem/1.2 var(--font-sans);text-decoration:none}
+.ag-foot-link:hover{text-decoration:underline}
+.ag-foot-link:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px;border-radius:8px}
+.ag-calm .native-reminder{margin:0}
+/* Two columns on wide screens: the daily list and the extras side by side. */
+@media (min-width:980px){
+  .ag-calm{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:start}
+  .ag-calm>.page-header,.ag-calm>.more-games-tabs,.ag-calm>[role=tabpanel],.ag-calm>.native-reminder,.ag-calm>.challenge-banner{grid-column:1/-1}
+}
 
 /* Tabs: a white pill with a mint pill for the open tab, as in the tab bar */
 .ag-trip .more-games-tabs.segmented-pill{display:flex;gap:4px;width:min(100%,520px);justify-self:center;margin:6px 0 0;padding:5px!important;border-radius:999px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
@@ -266,24 +280,38 @@
 .ag-trip [role=tabpanel]{animation:th-rise .35s cubic-bezier(.22,1,.36,1) both}
 .ag-trip .bonus-tour{margin:0!important}
 
-/* Practise: region and "Surprise me", then the six classic games as white cards */
-.ag-trip .classic-section{display:grid;gap:16px}
-.ag-trip .classic-section>.section-header{margin:0}
+/* Practise: region and "Surprise me", then the classic games and the daily games as small tiles (logo + name, no pictures) */
+.ag-calm .classic-section{display:block}
+.ag-calm .classic-controls{display:flex!important;flex-wrap:wrap;gap:8px;margin:14px 8px 0}
+.ag-calm .classic-controls>*{flex:1 1 140px!important;min-width:0}
+.ag-calm .classic-controls .select-trigger{width:100%}
+.ag-calm .classic-section .review-card{margin:12px 8px 0}
 .ag-trip .classic-controls .select-trigger{border-radius:999px!important;background-color:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-ink)!important}
 .ag-trip .surprise-button{min-height:52px!important;border-radius:999px!important}
 .ag-trip .review-card{border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
 .ag-trip .review-card-icon{border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-brand)!important}
 .ag-trip .review-card .review-card-cta{border:0!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important}
-.ag-trip .ccard{border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
-.ag-trip .ccard:hover{transform:translateY(-2px);box-shadow:var(--t-shadow-lift)!important}
-.ag-trip .ccard-wave{color:var(--t-card)!important}
-.ag-trip .ccard-body strong{color:var(--t-ink)}
-.ag-trip .ccard-body small{color:var(--t-soft)}
-.ag-trip .game-icon.ccard-logo{box-shadow:0 0 0 4px var(--t-card),0 6px 14px rgba(22,59,50,.08)!important}
-.ag-trip .ccard-go{border:0!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important}
-.ag-trip .ccard:hover .ccard-go{background:var(--t-mint-2)!important}
-.ag-trip .ccard-settings{color:var(--t-soft)!important}
-.ag-trip .ccard-settings:hover{background:var(--t-mint)!important;color:var(--t-ink)!important}
+.ag-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;margin:14px 0 0;padding:0;list-style:none}
+.ag-tile-wrap{position:relative}
+.ag-tile{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:9px 12px;border:0;border-radius:var(--t-radius-sm);background:color-mix(in srgb,var(--t-mint) 45%,var(--t-card));color:var(--t-ink);text-align:left;font:inherit;cursor:pointer;transition:background .2s,transform .22s cubic-bezier(.34,1.56,.64,1)}
+.ag-tile-wrap .ag-tile{padding-right:52px}
+.ag-tile:hover:not(:disabled){background:var(--t-mint)}
+.ag-tile:active:not(:disabled){transform:scale(.985)}
+.ag-tile:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+.ag-tile .game-icon{flex:0 0 auto;width:40px;height:40px}
+.ag-tile>span{display:grid;gap:1px;min-width:0}
+.ag-tile strong{color:var(--t-ink);font:600 1rem/1.2 var(--font-display);overflow-wrap:break-word}
+.ag-tile small{color:var(--t-soft);font:700 .8125rem/1.3 var(--font-sans);overflow-wrap:break-word;hyphens:auto}
+.ag-tile-settings{position:absolute;top:50%;right:8px;transform:translateY(-50%);color:var(--t-soft)!important}
+.ag-tile-settings:hover{background:var(--t-card)!important;color:var(--t-ink)!important}
+.ag-practice{margin:18px 0 0;padding:14px 0 0;border-top:1px solid var(--t-line)}
+.ag-subhead{margin:0;padding:0 8px;color:var(--t-ink);font:600 1.125rem/1.2 var(--font-display)}
+/* Bonus tour on this page: logos only (BonusTour compact). */
+.bt-trip.is-compact .bonus-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))!important}
+.bt-trip.is-compact .bonus-body strong{white-space:normal;overflow:visible;text-overflow:clip}
+.bt-trip.is-compact .bonus-stop button{min-height:62px}
+.bt-trip.is-compact .bonus-logo{position:relative;display:grid;flex:0 0 auto}
+.bt-trip.is-compact .bonus-logo .bonus-check{position:absolute;right:-5px;bottom:-5px;top:auto;left:auto}
 .ag-trip .native-reminder{border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important}
 @media (max-width:760px){
   .all-games.ag-trip{gap:22px}
@@ -291,19 +319,15 @@
   .ag-trip>.page-stage .ps-character{width:104px!important;margin:0 -8px 0 -12px!important}
   .ag-trip>.page-stage .lead{font-size:.9375rem!important}
   .ag-trip .section-header h2{font-size:1.4375rem}
-  .ag-trip .dcard{border-radius:var(--t-radius-sm)!important}
-  .ag-trip .dcard-art{border-radius:var(--t-radius-sm) 0 0 var(--t-radius-sm)}
-  .ag-trip .detour-banner{border-radius:24px!important}
-  .ag-trip .dgrid{gap:10px!important}
 }
-/* Narrow phones: a finished or waiting game keeps only the arrow in its pill (the button's label says it all), so long names keep their room. */
-@media (max-width:420px){
-  .ag-trip .dcard.is-done .dcard-start{width:44px!important;min-width:44px;height:44px;min-height:44px!important;padding:0!important;font-size:0!important;gap:0}
-  .ag-trip .dcard.is-done .dcard-start svg{width:18px;height:18px}
-}
-@media (max-width:360px){
-  .ag-trip .dcard:not(.is-next) .dcard-start{width:44px!important;min-width:44px;height:44px;min-height:44px!important;padding:0!important;font-size:0!important;gap:0}
-  .ag-trip .dcard:not(.is-next) .dcard-start svg{width:18px;height:18px}
+@media (max-width:359px){
+  .ag-calm .ag-day,.ag-calm .ag-extras,.ag-calm .ag-practise{padding:16px 8px 10px;border-radius:24px}
+  .ag-day-head h2{font-size:1.25rem}
+  .ag-row button{gap:11px;padding:9px 8px}
+  .ag-icon,.ag-icon .game-icon{width:40px;height:40px}
+  .ag-pill{padding:0 11px}
+  .ag-pill.is-main svg{display:none}
+  .ag-tiles{grid-template-columns:1fr}
 }
 
 /* ───── Sizes ───── */
@@ -334,5 +358,5 @@
 @keyframes th-glow{0%,100%{opacity:1}50%{opacity:.45}}
 @media (prefers-reduced-motion:reduce){
   .th-bubble,.th-bubble .flame-mark,.home-trip .th-cta,.home-trip .today-row,.th-tick,.th-segs>li,.bt-trip .bonus-check,.welcome-card .welcome-art,.challenge-banner.ch-trip,.ch-trip .peek,.ch-trip .peek .peek-head,.ag-trip [role=tabpanel]{animation:none!important}
-  .home-trip .today-row button,.home-trip a.side-row,.th-points,.bt-trip .bonus-stop button,.sv-trip .survival-card>button,.ag-trip .dcard,.ag-trip .detour-banner,.ag-trip .ccard{transition:none!important}
+  .home-trip .today-row button,.home-trip a.side-row,.th-points,.bt-trip .bonus-stop button,.sv-trip .survival-card>button,.ag-row button,.ag-tile{transition:none!important}
 }

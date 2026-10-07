@@ -11,6 +11,7 @@ import { TOPICS } from '../lib/puzzles/topics';
 import { COMPARE_ROUNDS, dailyTopic, generateComparisons, generateMosaic } from '../lib/puzzles/generate';
 import { checkMosaic, reviewMosaic, mosaicHint, type PuzzleState, type PuzzleView } from '../lib/puzzles/model';
 import type { Env, User } from './types';
+import { dailyModesFor } from '../lib/daily-loop';
 
 const schema = z.object({ mode: z.enum(['compare', 'mosaic']), daily: z.boolean().default(true), competition:z.boolean().default(false), topic: z.string().refine(v => TOPICS.some(t => t.id === v)).optional(), size: z.union([z.literal(3), z.literal(4), z.literal(5)]).default(4) });
 const view = (s: PuzzleState, version = 0): PuzzleView => {
@@ -43,7 +44,8 @@ export async function puzzleToday(env: Env, user: User, competition = false) {
 }
 export async function startPuzzle(env: Env, user: User, input: unknown, focus?: string) {
   const settings = schema.parse(input), daily = settings.daily ? new Date().toISOString().slice(0, 10) : null;
-  const ranked=!!daily&&settings.competition;
+  // Country Mosaic left the daily lineup (1.24): from SHUFFLE_FROM a daily Mosaic is the unscored edition of the day.
+  const ranked=!!daily&&settings.competition&&(dailyModesFor(daily) as readonly string[]).includes(settings.mode);
   const kind = 'puzzle:' + settings.mode + (ranked?COMPETITION_SUFFIX:'');
   if (daily) {
     const existing = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, daily, kind);

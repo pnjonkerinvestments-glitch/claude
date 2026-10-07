@@ -22,14 +22,14 @@ export function useSurvivalLaunch(app: LaunchApp) {
  * Survival: three daily runs that end at your first mistake. Shown on the all-games page and, after 6/6,
  * on the homepage (`compact`: no intro line and no pictures there). Trip style: one white card with three rows.
  */
-export function SurvivalRuns({ app, survival, busy, compact }: { app: LaunchApp; survival?: SurvivalSession[]; busy?: boolean; compact?: boolean }) {
+export function SurvivalRuns({ app, survival, busy, compact, intro = !compact }: { app: LaunchApp; survival?: SurvivalSession[]; busy?: boolean; compact?: boolean; intro?: boolean }) {
   const { t } = app;
   const { open, launching } = useSurvivalLaunch(app);
   return <section className={'home-section survival sv-trip' + (compact ? ' is-compact' : '')} aria-labelledby="survival-title">
     <header className="survival-head">
       <p className="t-kicker is-caps"><Heart size={14} fill="currentColor" aria-hidden="true"/>{t('survivalKicker')}</p>
       <h2 id="survival-title">{t('survivalTitle')}</h2>
-      {!compact && <p className="muted">{t('survivalCopy')}</p>}
+      {intro && <p className="muted">{t('survivalCopy')}</p>}
     </header>
     <ol className="survival-grid">{SURVIVAL_MODES.map(mode => {
       const saved = survival?.find(s => s.mode === mode), done = !!saved?.completed;

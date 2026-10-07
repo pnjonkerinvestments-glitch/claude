@@ -179,21 +179,21 @@ const Flags: Logo = () => {
   const wave = 'M0 0C3.6-1.6 7.2 1.6 14.6 0V10C7.2 11.6 3.6 8.4 0 10Z';
   return <>
     <GroundShadow x={18} y={36} rx={13}/>
-    <g transform="translate(22.6 7.6) scale(.86)">
+    <g transform="translate(22.8 6.4) scale(1.02)">
       <path d={wave} fill="#2FA75A"/>
       <path d="M7.3 1.4l6 3.6-6 3.6-6-3.6Z" fill="#FFD23F"/>
       <circle cx="7.3" cy="5" r="2.3" fill="#2A5DB0"/>
     </g>
-    <rect x="21.6" y="6.6" width="1.4" height="28" rx=".7" fill={RV.wood}/>
-    <circle cx="22.3" cy="6.2" r="1.5" fill={RV.gold}/>
-    <g transform="translate(8.8 10.4)">
+    <rect x="21.6" y="5.4" width="1.6" height="29.2" rx=".8" fill={RV.wood}/>
+    <circle cx="22.4" cy="5" r="1.6" fill={RV.gold}/>
+    <g transform="translate(6.6 9.6) scale(1.14)">
       <path d={wave} fill="#fff"/>
       <path d="M0 6.4C3.6 4.8 7.2 8 14.6 6.4V10C7.2 11.6 3.6 8.4 0 10Z" fill={RV.ink} opacity=".06"/>
       <circle cx="7.3" cy="5" r="3" fill={RV.red}/>
     </g>
-    <rect x="7.4" y="9.2" width="1.6" height="26.4" rx=".8" fill="#B47A45"/>
-    <circle cx="8.2" cy="8.6" r="1.8" fill={RV.gold}/>
-    <circle cx="7.7" cy="8.1" r=".55" fill="#fff" opacity=".7"/>
+    <rect x="5" y="8.4" width="1.8" height="27.2" rx=".9" fill="#B47A45"/>
+    <circle cx="5.9" cy="7.8" r="1.9" fill={RV.gold}/>
+    <circle cx="5.4" cy="7.3" r=".6" fill="#fff" opacity=".7"/>
   </>;
 };
 

@@ -595,3 +595,32 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 **Bestanden.** Nieuw: `app/trip.css`, `app/trip-home.css`, `trip-puzzles.css`, `trip-mp.css`, `trip-finish.css`, `trip-pages.css`, `i18n/trip.ts`, `components/ds/Coin.tsx` (munt, muntpil, vlam), `components/multiplayer/Live.tsx`, `components/multiplayer/MatchResults.tsx`. `Peek` in `components/ds/Character.tsx`. Aangepast: `GameHeader`, `Question`, de eindschermen, de homepage, de dagspellen en de pagina's. Geen nieuwe migratie, geen nieuwe afbeeldingen.
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
+
+## 1.24.0 (in ontwikkeling)
+
+### Dagelijkse Size Shuffle in plaats van Country Mosaic
+
+Op verzoek van de eigenaar is Country Mosaic geen dagspel meer; de **dagelijkse Size Shuffle** neemt de vierde plek in: Rank Radar, Wereldduel, Side by Side, Size Shuffle, Clue Trail (plus de Omweg). Nog steeds zes spellen en maximaal 6.000 punten per dag.
+
+- **Spel.** Vijf rondes van vier landen, op oppervlakte sorteren (grootste bovenaan), van makkelijk (bekende landen, grootte ver uit elkaar) naar moeilijk (grootte dicht bij elkaar); geen land twee keer. Dezelfde landen voor iedereen per UTC-datum (`lib/puzzles/size-shuffle.ts`, opgeslagen in `daily_content`). Geen timer, één poging, hervatbaar.
+- **Punten.** 50 per land op de goede plek, dus 200 per ronde en 1.000 in totaal (`placesRight`/`shufflePoints` in `lib/daily-scoring.ts`). De server rekent met de opgeslagen lijst; de volgorde en de oppervlaktes gaan pas na het bevestigen naar de browser. Het eindscherm telt "landen op de goede plek" (x/20) en foutloze rondes.
+- **Hoe het werkt.** Een solo-sessie zoals de dagelijkse Clue Trail: `settings.mode: 'daily-order'`, soort `daily-order:competitive-v1`, competitiemodus `order` (naam, logo en uitleg van Size Shuffle). Oude clients merken niets: hun verzoeken veranderen niet.
+- **Overgang per datum.** `SHUFFLE_FROM` in `lib/daily-loop.ts` (nu `2026-10-09`): datums ervoor houden Mosaic, vanaf die datum Size Shuffle (`dailyModesFor`/`dayModesFor`). Niemand krijgt op de wisseldag zeven dagspellen; een Mosaic die vóór middernacht begon, telt nog mee. **De lead zet `SHUFFLE_FROM` op de eerste UTC-dag na de release en verandert hem daarna nooit meer.**
+- **Geen migratie.** `daily_scores` staat via een CHECK alleen de zes modi van 1.21 toe. De Size Shuffle gebruikt daarom de plek van Mosaic: opgeslagen als `mosaic` op datums vanaf `SHUFFLE_FROM`, teruggelezen als `order` (`ledgerMode` en de `CASE` in `server/competition.ts`). Totalen, weken en groepen tellen alleen op en merken niets. Oude Mosaic-resultaten blijven in de geschiedenis en de totalen.
+- **Mosaic als extra.** Op Alle spellen onder Extra's en onder "Dagspellen oefenen", zonder punten. Een gedeelde Mosaic-link of een vraag om de gerangschikte Mosaic van vandaag opent na de wissel de ongescoorde editie van de dag.
+
+### Rustiger Alle spellen (`/daily`)
+
+De zes dagspellen staan als één witte lijstkaart zoals "Reis van vandaag" op de homepage (logo, naam, één korte regel, punten met munt / "Verder" / één donkergroene "Speel"-pil), met onderaan "Hoe speel je" en "Hoe punten werken". Daarna de extra's (Country Mosaic, Samen spelen, Mysterieland) als compacte rijen; op desktop staan beide kaarten naast elkaar. De tabs Bonustour / Overleven / Oefenen bleven, maar zonder grote illustraties: de bonustour en overleven tonen alleen logo's, Oefenen een rustige lijst met de klassieke spellen (met instellingen) en "Dagspellen oefenen" (Omweg vrij oefenen, Rank Radar, oefenduel, Side by Side met onderwerpkeuze, Mosaic met bordgrootte).
+
+**Tests.** Nieuw `tests/daily-shuffle.test.mjs` (generatie, puntentelling met deelpunten, niets uitlekken vóór het antwoord, ledgerplek). Nieuwe integratietest voor de dagelijkse Size Shuffle die aan beide kanten van `SHUFFLE_FROM` werkt; de Mosaic-dagtest en de homepagevolgorde hangen nu van de datum af. Lokaal ook met `SHUFFLE_FROM` op vandaag gedraaid (daarna teruggezet).
+
+### 1.24.0: verder (iconen, kaarten, punten)
+- **Logo's en iconen in Roviko-stijl.** Alle spellogo's zijn opnieuw getekend als kleine volkleurige tafereeltjes in de stijl van de spelillustraties (`GameIcon.tsx`, `RovikoArt.tsx`). Tabbalk, Multiplayer-keuzes, Paspoort, dagdoelen, menu, instellingen, account en vrienden gebruiken nieuwe getekende iconen (`RovikoIcons.tsx`).
+- **Goed antwoord:** frissere Roviko-groen met een licht verloop en zachte gloed (`--t-right` in `trip.css`), in alle spellen en multiplayer; de donkergroene knoppen blijven.
+- **Buurlanden:** na het antwoord toont de kaart het hele werelddeel met alle grenzen; het gevraagde land, het goede antwoord en een foute keuze zijn gemarkeerd, kleine landen krijgen een ring.
+- **Size Shuffle:** rijen zijn te slepen met vinger of muis (pijltjes en toetsenbord blijven).
+- **Kaartvragen:** de kaart opent altijd op de hele wereld.
+- **Multiplayer:** een half goede Size Shuffle-lijst levert een deel van de punten op (goede plekken ÷ 4 × de gewone punten, zonder reeksbonus). De Dagelijkse Omweg blijft 50 per volledig goede vraag.
+- **Bewust niet:** extra punten voor een reeks in de Omweg. Kaartvragen geven gedeeltelijke punten (wat is dan "goed"?), en oude dagscores zouden niet meer vergelijkbaar zijn; "3 op rij!" en het oplopende geluid blijven.
+- **Tests:** 179/179 (nieuw: `order-partial.test.mjs`, `daily-shuffle.test.mjs`).

@@ -26,7 +26,7 @@ import { BonusResult, BonusTour } from './home/BonusTour';
 import { SurvivalResult, SurvivalRuns } from './home/Survival';
 import { DailyFinish } from './atelier/DailyFinish';
 import { useToday } from './home/useDay';
-import { PuzzleDeck, openPuzzle } from './puzzles/PuzzleDeck';
+import { PuzzleDeck, DailyPractice, openPuzzle } from './puzzles/PuzzleDeck';
 import { HowToPlayButton, HowToPlayPage } from './atelier/HowToPlay';
 import { GameIcon } from './atelier/GameIcon';
 const RankGame = React.lazy(() => import('./puzzles/RankGame').then(m => ({ default: m.RankGame })));
@@ -96,7 +96,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     const start = async (settings: any, practice = false) => { if (starting.current) return; starting.current=true; setBusy(true); try {
         if (!boot.user.id)
             await refresh();
-        const game = await post('/games', { settings: { ...settings, timer: 0 }, practice, competition:['daily','daily-trail'].includes(settings.mode) });
+        const game = await post('/games', { settings: { ...settings, timer: 0 }, practice, competition:['daily','daily-trail','daily-order'].includes(settings.mode) });
         // Start loading the first flag now, in parallel with opening the game screen.
         const q = game.question; if (q?.mode === 'flags' && (q.flagUrl || q.flag)) { const img = new Image(); img.src = q.flagUrl ?? '/api/flag/' + encodeURIComponent(q.flag) + '?v=2'; }
         go('/game/' + game.id);
@@ -135,30 +135,27 @@ function PresenceLayer({ path }: { path: string }) { const { invites, dismiss } 
 function AllGames() {
     const app = useApp(), { t, start, playMode, busy, region, setRegion, boot } = app;
     const { data: today } = useToday(boot);
-    // Bonus tour, survival and the classic games one at a time (1.23), so the page stays short.
+    // Bonus tour, survival and practice one at a time (1.23), so the page stays short; since 1.24 all compact (no big pictures).
     const [moreTab, setMoreTab] = useState<'bonus' | 'survival' | 'classic'>('bonus');
     useEffect(() => { if (location.hash === '#classic') setMoreTab('classic'); else if (location.hash === '#survival') setMoreTab('survival'); }, []);
     // Tabs as in the tab bar: a white pill with a mint pill for the open one; arrow keys move between them.
     const TABS = ['bonus', 'survival', 'classic'] as const;
     const tabKey = (e: React.KeyboardEvent, k: typeof TABS[number]) => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); const nextTab = TABS[(TABS.indexOf(k) + d + TABS.length) % TABS.length]; setMoreTab(nextTab); document.getElementById('tab-' + nextTab)?.focus(); };
-    return <div className="page all-games ag-trip">
+    return <div className="page all-games ag-trip ag-calm">
         <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
-        <PuzzleDeck app={app} dailyPage extras/>
+        <PuzzleDeck app={app} extras/>
         <div className="more-games-tabs segmented-pill" role="tablist" aria-label={t('allGamesMore')}>{TABS.map(k => <button key={k} type="button" role="tab" id={'tab-' + k} aria-selected={moreTab === k} tabIndex={moreTab === k ? 0 : -1} aria-controls={'panel-' + k} onClick={() => setMoreTab(k)} onKeyDown={e => tabKey(e, k)}>{t(k === 'bonus' ? 'allGamesTabBonus' : k === 'survival' ? 'allGamesTabSurvival' : 'allGamesTabClassic')}</button>)}</div>
-        {moreTab === 'bonus' && <div role="tabpanel" id="panel-bonus" aria-labelledby="tab-bonus">{today ? <BonusTour app={app} bonus={today.bonus} busy={busy}/> : <Loading variant="list"/>}</div>}
-        {moreTab === 'survival' && <div role="tabpanel" id="panel-survival" aria-labelledby="tab-survival">{today ? <SurvivalRuns app={app} survival={today.survival} busy={busy}/> : <Loading variant="list"/>}</div>}
-        {moreTab === 'classic' && <section id="classic" role="tabpanel" aria-labelledby="tab-classic" className="classic-section">
-          <header className="section-header"><div><h2 id="classic-title">{t('allGamesClassic')}</h2><p className="muted">{t('allGamesClassicNote')}</p></div></header>
+        {moreTab === 'bonus' && <div role="tabpanel" id="panel-bonus" aria-labelledby="tab-bonus">{today ? <BonusTour app={app} bonus={today.bonus} busy={busy} compact/> : <Loading variant="list"/>}</div>}
+        {moreTab === 'survival' && <div role="tabpanel" id="panel-survival" aria-labelledby="tab-survival">{today ? <SurvivalRuns app={app} survival={today.survival} busy={busy} compact intro/> : <Loading variant="list"/>}</div>}
+        {moreTab === 'classic' && <section id="classic" role="tabpanel" aria-labelledby="tab-classic" className="classic-section ag-practise t-card">
+          <header className="ag-day-head"><div><h2 id="classic-title">{t('allGamesClassic')}</h2><p>{t('allGamesClassicNote')}</p></div></header>
           <div className="classic-controls"><Choice label={t('region')} value={region} onChange={setRegion} options={REGIONS.map(v => ({ value: v, label: v === 'World' ? t('allRegions') : t(v) }))}/><button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><Sparkles size={17} aria-hidden="true"/>{t('surpriseMe')}</button></div>
           {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true"><RotateCcw size={22} strokeWidth={2.2}/></span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><span className="btn secondary review-card-cta">{t('reviewCardCta')}<ArrowRight size={17}/></span></button>}
-          <div className="classic-grid">{MODES.map(mode => <article className={'ccard tone-' + mode} key={mode}>
-            <button className="ccard-main" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}>
-              <span className="ccard-art" aria-hidden="true"><GameScene mode={mode as SceneMode} shape="wide"/><svg className="ccard-wave" viewBox="0 0 400 36" preserveAspectRatio="none"><path d="M0 20C70 4 150 2 230 16s130 22 170 6V36H0Z" fill="currentColor"/></svg></span>
-              <span className="ccard-body"><GameIcon mode={mode} className="ccard-logo"/><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span>
-              <span className="ccard-go" aria-hidden="true"><ArrowRight size={18}/></span>
-            </button>
-            <button className="icon-btn ccard-settings" disabled={busy} aria-label={t('gameSettings').replace('{game}', t(mode))} title={t('gameSettings').replace('{game}', t(mode))} onClick={() => playMode(mode)}><Settings2 size={16}/></button>
-          </article>)}</div>
+          <ul className="ag-tiles">{MODES.map(mode => <li key={mode} className="ag-tile-wrap">
+            <button type="button" className="ag-tile" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}><GameIcon mode={mode}/><span><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span></button>
+            <button type="button" className="icon-btn ag-tile-settings" disabled={busy} aria-label={t('gameSettings').replace('{game}', t(mode))} title={t('gameSettings').replace('{game}', t(mode))} onClick={() => playMode(mode)}><Settings2 size={16}/></button>
+          </li>)}</ul>
+          <DailyPractice app={app}/>
         </section>}
     </div>;
 }
@@ -199,7 +196,7 @@ function SoloScreen({ id }: { id: string }) {
     const sending = useRef(false), moving = useRef(false), pendingSave = useRef<Promise<any> | null>(null);
     const load = useCallback(() => { setError(''); api('/games/' + id).then(setGame).catch(e => setError(e.message)); }, [id]);
     useEffect(load, [load]);
-    useEffect(() => { if (game) document.title = t(game.competition?.mode==='trail'?'dailyTrail':game.daily ? 'dailyTitle' : game.settings.mode) + ' | ' + BRAND.name; }, [game?.settings?.mode, game?.daily, locale]);
+    useEffect(() => { if (game) document.title = t(soloTitleKey(game)) + ' | ' + BRAND.name; }, [game?.settings?.mode, game?.daily, locale]);
     const answer = useCallback(async (value: any) => {
         if (sending.current || !game || game.phase !== 'question') return;
         sending.current = true;
@@ -251,14 +248,16 @@ function SoloScreen({ id }: { id: string }) {
     if (!game) return <Loading/>;
     if (game.phase === 'finished') return <Results result={game}/>;
     const revealed = game.phase === 'reveal';
-    const guide = game.settings.mode === 'daily-trail' ? 'trail' : game.daily ? 'daily' : game.settings.mode === 'mixed' ? game.question.mode : game.settings.mode;
-    const gameTitle = t(game.competition?.mode === 'trail' ? 'dailyTrail' : game.daily ? 'dailyTitle' : game.settings.mode === 'mixed' ? 'mixed' : game.question.mode);
+    const guide = game.settings.mode === 'daily-trail' ? 'trail' : game.daily && ['trail', 'order'].includes(game.settings.mode) ? game.settings.mode : game.daily ? 'daily' : game.settings.mode === 'mixed' ? game.question.mode : game.settings.mode;
+    const gameTitle = t(game.daily ? soloTitleKey(game) : game.settings.mode === 'mixed' ? 'mixed' : game.question.mode);
     return <div className="solo-game learning-game" data-mode={game.daily ? 'daily' : game.settings.mode}><GameHeader kicker={false} score={game.competition ? game.score ?? 0 : undefined} scoreLabel={plural(t, 'scorePill', game.score ?? 0, '{n}', formatScore(game.score ?? 0))} mode={guide === 'daily' ? 'daily' : guide} title={gameTitle} edition={game.survival ? t('survivalEdition') : game.bonus ? t('bonusEdition') : game.daily && game.settings.mode === 'daily' ? t(game.question.mode) : editionLabel(game.daily, locale, t(game.practice ? 'reviewRoundLabel' : 'soloLearning'))} count={(game.round + 1) + ' / ' + game.total} unit={t('round')} progress={(game.round + (revealed ? 1 : 0)) / game.total} onExit={backToStart} exitLabel={t('back')} help={<HowToPlayButton key={guide} mode={guide} t={t} locale={locale} auto={game.settings.mode !== 'mixed'}/>}>{game.survival && <span className="game-life-chip" title={t('survivalRule')}><Heart size={14} fill="currentColor" aria-hidden="true"/>1</span>}{game.streak > 1 && <span className="game-streak-chip"><Flame size={15} aria-hidden="true"/>{game.streak}</span>}</GameHeader>
         {!game.daily && game.settings.region !== 'World' && <div className="game-region"><Globe2 size={15}/>{t('activeRegion').replace('{region}',t(game.settings.region))}</div>}
         {game.competition && <DailyScoreRule mode={game.competition.mode} score={game.score} t={t}/>}
         <div className="game-body"><Question key={game.question.id} label={t('questionOf').replace('{game}', gameTitle).replace('{n}', String(game.round + 1)).replace('{total}', String(game.total))} question={game.question} feedback={game.feedback} locked={revealed || saving} onAnswer={answer} competitive={false} streak={revealed ? game.streak : 0} onHint={(count: number) => { const round = game.round; return hintSave.current = (hintSave.current ?? Promise.resolve()).catch(() => {}).then(() => post('/games/' + id + '/hint', { round, count })).then(g => { if (!sending.current) setGame((current:any) => current.round === round && current.phase === 'question' ? g : current); }).catch(fail); }} t={t} locale={locale} onReport={() => report(game.question)}/><div className="auto-next-wrap"><label className="auto-next"><input type="checkbox" checked={autoNext} onChange={e=>{setAutoNext(e.target.checked);writePreference('rv_auto_next',e.target.checked?'on':'off');}}/>{t('autoNextAll')}</label>{autoNext && <small>{t('autoNextExplain')}</small>}</div>{revealed && <div className="solo-next-row"><span className="save-status" role="status">{saving ? t('saving') : '✓ ' + t('saved')}</span><button className="btn primary next-button" onClick={next} disabled={advancing} aria-busy={advancing}>{t(game.round + 1 === game.total ? 'finish' : 'next')}<ArrowRight size={19}/></button></div>}</div>
     </div>;
 }
+/** The name of a solo game: the daily Clue Trail and daily Size Shuffle by their own name, the Daily Detour, or the classic mode. */
+const soloTitleKey = (g: any): string => g.daily && g.settings?.mode === 'trail' ? 'dailyTrail' : g.daily && g.settings?.mode === 'order' ? 'order' : g.daily ? 'dailyTitle' : g.settings?.mode ?? 'mixed';
 function DuelScreen({ practice }: { practice: boolean }) { const app = useApp(); return <DuelGame app={app} practice={practice}/>; }
 function HowToScreen() {
     const app = useApp(), { t, locale, go, start, region, setModal, busy, fail } = app;
@@ -266,7 +265,7 @@ function HowToScreen() {
         if (mode === 'duel') go('/duel');
         else if (mode === 'mystery') go('/daily');
         else if (mode === 'room') setModal('room');
-        else if (mode === 'daily' || mode === 'trail') start({ ...DEFAULT_SETTINGS, mode: mode === 'trail' ? 'daily-trail' : 'daily' });
+        else if (mode === 'daily' || mode === 'trail' || mode === 'order') start({ ...DEFAULT_SETTINGS, mode: mode === 'daily' ? 'daily' : 'daily-' + mode });
         else if (mode === 'rank' || mode === 'compare' || mode === 'mosaic') openPuzzle(app, mode).catch(fail);
         else start({ ...DEFAULT_SETTINGS, mode, region });
     };
@@ -278,18 +277,20 @@ function Results({ result, multiplayer = false, room, send }: any) {
     const correct = list.filter((a: any) => a.correct).length;
     const score = result.score;
     const wrong = list.filter((a: any) => !a.correct);
-    const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : result.competition?.mode==='trail'?'dailyTrail':result.daily ? 'dailyTitle' : result.settings?.mode ?? 'mixed'), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points'):undefined, streak: result.daily ? boot?.stats?.dailyStreak : undefined, points: result.competition ? score : undefined, origin: window.location.origin }));
+    const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : soloTitleKey(result)), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points'):undefined, streak: result.daily ? boot?.stats?.dailyStreak : undefined, points: result.competition ? score : undefined, origin: window.location.origin }));
     const winners = room?.players ?? [];
     if (!multiplayer && result.competition) {
         const all = list.length > 0 && correct === list.length;
-        return <DailyFinish app={app} date={result.daily} mode={result.competition.mode} game={t(result.competition.mode === 'trail' ? 'dailyTrail' : 'dailyTitle')} headline={t(finishKey((score ?? 0) / 1000, all))} mood={finishMood((score ?? 0) / 1000, all)}
-            summary={[{ icon: 'check', value: correct + '/' + list.length, label: t('finishCorrect') }, { icon: 'flame', value: String(result.bestStreak ?? 0), label: t('finishStreak') }]} trail={list.map((a: any) => !!a.correct)}
-            onShare={share} onDone={backToStart} onAgain={() => start({ ...result.settings, mode: result.competition?.mode === 'trail' ? 'trail' : 'mixed' })}>
+        // Daily Size Shuffle (1.24): the summary counts countries in their right place (partial credit), not only perfect rounds.
+        const shuffleDay = result.competition.mode === 'order', places = shuffleDay ? list.reduce((n: number, a: any) => n + (a.orderRight ?? (a.correct ? 4 : 0)), 0) : 0;
+        return <DailyFinish app={app} date={result.daily} mode={result.competition.mode} game={t(soloTitleKey(result))} headline={t(finishKey((score ?? 0) / 1000, all))} mood={finishMood((score ?? 0) / 1000, all)}
+            summary={shuffleDay ? [{ icon: 'check', value: places + '/' + list.length * 4, label: t('shufflePlacesRight') }, { icon: 'flame', value: correct + '/' + list.length, label: t('shufflePerfectRounds') }] : [{ icon: 'check', value: correct + '/' + list.length, label: t('finishCorrect') }, { icon: 'flame', value: String(result.bestStreak ?? 0), label: t('finishStreak') }]} trail={list.map((a: any) => !!a.correct)}
+            onShare={share} onDone={backToStart} onAgain={() => start({ ...result.settings, mode: result.competition?.mode === 'trail' ? 'trail' : shuffleDay ? 'order' : 'mixed' })}>
             {wrong.length > 0 && <details className="review-section result-review"><summary><h2>{t('learningReview')}</h2></summary><div className="review-list">{wrong.map((a: any, i: number) => <div key={i}><GameIcon mode={a.mode}/><div><strong>{a.answerLabel[locale]}</strong><p>{a.fact[locale]}</p></div></div>)}</div></details>}
         </DailyFinish>;
     }
     if (!multiplayer && result.survival) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={backToStart} onShare={share} onHome={backToStart} followUp={<SurvivalResult app={app} mode={result.settings.mode} score={correct} out={result.out}/>}/>;
-    if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => start({ ...result.settings, mode: result.competition?.mode==='trail'?'trail':result.daily ? 'mixed' : result.settings.mode })} onShare={share} onHome={backToStart} followUp={result.competition ? <DailyResult app={app} date={result.daily} mode={result.competition.mode}/> : result.bonus ? <BonusResult app={app} mode={result.settings.mode}/> : <NextDiscovery result={result} t={t} go={go} fail={fail}/>}/>;
+    if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => start({ ...result.settings, mode: result.daily && ['trail', 'order'].includes(result.settings.mode) ? result.settings.mode : result.daily ? 'mixed' : result.settings.mode })} onShare={share} onHome={backToStart} followUp={result.competition ? <DailyResult app={app} date={result.daily} mode={result.competition.mode}/> : result.bonus ? <BonusResult app={app} mode={result.settings.mode}/> : <NextDiscovery result={result} t={t} go={go} fail={fail}/>}/>;
     return <MatchResults room={room} me={boot.user.id} send={send} onShare={share} onHome={() => go('/')} t={t} locale={locale}/>;
 }
 function RoomScreen({ code }: {

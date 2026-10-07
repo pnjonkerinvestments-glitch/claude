@@ -12,6 +12,9 @@ async function bootstrap(){const r=await request(null,'/bootstrap');assert.equal
 async function stored(code){const r=await db.prepare('SELECT * FROM multiplayer_rooms WHERE code=?').bind(code).first();return JSON.parse(r.state);}
 async function alter(code,fn){const r=await stored(code);fn(r);await db.prepare('UPDATE multiplayer_rooms SET state=?,version=version+1 WHERE code=?').bind(JSON.stringify(r),code).run();}
 const settings={mode:'flags',count:5,timer:5,difficulty:'medium',region:'World'};
+// 1.24: from SHUFFLE_FROM (UTC) the daily Size Shuffle takes Country Mosaic's place among the daily games.
+const SHUFFLE_FROM=(await fs.readFile('lib/daily-loop.ts','utf8')).match(/SHUFFLE_FROM = '([\d-]+)'/)[1];
+const shuffleDay=()=>new Date().toISOString().slice(0,10)>=SHUFFLE_FROM;
 test('a personal retry contains only misses, preserves Europe, resumes once and cannot alter the source result',async()=>{
  const a=await bootstrap();let g=(await request(a.cookie,'/games','POST',{settings:{...settings,region:'Europe'}})).data;const misses=[];
  while(g.phase!=='finished'){
@@ -397,7 +400,8 @@ test('daily Rank Radar ranks ties, counts finished players, preserves zero score
  assert.equal((await request(players[0].cookie,'/competition')).data.total.score,scores[0]);
  await db.prepare('UPDATE users SET blocked=1 WHERE id=?').bind(players[1].data.user.id).run();assert.equal((await request(players[0].cookie,'/competition?mode=rank')).data.game.participants,2);
 });
-test('daily Mosaic hides unsolved associations, marks mismatches, charges hints and saves the final group score once',async()=>{
+test('daily Mosaic hides unsolved associations, marks mismatches, charges hints and saves the final group score once',async t=>{
+ if(shuffleDay()){t.skip('Country Mosaic is no daily game since SHUFFLE_FROM; see the Size Shuffle tests');return;}
  const a=await bootstrap();let g=(await request(a.cookie,'/puzzles','POST',{mode:'mosaic',daily:true,competition:true})).data;
  const s=await privateGame(g.id),board=s.board,group=id=>board.tiles.filter(t=>t.countryId===id).map(t=>t.id);
  for(const tile of g.board.tiles){if(tile.kind!=='name')assert.equal(tile.countryId,'');if(tile.kind==='flag')assert.match(tile.image,/^\/api\/game-asset\//);if(tile.kind==='fact'){assert.equal(tile.fact.explanation,undefined);assert.equal(tile.fact.source,undefined);}}
@@ -413,6 +417,34 @@ test('daily Mosaic hides unsolved associations, marks mismatches, charges hints 
  assert.equal(g.phase,'finished');assert.equal(g.score,625);assert.ok(g.board.tiles.filter(t=>t.kind==='fact').every(t=>!!t.fact.source));
  const summary=(await request(a.cookie,'/competition?mode=mosaic')).data;assert.equal(summary.game.score,625);
  await request(a.cookie,'/puzzles/'+g.id);assert.equal((await request(a.cookie,'/competition')).data.total.score,625);
+});
+test('daily Size Shuffle: one shared edition, never the order before an answer, partial credit, Mosaic unscored (by UTC date)',async()=>{
+ const a=await bootstrap(),b=await bootstrap();
+ let g=(await request(a.cookie,'/games','POST',{settings:{mode:'daily-order',count:10,timer:0,difficulty:'medium',region:'World'},competition:true})).data;
+ const other=(await request(b.cookie,'/games','POST',{settings:{mode:'daily-order',count:10,timer:0,difficulty:'medium',region:'World'},competition:true})).data;
+ if(!shuffleDay()){
+  // Before the switch the Size Shuffle is no daily game: an unscored edition, and Mosaic still scores.
+  assert.equal(g.competition,undefined);
+  assert.equal((await request(a.cookie,'/puzzles','POST',{mode:'mosaic',daily:true,competition:true})).data.competition?.mode,'mosaic');
+  return;
+ }
+ assert.deepEqual(g.competition,{version:1,mode:'order'});assert.equal(g.total,5);
+ assert.deepEqual(g.question.options.map(o=>o.id).sort(),other.question.options.map(o=>o.id).sort(),'same countries for everyone');
+ const s=await privateGame(g.id);
+ let total=0;
+ while(g.phase!=='finished'){
+  assert.equal(g.question.solution,undefined);assert.doesNotMatch(JSON.stringify(g),/correctAnswer|km²|answerLabel/);
+  const right=s.questions[g.round].correct;const answer=g.round%2?[right[1],right[0],right[2],right[3]]:right;
+  g=(await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:g.round,answer})).data;
+  assert.deepEqual(g.feedback.correctAnswer,right);const expected=g.round%2?100:200;assert.equal(g.feedback.points,expected);total+=expected;assert.equal(g.score,total);
+  g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;
+ }
+ assert.equal(g.score,800);
+ const summary=(await request(a.cookie,'/competition?mode=order')).data;assert.equal(summary.game.score,800);assert.deepEqual(summary.scores,[{mode:'order',score:800}]);
+ const again=(await request(a.cookie,'/games','POST',{settings:{mode:'daily-order',count:10,timer:0,difficulty:'medium',region:'World'},competition:true})).data;assert.equal(again.id,g.id,'one attempt');
+ // Mosaic is an extra now: today's board is an unscored edition.
+ const mosaic=(await request(a.cookie,'/puzzles','POST',{mode:'mosaic',daily:true,competition:true})).data;assert.equal(mosaic.competition,undefined);
+ const today=(await request(a.cookie,'/puzzles/today?competition=1')).data;assert.ok(today.sessions.some(x=>x.mode==='order'&&x.completed));assert.ok(!today.sessions.some(x=>x.mode==='mosaic'));
 });
 test('daily comparisons conceal values until reveal and accumulate with other daily modes',async()=>{
  const a=await bootstrap();let g=(await request(a.cookie,'/puzzles','POST',{mode:'compare',daily:true,competition:true})).data;

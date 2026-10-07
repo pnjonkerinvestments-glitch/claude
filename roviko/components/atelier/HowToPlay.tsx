@@ -56,7 +56,7 @@ export function HowToPlayButton({ mode, t, locale, auto = false, link = false }:
   </>;
 }
 
-const RULE_KEYS: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail', duel: 'competitionDuel' };
+const RULE_KEYS: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', order: 'competitionOrder', trail: 'competitionTrail', duel: 'competitionDuel' };
 const COVER: Record<string, CoverMode> = { rank: 'rank', daily: 'daily', compare: 'compare', mosaic: 'mosaic', trail: 'trail', duel: 'duel', mystery: 'mystery', room: 'room' };
 
 /** The "How to play" page: pick a game from the tabs, see its goal, steps, scoring and a tip, then play it. */

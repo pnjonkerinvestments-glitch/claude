@@ -1,12 +1,13 @@
 'use client';
 import { plural } from '@/lib/plural';
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, BookOpen, Check } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
+import { RovikoIcon } from '../ds/RovikoIcons';
 import { passportMilestone, STAMP_REGIONS, type CountryStamp } from '@/lib/passport';
 
 export function PassportPeek({stats,t,onOpen}:any) {
   const stamps:CountryStamp[]=stats.stamps ?? [], next=passportMilestone(stamps);
-  return <section className="passport-peek"><span className="passport-mini-stamp" aria-hidden="true"><BookOpen/></span><div><h2>{stamps.length ? plural(t,'passportPeek',stamps.length) : t('passportEmpty')}</h2><p>{stamps.length && next ? plural(t,'stampMilestone',next.target-next.count).replace('{region}',t(next.region)) : t('passportKeep')}</p></div><button className="text-link" onClick={onOpen}>{t('openPassport')}<ArrowRight size={17}/></button></section>;
+  return <section className="passport-peek"><span className="passport-mini-stamp" aria-hidden="true"><RovikoIcon name="passport" size={28}/></span><div><h2>{stamps.length ? plural(t,'passportPeek',stamps.length) : t('passportEmpty')}</h2><p>{stamps.length && next ? plural(t,'stampMilestone',next.target-next.count).replace('{region}',t(next.region)) : t('passportKeep')}</p></div><button className="text-link" onClick={onOpen}>{t('openPassport')}<ArrowRight size={17}/></button></section>;
 }
 
 const REGION_SLUG:Record<string,string>={Europe:'europe',Africa:'africa',Asia:'asia','North America':'north-america','South America':'south-america',Oceania:'oceania'};

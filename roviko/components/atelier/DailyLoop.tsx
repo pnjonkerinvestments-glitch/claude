@@ -8,7 +8,7 @@ import { DAY_MODES, STREAK_MILESTONES, completedDailies, dailyStateOf, nextDaily
 import { ResetCountdown } from './ResetCountdown';
 import { DailyQuests } from './DailyQuests';
 
-export const DAILY_EMOJI: Record<DayMode, string> = { rank: '🎯', daily: '✈️', duel: '⚔️', compare: '⚖️', mosaic: '🧩', trail:'🧭' };
+export const DAILY_EMOJI: Record<DayMode, string> = { rank: '🎯', daily: '✈️', duel: '⚔️', compare: '⚖️', mosaic: '🧩', order: '📏', trail:'🧭' };
 export const dailyTitleKey = (mode: DayMode) => mode === 'daily' ? 'dailyTitle' : mode === 'trail' ? 'dailyTrail' : mode === 'rank' ? 'rankRadar' : mode === 'duel' ? 'duel' : mode;
 
 /** Shown when a daily game is finished: today's streak, what is still open and a direct way on. */

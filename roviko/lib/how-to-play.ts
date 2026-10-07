@@ -22,8 +22,8 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   mosaic: { emoji: '🧩', steps: [
     { icon: '🔲', text: l('The board hides four countries in tiles: names, flags, shapes, facts and more.', 'Op het bord zitten vier landen verstopt in tegels: namen, vlaggen, vormen, weetjes en meer.', 'El tablero esconde cuatro países en fichas: nombres, banderas, siluetas, datos y más.') },
     { icon: '👆', text: l('Tap one tile of each kind that belong to the same country, then tap "Check match".', 'Tik op één tegel van elke soort die bij hetzelfde land hoort en tik dan op "Controleer set".', 'Toca una ficha de cada tipo del mismo país y luego «Comprobar grupo».') },
-    { icon: '🏅', text: l('Each country is worth 250 points. A wrong try or a hint for that country costs points.', 'Elk land is 250 punten waard. Een foute poging of een hint voor dat land kost punten.', 'Cada país vale 250 puntos. Un intento fallido o una pista de ese país cuesta puntos.') },
-  ], tip: l('Start with a flag and name you are sure about. Practice boards never cost points.', 'Begin met een vlag en naam die je zeker weet. Oefenborden kosten nooit punten.', 'Empieza con una bandera y un nombre que conozcas. Practicar nunca cuesta puntos.') },
+    { icon: '💡', text: l('Find all four countries. A wrong try shows which tiles do not fit, and a hint helps you on.', 'Vind alle vier de landen. Een foute poging laat zien welke tegels niet passen, en een hint helpt je verder.', 'Encuentra los cuatro países. Un intento fallido muestra qué fichas no encajan y una pista te ayuda.') },
+  ], tip: l('Start with a flag and name you are sure about. Mosaic is an extra: no points, just practice.', 'Begin met een vlag en naam die je zeker weet. Mosaic is een extra: geen punten, gewoon oefenen.', 'Empieza con una bandera y un nombre que conozcas. Mosaic es un extra: sin puntos, solo práctica.') },
   trail: { emoji: '🧭', steps: [
     { icon: '🔎', text: l('Find the mystery country. Clues come one by one: continent, a neighbour, capital, flag.', 'Zoek het geheime land. De hints komen één voor één: werelddeel, een buurland, hoofdstad, vlag.', 'Encuentra el país misterioso. Las pistas llegan una a una: continente, un vecino, capital, bandera.') },
     { icon: '💡', text: l('Only open the next clue when you need it.', 'Open de volgende hint alleen als je hem nodig hebt.', 'Abre la siguiente pista solo si la necesitas.') },
@@ -62,8 +62,8 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   order: { emoji: '📏', steps: [
     { icon: '🌍', text: l('You get four countries.', 'Je krijgt vier landen.', 'Recibes cuatro países.') },
     { icon: '↕️', text: l('Put them in order of size, largest at the top. Drag a row or use the arrows.', 'Zet ze op volgorde van grootte, de grootste bovenaan. Sleep een rij of gebruik de pijltjes.', 'Ordénalos por tamaño, el más grande arriba. Arrastra una fila o usa las flechas.') },
-    { icon: '✅', text: l('Tap "Confirm order" and see which places were right.', 'Tik op "Volgorde bevestigen" en zie welke plekken goed waren.', 'Toca «Confirmar orden» y mira qué posiciones acertaste.') },
-  ], tip: l('Size means land area, not population.', 'Grootte betekent oppervlakte, niet het aantal inwoners.', 'Tamaño significa superficie, no población.') },
+    { icon: '✅', text: l('Confirm and see which places were right. In the daily game: five rounds, easy to tricky, 50 points per country in its right place.', 'Bevestig en zie welke plekken goed waren. In het dagspel: vijf rondes, makkelijk tot lastig, 50 punten per land op de goede plek.', 'Confirma y mira qué posiciones acertaste. En el juego diario: cinco rondas, de fácil a difícil, 50 puntos por país en su sitio.') },
+  ], tip: l('Size means land area, not population. Not sure about one country? Get the others right: every right place counts.', 'Grootte betekent oppervlakte, niet het aantal inwoners. Twijfel je over één land? Zet de rest goed: elke goede plek telt.', 'Tamaño significa superficie, no población. ¿Dudas con un país? Coloca bien los demás: cada posición correcta cuenta.') },
   shape: { emoji: '🗺️', steps: [
     { icon: '👀', text: l('You see the outline of one country, without the map around it.', 'Je ziet de omtrek van één land, zonder de kaart eromheen.', 'Ves el contorno de un país, sin el mapa alrededor.') },
     { icon: '👆', text: l('Pick the right country from four names.', 'Kies het juiste land uit vier namen.', 'Elige el país correcto entre cuatro nombres.') },
@@ -81,9 +81,10 @@ export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', da
 
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'] },
-  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mystery', 'shape'] },
-  { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'order'] },
+  // 1.24: the daily Size Shuffle took Country Mosaic's place among the daily games; Mosaic is an extra now.
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'order', 'trail'] },
+  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mosaic', 'mystery', 'shape'] },
+  { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];
 
@@ -128,9 +129,9 @@ export const HOW_TO_EXAMPLES: Record<string, L> = {
   borders: l('Which country borders France: Spain, Poland, Norway or Greece? Spain.',
     'Welk land grenst aan Frankrijk: Spanje, Polen, Noorwegen of Griekenland? Spanje.',
     '¿Qué país limita con Francia: España, Polonia, Noruega o Grecia? España.'),
-  order: l('From smallest to largest: Vatican City, the Netherlands, France, Russia.',
-    'Van klein naar groot: Vaticaanstad, Nederland, Frankrijk, Rusland.',
-    'De menor a mayor: Ciudad del Vaticano, Países Bajos, Francia, Rusia.'),
+  order: l('Largest at the top: Russia, France, the Netherlands, Vatican City. Swap France and the Netherlands and two of the four are still in the right place.',
+    'De grootste bovenaan: Rusland, Frankrijk, Nederland, Vaticaanstad. Wissel je Frankrijk en Nederland om, dan staan er nog twee van de vier goed.',
+    'El más grande arriba: Rusia, Francia, Países Bajos, Ciudad del Vaticano. Si cambias Francia y Países Bajos, dos de los cuatro siguen en su sitio.'),
   room: l('Create a room, invite two friends with one tap, pick Flag Signal with 10 rounds and start when everyone is ready.',
     'Maak een kamer, nodig met één tik twee vrienden uit, kies Flag Signal met 10 rondes en start als iedereen klaar is.',
     'Crea una sala, invita a dos amigos con un toque, elige Flag Signal con 10 rondas y empieza cuando todos estén listos.'),

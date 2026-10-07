@@ -1,12 +1,28 @@
 /** Versioned, untimed daily competition. Practice and multiplayer never enter this ledger. */
 export const COMPETITION_VERSION = 1;
 export const COMPETITION_SUFFIX = ':competitive-v1';
-/** The Daily Detour plus the five daily games; each gives up to 1,000 points (6,000 per day since 1.19). */
-export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
+/**
+ * Every game that can give daily points: the Daily Detour plus the daily games. A UTC date has six of them
+ * (`dayModesFor` in lib/daily-loop.ts): Country Mosaic before the switch to the daily Size Shuffle ('order', 1.24), Size Shuffle after.
+ */
+export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'order', 'trail'] as const;
 export type PointMode = typeof DAILY_POINT_MODES[number];
 export type Competition = { version: 1; mode: PointMode };
 export const DAILY_GAME_MAX = 1000;
-export const DAILY_TOTAL_MAX = DAILY_POINT_MODES.length * DAILY_GAME_MAX;
+/** Six scored games per day, up to 1,000 points each (6,000 per day since 1.19). */
+export const DAY_GAME_COUNT = 6;
+export const DAILY_TOTAL_MAX = DAY_GAME_COUNT * DAILY_GAME_MAX;
+/** The daily Size Shuffle (1.24): five rounds of four countries, 50 points per country in its right place (200 per round). */
+export const SHUFFLE_ROUNDS = 5;
+export const SHUFFLE_POINTS_PER_PLACE = 50;
+/** How many countries of a sorted list stand in their right place. Anything that is not a list of ids counts as none. */
+export function placesRight(answer: unknown, correct: unknown) {
+  if (!Array.isArray(answer) || !Array.isArray(correct)) return 0;
+  return correct.reduce((n: number, id, i) => n + (answer[i] === id ? 1 : 0), 0);
+}
+export function shufflePoints(answer: unknown, correct: unknown) {
+  return Math.min(SHUFFLE_POINTS_PER_PLACE * 4, SHUFFLE_POINTS_PER_PLACE * placesRight(answer, correct));
+}
 export function trailPoints(correct: boolean, clues = 1) {
   return correct ? 250 - 50 * Math.max(1, Math.min(4, Math.floor(clues))) : 0;
 }
@@ -14,6 +30,8 @@ export function trailPoints(correct: boolean, clues = 1) {
 export const DETOUR_ROUNDS = 20;
 export function dailyRoundPoints(mode: PointMode, answer: any, rounds = 5) {
   if (mode === 'trail') return trailPoints(answer.correct, answer.cluesUsed);
+  // Daily Size Shuffle: partial credit per country in its right place, from the saved list and the saved right order.
+  if (mode === 'order') return shufflePoints(answer.value, answer.correctAnswer);
   if (mode === 'daily') { const n = Math.max(1, rounds); return answer.mode === 'pinpoint' ? Math.round(Math.max(0, Math.min(1000, answer.mapPoints ?? 0)) / n) : answer.correct ? Math.round(1000 / n) : 0; }
   if (mode === 'compare') return answer.correct ? Math.round(1000 / Math.max(1, rounds)) : 0;
   if (mode === 'duel') return answer.correct ? Math.round(1000 / Math.max(1, rounds)) : 0;

@@ -1,7 +1,7 @@
 // Daily quests ("dagdoelen"): three small goals per UTC day, the same for everyone.
 // Pure logic so the homepage, the after-game loop and tests agree. Quests give no points or XP;
 // finishing all three earns a crown, kept in this browser.
-import { DAILY_MODES, DAY_MODES, type DailyMode } from './daily-loop';
+import { dailyModesFor, dayModesFor, type DailyMode } from './daily-loop';
 
 export type QuestKind = 'mode' | 'mystery' | 'detour' | 'games';
 export type Quest = { id: string; kind: QuestKind; icon: string; mode?: DailyMode; target: number; progress: number; done: boolean };
@@ -13,8 +13,10 @@ const dayNumber = (date: string) => Math.floor(Date.parse(date + 'T00:00:00Z') /
 /** Easy: one named daily game. Medium: the mystery country or the Daily Detour. Stretch: three scored games. */
 export function questsFor(date: string, input: QuestInput): Quest[] {
   const day = dayNumber(date);
-  const completed = new Set(input.completedModes.filter(m => (DAY_MODES as readonly string[]).includes(m)));
-  const mode = DAILY_MODES[((day % DAILY_MODES.length) + DAILY_MODES.length) % DAILY_MODES.length];
+  // The lineup belongs to the date (Size Shuffle replaced Country Mosaic from SHUFFLE_FROM).
+  const dayModes = dayModesFor(date), dailyModes = dailyModesFor(date);
+  const completed = new Set(input.completedModes.filter(m => (dayModes as readonly string[]).includes(m)));
+  const mode = dailyModes[((day % dailyModes.length) + dailyModes.length) % dailyModes.length];
   const bonus: QuestKind = day % 2 === 0 ? 'mystery' : 'detour';
   const make = (id: string, kind: QuestKind, icon: string, target: number, progress: number, extra: Partial<Quest> = {}): Quest =>
     ({ id, kind, icon, target, progress: Math.min(progress, target), done: progress >= target, ...extra });

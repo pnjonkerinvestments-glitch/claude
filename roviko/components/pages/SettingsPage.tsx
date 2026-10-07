@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { ChartColumn, Languages, Moon, Music, Palette, Smartphone, Sun, Volume2 } from 'lucide-react';
+import { RovikoIcon } from '../ds/RovikoIcons';
 import { isNativeApp } from '@/lib/haptics';
 import { readPreference, writePreference } from '@/lib/client';
 import { Switch } from '@/components/ui/switch';
@@ -24,21 +24,21 @@ export function SettingsPage() {
     <section className="page-section" aria-labelledby="settings-sound">
       <SectionHeader id="settings-sound" title={t('settingsSoundTitle')}/>
       <div className="settings-card">
-        <div className="settings-card-row"><Volume2 size={19} aria-hidden="true"/><label htmlFor="set-effects"><strong>{t('settingsEffects')}</strong><small>{t('settingsEffectsCopy')}</small></label><Switch id="set-effects" checked={!muted} onCheckedChange={toggleSound}/></div>
-        <div className="settings-card-row"><Music size={19} aria-hidden="true"/><label htmlFor="set-music"><strong>{t('settingsMusic')}</strong><small>{t('settingsMusicCopy')}</small></label><Switch id="set-music" checked={!!music} onCheckedChange={toggleMusic}/></div>
-        {app && <div className="settings-card-row"><Smartphone size={19} aria-hidden="true"/><label htmlFor="set-haptics"><strong>{t('settingsHaptics')}</strong><small>{t('settingsHapticsCopy')}</small></label><Switch id="set-haptics" checked={haptics} onCheckedChange={toggleHaptics}/></div>}
+        <div className="settings-card-row"><RovikoIcon name="sound" size={22} className="row-icon"/><label htmlFor="set-effects"><strong>{t('settingsEffects')}</strong><small>{t('settingsEffectsCopy')}</small></label><Switch id="set-effects" checked={!muted} onCheckedChange={toggleSound}/></div>
+        <div className="settings-card-row"><RovikoIcon name="music" size={22} className="row-icon"/><label htmlFor="set-music"><strong>{t('settingsMusic')}</strong><small>{t('settingsMusicCopy')}</small></label><Switch id="set-music" checked={!!music} onCheckedChange={toggleMusic}/></div>
+        {app && <div className="settings-card-row"><RovikoIcon name="phone" size={22} className="row-icon"/><label htmlFor="set-haptics"><strong>{t('settingsHaptics')}</strong><small>{t('settingsHapticsCopy')}</small></label><Switch id="set-haptics" checked={haptics} onCheckedChange={toggleHaptics}/></div>}
       </div>
     </section>
 
     <section className="page-section" aria-labelledby="settings-look">
       <SectionHeader id="settings-look" title={t('settingsLookTitle')}/>
       <div className="settings-card settings-card-pad">
-        <p className="settings-label" id="settings-language"><Languages size={17} aria-hidden="true"/>{t('settingsLanguage')}</p>
+        <p className="settings-label" id="settings-language"><RovikoIcon name="language" size={22}/>{t('settingsLanguage')}</p>
         <div className="segmented" role="group" aria-labelledby="settings-language">{LOCALES.map(([code, label]) => <button key={code} aria-pressed={locale === code} lang={code} onClick={() => setLocale(code)}>{label}</button>)}</div>
-        <p className="settings-label" id="settings-theme"><Palette size={17} aria-hidden="true"/>{t('settingsTheme')}</p>
+        <p className="settings-label" id="settings-theme"><RovikoIcon name="palette" size={22}/>{t('settingsTheme')}</p>
         <div className="segmented" role="group" aria-labelledby="settings-theme">
-          <button aria-pressed={theme !== 'dark'} onClick={() => setTheme('light')}><Sun size={16} aria-hidden="true"/>{t('settingsLight')}</button>
-          <button aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}><Moon size={16} aria-hidden="true"/>{t('settingsDark')}</button>
+          <button aria-pressed={theme !== 'dark'} onClick={() => setTheme('light')}><RovikoIcon name="sun" size={18}/>{t('settingsLight')}</button>
+          <button aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}><RovikoIcon name="moon" size={18}/>{t('settingsDark')}</button>
         </div>
       </div>
     </section>
@@ -48,7 +48,7 @@ export function SettingsPage() {
     <section className="page-section" aria-labelledby="settings-privacy">
       <SectionHeader id="settings-privacy" title={t('privacy')}/>
       <div className="settings-card">
-        <div className="settings-card-row"><ChartColumn size={19} aria-hidden="true"/><label htmlFor="metrics-choice"><strong>{t('optionalMetrics')}</strong><small>{t('optionalMetricsCopy')}</small></label><Switch id="metrics-choice" checked={measurement} onCheckedChange={setMeasurement}/></div>
+        <div className="settings-card-row"><RovikoIcon name="chart" size={22} className="row-icon"/><label htmlFor="metrics-choice"><strong>{t('optionalMetrics')}</strong><small>{t('optionalMetricsCopy')}</small></label><Switch id="metrics-choice" checked={measurement} onCheckedChange={setMeasurement}/></div>
       </div>
     </section>
   </div>;

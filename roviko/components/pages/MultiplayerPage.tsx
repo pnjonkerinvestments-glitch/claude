@@ -1,6 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { ArrowRight, Bot, ChevronDown, Globe2, Link as LinkIcon, Plus, Users } from 'lucide-react';
+import { ArrowRight, ChevronDown, Link as LinkIcon, Plus } from 'lucide-react';
+import { RovikoIcon } from '../ds/RovikoIcons';
 import { post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { BOT_LEVELS, type BotLevel } from '@/lib/game-engine/bots';
@@ -65,10 +66,10 @@ export function MultiplayerPage() {
       <RoomScene className="mp-scene"/>
       <header className="mp-head"><h1 id="mp-title">{t('mpTitle')}</h1><p>{t('mpLeadShort')}</p></header>
       <div className="mp-choices">
-        <button type="button" className="mp-choice" disabled={!!busy} aria-busy={busy === 'friends'} onClick={friends}><span className="mp-choice-icon" aria-hidden="true"><Users size={22}/></span><span className="mp-choice-copy"><strong>{t('mpFriends')}</strong><small>{busy === 'friends' ? t('loading') : t('mpFriendsSub')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
-        <button type="button" className="mp-choice" disabled={!!busy} aria-busy={busy === 'quick'} onClick={quick}><span className="mp-choice-icon" aria-hidden="true"><Globe2 size={22}/></span><span className="mp-choice-copy"><strong>{t('mpRandom')}</strong><small>{busy === 'quick' ? t('loading') : t('mpRandomSub')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
+        <button type="button" className="mp-choice" disabled={!!busy} aria-busy={busy === 'friends'} onClick={friends}><span className="mp-choice-icon" aria-hidden="true"><RovikoIcon name="group" size={34}/></span><span className="mp-choice-copy"><strong>{t('mpFriends')}</strong><small>{busy === 'friends' ? t('loading') : t('mpFriendsSub')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
+        <button type="button" className="mp-choice" disabled={!!busy} aria-busy={busy === 'quick'} onClick={quick}><span className="mp-choice-icon" aria-hidden="true"><RovikoIcon name="random" size={34}/></span><span className="mp-choice-copy"><strong>{t('mpRandom')}</strong><small>{busy === 'quick' ? t('loading') : t('mpRandomSub')}</small></span><ArrowRight size={18} aria-hidden="true"/></button>
         <div className={'mp-choice-wrap' + (computerOpen ? ' is-open' : '')}>
-          <button type="button" className="mp-choice" disabled={!!busy} aria-expanded={computerOpen} aria-controls="mp-computer" onClick={() => setComputerOpen(v => !v)}><span className="mp-choice-icon" aria-hidden="true"><Bot size={22}/></span><span className="mp-choice-copy"><strong>{t('mpComputer')}</strong><small>{t('mpComputerSub')}</small></span><ChevronDown size={18} className="mp-chevron" aria-hidden="true"/></button>
+          <button type="button" className="mp-choice" disabled={!!busy} aria-expanded={computerOpen} aria-controls="mp-computer" onClick={() => setComputerOpen(v => !v)}><span className="mp-choice-icon" aria-hidden="true"><RovikoIcon name="robot" size={34}/></span><span className="mp-choice-copy"><strong>{t('mpComputer')}</strong><small>{t('mpComputerSub')}</small></span><ChevronDown size={18} className="mp-chevron" aria-hidden="true"/></button>
           {computerOpen && <div className="mp-computer" id="mp-computer">
             <div className="segmented-pill" role="radiogroup" aria-label={t('computerLevel')}>{BOT_LEVELS.map(l => <button key={l} type="button" role="radio" aria-checked={level === l} onClick={() => setLevel(l)}>{t('botLevel_' + l)}</button>)}</div>
             <button className="btn primary" disabled={!!busy} aria-busy={busy === 'computer'} onClick={computer}>{busy === 'computer' ? t('loading') : t('computerStart')}<ArrowRight size={18} aria-hidden="true"/></button>

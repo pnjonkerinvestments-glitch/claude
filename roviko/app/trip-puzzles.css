@@ -483,11 +483,27 @@
 .order-list .order-verdict{display:inline-flex!important;align-items:center;gap:5px;margin-left:auto;flex:0 0 auto!important;width:auto!important;max-width:none!important;white-space:nowrap;padding-right:8px;color:inherit!important;font:700 .8125rem/1.2 var(--font-sans)!important}
 .solo-game .question-help,.question-content>.question-help{max-width:44ch;margin:0 auto!important;color:var(--t-soft)!important;font:600 .875rem/1.45 var(--font-sans)!important;text-align:center;text-wrap:balance}
 .answer-feedback .correct-order{display:grid;gap:4px;margin:6px 0 0;padding-left:1.4em;color:var(--t-ink);font:600 .9375rem/1.4 var(--font-sans)}
+/* Dragging (1.23.1): pointer events, so it works with a finger on iOS too. The row is the handle (no page scroll
+   starts on it); the lifted row floats with a soft shadow, the others slide one slot aside. */
+.order-list .order-item.is-sortable{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:grab}
+.order-list .order-item.is-sortable .order-controls{touch-action:manipulation}
+.order-list.is-sorting .order-item{transition:transform .2s cubic-bezier(.2,.8,.3,1)!important}
+.order-list.is-sorting,.order-list.is-sorting .order-item.is-lifted{cursor:grabbing}
+.order-list .order-item.is-lifted{position:relative;z-index:3;transition:none!important;background:var(--t-mint-2,var(--t-mint))!important;box-shadow:0 14px 30px rgba(22,59,50,.22),0 3px 8px rgba(22,59,50,.12)!important;outline:2px solid var(--t-forest);outline-offset:-2px}
+[data-theme=dark] .order-list .order-item.is-lifted{box-shadow:0 14px 30px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.35)!important;outline-color:var(--t-brand)}
+.order-list .order-item.is-lifted>svg{color:var(--t-forest)}
+.answer-feedback .order-partial{margin:4px 0 0;color:var(--t-ink);font:700 .9375rem/1.4 var(--font-sans)}
+@media (prefers-reduced-motion:reduce){.order-list.is-sorting .order-item{transition:none!important}}
+/* One long name ("Salomonseilanden", "Saint Vincent and the Grenadines") may break inside the word instead of pushing the row past the screen at 320px. */
+.order-list,.order-list .order-item,.order-list .option-country{min-width:0!important}
+.order-list .option-country>span{min-width:0;overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
 @media (max-width:360px){
   .order-list .order-item{gap:7px!important;padding:5px 6px!important;font-size:.9375rem!important}
   .order-list .order-item .order-num{flex-basis:34px;width:34px!important;height:34px!important}
   .order-list .order-item>svg{display:none}
   .order-list .order-item .icon-btn{width:38px!important;min-width:38px!important;height:38px!important}
+  .order-list .order-item .option-country{gap:6px!important}
+  .order-list .order-item .option-country img{height:16px!important}
 }
 
 /* ───────── Typed capitals: one white pill to type in, forest when right, soft red when wrong ───────── */
@@ -602,6 +618,9 @@
 .border-reveal-map .bm-ring-target .bm-dot{fill:var(--bm-target)}
 .border-reveal-map .bm-ring-neighbor .bm-dot{fill:var(--bm-neighbor)}
 .border-reveal-map .bm-ring-picked .bm-dot{fill:var(--bm-picked)}
+.border-reveal-map .bm-pointer circle{fill:var(--bm-picked);stroke:var(--bm-halo);stroke-width:2.5px}
+.border-reveal-map .bm-pointer path{fill:#fff;stroke:none}
+[data-theme=dark] .border-reveal-map .bm-pointer path{fill:#0f1613}
 .border-reveal-map .bm-region-name{position:absolute;top:18px;left:20px;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--t-card) 82%,transparent);color:var(--t-brand);font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.08em;text-transform:uppercase;pointer-events:none}
 .border-reveal-map figcaption{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;margin:0!important;padding:10px 12px 12px;background:var(--t-card);box-shadow:0 -1px 0 var(--t-line)}
 .border-reveal-map figcaption>.bm-key{display:inline-flex!important;align-items:center;gap:8px;min-height:32px;padding:0 13px 0 5px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none;font:700 .8125rem/1.1 var(--font-sans)!important}
