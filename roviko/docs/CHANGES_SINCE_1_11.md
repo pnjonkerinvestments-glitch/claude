@@ -505,7 +505,7 @@ Getest: `npx tsc`, `npm run build`, `npm test` (146/146), schermafbeeldingen op 
 
 Getest: zie `docs/QA_1_22.md`.
 
-## 1.23.0: spelgevoel, delen en een reden om morgen terug te komen (6 oktober 2026)
+## 1.23.0: spelgevoel, delen en een reden om morgen terug te komen (6–7 oktober 2026, live sinds 7 oktober)
 
 **Nieuwe migratie: `drizzle/0009_quiet_leagues.sql`** (alleen de tabel `league_members` met twee indexen; de deployworkflow past hem toe). Geen nieuwe geheimen. Nieuwe route `GET /api/league`. De puntentelling van dagspellen is niet veranderd. Cacheversie `roviko-shell-v1.23.0`, `/api/version` geeft `1.23.0`. De dataset-sleutel blijft `atlas-2026-09-25-r6`, zodat de dagpuzzels dezelfde landen houden. Plan en onderbouwing: `docs/VERBETERPLAN_1_23.md`. Tests: `docs/QA_1_23.md`.
 
