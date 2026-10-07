@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Languages, Moon, Music, Smartphone, Sun, Volume2 } from 'lucide-react';
+import { ChartColumn, Languages, Moon, Music, Palette, Smartphone, Sun, Volume2 } from 'lucide-react';
 import { isNativeApp } from '@/lib/haptics';
 import { readPreference, writePreference } from '@/lib/client';
 import { Switch } from '@/components/ui/switch';
@@ -35,7 +35,7 @@ export function SettingsPage() {
       <div className="settings-card settings-card-pad">
         <p className="settings-label" id="settings-language"><Languages size={17} aria-hidden="true"/>{t('settingsLanguage')}</p>
         <div className="segmented" role="group" aria-labelledby="settings-language">{LOCALES.map(([code, label]) => <button key={code} aria-pressed={locale === code} lang={code} onClick={() => setLocale(code)}>{label}</button>)}</div>
-        <p className="settings-label" id="settings-theme">{t('settingsTheme')}</p>
+        <p className="settings-label" id="settings-theme"><Palette size={17} aria-hidden="true"/>{t('settingsTheme')}</p>
         <div className="segmented" role="group" aria-labelledby="settings-theme">
           <button aria-pressed={theme !== 'dark'} onClick={() => setTheme('light')}><Sun size={16} aria-hidden="true"/>{t('settingsLight')}</button>
           <button aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}><Moon size={16} aria-hidden="true"/>{t('settingsDark')}</button>
@@ -48,7 +48,7 @@ export function SettingsPage() {
     <section className="page-section" aria-labelledby="settings-privacy">
       <SectionHeader id="settings-privacy" title={t('privacy')}/>
       <div className="settings-card">
-        <div className="settings-card-row"><span className="row-icon" aria-hidden="true"/><label htmlFor="metrics-choice"><strong>{t('optionalMetrics')}</strong><small>{t('optionalMetricsCopy')}</small></label><Switch id="metrics-choice" checked={measurement} onCheckedChange={setMeasurement}/></div>
+        <div className="settings-card-row"><ChartColumn size={19} aria-hidden="true"/><label htmlFor="metrics-choice"><strong>{t('optionalMetrics')}</strong><small>{t('optionalMetricsCopy')}</small></label><Switch id="metrics-choice" checked={measurement} onCheckedChange={setMeasurement}/></div>
       </div>
     </section>
   </div>;

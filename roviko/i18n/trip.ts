@@ -25,6 +25,12 @@ export const tripMessages = {
     // pages
     pgExploreLead: '195 countries. Tap one to visit.', pgRankLead: 'The same six games for everyone, every day.', pgScoringLead: 'Six daily games give points. The rest is for fun.',
     pgHowLead: 'Every game in three short steps.', pgSourcesLead: 'Every question is built from open data.',
+    pgWelcomeBack: 'Welcome back!', pgSignInCopy: 'Sign in and pick up where you left off.', pgPassportSave: 'Keep your stamps, streak and points on every device.', pgSeoKicker: 'Free · no account needed',
+    pgGoal_games: '{n} games played', pgGoal_games_one: '1 game played', pgGoal_correct: '{n} right answers', pgGoal_correct_one: '1 right answer', pgGoal_xp: '{n} XP', pgGoal_xp_one: '1 XP',
+    pgGoal_bestStreak: '{n} right in a row', pgGoal_bestStreak_one: '1 right in a row', pgGoal_dailyCount: '{n} days played', pgGoal_dailyCount_one: '1 day played',
+    pgGoal_dailyStreak: '{n}-day streak', pgGoal_dailyStreak_one: '1-day streak', pgGoal_wins: '{n} room wins', pgGoal_wins_one: '1 room win',
+    pgGoal_multiGames: '{n} multiplayer games', pgGoal_multiGames_one: '1 multiplayer game', pgGoal_perfect: '{n} perfect games', pgGoal_perfect_one: '1 perfect game',
+    pgGoal_mode: '{n} games of {game}', pgGoal_mode_one: '1 game of {game}',
   },
   nl: {
     // shell
@@ -50,6 +56,12 @@ export const tripMessages = {
     // pages
     pgExploreLead: '195 landen. Tik er een aan.', pgRankLead: 'Elke dag dezelfde zes spellen voor iedereen.', pgScoringLead: 'Zes dagspellen geven punten. De rest is voor de lol.',
     pgHowLead: 'Elk spel in drie korte stappen.', pgSourcesLead: 'Elke vraag komt uit open data.',
+    pgWelcomeBack: 'Welkom terug!', pgSignInCopy: 'Log in en ga verder waar je was.', pgPassportSave: 'Bewaar je stempels, reeks en punten op elk apparaat.', pgSeoKicker: 'Gratis · geen account nodig',
+    pgGoal_games: '{n} spellen gespeeld', pgGoal_games_one: '1 spel gespeeld', pgGoal_correct: '{n} goede antwoorden', pgGoal_correct_one: '1 goed antwoord', pgGoal_xp: '{n} XP', pgGoal_xp_one: '1 XP',
+    pgGoal_bestStreak: '{n} goed op rij', pgGoal_bestStreak_one: '1 goed op rij', pgGoal_dailyCount: '{n} dagen gespeeld', pgGoal_dailyCount_one: '1 dag gespeeld',
+    pgGoal_dailyStreak: 'Reeks van {n} dagen', pgGoal_dailyStreak_one: 'Reeks van 1 dag', pgGoal_wins: '{n} keer gewonnen', pgGoal_wins_one: '1 keer gewonnen',
+    pgGoal_multiGames: '{n} potjes samen', pgGoal_multiGames_one: '1 potje samen', pgGoal_perfect: '{n} foutloze spellen', pgGoal_perfect_one: '1 foutloos spel',
+    pgGoal_mode: '{n} keer {game}', pgGoal_mode_one: '1 keer {game}',
   },
   es: {
     // shell
@@ -75,5 +87,11 @@ export const tripMessages = {
     // pages
     pgExploreLead: '195 países. Toca uno para visitarlo.', pgRankLead: 'Los mismos seis juegos para todos, cada día.', pgScoringLead: 'Seis juegos diarios dan puntos. El resto es por diversión.',
     pgHowLead: 'Cada juego en tres pasos cortos.', pgSourcesLead: 'Cada pregunta se basa en datos abiertos.',
+    pgWelcomeBack: '¡Hola de nuevo!', pgSignInCopy: 'Inicia sesión y sigue donde lo dejaste.', pgPassportSave: 'Guarda tus sellos, tu racha y tus puntos en todos tus dispositivos.', pgSeoKicker: 'Gratis · sin cuenta',
+    pgGoal_games: '{n} partidas jugadas', pgGoal_games_one: '1 partida jugada', pgGoal_correct: '{n} respuestas correctas', pgGoal_correct_one: '1 respuesta correcta', pgGoal_xp: '{n} XP', pgGoal_xp_one: '1 XP',
+    pgGoal_bestStreak: '{n} aciertos seguidos', pgGoal_bestStreak_one: '1 acierto seguido', pgGoal_dailyCount: '{n} días jugados', pgGoal_dailyCount_one: '1 día jugado',
+    pgGoal_dailyStreak: 'Racha de {n} días', pgGoal_dailyStreak_one: 'Racha de 1 día', pgGoal_wins: '{n} victorias en sala', pgGoal_wins_one: '1 victoria en sala',
+    pgGoal_multiGames: '{n} partidas en grupo', pgGoal_multiGames_one: '1 partida en grupo', pgGoal_perfect: '{n} partidas perfectas', pgGoal_perfect_one: '1 partida perfecta',
+    pgGoal_mode: '{n} partidas de {game}', pgGoal_mode_one: '1 partida de {game}',
   },
 };

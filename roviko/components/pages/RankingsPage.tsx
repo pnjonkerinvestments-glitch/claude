@@ -48,7 +48,7 @@ function DailyRankings() {
           {standing.leaders.map((p: Leader, i: number) => <li key={i} className={p.me ? 'is-you' : ''}>
             <Place place={p.place}/><Avatar id={p.avatar}/><span className="leader-name">{p.me ? t('competitionYou') : p.name}</span><strong>{n(p.score)}</strong>
           </li>)}
-        </ol> : <EmptyState icon={Trophy} title={t('rankingsEmptyTitle')} copy={t('rankingsEmptyCopy')}><A href="/" className="btn primary">{t('tripStart')}</A></EmptyState>}
+        </ol> : <EmptyState icon={Trophy} title={t('rankingsEmptyTitle')} copy={t('rankingsEmptyCopy')}/>/* the way to today's games is already the button in "Your position" */}
         <p className="muted small-print">{t('scoringTies')} <A href="/scoring" className="text-link">{t('scoringLink')}</A></p>
       </>}
   </section>;

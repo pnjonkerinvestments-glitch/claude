@@ -41,10 +41,12 @@ export function LeagueCard({ league, t, locale, onSignup, onPlay }: { league: Le
   if (!league) return <section className="league-card is-loading" aria-busy="true"><div className="league-head"><TierBadge/><div><h2>{t('leagueTitle')}</h2><p>{t('loading')}</p></div></div></section>;
   const tier = league.tier ?? 0, next = TIERS[tier + 1];
   const n = (v: number) => v.toLocaleString(locale), days = daysLeft(league.ends);
-  if (league.guest || !league.joined) return <section className={'league-card tier-' + TIERS[tier]} aria-labelledby="league-title">
+  // Guests: what the league is and one way in (no second paragraph saying the same). Accounts: how to join this week.
+  if (league.guest || !league.joined) return <section className={'league-card tier-' + TIERS[tier] + (league.guest ? ' is-guest' : ' is-waiting')} aria-labelledby="league-title">
     <div className="league-head"><TierBadge tier={tier} size={46}/><div><h2 id="league-title">{league.guest ? t('leagueTitle') : leagueName(t, tier)}</h2><p>{t('leagueHow')}</p></div></div>
-    <p className="league-invite">{league.guest ? t('leagueGuest') : t('leagueJoin').replace('{name}', leagueName(t, tier))}</p>
-    {league.guest ? <button className="btn gold" onClick={onSignup}>{t('leagueGuestCta')}<ArrowRight size={17} aria-hidden="true"/></button> : <button className="btn primary" onClick={onPlay}>{t('tripStart')}<ArrowRight size={17} aria-hidden="true"/></button>}
+    {!league.guest && <p className="league-invite">{t('leagueJoin').replace('{name}', leagueName(t, tier))}</p>}
+    {/* The way to today's games is the main button of the rankings page (in "Your position"), so the league only adds the sign-up. */}
+    {league.guest && <button className="btn secondary" onClick={onSignup}>{t('leagueGuestCta')}<ArrowRight size={17} aria-hidden="true"/></button>}
   </section>;
   const members = league.members ?? [], up = league.promote ?? 0, down = league.demote ?? 0, size = members.length;
   return <section className={'league-card tier-' + TIERS[tier]} aria-labelledby="league-title">

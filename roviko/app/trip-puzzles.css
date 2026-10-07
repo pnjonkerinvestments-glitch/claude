@@ -18,6 +18,10 @@
 .tp-kicker{display:block;margin:0;padding:0 72px 0 0;color:var(--t-brand);font:800 .8125rem/1.3 var(--font-sans);letter-spacing:.02em;text-align:left}
 .tp-card h1{color:var(--t-ink)}
 @media (max-width:480px){.tp-card{padding:18px 16px;border-radius:24px}}
+/* Older layers style every paragraph in these headings (grey, 1rem, centred by auto margins): the green line wins here. */
+.puzzle-compare .comparison-heading>p.tp-kicker,.puzzle-mosaic .mosaic-heading>p.tp-kicker,.rank-game .rank-heading>p.tp-kicker{display:block!important;justify-self:stretch!important;max-width:none!important;margin:0!important;padding:0 72px 0 0!important;color:var(--t-brand)!important;font:800 .8125rem/1.3 var(--font-sans)!important;letter-spacing:.02em!important;text-align:left!important;text-transform:none!important}
+/* The coin pill shows the running score and the rules sit behind the ? button, as in the solo games. */
+.game-main .puzzle-game .daily-score-rule{display:none!important}
 
 /* The ? in the game bar: quiet, round, a full-size target. */
 .trip-top .game-header-row>.howto-button{display:grid!important;place-items:center;width:44px!important;height:44px!important;min-width:44px;margin:0!important;padding:0!important;border:0!important;border-radius:999px!important;background:transparent!important;color:var(--t-soft)!important;box-shadow:none!important}
@@ -65,11 +69,88 @@
 .rank-board .rb-timer{background:color-mix(in srgb,var(--t-forest-ink) 45%,transparent)!important}
 .rank-board .rank-footer{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;max-width:560px;margin:10px auto 0!important;color:var(--t-soft)}
 .rank-board .rank-footer .text-link,.rank-board .rank-footer a{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important}
+/* The end: every country as a quiet line in the review card; the gold pill marks the pick that was the country's best. */
+.rb-review ol{gap:0!important;margin:2px 0 0!important}
+.rb-review li{gap:12px!important;padding:12px 2px!important;border-radius:0!important;background:none!important;box-shadow:none!important}
+.rb-review li+li{border-top:1px solid var(--t-line)}
+.rb-review li>img{width:auto!important;height:28px!important;max-width:44px;border-radius:4px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.rb-review li strong{color:var(--t-ink)}
+.rb-review li span,.rb-review li small{color:var(--t-soft)!important}
+.rb-review .rb-hash{display:inline-flex;align-items:center;min-height:22px;padding:0 8px;border-radius:999px;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 .8125rem/1 var(--font-display)!important}
+.rb-review .rb-points{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;min-width:52px;height:32px;padding:0 10px;border-radius:999px;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 .9375rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
+.rb-review li.is-best .rb-points{background:var(--t-gold)!important;color:var(--t-gold-ink)!important}
 @media (max-width:360px){
   .rank-board .rb-row{min-height:54px!important;padding:6px 10px 6px 7px!important;font-size:1rem!important;gap:10px!important}
   .rank-board .rb-row .rb-emoji{flex-basis:36px!important;width:36px!important;height:36px!important;font-size:1.2rem!important}
   .rank-board .rb-place{padding:4px 9px 4px 5px!important;gap:6px!important}
 }
+
+/* ───────── Rank Radar before the 1.21 board (older saved games): the same card with Roviko, the four subjects as mint cards ───────── */
+.puzzle-game.rank-legacy{max-width:640px!important}
+.rank-legacy .rank-heading.tp-card{display:grid!important;justify-items:center;gap:6px!important;max-width:none!important;margin:46px 0 14px!important;padding:18px 20px 20px!important}
+.rank-legacy .rank-country-flag{display:flex!important;width:auto!important;height:auto!important;margin:10px 0 4px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;transform:none!important}
+.rank-legacy .rank-country-flag img{width:auto!important;height:clamp(84px,22vw,112px)!important;max-width:min(64vw,220px)!important;border-radius:8px!important;filter:none!important;object-fit:contain!important;box-shadow:0 0 0 1px rgba(22,59,50,.08),0 12px 28px rgba(22,59,50,.18)!important}
+[data-theme=dark] .rank-legacy .rank-country-flag img{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 12px 28px rgba(0,0,0,.45)!important}
+.rank-legacy .rank-heading h1{margin:0!important;color:var(--t-ink)!important;font:600 clamp(1.5rem,1.25rem + 1.1vw,2rem)/1.18 var(--font-display)!important;letter-spacing:-.01em!important;text-wrap:balance}
+.rank-legacy .rank-heading>.rank-intro{max-width:44ch;margin:0!important;color:var(--t-soft)!important;font:600 .9375rem/1.45 var(--font-sans)!important;text-wrap:balance}
+.rank-legacy .rank-options{gap:10px!important}
+.rank-legacy .rank-option{padding:16px 16px 14px!important;border:2px solid transparent!important;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none!important;outline:0!important;transition:background .16s,border-color .16s,transform .22s cubic-bezier(.34,1.56,.64,1)!important}
+.rank-legacy .rank-option:hover:not(:disabled){background:var(--t-mint)!important;transform:none!important;border-color:transparent!important;box-shadow:none!important}
+@media (hover:hover){.rank-legacy .rank-option:hover:not(:disabled){background:var(--t-mint-2)!important;transform:translateY(-2px)!important}}
+.rank-legacy .rank-option:active:not(:disabled){transform:scale(.98)!important}
+.rank-legacy .rank-option:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:2px!important}
+.rank-legacy .rank-option.is-picked{border-color:var(--t-forest)!important;background:var(--t-mint-2)!important}
+.rank-legacy .rank-option-emoji{background:var(--t-card)!important;border-radius:999px!important}
+.rank-legacy .rank-option-title{color:inherit!important;font:600 1.0625rem/1.25 var(--font-display)!important;letter-spacing:0!important}
+.rank-legacy .rank-option-pick{color:var(--t-brand)!important;font:700 .8125rem/1.2 var(--font-sans)!important}
+.rank-legacy .rank-option-status{display:inline-flex!important;align-items:center;gap:4px;width:auto!important;height:auto!important;border:0!important;color:inherit!important}
+.rank-legacy .rank-option-medal{font-size:1.5rem;line-height:1}
+/* After the pick: the country's best subject fills forest, a wrong pick turns soft red, the others go quiet white. */
+.rank-legacy .rank-option.rank-revealed{background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
+.rank-legacy .rank-option.rank-best{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;box-shadow:none!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.rank-legacy .rank-option.rank-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;box-shadow:none!important}
+.rank-legacy .rank-best .rank-option-emoji{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important}
+.rank-legacy .rank-position>strong{color:inherit!important;font:600 1.75rem/1.1 var(--font-display)!important;letter-spacing:0!important}
+.rank-legacy .rank-position>span,.rank-legacy .rank-option-year,.rank-legacy .rank-option-foot,.rank-legacy .rank-option-metric{color:inherit!important}
+.rank-legacy .rank-position>span,.rank-legacy .rank-option-year,.rank-legacy .rank-option-foot{opacity:.78}
+.rank-legacy .rank-position-track{background:color-mix(in srgb,currentColor 14%,transparent)!important}
+.rank-legacy .rank-position-track>span{background:currentColor!important}
+.rank-legacy .rank-option-foot{border-top-color:color-mix(in srgb,currentColor 16%,transparent)!important}
+/* The verdict: one white card, like the solo feedback. */
+.rank-legacy .rank-feedback{display:flex!important;gap:12px!important;margin:14px 0 0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;color:var(--t-text)!important}
+.rank-legacy .rank-feedback-icon{width:36px!important;height:36px!important;border:0!important;background:var(--t-forest);color:var(--t-forest-ink)}
+.rank-legacy .rank-feedback.is-wrong .rank-feedback-icon{background:var(--t-red);color:#fff}
+[data-theme=dark] .rank-legacy .rank-feedback.is-wrong .rank-feedback-icon{color:#2a0d12}
+.rank-legacy .rank-feedback strong{display:block;color:var(--t-forest)!important;font:600 1.25rem/1.25 var(--font-display)!important}
+[data-theme=dark] .rank-legacy .rank-feedback strong{color:var(--t-brand)!important}
+.rank-legacy .rank-feedback.is-wrong strong{color:var(--t-red)!important}
+.rank-legacy .rank-feedback p{margin:6px 0 0!important;color:var(--t-text)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
+.rank-legacy .rank-controls{justify-content:center!important;gap:14px;min-height:0!important;margin:16px 0 4px!important}
+.rank-legacy .rank-controls .btn.primary{min-height:56px!important;padding:0 26px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
+@media (max-width:760px){.rank-legacy .rank-controls:has(.btn.primary){background:linear-gradient(to top,var(--t-canvas) 62%,transparent)!important;box-shadow:none!important}}
+/* The rules and data notes stay (the ? guide explains the newer board), folded into quiet centred lines. */
+.rank-legacy .rank-help{max-width:560px;margin:0 auto!important;padding:2px 0!important;border:0!important;color:var(--t-soft)!important;font:600 .875rem/1.55 var(--font-sans)!important}
+.rank-legacy .rank-help summary{display:flex;align-items:center;justify-content:center;gap:6px;min-height:44px;color:var(--t-soft)!important;font:700 .875rem/1.2 var(--font-sans)!important;list-style:none;cursor:pointer}
+.rank-legacy .rank-help summary::-webkit-details-marker{display:none}
+.rank-legacy .rank-help summary::after{content:'';width:6px;height:6px;margin:-3px 0 0 2px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);transition:transform .2s}
+.rank-legacy .rank-help[open] summary::after{margin-top:3px;transform:rotate(-135deg)}
+.rank-legacy .rank-help[open]{margin-bottom:10px!important;padding:4px 18px 10px!important;border-radius:var(--t-radius-sm);background:var(--t-card);box-shadow:var(--t-shadow)}
+.rank-legacy .rank-help .rank-definition{border-bottom-color:var(--t-line)!important}
+.rank-legacy .rank-help .rank-definition strong{color:var(--t-ink)!important}
+.rank-legacy .rank-help a{color:var(--t-brand)!important}
+.rank-legacy .rank-footer{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 18px;max-width:560px;margin:4px auto 0!important;color:var(--t-soft)}
+.rank-legacy .rank-footer .text-link,.rank-legacy .rank-footer a{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important}
+/* The end: the six medals in white circles (gold ring for a country's best subject), then the folded review. */
+.rank-legacy .rank-medal-row{display:flex!important;flex-wrap:wrap;justify-content:center;gap:8px!important;margin:4px 0 2px!important}
+.rank-legacy .rank-medal-row>span{width:46px!important;height:46px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;font-size:1.5rem!important}
+.rank-legacy .rank-medal-row>span.place-1{box-shadow:0 0 0 2px var(--t-gold),var(--t-shadow)!important}
+.rank-legacy .rank-review{gap:0!important;margin:0!important}
+.rank-legacy .rank-review>div{padding:12px 2px!important;border:0!important;border-radius:0!important;background:none!important}
+.rank-legacy .rank-review>div+div{border-top:1px solid var(--t-line)!important}
+.rank-legacy .rank-review strong{color:var(--t-ink);font:600 1rem/1.25 var(--font-display)!important}
+.rank-legacy .rank-review>div>div>span{color:var(--t-soft)!important;font:600 .8125rem/1.4 var(--font-sans)!important}
+.rank-legacy .rank-review img{height:24px!important;width:auto!important;border-radius:3px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+@media (min-width:600px){.rank-legacy .rank-review{grid-template-columns:1fr!important}}
 
 /* ───────── World Duel: the route, Roviko's card against yours on one white card, your hand as mint cards ───────── */
 .duel-game{max-width:640px!important}
@@ -197,7 +278,7 @@
 .puzzle-compare .comparison-value{margin-top:12px!important;min-height:40px!important}
 .puzzle-compare .comparison-value>span{color:var(--t-brand)!important;font:700 .9375rem/1.2 var(--font-sans)!important}
 .puzzle-compare .comparison-value>strong{color:inherit!important;font:600 1.25rem/1.2 var(--font-display)!important}
-.puzzle-compare .comparison-country .your-choice{color:inherit;opacity:.8;font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.06em;text-transform:uppercase}
+.puzzle-compare .comparison-country .your-choice{position:static!important;display:block;margin-top:8px!important;color:inherit!important;opacity:.8;font:800 .6875rem/1.2 var(--font-sans)!important;letter-spacing:.06em;text-transform:uppercase}
 .puzzle-compare .comparison-country:hover:not(:disabled):not(.is-picked){background:var(--t-mint)!important;transform:none!important;border-color:transparent!important}
 @media (hover:hover){.puzzle-compare .comparison-country:hover:not(:disabled):not(.is-picked){background:var(--t-mint-2)!important;transform:translateY(-2px)!important}}
 .puzzle-compare .comparison-country:active:not(:disabled){transform:scale(.98)!important}
@@ -221,17 +302,37 @@
 .puzzle-compare .comparison-reveal p{margin:6px 0 0!important;color:var(--t-text)!important;font:600 .9375rem/1.5 var(--font-sans)!important}
 .puzzle-compare .comparison-reveal p strong{color:var(--t-ink)}
 .puzzle-compare .comparison-reveal .comparison-detail{color:var(--t-soft)!important;font-size:.875rem!important}
+/* The points a daily answer brought in: the gold pill, as on the solo feedback card. */
+.tp-gain{flex-shrink:0;white-space:nowrap;animation:tp-pop .5s cubic-bezier(.34,1.56,.64,1) both}
+.puzzle-compare .comparison-reveal{position:relative;overflow:visible!important}
+/* A sticker on the card's top edge: it never squeezes the explanation, even at 320px. */
+.puzzle-compare .comparison-reveal>.tp-gain{position:absolute;top:-14px;right:18px;box-shadow:0 2px 3px rgba(201,141,31,.18),0 8px 18px rgba(201,141,31,.22)}
+.puzzle-compare .comparison-reveal:has(>.tp-gain){margin-top:22px!important}
 .puzzle-compare .auto-next-wrap{margin:14px auto 0!important}
 /* The bar at the bottom: the way on as a forest pill (fixed on phones), report quiet on the left. */
 .puzzle-game .puzzle-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 0 0!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important}
 .puzzle-game .puzzle-bottom .text-link{color:var(--t-soft)!important;font:600 .8125rem/1.3 var(--font-sans)!important}
 .puzzle-game .puzzle-bottom>div{display:flex;align-items:center;gap:12px}
+/* Before an answer only the quiet report link (and on desktop the keyboard hint) is left: centred, like the solo games. */
+.puzzle-game .puzzle-bottom:not(:has(.btn.primary)){justify-content:center;gap:6px 18px;flex-wrap:wrap}
 .puzzle-game .puzzle-bottom .btn.primary{min-height:56px!important;padding:0 26px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
 .puzzle-game .puzzle-keyboard,.puzzle-game .puzzle-save{color:var(--t-soft);font:600 .8125rem/1.3 var(--font-sans)}
 .puzzle-game .compare-out{color:var(--t-red)!important;font:600 1.0625rem/1.2 var(--font-display)!important}
 @media (max-width:760px){
   .puzzle-game .puzzle-bottom:has(.btn.primary){background:linear-gradient(to top,var(--t-canvas) 62%,transparent)!important}
   .puzzle-game .puzzle-bottom:has(.btn.primary) .btn.primary{width:100%}
+  /* "One wrong. Run over." sits in the fixed bar above the button: on solid canvas, never over the cards. */
+  .puzzle-compare .puzzle-bottom:has(.btn.primary):has(.compare-out){padding-top:8px!important;background:var(--t-canvas)!important;box-shadow:0 -22px 18px -8px var(--t-canvas)!important}
+  .puzzle-compare .puzzle-bottom:has(.btn.primary):has(.compare-out)>div{flex-wrap:wrap;justify-content:center;row-gap:8px}
+  .game-main:has(.puzzle-compare .compare-out){padding-bottom:calc(150px + env(safe-area-inset-bottom))!important}
+}
+/* Desktop: after an answer the way on is centred (the run-over line above it), the quiet links under it. */
+@media (min-width:761px){
+  .puzzle-game .puzzle-bottom:has(.btn.primary){flex-direction:column-reverse;align-items:center;gap:6px}
+  .puzzle-game .puzzle-bottom:has(.btn.primary)>div{flex-direction:column;align-items:center;gap:10px}
+  .puzzle-game .puzzle-bottom:has(.btn.primary)>div>.compare-out{order:0}
+  .puzzle-game .puzzle-bottom:has(.btn.primary)>div>.btn.primary{order:1}
+  .puzzle-game .puzzle-bottom:has(.btn.primary)>div>.puzzle-save{order:2}
 }
 @media (hover:none){.puzzle-game .puzzle-keyboard{display:none!important}}
 .puzzle-game .puzzle-source{margin:14px 0 0!important;color:var(--t-soft)!important;font:600 .75rem/1.5 var(--font-sans)!important;text-align:center}
@@ -265,6 +366,9 @@
 .puzzle-mosaic .mosaic-board .tile-text,.puzzle-mosaic .mosaic-board .tile-stat strong{color:var(--t-ink)!important}
 .puzzle-mosaic .mosaic-board .tile-text{font-family:var(--font-display)!important;font-weight:600!important}
 .puzzle-mosaic .mosaic-board .tile-stat .stat-label,.puzzle-mosaic .mosaic-board .tile-stat .stat-unit{color:var(--t-soft)!important}
+/* A long one-word subject ("Levensverwachting") hyphenates or wraps inside the tile instead of being cut off. */
+.puzzle-mosaic .mosaic-board .tile-stat .stat-label{max-width:100%;overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
+.puzzle-mosaic .mosaic-board .tile-stat .stat-label.is-long{font-size:.6875rem!important;line-height:1.2!important}
 .puzzle-mosaic .mosaic-board .tile-flag{border-radius:4px!important;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 4px 10px rgba(22,59,50,.14)!important;object-fit:contain}
 .puzzle-mosaic .mosaic-board .tile-shape{color:var(--t-forest)!important}
 .puzzle-mosaic .mosaic-board .tile-tick{width:20px!important;height:20px!important;border:2px solid color-mix(in srgb,var(--t-ink) 18%,transparent)!important;border-radius:999px!important;background:var(--t-card)!important}
@@ -304,6 +408,7 @@
 .puzzle-mosaic .mosaic-notice{display:flex!important;flex-direction:row!important;align-items:center;justify-content:center;gap:8px;min-height:0!important;margin:0 0 10px!important;padding:0 4px!important;color:var(--t-text)!important;font:600 .9375rem/1.4 var(--font-sans)!important;text-align:center;text-wrap:balance}
 .puzzle-mosaic .mosaic-notice.is-idle{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
 .puzzle-mosaic .mosaic-notice.good{color:var(--t-forest)!important;font:600 1.0625rem/1.3 var(--font-display)!important}
+.puzzle-mosaic .mosaic-notice .tp-gain{margin-left:2px;font-size:.9375rem}
 [data-theme=dark] .puzzle-mosaic .mosaic-notice.good{color:var(--t-brand)!important}
 .puzzle-mosaic .mosaic-notice.bad{color:var(--t-red-ink)!important}
 .puzzle-mosaic .mosaic-notice.bad>svg{flex-shrink:0;color:var(--t-red)}
@@ -328,7 +433,9 @@
 @media (max-width:360px){
   .puzzle-mosaic .mosaic-board .mosaic-tile{padding:20px 3px 6px!important}
   .puzzle-mosaic .mosaic-board .tile-kind{left:7px;top:7px;font-size:.5rem!important}
-  .puzzle-mosaic .mosaic-board .tile-tick{width:16px!important;height:16px!important;top:4px!important;right:4px!important}
+  /* Narrow tiles: the label keeps the top row ("BANDERA" fits); the tick appears only when picked, in the bottom corner. */
+  .puzzle-mosaic .mosaic-board .tile-tick{width:16px!important;height:16px!important;top:auto!important;bottom:5px!important;right:5px!important}
+  .puzzle-mosaic .mosaic-board .tile-tick:empty{display:none!important}
   .puzzle-mosaic .mosaic-selection-status li{padding:0 9px 0 7px;font-size:.75rem!important}
 }
 /* The practice end: the quiet buttons of every end screen. */
@@ -400,7 +507,12 @@
 .map-wrap .map-tools{gap:6px!important;padding:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}
 .map-wrap .map-tools .icon-btn{width:42px!important;height:42px!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
 .map-wrap .map-tools .icon-btn:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
+/* Chrome draws its own amber ring on a tapped SVG; only keyboard focus gets a ring, in brand green. */
+.map-wrap .world-map:focus:not(:focus-visible){outline:none!important}
 .map-wrap .world-map:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+/* One instruction is enough: when the help line sits under the map, the caption keeps only the credit (and the legend after an answer). */
+.question-content:has(>.map-wrap+.question-help) .map-caption>span:not(.map-legend){display:none}
+.question-content:has(>.map-wrap+.question-help) .map-caption{justify-content:flex-end}
 .map-wrap .map-caption{color:var(--t-soft)!important;font:600 .75rem/1.4 var(--font-sans)!important}
 .map-wrap .map-caption a{color:var(--t-soft)!important}
 .map-wrap .map-legend .right{color:var(--t-forest)}
@@ -408,7 +520,7 @@
 .map-wrap .map-legend .wrong{color:var(--t-red)}
 .question-content .answer-submit{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
 /* The neighbours map after a Next Door answer: the light-blue card, a legend of mint pills. */
-.border-reveal-map{margin:0!important;padding:12px!important;border-radius:var(--t-radius)!important;background:var(--t-sky)!important;box-shadow:var(--t-shadow)!important}
+.border-reveal-map{--bm-target:var(--t-brand)!important;--bm-neighbor:var(--t-gold)!important;margin:0!important;padding:12px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-sky)!important;box-shadow:var(--t-shadow)!important}
 .border-reveal-map svg{display:block;width:100%;max-height:280px}
 .border-reveal-map .bm-target,.border-reveal-map .bm-neighbor{stroke:var(--t-sky)!important}
 .border-reveal-map figcaption{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
@@ -462,5 +574,5 @@
 @keyframes tp-pop{0%{opacity:0;transform:scale(.5)}60%{opacity:1}100%{transform:none}}
 
 @media (prefers-reduced-motion:reduce){
-  .tp-card>.peek,.tp-card>.peek .peek-head,.rank-board .rb-gain .t-points,.rank-board .rb-tick,.rank-board .rb-row.is-now,.mystery-card .mystery-option.is-correct,.mystery-card .mystery-badge.has-flag,.trail-clues .clue-slots li.is-open,.trail-clues .clue-slots li.is-open>span,.order-list .order-item.order-correct,.typed-form .text-input.input-wrong,.q-card .shape-stage svg,.puzzle-mosaic .mosaic-group,.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong,.puzzle-mosaic .mosaic-tile.selected .tile-tick,.puzzle-compare .comparison-country.winner,.puzzle-compare .comparison-country.wrong,.duel-game .duel-arena .duel-card.is-empty span,.duel-game .duel-arena .duel-card.is-winner{animation:none!important}
+  .tp-card>.peek,.tp-card>.peek .peek-head,.tp-gain,.rank-legacy .rank-option.rank-best,.rank-board .rb-gain .t-points,.rank-board .rb-tick,.rank-board .rb-row.is-now,.mystery-card .mystery-option.is-correct,.mystery-card .mystery-badge.has-flag,.trail-clues .clue-slots li.is-open,.trail-clues .clue-slots li.is-open>span,.order-list .order-item.order-correct,.typed-form .text-input.input-wrong,.q-card .shape-stage svg,.puzzle-mosaic .mosaic-group,.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong,.puzzle-mosaic .mosaic-tile.selected .tile-tick,.puzzle-compare .comparison-country.winner,.puzzle-compare .comparison-country.wrong,.duel-game .duel-arena .duel-card.is-empty span,.duel-game .duel-arena .duel-card.is-winner{animation:none!important}
 }
