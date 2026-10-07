@@ -566,3 +566,32 @@ Getest: zie `docs/QA_1_22.md`.
 - Account- en instellingenpagina laden pas als je ze opent. Twee ongebruikte illustraties verwijderd.
 
 **Tests:** 166/166. Nieuw: `tests/v123.test.mjs` (10), `tests/league.test.mjs` (5, echte D1), `tests/data-sanity.test.mjs` (2). Aangepast aan bewuste wijzigingen: de deeltekst (`rank.test`, `reliability.test`), de feedbackkoppen (`learning-ui.test`) en de homepage (`rendered-html.test`).
+
+### Derde deel: de trip-stijl naar de voorbeelden van de eigenaar (7 oktober)
+
+De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vijf voorbeelden: een spelscherm met vlag, een kaartvraag, een multiplayerronde, de multiplayeruitslag en een eindscherm. Alles volgt nu die stijl. Spelregels, punten, tijden en wat de server stuurt zijn niet veranderd.
+
+**De basis (`app/trip.css`).** Crème achtergrond zonder kleurhalo's, witte afgeronde kaarten, koppen in donkergroen, knoppen als donkergroene pillen. Bovenaan elke pagina een gouden reekspil ("🔥 7 dagen reeks"; zonder reeks "Begin je reeks"); op de telefoon logo links, pil in het midden, menu rechts. De zwevende tabbalk heeft een mintgroene pil voor de pagina waar je bent.
+
+**Spelen.** Elk spel heeft dezelfde bovenbalk: een rond sluitkruisje, een dunne voortgangsbalk en een witte pil met een gouden munt en je punten. Die pil wipt op en toont "+50" als er punten bijkomen. De vraag staat op een witte kaart met een groen regeltje ("Dagelijkse Omweg · 1/20") en een grote vraag; Roviko gluurt over de rand, kijkt vrolijk, juicht bij goed en schrikt bij fout. Vlaggen staan groot met een schaduw op de kaart. Antwoorden zijn mintgroene pillen over de hele breedte, zonder cijferbolletje (toetsen 1–4 werken nog); goed wordt donkergroen met ✓, een fout gekozen antwoord zacht rood met ✗. Kaarten staan in een lichtblauwe kaart. Na een antwoord één compacte witte kaart met de kop, gouden punten en het weetje. De regels staan achter de ?-knop, ook op desktop.
+
+**Dagspellen met een eigen scherm.** Rank Radar, Wereldduel, Side by Side, Country Mosaic, Clue Trail, Overleven, Size Shuffle en getypte hoofdsteden zijn één familie met de vraagkaart: witte kaart met Roviko, mintgroene keuzes, donkergroen voor gekozen en goed, zacht rood voor fout, gouden "+67 pt" bij punten. Bij het Wereldduel is het overzicht per land op het eindscherm ingeklapt. Mosaic past op 320 px, ook met lange Spaanse en Nederlandse woorden. De oude Rank Radar van vóór 1.21 (alleen nog voor opgeslagen spellen) ziet er hetzelfde uit.
+
+**Eindschermen.** Geen gekleurd podium meer, maar Roviko groot op crème, de kop in donkergroen, je punten met een munt, je antwoorden als stipjes, daaronder één witte kaart met je plek en één knop "Volgende: <spel>" met het spellogo. Delen en Klaar zijn rustige tekstknoppen. Na het zesde spel: "Mooie reis. Morgen weer?", je dagtotaal van 6.000, je plek, de zes spellen met punten, een knop "Bonustour" en een omlijnde knop "Daag een vriend uit". Het reeksmoment heeft een gouden vlam, je aantal dagen en de week als stipjes. Na een lage score staat er "Elke reis telt!" in plaats van "Morgen weer een kans!" (er staan dan vaak nog spellen klaar).
+
+**Multiplayer.** Een ronde: sluitkruisje, voortgang, een tijdpil (rood onder 6 seconden) en je punten; op de vraagkaart "RONDE 1/10 · GEMIDDELD" met een stipje per ronde; na de onthulling staan de avatars van de spelers op het antwoord dat ze kozen en krijg je je punten als gouden pil. De tussenstand is een witte kaart (op desktop ernaast, op de telefoon compact). De uitslag: alle avatars bovenaan, "EINDSTAND · 10 RONDES", "Jij wint!" of je plaats, "1e van 12 spelers", je punten, een juichende Roviko boven een podium (goud in het midden, mint links, crème rechts) en "Nog een keer". De terugblik per ronde en alle spelers zijn ingeklapt. De Multiplayer-tab, het zoeken naar een tegenstander en de wachtkamer volgen dezelfde stijl; gasten in de wachtkamer zien de instellingen als vaste pillen.
+
+**Homepage.** Geen donkergroen blok meer: Roviko zwaait met een tekstballon, de kop, één knop ("Begin de reis van vandaag" of "Verder: <spel>"). Daaronder "Reis van vandaag": één witte kaart met de resettijd, zes balkjes, de zes spellen als route (vinkje en punten met munt bij gespeelde spellen, "Speel" bij het volgende). Daarnaast de weekgroep of ranglijst en de dagdoelen. Een gedeelde uitdaging staat in de tekstballon. Alle spellen (`/daily`) heeft dezelfde kop en kaarten.
+
+**Overige pagina's.** Ontdekken, Paspoort, Ranglijst, Instellingen, Account, Vrienden, Uitleg, Punten, privacy/voorwaarden/bronnen, de quizpagina's en 404: lichte paginakop met een klein label, een grote donkergroene titel en één korte regel, witte kaarten, tabs met een mintgroene pil. Het aanmeldvenster heeft een zwaaiende Roviko. Paspoort: elk van de 30 prestaties een eigen icoon (spellen met hun logo), en de doelen staan er goed ("10 spellen gespeeld" in plaats van "1 Games played"). Lege blokken zijn verborgen.
+
+**Fouten gevonden en opgelost.**
+- De puntenuitleg (`/scoring` en de notities in spellen) beschreef Rank Radar en Side by Side nog zoals vóór 1.21 (zes landen, tien vergelijkingen). Nu: acht landen tot 125 punten, en vijftien vergelijkingen waarbij de eerste fout stopt.
+- Nederlands: overal "kamer" in plaats van "room" ("Gewonnen kamers", "Kopieer kamercode").
+- Schakelaars staken uit hun baan als ze aan stonden; dialoogtitels liepen onder het sluitkruisje.
+- Multiplayeruitslag met precies 1 punt toonde "1 1 punt"; de knop naar huis heette in het Spaans hetzelfde als opnieuw spelen.
+- In donker waren Roviko's armen en benen bijna onzichtbaar.
+
+**Bestanden.** Nieuw: `app/trip.css`, `app/trip-home.css`, `trip-puzzles.css`, `trip-mp.css`, `trip-finish.css`, `trip-pages.css`, `i18n/trip.ts`, `components/ds/Coin.tsx` (munt, muntpil, vlam), `components/multiplayer/Live.tsx`, `components/multiplayer/MatchResults.tsx`. `Peek` in `components/ds/Character.tsx`. Aangepast: `GameHeader`, `Question`, de eindschermen, de homepage, de dagspellen en de pagina's. Geen nieuwe migratie, geen nieuwe afbeeldingen.
+
+**Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).

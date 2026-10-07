@@ -13,6 +13,8 @@ Datum: 6 oktober 2026. Basis: 1.22.1 (live op roviko.app, gelijk aan de zip `rov
 
 ## Status (6 oktober 2026, einde van de dag)
 
+- **7 oktober, trip-stijl:** na "ik vind dit geen verbetering" stuurde de eigenaar vijf voorbeelden. De hele site en de app volgen nu die stijl (crème, witte kaarten, muntpil, mintgroene antwoorden, Roviko die meekijkt, podium in multiplayer, eindscherm "Mooie reis. Morgen weer?"). Zie `CHANGES_SINCE_1_11.md` (1.23.0, derde deel) en `QA_1_23.md`. Dit vervangt de beeldtaal van ronde 3–5; de functies van die rondes (weekgroepen, dagoverzicht, wachtkamer, datacontrole) blijven.
+
 - **Gebouwd en getest:** alle punten van A (A1–A20); uit B: B1 (reeksmoment), B2 (deelbeeld), B3 (uitdaging), B5 (dagoverzicht), B8 (datacontrole, vond meteen de Sri Lanka-fout) en een deel van B6 (account en instellingen later laden).
 - **Keuzes van de eigenaar (C), allemaal gebouwd:** C1 welkomstkaart; C2 rustige homepage; C3 weekgroepen met niveaus, alleen accounts; C4 Rank Radar houdt "Vastzetten" (regel aangepast); C5 geluid op de website blijft standaard uit; C6 Belarus. Plus: Multiplayer-tab en wachtkamer naar het ontwerp van de eigenaar, schone kleuren, avatars als wereldbolletjes.
 - **Open:**

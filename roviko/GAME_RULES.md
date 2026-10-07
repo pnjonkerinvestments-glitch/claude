@@ -140,3 +140,7 @@ Every UTC week (Monday–Sunday) accounts that score daily points are placed in 
 ## Data corrections (1.23)
 
 Sri Lanka has no land borders (the source listed India). Eswatini lists Mbabane and Lobamba. Dutch names: Belarus (owner's choice, formerly Wit-Rusland) and Eswatini (formerly Swaziland).
+
+## Trip style (1.23, presentation only)
+
+The owner's mock-ups restyled every screen (cream canvas, white cards, a coin score pill, mint answer pills without number badges, Roviko peeking over the question card, podium results in multiplayer). No rule, round, timer, score or server contract changed: keys 1–4 still answer, Rank Radar still locks a subject, the Duel stays blind until the last card, Mosaic hints still cost 125. Points shown as "+50" or "+1,583" come from what the server already sent (the points of that answer, or the difference between two totals); the browser never computes daily points itself. The daily-points texts on `/scoring` and in the in-game notes now describe Rank Radar (eight countries, up to 125 each) and Side by Side (fifteen comparisons, the first wrong answer ends the run) as they have worked since 1.21; before, they still described the six-question and ten-comparison versions.

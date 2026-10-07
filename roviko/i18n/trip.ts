@@ -31,6 +31,9 @@ export const tripMessages = {
     pgGoal_dailyStreak: '{n}-day streak', pgGoal_dailyStreak_one: '1-day streak', pgGoal_wins: '{n} room wins', pgGoal_wins_one: '1 room win',
     pgGoal_multiGames: '{n} multiplayer games', pgGoal_multiGames_one: '1 multiplayer game', pgGoal_perfect: '{n} perfect games', pgGoal_perfect_one: '1 perfect game',
     pgGoal_mode: '{n} games of {game}', pgGoal_mode_one: '1 game of {game}',
+    // rules (corrected 1.23: the scoring page and the daily-points notes still described the pre-1.21 Rank Radar and Side by Side)
+    competitionRankRule: 'Eight countries and eight subjects, each subject once. A pick is worth up to 125 points: the full 125 when it is that country’s strongest subject, fewer the further off it is.',
+    competitionCompare: 'Fifteen comparisons, from easy to hard. The first wrong answer ends the run. Your score: correct answers ÷ 15 × 1,000.',
   },
   nl: {
     // shell
@@ -62,6 +65,9 @@ export const tripMessages = {
     pgGoal_dailyStreak: 'Reeks van {n} dagen', pgGoal_dailyStreak_one: 'Reeks van 1 dag', pgGoal_wins: '{n} keer gewonnen', pgGoal_wins_one: '1 keer gewonnen',
     pgGoal_multiGames: '{n} potjes samen', pgGoal_multiGames_one: '1 potje samen', pgGoal_perfect: '{n} foutloze spellen', pgGoal_perfect_one: '1 foutloos spel',
     pgGoal_mode: '{n} keer {game}', pgGoal_mode_one: '1 keer {game}',
+    // rules (gecorrigeerd in 1.23: de puntenpagina beschreef nog Rank Radar en Side by Side van vóór 1.21)
+    competitionRankRule: 'Acht landen en acht onderwerpen, elk onderwerp één keer. Een keuze is tot 125 punten waard: alles als het het sterkste onderwerp van dat land is, minder naarmate het verder ernaast zit.',
+    competitionCompare: 'Vijftien vergelijkingen, van makkelijk naar moeilijk. De eerste fout stopt de run. Je score: goede antwoorden ÷ 15 × 1.000.',
   },
   es: {
     // shell
@@ -93,5 +99,8 @@ export const tripMessages = {
     pgGoal_dailyStreak: 'Racha de {n} días', pgGoal_dailyStreak_one: 'Racha de 1 día', pgGoal_wins: '{n} victorias en sala', pgGoal_wins_one: '1 victoria en sala',
     pgGoal_multiGames: '{n} partidas en grupo', pgGoal_multiGames_one: '1 partida en grupo', pgGoal_perfect: '{n} partidas perfectas', pgGoal_perfect_one: '1 partida perfecta',
     pgGoal_mode: '{n} partidas de {game}', pgGoal_mode_one: '1 partida de {game}',
+    // rules (corregido en 1.23: la página de puntos aún describía Rank Radar y Side by Side de antes de la 1.21)
+    competitionRankRule: 'Ocho países y ocho temas, cada tema una vez. Cada elección vale hasta 125 puntos: los 125 si es el tema más fuerte de ese país, menos cuanto más se aleje.',
+    competitionCompare: 'Quince comparaciones, de fácil a difícil. El primer error termina la partida. Tu puntuación: respuestas correctas ÷ 15 × 1.000.',
   },
 };
