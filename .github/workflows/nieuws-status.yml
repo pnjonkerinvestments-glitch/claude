@@ -44,3 +44,5 @@ jobs:
           q "treffers per filter (24 uur)" "SELECT filter, COUNT(*) AS n, SUM(checked) AS gelezen FROM events WHERE recorded_at > unixepoch() - 86400 GROUP BY filter ORDER BY n DESC"
           q "agenda komende 14 dagen" "SELECT date, kind, label, symbol FROM agenda WHERE date >= date('now') AND date <= date('now','+14 days') ORDER BY date LIMIT 40"
           q "noteringen" "SELECT is_primary, COUNT(*) AS n, datetime(MAX(first_seen),'unixepoch') AS laatst_nieuw FROM listings GROUP BY is_primary"
+          q "nieuwe noteringen sinds de eerste ronde" "SELECT symbol, name, exchange, country, isin, is_primary, (SELECT GROUP_CONCAT(o.symbol) FROM listings o WHERE o.isin = l.isin AND o.symbol != l.symbol AND o.isin != '') AS ook FROM listings l WHERE first_seen > (SELECT CAST(value AS INTEGER) FROM settings WHERE key = 'listings_primed') ORDER BY is_primary DESC, symbol"
+          q "treffers (24 uur)" "SELECT filter, symbol, substr(title,1,110) AS kop FROM events WHERE recorded_at > unixepoch() - 86400 AND filter NOT IN ('emissie','insider') ORDER BY filter"
