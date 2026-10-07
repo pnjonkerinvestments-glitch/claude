@@ -56,7 +56,7 @@
 .rank-board .rb-row.is-used .rb-place b{color:var(--t-ink)!important}
 /* The pick you just made: forest, with the world place in a white pill. */
 .rank-board .rb-row.is-now{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
-.rank-board .rb-row.is-now .rb-emoji{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important}
+.rank-board .rb-row.is-now .rb-emoji{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important}
 .rank-board .rb-place{gap:8px!important;padding:5px 12px 5px 6px!important;border-radius:999px}
 .rank-board .rb-place img{height:22px!important;border-radius:3px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 .rank-board .rb-place b{font:600 1.125rem/1 var(--font-display)!important}
@@ -107,9 +107,9 @@
 .rank-legacy .rank-option-medal{font-size:1.5rem;line-height:1}
 /* After the pick: the country's best subject fills forest, a wrong pick turns soft red, the others go quiet white. */
 .rank-legacy .rank-option.rank-revealed{background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
-.rank-legacy .rank-option.rank-best{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;box-shadow:none!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.rank-legacy .rank-option.rank-best{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;box-shadow:none!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
 .rank-legacy .rank-option.rank-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;box-shadow:none!important}
-.rank-legacy .rank-best .rank-option-emoji{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important}
+.rank-legacy .rank-best .rank-option-emoji{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important}
 .rank-legacy .rank-position>strong{color:inherit!important;font:600 1.75rem/1.1 var(--font-display)!important;letter-spacing:0!important}
 .rank-legacy .rank-position>span,.rank-legacy .rank-option-year,.rank-legacy .rank-option-foot,.rank-legacy .rank-option-metric{color:inherit!important}
 .rank-legacy .rank-position>span,.rank-legacy .rank-option-year,.rank-legacy .rank-option-foot{opacity:.78}
@@ -184,7 +184,7 @@
 .duel-game .duel-arena .duel-card strong{color:inherit;font:600 1.0625rem/1.15 var(--font-display)!important;overflow-wrap:anywhere;text-wrap:balance}
 .duel-game .duel-arena .duel-card.is-empty{border:2px dashed color-mix(in srgb,var(--t-forest) 35%,transparent)!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font-size:2rem!important}
 .duel-game .duel-arena .duel-card.is-empty span{animation:tp-wobble 2.4s ease-in-out infinite}
-.duel-game .duel-arena .duel-card.is-winner{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.duel-game .duel-arena .duel-card.is-winner{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
 .duel-game .duel-arena .duel-card.is-beaten{opacity:1!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
 .duel-game .duel-arena .duel-value{font:600 .9375rem/1.1 var(--font-display)}
 /* Your hand: mint cards with real-shaped flags. */
@@ -284,9 +284,9 @@
 .puzzle-compare .comparison-country:active:not(:disabled){transform:scale(.98)!important}
 .puzzle-compare .comparison-country:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:3px!important}
 .puzzle-compare .comparison-country.is-picked:not(.winner):not(.wrong){border-color:var(--t-forest)!important;background:var(--t-mint-2)!important;box-shadow:none!important}
-.puzzle-compare .comparison-country.winner{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.puzzle-compare .comparison-country.winner{border-color:transparent!important;background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
 .puzzle-compare .comparison-country.winner .comparison-value>span{color:inherit!important}
-.puzzle-compare .comparison-country.winner .country-key{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important;color:inherit!important}
+.puzzle-compare .comparison-country.winner .country-key{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important;color:inherit!important}
 .puzzle-compare .comparison-country.wrong{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;animation:rv-shake 420ms ease-out!important}
 .puzzle-compare .comparison-country.wrong .comparison-value>span{color:inherit!important}
 .puzzle-compare .comparison-country:disabled:not(.winner):not(.wrong){opacity:1!important}
@@ -473,8 +473,8 @@
 .order-list .order-item .icon-btn{width:42px!important;min-width:42px!important;height:42px!important;padding:0!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:none!important}
 .order-list .order-item .icon-btn:disabled{opacity:.35!important}
 .order-list .order-item .icon-btn:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
-.order-list .order-item.order-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
-.order-list .order-item.order-correct .order-num{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important;color:inherit!important}
+.order-list .order-item.order-correct{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.order-list .order-item.order-correct .order-num{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important;color:inherit!important}
 .order-list .order-item.order-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
 .order-list .order-item.order-wrong .order-num{color:var(--t-red-ink)!important}
 .order-list .order-item.order-solution{background:var(--t-mint)!important}
@@ -495,7 +495,7 @@
 .typed-form .text-input{width:100%;min-height:60px!important;padding:0 24px!important;border:2px solid transparent!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 1.1875rem/1.2 var(--font-display)!important;text-align:center}
 .typed-form .text-input::placeholder{color:var(--t-soft);opacity:.8}
 .typed-form .text-input:focus{border-color:var(--t-forest)!important;box-shadow:0 0 0 4px var(--t-mint-2),var(--t-shadow)!important;outline:none}
-.typed-form .text-input.input-correct{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1}
+.typed-form .text-input.input-correct{border-color:transparent!important;background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;opacity:1}
 .typed-form .text-input.input-wrong{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1;animation:rv-shake 420ms ease-out}
 .typed-form .btn.primary{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
 .typed-form .btn.primary:disabled{opacity:1!important;background:var(--t-mint-2)!important;color:var(--t-soft)!important;box-shadow:none!important}
@@ -515,7 +515,7 @@
 .question-content:has(>.map-wrap+.question-help) .map-caption{justify-content:flex-end}
 .map-wrap .map-caption{color:var(--t-soft)!important;font:600 .75rem/1.4 var(--font-sans)!important}
 .map-wrap .map-caption a{color:var(--t-soft)!important}
-.map-wrap .map-legend .right{color:var(--t-forest)}
+.map-wrap .map-legend .right{color:var(--t-right)}
 [data-theme=dark] .map-wrap .map-legend .right{color:var(--t-brand)}
 .map-wrap .map-legend .wrong{color:var(--t-red)}
 .question-content .answer-submit{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
@@ -559,7 +559,7 @@
 .mystery-card .mystery-option img{flex-shrink:0;width:auto!important;height:20px!important;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 .mystery-card .mystery-option>svg{position:absolute;right:12px;top:50%;width:30px!important;height:30px!important;margin-top:-15px;padding:6px;border-radius:999px;background:var(--t-card);color:var(--t-forest)}
 .mystery-card .mystery-option:disabled:not(.is-correct):not(.is-wrong){opacity:.55!important}
-.mystery-card .mystery-option.is-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.mystery-card .mystery-option.is-correct{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
 .mystery-card .mystery-option.is-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important}
 .mystery-card .mystery-option.is-wrong>svg{background:var(--t-red);color:#fff}
 .mystery-card .mystery-reveal{display:grid;gap:6px;margin:0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-canvas)!important;box-shadow:none!important;color:var(--t-text)!important}
