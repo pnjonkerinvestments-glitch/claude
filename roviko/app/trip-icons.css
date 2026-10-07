@@ -1,1 +1,13 @@
 /* Roviko 1.23.1 · icons in the Roviko illustration style: game logos (GameIcon) and interface icons (RovikoIcons). Loaded last. */
+
+/* ── game logos ──────────────────────────────────────────────────────────────────────────────────────
+   GameIcon draws a full-colour illustration (components/atelier/GameIcon.tsx) on the soft tile in the
+   game's colour (--g / --g-soft from design.css). The art fills most of the tile; places that used to
+   force a small fixed size get a proportional one, so the drawing keeps its detail. */
+.game-icon>svg.game-logo,.game-icon-lg>svg.game-logo,.game-icon-sm>svg.game-logo{width:84%;height:84%;overflow:visible}
+:root:not([data-theme=dark]) .game-icon{background:linear-gradient(180deg,color-mix(in srgb,var(--gi-bg) 38%,#fff) 0%,var(--gi-bg) 78%)}
+[data-theme=dark] .game-icon{--gi-bg:color-mix(in srgb,var(--g) 30%,var(--color-surface,#16201c))}
+.quick-game-start>.game-icon.mode-emoji>svg.game-logo{width:84%;height:84%}
+.daily-result .daily-result-next .game-icon>svg.game-logo,
+.next-discovery .nd-play .game-icon>svg.game-logo,
+.day-summary.is-screen .day-scores .game-icon>svg.game-logo{width:80%!important;height:80%!important}

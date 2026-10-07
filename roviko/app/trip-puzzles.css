@@ -519,12 +519,6 @@
 [data-theme=dark] .map-wrap .map-legend .right{color:var(--t-brand)}
 .map-wrap .map-legend .wrong{color:var(--t-red)}
 .question-content .answer-submit{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
-/* The neighbours map after a Next Door answer: the light-blue card, a legend of mint pills. */
-.border-reveal-map{--bm-target:var(--t-brand)!important;--bm-neighbor:var(--t-gold)!important;margin:0!important;padding:12px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-sky)!important;box-shadow:var(--t-shadow)!important}
-.border-reveal-map svg{display:block;width:100%;max-height:280px}
-.border-reveal-map .bm-target,.border-reveal-map .bm-neighbor{stroke:var(--t-sky)!important}
-.border-reveal-map figcaption{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
-.border-reveal-map figcaption span{min-height:30px;padding:0 12px 0 9px;border-radius:999px;background:var(--t-card);color:var(--t-ink)!important;font:700 .8125rem/1 var(--font-sans)}
 
 /* ───────── Shape Shift: the outline in the light-blue card, inside the question card ───────── */
 .q-card .shape-stage{width:min(100%,320px)!important;aspect-ratio:5/4;border-radius:22px!important;background:var(--t-sky)!important;box-shadow:none!important}
@@ -576,3 +570,48 @@
 @media (prefers-reduced-motion:reduce){
   .tp-card>.peek,.tp-card>.peek .peek-head,.tp-gain,.rank-legacy .rank-option.rank-best,.rank-board .rb-gain .t-points,.rank-board .rb-tick,.rank-board .rb-row.is-now,.mystery-card .mystery-option.is-correct,.mystery-card .mystery-badge.has-flag,.trail-clues .clue-slots li.is-open,.trail-clues .clue-slots li.is-open>span,.order-list .order-item.order-correct,.typed-form .text-input.input-wrong,.q-card .shape-stage svg,.puzzle-mosaic .mosaic-group,.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong,.puzzle-mosaic .mosaic-tile.selected .tile-tick,.puzzle-compare .comparison-country.winner,.puzzle-compare .comparison-country.wrong,.duel-game .duel-arena .duel-card.is-empty span,.duel-game .duel-arena .duel-card.is-winner{animation:none!important}
 }
+
+/* ───────── Border map: the whole region after a Next Door answer ─────────
+   The light-blue map card. Every country in calm white/mint with soft borders (the rest of the world a shade quieter),
+   the asked country gold, the right neighbour Roviko green, a wrong pick coral, their shared border as a navy line,
+   rings around small countries and a legend of white pills with ? ✓ ✕ dots. */
+.border-reveal-map{
+  --bm-sea:var(--t-sky);--bm-home:#fffdf8;--bm-far:#eaf3ee;--bm-edge:#b7d3c7;
+  --bm-target:#f6b84b;--bm-target-edge:#b97a12;--bm-neighbor:#27917a;--bm-neighbor-edge:#0f5f4d;
+  --bm-picked:#f08a7f;--bm-picked-edge:#b8454a;--bm-line:#06224f;--bm-halo:#ffffff;
+  position:relative;width:100%;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--bm-sea)!important;box-shadow:var(--t-shadow)!important;overflow:hidden;animation:bm-in .4s ease-out both}
+[data-theme=dark] .border-reveal-map{
+  --bm-home:#2b4c41;--bm-far:#213a33;--bm-edge:#4f7d6d;
+  --bm-target:#f6b84b;--bm-target-edge:#7a4f0c;--bm-neighbor:#4fc19f;--bm-neighbor-edge:#0e4f3f;
+  --bm-picked:#ff8f86;--bm-picked-edge:#7d2a31;--bm-line:#fffaf0;--bm-halo:#0f1613}
+.border-reveal-map svg{display:block;width:100%!important;height:auto!important;max-height:min(440px,62vh)!important;margin:0 auto;background:var(--bm-sea)}
+.border-reveal-map .bm-land path{stroke:var(--bm-edge);stroke-width:.8px;stroke-linejoin:round}
+.border-reveal-map .bm-land .bm-home{fill:var(--bm-home)}
+.border-reveal-map .bm-land .bm-far{fill:var(--bm-far)}
+.border-reveal-map .bm-mark{stroke-width:1.1px;stroke-linejoin:round}
+.border-reveal-map .bm-target{fill:var(--bm-target)!important;stroke:var(--bm-target-edge)!important}
+.border-reveal-map .bm-neighbor{fill:var(--bm-neighbor)!important;stroke:var(--bm-neighbor-edge)!important}
+.border-reveal-map .bm-picked{fill:var(--bm-picked);stroke:var(--bm-picked-edge)}
+.border-reveal-map .bm-shared{stroke:var(--bm-line);stroke-width:2.4px;stroke-linecap:round;stroke-linejoin:round}
+.border-reveal-map .bm-ring circle{fill:none;stroke-width:2.6px}
+.border-reveal-map .bm-ring .bm-dot{stroke:var(--bm-halo)!important;stroke-width:1.5px}
+.border-reveal-map .bm-ring .bm-ring-halo{stroke:var(--bm-halo);stroke-width:5px;opacity:.85}
+.border-reveal-map .bm-ring-target circle:not(.bm-ring-halo){stroke:var(--bm-target)}
+.border-reveal-map .bm-ring-neighbor circle:not(.bm-ring-halo){stroke:var(--bm-neighbor)}
+.border-reveal-map .bm-ring-picked circle:not(.bm-ring-halo){stroke:var(--bm-picked)}
+.border-reveal-map .bm-ring-target .bm-dot{fill:var(--bm-target)}
+.border-reveal-map .bm-ring-neighbor .bm-dot{fill:var(--bm-neighbor)}
+.border-reveal-map .bm-ring-picked .bm-dot{fill:var(--bm-picked)}
+.border-reveal-map .bm-region-name{position:absolute;top:18px;left:20px;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--t-card) 82%,transparent);color:var(--t-brand);font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.08em;text-transform:uppercase;pointer-events:none}
+.border-reveal-map figcaption{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;margin:0!important;padding:10px 12px 12px;background:var(--t-card);box-shadow:0 -1px 0 var(--t-line)}
+.border-reveal-map figcaption>.bm-key{display:inline-flex!important;align-items:center;gap:8px;min-height:32px;padding:0 13px 0 5px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none;font:700 .8125rem/1.1 var(--font-sans)!important}
+.border-reveal-map figcaption>.bm-key>i{display:grid!important;place-items:center;width:22px!important;height:22px!important;border-radius:999px!important;flex:none;font:800 .75rem/1 var(--font-sans);font-style:normal;color:#fff}
+.border-reveal-map figcaption>.target>i{background:var(--bm-target)!important;color:#5a3a06}
+.border-reveal-map figcaption>.neighbor>i{background:var(--bm-neighbor)!important}
+.border-reveal-map figcaption>.picked>i{background:var(--bm-picked)!important}
+[data-theme=dark] .border-reveal-map figcaption>.neighbor>i,[data-theme=dark] .border-reveal-map figcaption>.picked>i{color:#0f1613}
+.border-reveal-map.bm-state{display:grid;place-items:center;min-height:220px;text-align:center;color:var(--t-soft)!important;font:600 .9375rem/1.4 var(--font-sans)}
+.border-reveal-map.bm-state[aria-busy=true]{background:linear-gradient(100deg,var(--bm-sea) 40%,color-mix(in srgb,var(--t-card) 45%,var(--bm-sea)) 50%,var(--bm-sea) 60%)!important;background-size:200% 100%!important;animation:bm-shimmer 1.4s linear infinite}
+@keyframes bm-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes bm-shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
+@media (prefers-reduced-motion:reduce){.border-reveal-map,.border-reveal-map.bm-state[aria-busy=true]{animation:none!important}}
