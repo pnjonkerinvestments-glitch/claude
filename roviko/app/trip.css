@@ -18,6 +18,8 @@
   --t-gold:#f6b84b;--t-gold-2:#fbd27f;--t-gold-ink:#5a3a06;
   --t-red:#c8333f;--t-red-soft:#fbe4e2;--t-red-ink:#9b1c2c;
   --t-sky:#d6ecf7;--t-line:rgba(22,59,50,.08);
+  /* A right answer: Roviko green with a soft light top, not the dark forest of the buttons. */
+  --t-right:#1b7a63;--t-right-hi:#27917a;--t-right-ink:#ffffff;--t-right-glow:rgba(31,128,107,.30);
   --t-shadow:0 1px 2px rgba(22,59,50,.05),0 10px 28px rgba(22,59,50,.08);
   --t-shadow-lift:0 2px 4px rgba(22,59,50,.06),0 18px 40px rgba(22,59,50,.13);
   --t-radius:28px;--t-radius-sm:20px;
@@ -29,6 +31,7 @@
   --t-gold:#f6b84b;--t-gold-2:#f8c66a;--t-gold-ink:#3a2504;
   --t-red:#ff8fa0;--t-red-soft:#3a1f26;--t-red-ink:#ffb3be;
   --t-sky:#163345;--t-line:rgba(238,242,236,.08);
+  --t-right:#3fae8c;--t-right-hi:#5cc6a3;--t-right-ink:#06140f;--t-right-glow:rgba(91,200,166,.28);
   --t-shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.3);
   --t-shadow-lift:0 2px 4px rgba(0,0,0,.35),0 18px 40px rgba(0,0,0,.42);
 }
@@ -135,12 +138,13 @@ h1,h2,h3,.modal-title{color:var(--t-ink)}
 .answer-option.is-selected:not(.is-correct):not(.is-wrong){border-color:var(--t-forest)!important;background:var(--t-mint-2)!important}
 .answer-option:disabled:not(.is-correct):not(.is-wrong){opacity:.55!important}
 .answer-option .answer-key{position:absolute;right:10px;top:50%;display:grid!important;place-items:center;width:34px!important;min-width:34px!important;height:34px!important;margin-top:-17px;border-radius:999px!important;background:#fff!important;color:var(--t-forest)!important;font-size:0!important;animation:t-mark .42s cubic-bezier(.34,1.56,.64,1) both!important}
-.answer-option.is-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
-[data-theme=dark] .answer-option.is-correct .answer-key{background:var(--t-forest-ink)!important;color:var(--t-forest)!important}
+.answer-option.is-correct{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+[data-theme=dark] .answer-option.is-correct .answer-key{background:var(--t-right-ink)!important;color:var(--t-right)!important}
+.answer-option.is-correct .answer-key{color:var(--t-right)!important}
 .answer-option.is-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important;animation:rv-shake 420ms ease-out!important}
 .answer-option.is-wrong .answer-key{background:var(--t-red)!important;color:#fff!important}
 /* Older layers add a green ring and a thick red bottom edge to revealed answers (with :disabled, so more specific). */
-.answer-option.is-correct,.answer-option.is-correct:disabled{border:2px solid var(--t-forest)!important;box-shadow:none!important}
+.answer-option.is-correct,.answer-option.is-correct:disabled{border:2px solid transparent!important;box-shadow:0 8px 18px var(--t-right-glow),inset 0 1px 0 rgba(255,255,255,.22)!important}
 .answer-option.is-wrong,.answer-option.is-wrong:disabled{border:2px solid var(--t-red-soft)!important;box-shadow:none!important}
 [data-theme=dark] .answer-option.is-wrong .answer-key{color:#2a0d12!important}
 .answer-option .answer-status{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}

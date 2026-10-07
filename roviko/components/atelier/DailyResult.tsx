@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, Clock, Flame, Star, Users, X } from 'lucide-react';
 import { api } from '@/lib/client';
 import type { PointMode } from '@/lib/daily-scoring';
-import { completedDailies, nextDailyMode, type DayMode } from '@/lib/daily-loop';
+import { completedDailies, dayModesFor, nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { StreakMoment, streakMomentSeen } from '../ds/StreakMoment';
 import { DaySummary } from './DaySummary';
 import { launchDaily } from '../puzzles/PuzzleDeck';
@@ -47,7 +47,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   useEffect(() => {
     let active = true;
     api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); } }).catch(() => {}).finally(() => { if (active) setStandingLoaded(true); });
-    api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions)); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
+    api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions, dayModesFor(r.date))); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
   }, [date, mode, boot.stats.dailyCount]);
   const dayDone = next === null && scores.length >= 6;

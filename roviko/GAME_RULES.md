@@ -4,7 +4,7 @@ These are the current rules. Documents for 1.9/v3 and earlier are historical. Th
 
 ## Official daily competition
 
-Six games are published once per UTC date: the Daily Detour (the day's main trip, started from the homepage) and five daily games. Everyone receives the same frozen content for that edition. Each game is worth at most 1,000 points, with a combined maximum of 6,000 per day (5,000 before 1.19). There is no timer, time limit, speed bonus or XP. The first completed result for each player/date/mode is immutable. Reopening resumes the same game or shows the saved result; it never creates extra points.
+Six games are published once per UTC date: the Daily Detour (the day's main trip, started from the homepage) and five daily games. The lineup belongs to the date (`dayModesFor` in `lib/daily-loop.ts`): before `SHUFFLE_FROM` the fourth daily game is Country Mosaic, from that UTC date on it is the daily Size Shuffle (1.24). A date never has both, so nobody gets seven scored games on the switch day. Everyone receives the same frozen content for that edition. Each game is worth at most 1,000 points, with a combined maximum of 6,000 per day (5,000 before 1.19). There is no timer, time limit, speed bonus or XP. The first completed result for each player/date/mode is immutable. Reopening resumes the same game or shows the saved result; it never creates extra points.
 
 | Game | Rounds | Daily points |
 | --- | --- | --- |
@@ -12,8 +12,11 @@ Six games are published once per UTC date: the Daily Detour (the day's main trip
 | World Duel (daily since 1.19) | 7 duels, seven cards, each card once (5 before 1.21) | `round(duelsWon / 7 * 1000)`. Since 1.21 the duel is blind: values, wins, score and the perfect route are only sent once all seven cards are played |
 | Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
 | Side by Side | 15 comparisons, from easy to hard; the first wrong answer ends the run (10 before 1.21) | `round(correct / 15 * 1000)` |
-| Country Mosaic | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |
+| Size Shuffle (daily from `SHUFFLE_FROM`, 1.24) | 5 rounds of 4 countries, sorted by area, from easy (well-known countries, sizes far apart) to hard (sizes within about 1.1–1.6× of each other); no country twice | 50 per country in its right place, so up to 200 per round and 1,000 in all. The order and the areas are only sent after each answer is saved |
+| Country Mosaic (daily before `SHUFFLE_FROM`) | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |
 | Rank Radar | 8 countries, 8 subjects, each subject once (6 questions before 1.21) | Up to 125 per country (see Rank Radar); sum of the eight picks |
+
+In the daily Size Shuffle a list is only an answer after **Confirm order**; partial credit comes from the saved list and the saved right order (`placesRight`), never from the browser. A round counts as a perfect round only with all four right. In the ledger (`daily_scores`) the Size Shuffle uses Country Mosaic's fourth-game slot: its rows are stored as `mosaic` on dates from `SHUFFLE_FROM` and read back as `order`, because the table's CHECK only allows the six 1.21 modes and widening it would mean rebuilding the table. Old Mosaic results stay in history, totals and personal bests.
 
 A player can always finish Mosaic and learn after a mistake; a solved forfeited group earns 0. The same named country must anchor a paid hint. Mistakes/hints do not remove points already earned for other solved countries. Shuffle, changing an unsubmitted selection and reordering countries cost nothing.
 
@@ -35,11 +38,11 @@ The order is (1) continent, (2) a land neighbour or lack of land borders, (3) ca
 
 Pinpoint accepts the chosen country's source geometry/islands with a declared 25 km touch/simplification tolerance. An outside pin reports distance to the nearest country boundary. Raw map accuracy is 1,000 for a correct pin, otherwise `round(900 * exp(-boundaryDistanceKm / 1600))`; invalid/missing pins get 0. In World Trip, the round earns `round(rawAccuracy / 5)`, capped at 200. A nearer miss never earns less than a farther miss. Neighbour/continent labels explain proximity without inconsistent fixed bonuses. Practice displays distance and correctness, not points. Legacy reference-point games retain their original frozen rules.
 
-The map supports two-finger zoom, pan, buttons, wheel input and keyboard interaction. A pinch/pan does not accidentally submit a pin. Pin placement is confirmed before answering.
+The map supports two-finger zoom, pan, buttons, wheel input and keyboard interaction. A pinch/pan does not accidentally submit a pin. Pin placement is confirmed before answering. Since 1.23.1 every map question opens on the whole world, also for small countries (from 1.21 a country under 50,000 km² opened zoomed in on its subregion, which gave the region away); the zoom buttons, pinch, wheel and keys work as before. Older stored questions may still carry a `zoom` box: the server no longer sends it and the map ignores it. The Daily Detour still keeps countries under 50,000 km² out of its first five questions.
 
 Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Since 1.23 the English, Dutch and Spanish name of a capital are all accepted (Vienna, Wenen, Viena), Dutch players see the Dutch name, Eswatini has two capitals (Mbabane, administrative; Lobamba, royal and legislative) and La Paz is accepted for Bolivia (Sucre stays the shown answer). Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
 
-Size Shuffle orders four countries by total area. Dragging or accessible move buttons only change the draft; **Confirm order** submits it. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A daily ordering round is all-or-nothing (200/0).
+Size Shuffle orders four countries by total area. Dragging a row (finger or mouse, with pointer events so it also works on iOS; the page scrolls along near the screen edge) or the accessible move buttons only change the draft; **Confirm order** submits it. A screen reader hears where a moved country now stands. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A Daily Detour ordering round is all-or-nothing (50/0 since 1.18; 200/0 in the five-stop editions before).
 
 ## Side by Side
 
@@ -48,6 +51,8 @@ Choose the greater figure (or more northerly latitude). The left country moves r
 Fourteen topics rotate on a deterministic UTC cycle. WDI observations use the pinned 2023 snapshot. Missing observations, exact ties and display-rounded ties are excluded. All comparisons can be reviewed after finishing. Automatic advance is optional, only follows correct answers and imposes no deadline.
 
 ## Country Mosaic
+
+Since 1.24 Country Mosaic is an extra without daily points (All games → Extras, and "Practise the daily games"); from `SHUFFLE_FROM` a request for today's ranked Mosaic opens the unscored edition of the day. The board and its rules below are unchanged.
 
 The daily board contains 16 tiles: four flags, four names, four silhouettes and four numerical facts. Practice allows 3/4/5 clue types (12/16/20 tiles); the fifth type is capital. Select one of each type for one country. Selecting another clue of the same type replaces its slot. Solved tiles stay in their positions. Country shapes are simplified north-up main landmasses.
 
@@ -71,7 +76,7 @@ A selection remains editable until **Confirm choice**. Daily rank/metric solutio
 
 The host chooses 5/10/15/20 questions, region, difficulty, timer and included mixed-mode categories. All six are enabled by default and at least one must remain. Timers are 5/10/15/30 seconds or untimed. When every currently active player has answered, reveal is scheduled for one second after the last answer; an earlier deadline still closes the round. A returning unanswered player cancels a premature early reveal.
 
-Correct answers earn 1,000 base + up to 500 speed + up to 250 streak points (50 per extra consecutive correct answer). Untimed rooms have no speed bonus. Incorrect categorical/ordering answers earn 0. Incorrect map pins use the raw distance curve; correct pins retain normal match bonuses. Server timestamps, answer locks and scores are authoritative. Clients cannot submit points or see other choices before reveal.
+Correct answers earn 1,000 base + up to 500 speed + up to 250 streak points (50 per extra consecutive correct answer). Untimed rooms have no speed bonus. Incorrect categorical answers earn 0. Since 1.23.1 a Size Shuffle list that is only partly right earns its share: `round(rowsInRightPlace / 4 * (1,000 + speed))`, without streak points (2 of 4 right, answered at once in a timed room: 750; none right: 0). Such a list is still not correct: it breaks the streak and does not count as a right answer. Only multiplayer works this way; the Daily Detour stays all-or-nothing and practice shows no points. Incorrect map pins use the raw distance curve; correct pins retain normal match bonuses. Server timestamps, answer locks and scores are authoritative. Clients cannot submit points or see other choices before reveal.
 
 Match XP is `round(score/25)+10*rounds`; level is `1+floor(sqrt(XP/100))`. These multiplayer scores/XP/wins have their own leaderboards and never enter daily or cumulative daily-game totals. No paid knowledge advantage exists.
 

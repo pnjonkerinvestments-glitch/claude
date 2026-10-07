@@ -1,10 +1,11 @@
 import { BRAND } from './config';
-import { DAY_MODES, type DayMode } from './daily-loop';
+import { ALL_DAY_MODES, type DayMode } from './daily-loop';
 
-/** Reads a shared link (?shared=daily&s=820, or ?shared=day&s=4210 for a whole day): which game and how many points the friend got. */
+/** Reads a shared link (?shared=daily&s=820, or ?shared=day&s=4210 for a whole day): which game and how many points the friend got.
+ *  Every game that ever was a daily game is accepted, so older Mosaic links keep working after the daily Size Shuffle took its place (1.24). */
 export function readChallenge(search: string): { mode: DayMode | 'day'; points: number } | null {
     const q = new URLSearchParams(search), mode = q.get('shared') as DayMode | 'day' | null, s = q.get('s');
-    if (!mode || !(mode === 'day' || (DAY_MODES as readonly string[]).includes(mode)) || s === null || !/^\d{1,4}$/.test(s)) return null;
+    if (!mode || !(mode === 'day' || (ALL_DAY_MODES as readonly string[]).includes(mode)) || s === null || !/^\d{1,4}$/.test(s)) return null;
     const points = Number(s);
     // One game is worth at most 1,000; a whole day ("day") at most 6,000.
     return points <= (mode === 'day' ? 6000 : 1000) ? { mode, points } : null;

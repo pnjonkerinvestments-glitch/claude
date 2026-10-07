@@ -1,4 +1,14 @@
 import { DAILY_POINT_MODES, DAILY_TOTAL_MAX, dailyScore, type Competition } from '../lib/daily-scoring';
+import { SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
+
+/**
+ * The daily Size Shuffle (1.24) has no mode of its own in the ledger: the CHECK on daily_scores.mode only allows the six
+ * modes of 1.21 and SQLite cannot widen a CHECK without rebuilding the table. A UTC date has one fourth game, so the
+ * Size Shuffle uses Country Mosaic's slot from SHUFFLE_FROM on: stored as 'mosaic', read back as 'order' for those dates.
+ * Totals, weeks and leagues only sum scores and never notice. Never change SHUFFLE_FROM once it has passed.
+ */
+export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode;
+const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' ELSE ${alias}mode END`;
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';
@@ -8,9 +18,11 @@ import { ensureLeague } from './league';
 /** Only completed, canonical, server-owned daily sessions can write this immutable ledger. */
 export async function recordCompetition(env: Env, user: User, s: {id:string; daily:string|null; phase:string; answers:any[]; competition?:Competition}) {
   if (!s.daily || s.phase !== 'finished' || s.competition?.version !== 1 || !DAILY_POINT_MODES.includes(s.competition.mode)) return;
+  // Six games per UTC date: only the lineup of the session's own date scores (Mosaic before SHUFFLE_FROM, Size Shuffle from then on).
+  if (!dayModesFor(s.daily).includes(s.competition.mode as any)) return;
   await run(env, `INSERT OR IGNORE INTO daily_scores(user_id,date,mode,session_id,score,scoring_version,created_at)
     SELECT ?,?,?,?,?,1,? WHERE EXISTS(SELECT 1 FROM game_sessions WHERE id=? AND user_id=? AND date=? AND completed=1)`,
-    user.id,s.daily,s.competition.mode,s.id,dailyScore(s),Date.now(),s.id,user.id,s.daily);
+    user.id,s.daily,ledgerMode(s.competition.mode),s.id,dailyScore(s),Date.now(),s.id,user.id,s.daily);
   // Accounts join this week's league group with their first points of the week. Never blocks the saved result.
   // Only this week's points join a league: reopening an old finished game must not start a membership for a past week.
   if (!user.guest && weekStart(s.daily) === weekStart(new Date().toISOString().slice(0, 10))) { try { await ensureLeague(env, user, s.daily); } catch { /* joins on the next visit instead */ } }
@@ -20,7 +32,7 @@ async function ranking(env: Env, user: User, scope: Scope = {}) {
   const filters = ['u.blocked=0'], args: string[] = [];
   if (scope.date) { filters.push('d.date=?'); args.push(scope.date); }
   if (scope.since) { filters.push('d.date>=?'); args.push(scope.since); }
-  if (scope.mode) { filters.push('d.mode=?'); args.push(scope.mode); }
+  if (scope.mode) { filters.push(MODE_SQL('d.') + '=?'); args.push(scope.mode); }
   if (scope.userIds) { filters.push('d.user_id IN (' + scope.userIds.map(() => '?').join(',') + ')'); args.push(...scope.userIds); }
   const cte = `WITH totals AS (SELECT d.user_id,SUM(d.score) score,COUNT(*) games,CASE WHEN u.discoverable=1 THEN u.name ELSE 'Explorer' END name,u.avatar FROM daily_scores d JOIN users u ON u.id=d.user_id WHERE ${filters.join(' AND ')} GROUP BY d.user_id), ranked AS (SELECT *,RANK() OVER(ORDER BY score DESC) place FROM totals)`;
   const summary = await one(env, cte + ' SELECT COUNT(*) participants,COALESCE(MAX(CASE WHEN user_id=? THEN score END),0) score,MAX(CASE WHEN user_id=? THEN place END) place,COALESCE(MAX(CASE WHEN user_id=? THEN games END),0) games FROM ranked',...args,user.id,user.id,user.id);
@@ -39,9 +51,9 @@ export async function competitionSummary(env: Env, user: User, date: string, mod
     ranking(env,user,{date}),ranking(env,user),mode ? ranking(env,user,{date,mode}) : Promise.resolve(null),
     ranking(env,user,{since:weekStart(date)}),
     friendIds.length ? ranking(env,user,{date,userIds:[user.id,...friendIds]}) : Promise.resolve(null),
-    rows(env,'SELECT mode,score FROM daily_scores WHERE user_id=? AND date=?',user.id,date),
+    rows(env,'SELECT '+MODE_SQL()+' mode,score FROM daily_scores WHERE user_id=? AND date=?',user.id,date),
     // Personal bests from earlier days only, so today's own result can beat them.
-    rows(env,'SELECT mode,MAX(score) best,COUNT(*) plays FROM daily_scores WHERE user_id=? AND date<? GROUP BY mode',user.id,date),
+    rows(env,'SELECT '+MODE_SQL()+' mode,MAX(score) best,COUNT(*) plays FROM daily_scores WHERE user_id=? AND date<? GROUP BY 1',user.id,date),
     one(env,'SELECT MAX(total) best FROM (SELECT SUM(score) total FROM daily_scores WHERE user_id=? AND date<? GROUP BY date)',user.id,date),
     one(env,'SELECT COALESCE(SUM(score),0) score,COUNT(*) games FROM daily_scores WHERE user_id=? AND date=?',user.id,yesterday),
   ]);

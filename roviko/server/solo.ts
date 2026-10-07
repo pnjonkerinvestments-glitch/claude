@@ -1,4 +1,6 @@
-import { dailyScore, dailyRoundPoints, COMPETITION_SUFFIX, DETOUR_ROUNDS } from '../lib/daily-scoring';
+import { dailyScore, dailyRoundPoints, placesRight, COMPETITION_SUFFIX, DETOUR_ROUNDS, SHUFFLE_ROUNDS } from '../lib/daily-scoring';
+import { dailyModesFor } from '../lib/daily-loop';
+import { generateSizeShuffle } from '../lib/puzzles/size-shuffle';
 import { recordCompetition } from './competition';
 import { validAnswer } from '../lib/game-engine/validate-answer';
 import { reviewSession, reviewStatements } from './reviews';
@@ -40,12 +42,13 @@ export function soloView(stored: Solo) {
 export async function startSolo(env: Env, user: User, settings: Settings, practice = false, focus?: string, competition = false, bonus = false) {
     settings = { ...settings, timer: 0 };
     if (bonus) return startBonus(env, user, settings.mode);
-    const trail = settings.mode === 'daily-trail';
-    const daily = settings.mode === 'daily' || trail ? new Date().toISOString().slice(0, 10) : null;
-    const ranked = !!daily && competition;
+    const trail = settings.mode === 'daily-trail', shuffle = settings.mode === 'daily-order';
+    const daily = settings.mode === 'daily' || trail || shuffle ? new Date().toISOString().slice(0, 10) : null;
+    // The daily Size Shuffle only scores on dates whose lineup has it (from SHUFFLE_FROM); before that it is an unscored edition.
+    const ranked = !!daily && competition && (!shuffle || dailyModesFor(daily).includes('order'));
     const kind = (trail ? 'daily-trail' : settings.mode) + (ranked ? COMPETITION_SUFFIX : '');
     if (daily) {
-        settings = { mode: trail ? 'trail' : 'daily', count: trail ? 5 : DETOUR_ROUNDS, timer: 0, difficulty: 'medium', region: 'World' };
+        settings = { mode: trail ? 'trail' : shuffle ? 'order' : 'daily', count: trail ? 5 : shuffle ? SHUFFLE_ROUNDS : DETOUR_ROUNDS, timer: 0, difficulty: 'medium', region: 'World' };
         const existing = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=? ORDER BY created_at DESC LIMIT 1", user.id, daily, kind);
         if (existing)
             return soloView(JSON.parse(existing.state));
@@ -53,9 +56,10 @@ export async function startSolo(env: Env, user: User, settings: Settings, practi
     const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
     const weak = practice ? (await rows(env, 'SELECT country_id FROM concept_performance WHERE user_id=? AND correct<attempts ORDER BY (1.0*correct/attempts) LIMIT 20', user.id)).map((x: any) => x.country_id) : [];
     const id = crypto.randomUUID();
-    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled)).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled)), settings, datasetVersion: undefined };
+    // The daily Size Shuffle: its own generator (five rounds, easy to hard); the same countries for everyone on the date.
+    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: (shuffle ? generateSizeShuffle(seed) : prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled))).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled)), settings, datasetVersion: undefined };
     if (content.questions.some((q:any) => disabled.includes(q.id))) throw new AppError('QUESTION_UNAVAILABLE',503);
-    const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
+    const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':shuffle?'order':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
     const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
     if (!inserted.meta.changes && daily) {
         const saved = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=?", user.id, daily, kind);
@@ -123,7 +127,7 @@ export async function soloAction(env: Env, user: User, id: string, action: strin
         if (!validAnswer(s.questions[s.round], value)) throw new AppError('INVALID_INPUT');
         const result = enrichMapFeedback(s.questions[s.round], value, { ...evaluateLearning(s.questions[s.round], value, s.streak), responseTime: Math.max(0, elapsed) });
         s.answers.push({ ...result, value, at: Date.now(), cluesUsed: s.questions[s.round].clues ? s.cluesShown?.[s.round] ?? 1 : undefined, questionId: s.questions[s.round].id });
-        if(s.competition) { const a=s.answers.at(-1)!; a.points=dailyRoundPoints(s.competition.mode,a,s.questions.length); s.score=dailyScore(s); }
+        if(s.competition) { const a=s.answers.at(-1)!; if(s.competition.mode==='order') a.orderRight=placesRight(value,a.correctAnswer); a.points=dailyRoundPoints(s.competition.mode,a,s.questions.length); s.score=dailyScore(s); }
         s.streak = result.streak;
         s.bestStreak = Math.max(s.bestStreak, s.streak);
         s.phase = 'reveal';

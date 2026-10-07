@@ -1,6 +1,7 @@
 'use client';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ArrowRight, Check, Copy, DoorOpen, Plus, Send, UserPlus, Users, X } from 'lucide-react';
+import { ArrowRight, Check, Copy, DoorOpen, Plus, Send, UserPlus, X } from 'lucide-react';
+import { RovikoIcon } from '../ds/RovikoIcons';
 import { toast } from 'sonner';
 import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
@@ -76,7 +77,7 @@ export function InvitePanel({ code, inRoom = [] }: { code: string; inRoom?: stri
   const everyone = (friends ?? []).filter(f => f.status === 'accepted'), accepted = everyone.filter(f => !inRoom.includes(f.user_id));
   const invite = async (f: Friend) => { try { await inviteToPlay({ go: () => {} }, f, code); setSent(s => ({ ...s, [f.user_id]: true })); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } };
   return <section className="invite-panel" aria-labelledby="invite-panel-title">
-    <h3 id="invite-panel-title"><UserPlus size={18} aria-hidden="true"/>{t('inviteFriendsTitle')}</h3>
+    <h3 id="invite-panel-title"><RovikoIcon name="addFriend" size={22}/>{t('inviteFriendsTitle')}</h3>
     {boot.user.guest ? <p className="muted">{t('inviteGuest')} <button className="text-link" onClick={() => setModal('signup')}>{t('signUp')}</button></p>
       : friends === null ? <div className="sk-list"><Skeleton className="sk-block sk-list-row"/><Skeleton className="sk-block sk-list-row"/></div>
       : accepted.length ? <><p className="muted">{t('inviteFriendsCopy')}</p><ul className="friend-list-v2">{accepted.map(f => <FriendRow key={f.id} friend={f} action={sent[f.user_id]
@@ -117,7 +118,7 @@ export function FriendsPage() {
   const add = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await post('/friends', { code }); setCode(''); toast.success(t('friendSaved')); reload(); } catch (err) { fail(err); } finally { setBusy(false); } };
   const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
-  if (boot.user.guest) return <div className="page friends-v2 trip-page"><PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')}/><EmptyState icon={Users} title={t('accountRequired')} copy={t('guestPassport')}><button className="btn primary" onClick={() => setModal('signup')}>{t('signUp')}</button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></EmptyState></div>;
+  if (boot.user.guest) return <div className="page friends-v2 trip-page"><PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')}/><EmptyState art={<span className="state-icon" aria-hidden="true"><RovikoIcon name="friends" size={34}/></span>} title={t('accountRequired')} copy={t('guestPassport')}><button className="btn primary" onClick={() => setModal('signup')}>{t('signUp')}</button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></EmptyState></div>;
   const visible = (friends ?? []).filter(f => f.status !== 'blocked');
   const requests = visible.filter(f => f.status === 'pending' && f.to_id === boot.user.id);
   const sentRequests = visible.filter(f => f.status === 'pending' && f.to_id !== boot.user.id);
@@ -152,7 +153,7 @@ export function FriendsOnlinePanel() {
   const { friends, reload } = useFriends();
   const [code, setCode] = useState(''), [busy, setBusy] = useState(false), [inviting, setInviting] = useState('');
   if (boot.user.guest) return <section className="mp-friends is-guest" aria-labelledby="mp-friends-title">
-    <div className="mp-friends-head"><Users size={22} aria-hidden="true"/><div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{t('mpFriendsGuest')}</p></div></div>
+    <div className="mp-friends-head"><RovikoIcon name="friends" size={30}/><div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{t('mpFriendsGuest')}</p></div></div>
     <img className="mp-friends-art" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/>
     <div className="mp-friends-actions"><button className="btn primary" onClick={() => setModal('signup')}>{t('passportSave')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></div>
   </section>;
@@ -164,7 +165,7 @@ export function FriendsOnlinePanel() {
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
   return <section className="mp-friends" aria-labelledby="mp-friends-title">
     <div className="mp-friends-head">
-      <Users size={22} aria-hidden="true"/>
+      <RovikoIcon name="friends" size={30}/>
       <div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{friends === null ? t('loading') : t('friendsOnlineCount').replace('{n}', String(online.length))}</p></div>
       <A href="/friends" className="text-link mp-friends-all">{t('friendsAll')}<ArrowRight size={15} aria-hidden="true"/></A>
     </div>

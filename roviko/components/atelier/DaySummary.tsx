@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
 import { ArrowRight, Share2 } from 'lucide-react';
-import { DAY_MODES } from '@/lib/daily-loop';
+import { dayModesFor } from '@/lib/daily-loop';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import { shareCard } from '@/lib/share';
 import { sound } from '@/lib/client';
@@ -14,7 +14,7 @@ import { Coin } from '../ds/Coin';
 import { FinishConfetti, FinishHero, focusHeadline, toTop } from '../ds/FinishStage';
 
 /** A square per daily game for the day share: green from 800, yellow from 500, otherwise red. */
-export const dayTrail = (scores: { mode: string; score: number }[]) => DAY_MODES.map(m => { const s = scores.find(x => x.mode === m)?.score ?? 0; return s >= 800 ? '🟩' : s >= 500 ? '🟨' : '🟥'; }).join('');
+export const dayTrail = (scores: { mode: string; score: number }[], date?: string) => dayModesFor(date).map(m => { const s = scores.find(x => x.mode === m)?.score ?? 0; return s >= 800 ? '🟩' : s >= 500 ? '🟨' : '🟥'; }).join('');
 
 /**
  * The whole day at a glance once all six scored games are done (1.23).
@@ -31,12 +31,14 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
 }) {
   const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
   const scoreOf = (m: string) => scores.find(s => s.mode === m)?.score ?? 0;
-  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total }));
+  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total }));
   // The day's fanfare, once, when this is the end screen (it stands in for the last game's own stage).
   const title = useRef<HTMLHeadingElement>(null);
   useEffect(() => { if (screen) { sound('win'); warmShareImage(); toTop(); focusHeadline(title.current); } }, [screen]);
   const top = total >= DAILY_TOTAL_MAX * 0.8;
-  const list = <ul className="day-scores" aria-label={t('dayGamesLabel')}>{DAY_MODES.map((m, i) => <li key={m} className={m === current ? 'is-now' : ''} style={{ '--i': i } as React.CSSProperties}>
+  // The six games of that UTC date: Country Mosaic before the switch to the daily Size Shuffle (1.24), Size Shuffle after.
+  const lineup = dayModesFor(date);
+  const list = <ul className="day-scores" aria-label={t('dayGamesLabel')}>{lineup.map((m, i) => <li key={m} className={m === current ? 'is-now' : ''} style={{ '--i': i } as React.CSSProperties}>
     <GameIcon mode={m} size="sm"/><span>{t(dailyTitleKey(m))}</span>
     {m === current && screen && scoreOf(m) > 0 ? <b className="t-points">+{n(scoreOf(m))}</b> : <b>{n(scoreOf(m))}</b>}
   </li>)}</ul>;
@@ -50,7 +52,7 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
     {top && <FinishConfetti/>}
     <FinishHero mood="cheer" tone={top ? 'gold' : 'forest'}/>
     <p className="fs-kicker">{t('dayDoneKicker')}</p>
-    <ol className="ds-dots" aria-hidden="true">{DAY_MODES.map((m, i) => <li key={m} style={{ '--i': i } as React.CSSProperties}/>)}</ol>
+    <ol className="ds-dots" aria-hidden="true">{lineup.map((m, i) => <li key={m} style={{ '--i': i } as React.CSSProperties}/>)}</ol>
     <h1 className="fs-title" id="day-summary-title" ref={title} tabIndex={-1}>{t('dayDoneHeadline')}</h1>
     <p className="fs-score has-coin"><Coin size={44} className="fs-coin"/><strong><CountUp value={total} format={n}/></strong><span className="fs-of">/ {n(DAILY_TOTAL_MAX)} {t('points')}</span></p>
     {place ? <p className="ds-place">{t('resultDayRank').replace('{rank}', n(place)).replace('{count}', n(players ?? 0))}</p> : null}

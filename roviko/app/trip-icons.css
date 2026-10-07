@@ -1,0 +1,55 @@
+/* Roviko 1.23.1 · icons in the Roviko illustration style: game logos (GameIcon) and interface icons (RovikoIcons). Loaded last. */
+
+/* ── game logos ──────────────────────────────────────────────────────────────────────────────────────
+   GameIcon draws a full-colour illustration (components/atelier/GameIcon.tsx) on the soft tile in the
+   game's colour (--g / --g-soft from design.css). The art fills most of the tile; places that used to
+   force a small fixed size get a proportional one, so the drawing keeps its detail. */
+.game-icon>svg.game-logo,.game-icon-lg>svg.game-logo,.game-icon-sm>svg.game-logo{width:84%;height:84%;overflow:visible}
+:root:not([data-theme=dark]) .game-icon{background:linear-gradient(180deg,color-mix(in srgb,var(--gi-bg) 38%,#fff) 0%,var(--gi-bg) 78%)}
+[data-theme=dark] .game-icon{--gi-bg:color-mix(in srgb,var(--g) 30%,var(--color-surface,#16201c))}
+.quick-game-start>.game-icon.mode-emoji>svg.game-logo{width:84%;height:84%}
+.daily-result .daily-result-next .game-icon>svg.game-logo,
+.next-discovery .nd-play .game-icon>svg.game-logo,
+.day-summary.is-screen .day-scores .game-icon>svg.game-logo{width:80%!important;height:80%!important}
+
+/* ── interface icons ─────────────────────────────────────────────────────────────────────────────────
+   RovikoIcon (components/ds/RovikoIcons.tsx) draws full-colour 24-box icons. Holders that used to tint a
+   line icon keep their soft circle; the drawing brings its own colours, so only size and spacing are set. */
+.rv-icon{display:block;flex:0 0 auto;overflow:visible}
+
+/* tab bar: quiet when inactive, full colour with a small lift on the mint pill when active */
+.tabbar a .rv-icon{width:26px;height:26px;filter:saturate(.55) opacity(.85);transition:filter .18s ease,transform .25s cubic-bezier(.34,1.56,.64,1)}
+.tabbar a:hover .rv-icon{filter:saturate(.8) opacity(.95)}
+.tabbar a.is-active .rv-icon{filter:none;transform:translateY(-1px) scale(1.08)}
+[data-theme=dark] .tabbar a .rv-icon{filter:saturate(.55) opacity(.78)}
+[data-theme=dark] .tabbar a.is-active .rv-icon{filter:none}
+.passport-icon .rv-icon{width:24px;height:24px}
+
+/* menu, settings, account and passport rows: the icon on its soft circle */
+.app-menu-links a>svg.rv-icon:first-child{width:24px!important;height:24px!important;padding:7px!important}
+.trip-page .settings-card-row>svg.rv-icon:first-child,.trip-page .settings-card-row>.rv-icon.row-icon{width:24px!important;height:24px!important;padding:9px!important}
+.settings-card-row>.rv-icon.row-icon{box-sizing:content-box}
+.trip-page .settings-label .rv-icon{width:22px;height:22px}
+.segmented .rv-icon{width:18px;height:18px}
+
+/* the three ways to play together */
+.mp-choice-icon .rv-icon{width:36px;height:36px}
+.mp-friends-head>svg.rv-icon{width:30px;height:30px;margin-top:0}
+.invite-panel h3 .rv-icon{width:22px;height:22px}
+.state .state-icon .rv-icon{width:36px;height:36px}
+
+/* homepage side rows and the quests */
+.side-icon .rv-icon{width:26px;height:26px}
+.quests-v3 .quests-badge .rv-icon{width:32px;height:32px}
+.quests-v3 .quest-icon-games .rv-icon{width:28px;height:28px}
+.quests-crowns .rv-icon{width:17px;height:17px}
+.quest-chest .rv-icon{width:22px;height:22px}
+.quest-crowned .rv-icon{width:24px;height:24px}
+
+/* passport: icons above the numbers, and the achievement seals (warm when earned, grey when locked) */
+.passport .passport-stat .passport-stat-icon{width:26px;height:26px;margin:0 auto 4px}
+.passport-mini-stamp .rv-icon{width:28px;height:28px}
+.passport .badge-seal>.rv-icon{width:30px;height:30px}
+.passport .badge.is-earned .badge-seal:has(>.rv-icon){background:color-mix(in srgb,var(--t-gold) 24%,var(--t-card))!important;box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--t-gold) 70%,transparent)!important}
+.passport .badge:not(.is-earned) .badge-seal>.rv-icon{filter:grayscale(1);opacity:.5}
+@media (prefers-reduced-motion:reduce){.tabbar a .rv-icon{transition:none}.tabbar a.is-active .rv-icon{transform:none}}

@@ -56,7 +56,7 @@
 .rank-board .rb-row.is-used .rb-place b{color:var(--t-ink)!important}
 /* The pick you just made: forest, with the world place in a white pill. */
 .rank-board .rb-row.is-now{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
-.rank-board .rb-row.is-now .rb-emoji{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important}
+.rank-board .rb-row.is-now .rb-emoji{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important}
 .rank-board .rb-place{gap:8px!important;padding:5px 12px 5px 6px!important;border-radius:999px}
 .rank-board .rb-place img{height:22px!important;border-radius:3px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 .rank-board .rb-place b{font:600 1.125rem/1 var(--font-display)!important}
@@ -107,9 +107,9 @@
 .rank-legacy .rank-option-medal{font-size:1.5rem;line-height:1}
 /* After the pick: the country's best subject fills forest, a wrong pick turns soft red, the others go quiet white. */
 .rank-legacy .rank-option.rank-revealed{background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important}
-.rank-legacy .rank-option.rank-best{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;box-shadow:none!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.rank-legacy .rank-option.rank-best{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;box-shadow:none!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
 .rank-legacy .rank-option.rank-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;box-shadow:none!important}
-.rank-legacy .rank-best .rank-option-emoji{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important}
+.rank-legacy .rank-best .rank-option-emoji{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important}
 .rank-legacy .rank-position>strong{color:inherit!important;font:600 1.75rem/1.1 var(--font-display)!important;letter-spacing:0!important}
 .rank-legacy .rank-position>span,.rank-legacy .rank-option-year,.rank-legacy .rank-option-foot,.rank-legacy .rank-option-metric{color:inherit!important}
 .rank-legacy .rank-position>span,.rank-legacy .rank-option-year,.rank-legacy .rank-option-foot{opacity:.78}
@@ -184,7 +184,7 @@
 .duel-game .duel-arena .duel-card strong{color:inherit;font:600 1.0625rem/1.15 var(--font-display)!important;overflow-wrap:anywhere;text-wrap:balance}
 .duel-game .duel-arena .duel-card.is-empty{border:2px dashed color-mix(in srgb,var(--t-forest) 35%,transparent)!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font-size:2rem!important}
 .duel-game .duel-arena .duel-card.is-empty span{animation:tp-wobble 2.4s ease-in-out infinite}
-.duel-game .duel-arena .duel-card.is-winner{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.duel-game .duel-arena .duel-card.is-winner{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
 .duel-game .duel-arena .duel-card.is-beaten{opacity:1!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
 .duel-game .duel-arena .duel-value{font:600 .9375rem/1.1 var(--font-display)}
 /* Your hand: mint cards with real-shaped flags. */
@@ -284,9 +284,9 @@
 .puzzle-compare .comparison-country:active:not(:disabled){transform:scale(.98)!important}
 .puzzle-compare .comparison-country:focus-visible{outline:3px solid var(--t-brand)!important;outline-offset:3px!important}
 .puzzle-compare .comparison-country.is-picked:not(.winner):not(.wrong){border-color:var(--t-forest)!important;background:var(--t-mint-2)!important;box-shadow:none!important}
-.puzzle-compare .comparison-country.winner{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
+.puzzle-compare .comparison-country.winner{border-color:transparent!important;background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)!important}
 .puzzle-compare .comparison-country.winner .comparison-value>span{color:inherit!important}
-.puzzle-compare .comparison-country.winner .country-key{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important;color:inherit!important}
+.puzzle-compare .comparison-country.winner .country-key{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important;color:inherit!important}
 .puzzle-compare .comparison-country.wrong{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;animation:rv-shake 420ms ease-out!important}
 .puzzle-compare .comparison-country.wrong .comparison-value>span{color:inherit!important}
 .puzzle-compare .comparison-country:disabled:not(.winner):not(.wrong){opacity:1!important}
@@ -473,8 +473,8 @@
 .order-list .order-item .icon-btn{width:42px!important;min-width:42px!important;height:42px!important;padding:0!important;border:0!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:none!important}
 .order-list .order-item .icon-btn:disabled{opacity:.35!important}
 .order-list .order-item .icon-btn:focus-visible{outline:3px solid var(--t-brand);outline-offset:1px}
-.order-list .order-item.order-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
-.order-list .order-item.order-correct .order-num{background:color-mix(in srgb,var(--t-forest-ink) 16%,transparent)!important;color:inherit!important}
+.order-list .order-item.order-correct{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.order-list .order-item.order-correct .order-num{background:color-mix(in srgb,var(--t-right-ink) 18%,transparent)!important;color:inherit!important}
 .order-list .order-item.order-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important}
 .order-list .order-item.order-wrong .order-num{color:var(--t-red-ink)!important}
 .order-list .order-item.order-solution{background:var(--t-mint)!important}
@@ -483,11 +483,27 @@
 .order-list .order-verdict{display:inline-flex!important;align-items:center;gap:5px;margin-left:auto;flex:0 0 auto!important;width:auto!important;max-width:none!important;white-space:nowrap;padding-right:8px;color:inherit!important;font:700 .8125rem/1.2 var(--font-sans)!important}
 .solo-game .question-help,.question-content>.question-help{max-width:44ch;margin:0 auto!important;color:var(--t-soft)!important;font:600 .875rem/1.45 var(--font-sans)!important;text-align:center;text-wrap:balance}
 .answer-feedback .correct-order{display:grid;gap:4px;margin:6px 0 0;padding-left:1.4em;color:var(--t-ink);font:600 .9375rem/1.4 var(--font-sans)}
+/* Dragging (1.23.1): pointer events, so it works with a finger on iOS too. The row is the handle (no page scroll
+   starts on it); the lifted row floats with a soft shadow, the others slide one slot aside. */
+.order-list .order-item.is-sortable{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;cursor:grab}
+.order-list .order-item.is-sortable .order-controls{touch-action:manipulation}
+.order-list.is-sorting .order-item{transition:transform .2s cubic-bezier(.2,.8,.3,1)!important}
+.order-list.is-sorting,.order-list.is-sorting .order-item.is-lifted{cursor:grabbing}
+.order-list .order-item.is-lifted{position:relative;z-index:3;transition:none!important;background:var(--t-mint-2,var(--t-mint))!important;box-shadow:0 14px 30px rgba(22,59,50,.22),0 3px 8px rgba(22,59,50,.12)!important;outline:2px solid var(--t-forest);outline-offset:-2px}
+[data-theme=dark] .order-list .order-item.is-lifted{box-shadow:0 14px 30px rgba(0,0,0,.5),0 3px 8px rgba(0,0,0,.35)!important;outline-color:var(--t-brand)}
+.order-list .order-item.is-lifted>svg{color:var(--t-forest)}
+.answer-feedback .order-partial{margin:4px 0 0;color:var(--t-ink);font:700 .9375rem/1.4 var(--font-sans)}
+@media (prefers-reduced-motion:reduce){.order-list.is-sorting .order-item{transition:none!important}}
+/* One long name ("Salomonseilanden", "Saint Vincent and the Grenadines") may break inside the word instead of pushing the row past the screen at 320px. */
+.order-list,.order-list .order-item,.order-list .option-country{min-width:0!important}
+.order-list .option-country>span{min-width:0;overflow-wrap:anywhere;-webkit-hyphens:auto;hyphens:auto}
 @media (max-width:360px){
   .order-list .order-item{gap:7px!important;padding:5px 6px!important;font-size:.9375rem!important}
   .order-list .order-item .order-num{flex-basis:34px;width:34px!important;height:34px!important}
   .order-list .order-item>svg{display:none}
   .order-list .order-item .icon-btn{width:38px!important;min-width:38px!important;height:38px!important}
+  .order-list .order-item .option-country{gap:6px!important}
+  .order-list .order-item .option-country img{height:16px!important}
 }
 
 /* ───────── Typed capitals: one white pill to type in, forest when right, soft red when wrong ───────── */
@@ -495,7 +511,7 @@
 .typed-form .text-input{width:100%;min-height:60px!important;padding:0 24px!important;border:2px solid transparent!important;border-radius:999px!important;background:var(--t-card)!important;color:var(--t-ink)!important;box-shadow:var(--t-shadow)!important;font:600 1.1875rem/1.2 var(--font-display)!important;text-align:center}
 .typed-form .text-input::placeholder{color:var(--t-soft);opacity:.8}
 .typed-form .text-input:focus{border-color:var(--t-forest)!important;box-shadow:0 0 0 4px var(--t-mint-2),var(--t-shadow)!important;outline:none}
-.typed-form .text-input.input-correct{border-color:transparent!important;background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1}
+.typed-form .text-input.input-correct{border-color:transparent!important;background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;opacity:1}
 .typed-form .text-input.input-wrong{border-color:transparent!important;background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1;animation:rv-shake 420ms ease-out}
 .typed-form .btn.primary{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
 .typed-form .btn.primary:disabled{opacity:1!important;background:var(--t-mint-2)!important;color:var(--t-soft)!important;box-shadow:none!important}
@@ -515,16 +531,10 @@
 .question-content:has(>.map-wrap+.question-help) .map-caption{justify-content:flex-end}
 .map-wrap .map-caption{color:var(--t-soft)!important;font:600 .75rem/1.4 var(--font-sans)!important}
 .map-wrap .map-caption a{color:var(--t-soft)!important}
-.map-wrap .map-legend .right{color:var(--t-forest)}
+.map-wrap .map-legend .right{color:var(--t-right)}
 [data-theme=dark] .map-wrap .map-legend .right{color:var(--t-brand)}
 .map-wrap .map-legend .wrong{color:var(--t-red)}
 .question-content .answer-submit{min-height:56px!important;border-radius:999px!important;font:600 1.125rem/1.15 var(--font-display)!important}
-/* The neighbours map after a Next Door answer: the light-blue card, a legend of mint pills. */
-.border-reveal-map{--bm-target:var(--t-brand)!important;--bm-neighbor:var(--t-gold)!important;margin:0!important;padding:12px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-sky)!important;box-shadow:var(--t-shadow)!important}
-.border-reveal-map svg{display:block;width:100%;max-height:280px}
-.border-reveal-map .bm-target,.border-reveal-map .bm-neighbor{stroke:var(--t-sky)!important}
-.border-reveal-map figcaption{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
-.border-reveal-map figcaption span{min-height:30px;padding:0 12px 0 9px;border-radius:999px;background:var(--t-card);color:var(--t-ink)!important;font:700 .8125rem/1 var(--font-sans)}
 
 /* ───────── Shape Shift: the outline in the light-blue card, inside the question card ───────── */
 .q-card .shape-stage{width:min(100%,320px)!important;aspect-ratio:5/4;border-radius:22px!important;background:var(--t-sky)!important;box-shadow:none!important}
@@ -559,7 +569,7 @@
 .mystery-card .mystery-option img{flex-shrink:0;width:auto!important;height:20px!important;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
 .mystery-card .mystery-option>svg{position:absolute;right:12px;top:50%;width:30px!important;height:30px!important;margin-top:-15px;padding:6px;border-radius:999px;background:var(--t-card);color:var(--t-forest)}
 .mystery-card .mystery-option:disabled:not(.is-correct):not(.is-wrong){opacity:.55!important}
-.mystery-card .mystery-option.is-correct{background:var(--t-forest)!important;color:var(--t-forest-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
+.mystery-card .mystery-option.is-correct{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right))!important;color:var(--t-right-ink)!important;opacity:1!important;animation:t-right .45s cubic-bezier(.34,1.56,.64,1)}
 .mystery-card .mystery-option.is-wrong{background:var(--t-red-soft)!important;color:var(--t-red-ink)!important;opacity:1!important}
 .mystery-card .mystery-option.is-wrong>svg{background:var(--t-red);color:#fff}
 .mystery-card .mystery-reveal{display:grid;gap:6px;margin:0!important;padding:16px 18px!important;border:0!important;border-radius:var(--t-radius-sm)!important;background:var(--t-canvas)!important;box-shadow:none!important;color:var(--t-text)!important}
@@ -575,4 +585,128 @@
 
 @media (prefers-reduced-motion:reduce){
   .tp-card>.peek,.tp-card>.peek .peek-head,.tp-gain,.rank-legacy .rank-option.rank-best,.rank-board .rb-gain .t-points,.rank-board .rb-tick,.rank-board .rb-row.is-now,.mystery-card .mystery-option.is-correct,.mystery-card .mystery-badge.has-flag,.trail-clues .clue-slots li.is-open,.trail-clues .clue-slots li.is-open>span,.order-list .order-item.order-correct,.typed-form .text-input.input-wrong,.q-card .shape-stage svg,.puzzle-mosaic .mosaic-group,.puzzle-mosaic .mosaic-board .mosaic-tile.clue-wrong,.puzzle-mosaic .mosaic-tile.selected .tile-tick,.puzzle-compare .comparison-country.winner,.puzzle-compare .comparison-country.wrong,.duel-game .duel-arena .duel-card.is-empty span,.duel-game .duel-arena .duel-card.is-winner{animation:none!important}
+}
+
+/* ───────── Border map: the whole region after a Next Door answer ─────────
+   The light-blue map card. Every country in calm white/mint with soft borders (the rest of the world a shade quieter),
+   the asked country gold, the right neighbour Roviko green, a wrong pick coral, their shared border as a navy line,
+   rings around small countries and a legend of white pills with ? ✓ ✕ dots. */
+.border-reveal-map{
+  --bm-sea:var(--t-sky);--bm-home:#fffdf8;--bm-far:#eaf3ee;--bm-edge:#b7d3c7;
+  --bm-target:#f6b84b;--bm-target-edge:#b97a12;--bm-neighbor:#27917a;--bm-neighbor-edge:#0f5f4d;
+  --bm-picked:#f08a7f;--bm-picked-edge:#b8454a;--bm-line:#06224f;--bm-halo:#ffffff;
+  position:relative;width:100%;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--bm-sea)!important;box-shadow:var(--t-shadow)!important;overflow:hidden;animation:bm-in .4s ease-out both}
+[data-theme=dark] .border-reveal-map{
+  --bm-home:#2b4c41;--bm-far:#213a33;--bm-edge:#4f7d6d;
+  --bm-target:#f6b84b;--bm-target-edge:#7a4f0c;--bm-neighbor:#4fc19f;--bm-neighbor-edge:#0e4f3f;
+  --bm-picked:#ff8f86;--bm-picked-edge:#7d2a31;--bm-line:#fffaf0;--bm-halo:#0f1613}
+.border-reveal-map svg{display:block;width:100%!important;height:auto!important;max-height:min(440px,62vh)!important;margin:0 auto;background:var(--bm-sea)}
+.border-reveal-map .bm-land path{stroke:var(--bm-edge);stroke-width:.8px;stroke-linejoin:round}
+.border-reveal-map .bm-land .bm-home{fill:var(--bm-home)}
+.border-reveal-map .bm-land .bm-far{fill:var(--bm-far)}
+.border-reveal-map .bm-mark{stroke-width:1.1px;stroke-linejoin:round}
+.border-reveal-map .bm-target{fill:var(--bm-target)!important;stroke:var(--bm-target-edge)!important}
+.border-reveal-map .bm-neighbor{fill:var(--bm-neighbor)!important;stroke:var(--bm-neighbor-edge)!important}
+.border-reveal-map .bm-picked{fill:var(--bm-picked);stroke:var(--bm-picked-edge)}
+.border-reveal-map .bm-shared{stroke:var(--bm-line);stroke-width:2.4px;stroke-linecap:round;stroke-linejoin:round}
+.border-reveal-map .bm-ring circle{fill:none;stroke-width:2.6px}
+.border-reveal-map .bm-ring .bm-dot{stroke:var(--bm-halo)!important;stroke-width:1.5px}
+.border-reveal-map .bm-ring .bm-ring-halo{stroke:var(--bm-halo);stroke-width:5px;opacity:.85}
+.border-reveal-map .bm-ring-target circle:not(.bm-ring-halo){stroke:var(--bm-target)}
+.border-reveal-map .bm-ring-neighbor circle:not(.bm-ring-halo){stroke:var(--bm-neighbor)}
+.border-reveal-map .bm-ring-picked circle:not(.bm-ring-halo){stroke:var(--bm-picked)}
+.border-reveal-map .bm-ring-target .bm-dot{fill:var(--bm-target)}
+.border-reveal-map .bm-ring-neighbor .bm-dot{fill:var(--bm-neighbor)}
+.border-reveal-map .bm-ring-picked .bm-dot{fill:var(--bm-picked)}
+.border-reveal-map .bm-pointer circle{fill:var(--bm-picked);stroke:var(--bm-halo);stroke-width:2.5px}
+.border-reveal-map .bm-pointer path{fill:#fff;stroke:none}
+[data-theme=dark] .border-reveal-map .bm-pointer path{fill:#0f1613}
+.border-reveal-map .bm-region-name{position:absolute;top:18px;left:20px;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--t-card) 82%,transparent);color:var(--t-brand);font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.08em;text-transform:uppercase;pointer-events:none}
+.border-reveal-map figcaption{display:flex!important;flex-wrap:wrap;justify-content:center;gap:6px!important;margin:0!important;padding:10px 12px 12px;background:var(--t-card);box-shadow:0 -1px 0 var(--t-line)}
+.border-reveal-map figcaption>.bm-key{display:inline-flex!important;align-items:center;gap:8px;min-height:32px;padding:0 13px 0 5px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;box-shadow:none;font:700 .8125rem/1.1 var(--font-sans)!important}
+.border-reveal-map figcaption>.bm-key>i{display:grid!important;place-items:center;width:22px!important;height:22px!important;border-radius:999px!important;flex:none;font:800 .75rem/1 var(--font-sans);font-style:normal;color:#fff}
+.border-reveal-map figcaption>.target>i{background:var(--bm-target)!important;color:#5a3a06}
+.border-reveal-map figcaption>.neighbor>i{background:var(--bm-neighbor)!important}
+.border-reveal-map figcaption>.picked>i{background:var(--bm-picked)!important}
+[data-theme=dark] .border-reveal-map figcaption>.neighbor>i,[data-theme=dark] .border-reveal-map figcaption>.picked>i{color:#0f1613}
+.border-reveal-map.bm-state{display:grid;place-items:center;min-height:220px;text-align:center;color:var(--t-soft)!important;font:600 .9375rem/1.4 var(--font-sans)}
+.border-reveal-map.bm-state[aria-busy=true]{background:linear-gradient(100deg,var(--bm-sea) 40%,color-mix(in srgb,var(--t-card) 45%,var(--bm-sea)) 50%,var(--bm-sea) 60%)!important;background-size:200% 100%!important;animation:bm-shimmer 1.4s linear infinite}
+@keyframes bm-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes bm-shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
+@media (prefers-reduced-motion:reduce){.border-reveal-map,.border-reveal-map.bm-state[aria-busy=true]{animation:none!important}}
+
+/* ───────── Rank Radar on phones: the whole board fits on one screen (1.24) ─────────
+   The country card becomes one compact row (flag left, name and question right) and the eight subjects
+   are slimmer pills, so card, subjects and the lock button fit without scrolling on a 390×664 view. */
+@media (max-width:760px){
+  .rank-board .rb-hero.tp-card{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:14px!important;row-gap:2px!important;margin:40px auto 10px!important;padding:12px 16px 12px!important;text-align:left}
+  .rank-board .rb-hero .tp-kicker{grid-column:1/-1;margin:0 0 2px!important}
+  .rank-board .rb-hero-flag{grid-row:2/4;margin:0!important}
+  .rank-board .rb-hero-flag img{height:52px!important;max-width:84px!important;border-radius:6px!important}
+  .rank-board .rb-hero h1{font-size:1.5rem!important;line-height:1.1!important}
+  .rank-board .rb-hero .rb-ask{margin:0!important;font-size:.9375rem!important;line-height:1.3!important;text-align:left}
+  .rank-board .rb-list{gap:6px!important}
+  .rank-board .rb-row{min-height:46px!important;padding:4px 10px 4px 5px!important;font-size:.98rem!important}
+  .rank-board .rb-row .rb-emoji{width:36px!important;height:36px!important;min-width:36px!important;font-size:1.1rem!important}
+  .rank-board .rb-actions .btn{min-height:52px!important}
+  .rank-board .rank-footer{margin-top:8px!important}
+}
+/* Two columns of subjects on phones, so all eight sit under the country card at once. */
+@media (max-width:760px){
+  .rank-board .rb-list{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+  .rank-board .rb-list>li{min-width:0}
+  .rank-board .rb-row{display:grid!important;grid-template-columns:34px 1fr;grid-template-rows:auto auto;align-content:center;column-gap:8px!important;row-gap:2px!important;width:100%;min-height:58px!important;height:100%;padding:6px 10px 6px 6px!important;border-radius:20px!important;text-align:left}
+  .rank-board .rb-row .rb-emoji{grid-row:1/3;width:34px!important;height:34px!important;min-width:34px!important;font-size:1.05rem!important}
+  .rank-board .rb-row strong{font-size:.9rem!important;line-height:1.15!important;overflow-wrap:anywhere;hyphens:auto}
+  .rank-board .rb-row .rb-place{grid-column:2;justify-self:start;margin:0!important;transform:scale(.88);transform-origin:left center}
+  .rank-board .rb-row .rb-tick{position:absolute;right:8px;top:8px}
+  .rank-board .rb-row{position:relative}
+}
+@media (max-width:340px){.rank-board .rb-row strong{font-size:.82rem!important}}
+
+/* ───────── Rank Radar review: how good each pick was, tap for all eight subjects ───────── */
+.rb-review2{margin:18px auto 0;max-width:560px;padding:16px 14px 12px;border-radius:var(--t-radius);background:var(--t-card);box-shadow:var(--t-shadow)}
+.rb-review2>h2{margin:0 6px 10px;color:var(--t-ink);font:600 1.25rem/1.2 var(--font-display)}
+.rb-review2>ol{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rb-review2>ol>li>details{border-radius:18px;background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card));overflow:hidden}
+.rb-review2>ol>li.is-best>details{background:color-mix(in srgb,var(--t-gold) 22%,var(--t-card))}
+.rb-review2 summary{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:10px 12px;cursor:pointer;list-style:none}
+.rb-review2 summary::-webkit-details-marker{display:none}
+.rb-review2 summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:-3px;border-radius:18px}
+.rb-review2 summary .flag-img{width:auto;height:30px;max-width:46px;border-radius:5px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.rb2-main{display:grid;gap:2px;min-width:0}
+.rb2-main strong{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.rb2-pick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--t-text);font-size:.9rem}
+.rb2-pick b{padding:1px 8px;border-radius:999px;background:var(--t-card);color:var(--t-ink);font:600 .82rem/1.4 var(--font-display)}
+.rb2-verdict{justify-self:start;margin-top:2px;padding:1px 9px;border-radius:999px;font:700 .75rem/1.6 var(--font-sans);letter-spacing:.02em;background:var(--t-mint-2);color:var(--t-ink)}
+li.is-best .rb2-verdict{background:var(--t-gold);color:var(--t-gold-ink)}
+li.is-good .rb2-verdict{background:color-mix(in srgb,var(--t-right) 18%,var(--t-card));color:var(--t-ink)}
+li.is-weak .rb2-verdict{background:var(--t-red-soft);color:var(--t-red-ink)}
+.rb2-points{min-width:52px;padding:6px 10px;border-radius:999px;background:var(--t-card);color:var(--t-ink);text-align:center;font:600 1rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+li.is-best .rb2-points{background:var(--t-gold);color:var(--t-gold-ink)}
+.rb-review2 summary::after{content:'';grid-column:1/-1;justify-self:center;width:9px;height:9px;margin-top:-4px;border-right:2px solid var(--t-soft);border-bottom:2px solid var(--t-soft);transform:rotate(45deg);transition:transform .2s}
+.rb-review2 details[open] summary::after{transform:rotate(225deg);margin-top:2px}
+.rb2-all{display:grid;gap:4px;margin:0;padding:0 10px 12px;list-style:none}
+.rb2-all li{display:grid;grid-template-columns:22px 26px 1fr auto auto;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:var(--t-card);color:var(--t-text);font-size:.9rem}
+.rb2-all li.is-top{box-shadow:inset 0 0 0 2px var(--t-gold)}
+.rb2-all li.is-mine{box-shadow:inset 0 0 0 2px var(--t-right)}
+.rb2-all li.is-top.is-mine{box-shadow:inset 0 0 0 2px var(--t-gold),0 0 0 2px var(--t-right)}
+.rb2-n{color:var(--t-soft);font:700 .8rem/1 var(--font-sans);text-align:center}
+.rb2-all i{font-style:normal;text-align:center}
+.rb2-label{min-width:0}
+.rb2-all b{color:var(--t-ink);font:600 .85rem/1 var(--font-display)}
+.rb2-tag{padding:1px 7px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink);font:700 .68rem/1.6 var(--font-sans)}
+.rb2-tag.is-mine{background:var(--t-right);color:var(--t-right-ink)}
+.rb2-hint{margin:10px 6px 0;color:var(--t-soft);font-size:.82rem;text-align:center}
+@media (prefers-reduced-motion:reduce){.rb-review2 summary::after{transition:none}}
+
+.rb2-pick>span{min-width:0}
+.rb2-pick i{font-style:normal}
+@media (max-width:360px){
+  .rb-review2{padding:14px 10px 10px}
+  .rb-review2 summary{gap:9px;padding:9px 10px}
+  .rb-review2 summary .flag-img{height:24px;max-width:36px}
+  .rb2-all{padding:0 6px 10px}
+  .rb2-all li{grid-template-columns:16px 22px 1fr auto;gap:6px;padding:6px 8px;font-size:.84rem}
+  .rb2-all li .rb2-tag{grid-column:3/-1;justify-self:start}
 }

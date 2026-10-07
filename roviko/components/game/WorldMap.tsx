@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { cameraForBox, initialCamera, zoomCamera, panCamera, type MapCamera } from '@/lib/game-engine/map-camera';
+import { initialCamera, zoomCamera, panCamera, type MapCamera } from '@/lib/game-engine/map-camera';
 import { Plus, Minus, RotateCcw, MapPin } from 'lucide-react';
 type Props = {
     value: number[] | null;
@@ -12,19 +12,15 @@ type Props = {
     /** Called only when a pin is placed with a tap or click (not with the arrow keys), so solo games can answer in one step. */
     onTap?: (v: number[]) => void;
     t: (key: string) => string;
-    /** Open zoomed in on this [south, west, north, east] box (small countries); reset returns here. */
-    focus?: [number, number, number, number];
 };
-export default function WorldMap({ value, onChange, disabled, target, t, onConfirm, onTap, correct, focus }: Props) {
-    const start = focus ? cameraForBox(focus) : initialCamera;
+/** Always opens on the whole world (since 1.23.1 small countries no longer open zoomed in on their region: that gave it away). */
+export default function WorldMap({ value, onChange, disabled, target, t, onConfirm, onTap, correct }: Props) {
+    const start = initialCamera;
     const [paths, setPaths] = useState<any[]>([]), [failed, setFailed] = useState(false), [camera, setCamera] = useState<MapCamera>(start);
     const [detailPaths, setDetailPaths] = useState<any[] | null>(null);
     const zoom = camera.zoom;
     const cameraRef = useRef(camera);
     const update = (next: MapCamera) => { cameraRef.current = next; setCamera(next); };
-    // A new question can bring a different focus box: open on it.
-    const focusKey = focus ? focus.join(',') : '';
-    useEffect(() => { update(focus ? cameraForBox(focus) : initialCamera); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [focusKey]);
     const detailed = zoom > 2;
     useEffect(() => {
         if (!detailed || detailPaths) return;

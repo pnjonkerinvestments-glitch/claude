@@ -27,3 +27,23 @@ export function mapAccuracyPoints(correct: boolean, distance: number | null) {
     if (distance === null || !Number.isFinite(distance)) return 0;
     return correct ? 1000 : Math.round(900 * Math.exp(-Math.max(0, distance) / 1600));
 }
+/** Size Shuffle start: the sorted list moved along one random cycle (Sattolo), so no country starts in its right place
+ *  and confirming an untouched list never earns (partial) points. Uses as many rng calls as shuffle(), so the rest of a
+ *  seeded question set stays the same. */
+export function derangedStart<T>(sorted: T[], rng: () => number): T[] {
+    const idx = sorted.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rng() * i); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    return idx.map(i => sorted[i]);
+}
+/** Size Shuffle: how many rows of a sorted list sit in their right place (0 for anything that is not a list). */
+export function orderPlacement(answer: unknown, correct: unknown) {
+    if (!Array.isArray(answer) || !Array.isArray(correct)) return 0;
+    return correct.reduce((n: number, id, i) => n + (answer[i] === id ? 1 : 0), 0);
+}
+/** Multiplayer Size Shuffle with some rows misplaced: the share of rows in the right place times the
+ *  base and speed points of a right answer, without the streak bonus (a partly right list breaks the streak).
+ *  A fully right list keeps using scoreAnswer. */
+export function partialOrderPoints(right: number, total: number, elapsed: number, limit: number) {
+    if (total <= 0 || right <= 0) return 0;
+    return Math.round(Math.min(1, right / total) * scoreAnswer(true, elapsed, limit, 1));
+}

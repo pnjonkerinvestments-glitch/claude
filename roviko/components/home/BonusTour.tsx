@@ -31,11 +31,11 @@ export function useBonusLaunch(app: LaunchApp) {
  * once the scored games are done; `featured` keeps it short there) and on the all-games page.
  * Trip style (1.23): one white card, a small caps kicker with a row of dots, and six tiles.
  */
-export function BonusTour({ app, bonus, busy, featured }: { app: LaunchApp & { t: (k: string) => string }; bonus?: BonusSession[]; busy?: boolean; featured?: boolean }) {
+export function BonusTour({ app, bonus, busy, featured, compact }: { app: LaunchApp & { t: (k: string) => string }; bonus?: BonusSession[]; busy?: boolean; featured?: boolean; compact?: boolean }) {
   const { t } = app;
   const { open, launching } = useBonusLaunch(app);
   const done = BONUS_MODES.filter(m => bonusStateOf(bonus, m) === 'done').length, next = nextBonusMode(bonus);
-  return <section className={'home-section bonus-tour bt-trip' + (featured ? ' is-featured' : '')} aria-labelledby="bonus-title">
+  return <section className={'home-section bonus-tour bt-trip' + (featured ? ' is-featured' : '') + (compact ? ' is-compact' : '')} aria-labelledby="bonus-title">
     <header className="bonus-head">
       <p className="t-kicker is-caps">{t('bonusKicker')} · {t('bonusProgress').replace('{n}', String(done))}</p>
       <h2 id="bonus-title">{t('bonusTitle')}</h2>
@@ -46,8 +46,9 @@ export function BonusTour({ app, bonus, busy, featured }: { app: LaunchApp & { t
       const state = bonusStateOf(bonus, mode), saved = bonus?.find(b => b.mode === mode), isNext = mode === next;
       return <li key={mode} className={'bonus-stop is-' + state + (isNext ? ' is-next' : '') + ' tone-' + mode}>
         <button type="button" disabled={busy || !!launching} aria-busy={launching === mode} onClick={() => open(mode)}>
-          <span className="bonus-art"><GameScene mode={mode as SceneMode} shape="wide"/>{state === 'done' && <span className="bonus-check"><Check size={14} strokeWidth={3}/></span>}</span>
-          <span className="bonus-body"><GameIcon mode={mode} size="sm"/><span><strong>{t(mode)}</strong><small>{state === 'done' ? t('bonusScore').replace('{n}', String(saved?.score ?? 0)).replace('/10', '/' + (saved?.total ?? BONUS_ROUNDS)) : isNext ? t('tripUpNext') : t('bonusQuestions')}</small></span></span>
+          {/* `compact` (All games page, 1.24): logos only, no pictures. */}
+          {!compact && <span className="bonus-art"><GameScene mode={mode as SceneMode} shape="wide"/>{state === 'done' && <span className="bonus-check"><Check size={14} strokeWidth={3}/></span>}</span>}
+          <span className="bonus-body"><span className="bonus-logo"><GameIcon mode={mode} size={compact ? 'md' : 'sm'}/>{compact && state === 'done' && <span className="bonus-check"><Check size={12} strokeWidth={3.2}/></span>}</span><span><strong>{t(mode)}</strong><small>{state === 'done' ? t('bonusScore').replace('{n}', String(saved?.score ?? 0)).replace('/10', '/' + (saved?.total ?? BONUS_ROUNDS)) : isNext ? t('tripUpNext') : t('bonusQuestions')}</small></span></span>
         </button>
       </li>;
     })}</ol>

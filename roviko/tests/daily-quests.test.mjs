@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { build } from 'esbuild';
 fs.mkdirSync('.test-runtime', { recursive: true });
-await build({ stdin: { contents: "export * from './lib/daily-quests';export {DAILY_MODES,DAY_MODES} from './lib/daily-loop';export {messages} from './i18n/messages';", resolveDir: process.cwd() }, outfile: '.test-runtime/daily-quests.mjs', bundle: true, format: 'esm', platform: 'node', logLevel: 'error' });
-const { questsFor, allQuestsDone, addCrown, DAILY_MODES, DAY_MODES, messages } = await import('../.test-runtime/daily-quests.mjs');
+await build({ stdin: { contents: "export * from './lib/daily-quests';export {DAILY_MODES,DAY_MODES,dailyModesFor} from './lib/daily-loop';export {messages} from './i18n/messages';", resolveDir: process.cwd() }, outfile: '.test-runtime/daily-quests.mjs', bundle: true, format: 'esm', platform: 'node', logLevel: 'error' });
+const { questsFor, allQuestsDone, addCrown, DAILY_MODES, DAY_MODES, dailyModesFor, messages } = await import('../.test-runtime/daily-quests.mjs');
 const none = { completedModes: [], mysteryPlayed: false };
 
 test('three quests per UTC day, the same for everyone, rotating over the daily games', () => {
@@ -13,7 +13,10 @@ test('three quests per UTC day, the same for everyone, rotating over the daily g
   assert.equal(a.length, 3);
   assert.deepEqual(a.map(q => q.kind), ['mode', a[1].kind, 'games']);
   const modes = Array.from({ length: 5 }, (_, i) => questsFor(`2026-09-${String(20 + i).padStart(2, '0')}`, none)[0].mode);
-  assert.deepEqual([...modes].sort(), [...DAILY_MODES].sort());
+  // Quests rotate over the lineup of that date (Country Mosaic before the Size Shuffle switch).
+  assert.deepEqual([...modes].sort(), [...dailyModesFor('2026-09-20')].sort());
+  const later = Array.from({ length: 5 }, (_, i) => questsFor(`2026-11-${String(10 + i).padStart(2, '0')}`, none)[0].mode);
+  assert.deepEqual([...later].sort(), [...dailyModesFor('2026-11-10')].sort());
   const bonuses = new Set(Array.from({ length: 4 }, (_, i) => questsFor(`2026-10-0${i + 1}`, none)[1].kind));
   assert.deepEqual([...bonuses].sort(), ['detour', 'mystery']);
 });

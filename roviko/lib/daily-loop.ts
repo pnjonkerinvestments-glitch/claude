@@ -4,11 +4,33 @@ export * from './bonus';
 // Pure helpers behind the daily return loop: streak milestones, the UTC reset countdown,
 // which daily game to suggest next, and the deterministic "mystery country" of the day.
 
-/** The five daily games. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
-export const DAILY_MODES = ['rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
+/**
+ * The first UTC date on which the daily Size Shuffle ('order') replaces Country Mosaic as daily game (1.24).
+ * The lineup is chosen per UTC date, so nobody ever gets seven daily games on the switch day: dates before it keep
+ * Mosaic, this date and later get Size Shuffle. The lead sets it to the first UTC day after the release.
+ */
+export const SHUFFLE_FROM = '2026-10-08';
+/** The five daily games from SHUFFLE_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
+export const DAILY_MODES = ['rank', 'duel', 'compare', 'order', 'trail'] as const;
+/** The five daily games before SHUFFLE_FROM (1.19–1.23): Country Mosaic in fourth place. */
+export const MOSAIC_DAILY_MODES = ['rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
 export const DAY_MODES = ['daily', ...DAILY_MODES] as const;
-export type DayMode = typeof DAY_MODES[number];
-export type DailyMode = typeof DAILY_MODES[number];
+export const MOSAIC_DAY_MODES = ['daily', ...MOSAIC_DAILY_MODES] as const;
+export type DailyMode = typeof DAILY_MODES[number] | typeof MOSAIC_DAILY_MODES[number];
+export type DayMode = 'daily' | DailyMode;
+/** Every game that ever was a daily game (old results, shared links, history). */
+export const ALL_DAY_MODES: readonly DayMode[] = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'order', 'trail'];
+const isDate = (date?: string | null): date is string => !!date && /^\d{4}-\d{2}-\d{2}$/.test(date);
+/** The five daily games of one UTC date (YYYY-MM-DD). Without a date: today's lineup on this device's clock. */
+export function dailyModesFor(date?: string | null): readonly DailyMode[] {
+  const day = isDate(date) ? date : new Date().toISOString().slice(0, 10);
+  return day < SHUFFLE_FROM ? MOSAIC_DAILY_MODES : DAILY_MODES;
+}
+/** The Daily Detour plus the five daily games of one UTC date. */
+export function dayModesFor(date?: string | null): readonly DayMode[] {
+  const day = isDate(date) ? date : new Date().toISOString().slice(0, 10);
+  return day < SHUFFLE_FROM ? MOSAIC_DAY_MODES : DAY_MODES;
+}
 export type { DailyState } from './bonus';
 
 export const STREAK_MILESTONES = [3, 7, 14, 30, 50, 100, 200, 365];
@@ -36,13 +58,16 @@ export function dailyStateOf(sessions: { mode: string; completed?: boolean }[] |
   return saved?.completed ? 'done' : saved ? 'active' : 'new';
 }
 
-/** Resume a started game first, otherwise the first one not yet played today (the Daily Detour comes first). */
-export function nextDailyMode(sessions: { mode: string; completed?: boolean }[] | undefined): DayMode | null {
-  return DAY_MODES.find(m => dailyStateOf(sessions, m) === 'active') ?? DAY_MODES.find(m => dailyStateOf(sessions, m) === 'new') ?? null;
+/** Resume a started game first, otherwise the first one not yet played today (the Daily Detour comes first). Pass the lineup of the day (`dayModesFor(date)`). */
+export function nextDailyMode(sessions: { mode: string; completed?: boolean }[] | undefined, modes: readonly DayMode[] = DAY_MODES): DayMode | null {
+  return modes.find(m => dailyStateOf(sessions, m) === 'active') ?? modes.find(m => dailyStateOf(sessions, m) === 'new') ?? null;
 }
 
-/** Finished scored games today: the Daily Detour plus the five daily games (pass DAILY_MODES for the five only). */
-export function completedDailies(sessions: { mode: string; completed?: boolean }[] | undefined, modes: readonly DayMode[] = DAY_MODES) {
+/**
+ * Finished scored games today: the Daily Detour plus the five daily games (pass the five only to leave out the Detour).
+ * By default every game that ever was a daily game counts: a day only ever has scored sessions of its own lineup.
+ */
+export function completedDailies(sessions: { mode: string; completed?: boolean }[] | undefined, modes: readonly DayMode[] = ALL_DAY_MODES) {
   return modes.filter(m => dailyStateOf(sessions, m) === 'done').length;
 }
 

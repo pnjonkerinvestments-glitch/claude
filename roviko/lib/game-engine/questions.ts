@@ -3,7 +3,7 @@ import { dutchCapital } from '../../i18n/capitals-nl';
 import data from '../data/countries.json';
 import silhouettes from '../data/silhouettes.json';
 import { locateInCountry, type Polygons } from './geometry';
-import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash } from './scoring';
+import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash, orderPlacement, partialOrderPoints, derangedStart } from './scoring';
 import { GEOGRAPHY_POLICY, MODES } from '../config';
 export type Country = {
     id: string;
@@ -68,7 +68,8 @@ export type Question = {
     mapRule?: 'country-v1';
     toleranceKm?: number;
     geometry?: Polygons;
-    /** Pinpoint on a small country: the map opens on this [south, west, north, east] box around its subregion. */
+    /** Before 1.23.1 a small pinpoint country opened zoomed in on this [south, west, north, east] box. Since then every map
+     *  opens on the whole world (the box gave the region away); the field only survives in stored older games and is ignored. */
     zoom?: [number, number, number, number];
 };
 const familiar = ['USA', 'CAN', 'MEX', 'BRA', 'ARG', 'PER', 'CHL', 'COL', 'GBR', 'FRA', 'ESP', 'ITA', 'DEU', 'NLD', 'BEL', 'GRC', 'PRT', 'SWE', 'NOR', 'CHE', 'AUT', 'POL', 'RUS', 'CHN', 'JPN', 'IND', 'IDN', 'THA', 'KOR', 'TUR', 'SAU', 'AUS', 'NZL', 'FJI', 'EGY', 'ZAF', 'MAR', 'KEN', 'NGA', 'GHA'];
@@ -93,17 +94,11 @@ function rampOrder(c: Country, pool: Country[], level: number, rng: () => number
 }
 const aliases: Record<string, string[]> = { CHN: ['Peking'], UKR: ['Kiev', 'Kyiv'], MEX: ['Mexico City', 'Mexico-stad', 'Ciudad de Mexico'], CZE: ['Prague', 'Praag', 'Praha'], RUS: ['Moscow', 'Moskou', 'Moskva'], EGY: ['Cairo', 'Caïro'], ITA: ['Rome', 'Roma'], AUT: ['Vienna', 'Wenen', 'Wien'], BEL: ['Brussels', 'Brussel', 'Bruxelles'], DNK: ['Copenhagen', 'Kopenhagen'], GRC: ['Athens', 'Athene'], POL: ['Warsaw', 'Warschau'], PRT: ['Lisbon', 'Lissabon', 'Lisboa'], SWE: ['Stockholm'], HUN: ['Budapest', 'Boedapest'], ROU: ['Bucharest', 'Boekarest'], SRB: ['Belgrade', 'Belgrado'], ESP: ['Madrid'], KOR: ['Seoul'], THA: ['Bangkok', 'Krung Thep'], BOL: ['La Paz'] };
 /** Pin questions only use countries a player can realistically find and tap on a phone-sized world map:
- *  at least 3,000 km² (so Fiji, Vanuatu and Cyprus count, tiny atolls and microstates do not). Small ones open zoomed in. */
+ *  at least 3,000 km² (so Fiji, Vanuatu and Cyprus count, tiny atolls and microstates do not). The map always opens on the whole world. */
 const PIN_MIN_AREA = 3000;
 export function pinnable(c: Country) { return c.area >= PIN_MIN_AREA; }
-/** Below this size the map opens zoomed in on the country's subregion, and the Daily Detour keeps it out of its first five questions. */
+/** Below this size the Daily Detour keeps a pinpoint country out of its first five questions. */
 export const PIN_SMALL_AREA = 50000;
-function subregionBox(c: Country): [number, number, number, number] {
-    const pts = COUNTRIES.filter(x => x.subregion === c.subregion).map(x => x.latlng);
-    const lat = pts.map(p => p[0]), lng = pts.map(p => p[1]);
-    const pad = 4;
-    return [Math.max(-85, Math.min(...lat) - pad), Math.max(-180, Math.min(...lng) - pad), Math.min(85, Math.max(...lat) + pad), Math.min(180, Math.max(...lng) + pad)];
-}
 function namesOverlap(a: Country, b: Country) { return [a.name, a.nl, spanishCountry(a.name)].some((name,i) => name.toLocaleLowerCase().includes([b.name,b.nl,spanishCountry(b.name)][i].toLocaleLowerCase())); }
 function nameOption(c: Country): Option { return { id: c.id, en: c.name, nl: c.nl, flag: c.flag }; }
 function capitalOption(c: Country): Option { return { id: c.id, en: c.capitals[0], nl: dutchCapital(c.capitals[0]) }; }
@@ -208,7 +203,6 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.prompt = { en: `Drop a pin in ${c.name}.`, nl: `Zet een pin in ${c.nl}.` };
             q.correct = c.latlng;
             q.fact = { en: `The target is a representative point in ${c.name}. Distance is measured to this point.`, nl: `Het doel is een representatief punt in ${c.nl}. De afstand wordt tot dit punt gemeten.` };
-            if (c.area < PIN_SMALL_AREA) q.zoom = subregionBox(c);
         }
         else if (mode === 'shape') {
             q.prompt = { en: 'Which country has this shape?', nl: 'Welk land heeft deze vorm?', es: '¿Qué país tiene esta forma?' };
@@ -228,7 +222,8 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             const ramped = settings.ramp ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), level, rng) : null;
             if (settings.ramp && !ramped) continue;
             const list = ramped ?? [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
-            q.options = shuffle(list, rng).map(nameOption);
+            // Since 1.23.1 no country starts in its right place: confirming the list untouched earns nothing (multiplayer gives partial points).
+            q.options = derangedStart([...list].sort((a, b) => b.area - a.area), rng).map(nameOption);
             q.correct = [...list].sort((a, b) => b.area - a.area).map(x => x.id);
             q.prompt = { en: 'Put these countries in order. Largest area first.', nl: 'Zet de landen op volgorde. Grootste oppervlakte bovenaan.' };
             q.answerLabel = { en: (q.correct as string[]).map(id => list.find(c => c.id === id)!.name).join(' → '), nl: (q.correct as string[]).map(id => list.find(c => c.id === id)!.nl).join(' → ') };
@@ -242,9 +237,9 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         throw new Error('Question selection exhausted');
     return result;
 }
-export function publicQuestion(q: Question, reveal = false) { const { correct, aliases, fact, answerLabel, countryId, geometry, ...safe } = q; const country = COUNTRIES.find(c => c.id === countryId); return { ...safe, options: safe.options.map(o => ({ ...o, flag: !reveal && ['capitals','flags','trail'].includes(q.mode) ? undefined : COUNTRIES.find(c => c.id === o.id)?.flag })), country: ['capitals','borders','pinpoint'].includes(q.mode) && country ? { en: country.name, nl: country.nl, flag: country.flag } : undefined, flag: q.flag ? q.id : undefined }; }
+export function publicQuestion(q: Question, reveal = false) { const { correct, aliases, fact, answerLabel, countryId, geometry, zoom: _zoom, ...safe } = q; const country = COUNTRIES.find(c => c.id === countryId); return { ...safe, options: safe.options.map(o => ({ ...o, flag: !reveal && ['capitals','flags','trail'].includes(q.mode) ? undefined : COUNTRIES.find(c => c.id === o.id)?.flag })), country: ['capitals','borders','pinpoint'].includes(q.mode) && country ? { en: country.name, nl: country.nl, flag: country.flag } : undefined, flag: q.flag ? q.id : undefined }; }
 export function evaluate(q: Question, answer: unknown, elapsed: number, limit: number, streak: number) {
-    let correct = false, distance: number | null = null;
+    let correct = false, distance: number | null = null, orderRight: number | undefined;
     let points = 0;
     if (q.mode === 'pinpoint' && Array.isArray(answer) && answer.length === 2 && answer.every(v => typeof v === 'number' && Number.isFinite(v)) && Math.abs(answer[0]) <= 90 && Math.abs(answer[1]) <= 180) {
         distance = Math.round(haversine(answer, q.correct as number[]));
@@ -254,6 +249,9 @@ export function evaluate(q: Question, answer: unknown, elapsed: number, limit: n
     else {
         correct = q.typed && typeof answer === 'string' ? matches(answer, q.aliases ?? []) : Array.isArray(q.correct) ? Array.isArray(answer) && JSON.stringify(answer) === JSON.stringify(q.correct) : answer === q.correct;
         points = scoreAnswer(correct, elapsed, limit, correct ? streak + 1 : 0);
+        // Multiplayer Size Shuffle: a partly right list earns its share of the points (never the streak bonus).
+        if (q.mode === 'order' && !correct) { orderRight = orderPlacement(answer, q.correct); points = partialOrderPoints(orderRight, (q.correct as string[]).length, elapsed, limit); }
+        else if (q.mode === 'order') orderRight = (q.correct as string[]).length;
     }
-    return { correct, points, distance, responseTime: elapsed, streak: correct ? streak + 1 : 0, risk: elapsed < 200 ? 1 : 0, answerLabel: q.answerLabel, fact: q.fact, correctAnswer: q.correct, countryId: q.countryId, mode: q.mode, mapRule: q.mapRule, borderCountries: q.mode === 'borders' ? [q.countryId, q.correct] : undefined };
+    return { correct, points, ...(orderRight !== undefined ? { orderRight } : {}), distance, responseTime: elapsed, streak: correct ? streak + 1 : 0, risk: elapsed < 200 ? 1 : 0, answerLabel: q.answerLabel, fact: q.fact, correctAnswer: q.correct, countryId: q.countryId, mode: q.mode, mapRule: q.mapRule, borderCountries: q.mode === 'borders' ? [q.countryId, q.correct] : undefined };
 }

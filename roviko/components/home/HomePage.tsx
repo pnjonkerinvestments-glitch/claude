@@ -1,9 +1,10 @@
 'use client';
 import { plural } from '@/lib/plural';
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, ChevronRight, Clock, Target, Trophy } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, Clock } from 'lucide-react';
+import { RovikoIcon } from '../ds/RovikoIcons';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { DAY_MODES, completedDailies, dailyStateOf, nextDailyMode, streakAtRisk, type DayMode } from '@/lib/daily-loop';
+import { completedDailies, dailyStateOf, dayModesFor, nextDailyMode, streakAtRisk, type DayMode } from '@/lib/daily-loop';
 import { useApp } from '../app/context';
 import { A } from '../app/shared';
 import { dailyTitleKey } from '../atelier/DailyLoop';
@@ -48,9 +49,11 @@ export function HomePage() {
 
   const sessions = today?.sessions;
   const ready = bootLoaded && !!today;
-  const completed = completedDailies(sessions), left = DAY_MODES.length - completed;
-  const next = today ? nextDailyMode(sessions) : 'daily';
-  const allDone = !!today && completed === DAY_MODES.length;
+  // The six scored games of this UTC date (1.24: Country Mosaic before SHUFFLE_FROM, the daily Size Shuffle from then on).
+  const lineup = dayModesFor(date);
+  const completed = completedDailies(sessions, lineup), left = lineup.length - completed;
+  const next = today ? nextDailyMode(sessions, lineup) : 'daily';
+  const allDone = !!today && completed === lineup.length;
   // Once the scored games are done, the bonus tour takes over: six classic games with today's countries.
   const bonus = today?.bonus, nextBonus = nextBonusMode(bonus), bonusLeft = BONUS_MODES.filter(m => bonusStateOf(bonus, m) !== 'done').length;
   const bonusLaunch = useBonusLaunch(app);
@@ -111,7 +114,7 @@ export function HomePage() {
   const { data: league } = useLeague(boot);
   const leagueRow = leagueLine(t, league);
   const guestSave = ready && boot.user.guest && (boot.stats.dailyCount ?? 0) > 0;
-  const progressLine = plural(t, 'homeProgress', completed).replace('{total}', String(DAY_MODES.length)) + ' · ' + plural(t, 'homePoints', pointsToday, '{n}', n(pointsToday));
+  const progressLine = plural(t, 'homeProgress', completed).replace('{total}', String(lineup.length)) + ' · ' + plural(t, 'homePoints', pointsToday, '{n}', n(pointsToday));
 
   return <div className={'home home-trip' + (allDone ? ' is-done' : '') + (firstVisit ? ' is-first' : '') + (ready ? ' is-ready' : '')}>
     <section className="th-hero" aria-labelledby="home-title">
@@ -141,11 +144,11 @@ export function HomePage() {
         </header>
         <div className="th-progress">
           <p className="sr-only">{progressLine}</p>
-          <ol className="th-segs" aria-hidden="true">{DAY_MODES.map(mode => { const s = dailyStateOf(sessions, mode); return <li key={mode} className={'is-' + s + (mode === upNext ? ' is-next' : '')}/>; })}</ol>
-          <b className="th-count" aria-hidden="true">{completed}/{DAY_MODES.length}</b>
+          <ol className="th-segs" aria-hidden="true">{lineup.map(mode => { const s = dailyStateOf(sessions, mode); return <li key={mode} className={'is-' + s + (mode === upNext ? ' is-next' : '')}/>; })}</ol>
+          <b className="th-count" aria-hidden="true">{completed}/{lineup.length}</b>
         </div>
         {firstVisit && <p className="th-first">{t('homeFirstLine')}</p>}
-        <ol className="today-list">{DAY_MODES.map(mode => {
+        <ol className="today-list">{lineup.map(mode => {
           const state = dailyStateOf(sessions, mode), isNext = mode === upNext, points = scoreOf(mode), later = state === 'new' && !isNext;
           return <li key={mode} className={'today-row is-' + state + (isNext ? ' is-next' : '') + (later ? ' is-later' : '')}>
             <button type="button" onClick={() => open(mode)} disabled={busy} aria-busy={launching === mode} aria-label={name(mode) + ' · ' + (isNext ? t('tripUpNext') + ' · ' : '') + t(state === 'done' ? 'journeyStopDone' : state === 'active' ? 'journeyStopActive' : 'journeyStopNew') + (state === 'done' && points !== undefined ? ' · ' + plural(t, 'homePoints', points, '{n}', n(points)) : '')}>
@@ -171,10 +174,10 @@ export function HomePage() {
         <button className="t-pill is-gold th-save" onClick={() => app.setModal('signup')}>{t('savePromptCta')}</button>
       </div>}
       {boot.user.guest
-        ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><Trophy size={20}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
+        ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><RovikoIcon name="trophy" size={26}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
         : <A href="/leaderboard#league" className="side-row side-league"><span className="side-icon side-tier" aria-hidden="true"><TierBadge tier={league?.tier ?? 0} size={26}/></span><span className="side-copy"><strong>{leagueRow.title}</strong><small>{leagueRow.sub || t('loading')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>}
       <details className="side-row quests-fold">
-        <summary><span className="side-icon" aria-hidden="true"><Target size={20}/></span><span className="side-copy"><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>
+        <summary><span className="side-icon" aria-hidden="true"><RovikoIcon name="target" size={26}/></span><span className="side-copy"><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>
         <DailyQuests date={date} sessions={sessions ?? []} t={t} compact onPick={pickQuest}/>
       </details>
     </aside>

@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { BadgeCheck, Check, Copy, Download, KeyRound, LogIn, LogOut, Mail, MailWarning, PenLine, ShieldCheck, Trash2, Users } from 'lucide-react';
+import { Check, Copy, LogIn, Mail, PenLine } from 'lucide-react';
+import { RovikoIcon } from '../ds/RovikoIcons';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
@@ -81,24 +82,24 @@ export function AccountPage() {
     {!u.guest && <section className="page-section" aria-labelledby="account-signin">
       <SectionHeader id="account-signin" title={t('accountSignIn')}/>
       <div className="settings-card">
-        <div className="settings-card-row">{u.emailVerified ? <BadgeCheck size={19} aria-hidden="true" className="is-verified"/> : <MailWarning size={19} aria-hidden="true"/>}
+        <div className="settings-card-row"><RovikoIcon name={u.emailVerified ? 'verified' : 'mailAlert'} size={22} className="row-icon"/>
           <span><strong>{u.email}</strong><small>{u.emailVerified ? t('emailVerified') : boot.mailEnabled ? t('emailNotVerified') : t('emailNotVerifiedNoMail')}</small></span>
           {!u.emailVerified && boot.mailEnabled && <button className="btn secondary btn-sm" disabled={sending || sent} aria-busy={sending} onClick={verify}><Mail size={15} aria-hidden="true"/>{sent ? t('emailSentShort') : t('emailVerifyButton')}</button>}
         </div>
-        <button className="settings-card-row" onClick={() => setPassword(true)}><KeyRound size={19} aria-hidden="true"/><span><strong>{t('passwordChange')}</strong><small>{t('passwordRule')}</small></span></button>
+        <button className="settings-card-row" onClick={() => setPassword(true)}><RovikoIcon name="key" size={22} className="row-icon"/><span><strong>{t('passwordChange')}</strong><small>{t('passwordRule')}</small></span></button>
         <button className="settings-card-row" onClick={() => copy(u.friendCode)}><Copy size={19} aria-hidden="true"/><span><strong>{t('friendCode')}</strong><small>{u.friendCode}</small></span></button>
-        <A href="/friends" className="settings-card-row"><Users size={19} aria-hidden="true"/><span><strong>{t('friendsList')}</strong><small>{t('menuFriendsNote')}</small></span></A>
+        <A href="/friends" className="settings-card-row"><RovikoIcon name="friends" size={22} className="row-icon"/><span><strong>{t('friendsList')}</strong><small>{t('menuFriendsNote')}</small></span></A>
       </div>
     </section>}
 
     <section className="page-section" aria-labelledby="account-data">
       <SectionHeader id="account-data" title={t('passportSettings')}/>
       <div className="settings-card">
-        <a href="/api/export" className="settings-card-row" download><Download size={19} aria-hidden="true"/><span><strong>{t('export')}</strong></span></a>
-        <a href="mailto:support@roviko.app" className="settings-card-row"><Mail size={19} aria-hidden="true"/><span><strong>{t('contact')}</strong><small>{t('contactCopy')} support@roviko.app</small></span></a>
-        <A href="/privacy" className="settings-card-row"><ShieldCheck size={19} aria-hidden="true"/><span><strong>{t('privacy')}</strong></span></A>
-        {!u.guest && <button className="settings-card-row" onClick={async () => { try { await post('/auth/logout'); await refresh(); go('/'); } catch (e) { fail(e); } }}><LogOut size={19} aria-hidden="true"/><span><strong>{t('logout')}</strong></span></button>}
-        <button className="settings-card-row is-danger" onClick={() => setDeleting(true)}><Trash2 size={19} aria-hidden="true"/><span><strong>{t('deleteAccount')}</strong><small>{t('deleteAccountNote')}</small></span></button>
+        <a href="/api/export" className="settings-card-row" download><RovikoIcon name="download" size={22} className="row-icon"/><span><strong>{t('export')}</strong></span></a>
+        <a href="mailto:support@roviko.app" className="settings-card-row"><RovikoIcon name="mail" size={22} className="row-icon"/><span><strong>{t('contact')}</strong><small>{t('contactCopy')} support@roviko.app</small></span></a>
+        <A href="/privacy" className="settings-card-row"><RovikoIcon name="shield" size={22} className="row-icon"/><span><strong>{t('privacy')}</strong></span></A>
+        {!u.guest && <button className="settings-card-row" onClick={async () => { try { await post('/auth/logout'); await refresh(); go('/'); } catch (e) { fail(e); } }}><RovikoIcon name="logout" size={22} className="row-icon"/><span><strong>{t('logout')}</strong></span></button>}
+        <button className="settings-card-row is-danger" onClick={() => setDeleting(true)}><RovikoIcon name="trash" size={22} className="row-icon"/><span><strong>{t('deleteAccount')}</strong><small>{t('deleteAccountNote')}</small></span></button>
       </div>
     </section>
 
