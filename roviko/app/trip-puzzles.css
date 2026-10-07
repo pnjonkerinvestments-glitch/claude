@@ -634,3 +634,79 @@
 @keyframes bm-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes bm-shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
 @media (prefers-reduced-motion:reduce){.border-reveal-map,.border-reveal-map.bm-state[aria-busy=true]{animation:none!important}}
+
+/* ───────── Rank Radar on phones: the whole board fits on one screen (1.24) ─────────
+   The country card becomes one compact row (flag left, name and question right) and the eight subjects
+   are slimmer pills, so card, subjects and the lock button fit without scrolling on a 390×664 view. */
+@media (max-width:760px){
+  .rank-board .rb-hero.tp-card{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:14px!important;row-gap:2px!important;margin:40px auto 10px!important;padding:12px 16px 12px!important;text-align:left}
+  .rank-board .rb-hero .tp-kicker{grid-column:1/-1;margin:0 0 2px!important}
+  .rank-board .rb-hero-flag{grid-row:2/4;margin:0!important}
+  .rank-board .rb-hero-flag img{height:52px!important;max-width:84px!important;border-radius:6px!important}
+  .rank-board .rb-hero h1{font-size:1.5rem!important;line-height:1.1!important}
+  .rank-board .rb-hero .rb-ask{margin:0!important;font-size:.9375rem!important;line-height:1.3!important;text-align:left}
+  .rank-board .rb-list{gap:6px!important}
+  .rank-board .rb-row{min-height:46px!important;padding:4px 10px 4px 5px!important;font-size:.98rem!important}
+  .rank-board .rb-row .rb-emoji{width:36px!important;height:36px!important;min-width:36px!important;font-size:1.1rem!important}
+  .rank-board .rb-actions .btn{min-height:52px!important}
+  .rank-board .rank-footer{margin-top:8px!important}
+}
+/* Two columns of subjects on phones, so all eight sit under the country card at once. */
+@media (max-width:760px){
+  .rank-board .rb-list{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+  .rank-board .rb-list>li{min-width:0}
+  .rank-board .rb-row{display:grid!important;grid-template-columns:34px 1fr;grid-template-rows:auto auto;align-content:center;column-gap:8px!important;row-gap:2px!important;width:100%;min-height:58px!important;height:100%;padding:6px 10px 6px 6px!important;border-radius:20px!important;text-align:left}
+  .rank-board .rb-row .rb-emoji{grid-row:1/3;width:34px!important;height:34px!important;min-width:34px!important;font-size:1.05rem!important}
+  .rank-board .rb-row strong{font-size:.9rem!important;line-height:1.15!important;overflow-wrap:anywhere;hyphens:auto}
+  .rank-board .rb-row .rb-place{grid-column:2;justify-self:start;margin:0!important;transform:scale(.88);transform-origin:left center}
+  .rank-board .rb-row .rb-tick{position:absolute;right:8px;top:8px}
+  .rank-board .rb-row{position:relative}
+}
+@media (max-width:340px){.rank-board .rb-row strong{font-size:.82rem!important}}
+
+/* ───────── Rank Radar review: how good each pick was, tap for all eight subjects ───────── */
+.rb-review2{margin:18px auto 0;max-width:560px;padding:16px 14px 12px;border-radius:var(--t-radius);background:var(--t-card);box-shadow:var(--t-shadow)}
+.rb-review2>h2{margin:0 6px 10px;color:var(--t-ink);font:600 1.25rem/1.2 var(--font-display)}
+.rb-review2>ol{display:grid;gap:8px;margin:0;padding:0;list-style:none}
+.rb-review2>ol>li>details{border-radius:18px;background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card));overflow:hidden}
+.rb-review2>ol>li.is-best>details{background:color-mix(in srgb,var(--t-gold) 22%,var(--t-card))}
+.rb-review2 summary{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;padding:10px 12px;cursor:pointer;list-style:none}
+.rb-review2 summary::-webkit-details-marker{display:none}
+.rb-review2 summary:focus-visible{outline:3px solid var(--t-brand);outline-offset:-3px;border-radius:18px}
+.rb-review2 summary .flag-img{width:auto;height:30px;max-width:46px;border-radius:5px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.rb2-main{display:grid;gap:2px;min-width:0}
+.rb2-main strong{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.rb2-pick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--t-text);font-size:.9rem}
+.rb2-pick b{padding:1px 8px;border-radius:999px;background:var(--t-card);color:var(--t-ink);font:600 .82rem/1.4 var(--font-display)}
+.rb2-verdict{justify-self:start;margin-top:2px;padding:1px 9px;border-radius:999px;font:700 .75rem/1.6 var(--font-sans);letter-spacing:.02em;background:var(--t-mint-2);color:var(--t-ink)}
+li.is-best .rb2-verdict{background:var(--t-gold);color:var(--t-gold-ink)}
+li.is-good .rb2-verdict{background:color-mix(in srgb,var(--t-right) 18%,var(--t-card));color:var(--t-ink)}
+li.is-weak .rb2-verdict{background:var(--t-red-soft);color:var(--t-red-ink)}
+.rb2-points{min-width:52px;padding:6px 10px;border-radius:999px;background:var(--t-card);color:var(--t-ink);text-align:center;font:600 1rem/1 var(--font-display);font-variant-numeric:tabular-nums}
+li.is-best .rb2-points{background:var(--t-gold);color:var(--t-gold-ink)}
+.rb-review2 summary::after{content:'';grid-column:1/-1;justify-self:center;width:9px;height:9px;margin-top:-4px;border-right:2px solid var(--t-soft);border-bottom:2px solid var(--t-soft);transform:rotate(45deg);transition:transform .2s}
+.rb-review2 details[open] summary::after{transform:rotate(225deg);margin-top:2px}
+.rb2-all{display:grid;gap:4px;margin:0;padding:0 10px 12px;list-style:none}
+.rb2-all li{display:grid;grid-template-columns:22px 26px 1fr auto auto;align-items:center;gap:8px;padding:6px 10px;border-radius:12px;background:var(--t-card);color:var(--t-text);font-size:.9rem}
+.rb2-all li.is-top{box-shadow:inset 0 0 0 2px var(--t-gold)}
+.rb2-all li.is-mine{box-shadow:inset 0 0 0 2px var(--t-right)}
+.rb2-all li.is-top.is-mine{box-shadow:inset 0 0 0 2px var(--t-gold),0 0 0 2px var(--t-right)}
+.rb2-n{color:var(--t-soft);font:700 .8rem/1 var(--font-sans);text-align:center}
+.rb2-all i{font-style:normal;text-align:center}
+.rb2-label{min-width:0}
+.rb2-all b{color:var(--t-ink);font:600 .85rem/1 var(--font-display)}
+.rb2-tag{padding:1px 7px;border-radius:999px;background:var(--t-gold);color:var(--t-gold-ink);font:700 .68rem/1.6 var(--font-sans)}
+.rb2-tag.is-mine{background:var(--t-right);color:var(--t-right-ink)}
+.rb2-hint{margin:10px 6px 0;color:var(--t-soft);font-size:.82rem;text-align:center}
+@media (prefers-reduced-motion:reduce){.rb-review2 summary::after{transition:none}}
+
+.rb2-pick>span{min-width:0}
+.rb2-pick i{font-style:normal}
+@media (max-width:360px){
+  .rb-review2{padding:14px 10px 10px}
+  .rb-review2 summary{gap:9px;padding:9px 10px}
+  .rb-review2 summary .flag-img{height:24px;max-width:36px}
+  .rb2-all{padding:0 6px 10px}
+  .rb2-all li{grid-template-columns:16px 22px 1fr auto;gap:6px;padding:6px 8px;font-size:.84rem}
+  .rb2-all li .rb2-tag{grid-column:3/-1;justify-self:start}
+}

@@ -624,3 +624,4 @@ De zes dagspellen staan als één witte lijstkaart zoals "Reis van vandaag" op d
 - **Multiplayer:** een half goede Size Shuffle-lijst levert een deel van de punten op (goede plekken ÷ 4 × de gewone punten, zonder reeksbonus). De Dagelijkse Omweg blijft 50 per volledig goede vraag.
 - **Bewust niet:** extra punten voor een reeks in de Omweg. Kaartvragen geven gedeeltelijke punten (wat is dan "goed"?), en oude dagscores zouden niet meer vergelijkbaar zijn; "3 op rij!" en het oplopende geluid blijven.
 - **Tests:** 179/179 (nieuw: `order-partial.test.mjs`, `daily-shuffle.test.mjs`).
+- **Rank Radar:** het eindoverzicht toont per land hoe goed je keuze was ("Beste keuze", "3e beste van 8") met de punten; tik op een land voor alle acht onderwerpen op volgorde, met jouw keuze en de beste gemarkeerd. Op de telefoon staan de onderwerpen in twee kolommen, zodat land, onderwerpen en knop zonder scrollen op één scherm passen (ook op 320×568).

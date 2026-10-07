@@ -24,6 +24,7 @@ export const tripMessages = {
     agPractiseDaily: 'Practise the daily games', agPracticeCompare: 'Pick a topic', shufflePlacesRight: 'Countries in place', shufflePerfectRounds: 'Perfect rounds', orderCardCopy: 'Five rounds of four countries. Sort them by size.',
     competitionOrder: 'Five rounds of four countries, from easy to tricky. Every country in its right place earns 50 points, so a round is worth up to 200. No timer.',
     // puzzles
+    rbPickBest: 'Best pick', rbPickNth: '{nth} best of {total}', rbAllFor: 'All subjects for {country}', rbTagBest: 'Best', rbTagYours: 'Your pick', rbReviewHint: 'Tap a country to see all eight subjects in order.',
     tpPointsGained: '{n} points gained', tpPointsGained_one: '1 point gained', duelYourCard: 'Your card',
     orderMoved: '{country} is now number {n}.', orderMoved_one: '{country} is now number 1.',
     orderPartial: '{n} of {total} in the right place: you get that share of the points.', orderPartial_one: '1 of {total} in the right place: you get that share of the points.',
@@ -63,6 +64,7 @@ export const tripMessages = {
     agPractiseDaily: 'Dagspellen oefenen', agPracticeCompare: 'Kies een onderwerp', shufflePlacesRight: 'Landen op de goede plek', shufflePerfectRounds: 'Foutloze rondes', orderCardCopy: 'Vijf rondes van vier landen. Zet ze op grootte.',
     competitionOrder: 'Vijf rondes van vier landen, van makkelijk naar lastig. Elk land op de goede plek levert 50 punten op, dus een ronde is tot 200 punten waard. Geen timer.',
     // puzzles
+    rbPickBest: 'Beste keuze', rbPickNth: '{nth} beste van {total}', rbAllFor: 'Alle onderwerpen voor {country}', rbTagBest: 'Beste', rbTagYours: 'Jouw keuze', rbReviewHint: 'Tik op een land om alle acht onderwerpen op volgorde te zien.',
     tpPointsGained: '{n} punten erbij', tpPointsGained_one: '1 punt erbij', duelYourCard: 'Jouw kaart',
     orderMoved: '{country} staat nu op plek {n}.', orderMoved_one: '{country} staat nu op plek 1.',
     orderPartial: '{n} van de {total} op de goede plek: daarvoor krijg je een deel van de punten.', orderPartial_one: '1 van de {total} op de goede plek: daarvoor krijg je een deel van de punten.',
@@ -102,6 +104,7 @@ export const tripMessages = {
     agPractiseDaily: 'Practica los juegos diarios', agPracticeCompare: 'Elige un tema', shufflePlacesRight: 'Países en su sitio', shufflePerfectRounds: 'Rondas perfectas', orderCardCopy: 'Cinco rondas de cuatro países. Ordénalos por tamaño.',
     competitionOrder: 'Cinco rondas de cuatro países, de fácil a difícil. Cada país en su sitio vale 50 puntos, así que una ronda vale hasta 200. Sin cronómetro.',
     // puzzles
+    rbPickBest: 'La mejor opción', rbPickNth: '{nth} mejor de {total}', rbAllFor: 'Todos los temas de {country}', rbTagBest: 'Mejor', rbTagYours: 'Tu elección', rbReviewHint: 'Toca un país para ver los ocho temas en orden.',
     tpPointsGained: '{n} puntos más', tpPointsGained_one: '1 punto más', duelYourCard: 'Tu carta',
     orderMoved: '{country} está ahora en el puesto {n}.', orderMoved_one: '{country} está ahora en el puesto 1.',
     orderPartial: '{n} de {total} en su sitio: recibes esa parte de los puntos.', orderPartial_one: '1 de {total} en su sitio: recibes esa parte de los puntos.',

@@ -49,14 +49,35 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
     kicker={false} score={score} scoreLabel={score === undefined ? undefined : plural(t, 'scorePill', score, '{n}', formatScore(score))}/>;
 
   if (finished) {
-    const review = <details className="result-review rb-review" open={!game.competition}><summary>{t('rankReview')}</summary><ol>{board.rounds.map((r, i) => {
-      const a = game.answers[i], s = a && r.stats?.[a.value], best = r.best?.[0], bestStat = best && r.stats?.[best];
-      return <li key={r.id} className={a?.correct ? 'is-best' : ''}>
-        {r.country && <img className="flag-img" src={r.country.flag} alt=""/>}
-        <div><strong>{name(r)}</strong><span><i aria-hidden="true">{cat(a?.value)?.emoji}</i> {cat(a?.value)?.label[lang]}{s ? <b className="rb-hash">#{s.rank}</b> : null}</span>
-          {best && best !== a?.value && bestStat ? <small>{fill(t('rbBestHere'), { subject: cat(best)?.label[lang] ?? '', rank: bestStat.rank })}</small> : null}</div>
-        <b className="rb-points">+{a?.points ?? 0}</b></li>;
-    })}</ol></details>;
+    // The review: per country how good your pick was ("Best pick", "3rd best of 8") and the points; tap a
+    // country to see all eight subjects in order, with your pick and the best one marked.
+    const ordinal = (n: number) => lang === 'nl' ? n + 'e' : lang === 'es' ? n + '.º' : n + ({ one: 'st', two: 'nd', few: 'rd', other: 'th' } as Record<string, string>)[new Intl.PluralRules('en', { type: 'ordinal' }).select(n)];
+    const review = <section className="rb-review2" aria-labelledby="rb-review-title">
+      <h2 id="rb-review-title">{t('rankReview')}</h2>
+      <ol>{board.rounds.map((r, i) => {
+        const a = game.answers[i], stats = r.stats ?? {}, s = a ? stats[a.value] : undefined;
+        const order = Object.entries(stats).sort((x, y) => x[1].position - y[1].position);
+        const place = s ? 1 + order.filter(([, o]) => o.position < s.position).length : 0, of = order.length;
+        const verdict = !a ? '' : place === 1 ? t('rbPickBest') : fill(t('rbPickNth'), { nth: ordinal(place), total: of });
+        const tone = place === 1 ? 'is-best' : place <= 3 ? 'is-good' : place <= 5 ? 'is-ok' : 'is-weak';
+        return <li key={r.id} className={tone}><details>
+          <summary>
+            {r.country && <img className="flag-img" src={r.country.flag} alt=""/>}
+            <span className="rb2-main"><strong>{name(r)}</strong>
+              <span className="rb2-pick"><span><i aria-hidden="true">{cat(a?.value)?.emoji}</i> {cat(a?.value)?.label[lang]}</span>{s ? <b>#{s.rank}</b> : null}</span>
+              {verdict && <span className="rb2-verdict">{verdict}</span>}</span>
+            <b className="rb2-points">+{a?.points ?? 0}</b>
+          </summary>
+          <ol className="rb2-all" aria-label={fill(t('rbAllFor'), { country: name(r) })}>{order.map(([id, o], k) => {
+            const c = cat(id), mine = a?.value === id, top = k === 0 || o.position === order[0][1].position;
+            return <li key={id} className={(mine ? 'is-mine ' : '') + (top ? 'is-top' : '')}>
+              <span className="rb2-n">{k + 1}</span><i aria-hidden="true">{c?.emoji}</i><span className="rb2-label">{c?.label[lang] ?? c?.label.en}</span>
+              <b>#{o.rank}</b>{top ? <span className="rb2-tag">{t('rbTagBest')}</span> : mine ? <span className="rb2-tag is-mine">{t('rbTagYours')}</span> : null}</li>;
+          })}</ol>
+        </details></li>;
+      })}</ol>
+      <p className="rb2-hint">{t('rbReviewHint')}</p>
+    </section>;
     const summary = [{ icon: 'check' as const, value: bestPicks + '/' + game.total, label: t('rbBestPicks') }, ...(board.optimal ? [{ icon: 'flame' as const, value: board.optimal.toLocaleString(locale), label: t('rbOptimalShort') }] : [])];
     const mood = bestPicks >= 6 ? 'cheer' as const : bestPicks >= 3 ? 'happy' as const : 'wink' as const;
     return <section className="puzzle-game rank-game rank-board">{header}
