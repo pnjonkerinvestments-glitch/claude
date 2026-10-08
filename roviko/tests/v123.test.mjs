@@ -5,7 +5,7 @@ import fs from 'node:fs';
 
 // 1.23: Dutch capitals, Eswatini, singular forms, warm feedback, finish headlines, share text, sound/vibration.
 fs.mkdirSync('.test-runtime', { recursive: true });
-await build({ stdin: { contents: "export {generateQuestions,evaluate,COUNTRIES} from './lib/game-engine/questions';export {dutchCapital} from './i18n/capitals-nl';export {plural} from './lib/plural';export {feedbackHeading,finishKey,finishMood,inARow} from './lib/feel-copy';export {editionNumber,squares,shareCard,shareResult,readChallenge,challengeExtras,rememberStanding,sharedName} from './lib/share';export {parseShareText} from './lib/share-image';export {sound,soundDefault,formatScore} from './lib/client';export {messages} from './i18n/messages';export {withSpanish} from './i18n/content';", resolveDir: process.cwd() }, bundle: true, outfile: '.test-runtime/v123.mjs', format: 'esm', platform: 'node', logLevel: 'error' });
+await build({ stdin: { contents: "export {generateQuestions,evaluate,COUNTRIES} from './lib/game-engine/questions';export {dutchCapital} from './i18n/capitals-nl';export {plural} from './lib/plural';export {feedbackHeading,finishKey,finishMood,inARow} from './lib/feel-copy';export {editionNumber,squares,shareCard,shareResult,readChallenge,challengeExtras,rememberStanding,sharedName,sharePartsFor} from './lib/share';export {parseShareText} from './lib/share-image';export {sound,soundDefault,formatScore} from './lib/client';export {messages} from './i18n/messages';export {withSpanish} from './i18n/content';", resolveDir: process.cwd() }, bundle: true, outfile: '.test-runtime/v123.mjs', format: 'esm', platform: 'node', logLevel: 'error' });
 const lib = await import('../.test-runtime/v123.mjs');
 const settings = (mode, typed = false) => ({ mode, count: 5, timer: 0, difficulty: 'medium', region: 'World', typed });
 const t = locale => k => lib.messages[locale][k] ?? lib.messages.en[k] ?? k;
@@ -80,14 +80,16 @@ test('finish headlines follow the score (Mosaic with 0 points is no longer "Perf
   assert.doesNotMatch(puzzle, /game\.mode === 'mosaic' \|\| correct === game\.total \? 'finishPerfect'/);
 });
 
-test('share text has an edition number, squares, points and streak, and never a solution', () => {
+test('share text is short and tidy (no squares, never a solution); the picture keeps edition, squares and streak', () => {
   assert.equal(lib.editionNumber('2026-09-25'), 1);
   assert.equal(lib.editionNumber('2026-10-06'), 12);
   assert.equal(lib.editionNumber('2026-09-01'), null);
   assert.equal(lib.editionNumber(null), null);
   assert.equal(lib.squares(Array.from({ length: 12 }, (_, i) => i % 3 !== 0)), '🟥🟩🟩🟥🟩🟩🟥🟩🟩🟥\n🟩🟩');
   const text = lib.shareCard({ label: 'Rank Radar', date: '2026-10-06', trail: '🟩🟨', score: '820/1,000 points', streak: 1, url: 'https://roviko.app/daily?shared=rank' });
-  assert.equal(text, 'Roviko #12 · Rank Radar\n🟩🟨\n820/1,000 points\nhttps://roviko.app/daily?shared=rank');
+  assert.equal(text, 'Roviko · Rank Radar: 820/1,000 points\nhttps://roviko.app/daily?shared=rank');
+  const parts = lib.sharePartsFor(text);
+  assert.equal(parts.head, 'Roviko #12'); assert.equal(parts.game, 'Rank Radar'); assert.deepEqual(parts.rows, [['🟩', '🟨']]); assert.equal(parts.score, '820/1,000 points');
 });
 
 test('a shared daily score travels in the link and opens as a challenge', () => {
@@ -98,20 +100,30 @@ test('a shared daily score travels in the link and opens as a challenge', () => 
   assert.deepEqual(lib.readChallenge('?shared=day&s=4210'), { mode: 'day', points: 4210 });
   assert.equal(lib.readChallenge('?shared=day&s=7000'), null);
   for (const bad of ['?shared=daily', '?shared=daily&s=1200', '?shared=flags&s=8', '?shared=daily&s=-1', '?shared=daily&s=1e3', '?shared=<b>&s=5']) assert.equal(lib.readChallenge(bad), null, bad);
-  const parsed = lib.parseShareText(text);
-  assert.equal(parsed.head, 'Roviko #12'); assert.equal(parsed.game, 'Daily Detour'); assert.equal(parsed.score, '820/1,000 points'); assert.equal(parsed.streak, '3'); assert.deepEqual(parsed.rows, [['🟩', '🟥']]);
+  assert.equal(text, 'Roviko · Daily Detour: 820/1,000 points\nhttps://roviko.app/daily?shared=daily&s=820');
+  const parts = lib.sharePartsFor(text);
+  assert.equal(parts.head, 'Roviko #12'); assert.equal(parts.streak, '3'); assert.deepEqual(parts.rows, [['🟩', '🟥']]);
+  // Texts from before 1.27 (with squares) still draw: the picture parses them.
+  const old = lib.parseShareText('Roviko #12 · Daily Detour\n🟩🟥\n820/1,000 points · 🔥 3\nhttps://roviko.app/daily?shared=daily&s=820');
+  assert.equal(old.head, 'Roviko #12'); assert.equal(old.score, '820/1,000 points'); assert.equal(old.streak, '3');
 });
 
 test('a share carries your name and place of the day, and a shared link shows it safely (1.26)', () => {
   const t = k => lib.messages.nl[k] ?? lib.messages.en[k] ?? k;
   lib.rememberStanding('day', '2026-10-08', 1, 230);
   const extras = lib.challengeExtras(t, 'nl', 'day', '2026-10-08', 'Pietje');
-  assert.equal(extras.rankLine, '🏆 Pietje: nummer 1 van de wereld vandaag (230 spelers)');
+  assert.equal(extras.rankLine, '🏆 Nummer 1 van de wereld vandaag (230 spelers)');
   const text = lib.shareCard({ label: 'Dagtotaal', date: '2026-10-08', trail: '🟩🟨🟩🟩🟥🟩', score: '3.879/6.000 punten', streak: 5, url: 'https://roviko.app/?shared=day', points: 3879, extras });
-  assert.match(text, /\nKun jij dat verslaan\?\nhttps:\/\/roviko\.app\/\?shared=day&s=3879&n=Pietje&r=1&p=230&l=nl$/);
-  const parsed = lib.parseShareText(text);
-  assert.equal(parsed.score, '3.879/6.000 punten'); assert.equal(parsed.streak, '5'); assert.equal(parsed.rank, 'Pietje: nummer 1 van de wereld vandaag (230 spelers)');
-  assert.deepEqual(lib.readChallenge(new URL(text.split('\n').at(-1)).search), { mode: 'day', points: 3879, name: 'Pietje', place: 1, players: 230 });
+  assert.equal(text, 'Pietje haalde vandaag 3.879/6.000 punten 🌍\n🏆 Nummer 1 van de wereld vandaag (230 spelers)\nKun jij dat verslaan? https://roviko.app/?shared=day&s=3879&n=Pietje&r=1&p=230&l=nl');
+  const parts = lib.sharePartsFor(text);
+  assert.equal(parts.rank, 'Nummer 1 van de wereld vandaag (230 spelers)'); assert.equal(parts.streak, '5'); assert.equal(parts.rows[0].length, 6);
+  const en = k => lib.messages.en[k] ?? k;
+  lib.rememberStanding('daily', '2026-10-08', 1, 3);
+  assert.equal(lib.shareCard({ label: 'Daily Detour', date: '2026-10-08', trail: '', score: '900/1,000 pts', url: 'https://roviko.app/daily?shared=daily', points: 900, extras: lib.challengeExtras(en, 'en', 'daily', '2026-10-08', 'Ollie') }),
+    'Ollie scored 900/1,000 pts in Daily Detour 🌍\n🏆 Number 1 in the world today (3 players)\nCan you beat that? https://roviko.app/daily?shared=daily&s=900&n=Ollie&r=1&p=3&l=en');
+  assert.equal(lib.shareCard({ label: 'Daily Detour', date: '2026-10-08', trail: '', score: '900/1,000 pts', url: 'https://roviko.app/daily?shared=daily', points: 900, extras: lib.challengeExtras(en, 'en', 'daily', '2026-10-09') }),
+    'I scored 900/1,000 pts in Daily Detour 🌍\nCan you beat that? https://roviko.app/daily?shared=daily&s=900&l=en', 'no name, no place known');
+  assert.deepEqual(lib.readChallenge(new URL(text.split(' ').at(-1)).search), { mode: 'day', points: 3879, name: 'Pietje', place: 1, players: 230 });
   lib.rememberStanding('daily', '2026-10-08', 12, 230);
   assert.equal(lib.challengeExtras(t, 'nl', 'daily', '2026-10-08').rankLine, '🏆 #12 van 230 spelers wereldwijd vandaag');
   assert.equal(lib.challengeExtras(t, 'nl', 'rank', '2026-10-08').rankLine, undefined, 'no place known: no rank line');

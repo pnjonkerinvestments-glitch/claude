@@ -42,7 +42,7 @@ New games only use the lively subjects: population, area, life expectancy, GDP p
 
 After a right answer the game moves on by itself after 0.8 seconds (Rank Radar: 1.3 seconds); after a wrong answer it waits for the player. This is presentation only; scoring and timing rules are unchanged (the next question starts when it is shown).
 
-Shares of daily games, the day total and today's ranking carry the player's name and place of the day ("#3 of 230 players worldwide today"), in the text, the share picture and the link (`n`, `r`, `p`, `l`). A shared link is a friendly claim: it is shown to the friend and in link previews, never stored or used for rankings; names failing the player-name rules are dropped.
+Since 1.27 a share is three short lines without answer squares (name and score, place, call and link; the share picture keeps the squares). Shares of daily games, the day total and today's ranking carry the player's name and place of the day ("#3 of 230 players worldwide today"), in the text, the share picture and the link (`n`, `r`, `p`, `l`). A shared link is a friendly claim: it is shown to the friend and in link previews, never stored or used for rankings; names failing the player-name rules are dropped.
 
 ## Maps, capitals, ordering and borders
 

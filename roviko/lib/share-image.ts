@@ -1,3 +1,4 @@
+import { sharePartsFor } from './share';
 // A share picture (1.23), drawn in the browser from the share text itself, so every game gets one without
 // extra data: "Roviko #12 · Daily Detour", the answer squares, the score line and roviko.app.
 // No server, no upload: the PNG only exists on the player's phone until they share it.
@@ -34,7 +35,8 @@ const dataUrlToBlob = (url: string) => { const [meta, data] = url.split(','); co
 /** Draws the share picture, synchronously; null when the browser cannot draw (old browser, no canvas). */
 export function drawShareImage(text: string): Blob | null {
   try {
-    const p = parseShareText(text);
+    // The share text no longer carries the squares (1.27): the parts are kept when the text is made, older texts are parsed.
+    const p = sharePartsFor(text) ?? parseShareText(text);
     const canvas = document.createElement('canvas'); canvas.width = SIZE; canvas.height = SIZE;
     const c = canvas.getContext('2d'); if (!c) return null;
     const display = (w: number, px: number) => `${w} ${px}px Fredoka, 'Segoe UI', system-ui, sans-serif`;
