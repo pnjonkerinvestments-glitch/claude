@@ -687,12 +687,16 @@ test('passwords need 8 characters; an account renames at most once per 30 days, 
  assert.equal((await request(cookie,'/profile','PATCH',{name:'Pietje Two',avatar:3,discoverable:false})).data.error,'NAME_LOCKED');
 });
 
-test('Lucia 👽: added by friend code, always online, invites her online friends into her own room and joins yours (1.30)',async()=>{
+test('Lucia 👽: added by friend code, accepts after a minute, always online, invites her online friends into her own room and joins yours (1.30)',async()=>{
  const g=await bootstrap();const me=await request(g.cookie,'/auth/signup','POST',{email:'lucia-friend@example.test',password:'Friendly8',name:'Lucia Fan'});const cookie=me.cookie??g.cookie;
  assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'not a friend yet: no invite');
  assert.equal((await request(cookie,'/friends','POST',{code:'CAFE1C1A'})).status,200);
  const lucia=(await request(cookie,'/friends')).data.friends.find(f=>f.user_id==='cafe1c1a-0000-4000-8000-000000000001');
- assert.ok(lucia,'Lucia is in the friend list');assert.equal(lucia.status,'accepted','she accepts at once');assert.equal(lucia.online,1);assert.equal(lucia.name,'Lucia 👽');
+ assert.ok(lucia,'Lucia is in the friend list');assert.equal(lucia.status,'pending','she takes a minute');assert.equal(lucia.online,0);
+ assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'no invite before she accepted');
+ await db.prepare('UPDATE friend_requests SET created_at=? WHERE to_id=?').bind(Date.now()-61000,'cafe1c1a-0000-4000-8000-000000000001').run();
+ const accepted=(await request(cookie,'/friends')).data.friends.find(f=>f.user_id==='cafe1c1a-0000-4000-8000-000000000001');lucia.status=accepted.status;lucia.online=accepted.online;
+ assert.equal(lucia.status,'accepted','after a minute she accepts');assert.equal(lucia.online,1);assert.equal(lucia.name,'Lucia 👽');
  assert.equal((await request(cookie,'/presence','POST',{playing:true})).data.invites.length,0,'never during a game');
  const inbox=(await request(cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].name,'Lucia 👽');
  assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,1,'one invite, not a new one every check');

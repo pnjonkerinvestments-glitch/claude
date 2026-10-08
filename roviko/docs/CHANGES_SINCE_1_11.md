@@ -596,6 +596,12 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.31.0 (live sinds 8 oktober 2026)
+
+- **Lucia neemt even de tijd.** Een vriendschapsverzoek aan Lucia 👽 staat eerst een minuut "in afwachting"; daarna accepteert ze vanzelf (binnen 60 tot 75 seconden, bij de volgende controle van de site). Pas dan staat ze online en kan ze je uitnodigen.
+- Geen migratie. Service worker `roviko-shell-v1.31.0`.
+- Getest: build en volledige testset (het verzoek blijft eerst in afwachting, geen uitnodiging vooraf, na een minuut geaccepteerd). Niet getest: in de browser en op een echte iPhone.
+
 ## 1.30.0 (live sinds 8 oktober 2026)
 
 - **Lucia 👽, de computervriend.** Voeg haar toe met vriendcode **CAFE1C1A** (ze staat niet automatisch bij iedereen). Ze accepteert meteen en staat altijd online.
