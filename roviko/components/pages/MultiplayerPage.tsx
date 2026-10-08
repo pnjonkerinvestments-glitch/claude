@@ -14,7 +14,7 @@ import { FriendsOnlinePanel } from '../friends/Friends';
 const CODE = /^[A-Z2-9]{5}$/;
 const ROOM_ERRORS: Record<string, [string, string]> = {
   ROOM_NOT_FOUND: ['roomNotFoundTitle', 'roomNotFoundCopy'], INVALID_ROOM_CODE: ['roomNotFoundTitle', 'roomNotFoundCopy'], NOT_FOUND: ['roomNotFoundTitle', 'roomNotFoundCopy'],
-  ROOM_FULL: ['roomFullTitle', 'roomFullCopy'], ROOM_EXPIRED: ['roomExpiredTitle', 'roomExpiredCopy'], ROOM_UNAVAILABLE: ['roomExpiredTitle', 'roomExpiredCopy'],
+  ROOM_FULL: ['roomFullTitle', 'roomFullCopy'], ROOM_EXPIRED: ['roomExpiredTitle', 'roomExpiredCopy'], ROOM_UNAVAILABLE: ['roomExpiredTitle', 'roomExpiredCopy'], KICKED: ['roomKickedTitle', 'roomKickedCopy'],
 };
 /** Human words for the room errors a player can do something about; null for everything else. */
 export function roomErrorCopy(code: string) { return ROOM_ERRORS[code] ?? null; }

@@ -1,12 +1,14 @@
 'use client';
 import React, { useState } from 'react';
-import { ArrowRight, Check, Copy, Crown, LogOut, Plus, Settings2, Share2, X } from 'lucide-react';
+import { ArrowRight, Check, Copy, Crown, LogOut, Pencil, Plus, Settings2, Share2, X } from 'lucide-react';
 import { BRAND } from '@/lib/config';
 import { plural } from '@/lib/plural';
 import { GameIcon } from '../atelier/GameIcon';
 import { GlobeAvatar } from '../ds/GlobeAvatar';
 import { RoomScene } from '../ds/RoomScene';
 import { InvitePanel } from '../friends/Friends';
+import { api, post } from '@/lib/client';
+import { useApp } from '../app/context';
 import { LobbyComputer, removeComputer } from './Computer';
 import { PlayerActions } from './PlayerActions';
 
@@ -69,12 +71,14 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
         <details className="lobby-more"><summary><Settings2 size={16} aria-hidden="true"/>{t('roomMore')}</summary>{moreSettings}<p className="lobby-rules">{t('lobbyRules')}</p></details>
       </div>
 
+      <NameEditor code={code} t={t} fail={fail}/>
       <ul className="lobby-avatars" aria-label={t('players')}>
         {room.players.map(p => <li key={p.id} className={(p.id === room.host ? 'is-host ' : '') + (p.ready ? 'is-ready ' : '') + (p.bot ? 'is-bot ' : '') + (p.id === me ? 'is-me' : '')}>
           <span className="lobby-avatar"><GlobeAvatar id={p.avatar} size={58}/>{p.id === room.host && <Crown className="lobby-crown" size={20} strokeWidth={2.4} aria-label={t('host')}/>}{p.ready && p.id !== room.host && <span className="lobby-ready" aria-label={t('ready')}><Check size={12} strokeWidth={3.4}/></span>}</span>
           <strong>{nameOf(p)}</strong>
           <small>{p.bot ? t('botLevel_' + (p.level ?? 'medium')) : p.connected === false ? t('reconnecting') : p.id === room.host ? t('host') : p.ready ? t('ready') : t('notReady')}</small>
           {p.bot && isHost && <button className="lobby-remove" onClick={() => removeComputer(code, p.id, fail)} aria-label={t('removeComputer').replace('{name}', p.name)}><X size={14}/></button>}
+          {!p.bot && isHost && p.id !== me && <button className="lobby-remove is-kick" onClick={() => { if (window.confirm(t('lobbyKickConfirm').replace('{name}', p.name))) post('/rooms/' + code + '/kick', { id: p.id }).catch(fail); }} aria-label={t('lobbyKick').replace('{name}', p.name)}><X size={14}/></button>}
           {!p.bot && p.id !== me && <PlayerActions player={p} t={t} room={code}/>}
         </li>)}
         {Array.from({ length: empty }, (_, i) => <li key={'empty' + i} className="is-empty"><button type="button" className="lobby-avatar lobby-add" onClick={() => setInviteOpen(true)} aria-label={t('roomInviteSlot')}><Plus size={22}/></button><strong>{t('roomInviteSlot')}</strong></li>)}
@@ -98,4 +102,30 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
     </details>
     <p className="lobby-foot"><button className="text-link" onClick={leave}><LogOut size={15} aria-hidden="true"/>{t('leaveRoom')}</button></p>
   </div>;
+}
+
+/**
+ * Choose your own name in the waiting room (1.25), also as a guest: "Captain Atlas" instead of "Jolly Dolphin 38".
+ * Saves the profile name (the same filter as everywhere) and re-joins so the room shows it at once.
+ */
+function NameEditor({ code, t, fail }: { code: string; t: T; fail: (e: unknown) => void }) {
+  const { boot, refresh } = useApp();
+  const [open, setOpen] = useState(false), [name, setName] = useState(''), [busy, setBusy] = useState(false);
+  if (!boot?.user?.id) return null;
+  if (!open) return <button type="button" className="text-link lobby-name-edit" onClick={() => { setName(boot.user.name ?? ''); setOpen(true); }}><Pencil size={15} aria-hidden="true"/>{t('lobbyNameEdit')}</button>;
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault(); if (busy) return; setBusy(true);
+    try {
+      await api('/profile', { method: 'PATCH', body: JSON.stringify({ name: name.trim(), avatar: boot.user.avatar ?? 0, discoverable: !!boot.user.discoverable }) });
+      await post('/rooms/' + code + '/join');
+      await refresh();
+      setOpen(false);
+    } catch (err) { fail(err); } finally { setBusy(false); }
+  };
+  return <form className="lobby-name-form" onSubmit={save}>
+    <label htmlFor="lobby-name">{t('lobbyNameLabel')}</label>
+    <div><input id="lobby-name" className="input" value={name} maxLength={24} minLength={2} autoComplete="nickname" autoFocus onChange={e => setName(e.target.value)}/>
+    <button className="btn primary" disabled={busy || name.trim().length < 2}>{t('save')}</button>
+    <button type="button" className="btn ghost" onClick={() => setOpen(false)} aria-label={t('cancel')}><X size={16}/></button></div>
+  </form>;
 }

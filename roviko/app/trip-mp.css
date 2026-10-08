@@ -299,6 +299,10 @@
 .lobby-add:hover{background:var(--t-mint)!important}
 .lobby-avatars li.is-empty strong{color:var(--t-brand)!important}
 .lobby-remove{background:var(--t-card)!important;color:var(--t-soft)!important;box-shadow:var(--t-shadow)!important}
+.lobby-remove.is-kick{left:calc(50% + 20px)!important;right:auto!important}
+.lobby-name-edit{display:inline-flex;align-items:center;gap:6px;margin:10px 4px 0;font-weight:700;color:var(--t-brand)}
+.lobby-name-form{display:grid;grid-template-columns:minmax(0,1fr);gap:6px;margin:10px 4px 0;min-width:0}.lobby-name-form label{font-size:.88rem;color:var(--t-text)}
+.lobby-name-form>div{display:flex;gap:8px;align-items:center;min-width:0}.lobby-name-form .input{flex:1 1 0;width:0;min-width:0;padding:10px 14px;border-radius:14px;border:2px solid var(--t-line);background:var(--t-card);color:var(--t-ink);font:inherit}.lobby-name-form .btn{flex:none}
 .lobby-actions{gap:12px!important;padding:12px 6px 0!important}
 .lobby-actions>.btn-lg{min-height:58px;font-size:1.125rem}
 .lobby-actions>.btn.ready-btn{background:var(--t-mint)!important;color:var(--t-mint-ink)!important;border:2px solid var(--t-forest)!important;box-shadow:none!important}

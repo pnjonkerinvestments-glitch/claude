@@ -6,8 +6,8 @@ fs.mkdirSync('.test-runtime', { recursive: true });
 await build({ stdin: { contents: "export * from './lib/puzzles/generate'; export * from './lib/puzzles/model'; export * from './lib/puzzles/topics'; export * from './lib/puzzles/country-facts';", resolveDir: process.cwd() }, outfile: '.test-runtime/puzzles.mjs', bundle: true, format: 'esm', platform: 'node' });
 const { TOPICS, generateComparisons, generateMosaic, dailyTopic, checkMosaic, selectMosaicTile, mosaicHint, formatMetric, numericCountryFact, factCoverage, refreshMosaicFacts } = await import('../.test-runtime/puzzles.mjs');
 
-test('all 14 topics generate reproducible, unambiguous comparison chains from dated sources (10 classic, 15 ramped)', () => {
-  assert.equal(TOPICS.length, 14);
+test('all 20 topics (14 active since 1.25) generate reproducible, unambiguous comparison chains from dated sources (10 classic, 15 ramped)', () => {
+  assert.equal(TOPICS.length, 20);assert.equal(TOPICS.filter(t => !t.retired).length, 14);
   for (const topic of TOPICS) {
     const rounds = generateComparisons(topic.id, 'comparison-validation');
     assert.deepEqual(rounds, generateComparisons(topic.id, 'comparison-validation'));
@@ -17,7 +17,7 @@ test('all 14 topics generate reproducible, unambiguous comparison chains from da
       assert.equal(q.correct, [...q.countries].sort((a, b) => b.value - a.value)[0].id);
       assert.notEqual(formatMetric(q.countries[0].value, topic.unit, 'en'), formatMetric(q.countries[1].value, topic.unit, 'en'));
       assert.ok(q.countries.every(c => Number.isFinite(c.value) && c.name.en && c.name.nl && fs.existsSync('public' + c.flag)));
-      { const y = q.referenceYear; if (['area','borders','equator','north'].includes(topic.id)) assert.equal(y, null); else assert.ok(y >= 2023 && y <= new Date().getUTCFullYear()); }
+      { const y = q.referenceYear; if (['area','borders','equator','north','highest','coastline','military','alcohol','airports','railways'].includes(topic.id)) assert.equal(y, null); else assert.ok(y >= 2023 && y <= new Date().getUTCFullYear()); }
       assert.ok(q.sourceUrl.startsWith('https://data.worldbank.org/indicator/') || q.sourceUrl === '/sources');
     }
   }

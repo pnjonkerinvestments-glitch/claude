@@ -314,7 +314,7 @@ function RoomScreen({ code }: {
             join: () => post('/rooms/' + code + '/join'),
             open: () => new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/rooms/${code}/socket`),
             status: (online, reason) => { setConnected(online); setError(reason); if (reason) { hadConnectionLoss.current = true; metric('room_connection_failed','multiplayer',code); } else if (online && hadConnectionLoss.current) { metric('room_reconnected','multiplayer',code); hadConnectionLoss.current = false; } },
-            rejected: reason => { preferences.current.fail(new Error(reason)); answerPending.current = false; setPending(false); clearTimeout(acknowledgement.current); },
+            rejected: reason => { if (reason !== 'KICKED') preferences.current.fail(new Error(reason)); answerPending.current = false; setPending(false); clearTimeout(acknowledgement.current); },
             state: (data, source) => {
                 data = withSpanish(data);
                 if (data.phase === 'reveal' && latest.current?.phase !== 'reveal')
@@ -349,7 +349,7 @@ function RoomScreen({ code }: {
     catch (e) {
         fail(e);
     } };
-    if (error && !room)
+    if (error && (!room || error === 'KICKED'))
         return <RoomProblem code={error} onRetry={() => channel.current?.retry()}/>;
     if (!room)
         return <Loading variant="list"/>;

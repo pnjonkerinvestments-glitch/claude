@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { GameIcon } from '../atelier/GameIcon';
 import { post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
-import { TOPICS } from '@/lib/puzzles/topics';
+import { ACTIVE_TOPICS as TOPICS } from '@/lib/puzzles/topics';
 import type { PuzzleMode } from '@/lib/puzzles/model';
 import { dailyStateOf, dayModesFor, nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { dailyTitleKey } from '../atelier/DailyLoop';

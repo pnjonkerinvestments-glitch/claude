@@ -70,6 +70,8 @@ export type Room = {
     events: string[];
     /** Quick match against a random player: 'open' while searching, 'matched' once someone joined, 'computer' when the player chose a bot. */
     quick?: 'open' | 'matched' | 'computer';
+    /** Players the host removed from the waiting room (1.25): they cannot join this room again. */
+    kicked?: string[];
 };
 export type Solo = {
     competition?: import('../lib/daily-scoring').Competition;

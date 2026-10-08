@@ -5,15 +5,15 @@ import { GEOGRAPHY_POLICY } from '../config';
 import snapshot from '../data/comparisons.json';
 import archive from '../data/country-metrics.json';
 import { TOPICS, type Localized } from './topics';
+import { funObservation, FUN_IDS } from './fun-metrics';
 
 const text = localized;
-export type RankCategory = { id: string; emoji: string; label: Localized; explanation: Localized; unit: string };
+export type RankCategory = { id: string; emoji: string; label: Localized; explanation: Localized; unit: string; retired?: boolean };
+// 1.25: Rank Radar and the duel use the lively subjects only; retired ones stay listed so older games still read.
 export const RANK_CATEGORIES: RankCategory[] = [
   ...TOPICS.filter(t => !['borders','equator','north'].includes(t.id)),
-  { id: 'highest', emoji: '🏔️', label: text('Highest peak','Hoogste punt'), unit: 'm', explanation: text('Elevation of the highest point above sea level. Shared summits can have equal ranks.','Hoogte van het hoogste punt boven zeeniveau. Gedeelde toppen kunnen dezelfde positie hebben.') },
-  { id: 'elevation', emoji: '⛰️', label: text('Average elevation','Gemiddelde hoogte'), unit: 'm', explanation: text('Mean elevation of the country’s land above sea level.','Gemiddelde hoogte van het land boven zeeniveau.') },
-  { id: 'coastline', emoji: '🌊', label: text('Coastline','Kustlijn'), unit: 'km', explanation: text('Coastline length in the archived source. Measurements depend on scale and method.','Lengte van de kustlijn in de archiefbron. Metingen hangen af van schaal en methode.') },
-  { id: 'age', emoji: '🧑‍🤝‍🧑', label: text('Median age','Mediane leeftijd'), unit: 'years', explanation: text('Half the population is younger than this age, half older. A 2025 estimate, not an arithmetic average.','De helft van de bevolking is jonger, de helft ouder. Een schatting voor 2025, geen rekenkundig gemiddelde.') },
+  { id: 'elevation', emoji: '⛰️', label: text('Average elevation','Gemiddelde hoogte'), unit: 'm', retired: true, explanation: text('Mean elevation of the country’s land above sea level.','Gemiddelde hoogte van het land boven zeeniveau.') },
+  { id: 'age', emoji: '🧑‍🤝‍🧑', label: text('Median age','Mediane leeftijd'), unit: 'years', explanation: text('Half the population is younger than this age, half older. A 2025 estimate, not an arithmetic average.','De helft van de bevolking is jonger, de helft ouder. Een schatting voor 2025, geen rekenkundig gemiddelde.') , retired: true },
 ];
 type Observation = { value: number; referenceYear: number | null; source: string; sourceUrl: string; estimated?: boolean; place?: string };
 export type RankOption = RankCategory & Observation & { rank: number; coverage: number; position: number; topPercent: number };
@@ -36,19 +36,22 @@ function observations(topic: RankCategory): Record<string, Observation> {
   const records = archive.records as Record<string, Record<string, {value: number; reference_year: number | null; source_id: string; source_url: string; estimated: boolean; place?: string}>>;
   return Object.fromEntries(COUNTRIES.flatMap<[string, Observation]>(c => {
     if (topic.id === 'area') return [[c.id, { value:c.area, referenceYear:null, source:'World countries · ODbL 1.0', sourceUrl:'/sources' }]];
+    if (FUN_IDS.includes(topic.id)) { const o = funObservation(c.id, topic.id); return o ? [[c.id, o]] : []; }
     if (wdi && Number.isFinite(wdi.values[c.id])) return [[c.id, { value:wdi.values[c.id], referenceYear:wdi.reference_year, source:'World Bank · WDI · CC BY 4.0', sourceUrl:'https://data.worldbank.org/indicator/'+wdi.indicator }]];
     const fact = records[c.id]?.[topic.id];
     if (!fact || !Number.isFinite(fact.value) || (topic.id === 'age' && fact.reference_year !== 2025)) return [];
     return [[c.id, { value:fact.value, referenceYear:fact.reference_year, source:fact.source_id === 'zugspitze-operator' ? 'Zugspitze · mountain operator · numerical fact' : 'Factbook archive · CC0', sourceUrl:fact.source_url, estimated:fact.estimated, ...(fact.place ? {place:fact.place} : {}) }]];
   }));
 }
+/** Every subject, retired ones included (for older games). New boards use ACTIVE_RANK_TABLES. */
 export const RANK_TABLES = RANK_CATEGORIES.map(category => { const values=observations(category); return { category, values, ranks:rankValues(Object.fromEntries(Object.entries(values).map(([id,o])=>[id,o.value]))) }; });
+export const ACTIVE_RANK_TABLES = RANK_TABLES.filter(t => !t.category.retired);
 
 export function generateRankRounds(seed: string, count = 6): RankRound[] {
   const rng = random(seed), rounds: RankRound[] = [], usedWinners = new Set<string>();
   const pool = shuffle(COUNTRIES.filter(c => !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id)), rng);
   for (const country of pool) {
-    const options: RankOption[] = RANK_TABLES.filter(t => t.values[country.id]).map(t => ({...t.category,...t.values[country.id],...t.ranks[country.id]}));
+    const options: RankOption[] = ACTIVE_RANK_TABLES.filter(t => t.values[country.id] && Object.keys(t.values).length >= 150).map(t => ({...t.category,...t.values[country.id],...t.ranks[country.id]}));
     // Leave a visible gap: avoid questions decided by rounding or unequal coverage.
     const candidates = shuffle(options.filter(o => o.position < .55 && !usedWinners.has(o.id)), rng);
     for (const winner of candidates) {

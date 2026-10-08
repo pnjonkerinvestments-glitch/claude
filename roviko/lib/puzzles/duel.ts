@@ -5,7 +5,7 @@
 import { COUNTRIES } from '../game-engine/questions';
 import { random, shuffle } from '../game-engine/scoring';
 import { GEOGRAPHY_POLICY } from '../config';
-import { RANK_TABLES, type RankCategory } from './rank';
+import { ACTIVE_RANK_TABLES as RANK_TABLES, type RankCategory } from './rank';
 import type { Localized } from './topics';
 
 import { DUEL_MARGIN, DUEL_ROUNDS, type DuelBoard, type DuelCard, type DuelFact, type DuelRound } from './duel-shared';

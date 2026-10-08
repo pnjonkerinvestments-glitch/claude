@@ -17,7 +17,7 @@ export function createRoomClient(deps: Dependencies) {
     let queued: string[] = [];
     let deadline: ReturnType<typeof setTimeout>, heartbeat: ReturnType<typeof setInterval>, retry: ReturnType<typeof setTimeout>;
     const clear = () => { clearTimeout(deadline); clearInterval(heartbeat); clearTimeout(retry); live = false; const old = socket; socket = undefined; if (old) { old.onclose = old.onerror = old.onmessage = old.onopen = null; old.close(); } };
-    const terminal = new Set(['ROOM_NOT_FOUND', 'ROOM_EXPIRED', 'ROOM_FULL', 'ROOM_UNAVAILABLE', 'MATCH_IN_PROGRESS', 'INVALID_ROOM_CODE', 'SESSION_EXPIRED', 'BLOCKED', 'DUPLICATE_SESSION']);
+    const terminal = new Set(['ROOM_NOT_FOUND', 'ROOM_EXPIRED', 'ROOM_FULL', 'ROOM_UNAVAILABLE', 'MATCH_IN_PROGRESS', 'INVALID_ROOM_CODE', 'SESSION_EXPIRED', 'BLOCKED', 'DUPLICATE_SESSION', 'KICKED']);
     const fail = (code: string, current: number) => {
         if (stopped || current !== generation) return;
         generation++; clear(); deps.status(false, code);
