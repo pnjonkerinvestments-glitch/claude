@@ -1,0 +1,169 @@
+[
+ {
+  "t": 0.0097,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 1.3547,
+  "beat": 2.8,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 2.6127,
+  "beat": 5.4,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 3.6529,
+  "beat": 7.55,
+  "sfx": "tap",
+  "gain": -6
+ },
+ {
+  "t": 3.7981,
+  "beat": 7.85,
+  "sfx": "correct",
+  "gain": -9
+ },
+ {
+  "t": 4.8383,
+  "beat": 10,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 5.685,
+  "beat": 11.75,
+  "sfx": "tap",
+  "gain": -6
+ },
+ {
+  "t": 5.8302,
+  "beat": 12.05,
+  "sfx": "correct",
+  "gain": -9
+ },
+ {
+  "t": 6.6769,
+  "beat": 13.8,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 6.8704,
+  "beat": 14.2,
+  "sfx": "whoosh",
+  "gain": -10
+ },
+ {
+  "t": 8.2251,
+  "beat": 17,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 9.4589,
+  "beat": 19.55,
+  "sfx": "tap",
+  "gain": -6
+ },
+ {
+  "t": 9.6041,
+  "beat": 19.85,
+  "sfx": "pop",
+  "gain": -9
+ },
+ {
+  "t": 10.7411,
+  "beat": 22.2,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 11.999,
+  "beat": 24.8,
+  "sfx": "swoosh",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 2.6611,
+  "beat": 5.5,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 4.8867,
+  "beat": 10.1,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 8.2735,
+  "beat": 17.1,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 10.7895,
+  "beat": 22.3,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 12.0474,
+  "beat": 24.9,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 5.9269,
+  "beat": 12.25,
+  "sfx": "pop",
+  "gain": -10,
+  "rate": 0.95
+ },
+ {
+  "t": 8.4429,
+  "beat": 17.45,
+  "sfx": "pop",
+  "gain": -10,
+  "rate": 1.02
+ },
+ {
+  "t": 12.2168,
+  "beat": 25.25,
+  "sfx": "pop",
+  "gain": -10,
+  "rate": 1.0899999999999999
+ },
+ {
+  "t": 13.7892,
+  "beat": 28.5,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 13.9102,
+  "beat": 28.75,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 14.0795,
+  "beat": 29.1,
+  "sfx": "expand",
+  "gain": -10
+ }
+]

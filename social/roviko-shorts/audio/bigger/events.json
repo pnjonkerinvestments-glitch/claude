@@ -1,0 +1,177 @@
+[
+ {
+  "t": 0.0109,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 0.6545,
+  "beat": 1.2,
+  "sfx": "mention",
+  "gain": -7
+ },
+ {
+  "t": 0.9817,
+  "beat": 1.8,
+  "sfx": "lock",
+  "gain": -8
+ },
+ {
+  "t": 1.6362,
+  "beat": 3,
+  "sfx": "expand",
+  "gain": -7
+ },
+ {
+  "t": 1.9089,
+  "beat": 3.5,
+  "sfx": "correct",
+  "gain": -6
+ },
+ {
+  "t": 1.9635,
+  "beat": 3.6,
+  "sfx": "error",
+  "gain": -7,
+  "rate": 0.9
+ },
+ {
+  "t": 3.5997,
+  "beat": 6.6,
+  "sfx": "whoosh",
+  "gain": -8
+ },
+ {
+  "t": 3.7088,
+  "beat": 6.8,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 3.8178,
+  "beat": 7,
+  "sfx": "pop",
+  "gain": -8,
+  "rate": 1.1
+ },
+ {
+  "t": 4.5814,
+  "beat": 8.4,
+  "sfx": "mention",
+  "gain": -7
+ },
+ {
+  "t": 4.9086,
+  "beat": 9,
+  "sfx": "lock",
+  "gain": -8
+ },
+ {
+  "t": 5.5631,
+  "beat": 10.2,
+  "sfx": "expand",
+  "gain": -7
+ },
+ {
+  "t": 5.8358,
+  "beat": 10.7,
+  "sfx": "correct",
+  "gain": -6
+ },
+ {
+  "t": 5.8904,
+  "beat": 10.8,
+  "sfx": "error",
+  "gain": -7,
+  "rate": 0.96
+ },
+ {
+  "t": 7.5266,
+  "beat": 13.8,
+  "sfx": "whoosh",
+  "gain": -8
+ },
+ {
+  "t": 7.6357,
+  "beat": 14,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 7.7448,
+  "beat": 14.2,
+  "sfx": "pop",
+  "gain": -8,
+  "rate": 1.1
+ },
+ {
+  "t": 8.5083,
+  "beat": 15.6,
+  "sfx": "mention",
+  "gain": -7
+ },
+ {
+  "t": 8.8356,
+  "beat": 16.2,
+  "sfx": "lock",
+  "gain": -8
+ },
+ {
+  "t": 9.49,
+  "beat": 17.4,
+  "sfx": "expand",
+  "gain": -7
+ },
+ {
+  "t": 9.7627,
+  "beat": 17.9,
+  "sfx": "correct",
+  "gain": -6
+ },
+ {
+  "t": 9.8173,
+  "beat": 18,
+  "sfx": "error",
+  "gain": -7,
+  "rate": 1.02
+ },
+ {
+  "t": 11.2353,
+  "beat": 20.6,
+  "sfx": "impact",
+  "gain": -5
+ },
+ {
+  "t": 11.399,
+  "beat": 20.9,
+  "sfx": "boing",
+  "gain": -7,
+  "rate": 0.8
+ },
+ {
+  "t": 11.8353,
+  "beat": 21.7,
+  "sfx": "mention",
+  "gain": -7
+ },
+ {
+  "t": 13.3624,
+  "beat": 24.5,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 13.4988,
+  "beat": 24.75,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 13.6897,
+  "beat": 25.1,
+  "sfx": "expand",
+  "gain": -10
+ }
+]

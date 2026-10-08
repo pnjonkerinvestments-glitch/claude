@@ -1,0 +1,138 @@
+{
+ "loudness_lufs": -14.1,
+ "true_peak_dbfs": -1.2,
+ "normalization_type": "static gain + true-peak limiter",
+ "music_gain_db": -3.0,
+ "events": [
+  {
+   "t": 0.0109,
+   "beat": 0.02,
+   "sfx": "pop",
+   "rate": 1.1,
+   "start_s": 0.0054,
+   "peak_lands_at_s": 0.0109,
+   "bed_db": -34.0,
+   "gain_db": -29.1
+  },
+  {
+   "t": 1.9635,
+   "beat": 3.6,
+   "sfx": "swoosh",
+   "rate": 1.1,
+   "start_s": 1.9264,
+   "peak_lands_at_s": 1.9635,
+   "bed_db": -28.1,
+   "gain_db": -15.6
+  },
+  {
+   "t": 3.4633,
+   "beat": 6.35,
+   "sfx": "tap",
+   "rate": 1.0,
+   "start_s": 3.4492,
+   "peak_lands_at_s": 3.4633,
+   "bed_db": -29.2,
+   "gain_db": -15.0
+  },
+  {
+   "t": 3.6269,
+   "beat": 6.65,
+   "sfx": "pop",
+   "rate": 1.0,
+   "start_s": 3.6209,
+   "peak_lands_at_s": 3.6269,
+   "bed_db": -28.4,
+   "gain_db": -22.5
+  },
+  {
+   "t": 5.454,
+   "beat": 10,
+   "sfx": "swoosh",
+   "rate": 1.1,
+   "start_s": 5.4169,
+   "peak_lands_at_s": 5.454,
+   "bed_db": -31.4,
+   "gain_db": -18.9
+  },
+  {
+   "t": 3.5451,
+   "beat": 6.5,
+   "sfx": "mention",
+   "rate": 1.0,
+   "start_s": 3.341,
+   "peak_lands_at_s": 3.5451,
+   "bed_db": -28.8,
+   "gain_db": -17.5
+  },
+  {
+   "t": 5.5086,
+   "beat": 10.1,
+   "sfx": "mention",
+   "rate": 1.0,
+   "start_s": 5.3045,
+   "peak_lands_at_s": 5.5086,
+   "bed_db": -31.6,
+   "gain_db": -20.3
+  },
+  {
+   "t": 8.0175,
+   "beat": 14.7,
+   "sfx": "mention",
+   "rate": 1.0,
+   "start_s": 7.8134,
+   "peak_lands_at_s": 8.0175,
+   "bed_db": -28.6,
+   "gain_db": -17.3
+  },
+  {
+   "t": 3.8451,
+   "beat": 7.05,
+   "sfx": "pop",
+   "rate": 0.95,
+   "start_s": 3.8388,
+   "peak_lands_at_s": 3.8451,
+   "bed_db": -32.7,
+   "gain_db": -27.0
+  },
+  {
+   "t": 5.8086,
+   "beat": 10.65,
+   "sfx": "pop",
+   "rate": 1.02,
+   "start_s": 5.8027,
+   "peak_lands_at_s": 5.8086,
+   "bed_db": -27.8,
+   "gain_db": -22.2
+  },
+  {
+   "t": 10.1991,
+   "beat": 18.7,
+   "sfx": "swoosh",
+   "rate": 1.0,
+   "start_s": 10.1583,
+   "peak_lands_at_s": 10.1991,
+   "bed_db": -26.7,
+   "gain_db": -13.3
+  },
+  {
+   "t": 10.3354,
+   "beat": 18.95,
+   "sfx": "sparkle",
+   "rate": 1.0,
+   "start_s": 9.9398,
+   "peak_lands_at_s": 10.3354,
+   "bed_db": -28.8,
+   "gain_db": -16.8
+  },
+  {
+   "t": 10.5263,
+   "beat": 19.3,
+   "sfx": "expand",
+   "rate": 1.0,
+   "start_s": 10.5115,
+   "peak_lands_at_s": 10.5263,
+   "bed_db": -28.0,
+   "gain_db": -18.6
+  }
+ ]
+}
