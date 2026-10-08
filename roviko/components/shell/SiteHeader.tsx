@@ -8,6 +8,12 @@ import { BRAND } from '@/lib/config';
 import { useApp } from '../app/context';
 import { A, Avatar, Logo } from '../app/shared';
 import { FlameMark } from '../ds/Coin';
+import { useFriendRequests } from '../friends/Friends';
+
+/** A red count on Multiplayer when friend requests wait (1.28). */
+function RequestBadge({ n, label }: { n: number; label: string }) {
+  return n > 0 ? <span className="nav-badge" role="status" aria-label={label}>{n > 9 ? '9+' : n}</span> : null;
+}
 
 const NAV = [
   { href: '/', key: 'play', icon: 'play' as RovikoIconName, match: (p: string) => p === '/' || p === '/daily' || p.startsWith('/duel') || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
@@ -23,7 +29,7 @@ function AppMenu() {
   const { t, boot, bootLoaded, setModal } = useApp();
   const [open, setOpen] = React.useState(false);
   const close = () => setOpen(false);
-  const u = boot.user;
+  const u = boot.user, requests = useFriendRequests();
   const item = (href: string, icon: RovikoIconName, label: string, note?: string) => <A href={href} onClick={close}><RovikoIcon name={icon} size={22}/><span><strong>{label}</strong>{note && <small>{note}</small>}</span><ChevronRight size={17} aria-hidden="true" className="menu-chevron"/></A>;
   return <Popover open={open} onOpenChange={setOpen}>
     <PopoverTrigger asChild><button className="icon-btn nav-icon" aria-label={t('menuOpen')}><Menu size={21} aria-hidden="true"/></button></PopoverTrigger>
@@ -37,7 +43,7 @@ function AppMenu() {
       </div>}
       <nav className="settings-links app-menu-links" aria-label={t('navMore')}>
         {item('/account', 'account', t('myAccount'), t('myAccountNote'))}
-        {item('/friends', 'friends', t('friendsList'), t('menuFriendsNote'))}
+        {item('/friends', 'friends', t('friendsList'), requests ? t(requests === 1 ? 'navRequests_one' : 'navRequests').replace('{n}', String(requests)) : t('menuFriendsNote'))}
         {item('/settings', 'settings', t('settingsTitle'), t('menuSettingsNote'))}
         <hr/>
         {item('/leaderboard', 'trophy', t('leaderboard'))}
@@ -51,6 +57,7 @@ function AppMenu() {
 
 export function SiteHeader({ path, hideTabs }: { path: string; hideTabs: boolean }) {
   const { t, boot, bootLoaded } = useApp();
+  const requests = useFriendRequests(), badgeLabel = t(requests === 1 ? 'navRequests_one' : 'navRequests').replace('{n}', String(requests));
   const streak = boot.stats.dailyStreak ?? 0;
   const passportActive = path === '/profile';
   return <>
@@ -58,7 +65,7 @@ export function SiteHeader({ path, hideTabs }: { path: string; hideTabs: boolean
       <div className="topbar-inner">
         <A href="/" className="topbar-logo" aria-label={BRAND.name}><Logo/></A>
         <nav className="topnav" aria-label={t('navigationLabel')}>
-          {NAV.map(item => { const active = item.match(path); return <A key={item.key} href={item.href} className={active ? 'is-active' : ''} aria-current={active ? 'page' : undefined}>{t(item.key)}</A>; })}
+          {NAV.map(item => { const active = item.match(path); return <A key={item.key} href={item.href} className={active ? 'is-active' : ''} aria-current={active ? 'page' : undefined}>{t(item.key)}{item.key === 'navMultiplayer' && <RequestBadge n={requests} label={badgeLabel}/>}</A>; })}
         </nav>
         <div className="topbar-right">
           {bootLoaded && <A href="/profile" className={'streak-chip streak-pill' + (streak > 0 ? ' is-on' : '')}><FlameMark size={20} off={streak === 0}/><b>{streak > 0 ? plural(t, 'streakPill', streak) : t('streakPillZero')}</b></A>}
@@ -73,7 +80,7 @@ export function SiteHeader({ path, hideTabs }: { path: string; hideTabs: boolean
     {/* On phones the top bar is hidden in games; screens without their own exit (lobby, match results) still get a way home. */}
     {hideTabs && <A href="/" className="game-home-fab" aria-label={t('backHome')}><Home size={20} aria-hidden="true"/></A>}
     {!hideTabs && <nav className="tabbar" aria-label={t('navigationLabel')}>
-      {[...NAV, { href: '/profile', key: 'navPassport', icon: 'passport' as RovikoIconName, match: (p: string) => p === '/profile' }].map(item => { const active = item.match(path); return <A key={item.key} href={item.href} className={active ? 'is-active' : ''} aria-current={active ? 'page' : undefined}><RovikoIcon name={item.icon} size={26} className="tab-icon"/><span>{t(item.key)}</span></A>; })}
+      {[...NAV, { href: '/profile', key: 'navPassport', icon: 'passport' as RovikoIconName, match: (p: string) => p === '/profile' }].map(item => { const active = item.match(path); return <A key={item.key} href={item.href} className={active ? 'is-active' : ''} aria-current={active ? 'page' : undefined}><span className="tab-icon-wrap"><RovikoIcon name={item.icon} size={26} className="tab-icon"/>{item.key === 'navMultiplayer' && <RequestBadge n={requests} label={badgeLabel}/>}</span><span>{t(item.key)}</span></A>; })}
     </nav>}
   </>;
 }

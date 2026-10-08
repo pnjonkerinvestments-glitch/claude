@@ -400,3 +400,30 @@
 .lobby-avatars .player-actions-btn{position:absolute;top:-4px;left:calc(50% - 46px);display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:999px;background:var(--t-card);color:var(--t-soft);box-shadow:var(--t-shadow)}
 .lobby-avatars .player-actions-btn:hover{color:var(--t-ink)}
 .lobby-avatars .player-actions-btn svg{width:16px;height:16px}
+
+/* 1.28: a red count on Multiplayer when friend requests wait. */
+.tab-icon-wrap,.tabbar a .tab-icon-wrap{position:relative;display:inline-grid;place-items:center;overflow:visible!important;max-width:none!important}
+.nav-badge{position:absolute;top:-5px;right:-11px;display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:#e5484d;color:#fff;font:800 .72rem/1 var(--font-sans);border:2px solid var(--t-card);box-shadow:0 2px 6px rgba(229,72,77,.35);animation:nav-badge-pop .35s cubic-bezier(.2,1.4,.4,1)}
+.topnav a{position:relative}
+.topnav a .nav-badge,.nav-badge.is-inline{position:static;margin-left:6px;vertical-align:middle;border-color:transparent}
+.nav-badge.is-inline{margin:0 8px 0 0}
+@keyframes nav-badge-pop{from{transform:scale(.3)}to{transform:scale(1)}}
+
+/* 1.28: a friend invites you. A card drops in at the top: who, that it is a multiplayer invite, check or cross. */
+.invite-pop{position:fixed;z-index:90;pointer-events:auto;top:calc(10px + env(safe-area-inset-top));left:50%;translate:-50% 0;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;width:min(480px,calc(100vw - 20px));padding:12px 12px 12px 14px;border-radius:26px;background:var(--t-card);border:2px solid color-mix(in srgb,var(--t-right) 45%,transparent);box-shadow:0 18px 40px rgba(15,44,37,.22),0 2px 0 rgba(255,255,255,.6) inset;animation:invite-drop .45s cubic-bezier(.2,1.25,.4,1)}
+.invite-pop-avatar{position:relative;display:grid;place-items:center;width:54px;height:54px;border-radius:50%;background:var(--t-mint)}
+.invite-pop-avatar .avatar{width:48px;height:48px}
+.invite-pop-badge{position:absolute;right:-6px;bottom:-4px;width:26px;height:26px;padding:2px;border-radius:50%;background:var(--t-card);box-shadow:var(--t-shadow)}
+.invite-pop-text{display:grid;gap:1px;min-width:0}
+.invite-pop-kicker{font:800 .7rem/1.2 var(--font-sans);letter-spacing:.08em;text-transform:uppercase;color:var(--t-brand)}
+.invite-pop-text strong{font:700 1.05rem/1.2 var(--font-display);color:var(--t-ink)}
+.invite-pop-text span{font-size:.86rem;color:var(--t-text)}
+.invite-pop-actions{display:flex;gap:8px}
+.invite-pop-actions button{display:grid;place-items:center;width:48px;height:48px;border:0;border-radius:50%;cursor:pointer;transition:transform .15s}
+.invite-pop-actions button:active{transform:scale(.92)}
+.invite-pop-actions button:disabled{opacity:.6}
+.invite-pop-no{background:var(--t-red-soft);color:var(--t-red-ink)}
+.invite-pop-yes{background:linear-gradient(180deg,var(--t-right-hi),var(--t-right));color:var(--t-right-ink);box-shadow:0 6px 16px var(--t-right-glow)}
+@keyframes invite-drop{from{opacity:0;transform:translateY(-24px) scale(.96)}to{opacity:1;transform:none}}
+@media (max-width:360px){.invite-pop{gap:9px;padding:10px}.invite-pop-actions button{width:42px;height:42px}.invite-pop-avatar{width:46px;height:46px}.invite-pop-avatar .avatar{width:40px;height:40px}}
+@media (prefers-reduced-motion:reduce){.invite-pop,.nav-badge{animation:none}}

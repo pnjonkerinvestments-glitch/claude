@@ -596,6 +596,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.28.0 (live sinds 8 oktober 2026)
+
+- **Rode teller voor vriendschapsverzoeken.** Wacht er een verzoek, dan staat er een rode cirkel met het aantal op Multiplayer in de tabbalk (en bovenaan op de computer), in het menu bij Vrienden en in het vriendenblok. "1 friend request(s) waiting" is nu netjes enkelvoud of meervoud.
+- **Uitnodiging als melding bovenin.** Nodigt een vriend je uit, dan valt er overal in de app een kaart in beeld: avatar van de vriend, "Uitnodiging voor multiplayer", "Ollie nodigt je uit voor een potje!", de kamercode, een rond kruisje om af te wijzen en een rond groen vinkje om mee te doen. Met een korte toon en trilling. Uitnodigingen komen sneller binnen (elke 15 in plaats van 40 seconden).
+- Geen migratie, geen nieuwe geheimen. Service worker `roviko-shell-v1.28.0`.
+- Getest: build, volledige testset (met nieuwe controle op de teller), in de browser met twee spelers: verzoek sturen (rode 1 op Multiplayer), accepteren, uitnodigen (kaart bovenin, ook boven een open venster) en via het vinkje de kamer in. Niet getest: echte iPhone (trillen, notch).
+
 ## 1.27.0 (live sinds 8 oktober 2026)
 
 - **Rustiger deelbericht.** Geen blokjes en geen losse regels meer, maar drie korte regels: "Ollie scored 900/1,000 pts in Daily Detour 🌍", "🏆 Number 1 in the world today (3 players)" en "Can you beat that?" met de link. Zonder naam: "I scored …". Oefenspellen en kamers: "Roviko · Flag Signal: 8/10" en de link. Het deelplaatje houdt de blokjes, het editienummer en de reeks.
