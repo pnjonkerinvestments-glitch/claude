@@ -6,7 +6,7 @@
   frame 1 and the last caption asks for one easy comment; then the end card.
     1 doomscroll: "You scrolled for 3 hours today. Name ONE thing you learned."  (learning instead of scrolling)
     2 rage bait: "Put these in order by size": China beats the USA in Roviko's atlas
-    3 alien: "When an alien invites you to a geography battle" (Lucia 👽, friend code CAFE1C1A)
+    3 streak: "One wrong answer and it's over" (Side by Side, highest point, run ends at number 7)
     4 day 1 vs day 30: "POV: you swapped doomscrolling for Roviko for 30 days"  (learning instead of scrolling)
     5 play-along: "Guess the country before clue 4" (Clue Trail, Mongolia)
 */
@@ -16,35 +16,36 @@ const FILMS = {
   1: { song: 'take', end: 30.4, END: 36, steps: [
       ['feed', -1], ['detour-q0', 5.2, null, { x: 195, y: 300, k: 1.15, b0: 5.6, b1: 6.6 }], ['detour-a0', 7.6, { x: 195, y: 550 }], ['detour-q7', 10], ['detour-a7', 12, { x: 195, y: 510 }],
       ['finish', 14.4, null, { x: 195, y: 500, k: 1.32, b0: 15.4, b1: 17.2 }], ['finish', 19.6, { x: 195, y: 712 }]],
-    caps: [[-1, ['You scrolled for <i>3 hours</i> today.', 'Name <b>ONE</b> thing you learned 👇']], [5.2, ['Same phone.', '<b>5 minutes</b> of Roviko:']],
-      [14.4, ['Brain: 📈', 'Rank: <b>#3 of 413</b> today 🌍']], [19.6, ['Then make your friends', '<b>jealous</b> 😏']], [25.6, ['Swap ONE scroll session.', 'Comment <b>“done”</b> 👇']]],
-    says: [[2.2, 'uhh… a cat video? 🫠', 'zombie'], [8, 'Canada! 🇨🇦', 'happy'], [12.4, 'San José 🧠', 'happy'], [16, 'WORLD CLASS?! 🤩', 'happy']],
-    share: { b: 20.4, lines: ['Roviko scored <b>958/1,000</b> in', 'Daily Detour 🌍', '🏆 <b>#3 of 413</b> players worldwide today', 'Can you beat that? 👀'] },
+    caps: [[-1, ['You scrolled for <i>3 hours</i> today.', 'Name <b>ONE</b> thing you learned.']], [5.2, ['Same phone.', '<b>5 minutes</b> of Roviko:']],
+      [14.4, ['World class.', '<b>#3 of 413</b> players today.']], [19.6, ['Then make your friends', '<b>jealous</b>.']], [25.6, ['Swap one scroll session.', 'Comment <b>“done”</b> below.']]],
+    says: [[2.2, 'uhh… a cat video?', 'zombie'], [8, 'Canada!', 'happy'], [12.4, 'San José.', 'happy'], [16, 'WORLD CLASS?!', 'happy']],
+    share: { b: 20.4, lines: ['I scored <b>958/1,000</b> in Daily Detour', '<b>#3 of 413</b> players worldwide today', 'Can you beat that?'] },
     tagline: '5 minutes a day beats 3 hours of scrolling.' },
   2: { song: 'funkee', end: 22.6, END: 29, steps: [
       ['order-q', -1, null, { x: 195, y: 330, k: 1.2, b0: 0.4, b1: 1.4 }], ['order-a-full', 4.6, { x: 195, y: 657 }, null, { to: 330, b0: 9.6, b1: 11.6 }]],
-    caps: [[-1, ['Put these in order <b>by size</b>.', 'Bet you get it wrong 😏']], [5.2, ['China is <i>bigger</i>', 'than the USA?! 😳']],
-      [11.6, ['China 9.71M km² · USA 9.37M km²', '<i>Americans</i>, explain 👇']], [17.4, ['Today’s Size Shuffle is live.', 'Play it, then argue 👇']]],
-    says: [[1.8, 'USA #2. Obviously 😎', 'cool'], [6.2, 'WAIT WHAT 😳', 'shock'], [13.4, 'the lakes?! the LAKES? 🌊', 'sad']],
+    caps: [[-1, ['Put these in order <b>by size</b>.', 'Bet you get it wrong.']], [5.2, ['China is <i>bigger</i>', 'than the USA?!']],
+      [11.6, ['China 9.71M km² · USA 9.37M km²', '<i>Americans</i>, explain.']], [17.4, ['Today’s Size Shuffle is live.', 'Play it, then argue below.']]],
+    says: [[1.8, 'USA #2. Obviously.', 'cool'], [6.2, 'WAIT WHAT', 'shock'], [13.4, 'the lakes?! the LAKES?', 'sad']],
     tagline: 'Size Shuffle. New countries every day.' },
-  3: { song: 'life', end: 26.4, END: 33, steps: [
-      ['invite', -1], ['lf-q0', 4, { x: 342, y: 73 }], ['lf-r0', 7, null, { x: 195, y: 330, k: 1.18, b0: 7.6, b1: 8.6 }], ['lf-r1-full', 12.2, null, null, { to: 300, b0: 13, b1: 14.6 }], ['lf-results', 16.6], ['lf-results', 20.6, { x: 195, y: 709 }]],
-    caps: [[-1, ['When an <b>alien</b> invites you', 'to a geography battle 👽']], [7, ['She knew the <b>Bahamas</b>.', 'I said Jamaica 💀']],
-      [12.2, ['Round 2. Same thing.', '<i>Lucia 👽 2 · Me 0</i>']], [16.6, ['Lost to an alien.', '<i>2nd of 2</i> 🥲']], [21.6, ['Add her if you dare:', 'friend code <b>CAFE1C1A</b> 👽']]],
-    says: [[1.8, 'lol, easy win 😎', 'cool'], [8.4, 'she’s… good?? 😳', 'shock'], [13.8, 'nooo 😭', 'sad'], [18.2, 'rematch. NOW. 😤', 'angry']],
-    tagline: 'Lucia 👽 is always up for a match.' },
-  4: { song: 'aerobic', end: 24.6, END: 31, stamps: [[-1, 'DAY 1', 8.6], [8.6, 'DAY 30 🔥', 24.4]], steps: [
+  3: { song: 'life', end: 29.6, END: 36, steps: [
+      ['sbs-r0-q', -1], ['sbs-r0-a', 3.2, { x: 290, y: 305 }], ['sbs-r2-q', 5.6], ['sbs-r2-a', 7.2, { x: 290, y: 305 }], ['sbs-r4-q', 9.4], ['sbs-r4-a', 10.8, { x: 290, y: 305 }],
+      ['sbs-r5-q', 12.8], ['sbs-r5-a', 14.2, { x: 100, y: 300 }], ['sbs-r6-q', 16.4, null, { x: 195, y: 300, k: 1.16, b0: 17, b1: 18 }], ['sbs-r6-a', 22, { x: 290, y: 305 }], ['sbs-finish', 25.6]],
+    caps: [[-1, ['One wrong answer', 'and it’s <i>over</i>.']], [3.2, ['Bet you can’t get', '<b>7 in a row</b>.']], [9.4, ['<b>4 in a row</b>.', 'Getting cocky.']],
+      [16.4, ['Number 7. <b>Pause</b> and pick:', 'Azerbaijan or Serbia?']], [22, ['Azerbaijan <b>4,466 m</b>.', 'Serbia 2,169 m. <i>Run over.</i>']], [25.6, ['How far did you get?', 'Comment your <b>streak</b>.']]],
+    says: [[1.8, 'easy.', 'cool'], [11.2, 'too easy', 'happy'], [18.4, 'Serbia. Obviously.', 'cool'], [22.6, 'NO WAY', 'shock'], [26.4, 'one more go', 'angry']],
+    tagline: 'Side by Side. One wrong and it’s over.' },
+  4: { song: 'aerobic', end: 24.6, END: 31, stamps: [[-1, 'DAY 1', 8.6], [8.6, 'DAY 30', 24.4]], steps: [
       ['detour-q3', -1], ['detour-a3-full', 3.2, null, { x: 195, y: 470, k: 1.18, b0: 3.8, b1: 5.6 }], ['detour-q7', 8.6], ['detour-a7', 10.6, { x: 195, y: 510 }],
       ['finish', 14, null, { x: 195, y: 500, k: 1.3, b0: 14.6, b1: 16.4 }]],
-    caps: [[-1, ['POV: you swapped doomscrolling', 'for Roviko for <b>30 days</b>']], [3.2, ['Day 1: where is <i>Suriname</i>?!', '(not in Africa btw)']],
-      [8.6, ['Day 30: capitals', '<b>first try</b> 😎']], [14, ['Day 30: <b>#3 of 413</b>', 'players worldwide 🌍']], [18.6, ['600 questions later.', 'Your brain says thanks 🧠']], [21.6, ['Your day 1 is today.', 'Comment <b>“day 1”</b> 👇']]],
-    says: [[1.6, 'Africa? 🙈', 'sad'], [11, 'San José. Easy 😎', 'cool'], [15, 'who even am I 🤓', 'happy']],
+    caps: [[-1, ['POV: you swapped doomscrolling', 'for Roviko for <b>30 days</b>']], [3.2, ['Day 1: where is <i>Suriname</i>?!', '(not in Africa, btw)']],
+      [8.6, ['Day 30: capitals', '<b>first try</b>.']], [14, ['Day 30: <b>#3 of 413</b>', 'players worldwide.']], [18.6, ['600 questions later.', 'Your brain says thanks.']], [21.6, ['Your day 1 is today.', 'Comment <b>“day 1”</b>.']]],
+    says: [[1.6, 'Africa?', 'sad'], [11, 'San José. Easy.', 'cool'], [15, 'who even am I', 'happy']],
     tagline: 'Learn something real. 5 minutes a day.' },
   5: { song: 'funkee', end: 22.6, END: 29, steps: [
       ['trail-1', -1], ['trail-2', 4, { x: 195, y: 527 }], ['trail-3', 8, { x: 195, y: 527 }], ['trail-4', 12, { x: 195, y: 527 }], ['trail-a', 15.4, { x: 195, y: 759 }]],
-    caps: [[-1, ['Guess the country', '<b>before clue 4</b> 🕵️']], [4, ['Clue 2: only <b>2</b> neighbours 🤔']], [8, ['Clue 3: borders <b>Russia</b> 👀']],
-      [12, ['Last chance… 🏳️']], [15.4, ['<b>Mongolia</b> 🇲🇳', 'Which clue got you? 👇']], [19.4, ['A new mystery country', 'every day. Fewer clues, <b>more points</b>.']]],
-    says: [[1.8, 'Japan? 🗾', 'cool'], [5.6, 'Nepal? Bhutan?? 😵', 'shock'], [9.6, 'OHHH 💡', 'happy'], [16, 'knew it 😎', 'cool']],
+    caps: [[-1, ['Guess the country', '<b>before clue 4</b>.']], [4, ['Clue 2: only <b>2</b> neighbours.']], [8, ['Clue 3: borders <b>Russia</b>.']],
+      [12, ['Last chance…']], [15.4, ['<b>Mongolia</b>.', 'Which clue got you?']], [19.4, ['A new mystery country', 'every day. Fewer clues, <b>more points</b>.']]],
+    says: [[1.8, 'Japan?', 'cool'], [5.6, 'Nepal? Bhutan??', 'shock'], [9.6, 'OHHH', 'happy'], [16, 'knew it', 'cool']],
     tagline: 'Clue Trail. A new mystery country every day.' },
 };
 const V = Math.max(1, Math.min(5, +(Q.get('v') || 1))), F = FILMS[V];
@@ -62,20 +63,30 @@ const phone = el(uiL, { left: PX - 14, top: PY - 14, width: SW + 28, height: SH 
 const scr = el(phone, { left: 14, top: 14, width: SW, height: SH, borderRadius: 54, overflow: 'hidden', background: C.cream });
 const cam = el(scr, { left: 0, top: 0, width: SW, height: SH });
 // a screen is a captured image, or the doomscroll feed (film 1)
-const FEED = [['#FF8FA3', '😹', 'cat vs cucumber (part 7)'], ['#7CC6FE', '🫠', 'POV: it’s Monday again'], ['#FFD166', '🍝', 'rating gas station pasta'],
-  ['#B8F2E6', '💅', '5 am routine nobody asked for'], ['#CDB4DB', '🤡', 'he said WHAT 😭'], ['#F4A261', '🐸', 'frog does a flip (slowmo)'], ['#90E0EF', '📦', 'unboxing an empty box']];
+// soft, out-of-focus "videos": two blurred colour fields per clip, a title and clean line icons (no emoji)
+const FEED = [[['#FF8FA3', '#FFD6A5'], 'cat vs cucumber (part 7)'], [['#7CC6FE', '#5E60CE'], 'POV: it’s Monday again'], [['#FFD166', '#EF476F'], 'rating gas station pasta'],
+  [['#B8F2E6', '#5E6472'], '5 am routine nobody asked for'], [['#CDB4DB', '#FFAFCC'], 'he said WHAT'], [['#F4A261', '#2A9D8F'], 'frog does a flip (slowmo)'], [['#90E0EF', '#0077B6'], 'unboxing an empty box']];
+const SVGI = {
+  heart: '<svg width="46" height="46" viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.5 3 5 6.4 5c2 0 3.6 1.2 4.4 2.6h.4C12 6.2 13.6 5 15.6 5 19 5 21.1 8.5 19.6 11.8 17.5 16.4 12 21 12 21z"/></svg>',
+  chat: '<svg width="44" height="44" viewBox="0 0 24 24" fill="#fff"><path d="M12 3C6.5 3 2 6.8 2 11.5c0 2.4 1.2 4.6 3.1 6.1L4 21.5l4.6-2.2c1.1.3 2.2.5 3.4.5 5.5 0 10-3.8 10-8.5S17.5 3 12 3z"/></svg>',
+  share: '<svg width="44" height="44" viewBox="0 0 24 24" fill="#fff"><path d="M13 4v4.2C6.6 9 3.6 13.3 3 19c2.3-3.2 5.4-4.7 10-4.7V19l8-7.5L13 4z"/></svg>' };
 function Feed(parent) {
-  const box = el(parent, { left: 0, top: 0, width: SW, height: SH, background: '#101418', overflow: 'hidden' });
+  const box = el(parent, { left: 0, top: 0, width: SW, height: SH, background: '#0E1114', overflow: 'hidden' });
   const strip = el(box, { left: 0, top: 0, width: SW });
   const cards = [];
   for (let i = 0; i < 21; i++) {
-    const [bg, emo, txt] = FEED[i % FEED.length];
-    const c = el(strip, { left: 0, top: i * SH, width: SW, height: SH, background: `linear-gradient(160deg, ${bg}, #101418 92%)` });
-    el(c, { left: 0, top: 300, width: SW, textAlign: 'center', fontSize: 190 }, emo);
-    el(c, { left: 34, top: SH - 210, width: SW - 120, fontFamily: 'Manrope', fontWeight: 800, fontSize: 30, color: '#fff', lineHeight: '38px' }, txt);
-    el(c, { left: 34, top: SH - 130, width: SW - 140, height: 14, borderRadius: 7, background: 'rgba(255,255,255,.35)' });
-    el(c, { left: 34, top: SH - 100, width: SW - 220, height: 14, borderRadius: 7, background: 'rgba(255,255,255,.25)' });
-    el(c, { left: SW - 82, top: SH - 330, width: 60, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 22, color: '#fff', lineHeight: '30px' }, '♥<br>2.1M<br><br>💬<br>48K');
+    const [[c1, c2], txt] = FEED[i % FEED.length];
+    const c = el(strip, { left: 0, top: i * SH, width: SW, height: SH, overflow: 'hidden', background: '#0E1114' });
+    el(c, { left: -120, top: 120, width: 520, height: 520, borderRadius: 260, background: c1, filter: 'blur(70px)', opacity: 0.95 });
+    el(c, { left: 160, top: 420, width: 420, height: 420, borderRadius: 210, background: c2, filter: 'blur(80px)', opacity: 0.85 });
+    el(c, { left: 0, top: SH * 0.55, width: SW, height: SH * 0.45, background: 'linear-gradient(180deg, rgba(14,17,20,0), rgba(14,17,20,.85))' });
+    el(c, { left: 30, top: SH - 236, fontFamily: 'Manrope', fontWeight: 800, fontSize: 24, color: 'rgba(255,255,255,.92)' }, '@' + ['dailyclips', 'justvibes', 'foodcritic', 'mornings', 'tea.time', 'froggo', 'boxes'][i % 7]);
+    el(c, { left: 30, top: SH - 196, width: SW - 130, fontFamily: 'Manrope', fontWeight: 700, fontSize: 28, color: '#fff', lineHeight: '36px' }, txt);
+    el(c, { left: 30, top: SH - 112, width: SW - 170, height: 12, borderRadius: 6, background: 'rgba(255,255,255,.28)' });
+    el(c, { left: 30, top: SH - 88, width: SW - 250, height: 12, borderRadius: 6, background: 'rgba(255,255,255,.18)' });
+    const col = el(c, { left: SW - 80, top: SH - 420, width: 60, textAlign: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 19, color: '#fff', lineHeight: '24px' });
+    col.innerHTML = `${SVGI.heart}<div>2.1M</div><div style="height:22px"></div>${SVGI.chat}<div>48K</div><div style="height:22px"></div>${SVGI.share}<div>Share</div>`;
+    el(c, { left: 0, top: SH - 6, width: SW * (0.2 + 0.11 * (i % 7)), height: 6, background: 'rgba(255,255,255,.75)' });
     cards.push(c);
   }
   return { box, set(t) {
@@ -104,11 +115,13 @@ let share = null;
 if (F.share) {
   const box = el(capL, { left: 110, top: 900, width: 860, boxSizing: 'border-box', borderRadius: 34, background: '#DCF8C6', zIndex: 60, transformOrigin: '80% 100%', padding: '26px 34px',
     boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 22px 44px rgba(22,59,50,.22)', fontFamily: 'Manrope', fontWeight: 700, fontSize: 36, lineHeight: '50px', color: C.forest },
-    F.share.lines.join('<br>') + '<div style="margin-top:8px;font-size:30px;color:#1F806B;font-weight:800">roviko.app/daily ↗</div>');
+    F.share.lines.join('<br>') + '<div style="margin-top:8px;font-size:30px;color:#1F806B;font-weight:800">roviko.app/daily</div>');
   box.querySelectorAll('b').forEach(e => S(e, { color: C.green }));
   share = { box, b: F.share.b };
 }
 const endCard = EndCard(stage, { my: 690, tagline: F.tagline });
+// under the end card: where to get it
+const freePill = Tag(stage, 'Free on iPhone and the web', { bg: C.forest, fg: C.white, size: 34, h: 76, font: 'Manrope', weight: 800, ls: '0.01em', z: 90 }); centreX(freePill, 1330);
 
 ev(0.02, 'pop', -12, { rate: 1.1 });
 F.steps.forEach(([, b, tap, zm, pan], i) => { if (!i) return; if (tap) { ev(b - 0.05, 'tap', -6); ev(b + 0.25, i % 2 ? 'correct' : 'pop', -9); } else ev(b, 'swoosh', -9, { rate: 1.1 }); if (zm) ev(zm.b0, 'whoosh', -10); if (pan) ev(pan.b0, 'slide', -10); });
@@ -161,5 +174,6 @@ function seek(tReal) {
     shades: cool ? { on: spB(t, talking.b, 3, 0.6), drop: 0 } : null, flush: angry ? 0.6 : 0,
     arms: sad || shock ? [[-92, -58, -30, 11], [92, -58, -30, 11]] : happy || angry ? [[-118, -92, -22, 11], [118, -92, -22, 11]] : zombie ? [[-100, 96, 30, 10], [100, 96, 30, 10]] : [[-112, 66, 22, 10], [112, 66, 22, 10]] });
   endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+  { const p = spB(t, TL.end + 1.9, 2.4, 0.55); S(freePill, { transform: `scale(${p})` }); show(freePill, p > 0.001); }
 }
 boot(seek, DURATION);

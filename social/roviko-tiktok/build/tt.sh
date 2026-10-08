@@ -5,8 +5,8 @@ cd "$(dirname "$0")/.."
 python3 build/mkshort.py src/tt.js >/dev/null
 mkdir -p out/tt
 declare -A TEMPO=([1]=124.01 [2]=120.384 [3]=119.998 [4]=110.01 [5]=120.384)
-declare -A ENDB=([1]=36 [2]=29 [3]=33 [4]=31 [5]=29)
-declare -A CARD=([1]=30.4 [2]=22.6 [3]=26.4 [4]=24.6 [5]=22.6)
+declare -A ENDB=([1]=36 [2]=29 [3]=36 [4]=31 [5]=29)
+declare -A CARD=([1]=30.4 [2]=22.6 [3]=29.6 [4]=24.6 [5]=22.6)
 ns=("$@"); [ ${#ns[@]} -eq 0 ] && ns=(1 2 3 4 5)
 for n in "${ns[@]}"; do
   a="tt-$n"
