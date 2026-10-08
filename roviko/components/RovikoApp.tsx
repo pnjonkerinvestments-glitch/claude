@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Toaster, toast } from 'sonner';
-import { APP_STORE_URL, BRAND, DEFAULT_SETTINGS, MODES, REGIONS } from '@/lib/config';
+import { APP_STORE_URL, BRAND, DEFAULT_SETTINGS, MODES, QUICK_NEXT_MS, REGIONS } from '@/lib/config';
 import { messages, errorMessage, type Locale } from '@/i18n/messages';
 import { api, post, copyText, formatScore, sound, soundDefault, readPreference, writePreference, metric } from '@/lib/client';
 import { NextDiscovery } from './atelier/NextDiscovery';
@@ -34,7 +34,7 @@ const PuzzleGame = React.lazy(() => import('./puzzles/PuzzleGame').then(m => ({ 
 const DuelGame = React.lazy(() => import('./puzzles/DuelGame').then(m => ({ default: m.DuelGame })));
 import { evaluateLearning } from '@/lib/game-engine/learning';
 import { pageTitle } from '@/lib/page-title';
-import { shareResult } from '@/lib/share';
+import { challengeExtras, shareResult } from '@/lib/share';
 import { shareWithImage } from '@/lib/share-image';
 import { createRoomClient } from '@/lib/realtime/room-client';
 import { AppContext, useApp } from './app/context';
@@ -231,7 +231,8 @@ function SoloScreen({ id }: { id: string }) {
     const nextRound = useRef(next); nextRound.current=next;
     useEffect(() => {
         if (!autoNext || game?.phase !== 'reveal' || !game.feedback?.correct || saving || advancing || error) return;
-        const timeout=setTimeout(()=>{if(document.visibilityState==='visible')nextRound.current();},3000);
+        // A right answer goes on after a short flash (1.26; was 3 seconds). Wrong answers wait for the player, to read why.
+        const timeout=setTimeout(()=>{if(document.visibilityState==='visible')nextRound.current();},QUICK_NEXT_MS);
         return ()=>clearTimeout(timeout);
     }, [autoNext,game?.phase,game?.round,saving,advancing,error]);
     // Keyboard: Enter or Space goes on to the next question once the answer is shown (buttons and fields keep their own keys).
@@ -278,7 +279,7 @@ function Results({ result, multiplayer = false, room, send }: any) {
     const correct = list.filter((a: any) => a.correct).length;
     const score = result.score;
     const wrong = list.filter((a: any) => !a.correct);
-    const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : soloTitleKey(result)), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points'):undefined, streak: result.daily ? boot?.stats?.dailyStreak : undefined, points: result.competition ? score : undefined, origin: window.location.origin }));
+    const share = () => shareOut(shareResult({ mode: multiplayer ? 'multiplayer' : result.competition?.mode ?? (result.daily ? 'daily' : result.settings?.mode) ?? 'mixed', label: t(multiplayer ? 'multiplayer' : soloTitleKey(result)), date: result.daily, correct, total: list.length, answers: list.map((a:any) => !!a.correct), detail:result.competition?score.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points'):undefined, streak: result.daily ? boot?.stats?.dailyStreak : undefined, points: result.competition ? score : undefined, extras: result.competition ? challengeExtras(t, locale, result.competition.mode, result.daily, boot?.user?.name) : undefined, origin: window.location.origin }));
     const winners = room?.players ?? [];
     if (!multiplayer && result.competition) {
         const all = list.length > 0 && correct === list.length;

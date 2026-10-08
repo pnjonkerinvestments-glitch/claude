@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, List, RefreshCw, Share2, X } from 'lucide-react';
 import { api, post, copyText, sound } from '@/lib/client';
 import { BRAND } from '@/lib/config';
-import { shareCard, squares } from '@/lib/share';
+import { challengeExtras, shareCard, squares } from '@/lib/share';
 import { shareWithImage } from '@/lib/share-image';
 import { formatMetric } from '@/lib/puzzles/topics';
 import { duelWon, type DuelBoard, type DuelCard, type DuelRound } from '@/lib/puzzles/duel-shared';
@@ -82,7 +82,7 @@ export function DuelGame({ app, practice = false }: { app: any; practice?: boole
   }
   async function share() {
     const url = new URL('/daily', window.location.origin); url.searchParams.set('shared', 'duel');
-    const text = shareCard({ label: t('duel'), date: board!.date, trail: squares(results), score: session ? (session.score ?? 0).toLocaleString(loc) + '/' + (1000).toLocaleString(loc) + ' ' + t('points') : wins + '/' + total, streak: session ? app.boot?.stats?.dailyStreak : undefined, url: url.toString(), points: session ? session.score ?? 0 : undefined });
+    const text = shareCard({ label: t('duel'), date: board!.date, trail: squares(results), score: session ? (session.score ?? 0).toLocaleString(loc) + '/' + (1000).toLocaleString(loc) + ' ' + t('points') : wins + '/' + total, streak: session ? app.boot?.stats?.dailyStreak : undefined, url: url.toString(), points: session ? session.score ?? 0 : undefined, extras: session ? challengeExtras(t, loc, 'duel', board!.date, app.boot?.user?.name) : undefined });
     try { if (navigator.share) { if (await shareWithImage(text)) return; await navigator.share({ text }); return; } } catch { /* fall back to copying */ }
     await copyText(text); setCopied(true);
   }

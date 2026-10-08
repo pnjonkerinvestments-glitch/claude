@@ -20,7 +20,7 @@ import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
 import { WelcomeCard, WelcomeTour, tourSeen } from './WelcomeTour';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
-import { challengeLine, clearChallenge, useChallenge } from './ChallengeBanner';
+import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
 
 /** The key words of a headline in brand green, as in the captions of the Roviko videos. */
@@ -89,7 +89,7 @@ export function HomePage() {
 
   // What Roviko says and how it stands there, from most to least urgent.
   const [mood, pose, bubble]: [CharacterMood, CharacterPose, string] = !ready ? ['happy', 'wave', '']
-    : challenge && !allDone ? ['curious', 'point', challengeLine(t, locale, challenge)]
+    : challenge && !allDone ? ['curious', 'point', challengeLine(t, locale, challenge) + (challengeRank(t, locale, challenge) ? ' · ' + challengeRank(t, locale, challenge) : '') + '. ' + t('shareCall')]
     : allDone ? ['cheer', 'cheer', nextBonus ? (bonusLeft === BONUS_MODES.length ? t('mascotBonus') : plural(t, 'mascotBonusLeft', bonusLeft)) : t('homeDoneBubble')]
     : savedByShield ? ['wink', 'hips', t('freezeSaved')]
     : atRisk ? ['worried', 'shrug', plural(t, 'mascotRisk', streak)]

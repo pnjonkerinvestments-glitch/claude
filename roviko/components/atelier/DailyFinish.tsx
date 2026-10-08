@@ -20,7 +20,8 @@ export function DailyFinish({ app, date, mode, game, headline, mood, summary, tr
   return <section className="daily-finish">
     <DailyResult app={app} date={date} mode={mode} summary={summary} trail={trail} stage={{ game, headline, mood, chips: summary, trail }}/>
     <div className="finish-actions">
-      <button className="finish-quiet finish-share" disabled={busy} onClick={onShare}><Share2 size={16} aria-hidden="true"/>{t('share')}</button>
+      {/* Sharing is the way Roviko grows (1.26): a real button, "Challenge your friends", with your place of the day in the message. */}
+      <button className="btn primary finish-share finish-share-big" disabled={busy} onClick={onShare}><Share2 size={17} aria-hidden="true"/>{t('shareChallenge')}</button>
       <button className="finish-quiet" onClick={onDone}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button>
     </div>
     {onAgain && <button className="text-link finish-again" disabled={busy} onClick={onAgain}><RefreshCw size={15} aria-hidden="true"/>{t('finishPractice')}</button>}

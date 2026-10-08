@@ -596,6 +596,16 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.26.0 (live sinds 8 oktober 2026)
+
+- **Delen met je plek.** De deeltekst van elk dagspel (Daily Detour, Clue Trail, Size Shuffle, Side by Side, Rank Radar, Wereldduel), van het dagtotaal en van de ranglijst van vandaag noemt nu je naam en je plek van vandaag, bijvoorbeeld "🏆 Pietje: nummer 1 van de wereld vandaag (230 spelers) · Kun jij dat verslaan?". De deelafbeelding toont dat als gouden balk.
+- **De link vertelt het verder.** Naam, plek en taal reizen mee in de link. Wie hem opent, ziet op de homepage "Pietje haalde vandaag 3.879 punten · Nummer 1 van de wereld vandaag. Kun jij dat verslaan?", en WhatsApp en iMessage tonen dat al in de linkvoorvertoning. Het is een vriendelijke claim uit de link; er wordt niets opgeslagen. Grove of vreemde namen in een link worden genegeerd.
+- **Grote deelknop.** Op het eindscherm van elk dagspel is "Daag je vrienden uit" nu een grote knop; op de ranglijstpagina staat dezelfde knop bij je plek van vandaag.
+- **Sneller door.** Na een goed antwoord gaat het spel na 0,8 seconde door in plaats van na 3 seconden (Side by Side, Daily Detour, Clue Trail, Size Shuffle en de oefenspellen); Rank Radar na 1,3 in plaats van 2,2 seconden. Na een fout antwoord wacht het spel op jou, zodat je kunt lezen waarom.
+- **Clue Trail.** De nieuwe hints van 1.25 staan sinds 8 oktober live, maar de dagelijkse Clue Trail van 8 oktober was al vóór de update aangemaakt en blijft die dag gelijk voor iedereen. Vanaf 9 oktober wisselen de hints ook in het dagspel.
+- Geen migratie, geen nieuwe geheimen. Service worker `roviko-shell-v1.26.0`.
+- Getest: build, volledige testset (alles geslaagd, 1 bewust overgeslagen), nieuwe test voor de deeltekst, de link en het naamfilter; in de browser op 390 px: eindscherm van Side by Side met de grote knop en de gekopieerde tekst, de homepage via een gedeelde link, de linkvoorvertoning (og:title/og:description) en de deelafbeelding. Niet getest: delen op een echte iPhone (deelvenster met afbeelding) en de voorvertoning in WhatsApp zelf.
+
 ## 1.25.0 (live sinds 8 oktober 2026)
 
 - **Moeilijkheid.** Makkelijk, gemiddeld en moeilijk verschillen nu duidelijk. Makkelijk (na feedback "niet te makkelijk"): bekende landen plus de grootste andere (ongeveer 60), één fout antwoord uit hetzelfde continent en twee van elders, Size Shuffle-groottes minstens zo'n 2,4× uit elkaar, op de kaart landen vanaf 50.000 km². Moeilijk: minder bekende landen, foute antwoorden uit dezelfde regio die erop lijken, groottes dicht bij elkaar. Gemiddeld is ongewijzigd (de dagspellen gebruiken dat). Gemengd geeft elke vraag een eigen niveau. De wachtkamer zet onder de keuze één zin uitleg.

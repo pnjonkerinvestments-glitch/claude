@@ -38,6 +38,12 @@ Since 1.25 the clues go from vague to sharp but their kind changes per question.
 
 New games only use the lively subjects: population, area, life expectancy, GDP per person, total GDP, highest point, coastline, military budget, alcohol, airports and railways, plus land neighbours, distance from the equator and further north in Side by Side. Military budget is an estimate: the latest military expenditure as a share of GDP (archived Factbook) times World Bank GDP. Alcohol is litres of pure alcohol per person aged 15+ (2019 estimate), airports counts airfields of every size, railways is total network length (countries without trains are left out). Rank Radar boards only use subjects with near-full coverage (railways is in Side by Side and the duel, not on Rank Radar boards). Retired subjects (forest, city living, internet use, fertility, agricultural land, exports, mean elevation, median age) stay readable in older games. Homicide rates are not included: no openly licensed source was reachable for the data import. The daily Side by Side topic rotates through the lively subjects only (`roviko:topics:v2`); days already played keep their stored topic.
 
+## Pace and sharing (1.26)
+
+After a right answer the game moves on by itself after 0.8 seconds (Rank Radar: 1.3 seconds); after a wrong answer it waits for the player. This is presentation only; scoring and timing rules are unchanged (the next question starts when it is shown).
+
+Shares of daily games, the day total and today's ranking carry the player's name and place of the day ("#3 of 230 players worldwide today"), in the text, the share picture and the link (`n`, `r`, `p`, `l`). A shared link is a friendly claim: it is shown to the friend and in link previews, never stored or used for rankings; names failing the player-name rules are dropped.
+
 ## Maps, capitals, ordering and borders
 
 Pinpoint accepts the chosen country's source geometry/islands with a declared 25 km touch/simplification tolerance. An outside pin reports distance to the nearest country boundary. Raw map accuracy is 1,000 for a correct pin, otherwise `round(900 * exp(-boundaryDistanceKm / 1600))`; invalid/missing pins get 0. In World Trip, the round earns `round(rawAccuracy / 5)`, capped at 200. A nearer miss never earns less than a farther miss. Neighbour/continent labels explain proximity without inconsistent fixed bonuses. Practice displays distance and correctness, not points. Legacy reference-point games retain their original frozen rules.

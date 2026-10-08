@@ -2,7 +2,8 @@
 import { plural } from '@/lib/plural';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Trophy } from 'lucide-react';
+import { ArrowRight, Share2, Trophy } from 'lucide-react';
+import { challengeExtras, rememberStanding, shareCard } from '@/lib/share';
 import { api, formatScore } from '@/lib/client';
 import { useApp } from '../app/context';
 import { A, Avatar, Choice } from '../app/shared';
@@ -19,7 +20,7 @@ function Place({ place }: { place: number }) {
 }
 
 function DailyRankings() {
-  const { t, locale, boot } = useApp();
+  const { t, locale, boot, share } = useApp();
   const [tab, setTab] = useState<'today' | 'week' | 'friends' | 'total'>('today');
   const { data, error, retry } = useCompetition(boot);
   const tabs = (['today', 'week', 'friends', 'total'] as const).filter(k => k !== 'friends' || !!data?.friends);
@@ -43,6 +44,8 @@ function DailyRankings() {
           <div className="you-score"><strong>{n(standing.score)}</strong><small>{t('points')}{tab === 'today' || tab === 'friends' ? ' / ' + n(DAILY_TOTAL_MAX) : ''}</small></div>
           {!standing.place && <A href="/" className="btn primary">{t('tripStart')}<ArrowRight size={18} aria-hidden="true"/></A>}
         </div>
+        {/* 1.26: share today's place as a challenge ("Pietje: #3 of 230 players worldwide today. Can you beat that?"). */}
+        {tab === 'today' && standing.place && standing.score > 0 ? <button className="btn secondary rank-share" onClick={() => { const date = new Date().toISOString().slice(0, 10); rememberStanding('day', date, standing.place ?? undefined, standing.participants); share(shareCard({ label: t('dayShareLabel'), date, trail: '', score: n(standing.score) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak: boot.stats?.dailyStreak, url: new URL('/?shared=day', location.origin).toString(), points: standing.score, extras: challengeExtras(t, locale, 'day', date, boot.user?.name) })); }}><Share2 size={17} aria-hidden="true"/>{t('shareChallenge')}</button> : null}
         {standing.place ? <p className="rank-target">{standing.next ? t('rankTarget').replace('{n}', n(standing.next.gap + 1)).replace('{name}', standing.next.name).replace('{place}', n(standing.next.place)) : t('rankLeading')}</p> : null}
         {standing.leaders.length ? <ol className="leader-list" aria-label={t('rankingsTop')}>
           {standing.leaders.map((p: Leader, i: number) => <li key={i} className={p.me ? 'is-you' : ''}>
