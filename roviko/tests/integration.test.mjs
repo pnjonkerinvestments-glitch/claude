@@ -504,10 +504,10 @@ test('competition summary reports earlier personal bests, the best day and yeste
 test('friends see who is online and can invite each other straight into a room',async()=>{
  const signup=async(n)=>{const g=await bootstrap();return request(g.cookie,'/auth/signup','POST',{name:'Invite '+n,email:'invite-'+n.toLowerCase()+'@example.test',password:'Synthetic-invite-password-'+n});};
  const a=await signup('A'),b=await signup('B'),c=await signup('C');
- await request(a.cookie,'/friends','POST',{code:b.data.user.friendCode});const pending=(await request(b.cookie,'/friends')).data.friends[0];
+ await request(a.cookie,'/friends','POST',{code:b.data.user.friendCode});assert.equal((await request(b.cookie,'/presence','POST',{})).data.requests,1,'the red badge counts requests waiting for you');assert.equal((await request(a.cookie,'/presence','POST',{})).data.requests,0,'not the ones you sent');const pending=(await request(b.cookie,'/friends')).data.friends[0];
  assert.equal(pending.online,0,'pending requests never reveal presence');
  await request(b.cookie,'/friends/'+pending.id,'POST',{status:'accepted'});
- assert.deepEqual((await request(a.cookie,'/presence','POST',{})).data,{invites:[]});
+ assert.deepEqual((await request(a.cookie,'/presence','POST',{})).data,{invites:[],requests:0});assert.equal((await request(b.cookie,'/presence','POST',{})).data.requests,0,'accepted: badge gone');
  let seen=(await request(b.cookie,'/friends')).data.friends[0];assert.equal(seen.online,1);assert.equal(seen.name,'Invite A');
  const room=(await request(a.cookie,'/rooms','POST',{settings})).data;
  assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:c.data.user.id})).status,403,'only accepted friends');
@@ -522,7 +522,7 @@ test('friends see who is online and can invite each other straight into a room',
  seen=(await request(a.cookie,'/friends')).data.friends[0];assert.equal(seen.room_code,room.code);
  await db.prepare('UPDATE user_presence SET last_seen=? WHERE user_id=?').bind(Date.now()-5*60000,a.data.user.id).run();
  assert.equal((await request(b.cookie,'/friends')).data.friends[0].online,0);
- const guest=await bootstrap();assert.deepEqual((await request(guest.cookie,'/presence','POST',{})).data,{invites:[]});
+ const guest=await bootstrap();assert.deepEqual((await request(guest.cookie,'/presence','POST',{})).data,{invites:[],requests:0});
  assert.equal(await db.prepare('SELECT COUNT(*) n FROM user_presence WHERE user_id=?').bind(guest.data.user.id).first('n'),0);
 });
 test('the next flag can load while the answer is shown, but never early and never a hidden Clue Trail flag',async()=>{

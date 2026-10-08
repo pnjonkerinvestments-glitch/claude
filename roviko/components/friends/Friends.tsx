@@ -1,5 +1,7 @@
 'use client';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { sound } from '@/lib/client';
+import { plural } from '@/lib/plural';
 import { ArrowRight, Check, Copy, DoorOpen, Plus, Send, UserPlus, X } from 'lucide-react';
 import { RovikoIcon } from '../ds/RovikoIcons';
 import { toast } from 'sonner';
@@ -30,6 +32,15 @@ export function useFriends() {
  * Heartbeat while the site is open (signed-in players only): marks you online, tells friends
  * which room you are in, and collects room invites addressed to you.
  */
+// Friend requests waiting for you (1.28): one small store, so the tab bar badge and the presence check agree.
+let waiting = 0;
+const listeners = new Set<() => void>();
+const setWaiting = (n: number) => { if (n !== waiting) { waiting = n; listeners.forEach(l => l()); } };
+/** How many friend requests are waiting for you (0 for guests and on the server). */
+export const useFriendRequests = () => useSyncExternalStore(l => { listeners.add(l); return () => { listeners.delete(l); }; }, () => waiting, () => 0);
+/** Ask for a fresh presence check now, for example after accepting a request. */
+export const refreshPresence = () => { try { window.dispatchEvent(new Event('roviko:presence')); } catch { /* not in a browser */ } };
+
 export function usePresence(path: string) {
   const { boot, bootLoaded } = useApp();
   const [invites, setInvites] = useState<Invite[]>([]);
@@ -37,11 +48,13 @@ export function usePresence(path: string) {
   useEffect(() => {
     if (!bootLoaded || boot.user.guest || !boot.user.id) return;
     let active = true;
-    const beat = () => { if (document.visibilityState !== 'visible') return; post('/presence', { room }).then(r => { if (active) setInvites(r.invites ?? []); }).catch(() => {}); };
+    const beat = () => { if (document.visibilityState !== 'visible') return; post('/presence', { room }).then(r => { if (active) { setInvites(r.invites ?? []); setWaiting(Number(r.requests) || 0); } }).catch(() => {}); };
     beat();
-    const id = setInterval(beat, 40000);
+    // Every 15 seconds (was 40) so an invite from a friend shows up while they wait in the room.
+    const id = setInterval(beat, 15000);
     document.addEventListener('visibilitychange', beat);
-    return () => { active = false; clearInterval(id); document.removeEventListener('visibilitychange', beat); };
+    window.addEventListener('roviko:presence', beat);
+    return () => { active = false; clearInterval(id); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
   }, [bootLoaded, boot.user.guest, boot.user.id, room]);
   return { invites: invites.filter(i => i.code !== room), dismiss: (id: string) => setInvites(list => list.filter(i => i.id !== id)) };
 }
@@ -87,11 +100,16 @@ export function InvitePanel({ code, inRoom = [] }: { code: string; inRoom?: stri
   </section>;
 }
 
-/** A friendly card when a friend invites you. One tap joins the room. */
+/**
+ * A friend invites you to a match (1.28): a card that drops in at the top of the screen, wherever you are in
+ * Roviko. Who invites you, that it is a multiplayer invite and the room, with a round check to join and a round
+ * cross to decline. Chimes once when it arrives.
+ */
 export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: (id: string) => void }) {
   const { t, go, fail } = useApp();
   const [busy, setBusy] = useState('');
   const invite = invites[0];
+  useEffect(() => { if (invite) { try { sound('tap'); navigator.vibrate?.([30, 40, 30]); } catch { /* quiet */ } } }, [invite?.id]);
   if (!invite) return null;
   const answer = async (status: 'accepted' | 'dismissed') => {
     setBusy(status);
@@ -101,11 +119,17 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
       if (status === 'accepted') { await post('/rooms/' + invite.code + '/join'); go('/room/' + invite.code); }
     } catch (e) { dismiss(invite.id); fail(e); } finally { setBusy(''); }
   };
-  return <aside className="invite-inbox" role="alertdialog" aria-labelledby="invite-inbox-title" aria-live="polite">
-    <Avatar id={invite.avatar}/>
-    <div><strong id="invite-inbox-title">{t('inviteIncoming').replace('{name}', invite.name)}</strong><small>{t('inviteIncomingCopy')}</small></div>
-    <button className="btn primary btn-sm" disabled={!!busy} aria-busy={busy === 'accepted'} onClick={() => answer('accepted')}>{t('inviteJoin')}<ArrowRight size={16} aria-hidden="true"/></button>
-    <button className="icon-btn" aria-label={t('inviteLater')} disabled={!!busy} onClick={() => answer('dismissed')}><X size={18}/></button>
+  return <aside className="invite-pop" key={invite.id} role="alertdialog" aria-labelledby="invite-pop-title" aria-describedby="invite-pop-copy">
+    <span className="invite-pop-avatar"><Avatar id={invite.avatar}/><RovikoIcon name="multiplayer" size={22} className="invite-pop-badge"/></span>
+    <div className="invite-pop-text">
+      <small className="invite-pop-kicker">{t('invitePopKicker')}</small>
+      <strong id="invite-pop-title">{t('invitePopTitle').replace('{name}', invite.name)}</strong>
+      <span id="invite-pop-copy">{t('invitePopCopy').replace('{code}', invite.code)}</span>
+    </div>
+    <div className="invite-pop-actions">
+      <button className="invite-pop-no" disabled={!!busy} aria-label={t('invitePopDecline').replace('{name}', invite.name)} onClick={() => answer('dismissed')}><X size={22} strokeWidth={2.8}/></button>
+      <button className="invite-pop-yes" disabled={!!busy} aria-busy={busy === 'accepted'} aria-label={t('invitePopAccept').replace('{name}', invite.name)} onClick={() => answer('accepted')}><Check size={24} strokeWidth={3}/></button>
+    </div>
   </aside>;
 }
 
@@ -114,7 +138,7 @@ export function FriendsPage() {
   const app = useApp(), { t, boot, setModal, fail, copy, go } = app;
   const { friends, reload } = useFriends();
   const [code, setCode] = useState(''), [busy, setBusy] = useState(false), [inviting, setInviting] = useState('');
-  const act = async (id: string, status: string) => { try { await post('/friends/' + id, { status }); reload(); } catch (e) { fail(e); } };
+  const act = async (id: string, status: string) => { try { await post('/friends/' + id, { status }); reload(); refreshPresence(); } catch (e) { fail(e); } };
   const add = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await post('/friends', { code }); setCode(''); toast.success(t('friendSaved')); reload(); } catch (err) { fail(err); } finally { setBusy(false); } };
   const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
@@ -169,7 +193,7 @@ export function FriendsOnlinePanel() {
       <div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{friends === null ? t('loading') : t('friendsOnlineCount').replace('{n}', String(online.length))}</p></div>
       <A href="/friends" className="text-link mp-friends-all">{t('friendsAll')}<ArrowRight size={15} aria-hidden="true"/></A>
     </div>
-    {requests.length > 0 && <A href="/friends" className="mp-friends-requests">{t('mpFriendRequests').replace('{n}', String(requests.length))}<ArrowRight size={15} aria-hidden="true"/></A>}
+    {requests.length > 0 && <A href="/friends" className="mp-friends-requests"><span className="nav-badge is-inline" aria-hidden="true">{requests.length > 9 ? '9+' : requests.length}</span>{plural(t, 'mpFriendRequests', requests.length)}<ArrowRight size={15} aria-hidden="true"/></A>}
     {friends === null ? <div className="sk-list"><Skeleton className="sk-block sk-list-row"/></div>
       : online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.room_code
         ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>

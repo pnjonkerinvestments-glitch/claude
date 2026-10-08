@@ -11,16 +11,18 @@ const isFriend = (env: Env, a: string, b: string) => one(env, "SELECT id FROM fr
 
 /**
  * Heartbeat from an open tab: remember that this player is around (and in which room),
- * and hand back the room invites that are still waiting for them.
+ * and hand back the room invites that are still waiting for them and how many friend requests wait.
  */
 export async function heartbeat(env: Env, user: User, roomCode?: string | null) {
-  if (user.guest) return { invites: [] };
+  if (user.guest) return { invites: [], requests: 0 };
   const now = Date.now();
   const room = roomCode && /^[A-Z2-9]{5}$/.test(roomCode) ? roomCode : null;
   await run(env, 'INSERT INTO user_presence(user_id,last_seen,room_code) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen=excluded.last_seen,room_code=excluded.room_code', user.id, now, room);
   const invites = await rows(env, `SELECT i.id,i.room_code code,i.created_at,u.name,u.avatar FROM room_invites i JOIN users u ON u.id=i.from_id
     WHERE i.to_id=? AND i.status='pending' AND i.created_at>? ORDER BY i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL);
-  return { invites };
+  // 1.28: friend requests waiting for you, for the red badge on the Multiplayer tab.
+  const requests = Number((await one(env, "SELECT COUNT(*) n FROM friend_requests WHERE to_id=? AND status='pending'", user.id))?.n ?? 0);
+  return { invites, requests };
 }
 
 /** Invite an accepted friend into a room you are in. Re-inviting refreshes the same invite instead of piling up new ones. */
