@@ -596,6 +596,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.27.0 (op de preview, nog niet live)
+
+- **Rustiger deelbericht.** Geen blokjes en geen losse regels meer, maar drie korte regels: "Ollie scored 900/1,000 pts in Daily Detour 🌍", "🏆 Number 1 in the world today (3 players)" en "Can you beat that?" met de link. Zonder naam: "I scored …". Oefenspellen en kamers: "Roviko · Flag Signal: 8/10" en de link. Het deelplaatje houdt de blokjes, het editienummer en de reeks.
+- **Gebruikscijfers op /admin.** Per dag (UTC, laatste 14 dagen): dagspelers en dagspellen, gestarte spellen en spelers, nieuwe spelers en accounts, plus het totaal. Alleen lezen. App-downloads staan in App Store Connect.
+- Geen migratie, geen nieuwe geheimen. Service worker `roviko-shell-v1.27.0`.
+- Getest: build, volledige testset, nieuwe tests voor het deelbericht (met en zonder naam of plek) en voor oude deelteksten in het plaatje. Niet getest: de beheerpagina met echte live cijfers (alleen met een lege testdatabase).
+
 ## 1.26.0 (live sinds 8 oktober 2026)
 
 - **Delen met je plek.** De deeltekst van elk dagspel (Daily Detour, Clue Trail, Size Shuffle, Side by Side, Rank Radar, Wereldduel), van het dagtotaal en van de ranglijst van vandaag noemt nu je naam en je plek van vandaag, bijvoorbeeld "🏆 Pietje: nummer 1 van de wereld vandaag (230 spelers) · Kun jij dat verslaan?". De deelafbeelding toont dat als gouden balk.

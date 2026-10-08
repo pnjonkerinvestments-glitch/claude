@@ -41,8 +41,11 @@ export function challengeExtras(t: (k: string) => string, locale: string, mode: 
     const st = standingFor(mode, date), who = sharedName(name ?? null);
     const n = (v: number) => v.toLocaleString(locale);
     const rank = st ? (st.place === 1 ? t('shareRankFirst') : t('shareRank')).replace('{place}', n(st.place)).replace('{players}', n(st.players)) : '';
+    // 1.27: the name sits in the opening line ("Ollie scored 900/1,000 in the Daily Detour"), so the place line is short.
+    const scored = t(mode === 'day' ? (who ? 'shareScoredDay' : 'shareScoredDayMe') : (who ? 'shareScored' : 'shareScoredMe')).replace('{name}', who ?? '');
     return {
-        rankLine: st ? '🏆 ' + (who ? t('shareRankWho').replace('{name}', who).replace('{rank}', rank) : rank) : undefined,
+        scored,
+        rankLine: st ? '🏆 ' + rank.charAt(0).toLocaleUpperCase(locale) + rank.slice(1) : undefined,
         callLine: t('shareCall'),
         params: { ...(who ? { n: who } : {}), ...(st ? { r: String(st.place), p: String(st.players) } : {}), l: locale },
     };
@@ -62,20 +65,31 @@ export function squares(answers: boolean[]) {
     for (let i = 0; i < cells.length; i += 10) rows.push(cells.slice(i, i + 10).join(''));
     return rows.join('\n');
 }
+/** What the share picture needs, kept per share text (the picture still shows the squares; the message does not). */
+export type ShareParts = { head: string; game: string; rows: string[][]; score: string; streak: string; url: string; rank: string };
+const pictures = new Map<string, ShareParts>();
+export function sharePartsFor(text: string) { return pictures.get(text); }
 /**
- * One share text for every game: "Roviko #12 · Daily Detour", the answer squares, the score (points for a
- * daily game) with the streak, and a link. Never names countries or subjects, so it spoils nothing.
+ * One share text for every game (1.27: short and tidy, no squares):
+ *   Ollie scored 900/1,000 pts in the Daily Detour 🌍
+ *   🏆 Number 1 in the world today (3 players)
+ *   Can you beat that? https://roviko.app/daily?shared=daily&s=900&n=Ollie&r=1&p=3&l=en
+ * Without a daily score (practice, rooms): "Roviko · Flag Signal: 8/10" and the link. Never names countries or
+ * subjects, so it spoils nothing. The share picture (lib/share-image.ts) still shows the answer squares.
  */
 export type ShareExtras = ReturnType<typeof challengeExtras>;
 export function shareCard(input: { label: string; date?: string | null; trail: string; score?: string; streak?: number; url: string; points?: number; extras?: ShareExtras }) {
     const n = editionNumber(input.date);
     // A daily score travels in the link (?s=820) so the friend who opens it sees what to beat.
     let url = input.url;
-    if (typeof input.points === 'number' && Number.isFinite(input.points)) { const u = new URL(url); u.searchParams.set('s', String(Math.round(input.points))); for (const [k, v] of Object.entries(input.extras?.params ?? {})) u.searchParams.set(k, v); url = u.toString(); }
-    const head = `${BRAND.name}${n ? ' #' + n : ''} · ${input.label}`;
-    const line = [input.score, input.streak && input.streak > 1 ? '🔥 ' + input.streak : ''].filter(Boolean).join(' · ');
-    // The place of the day and the call come after the score line (the share picture reads the first line after the squares as the score).
-    return [head, input.trail, line, input.extras?.rankLine, typeof input.points === 'number' ? input.extras?.callLine : '', url].filter(Boolean).join('\n');
+    const daily = typeof input.points === 'number' && Number.isFinite(input.points);
+    if (daily) { const u = new URL(url); u.searchParams.set('s', String(Math.round(input.points!))); for (const [k, v] of Object.entries(input.extras?.params ?? {})) u.searchParams.set(k, v); url = u.toString(); }
+    const score = input.score ?? '';
+    const text = daily && input.extras
+        ? [input.extras.scored.replace('{score}', score.split(' · ')[0]).replace('{game}', input.label) + ' 🌍', input.extras.rankLine, input.extras.callLine + ' ' + url].filter(Boolean).join('\n')
+        : [`${BRAND.name} · ${input.label}${score ? ': ' + score : ''}`, url].join('\n');
+    pictures.set(text, { head: `${BRAND.name}${n ? ' #' + n : ''}`, game: input.label, rows: input.trail.split('\n').filter(Boolean).map(r => Array.from(r.replace(/\s/g, ''))), score, streak: input.streak && input.streak > 1 ? String(input.streak) : '', url, rank: input.extras?.rankLine?.replace(/^🏆\s*/u, '') ?? '' });
+    return text;
 }
 export function shareResult(input: { mode: string; label: string; date?: string | null; correct: number; total: number; answers: boolean[]; origin: string; detail?: string; streak?: number; points?: number; extras?: ShareExtras }) {
     const url = new URL(input.mode === 'compare' || input.mode === 'mosaic' || input.mode === 'rank' || input.date ? '/daily' : '/', input.origin);

@@ -607,3 +607,4 @@
   .trip-page *,.app-modal,.app-modal *,.app-menu *,.seo-card .peek,.seo-card .peek .peek-head{animation:none!important;transition:none!important}
 }
 .rank-share{display:flex;width:100%;justify-content:center;gap:8px;margin:10px 0 4px}
+.admin-usage table{width:100%;border-collapse:collapse;font-size:.9rem}.admin-usage th,.admin-usage td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--t-line)}

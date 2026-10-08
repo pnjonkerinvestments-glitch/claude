@@ -39,7 +39,7 @@ test('180 daily seeds produce six distinct countries and unambiguous, varied fou
 test('revealed units stay explicit and spoiler-free shares exclude country and subject answers',()=>{
  const q=generateRankRounds('units')[0];assert.equal(rankValue({value:2962,unit:'m'},'en'),'2,962 m');assert.equal(rankValue({value:50.5,unit:'percent'},'nl'),'50,5%');
  const share=shareResult({mode:'rank',label:'Rank Radar',date:'2026-09-22',correct:4,total:6,answers:[true,false,true,false,true,true],origin:'https://roviko.test'});
- assert.match(share,/🟩🟥🟩🟥🟩🟩/);assert.match(share,/\/daily\?shared=rank/);assert.ok(!share.includes(q.country.name.en));assert.ok(!share.includes(q.correct));
+ assert.match(share,/^Roviko · Rank Radar: 4\/6\n/);assert.match(share,/\/daily\?shared=rank/);assert.ok(!share.includes(q.country.name.en));assert.ok(!share.includes(q.correct));
 });
 test('one tap answers: wrong choice turns red, identifies the winner and blocks duplicate saves and early next',async()=>{
  let saved=state(),writes=0;const wait=deferred();const wrong=saved.question.options.find(o=>o.id!==saved.question.correct);
