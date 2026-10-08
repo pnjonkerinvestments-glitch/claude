@@ -17,10 +17,10 @@ test('all five official games have the same 1000-point ceiling and no time bonus
  assert.equal(dailyRoundPoints('daily',{mode:'pinpoint',correct:false,mapPoints:500}),100);
  assert.equal(dailyScore({competition:{version:1,mode:'rank'},answers:Array(5).fill({correct:true})}),833);
 });
-test('every Clue Trail has useful continent choices, a capital third, a flag last and no option flags',()=>{
+test('every Clue Trail has continent choices by level (easy 2, medium 1, hard 0 elsewhere), a capital or neighbour third, a flag last and no option flags',()=>{
  for(const region of ['World','Europe','Africa','Asia','North America','South America','Oceania'])for(const difficulty of ['easy','medium','hard']){
   const questions=generateQuestions({mode:'trail',count:20,timer:0,difficulty,region},region+difficulty);
-  for(const q of questions){const c=COUNTRIES.find(c=>c.id===q.countryId);assert.equal(q.options.length,4);assert.equal(new Set(q.options.map(o=>o.id)).size,4);assert.ok(q.options.every(o=>!o.flag));assert.equal(q.options.filter(o=>COUNTRIES.find(c=>c.id===o.id).region!==c.region).length,2);assert.match(q.clues[2].en,/capital/);assert.match(q.clues[3].en,/flag/);assert.ok(!q.clues[2].en.includes(c.name));}
+  for(const q of questions){const c=COUNTRIES.find(c=>c.id===q.countryId);assert.equal(q.options.length,4);assert.equal(new Set(q.options.map(o=>o.id)).size,4);assert.ok(q.options.every(o=>!o.flag));assert.equal(q.options.filter(o=>COUNTRIES.find(c=>c.id===o.id).region!==c.region).length,{easy:2,medium:1,hard:0}[difficulty]);assert.match(q.clues[2].en,/capital|land border/);assert.match(q.clues[3].en,/flag/);assert.ok(!q.clues[2].en.includes(c.name));}
  }
 });
 

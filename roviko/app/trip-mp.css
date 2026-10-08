@@ -283,6 +283,7 @@
 .lobby-count{padding:8px 16px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font:600 1.125rem/1 var(--font-display)!important;font-variant-numeric:tabular-nums}
 .lobby-settings{margin:12px 4px 4px!important;padding:14px!important;border-radius:22px!important;background:color-mix(in srgb,var(--t-mint) 45%,transparent)!important}
 .lobby-setting>span{color:var(--t-ink)!important;font:600 1rem/1.2 var(--font-display)!important}
+.lobby-level-hint{margin:-2px 0 0;font-size:.86rem;line-height:1.35;color:var(--t-text)}
 .lobby-more summary{min-height:36px;color:var(--t-brand)!important}
 .lobby-rules{color:var(--t-soft)!important}
 .lobby-avatars{gap:16px 6px!important;padding:20px 4px 10px!important}

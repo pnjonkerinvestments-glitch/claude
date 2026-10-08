@@ -258,8 +258,9 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
             }
             else if (action === 'disconnect') { return { state: r, version: row.version }; }
             else if (action === 'rematch') {
-                    // "Run it back": every player who is still here taps it, then a fresh match starts at once
-                    // with new questions. Computer opponents always agree; players who left don't hold it up.
+                    // "Play again": every player who is still here taps it, then the room goes back to the waiting room
+                    // (1.25) so the host can change rounds, difficulty and the rest before the next match.
+                    // Computer opponents always agree; players who left don't hold it up.
                     if (r.phase !== 'finished')
                         throw new AppError('MATCH_NOT_FINISHED', 409);
                     p.rematch = true;
@@ -269,8 +270,9 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                         r.players = r.players.filter(x => x.bot || x.rematch);
                         if (!r.players.some(x => x.id === r.host)) r.host = p.id;
                         r.previousQuestions = r.questions.map(q => q.id);
-                        r.players.forEach(x => { x.rematch = false; x.ready = false; x.delta = 0; x.previousRank = undefined; });
-                        await startMatch(env, r);
+                        r.players.forEach(x => { x.rematch = false; x.ready = !!x.bot; x.delta = 0; x.previousRank = undefined; x.score = 0; x.streak = 0; x.bestStreak = 0; x.correct = 0; x.results = []; });
+                        r.phase = 'lobby'; r.questions = []; r.round = 0; r.answers = {}; r.answersCompleteAt = undefined; r.startAt = 0; r.deadline = 0; r.revealUntil = 0;
+                        r.events = ['room_reset'];
                     }
                     else r.events = ['player_ready'];
                     changed = true;

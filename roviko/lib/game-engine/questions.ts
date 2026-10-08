@@ -102,23 +102,83 @@ export const PIN_SMALL_AREA = 50000;
 function namesOverlap(a: Country, b: Country) { return [a.name, a.nl, spanishCountry(a.name)].some((name,i) => name.toLocaleLowerCase().includes([b.name,b.nl,spanishCountry(b.name)][i].toLocaleLowerCase())); }
 function nameOption(c: Country): Option { return { id: c.id, en: c.name, nl: c.nl, flag: c.flag }; }
 function capitalOption(c: Country): Option { return { id: c.id, en: c.capitals[0], nl: dutchCapital(c.capitals[0]) }; }
+const REGION_NL: Record<string, string> = { Europe: 'Europa', Asia: 'Azië', Africa: 'Afrika', 'North America': 'Noord-Amerika', 'South America': 'Zuid-Amerika', Oceania: 'Oceanië' };
+const REGION_ES: Record<string, string> = { Europe: 'Europa', Asia: 'Asia', Africa: 'África', 'North America': 'América del Norte', 'South America': 'América del Sur', Oceania: 'Oceanía' };
+/** Subregions as a clue: [English phrase, Dutch, Spanish]. */
+const SUBREGION: Record<string, [string, string, string]> = {
+    'Southern Asia': ['southern Asia', 'Zuid-Azië', 'el sur de Asia'], 'Middle Africa': ['central Africa', 'Centraal-Afrika', 'África central'],
+    'Southeast Europe': ['southeastern Europe', 'Zuidoost-Europa', 'el sudeste de Europa'], 'Southern Europe': ['southern Europe', 'Zuid-Europa', 'el sur de Europa'],
+    'Western Asia': ['western Asia', 'West-Azië', 'Asia occidental'], 'South America': ['South America', 'Zuid-Amerika', 'América del Sur'],
+    Caribbean: ['the Caribbean', 'het Caribisch gebied', 'el Caribe'], 'Australia and New Zealand': ['the southwest Pacific', 'het zuidwesten van de Grote Oceaan', 'el suroeste del Pacífico'],
+    'Central Europe': ['central Europe', 'Centraal-Europa', 'Europa central'], 'Eastern Africa': ['eastern Africa', 'Oost-Afrika', 'África oriental'],
+    'Western Europe': ['western Europe', 'West-Europa', 'Europa occidental'], 'Western Africa': ['western Africa', 'West-Afrika', 'África occidental'],
+    'Eastern Europe': ['eastern Europe', 'Oost-Europa', 'Europa oriental'], 'Central America': ['Central America', 'Midden-Amerika', 'América Central'],
+    'South-Eastern Asia': ['southeastern Asia', 'Zuidoost-Azië', 'el sudeste asiático'], 'Southern Africa': ['southern Africa', 'zuidelijk Afrika', 'África austral'],
+    'North America': ['northern North America', 'het noorden van Noord-Amerika', 'el norte de América del Norte'], 'Eastern Asia': ['eastern Asia', 'Oost-Azië', 'Asia oriental'],
+    'Northern Europe': ['northern Europe', 'Noord-Europa', 'el norte de Europa'], 'Northern Africa': ['northern Africa', 'Noord-Afrika', 'el norte de África'],
+    Melanesia: ['Melanesia, in the Pacific', 'Melanesië, in de Grote Oceaan', 'Melanesia, en el Pacífico'], Micronesia: ['Micronesia, in the Pacific', 'Micronesië, in de Grote Oceaan', 'Micronesia, en el Pacífico'],
+    'Central Asia': ['central Asia', 'Centraal-Azië', 'Asia central'], Polynesia: ['Polynesia, in the Pacific', 'Polynesië, in de Grote Oceaan', 'Polinesia, en el Pacífico']
+};
+type Clue = { en: string; nl: string; es: string };
+/** A size in two significant figures: 41,850 → 42,000. */
+function roundedArea(area: number) { const step = 10 ** Math.max(0, Math.floor(Math.log10(Math.max(1, area))) - 1); return Math.round(area / step) * step; }
+/**
+ * Clue Trail (1.25): four clues from vague to sharp, and the order changes from question to question.
+ * Clue 1 is one of the vague ones (continent, part of the world, hemispheres, size, number of neighbours),
+ * clue 2 another vague one or the first letter of the capital, clue 3 a neighbour or the capital,
+ * clue 4 is always the flag (the screen shows the flag image with it, and the flag is only served after clue 4).
+ * The continent clue is only used when it does not rule out more than one of the four answers.
+ */
+export function trailClues(c: Country, options: Country[], rng: () => number): Clue[] {
+    const cap = c.capitals[0], capNl = dutchCapital(cap), capEs = spanishCapital(cap);
+    const neighbour = shuffle(COUNTRIES.filter(n => c.borders.includes(n.id) && !namesOverlap(n, c)), rng)[0];
+    const outside = options.filter(o => o.region !== c.region).length;
+    const sub = SUBREGION[c.subregion];
+    const ns = c.latlng[0] >= 0, ew = c.latlng[1] >= 0;
+    const size = roundedArea(c.area), n = c.borders.length;
+    const vague: Clue[] = [
+        ...(outside <= 1 ? [{ en: 'Start your search in ' + c.region + '.', nl: 'Begin je zoektocht in ' + (REGION_NL[c.region] ?? c.region) + '.', es: 'Empieza a buscar en ' + (REGION_ES[c.region] ?? c.region) + '.' }] : []),
+        ...(sub ? [{ en: 'I lie in ' + sub[0] + '.', nl: 'Ik lig in ' + sub[1] + '.', es: 'Estoy en ' + sub[2] + '.' }] : []),
+        { en: 'My centre lies ' + (ns ? 'north' : 'south') + ' of the equator and ' + (ew ? 'east' : 'west') + ' of Greenwich.', nl: 'Mijn midden ligt ten ' + (ns ? 'noorden' : 'zuiden') + ' van de evenaar en ten ' + (ew ? 'oosten' : 'westen') + ' van Greenwich.', es: 'Mi centro está al ' + (ns ? 'norte' : 'sur') + ' del ecuador y al ' + (ew ? 'este' : 'oeste') + ' de Greenwich.' },
+        { en: 'My area is about ' + size.toLocaleString('en') + ' km².', nl: 'Mijn oppervlakte is ongeveer ' + size.toLocaleString('nl-NL') + ' km².', es: 'Mi superficie es de unos ' + size.toLocaleString('es-ES') + ' km².' },
+        n === 0 ? { en: 'I have no land neighbours.', nl: 'Ik heb geen buurlanden over land.', es: 'No tengo vecinos por tierra.' }
+            : { en: 'I have ' + n + ' land ' + (n === 1 ? 'neighbour' : 'neighbours') + '.', nl: 'Ik heb ' + n + ' ' + (n === 1 ? 'buurland' : 'buurlanden') + ' over land.', es: 'Tengo ' + n + ' ' + (n === 1 ? 'vecino' : 'vecinos') + ' por tierra.' }
+    ];
+    const letter: Clue = { en: 'My capital starts with the letter ' + cap.charAt(0).toUpperCase() + '.', nl: 'Mijn hoofdstad begint met de letter ' + capNl.charAt(0).toUpperCase() + '.', es: 'Mi capital empieza por la letra ' + capEs.charAt(0).toUpperCase() + '.' };
+    const capital: Clue = { en: 'My capital is ' + cap + '.', nl: 'Mijn hoofdstad is ' + capNl + '.', es: 'Mi capital es ' + capEs + '.' };
+    const border: Clue | null = neighbour ? { en: 'I share a land border with ' + neighbour.name + '.', nl: 'Ik deel een landgrens met ' + neighbour.nl + '.', es: 'Comparto frontera terrestre con ' + spanishCountry(neighbour.name) + '.' } : null;
+    // No clue may contain the answer itself.
+    const [first, ...rest] = shuffle(vague.filter(v => ![c.name, c.nl, spanishCountry(c.name)].some(name => v.en.includes(name) || v.nl.includes(name) || v.es.includes(name))), rng);
+    // A capital that echoes the country's name (San Salvador, Guatemala City) would give the answer away: use the neighbour then.
+    const words = (v: string) => v.toLowerCase().split(/[^a-zà-ÿ]+/).filter(w => w.length >= 4);
+    const echoes = words(cap).some(w => words(c.name + ' ' + c.nl).includes(w));
+    const sharp = border && (echoes || rng() < .5) ? border : capital;
+    const second = shuffle([...rest, ...(sharp === capital ? [] : [letter])], rng)[0] ?? letter;
+    return [first, second, sharp, { en: 'My flag looks like this.', nl: 'Mijn vlag ziet er zo uit.', es: 'Mi bandera tiene este aspecto.' }];
+}
 export function generateQuestions(settings: Settings, seed: string, exclude: string[] = [], weak: string[] = [], focus?: string, blocked: string[] = []) {
     const rng = random(seed);
     const enabled = shuffle(MODES.filter(m => !settings.enabledModes || settings.enabledModes.includes(m)), rng);
     if (settings.mode === 'mixed' && !enabled.length) throw new Error('Question unavailable');
-    let pool = COUNTRIES.filter(c => settings.region === 'World' || c.region === settings.region);
-    if (settings.difficulty === 'easy') {
-        const simple = pool.filter(c => familiar.includes(c.id));
-        if (simple.length >= 6)
-            pool = simple;
-    }
-    if (settings.difficulty === 'hard') {
-        const obscure = pool.filter(c => !familiar.includes(c.id));
-        if (obscure.length >= 5)
-            pool = obscure;
-    }
-    if (pool.length < 4)
+    const regionPool = COUNTRIES.filter(c => settings.region === 'World' || c.region === settings.region);
+    if (regionPool.length < 4)
         throw new Error('Not enough countries for these settings');
+    // Difficulty (1.25 makes the three levels clearly different; medium is unchanged, so daily games stay as they were):
+    // easy  = well-known countries, wrong answers from other continents, Size Shuffle sizes far apart, only big map targets;
+    // hard  = lesser-known countries, wrong answers from the same part of the world, sizes close together;
+    // mixed = each question gets one of the three, in a shuffled rotation.
+    const tierPool = (tier: string) => {
+        if (tier === 'easy') { const simple = regionPool.filter(c => familiar.includes(c.id)); if (simple.length >= 6) return simple; }
+        if (tier === 'hard') {
+            const obscure = regionPool.filter(c => !familiar.includes(c.id)), deep = obscure.filter(c => fame(c) >= 1.2);
+            if (deep.length >= 12) return deep;
+            if (obscure.length >= 5) return obscure;
+        }
+        return regionPool;
+    };
+    const tiers: string[] = [];
+    if (settings.difficulty === 'mixed') while (tiers.length < settings.count) tiers.push(...shuffle(['easy', 'medium', 'hard'], rng));
+    let pool = tierPool(settings.difficulty);
     const result: Question[] = [];
     // Daily Detour: every question type, four times over, shuffled per block of five and never the same type twice in a row.
     const DETOUR = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
@@ -136,6 +196,8 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         const i = result.length;
         const daily = seed.startsWith('daily:');
         const mode = settings.mode === 'daily' ? detourOrder[i] : settings.mode === 'mixed' ? enabled[i % enabled.length] : settings.mode;
+        const tier = settings.ramp ? 'medium' : tiers[i] ?? settings.difficulty;
+        if (tiers.length) pool = tierPool(tier);
         let candidates = pool.filter(c => !(mode === 'capitals' || mode === 'trail') || (!GEOGRAPHY_POLICY.excludeSensitiveCapitalQuestions.includes(c.id) && c.capitals.length));
         if (mode === 'capitals' || mode === 'trail') candidates = candidates.filter(c => ![...c.capitals,...c.capitals.map(spanishCapital),...c.capitals.map(dutchCapital)].some(cap => { const a = cap.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return [c.name,c.nl,spanishCountry(c.name)].some(n => { const b=n.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase(); return b.includes(a) || a.includes(b); }); }));
         if (mode === 'borders')
@@ -148,6 +210,9 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         if (mode === 'shape') candidates = candidates.filter(c => SHAPES[c.id] && c.area >= 2000 && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id));
         if (settings.ramp && mode !== 'order') candidates = rampWindow(candidates, level);
         if (settings.ramp && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
+        // Easy maps only ask for big countries; easy and hard Size Shuffle need a country that can anchor a usable list.
+        if (tier === 'easy' && mode === 'pinpoint') { const big = candidates.filter(c => c.area >= 100000); if (big.length >= 4) candidates = big; }
+        if (!settings.ramp && tier !== 'medium' && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
         if (!candidates.length)
             throw new Error('Question unavailable');
         const weighted = focus && i === 0 ? candidates.filter(c => c.id === focus) : !daily && weak.length && rng() < .45 ? candidates.filter(c => weak.includes(c.id)) : [];
@@ -166,14 +231,16 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
                 continue;
         }
         used.add(id);
-        const q: Question = { id, mode, countryId: c.id, prompt: { en: '', nl: '' }, options: [], correct: c.id, answerLabel: { en: c.name, nl: c.nl }, fact: { en: `${c.name} is in ${c.subregion}. ${c.capitals.length ? 'Its capital ' + (c.capitals.length > 1 ? 'cities are ' : 'is ') + c.capitals.join(' / ') + '.' : ''}`, nl: `${c.nl}: ${c.capitals.length ? 'hoofdstad' + (c.capitals.length > 1 ? 'en' : '') + ' ' + c.capitals.map(dutchCapital).join(' / ') + '. ' : ''}${c.area.toLocaleString('nl-NL')} km² oppervlakte.` }, difficulty: settings.difficulty };
+        const q: Question = { id, mode, countryId: c.id, prompt: { en: '', nl: '' }, options: [], correct: c.id, answerLabel: { en: c.name, nl: c.nl }, fact: { en: `${c.name} is in ${c.subregion}. ${c.capitals.length ? 'Its capital ' + (c.capitals.length > 1 ? 'cities are ' : 'is ') + c.capitals.join(' / ') + '.' : ''}`, nl: `${c.nl}: ${c.capitals.length ? 'hoofdstad' + (c.capitals.length > 1 ? 'en' : '') + ' ' + c.capitals.map(dutchCapital).join(' / ') + '. ' : ''}${c.area.toLocaleString('nl-NL')} km² oppervlakte.` }, difficulty: tiers.length ? tier : settings.difficulty };
         const others = COUNTRIES.filter(x => x.id !== c.id && x.capitals.length);
         const nearby = shuffle(others.filter(x => x.region === c.region), rng);
         const far = shuffle(others.filter(x => x.region !== c.region), rng);
         // A survival run starts with wrong options from other continents and ends with neighbours from the same subregion.
         const calm = (list: Country[]) => list.filter(x => !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(x.id));
         const plausible = settings.ramp ? calm(level < .34 ? far : level < .67 ? shuffle(others, rng) : [...shuffle(others.filter(x => x.subregion === c.subregion), rng), ...nearby.filter(x => x.subregion !== c.subregion), ...far])
-            : settings.difficulty === 'easy' ? shuffle(others, rng) : [...nearby, ...far];
+            : tier === 'easy' ? far
+            : tier === 'hard' ? [...shuffle(others.filter(x => x.subregion === c.subregion), rng), ...nearby.filter(x => x.subregion !== c.subregion), ...far]
+            : [...nearby, ...far];
         if (mode === 'flags') {
             q.prompt = { en: 'Which country flies this flag?', nl: 'Bij welk land hoort deze vlag?' };
             q.flag = c.iso2;
@@ -188,16 +255,13 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         }
         else if (mode === 'trail') {
             q.prompt = { en: 'Follow the trail. Which country am I?', nl: 'Volg het spoor. Welk land ben ik?' };
-            const regionNL: Record<string,string> = { Europe:'Europa', Asia:'Azië', Africa:'Afrika', 'North America':'Noord-Amerika', 'South America':'Zuid-Amerika', Oceania:'Oceanië' };
-            const neighbor = COUNTRIES.find(n => c.borders.includes(n.id) && !namesOverlap(n,c));
-            q.clues = [
-                { en: 'Start your search in ' + c.region + '.', nl: 'Begin je zoektocht in ' + (regionNL[c.region] ?? c.region) + '.' },
-                { en: neighbor ? 'I share a land border with ' + neighbor.name + '.' : 'I have no land borders with other countries in this atlas.', nl: neighbor ? 'Ik deel een landgrens met ' + neighbor.nl + '.' : 'Ik heb geen landgrenzen met andere landen in deze atlas.' },
-                { en: 'My capital is ' + c.capitals[0] + '.', nl: 'Mijn hoofdstad is ' + dutchCapital(c.capitals[0]) + '.', es: 'Mi capital es ' + spanishCapital(c.capitals[0]) + '.' },
-                { en: 'My flag looks like this.', nl: 'Mijn vlag ziet er zo uit.', es: 'Mi bandera tiene este aspecto.' }
-            ];
+            // Wrong answers (1.25): easy keeps two from other continents, medium one, hard none (the same part of the world first).
+            const sameSub = shuffle(nearby.filter(x => x.subregion === c.subregion), rng), otherSub = nearby.filter(x => x.subregion !== c.subregion);
+            const wrong = tier === 'easy' ? [...nearby.slice(0, 1), ...far.slice(0, 2)] : tier === 'hard' ? [...sameSub, ...otherSub].slice(0, 3) : [...nearby.slice(0, 2), ...far.slice(0, 1)];
+            const options = [c, ...wrong];
+            q.clues = trailClues(c, options, rng);
             q.flag = c.iso2;
-            q.options = shuffle([c, ...nearby.slice(0, 1), ...far.slice(0, 2)], rng).map(({id,name,nl}) => ({id,en:name,nl}));
+            q.options = shuffle(options, rng).map(({id,name,nl}) => ({id,en:name,nl}));
         }
         else if (mode === 'pinpoint') {
             q.prompt = { en: `Drop a pin in ${c.name}.`, nl: `Zet een pin in ${c.nl}.` };
@@ -219,7 +283,9 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.fact = { en: `${c.name} and ${n.name} share a land border.`, nl: `${c.nl} en ${n.nl} delen een landgrens.` };
         }
         else if (mode === 'order') {
-            const ramped = settings.ramp ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), level, rng) : null;
+            // Easy lists have sizes far apart, hard lists close together (the same rule as the survival climb).
+            const ramped = settings.ramp ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), level, rng)
+                : tier === 'easy' || tier === 'hard' ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), tier === 'easy' ? 0 : 1, rng) : null;
             if (settings.ramp && !ramped) continue;
             const list = ramped ?? [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
             // Since 1.23.1 no country starts in its right place: confirming the list untouched earns nothing (multiplayer gives partial points).

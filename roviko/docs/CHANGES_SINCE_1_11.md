@@ -596,6 +596,14 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.25.0 (op de preview, nog niet live)
+
+- **Moeilijkheid.** Makkelijk, gemiddeld en moeilijk verschillen nu duidelijk. Makkelijk: bekende landen, foute antwoorden van andere continenten, Size Shuffle-landen met groottes ver uit elkaar, alleen grote landen op de kaart. Moeilijk: minder bekende landen, foute antwoorden uit dezelfde regio die erop lijken, groottes dicht bij elkaar. Gemiddeld is ongewijzigd (de dagspellen gebruiken dat). Gemengd geeft elke vraag een eigen niveau. De wachtkamer zet onder de keuze één zin uitleg.
+- **Speel opnieuw.** Na een multiplayerwedstrijd brengt "Speel opnieuw" de kamer terug naar de wachtkamer in plaats van meteen te starten; de host kan rondes, moeilijkheid en de rest aanpassen. Bij oefenspellen opent het het instelscherm met de vorige instellingen.
+- **Clue Trail.** De eerste hint is niet meer altijd het continent: hij wisselt tussen continent, deel van de wereld, ligging ten opzichte van evenaar en Greenwich, oppervlakte en aantal buurlanden. Hint 2 is een andere vage hint of de beginletter van de hoofdstad, hint 3 een buurland of de hoofdstad, hint 4 blijft de vlag. Het continent valt alleen nog weg als hint als hij meer dan één antwoord zou wegstrepen; op gemiddeld komt nog maar één fout antwoord van een ander continent.
+- Geen migratie, geen nieuwe geheimen. Service worker `roviko-shell-v1.25.0`.
+- Getest: build, volledige testset (179 geslaagd, 1 bewust overgeslagen: de oude Mosaic-dagtest), nieuwe test die de drie niveaus meet, wachtkamer met uitleg bekeken op 390 px. Niet getest: een volledige wedstrijd met "Speel opnieuw" in de browser (wel in de servertests), echte iPhone.
+
 ## 1.24.0 (live sinds 7 oktober 2026; Size Shuffle dagspel vanaf 8 oktober)
 
 ### Dagelijkse Size Shuffle in plaats van Country Mosaic

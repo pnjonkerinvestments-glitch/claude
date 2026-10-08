@@ -107,7 +107,8 @@ export default function RovikoApp({ initialPath = '/' }: {
     finally {
         starting.current=false; setBusy(false);
     } };
-    const playMode = (m: string) => { setMode(m); setSetup({ ...DEFAULT_SETTINGS, mode: m, region, timer: 0 }); setModal('game'); };
+    // `previous` (1.25): "Play again" after a practice game reopens this setup with the last settings instead of starting at once.
+    const playMode = (m: string, previous?: any) => { setMode(m); setSetup({ ...DEFAULT_SETTINGS, mode: m, region, ...(previous ?? {}), timer: 0 }); setModal('game'); };
     // Results use the phone's share sheet when there is one (chat apps), and copying otherwise.
     const share = async (value: string) => { try { if (navigator.share && matchMedia('(pointer: coarse)').matches) { if (await shareWithImage(value)) return; await navigator.share({ text: value }); return; } } catch (e) { if ((e as Error)?.name === 'AbortError') return; } await copy(value); };
     const copy = async (value: string) => { try {
@@ -272,7 +273,7 @@ function HowToScreen() {
     return <HowToPlayPage t={t} locale={locale} onPlay={onPlay} busy={busy}/>;
 }
 function Results({ result, multiplayer = false, room, send }: any) {
-    const app = useApp(), { t, locale, start, go, backToStart, copy, share: shareOut, boot, fail } = app;
+    const app = useApp(), { t, locale, start, playMode, go, backToStart, copy, share: shareOut, boot, fail } = app;
     const list = result.answers ?? result.results ?? [];
     const correct = list.filter((a: any) => a.correct).length;
     const score = result.score;
@@ -290,7 +291,7 @@ function Results({ result, multiplayer = false, room, send }: any) {
         </DailyFinish>;
     }
     if (!multiplayer && result.survival) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={backToStart} onShare={share} onHome={backToStart} followUp={<SurvivalResult app={app} mode={result.settings.mode} score={correct} out={result.out}/>}/>;
-    if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => start({ ...result.settings, mode: result.daily && ['trail', 'order'].includes(result.settings.mode) ? result.settings.mode : result.daily ? 'mixed' : result.settings.mode })} onShare={share} onHome={backToStart} followUp={result.competition ? <DailyResult app={app} date={result.daily} mode={result.competition.mode}/> : result.bonus ? <BonusResult app={app} mode={result.settings.mode}/> : <NextDiscovery result={result} t={t} go={go} fail={fail}/>}/>;
+    if (!multiplayer) return <SoloResults result={result} t={t} locale={locale} dailyStreak={boot.stats.dailyStreak} onAgain={() => result.daily ? start({ ...result.settings, mode: ['trail', 'order'].includes(result.settings.mode) ? result.settings.mode : 'mixed' }) : playMode(result.settings.mode, result.settings)} onShare={share} onHome={backToStart} followUp={result.competition ? <DailyResult app={app} date={result.daily} mode={result.competition.mode}/> : result.bonus ? <BonusResult app={app} mode={result.settings.mode}/> : <NextDiscovery result={result} t={t} go={go} fail={fail}/>}/>;
     return <MatchResults room={room} me={boot.user.id} send={send} onShare={share} onHome={() => go('/')} t={t} locale={locale}/>;
 }
 function RoomScreen({ code }: {

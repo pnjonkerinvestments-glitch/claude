@@ -64,6 +64,7 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
         <div className="lobby-setting"><span id="lobby-level">{t('difficulty')}</span>
           <div className="segmented-pill" role="radiogroup" aria-labelledby="lobby-level">{LEVELS.map(v => <button key={v} type="button" role="radio" aria-checked={room.settings.difficulty === v} disabled={!isHost || settingsBusy} onClick={() => set('difficulty', v)}>{t(v === 'mixed' ? 'difficultyMixed' : v)}</button>)}</div>
         </div>
+        <p className="lobby-level-hint" aria-live="polite">{t('lvlHint_' + (LEVELS.includes(room.settings.difficulty) ? room.settings.difficulty : 'medium'))}</p>
         </>}
         <details className="lobby-more"><summary><Settings2 size={16} aria-hidden="true"/>{t('roomMore')}</summary>{moreSettings}<p className="lobby-rules">{t('lobbyRules')}</p></details>
       </div>
