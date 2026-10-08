@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.27.0 (op de preview, nog niet live)
+## 1.27.0 (live sinds 8 oktober 2026)
 
 - **Rustiger deelbericht.** Geen blokjes en geen losse regels meer, maar drie korte regels: "Ollie scored 900/1,000 pts in Daily Detour 🌍", "🏆 Number 1 in the world today (3 players)" en "Can you beat that?" met de link. Zonder naam: "I scored …". Oefenspellen en kamers: "Roviko · Flag Signal: 8/10" en de link. Het deelplaatje houdt de blokjes, het editienummer en de reeks.
 - **Gebruikscijfers op /admin.** Per dag (UTC, laatste 14 dagen): dagspelers en dagspellen, gestarte spellen en spelers, nieuwe spelers en accounts, plus het totaal. Alleen lezen. App-downloads staan in App Store Connect.
