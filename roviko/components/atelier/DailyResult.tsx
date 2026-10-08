@@ -3,6 +3,7 @@ import { plural } from '@/lib/plural';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, Check, Clock, Flame, Star, Users, X } from 'lucide-react';
 import { api } from '@/lib/client';
+import { rememberStanding } from '@/lib/share';
 import type { PointMode } from '@/lib/daily-scoring';
 import { completedDailies, dayModesFor, nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { StreakMoment, streakMomentSeen } from '../ds/StreakMoment';
@@ -17,7 +18,7 @@ import { nextBonusMode, type BonusMode } from '@/lib/bonus';
 import { useBonusLaunch } from '../home/BonusTour';
 
 type Standing = { score: number; place?: number; participants: number; next?: { name: string; gap: number; place: number } | null };
-type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; share?: (text: string) => void; boot: { user?: { guest?: boolean }; stats: { dailyCount?: number; dailyStreak?: number; dailyDone?: boolean; streakFreezes?: { available?: number; nextIn?: number } } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
+type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; share?: (text: string) => void; boot: { user?: { guest?: boolean; name?: string }; stats: { dailyCount?: number; dailyStreak?: number; dailyDone?: boolean; streakFreezes?: { available?: number; nextIn?: number } } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
 
 const SAVE_KEY = 'roviko:save-prompt';
 const readFlag = () => { try { return localStorage.getItem(SAVE_KEY) === 'done'; } catch { return true; } };
@@ -46,7 +47,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   }, [firstToday, boot.stats.dailyDone, streak, date]);
   useEffect(() => {
     let active = true;
-    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); } }).catch(() => {}).finally(() => { if (active) setStandingLoaded(true); });
+    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { rememberStanding(mode, date, r.game?.place, r.game?.participants); rememberStanding('day', date, r.today?.place, r.today?.participants); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); } }).catch(() => {}).finally(() => { if (active) setStandingLoaded(true); });
     api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions, dayModesFor(r.date))); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
   }, [date, mode, boot.stats.dailyCount]);
@@ -77,7 +78,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   if (view === 'wait') return <div className="finish-wait" aria-busy="true"><span className="sr-only">{t('loading')}</span></div>;
   if (view === 'day') return <>
     {streakMoment}
-    <DaySummary screen date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})}
+    <DaySummary screen date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}
       current={mode} onBonus={toBonus} bonusBusy={!!bonusLaunch.launching || app.busy}/>
     {savePrompt}
   </>;
@@ -93,7 +94,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       {beaten !== null && beaten > 0 && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}
       {day?.place ? <p className="daily-result-target">{t('resultDayRank').replace('{rank}', fmt(day.place)).replace('{count}', fmt(day.participants))} · {day.next ? t('rankTarget').replace('{n}', fmt(day.next.gap + 1)).replace('{name}', day.next.name).replace('{place}', fmt(day.next.place)) : t('rankLeading')}</p> : null}
     </div>
-    {dayDone && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})}/>}
+    {dayDone && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}/>}
     {next === undefined ? <span className="daily-result-next is-pending" aria-hidden="true"/> : next
       ? <button className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}</span><ArrowRight size={19} aria-hidden="true"/></button>
       : bonusNext

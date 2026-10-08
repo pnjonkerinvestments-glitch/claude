@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { ArrowRight, Share2 } from 'lucide-react';
 import { dayModesFor } from '@/lib/daily-loop';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
-import { shareCard } from '@/lib/share';
+import { challengeExtras, rememberStanding, shareCard } from '@/lib/share';
 import { sound } from '@/lib/client';
 import { warmShareImage } from '@/lib/share-image';
 import { GameIcon } from './GameIcon';
@@ -23,15 +23,17 @@ export const dayTrail = (scores: { mode: string; score: number }[], date?: strin
  * in gold), then one forest pill to the bonus tour, an outline pill to challenge a friend with the day, and
  * the time until the new games. Without `screen` it is the compact card only (under an older result).
  */
-export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy }: {
+export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name }: {
   date: string; scores: { mode: string; score: number }[]; place?: number; players?: number; streak?: number;
   t: (k: string) => string; locale: string; share: (text: string) => void;
+  /** The player's name, for "Pietje: #1 of 230 players worldwide today" in the share (1.26). */
+  name?: string;
   /** Show it as the whole end screen (with Roviko and the bonus tour), not as a card under a result. */
   screen?: boolean; current?: string; onBonus?: () => void; bonusBusy?: boolean;
 }) {
   const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
   const scoreOf = (m: string) => scores.find(s => s.mode === m)?.score ?? 0;
-  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total }));
+  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total, extras: (rememberStanding('day', date, place, players), challengeExtras(t, locale, 'day', date, name)) }));
   // The day's fanfare, once, when this is the end screen (it stands in for the last game's own stage).
   const title = useRef<HTMLHeadingElement>(null);
   useEffect(() => { if (screen) { sound('win'); warmShareImage(); toTop(); focusHeadline(title.current); } }, [screen]);

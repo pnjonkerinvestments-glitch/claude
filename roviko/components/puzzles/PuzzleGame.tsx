@@ -10,12 +10,12 @@ import { Progress } from '@/components/ui/progress';
 import { api, post, sound, readPreference, writePreference, formatScore } from '@/lib/client';
 import { plural } from '@/lib/plural';
 import { Peek, type CharacterMood } from '../ds/Character';
-import { shareResult } from '@/lib/share';
+import { challengeExtras, shareResult } from '@/lib/share';
 import { MosaicFactDetails } from './MosaicFactDetails';
 import { NextDiscovery } from '../atelier/NextDiscovery';
 import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
-import { BRAND } from '@/lib/config';
+import { BRAND, QUICK_NEXT_MS } from '@/lib/config';
 import { checkMosaic, selectMosaicTile, mosaicHint, reviewMosaic, type PuzzleView, type Tile } from '@/lib/puzzles/model';
 import { formatMetric } from '@/lib/puzzles/topics';
 
@@ -85,7 +85,8 @@ export function PuzzleGame({ id, app }: { id: string; app: any }) {
   const nextRef = useRef(next); nextRef.current = next;
   useEffect(() => {
     if (!autoNext || game?.mode !== 'compare' || game.phase !== 'reveal' || !game.answers.at(-1)?.correct || saving || moving || error) return;
-    const timer = setTimeout(() => { if (document.visibilityState === 'visible') nextRef.current(); }, 3000);
+    // A right comparison is no big moment: a short flash of green, then on (1.26; was 3 seconds).
+    const timer = setTimeout(() => { if (document.visibilityState === 'visible') nextRef.current(); }, QUICK_NEXT_MS);
     return () => clearTimeout(timer);
   }, [autoNext, game?.phase, game?.round, saving, moving, error]);
   if (!game) return <div className="puzzle-loading" role="status"><span aria-hidden="true">🌍</span><p>{t(error || 'loading')}</p>{error && <button className="btn primary" onClick={load}>{t('retry')}</button>}</div>;
@@ -94,7 +95,7 @@ export function PuzzleGame({ id, app }: { id: string; app: any }) {
   const displayTiles = board ? [...board.tiles].sort((a, b) => order.length ? order.indexOf(a.id) - order.indexOf(b.id) : 0) : [];
   const saveState = <span className="puzzle-save" role="status">{saving ? t('saving') : error ? '' : '✓ ' + t('saved')}</span>;
   function share() {
-    (shareOut ?? copy)(shareResult({ mode: game!.mode, label: t(game!.mode), date: game!.daily, correct: game!.mode === 'mosaic' ? game!.solved.length : correct, total: game!.mode === 'mosaic' ? 4 : game!.total, answers: game!.answers.map(a => a.correct), origin: window.location.origin, detail: game!.competition ? (game!.score??0).toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points') : game!.mode === 'mosaic' ? game!.answers.length + ' ' + t('puzzleAttempts') : undefined, streak: game!.daily ? app.boot?.stats?.dailyStreak : undefined, points: game!.competition ? game!.score ?? 0 : undefined }));
+    (shareOut ?? copy)(shareResult({ mode: game!.mode, label: t(game!.mode), date: game!.daily, correct: game!.mode === 'mosaic' ? game!.solved.length : correct, total: game!.mode === 'mosaic' ? 4 : game!.total, answers: game!.answers.map(a => a.correct), origin: window.location.origin, detail: game!.competition ? (game!.score??0).toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points') : game!.mode === 'mosaic' ? game!.answers.length + ' ' + t('puzzleAttempts') : undefined, streak: game!.daily ? app.boot?.stats?.dailyStreak : undefined, points: game!.competition ? game!.score ?? 0 : undefined, extras: game!.competition ? challengeExtras(t, locale, game!.mode, game!.daily, app.boot?.user?.name) : undefined }));
   }
   // Daily games show the running points in the coin pill (practice has none); the card carries "Side by Side · 3/15".
   const score = game.competition && game.phase !== 'finished' ? game.score ?? 0 : undefined;

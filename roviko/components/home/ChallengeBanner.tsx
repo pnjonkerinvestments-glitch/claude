@@ -8,7 +8,7 @@ import { launchDaily } from '../puzzles/PuzzleDeck';
 import { Peek } from '../ds/Character';
 import { Coin } from '../ds/Coin';
 
-export type Challenge = { mode: DayMode | 'day'; points: number };
+export type Challenge = import('@/lib/share').SharedChallenge;
 
 // The challenge lives in the address (?shared=daily&s=820). One small store, so the homepage hero and the
 // banner agree, and closing or playing it clears both.
@@ -27,7 +27,10 @@ export function clearChallenge() {
 }
 /** "A friend scored 820 points in Daily Detour" in the page language. */
 export const challengeLine = (t: (k: string) => string, locale: string, c: Challenge) =>
-  t(c.mode === 'day' ? 'chTitleDay' : 'chTitle').replace('{n}', c.points.toLocaleString(locale)).replace('{game}', c.mode === 'day' ? '' : t(dailyTitleKey(c.mode)));
+  t(c.mode === 'day' ? (c.name ? 'chTitleDayNamed' : 'chTitleDay') : (c.name ? 'chTitleNamed' : 'chTitle')).replace('{name}', c.name ?? '').replace('{n}', c.points.toLocaleString(locale)).replace('{game}', c.mode === 'day' ? '' : t(dailyTitleKey(c.mode)));
+/** "#1 of 230 players worldwide" when the link carries the friend's place of the day (1.26), else null. */
+export const challengeRank = (t: (k: string) => string, locale: string, c: Challenge) =>
+  c.place && c.players ? (c.place === 1 ? t('chRankFirst') : t('chRank').replace('{place}', c.place.toLocaleString(locale)).replace('{players}', c.players.toLocaleString(locale))) : null;
 
 /**
  * Someone tapped a shared result (1.23): "A friend scored 820 points in the Daily Detour. Can you beat it?"
@@ -45,6 +48,7 @@ export function ChallengeBanner({ app }: { app: Parameters<typeof launchDaily>[0
     <Peek mood="curious" size={84}/>
     <span className="t-points ch-score"><Coin size={18}/>{challenge.points.toLocaleString(locale)}</span>
     <strong id="challenge-title">{challengeLine(t, locale, challenge)}</strong>
+    {challengeRank(t, locale, challenge) && <span className="ch-rank">🏆 {challengeRank(t, locale, challenge)}</span>}
     <p>{t('chCopy')}</p>
     <button className="btn primary" disabled={busy} aria-busy={busy} onClick={play}>{day ? t('tripStart') : t('chPlay').replace('{game}', game)}<ArrowRight size={18} aria-hidden="true"/></button>
     <button className="icon-btn challenge-close" onClick={clearChallenge} aria-label={t('close')}><X size={18} aria-hidden="true"/></button>

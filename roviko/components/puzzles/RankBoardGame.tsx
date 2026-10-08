@@ -14,7 +14,7 @@ import { GameHeader, editionLabel } from '../game/GameHeader';
 type Lang = 'en' | 'nl' | 'es';
 const fill = (text: string, values: Record<string, string | number>) => Object.entries(values).reduce((s, [k, v]) => s.replaceAll('{' + k + '}', String(v)), text);
 /** After a pick the next country comes by itself; the button is there for anyone who is quicker. */
-const AUTO_NEXT_MS = 2200;
+const AUTO_NEXT_MS = 1300;
 
 /**
  * Rank Radar (1.22), played like GeoRankle: one country at a time and you never know the next one.

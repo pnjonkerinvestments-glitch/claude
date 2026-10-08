@@ -5,7 +5,7 @@
 const SIZE = 1080;
 const COLORS = { forest: '#163B32', deep: '#0f2c25', brand: '#1F806B', mint: '#DDEDE6', gold: '#F6B84B', right: '#3fbf7f', wrong: '#e5484d', medal: '#f2c94c', none: '#c9d3ce', white: '#ffffff' };
 
-type Parsed = { head: string; game: string; rows: string[][]; score: string; streak: string; url: string };
+type Parsed = { head: string; game: string; rows: string[][]; score: string; streak: string; url: string; rank: string };
 
 /** Splits a share text from lib/share.ts into its parts. */
 export function parseShareText(text: string): Parsed {
@@ -16,7 +16,9 @@ export function parseShareText(text: string): Parsed {
   const rows = rest.filter(l => /^[🟩🟥🟨⬜🥇🥈🥉⚪●○\s]+$/u.test(l)).map(l => Array.from(l.replace(/\s/g, '')));
   const info = rest.find(l => l !== url && !rows.some(r => r.join('') === l.replace(/\s/g, ''))) ?? '';
   const [score, streak = ''] = info.split(' · 🔥 ');
-  return { head, game: gameParts.join(' · '), rows, score: score.trim(), streak: streak.trim(), url };
+  // 1.26: the place of the day, "🏆 Pietje: #1 of 230 players worldwide today".
+  const rank = (rest.find(l => l.startsWith('🏆')) ?? '').replace(/^🏆\s*/u, '');
+  return { head, game: gameParts.join(' · '), rows, score: score.trim(), streak: streak.trim(), url, rank };
 }
 
 const roundRect = (c: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); };
@@ -60,6 +62,8 @@ export function drawShareImage(text: string): Blob | null {
     const cells = p.rows.flat(), perRow = Math.min(10, Math.max(5, p.rows[0]?.length ?? 10)), gap = 14;
     const tile = Math.min(76, Math.floor((SIZE - 160 - gap * (perRow - 1)) / perRow));
     cells.forEach((ch, i) => { const x = 80 + (i % perRow) * (tile + gap), y = 610 + Math.floor(i / perRow) * (tile + gap); c.fillStyle = cellColor(ch); roundRect(c, x, y, tile, tile, tile * 0.3); c.fill(); });
+    // The place of the day as a gold pill (1.26), above the streak and the address.
+    if (p.rank) { c.font = display(700, 40); const text = '🏆 ' + p.rank, w = Math.min(SIZE - 160, c.measureText(text).width + 64); c.fillStyle = COLORS.gold; roundRect(c, 80, 838, w, 76, 38); c.fill(); c.fillStyle = COLORS.deep; c.textAlign = 'left'; c.fillText(text, 112, 877, w - 64); }
     // Streak and address at the bottom
     c.font = display(700, 46); c.fillStyle = COLORS.white;
     if (p.streak) c.fillText('🔥 ' + p.streak, 80, 980);

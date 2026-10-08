@@ -247,3 +247,7 @@
   .finish-stage.is-trip,.finish-stage.is-trip *,.day-summary.is-screen,.day-summary.is-screen *,.daily-result.has-stage,.daily-result.has-stage *,.streak-moment,.streak-moment *,.fs-best,.finish-quiet{animation:none!important;transition:none!important}
   .fs-confetti{display:none!important}
 }
+
+/* 1.26: sharing comes first. The challenge button spans the row; a shared link shows the friend's place as a gold pill. */
+.daily-finish .finish-actions .finish-share-big{order:-1;margin-bottom:6px!important}
+.ch-rank{display:inline-flex;align-items:center;gap:6px;margin:4px 0 2px;padding:4px 12px;border-radius:999px;background:color-mix(in srgb,var(--t-gold) 28%,transparent);color:var(--t-gold-ink);font-weight:700;font-size:.9rem}

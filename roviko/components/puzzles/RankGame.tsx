@@ -11,7 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { api, post, sound, formatScore } from '@/lib/client';
 import { plural } from '@/lib/plural';
 import { BRAND } from '@/lib/config';
-import { shareCard, squares } from '@/lib/share';
+import { challengeExtras, shareCard, squares } from '@/lib/share';
 import { formatMetric } from '@/lib/puzzles/topics';
 import type { RankView, RankOption } from '@/lib/puzzles/rank';
 import { choicePlace, medalFor, medalSummary } from '@/lib/puzzles/rank-medals';
@@ -62,7 +62,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
   const again=async()=>{if(lock.current)return;lock.current=true;setBusy(true);try{const fresh=await post('/ranks',{daily:false});go('/rank/'+fresh.id);}catch{setError('puzzleLoadError');}finally{lock.current=false;setBusy(false);}};
   if(game.board){
     const board=game.board;const pts=game.answers.reduce((n,a)=>n+(a.points??0),0);
-    const shareBoard=()=>copy(shareCard({label:t('rankRadar'),date:game.daily,trail:game.answers.map(a=>a.correct?'🟩':(a.points??0)>=60?'🟨':'⬜').join(''),score:pts.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points')+(board.optimal?' · '+fill('rbOptimal',{n:board.optimal.toLocaleString(locale)}):''),streak:game.daily?app.boot?.stats?.dailyStreak:undefined,url:new URL('/daily?shared=rank',location.origin).toString(),points:game.competition?pts:undefined}));
+    const shareBoard=()=>copy(shareCard({label:t('rankRadar'),date:game.daily,trail:game.answers.map(a=>a.correct?'🟩':(a.points??0)>=60?'🟨':'⬜').join(''),score:pts.toLocaleString(locale)+'/'+(1000).toLocaleString(locale)+' '+t('points')+(board.optimal?' · '+fill('rbOptimal',{n:board.optimal.toLocaleString(locale)}):''),streak:game.daily?app.boot?.stats?.dailyStreak:undefined,url:new URL('/daily?shared=rank',location.origin).toString(),points:game.competition?pts:undefined,extras:game.competition?challengeExtras(t,locale,'rank',game.daily,app.boot?.user?.name):undefined}));
     return <RankBoardGame game={game} app={app} busy={busy} error={error} save={save} again={again} share={shareBoard}/>;
   }
   const exit=()=>backToStart?backToStart():go('/daily');

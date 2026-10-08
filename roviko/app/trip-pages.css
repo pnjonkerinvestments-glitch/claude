@@ -606,3 +606,4 @@
 @media (prefers-reduced-motion:reduce){
   .trip-page *,.app-modal,.app-modal *,.app-menu *,.seo-card .peek,.seo-card .peek .peek-head{animation:none!important;transition:none!important}
 }
+.rank-share{display:flex;width:100%;justify-content:center;gap:8px;margin:10px 0 4px}
