@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.26.0 (op de preview, nog niet live)
+## 1.26.0 (live sinds 8 oktober 2026)
 
 - **Delen met je plek.** De deeltekst van elk dagspel (Daily Detour, Clue Trail, Size Shuffle, Side by Side, Rank Radar, Wereldduel), van het dagtotaal en van de ranglijst van vandaag noemt nu je naam en je plek van vandaag, bijvoorbeeld "🏆 Pietje: nummer 1 van de wereld vandaag (230 spelers) · Kun jij dat verslaan?". De deelafbeelding toont dat als gouden balk.
 - **De link vertelt het verder.** Naam, plek en taal reizen mee in de link. Wie hem opent, ziet op de homepage "Pietje haalde vandaag 3.879 punten · Nummer 1 van de wereld vandaag. Kun jij dat verslaan?", en WhatsApp en iMessage tonen dat al in de linkvoorvertoning. Het is een vriendelijke claim uit de link; er wordt niets opgeslagen. Grove of vreemde namen in een link worden genegeerd.
