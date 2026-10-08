@@ -48,6 +48,10 @@ Since 1.27 a share is three short lines without answer squares (name and score, 
 
 Passwords need at least 8 characters. An account can change its name once per 30 days (the sign-up name counts); guests choose their name freely. A new account receives a welcome email with a confirm link when email is configured.
 
+## Lucia 🤖 (1.30)
+
+Lucia is Roviko's computer friend, always shown as "Lucia 🤖". Players add her with friend code CAFE1C1A; she accepts at once and is always online. Invited into a room she joins as a medium computer player. She invites her online friends (not in a room or game, at most once per 3 hours per friend) into a room she hosts with 15 medium questions that starts when the friend joins. Matches with her count as practice, like every match with a computer player.
+
 ## Maps, capitals, ordering and borders
 
 Pinpoint accepts the chosen country's source geometry/islands with a declared 25 km touch/simplification tolerance. An outside pin reports distance to the nearest country boundary. Raw map accuracy is 1,000 for a correct pin, otherwise `round(900 * exp(-boundaryDistanceKm / 1600))`; invalid/missing pins get 0. In World Trip, the round earns `round(rawAccuracy / 5)`, capped at 200. A nearer miss never earns less than a farther miss. Neighbour/continent labels explain proximity without inconsistent fixed bonuses. Practice displays distance and correctness, not points. Legacy reference-point games retain their original frozen rules.

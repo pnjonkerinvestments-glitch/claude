@@ -45,17 +45,19 @@ export function usePresence(path: string) {
   const { boot, bootLoaded } = useApp();
   const [invites, setInvites] = useState<Invite[]>([]);
   const room = path.startsWith('/room/') ? path.split('/')[2]?.toUpperCase() ?? null : null;
+  // In the middle of a game (1.30): Lucia does not interrupt with an invite of her own.
+  const playing = /^\/(game|puzzle|rank|duel)(\/|$)/.test(path);
   useEffect(() => {
     if (!bootLoaded || boot.user.guest || !boot.user.id) return;
     let active = true;
-    const beat = () => { if (document.visibilityState !== 'visible') return; post('/presence', { room }).then(r => { if (active) { setInvites(r.invites ?? []); setWaiting(Number(r.requests) || 0); } }).catch(() => {}); };
+    const beat = () => { if (document.visibilityState !== 'visible') return; post('/presence', { room, playing }).then(r => { if (active) { setInvites(r.invites ?? []); setWaiting(Number(r.requests) || 0); } }).catch(() => {}); };
     beat();
     // Every 15 seconds (was 40) so an invite from a friend shows up while they wait in the room.
     const id = setInterval(beat, 15000);
     document.addEventListener('visibilitychange', beat);
     window.addEventListener('roviko:presence', beat);
     return () => { active = false; clearInterval(id); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
-  }, [bootLoaded, boot.user.guest, boot.user.id, room]);
+  }, [bootLoaded, boot.user.guest, boot.user.id, room, playing]);
   return { invites: invites.filter(i => i.code !== room), dismiss: (id: string) => setInvites(list => list.filter(i => i.id !== id)) };
 }
 

@@ -20,6 +20,7 @@ import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
+import { LUCIA_ID } from '../lib/lucia';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
@@ -241,7 +242,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
         }
         if (path[0] === 'presence' && method === 'POST')
-            return json(await heartbeat(env, user, z.object({ room: z.string().max(8).nullish() }).parse(await body(req)).room));
+            { const b = z.object({ room: z.string().max(8).nullish(), playing: z.boolean().optional() }).parse(await body(req)); return json(await heartbeat(env, user, b.room, !!b.playing)); }
         if (path[0] === 'invites' && path[1] && method === 'POST')
             return json(await answerInvite(env, user, z.string().max(64).parse(path[1]), z.object({ status: z.string().max(16) }).parse(await body(req)).status));
         if (path[0] === 'rooms' && path[2] === 'invite' && method === 'POST')
@@ -288,8 +289,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'friends') {
             if (user.guest)
                 throw new AppError('ACCOUNT_REQUIRED', 403);
+            // Lucia (1.30) is always around: online, never in a room.
             if (method === 'GET')
-                return json({ friends: await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id) });
+                return json({ friends: (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID && f.status === 'accepted' ? { ...f, online: 1, room_code: null } : f) });
             const b = await body(req);
             if (path[1]) {
                 const f = await one(env, 'SELECT * FROM friend_requests WHERE id=? AND (to_id=? OR from_id=?)', path[1], user.id, user.id);
@@ -312,7 +314,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
                 throw new AppError('REQUEST_EXISTS', 409);
             const pairId = [user.id, String(target.id)].sort().join(':');
-            const inserted = await run(env, 'INSERT OR IGNORE INTO friend_requests(id,from_id,to_id,created_at) VALUES (?,?,?,?)', pairId, user.id, target.id, Date.now());
+            // Lucia accepts at once (1.30).
+            const inserted = await run(env, 'INSERT OR IGNORE INTO friend_requests(id,from_id,to_id,status,created_at) VALUES (?,?,?,?,?)', pairId, user.id, target.id, target.id === LUCIA_ID ? 'accepted' : 'pending', Date.now());
             if (!inserted.meta.changes)
                 throw new AppError('REQUEST_EXISTS', 409);
             return json({ ok: true });

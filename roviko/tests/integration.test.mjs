@@ -686,3 +686,22 @@ test('passwords need 8 characters; an account renames at most once per 30 days, 
  assert.equal((await request(cookie,'/profile','PATCH',{name:'Pietje',avatar:3,discoverable:false})).status,200,'after 30 days once more');
  assert.equal((await request(cookie,'/profile','PATCH',{name:'Pietje Two',avatar:3,discoverable:false})).data.error,'NAME_LOCKED');
 });
+
+test('Lucia 🤖: added by friend code, always online, invites her online friends into her own room and joins yours (1.30)',async()=>{
+ const g=await bootstrap();const me=await request(g.cookie,'/auth/signup','POST',{email:'lucia-friend@example.test',password:'Friendly8',name:'Lucia Fan'});const cookie=me.cookie??g.cookie;
+ assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'not a friend yet: no invite');
+ assert.equal((await request(cookie,'/friends','POST',{code:'CAFE1C1A'})).status,200);
+ const lucia=(await request(cookie,'/friends')).data.friends.find(f=>f.user_id==='cafe1c1a-0000-4000-8000-000000000001');
+ assert.ok(lucia,'Lucia is in the friend list');assert.equal(lucia.status,'accepted','she accepts at once');assert.equal(lucia.online,1);assert.equal(lucia.name,'Lucia 🤖');
+ assert.equal((await request(cookie,'/presence','POST',{playing:true})).data.invites.length,0,'never during a game');
+ const inbox=(await request(cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].name,'Lucia 🤖');
+ assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,1,'one invite, not a new one every check');
+ const code=inbox[0].code;let room=(await request(cookie,'/rooms/'+code)).status;assert.equal(room,403,'not in her room before joining');
+ const joined=(await request(cookie,'/rooms/'+code+'/join','POST',{})).data;
+ assert.equal(joined.host,'cafe1c1a-0000-4000-8000-000000000001','Lucia hosts');assert.equal(joined.phase,'countdown','the match starts as soon as you join');
+ assert.equal(joined.settings.count,15);assert.equal(joined.settings.difficulty,'medium');
+ assert.ok(joined.players.find(p=>p.name==='Lucia 🤖'&&p.bot&&p.level==='medium'));
+ const own=(await request(cookie,'/rooms','POST',{settings})).data;
+ assert.equal((await request(cookie,'/rooms/'+own.code+'/invite','POST',{friendId:'cafe1c1a-0000-4000-8000-000000000001'})).status,200);
+ const mine=(await request(cookie,'/rooms/'+own.code)).data;assert.equal(mine.host,me.data.user.id,'you stay host of your own room');assert.ok(mine.players.some(p=>p.name==='Lucia 🤖'&&p.bot),'she joins your room at once');
+});
