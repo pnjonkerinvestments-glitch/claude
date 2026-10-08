@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.31.0 (op de preview, nog niet live)
+## 1.31.0 (live sinds 8 oktober 2026)
 
 - **Lucia neemt even de tijd.** Een vriendschapsverzoek aan Lucia 👽 staat eerst een minuut "in afwachting"; daarna accepteert ze vanzelf (binnen 60 tot 75 seconden, bij de volgende controle van de site). Pas dan staat ze online en kan ze je uitnodigen.
 - Geen migratie. Service worker `roviko-shell-v1.31.0`.
