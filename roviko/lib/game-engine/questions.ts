@@ -164,11 +164,12 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     if (regionPool.length < 4)
         throw new Error('Not enough countries for these settings');
     // Difficulty (1.25 makes the three levels clearly different; medium is unchanged, so daily games stay as they were):
-    // easy  = well-known countries, wrong answers from other continents, Size Shuffle sizes far apart, only big map targets;
+    // easy  = well-known countries plus the biggest others (about 60), one wrong answer from the same continent and two from elsewhere, Size Shuffle sizes
+    //         at least about 2.4× apart, map targets of at least 50,000 km² (easier, but not a giveaway);
     // hard  = lesser-known countries, wrong answers from the same part of the world, sizes close together;
     // mixed = each question gets one of the three, in a shuffled rotation.
     const tierPool = (tier: string) => {
-        if (tier === 'easy') { const simple = regionPool.filter(c => familiar.includes(c.id)); if (simple.length >= 6) return simple; }
+        if (tier === 'easy') { const simple = regionPool.filter(c => fame(c) < 1.12); if (simple.length >= 6) return simple; }
         if (tier === 'hard') {
             const obscure = regionPool.filter(c => !familiar.includes(c.id)), deep = obscure.filter(c => fame(c) >= 1.2);
             if (deep.length >= 12) return deep;
@@ -211,7 +212,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         if (settings.ramp && mode !== 'order') candidates = rampWindow(candidates, level);
         if (settings.ramp && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
         // Easy maps only ask for big countries; easy and hard Size Shuffle need a country that can anchor a usable list.
-        if (tier === 'easy' && mode === 'pinpoint') { const big = candidates.filter(c => c.area >= 100000); if (big.length >= 4) candidates = big; }
+        if (tier === 'easy' && mode === 'pinpoint') { const big = candidates.filter(c => c.area >= PIN_SMALL_AREA); if (big.length >= 4) candidates = big; }
         if (!settings.ramp && tier !== 'medium' && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
         if (!candidates.length)
             throw new Error('Question unavailable');
@@ -238,7 +239,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         // A survival run starts with wrong options from other continents and ends with neighbours from the same subregion.
         const calm = (list: Country[]) => list.filter(x => !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(x.id));
         const plausible = settings.ramp ? calm(level < .34 ? far : level < .67 ? shuffle(others, rng) : [...shuffle(others.filter(x => x.subregion === c.subregion), rng), ...nearby.filter(x => x.subregion !== c.subregion), ...far])
-            : tier === 'easy' ? far
+            : tier === 'easy' ? [...nearby.slice(0, 1), ...far]
             : tier === 'hard' ? [...shuffle(others.filter(x => x.subregion === c.subregion), rng), ...nearby.filter(x => x.subregion !== c.subregion), ...far]
             : [...nearby, ...far];
         if (mode === 'flags') {
@@ -283,9 +284,9 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             q.fact = { en: `${c.name} and ${n.name} share a land border.`, nl: `${c.nl} en ${n.nl} delen een landgrens.` };
         }
         else if (mode === 'order') {
-            // Easy lists have sizes far apart, hard lists close together (the same rule as the survival climb).
+            // Easy lists have sizes clearly apart (about 2.4× or more), hard lists close together (the same rule as the survival climb).
             const ramped = settings.ramp ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), level, rng)
-                : tier === 'easy' || tier === 'hard' ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), tier === 'easy' ? 0 : 1, rng) : null;
+                : tier === 'easy' || tier === 'hard' ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), tier === 'easy' ? .45 : 1, rng) : null;
             if (settings.ramp && !ramped) continue;
             const list = ramped ?? [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
             // Since 1.23.1 no country starts in its right place: confirming the list untouched earns nothing (multiplayer gives partial points).
