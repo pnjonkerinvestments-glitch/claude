@@ -596,6 +596,17 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.25.0 (live sinds 8 oktober 2026)
+
+- **Moeilijkheid.** Makkelijk, gemiddeld en moeilijk verschillen nu duidelijk. Makkelijk (na feedback "niet te makkelijk"): bekende landen plus de grootste andere (ongeveer 60), één fout antwoord uit hetzelfde continent en twee van elders, Size Shuffle-groottes minstens zo'n 2,4× uit elkaar, op de kaart landen vanaf 50.000 km². Moeilijk: minder bekende landen, foute antwoorden uit dezelfde regio die erop lijken, groottes dicht bij elkaar. Gemiddeld is ongewijzigd (de dagspellen gebruiken dat). Gemengd geeft elke vraag een eigen niveau. De wachtkamer zet onder de keuze één zin uitleg.
+- **Speel opnieuw.** Na een multiplayerwedstrijd stuurt de tik van de host iedereen meteen terug naar de wachtkamer; de host kan rondes, moeilijkheid en de rest aanpassen. Gasten tikken "Ik doe mee" en tellen dan als klaar. Bij oefenspellen opent het het instelscherm met de vorige instellingen.
+- **Spelers verwijderen.** De host kan in de wachtkamer spelers verwijderen (eerst een bevestiging). Wie verwijderd is, ziet dat netjes en kan die kamer niet meer in.
+- **Eigen naam.** Iedereen, ook gasten, kan in de wachtkamer een eigen naam kiezen (zelfde naamfilter als bij accounts).
+- **Leukere onderwerpen.** Side by Side, Rank Radar en het Wereldduel gebruiken alleen nog leuke onderwerpen. Nieuw: hoogste punt en kustlijn (ook in Side by Side), defensiebudget, alcohol, vliegvelden en spoorwegen (uit het Factbook-archief, CC0; defensiebudget is een schatting: deel van het bbp maal het bbp van de Wereldbank). Uit: bos, stadsleven, internet, kinderen per vrouw, landbouwgrond, export, gemiddelde hoogte en mediane leeftijd (oude spellen blijven leesbaar). Moordcijfers niet: er was geen open bron bereikbaar. Bronnenpagina en downloadbestand `/data/fun-metrics.json` bijgewerkt.
+- **Clue Trail.** De eerste hint is niet meer altijd het continent: hij wisselt tussen continent, deel van de wereld, ligging ten opzichte van evenaar en Greenwich, oppervlakte en aantal buurlanden. Hint 2 is een andere vage hint of de beginletter van de hoofdstad, hint 3 een buurland of de hoofdstad, hint 4 blijft de vlag. Het continent valt alleen nog weg als hint als hij meer dan één antwoord zou wegstrepen; op gemiddeld komt nog maar één fout antwoord van een ander continent.
+- Geen migratie, geen nieuwe geheimen. Service worker `roviko-shell-v1.25.0`.
+- Getest: build, volledige testset (alles geslaagd, 1 bewust overgeslagen: de oude Mosaic-dagtest), nieuwe tests voor de niveaus, voor verwijderen uit de kamer en voor de nieuwe onderwerpen; in de browser op 390 px: wachtkamer met uitleg, verwijderen (gast ziet de melding), naam kiezen als gast (host ziet de nieuwe naam meteen; een grove naam wordt geweigerd), Rank Radar met de nieuwe onderwerpen. Niet getest: een volledige wedstrijd met "Speel opnieuw" in de browser (wel in de servertests), echte iPhone.
+
 ## 1.24.0 (live sinds 7 oktober 2026; Size Shuffle dagspel vanaf 8 oktober)
 
 ### Dagelijkse Size Shuffle in plaats van Country Mosaic

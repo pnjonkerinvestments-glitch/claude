@@ -34,7 +34,7 @@ test('180 daily seeds produce six distinct countries and unambiguous, varied fou
    for(const o of q.options){assert.ok(Number.isFinite(o.value));assert.ok(o.rank>=1&&o.rank<=o.coverage);assert.ok(o.coverage>=150);assert.ok(o.source&&o.sourceUrl);assert.ok(o.explanation.en&&o.explanation.nl);if(o.id==='age')assert.equal(o.referenceYear,2025);if(['population','income','forest'].includes(o.id))assert.ok(o.referenceYear>=2023);if(o.id!==winner.id){assert.ok(o.rank>winner.rank);assert.ok(o.position-winner.position>=.08);assert.ok(o.topPercent-winner.topPercent>=8);}}
   }
  }
- assert.equal(winners.size,15);assert.equal(RANK_CATEGORIES.length,15);assert.notDeepEqual(generateRankRounds('today'),generateRankRounds('tomorrow'));
+ assert.equal(winners.size,10,'every lively subject with near-full coverage wins somewhere');assert.ok([...winners].every(id=>!RANK_CATEGORIES.find(c=>c.id===id).retired),'retired subjects are never chosen');assert.equal(RANK_CATEGORIES.length,19);assert.notDeepEqual(generateRankRounds('today'),generateRankRounds('tomorrow'));
 });
 test('revealed units stay explicit and spoiler-free shares exclude country and subject answers',()=>{
  const q=generateRankRounds('units')[0];assert.equal(rankValue({value:2962,unit:'m'},'en'),'2,962 m');assert.equal(rankValue({value:50.5,unit:'percent'},'nl'),'50,5%');

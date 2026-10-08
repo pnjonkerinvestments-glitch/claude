@@ -4,14 +4,17 @@ import { random, shuffle, seedHash } from '../game-engine/scoring';
 import snapshot from '../data/comparisons.json';
 import silhouettes from '../data/silhouettes.json';
 import { numericCountryFact, FACT_EDITION } from './country-facts';
-import { TOPICS, formatMetric } from './topics';
+import { TOPICS, ACTIVE_TOPICS, formatMetric } from './topics';
+import { funObservation, FUN_IDS } from './fun-metrics';
+import archive from '../data/country-metrics.json';
 import { GEOGRAPHY_POLICY } from '../config';
 import type { CompareRound, MosaicBoard, Tile } from './model';
 
 export function dailyTopic(date: string) {
   const day = Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000);
-  const cycle = Math.floor(day / TOPICS.length);
-  return shuffle(TOPICS, random('roviko:topics:v1:' + cycle))[(day % TOPICS.length + TOPICS.length) % TOPICS.length];
+  // Since 1.25 only the lively subjects (ACTIVE_TOPICS); days already played keep their stored topic.
+  const cycle = Math.floor(day / ACTIVE_TOPICS.length);
+  return shuffle(ACTIVE_TOPICS, random('roviko:topics:v2:' + cycle))[(day % ACTIVE_TOPICS.length + ACTIVE_TOPICS.length) % ACTIVE_TOPICS.length];
 }
 const label = (c: Country) => ({ id: c.id, name: { en: c.name, nl: c.nl }, flag: c.flag });
 const sensitive = new Set(GEOGRAPHY_POLICY.puzzleSensitiveCountries);
@@ -20,6 +23,8 @@ function metric(country: Country, topic: string): number | undefined {
   if (topic === 'borders') return sensitive.has(country.id) ? undefined : country.borders.length;
   if (topic === 'equator') return Math.abs(country.latlng[0]) * Math.PI / 180 * 6371;
   if (topic === 'north') return country.latlng[0];
+  if (FUN_IDS.includes(topic)) return sensitive.has(country.id) ? undefined : funObservation(country.id, topic)?.value;
+  if (topic === 'highest' || topic === 'coastline') { const v = (archive.records as Record<string, Record<string, { value: number }>>)[country.id]?.[topic]?.value; return Number.isFinite(v) ? v : undefined; }
   return (snapshot.topics as Record<string, { values: Record<string, number> }>)[topic]?.values[country.id];
 }
 /** Side by Side since 1.21: 15 comparisons that get harder, and one mistake ends the run. */
@@ -52,9 +57,10 @@ export function generateComparisons(topicId: string, seed: string, count = 10, a
     picked.push([left,right]); used.add(left.id); right = left;
   }
   const metadata = (snapshot.topics as Record<string, { indicator: string; reference_year: number }>)[topicId];
+  const factbook = FUN_IDS.includes(topicId) || topicId === 'highest' || topicId === 'coastline';
   return picked.map((pair, i) => {
     const countries = pair.map(c => ({ ...label(c), value: metric(c, topicId)! }));
-    return { id: 'compare:' + seedHash(seed + ':' + i).toString(36), topic, countries, carried: i > 0 || !!anchorId, correct: countries[0].value > countries[1].value ? countries[0].id : countries[1].id, referenceYear: metadata?.reference_year ?? null, source: metadata ? 'The World Bank · WDI · CC BY 4.0' : 'World countries · ODbL 1.0', sourceUrl: metadata ? 'https://data.worldbank.org/indicator/' + metadata.indicator : '/sources' };
+    return { id: 'compare:' + seedHash(seed + ':' + i).toString(36), topic, countries, carried: i > 0 || !!anchorId, correct: countries[0].value > countries[1].value ? countries[0].id : countries[1].id, referenceYear: factbook ? null : metadata?.reference_year ?? null, source: topicId === 'military' ? 'CIA World Factbook archive (CC0) × The World Bank · WDI · CC BY 4.0' : factbook ? 'CIA World Factbook archive · CC0' : metadata ? 'The World Bank · WDI · CC BY 4.0' : 'World countries · ODbL 1.0', sourceUrl: factbook ? '/sources' : metadata ? 'https://data.worldbank.org/indicator/' + metadata.indicator : '/sources' };
   });
 }
 export function generateMosaic(size: 3 | 4 | 5, seed: string, focus?: string, factDate = new Date().toISOString().slice(0, 10)): MosaicBoard {

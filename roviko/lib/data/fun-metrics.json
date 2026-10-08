@@ -1,0 +1,5112 @@
+{
+"id": "roviko-fun-metrics-v1",
+"source": "CIA World Factbook, archived by factbook/factbook.json",
+"license": "CC0 1.0 (archive); numbers are factual observations",
+"archive_commit": "144d6977b2b01ac1cbd220de754c0a005616760b",
+"modifications": "Only the leading number of each field is kept: the latest military expenditure year (% of GDP), total alcohol consumption, the number of airports and the total railway length. Countries without a railway have no railway value. Fields whose text does not start with a plain number are left out (see skipped).",
+"records": {
+"AFG": {
+"military_share": {
+"value": 3.3,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "3.3% of GDP (2019)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/af.json"
+},
+"alcohol": {
+"value": 0.01,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.01 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/af.json"
+},
+"airports": {
+"value": 68.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "68 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/af.json"
+}
+},
+"AGO": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ao.json"
+},
+"alcohol": {
+"value": 5.84,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.84 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ao.json"
+},
+"airports": {
+"value": 107.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "107 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ao.json"
+},
+"railways": {
+"value": 2761.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "2,761 km (2022)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ao.json"
+}
+},
+"ALB": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/al.json"
+},
+"alcohol": {
+"value": 4.4,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.4 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/al.json"
+},
+"airports": {
+"value": 3.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "3 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/al.json"
+},
+"railways": {
+"value": 424.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "424 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/al.json"
+}
+},
+"AND": {
+"alcohol": {
+"value": 10.99,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.99 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/an.json"
+}
+},
+"ARE": {
+"military_share": {
+"value": 4.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ae.json"
+},
+"alcohol": {
+"value": 2.03,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.03 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ae.json"
+},
+"airports": {
+"value": 42.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "42 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ae.json"
+}
+},
+"ARG": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ar.json"
+},
+"alcohol": {
+"value": 7.95,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.95 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ar.json"
+},
+"airports": {
+"value": 764.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "764 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ar.json"
+},
+"railways": {
+"value": 17866.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "17,866 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ar.json"
+}
+},
+"ARM": {
+"military_share": {
+"value": 5.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "5.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/am.json"
+},
+"alcohol": {
+"value": 3.77,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.77 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/am.json"
+},
+"airports": {
+"value": 11.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "11 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/am.json"
+},
+"railways": {
+"value": 686.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "686 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/am.json"
+}
+},
+"ATG": {
+"alcohol": {
+"value": 11.88,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.88 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ac.json"
+},
+"airports": {
+"value": 4.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "4 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ac.json"
+}
+},
+"AUS": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/as.json"
+},
+"alcohol": {
+"value": 9.51,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.51 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/as.json"
+},
+"airports": {
+"value": 2257.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2,257 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/as.json"
+},
+"railways": {
+"value": 32606.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "32,606 km (2022) 3,448 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/as.json"
+}
+},
+"AUT": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/au.json"
+},
+"alcohol": {
+"value": 11.9,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.9 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/au.json"
+},
+"airports": {
+"value": 62.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "62 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/au.json"
+},
+"railways": {
+"value": 6123.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "6,123 km (2022) 3,523 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/au.json"
+}
+},
+"AZE": {
+"military_share": {
+"value": 5.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "5.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/aj.json"
+},
+"alcohol": {
+"value": 1.38,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.38 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/aj.json"
+},
+"airports": {
+"value": 32.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "32 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/aj.json"
+},
+"railways": {
+"value": 2944.3,
+"unit": "km",
+"reference_year": 2017,
+"raw": "2,944.3 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/aj.json"
+}
+},
+"BDI": {
+"military_share": {
+"value": 3.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/by.json"
+},
+"alcohol": {
+"value": 4.07,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.07 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/by.json"
+},
+"airports": {
+"value": 6.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "6 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/by.json"
+}
+},
+"BEL": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/be.json"
+},
+"alcohol": {
+"value": 9.15,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.15 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/be.json"
+},
+"airports": {
+"value": 48.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "48 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/be.json"
+},
+"railways": {
+"value": 3602.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "3,602 km (2020) 3,160 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/be.json"
+}
+},
+"BEN": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bn.json"
+},
+"alcohol": {
+"value": 1.25,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.25 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bn.json"
+},
+"airports": {
+"value": 10.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "10 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bn.json"
+},
+"railways": {
+"value": 438.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "438 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bn.json"
+}
+},
+"BFA": {
+"military_share": {
+"value": 4.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "4.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/uv.json"
+},
+"alcohol": {
+"value": 7.28,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.28 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/uv.json"
+},
+"airports": {
+"value": 49.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "49 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/uv.json"
+},
+"railways": {
+"value": 622.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "622 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/uv.json"
+}
+},
+"BGD": {
+"military_share": {
+"value": 0.9,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.9% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bg.json"
+},
+"alcohol": {
+"value": 0.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bg.json"
+},
+"airports": {
+"value": 17.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "17 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bg.json"
+},
+"railways": {
+"value": 2460.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,460 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bg.json"
+}
+},
+"BGR": {
+"military_share": {
+"value": 2.1,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.1% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bu.json"
+},
+"alcohol": {
+"value": 11.18,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.18 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bu.json"
+},
+"airports": {
+"value": 107.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "107 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bu.json"
+},
+"railways": {
+"value": 4029.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "4,029 km (2020) 2,871 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bu.json"
+}
+},
+"BHR": {
+"military_share": {
+"value": 3.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ba.json"
+},
+"alcohol": {
+"value": 1.18,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.18 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ba.json"
+},
+"airports": {
+"value": 3.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "3 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ba.json"
+}
+},
+"BHS": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bf.json"
+},
+"alcohol": {
+"value": 9.48,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.48 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bf.json"
+},
+"airports": {
+"value": 54.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "54 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bf.json"
+}
+},
+"BIH": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bk.json"
+},
+"alcohol": {
+"value": 5.46,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.46 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bk.json"
+},
+"airports": {
+"value": 20.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "20 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bk.json"
+},
+"railways": {
+"value": 965.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "965 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bk.json"
+}
+},
+"BLR": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bo.json"
+},
+"alcohol": {
+"value": 10.57,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.57 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bo.json"
+},
+"airports": {
+"value": 46.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "46 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bo.json"
+},
+"railways": {
+"value": 5528.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "5,528 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/bo.json"
+}
+},
+"BLZ": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bh.json"
+},
+"alcohol": {
+"value": 5.93,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.93 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bh.json"
+},
+"airports": {
+"value": 27.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "27 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bh.json"
+}
+},
+"BOL": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/bl.json"
+},
+"alcohol": {
+"value": 2.98,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.98 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/bl.json"
+},
+"airports": {
+"value": 201.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "201 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/bl.json"
+},
+"railways": {
+"value": 3960.0,
+"unit": "km",
+"reference_year": 2019,
+"raw": "3,960 km (2019)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/bl.json"
+}
+},
+"BRA": {
+"military_share": {
+"value": 1.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/br.json"
+},
+"alcohol": {
+"value": 6.12,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.12 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/br.json"
+},
+"airports": {
+"value": 5297.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "5,297 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/br.json"
+},
+"railways": {
+"value": 29849.9,
+"unit": "km",
+"reference_year": 2014,
+"raw": "29,849.9 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/br.json"
+}
+},
+"BRB": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bb.json"
+},
+"alcohol": {
+"value": 9.94,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.94 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bb.json"
+},
+"airports": {
+"value": 1.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/bb.json"
+}
+},
+"BRN": {
+"military_share": {
+"value": 3.0,
+"unit": "% of GDP",
+"reference_year": 2023,
+"raw": "3% of GDP (2023 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bx.json"
+},
+"alcohol": {
+"value": 0.69,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.69 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bx.json"
+},
+"airports": {
+"value": 2.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bx.json"
+}
+},
+"BTN": {
+"alcohol": {
+"value": 0.07,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.07 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bt.json"
+},
+"airports": {
+"value": 4.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "4 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/bt.json"
+}
+},
+"BWA": {
+"military_share": {
+"value": 3.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bc.json"
+},
+"alcohol": {
+"value": 5.98,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.98 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bc.json"
+},
+"airports": {
+"value": 122.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "122 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bc.json"
+},
+"railways": {
+"value": 888.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "888 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/bc.json"
+}
+},
+"CAF": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ct.json"
+},
+"alcohol": {
+"value": 0.94,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.94 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ct.json"
+},
+"airports": {
+"value": 43.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "43 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ct.json"
+}
+},
+"CAN": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/ca.json"
+},
+"alcohol": {
+"value": 8.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/ca.json"
+},
+"airports": {
+"value": 1459.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1,459 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/ca.json"
+},
+"railways": {
+"value": 49422.0,
+"unit": "km",
+"reference_year": 2021,
+"raw": "49,422 km (2021) note: 129 km electrified (2021)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/ca.json"
+}
+},
+"CHE": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sz.json"
+},
+"alcohol": {
+"value": 9.41,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.41 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sz.json"
+},
+"airports": {
+"value": 66.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "66 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sz.json"
+},
+"railways": {
+"value": 5296.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "5,296 km (2020) 5,296 km electrified; Switzerland remains the only country with a fully electrified network",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sz.json"
+}
+},
+"CHL": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ci.json"
+},
+"alcohol": {
+"value": 7.8,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.8 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ci.json"
+},
+"airports": {
+"value": 379.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "379 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ci.json"
+},
+"railways": {
+"value": 7281.5,
+"unit": "km",
+"reference_year": 2014,
+"raw": "7,281.5 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ci.json"
+}
+},
+"CHN": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ch.json"
+},
+"alcohol": {
+"value": 4.48,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.48 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ch.json"
+},
+"airports": {
+"value": 552.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "552 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ch.json"
+},
+"railways": {
+"value": 150000.0,
+"unit": "km",
+"reference_year": 2021,
+"raw": "150,000 km (2021) 1.435-m gauge (100,000 km electrified); 104,0000 traditional, 40,000 high-speed",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ch.json"
+}
+},
+"CIV": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/iv.json"
+},
+"alcohol": {
+"value": 1.7,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.7 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/iv.json"
+},
+"airports": {
+"value": 29.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "29 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/iv.json"
+},
+"railways": {
+"value": 660.0,
+"unit": "km",
+"reference_year": 2008,
+"raw": "660 km (2008)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/iv.json"
+}
+},
+"CMR": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cm.json"
+},
+"alcohol": {
+"value": 4.09,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.09 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cm.json"
+},
+"airports": {
+"value": 37.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "37 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cm.json"
+},
+"railways": {
+"value": 987.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "987 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cm.json"
+}
+},
+"COD": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cg.json"
+},
+"alcohol": {
+"value": 0.56,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.56 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cg.json"
+},
+"airports": {
+"value": 273.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "273 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cg.json"
+},
+"railways": {
+"value": 4007.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "4,007 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cg.json"
+}
+},
+"COG": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cf.json"
+},
+"alcohol": {
+"value": 5.74,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.74 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cf.json"
+},
+"airports": {
+"value": 56.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "56 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cf.json"
+},
+"railways": {
+"value": 510.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "510 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cf.json"
+}
+},
+"COL": {
+"military_share": {
+"value": 3.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/co.json"
+},
+"alcohol": {
+"value": 4.09,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.09 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/co.json"
+},
+"airports": {
+"value": 661.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "661 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/co.json"
+},
+"railways": {
+"value": 2141.0,
+"unit": "km",
+"reference_year": 2019,
+"raw": "2,141 km (2019)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/co.json"
+}
+},
+"COM": {
+"alcohol": {
+"value": 0.18,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.18 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cn.json"
+},
+"airports": {
+"value": 3.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "3 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cn.json"
+}
+},
+"CPV": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cv.json"
+},
+"alcohol": {
+"value": 4.7,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.7 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cv.json"
+},
+"airports": {
+"value": 10.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "10 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cv.json"
+}
+},
+"CRI": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cs.json"
+},
+"alcohol": {
+"value": 3.07,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.07 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cs.json"
+},
+"airports": {
+"value": 132.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "132 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cs.json"
+},
+"railways": {
+"value": 278.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "278 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cs.json"
+}
+},
+"CUB": {
+"military_share": {
+"value": 4.2,
+"unit": "% of GDP",
+"reference_year": 2020,
+"raw": "4.2% of GDP (2020 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cu.json"
+},
+"alcohol": {
+"value": 4.7,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.7 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cu.json"
+},
+"airports": {
+"value": 120.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "120 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cu.json"
+},
+"railways": {
+"value": 8367.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "8,367 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/cu.json"
+}
+},
+"CYP": {
+"military_share": {
+"value": 1.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/cy.json"
+},
+"alcohol": {
+"value": 9.59,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.59 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/cy.json"
+},
+"airports": {
+"value": 14.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "14 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/cy.json"
+}
+},
+"CZE": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ez.json"
+},
+"alcohol": {
+"value": 12.73,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "12.73 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ez.json"
+},
+"airports": {
+"value": 252.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "252 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ez.json"
+},
+"railways": {
+"value": 9548.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "9,548 km (2020) 3,242 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ez.json"
+}
+},
+"DEU": {
+"military_share": {
+"value": 2.4,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.4% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gm.json"
+},
+"alcohol": {
+"value": 10.56,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.56 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gm.json"
+},
+"airports": {
+"value": 840.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "840 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gm.json"
+},
+"railways": {
+"value": 39379.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "39,379 km (2020) 20,942 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gm.json"
+}
+},
+"DJI": {
+"military_share": {
+"value": 3.5,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "3.5% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/dj.json"
+},
+"alcohol": {
+"value": 0.21,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.21 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/dj.json"
+},
+"airports": {
+"value": 10.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "10 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/dj.json"
+},
+"railways": {
+"value": 97.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "97 km (2017) (Djibouti segment of the 756 km Addis Ababa-Djibouti railway)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/dj.json"
+}
+},
+"DMA": {
+"alcohol": {
+"value": 6.32,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.32 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/do.json"
+},
+"airports": {
+"value": 2.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/do.json"
+}
+},
+"DNK": {
+"military_share": {
+"value": 3.2,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "3.2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/da.json"
+},
+"alcohol": {
+"value": 9.16,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.16 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/da.json"
+},
+"airports": {
+"value": 102.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "102 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/da.json"
+},
+"railways": {
+"value": 2682.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "2,682 km (2020) 876 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/da.json"
+}
+},
+"DOM": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/dr.json"
+},
+"alcohol": {
+"value": 5.56,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.56 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/dr.json"
+},
+"airports": {
+"value": 32.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "32 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/dr.json"
+},
+"railways": {
+"value": 496.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "496 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/dr.json"
+}
+},
+"DZA": {
+"military_share": {
+"value": 8.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ag.json"
+},
+"alcohol": {
+"value": 0.59,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.59 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ag.json"
+},
+"airports": {
+"value": 95.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "95 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ag.json"
+},
+"railways": {
+"value": 4020.0,
+"unit": "km",
+"reference_year": 2019,
+"raw": "4,020 km (2019)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ag.json"
+}
+},
+"ECU": {
+"military_share": {
+"value": 2.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ec.json"
+},
+"alcohol": {
+"value": 3.05,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.05 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ec.json"
+},
+"airports": {
+"value": 317.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "317 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ec.json"
+},
+"railways": {
+"value": 965.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "965 km (2022)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ec.json"
+}
+},
+"EGY": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/eg.json"
+},
+"alcohol": {
+"value": 0.14,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.14 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/eg.json"
+},
+"airports": {
+"value": 73.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "73 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/eg.json"
+},
+"railways": {
+"value": 5085.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "5,085 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/eg.json"
+}
+},
+"ERI": {
+"military_share": {
+"value": 10.0,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "10% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/er.json"
+},
+"alcohol": {
+"value": 0.93,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.93 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/er.json"
+},
+"airports": {
+"value": 11.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "11 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/er.json"
+},
+"railways": {
+"value": 306.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "306 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/er.json"
+}
+},
+"ESP": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sp.json"
+},
+"alcohol": {
+"value": 10.72,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.72 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sp.json"
+},
+"airports": {
+"value": 365.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "365 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sp.json"
+},
+"railways": {
+"value": 15489.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "15,489 km (2020) 9,953 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sp.json"
+}
+},
+"EST": {
+"military_share": {
+"value": 3.4,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "3.4% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/en.json"
+},
+"alcohol": {
+"value": 11.65,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.65 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/en.json"
+},
+"airports": {
+"value": 34.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "34 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/en.json"
+},
+"railways": {
+"value": 1441.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "1,441 km (2020) 225 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/en.json"
+}
+},
+"ETH": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/et.json"
+},
+"alcohol": {
+"value": 1.16,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.16 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/et.json"
+},
+"airports": {
+"value": 58.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "58 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/et.json"
+},
+"railways": {
+"value": 659.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "659 km (2017) (Ethiopian segment of the 756 km Addis Ababa-Djibouti railroad)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/et.json"
+}
+},
+"FIN": {
+"military_share": {
+"value": 2.8,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.8% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fi.json"
+},
+"alcohol": {
+"value": 8.23,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.23 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fi.json"
+},
+"airports": {
+"value": 98.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "98 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fi.json"
+},
+"railways": {
+"value": 5918.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "5,918 km (2020) 3,349 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fi.json"
+}
+},
+"FJI": {
+"military_share": {
+"value": 1.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fj.json"
+},
+"alcohol": {
+"value": 2.71,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.71 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fj.json"
+},
+"airports": {
+"value": 26.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "26 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fj.json"
+},
+"railways": {
+"value": 597.0,
+"unit": "km",
+"reference_year": 2008,
+"raw": "597 km (2008)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fj.json"
+}
+},
+"FRA": {
+"military_share": {
+"value": 2.1,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.1% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fr.json"
+},
+"alcohol": {
+"value": 11.44,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.44 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fr.json"
+},
+"airports": {
+"value": 1218.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1,218 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fr.json"
+},
+"railways": {
+"value": 27860.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "27,860 km (2020) 16,660 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/fr.json"
+}
+},
+"FSM": {
+"alcohol": {
+"value": 1.59,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.59 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fm.json"
+},
+"airports": {
+"value": 7.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "7 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/fm.json"
+}
+},
+"GAB": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gb.json"
+},
+"alcohol": {
+"value": 6.47,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.47 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gb.json"
+},
+"airports": {
+"value": 42.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "42 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gb.json"
+},
+"railways": {
+"value": 649.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "649 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gb.json"
+}
+},
+"GBR": {
+"military_share": {
+"value": 2.4,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.4% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/uk.json"
+},
+"alcohol": {
+"value": 9.8,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.8 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/uk.json"
+},
+"airports": {
+"value": 1057.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1,057 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/uk.json"
+},
+"railways": {
+"value": 16390.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "16,390 km (2020) 6,167 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/uk.json"
+}
+},
+"GEO": {
+"military_share": {
+"value": 1.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/gg.json"
+},
+"alcohol": {
+"value": 7.45,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.45 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/gg.json"
+},
+"airports": {
+"value": 21.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "21 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/gg.json"
+},
+"railways": {
+"value": 1363.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "1,363 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/gg.json"
+}
+},
+"GHA": {
+"military_share": {
+"value": 0.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gh.json"
+},
+"alcohol": {
+"value": 1.59,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.59 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gh.json"
+},
+"airports": {
+"value": 11.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "11 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gh.json"
+},
+"railways": {
+"value": 947.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "947 km (2022)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gh.json"
+}
+},
+"GIN": {
+"military_share": {
+"value": 2.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gv.json"
+},
+"alcohol": {
+"value": 0.33,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.33 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gv.json"
+},
+"airports": {
+"value": 16.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "16 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gv.json"
+},
+"railways": {
+"value": 1086.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "1,086 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/gv.json"
+}
+},
+"GMB": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ga.json"
+},
+"alcohol": {
+"value": 2.67,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.67 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ga.json"
+},
+"airports": {
+"value": 1.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ga.json"
+}
+},
+"GNB": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/pu.json"
+},
+"alcohol": {
+"value": 3.21,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.21 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/pu.json"
+},
+"airports": {
+"value": 7.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "7 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/pu.json"
+}
+},
+"GNQ": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ek.json"
+},
+"alcohol": {
+"value": 6.11,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.11 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ek.json"
+},
+"airports": {
+"value": 7.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "7 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ek.json"
+}
+},
+"GRC": {
+"military_share": {
+"value": 2.9,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.9% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gr.json"
+},
+"alcohol": {
+"value": 6.33,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.33 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gr.json"
+},
+"airports": {
+"value": 82.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "82 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gr.json"
+},
+"railways": {
+"value": 2345.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "2,345 km (2020) 731 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/gr.json"
+}
+},
+"GRD": {
+"alcohol": {
+"value": 8.62,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.62 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gj.json"
+},
+"airports": {
+"value": 2.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gj.json"
+}
+},
+"GTM": {
+"military_share": {
+"value": 0.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gt.json"
+},
+"alcohol": {
+"value": 1.63,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.63 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gt.json"
+},
+"airports": {
+"value": 58.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "58 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gt.json"
+},
+"railways": {
+"value": 800.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "800 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/gt.json"
+}
+},
+"GUY": {
+"military_share": {
+"value": 0.9,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.9% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/gy.json"
+},
+"alcohol": {
+"value": 5.11,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.11 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/gy.json"
+},
+"airports": {
+"value": 55.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "55 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/gy.json"
+}
+},
+"HND": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ho.json"
+},
+"alcohol": {
+"value": 2.73,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.73 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ho.json"
+},
+"airports": {
+"value": 129.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "129 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ho.json"
+},
+"railways": {
+"value": 699.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "699 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ho.json"
+}
+},
+"HRV": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hr.json"
+},
+"alcohol": {
+"value": 9.64,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.64 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hr.json"
+},
+"airports": {
+"value": 45.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "45 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hr.json"
+},
+"railways": {
+"value": 2617.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "2,617 km (2020) 980 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hr.json"
+}
+},
+"HTI": {
+"alcohol": {
+"value": 2.85,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.85 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ha.json"
+},
+"airports": {
+"value": 17.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "17 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/ha.json"
+}
+},
+"HUN": {
+"military_share": {
+"value": 2.1,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.1% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hu.json"
+},
+"alcohol": {
+"value": 10.79,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.79 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hu.json"
+},
+"airports": {
+"value": 109.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "109 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hu.json"
+},
+"railways": {
+"value": 7687.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "7,687 km (2020) 3,111 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/hu.json"
+}
+},
+"IDN": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/id.json"
+},
+"alcohol": {
+"value": 0.08,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.08 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/id.json"
+},
+"airports": {
+"value": 556.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "556 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/id.json"
+},
+"railways": {
+"value": 8159.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "8,159 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/id.json"
+}
+},
+"IND": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/in.json"
+},
+"alcohol": {
+"value": 3.09,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.09 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/in.json"
+},
+"airports": {
+"value": 315.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "315 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/in.json"
+},
+"railways": {
+"value": 65554.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "65,554 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/in.json"
+}
+},
+"IRL": {
+"military_share": {
+"value": 0.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ei.json"
+},
+"alcohol": {
+"value": 10.91,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.91 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ei.json"
+},
+"airports": {
+"value": 100.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "100 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ei.json"
+},
+"railways": {
+"value": 1688.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "1,688 km (2020) 53 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ei.json"
+}
+},
+"IRN": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ir.json"
+},
+"alcohol": {
+"value": 0.02,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.02 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ir.json"
+},
+"airports": {
+"value": 177.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "177 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ir.json"
+},
+"railways": {
+"value": 8483.5,
+"unit": "km",
+"reference_year": 2014,
+"raw": "8,483.5 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ir.json"
+}
+},
+"IRQ": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/iz.json"
+},
+"alcohol": {
+"value": 0.16,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.16 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/iz.json"
+},
+"airports": {
+"value": 73.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "73 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/iz.json"
+},
+"railways": {
+"value": 2272.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,272 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/iz.json"
+}
+},
+"ISL": {
+"alcohol": {
+"value": 7.72,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.72 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ic.json"
+},
+"airports": {
+"value": 82.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "82 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ic.json"
+}
+},
+"ISR": {
+"military_share": {
+"value": 8.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/is.json"
+},
+"alcohol": {
+"value": 3.07,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.07 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/is.json"
+},
+"airports": {
+"value": 40.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "40 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/is.json"
+},
+"railways": {
+"value": 1497.0,
+"unit": "km",
+"reference_year": 2021,
+"raw": "1,497 km (2021) (2019)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/is.json"
+}
+},
+"ITA": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/it.json"
+},
+"alcohol": {
+"value": 7.65,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.65 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/it.json"
+},
+"airports": {
+"value": 655.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "655 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/it.json"
+},
+"railways": {
+"value": 18475.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "18,475 km (2020) 12,936 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/it.json"
+}
+},
+"JAM": {
+"military_share": {
+"value": 1.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/jm.json"
+},
+"alcohol": {
+"value": 3.46,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.46 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/jm.json"
+},
+"airports": {
+"value": 20.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "20 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/jm.json"
+}
+},
+"JOR": {
+"military_share": {
+"value": 4.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "4.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/jo.json"
+},
+"alcohol": {
+"value": 0.25,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.25 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/jo.json"
+},
+"airports": {
+"value": 18.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "18 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/jo.json"
+},
+"railways": {
+"value": 509.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "509 km (2020)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/jo.json"
+}
+},
+"JPN": {
+"military_share": {
+"value": 1.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ja.json"
+},
+"alcohol": {
+"value": 8.36,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.36 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ja.json"
+},
+"airports": {
+"value": 280.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "280 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ja.json"
+},
+"railways": {
+"value": 27311.0,
+"unit": "km",
+"reference_year": 2015,
+"raw": "27,311 km (2015)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ja.json"
+}
+},
+"KAZ": {
+"military_share": {
+"value": 0.9,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.9% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kz.json"
+},
+"alcohol": {
+"value": 3.73,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.73 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kz.json"
+},
+"airports": {
+"value": 132.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "132 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kz.json"
+},
+"railways": {
+"value": 16636.0,
+"unit": "km",
+"reference_year": 2021,
+"raw": "16,636 km (2021)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kz.json"
+}
+},
+"KEN": {
+"military_share": {
+"value": 1.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ke.json"
+},
+"alcohol": {
+"value": 1.68,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.68 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ke.json"
+},
+"airports": {
+"value": 368.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "368 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ke.json"
+},
+"railways": {
+"value": 3819.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "3,819 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ke.json"
+}
+},
+"KGZ": {
+"military_share": {
+"value": 3.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kg.json"
+},
+"alcohol": {
+"value": 4.02,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.02 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kg.json"
+},
+"airports": {
+"value": 28.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "28 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kg.json"
+},
+"railways": {
+"value": 424.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "424 km (2022)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/kg.json"
+}
+},
+"KHM": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/cb.json"
+},
+"alcohol": {
+"value": 4.56,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.56 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/cb.json"
+},
+"airports": {
+"value": 12.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "12 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/cb.json"
+},
+"railways": {
+"value": 642.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "642 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/cb.json"
+}
+},
+"KIR": {
+"alcohol": {
+"value": 0.43,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.43 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/kr.json"
+},
+"airports": {
+"value": 21.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "21 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/kr.json"
+}
+},
+"KNA": {
+"alcohol": {
+"value": 8.84,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.84 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/sc.json"
+},
+"airports": {
+"value": 2.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/sc.json"
+},
+"railways": {
+"value": 50.0,
+"unit": "km",
+"reference_year": 2008,
+"raw": "50 km (2008)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/sc.json"
+}
+},
+"KOR": {
+"military_share": {
+"value": 2.3,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.3% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ks.json"
+},
+"alcohol": {
+"value": 7.74,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.74 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ks.json"
+},
+"airports": {
+"value": 92.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "92 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ks.json"
+},
+"railways": {
+"value": 3979.0,
+"unit": "km",
+"reference_year": 2016,
+"raw": "3,979 km (2016)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/ks.json"
+}
+},
+"KWT": {
+"military_share": {
+"value": 4.9,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "4.9% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ku.json"
+},
+"alcohol": {
+"value": 0.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ku.json"
+},
+"airports": {
+"value": 6.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "6 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ku.json"
+}
+},
+"LAO": {
+"military_share": {
+"value": 0.2,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "0.2% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/la.json"
+},
+"alcohol": {
+"value": 8.15,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.15 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/la.json"
+},
+"airports": {
+"value": 20.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "20 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/la.json"
+},
+"railways": {
+"value": 422.0,
+"unit": "km",
+"reference_year": 2023,
+"raw": "422 km (2023)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/la.json"
+}
+},
+"LBN": {
+"military_share": {
+"value": 2.9,
+"unit": "% of GDP",
+"reference_year": 2022,
+"raw": "2.9% of GDP (2022 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/le.json"
+},
+"alcohol": {
+"value": 1.14,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.14 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/le.json"
+},
+"airports": {
+"value": 8.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "8 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/le.json"
+},
+"railways": {
+"value": 401.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "401 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/le.json"
+}
+},
+"LBR": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/li.json"
+},
+"alcohol": {
+"value": 3.12,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.12 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/li.json"
+},
+"airports": {
+"value": 19.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "19 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/li.json"
+},
+"railways": {
+"value": 429.0,
+"unit": "km",
+"reference_year": 2008,
+"raw": "429 km (2008)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/li.json"
+}
+},
+"LBY": {
+"alcohol": {
+"value": 0.01,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.01 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ly.json"
+},
+"airports": {
+"value": 75.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "75 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ly.json"
+}
+},
+"LCA": {
+"alcohol": {
+"value": 9.3,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.3 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/st.json"
+},
+"airports": {
+"value": 2.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/st.json"
+}
+},
+"LIE": {
+"railways": {
+"value": 9.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "9 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ls.json"
+}
+},
+"LKA": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/ce.json"
+},
+"alcohol": {
+"value": 2.58,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.58 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/ce.json"
+},
+"airports": {
+"value": 18.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "18 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/ce.json"
+},
+"railways": {
+"value": 1562.0,
+"unit": "km",
+"reference_year": 2016,
+"raw": "1,562 km (2016)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/ce.json"
+}
+},
+"LSO": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/lt.json"
+},
+"alcohol": {
+"value": 3.56,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.56 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/lt.json"
+},
+"airports": {
+"value": 34.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "34 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/lt.json"
+}
+},
+"LTU": {
+"military_share": {
+"value": 4.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "4% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lh.json"
+},
+"alcohol": {
+"value": 11.93,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.93 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lh.json"
+},
+"airports": {
+"value": 64.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "64 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lh.json"
+},
+"railways": {
+"value": 1911.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "1,911 km (2020) 152 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lh.json"
+}
+},
+"LUX": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lu.json"
+},
+"alcohol": {
+"value": 11.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lu.json"
+},
+"airports": {
+"value": 3.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "3 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lu.json"
+},
+"railways": {
+"value": 271.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "271 km (2020) 262 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lu.json"
+}
+},
+"LVA": {
+"military_share": {
+"value": 3.7,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "3.7% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lg.json"
+},
+"alcohol": {
+"value": 12.9,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "12.9 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lg.json"
+},
+"airports": {
+"value": 55.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "55 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lg.json"
+},
+"railways": {
+"value": 2216.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "2,216 km (2020) 257 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lg.json"
+}
+},
+"MAR": {
+"military_share": {
+"value": 4.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mo.json"
+},
+"alcohol": {
+"value": 0.51,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.51 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mo.json"
+},
+"airports": {
+"value": 48.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "48 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mo.json"
+},
+"railways": {
+"value": 2067.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,067 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mo.json"
+}
+},
+"MDA": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/md.json"
+},
+"alcohol": {
+"value": 7.45,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.45 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/md.json"
+},
+"airports": {
+"value": 10.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "10 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/md.json"
+},
+"railways": {
+"value": 1171.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "1,171 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/md.json"
+}
+},
+"MDG": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ma.json"
+},
+"alcohol": {
+"value": 0.89,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.89 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ma.json"
+},
+"airports": {
+"value": 93.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "93 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ma.json"
+},
+"railways": {
+"value": 836.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "836 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ma.json"
+}
+},
+"MDV": {
+"alcohol": {
+"value": 1.38,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.38 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/mv.json"
+},
+"airports": {
+"value": 20.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "20 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/mv.json"
+}
+},
+"MEX": {
+"military_share": {
+"value": 0.9,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.9% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/mx.json"
+},
+"alcohol": {
+"value": 4.25,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.25 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/mx.json"
+},
+"airports": {
+"value": 1580.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1,580 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/mx.json"
+},
+"railways": {
+"value": 23389.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "23,389 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/mx.json"
+}
+},
+"MHL": {
+"airports": {
+"value": 33.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "33 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/rm.json"
+}
+},
+"MKD": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mk.json"
+},
+"alcohol": {
+"value": 3.9,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.9 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mk.json"
+},
+"airports": {
+"value": 13.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "13 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mk.json"
+},
+"railways": {
+"value": 699.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "699 km (2020) 313 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mk.json"
+}
+},
+"MLI": {
+"military_share": {
+"value": 4.3,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "4.3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ml.json"
+},
+"alcohol": {
+"value": 0.6,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.6 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ml.json"
+},
+"airports": {
+"value": 30.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "30 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ml.json"
+},
+"railways": {
+"value": 593.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "593 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ml.json"
+}
+},
+"MLT": {
+"military_share": {
+"value": 0.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mt.json"
+},
+"alcohol": {
+"value": 8.07,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.07 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mt.json"
+},
+"airports": {
+"value": 1.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mt.json"
+}
+},
+"MMR": {
+"military_share": {
+"value": 3.9,
+"unit": "% of GDP",
+"reference_year": 2023,
+"raw": "3.9% of GDP (2023 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bm.json"
+},
+"alcohol": {
+"value": 2.06,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.06 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bm.json"
+},
+"airports": {
+"value": 74.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "74 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bm.json"
+},
+"railways": {
+"value": 5031.0,
+"unit": "km",
+"reference_year": 2008,
+"raw": "5,031 km (2008)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/bm.json"
+}
+},
+"MNE": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mj.json"
+},
+"alcohol": {
+"value": 9.91,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.91 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mj.json"
+},
+"airports": {
+"value": 5.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "5 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mj.json"
+},
+"railways": {
+"value": 250.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "250 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/mj.json"
+}
+},
+"MNG": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/mg.json"
+},
+"alcohol": {
+"value": 5.46,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.46 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/mg.json"
+},
+"airports": {
+"value": 37.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "37 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/mg.json"
+},
+"railways": {
+"value": 1815.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "1,815 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/mg.json"
+}
+},
+"MOZ": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mz.json"
+},
+"alcohol": {
+"value": 1.46,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.46 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mz.json"
+},
+"airports": {
+"value": 92.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "92 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mz.json"
+},
+"railways": {
+"value": 4787.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "4,787 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mz.json"
+}
+},
+"MRT": {
+"military_share": {
+"value": 2.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mr.json"
+},
+"alcohol": {
+"value": 0.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mr.json"
+},
+"airports": {
+"value": 25.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "25 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mr.json"
+},
+"railways": {
+"value": 728.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "728 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mr.json"
+}
+},
+"MUS": {
+"alcohol": {
+"value": 3.39,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.39 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mp.json"
+},
+"airports": {
+"value": 5.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "5 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mp.json"
+}
+},
+"MWI": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mi.json"
+},
+"alcohol": {
+"value": 2.04,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.04 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mi.json"
+},
+"airports": {
+"value": 27.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "27 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mi.json"
+},
+"railways": {
+"value": 767.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "767 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/mi.json"
+}
+},
+"MYS": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/my.json"
+},
+"alcohol": {
+"value": 0.64,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.64 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/my.json"
+},
+"airports": {
+"value": 100.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "100 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/my.json"
+},
+"railways": {
+"value": 1851.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "1,851 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/my.json"
+}
+},
+"NAM": {
+"military_share": {
+"value": 2.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wa.json"
+},
+"alcohol": {
+"value": 2.38,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.38 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wa.json"
+},
+"airports": {
+"value": 259.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "259 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wa.json"
+},
+"railways": {
+"value": 2628.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,628 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wa.json"
+}
+},
+"NER": {
+"military_share": {
+"value": 2.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ng.json"
+},
+"alcohol": {
+"value": 0.11,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.11 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ng.json"
+},
+"airports": {
+"value": 26.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "26 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ng.json"
+}
+},
+"NGA": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ni.json"
+},
+"alcohol": {
+"value": 4.49,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.49 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ni.json"
+},
+"airports": {
+"value": 50.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "50 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ni.json"
+},
+"railways": {
+"value": 3798.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "3,798 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ni.json"
+}
+},
+"NIC": {
+"military_share": {
+"value": 0.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/nu.json"
+},
+"alcohol": {
+"value": 3.69,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.69 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/nu.json"
+},
+"airports": {
+"value": 39.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "39 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/nu.json"
+}
+},
+"NLD": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.5% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/nl.json"
+},
+"alcohol": {
+"value": 8.23,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.23 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/nl.json"
+},
+"airports": {
+"value": 44.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "44 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/nl.json"
+},
+"railways": {
+"value": 3055.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "3,055 km (2020) 2,310 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/nl.json"
+}
+},
+"NOR": {
+"military_share": {
+"value": 3.4,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "3.4% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/no.json"
+},
+"alcohol": {
+"value": 6.05,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.05 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/no.json"
+},
+"airports": {
+"value": 146.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "146 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/no.json"
+},
+"railways": {
+"value": 3848.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "3,848 km (2020) 2,482 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/no.json"
+}
+},
+"NPL": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/np.json"
+},
+"alcohol": {
+"value": 0.36,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.36 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/np.json"
+},
+"airports": {
+"value": 51.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "51 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/np.json"
+},
+"railways": {
+"value": 59.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "59 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/np.json"
+}
+},
+"NRU": {
+"alcohol": {
+"value": 2.44,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.44 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nr.json"
+},
+"airports": {
+"value": 1.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nr.json"
+}
+},
+"NZL": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nz.json"
+},
+"alcohol": {
+"value": 9.17,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.17 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nz.json"
+},
+"airports": {
+"value": 206.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "206 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nz.json"
+},
+"railways": {
+"value": 4128.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "4,128 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nz.json"
+}
+},
+"OMN": {
+"military_share": {
+"value": 6.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/mu.json"
+},
+"alcohol": {
+"value": 0.47,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.47 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/mu.json"
+},
+"airports": {
+"value": 37.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "37 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/mu.json"
+}
+},
+"PAK": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/pk.json"
+},
+"alcohol": {
+"value": 0.04,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.04 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/pk.json"
+},
+"airports": {
+"value": 117.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "117 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/pk.json"
+},
+"railways": {
+"value": 11881.0,
+"unit": "km",
+"reference_year": 2021,
+"raw": "11,881 km (2021)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-asia/pk.json"
+}
+},
+"PAN": {
+"military_share": {
+"value": 1.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/pm.json"
+},
+"alcohol": {
+"value": 6.54,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.54 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/pm.json"
+},
+"airports": {
+"value": 77.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "77 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/pm.json"
+},
+"railways": {
+"value": 77.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "77 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/pm.json"
+}
+},
+"PER": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pe.json"
+},
+"alcohol": {
+"value": 5.74,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.74 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pe.json"
+},
+"airports": {
+"value": 174.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "174 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pe.json"
+},
+"railways": {
+"value": 1854.4,
+"unit": "km",
+"reference_year": 2017,
+"raw": "1,854.4 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pe.json"
+}
+},
+"PHL": {
+"military_share": {
+"value": 1.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/rp.json"
+},
+"alcohol": {
+"value": 4.85,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.85 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/rp.json"
+},
+"airports": {
+"value": 256.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "256 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/rp.json"
+},
+"railways": {
+"value": 77.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "77 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/rp.json"
+}
+},
+"PLW": {
+"airports": {
+"value": 3.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "3 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/ps.json"
+}
+},
+"PNG": {
+"military_share": {
+"value": 0.3,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/pp.json"
+},
+"alcohol": {
+"value": 1.26,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.26 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/pp.json"
+},
+"airports": {
+"value": 569.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "569 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/pp.json"
+}
+},
+"POL": {
+"military_share": {
+"value": 4.5,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "4.5% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/pl.json"
+},
+"alcohol": {
+"value": 10.96,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.96 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/pl.json"
+},
+"airports": {
+"value": 318.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "318 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/pl.json"
+},
+"railways": {
+"value": 19461.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "19,461 km (2020) 11,946 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/pl.json"
+}
+},
+"PRK": {
+"alcohol": {
+"value": 3.61,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.61 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/kn.json"
+},
+"airports": {
+"value": 81.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "81 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/kn.json"
+},
+"railways": {
+"value": 7435.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "7,435 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/kn.json"
+}
+},
+"PRT": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/po.json"
+},
+"alcohol": {
+"value": 10.37,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.37 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/po.json"
+},
+"airports": {
+"value": 128.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "128 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/po.json"
+},
+"railways": {
+"value": 2526.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "2,526 km (2020) 1,696 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/po.json"
+}
+},
+"PRY": {
+"military_share": {
+"value": 0.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pa.json"
+},
+"alcohol": {
+"value": 5.47,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.47 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pa.json"
+},
+"airports": {
+"value": 83.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "83 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pa.json"
+},
+"railways": {
+"value": 30.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "30 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/pa.json"
+}
+},
+"QAT": {
+"military_share": {
+"value": 5.0,
+"unit": "% of GDP",
+"reference_year": 2023,
+"raw": "5% of GDP (2023 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/qa.json"
+},
+"alcohol": {
+"value": 0.96,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.96 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/qa.json"
+},
+"airports": {
+"value": 8.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "8 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/qa.json"
+}
+},
+"ROU": {
+"military_share": {
+"value": 2.3,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.3% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ro.json"
+},
+"alcohol": {
+"value": 10.96,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.96 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ro.json"
+},
+"airports": {
+"value": 103.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "103 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ro.json"
+},
+"railways": {
+"value": 10628.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "10,628 km (2020) 4,030 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ro.json"
+}
+},
+"RUS": {
+"military_share": {
+"value": 7.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/rs.json"
+},
+"alcohol": {
+"value": 7.29,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.29 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/rs.json"
+},
+"airports": {
+"value": 905.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "905 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/rs.json"
+},
+"railways": {
+"value": 85494.0,
+"unit": "km",
+"reference_year": 2019,
+"raw": "85,494 km (2019)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/rs.json"
+}
+},
+"RWA": {
+"military_share": {
+"value": 1.3,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/rw.json"
+},
+"alcohol": {
+"value": 6.35,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.35 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/rw.json"
+},
+"airports": {
+"value": 8.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "8 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/rw.json"
+}
+},
+"SAU": {
+"military_share": {
+"value": 7.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "7.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sa.json"
+},
+"alcohol": {
+"value": 0.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sa.json"
+},
+"airports": {
+"value": 90.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "90 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sa.json"
+},
+"railways": {
+"value": 5410.0,
+"unit": "km",
+"reference_year": 2016,
+"raw": "5,410 km (2016)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sa.json"
+}
+},
+"SDN": {
+"military_share": {
+"value": 1.0,
+"unit": "% of GDP",
+"reference_year": 2021,
+"raw": "1% of GDP (2021 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/su.json"
+},
+"alcohol": {
+"value": 1.93,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.93 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/su.json"
+},
+"airports": {
+"value": 45.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "45 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/su.json"
+},
+"railways": {
+"value": 7251.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "7,251 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/su.json"
+}
+},
+"SEN": {
+"military_share": {
+"value": 1.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sg.json"
+},
+"alcohol": {
+"value": 0.25,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.25 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sg.json"
+},
+"airports": {
+"value": 20.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "20 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sg.json"
+},
+"railways": {
+"value": 906.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "906 km (2017) (713 km operational in 2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sg.json"
+}
+},
+"SGP": {
+"military_share": {
+"value": 3.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/sn.json"
+},
+"alcohol": {
+"value": 1.81,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.81 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/sn.json"
+},
+"airports": {
+"value": 9.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "9 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/sn.json"
+}
+},
+"SLB": {
+"alcohol": {
+"value": 1.19,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.19 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/bp.json"
+},
+"airports": {
+"value": 36.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "36 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/bp.json"
+}
+},
+"SLE": {
+"military_share": {
+"value": 0.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sl.json"
+},
+"alcohol": {
+"value": 3.22,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.22 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sl.json"
+},
+"airports": {
+"value": 8.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "8 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sl.json"
+}
+},
+"SLV": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/es.json"
+},
+"alcohol": {
+"value": 2.94,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.94 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/es.json"
+},
+"airports": {
+"value": 27.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "27 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/es.json"
+},
+"railways": {
+"value": 12.5,
+"unit": "km",
+"reference_year": 2014,
+"raw": "12.5 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/es.json"
+}
+},
+"SMR": {
+"airports": {
+"value": 1.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sm.json"
+}
+},
+"SOM": {
+"military_share": {
+"value": 6.0,
+"unit": "% of GDP",
+"reference_year": 2021,
+"raw": "6% of GDP (2021 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/so.json"
+},
+"alcohol": {
+"value": 0.0,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/so.json"
+},
+"airports": {
+"value": 40.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "40 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/so.json"
+}
+},
+"SRB": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ri.json"
+},
+"alcohol": {
+"value": 7.45,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.45 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ri.json"
+},
+"airports": {
+"value": 46.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "46 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ri.json"
+},
+"railways": {
+"value": 3333.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "3,333 km (2020) 1,274 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/ri.json"
+}
+},
+"SSD": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/od.json"
+},
+"airports": {
+"value": 89.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "89 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/od.json"
+},
+"railways": {
+"value": 248.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "248 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/od.json"
+}
+},
+"STP": {
+"alcohol": {
+"value": 4.23,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "4.23 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tp.json"
+},
+"airports": {
+"value": 2.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "2 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tp.json"
+}
+},
+"SUR": {
+"military_share": {
+"value": 1.2,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "1.2% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ns.json"
+},
+"alcohol": {
+"value": 6.6,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.6 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ns.json"
+},
+"airports": {
+"value": 55.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "55 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ns.json"
+}
+},
+"SVK": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lo.json"
+},
+"alcohol": {
+"value": 10.3,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "10.3 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lo.json"
+},
+"airports": {
+"value": 116.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "116 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lo.json"
+},
+"railways": {
+"value": 3627.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "3,627 km (2020) 1,585 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/lo.json"
+}
+},
+"SVN": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/si.json"
+},
+"alcohol": {
+"value": 11.05,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "11.05 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/si.json"
+},
+"airports": {
+"value": 42.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "42 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/si.json"
+},
+"railways": {
+"value": 1207.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "1,207 km (2020) 609 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/si.json"
+}
+},
+"SWE": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.5% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sw.json"
+},
+"alcohol": {
+"value": 7.1,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.1 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sw.json"
+},
+"airports": {
+"value": 206.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "206 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sw.json"
+},
+"railways": {
+"value": 10910.0,
+"unit": "km",
+"reference_year": 2020,
+"raw": "10,910 km (2020) 8,184 km electrified",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/sw.json"
+}
+},
+"SWZ": {
+"military_share": {
+"value": 1.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wz.json"
+},
+"alcohol": {
+"value": 7.68,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.68 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wz.json"
+},
+"airports": {
+"value": 16.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "16 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wz.json"
+},
+"railways": {
+"value": 301.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "301 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/wz.json"
+}
+},
+"SYC": {
+"military_share": {
+"value": 1.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/se.json"
+},
+"alcohol": {
+"value": 9.48,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "9.48 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/se.json"
+},
+"airports": {
+"value": 16.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "16 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/se.json"
+}
+},
+"SYR": {
+"military_share": {
+"value": 6.5,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "6.5% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sy.json"
+},
+"alcohol": {
+"value": 0.13,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.13 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sy.json"
+},
+"airports": {
+"value": 42.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "42 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sy.json"
+},
+"railways": {
+"value": 2052.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,052 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/sy.json"
+}
+},
+"TCD": {
+"military_share": {
+"value": 3.0,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cd.json"
+},
+"alcohol": {
+"value": 0.55,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.55 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cd.json"
+},
+"airports": {
+"value": 44.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "44 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/cd.json"
+}
+},
+"TGO": {
+"military_share": {
+"value": 2.2,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.2% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/to.json"
+},
+"alcohol": {
+"value": 1.4,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.4 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/to.json"
+},
+"airports": {
+"value": 7.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "7 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/to.json"
+},
+"railways": {
+"value": 568.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "568 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/to.json"
+}
+},
+"THA": {
+"military_share": {
+"value": 1.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/th.json"
+},
+"alcohol": {
+"value": 6.86,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.86 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/th.json"
+},
+"airports": {
+"value": 105.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "105 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/th.json"
+},
+"railways": {
+"value": 4127.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "4,127 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/th.json"
+}
+},
+"TJK": {
+"military_share": {
+"value": 1.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/ti.json"
+},
+"alcohol": {
+"value": 0.85,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.85 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/ti.json"
+},
+"airports": {
+"value": 19.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "19 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/ti.json"
+},
+"railways": {
+"value": 680.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "680 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/ti.json"
+}
+},
+"TKM": {
+"military_share": {
+"value": 1.9,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "1.9% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/tx.json"
+},
+"alcohol": {
+"value": 2.88,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.88 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/tx.json"
+},
+"airports": {
+"value": 23.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "23 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/tx.json"
+},
+"railways": {
+"value": 5113.0,
+"unit": "km",
+"reference_year": 2017,
+"raw": "5,113 km (2017)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/tx.json"
+}
+},
+"TLS": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/tt.json"
+},
+"alcohol": {
+"value": 0.41,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.41 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/tt.json"
+},
+"airports": {
+"value": 11.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "11 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/tt.json"
+}
+},
+"TON": {
+"military_share": {
+"value": 1.8,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.8% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tn.json"
+},
+"alcohol": {
+"value": 0.31,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.31 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tn.json"
+},
+"airports": {
+"value": 6.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "6 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tn.json"
+}
+},
+"TTO": {
+"military_share": {
+"value": 0.9,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.9% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/td.json"
+},
+"alcohol": {
+"value": 5.81,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.81 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/td.json"
+},
+"airports": {
+"value": 3.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "3 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/td.json"
+}
+},
+"TUN": {
+"military_share": {
+"value": 2.5,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.5% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ts.json"
+},
+"alcohol": {
+"value": 1.51,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.51 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ts.json"
+},
+"airports": {
+"value": 14.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "14 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ts.json"
+},
+"railways": {
+"value": 2173.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,173 km (2014) (1,991 in use)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ts.json"
+}
+},
+"TUR": {
+"military_share": {
+"value": 2.3,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "2.3% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/tu.json"
+},
+"alcohol": {
+"value": 1.18,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.18 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/tu.json"
+},
+"airports": {
+"value": 116.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "116 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/tu.json"
+},
+"railways": {
+"value": 11497.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "11,497 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/tu.json"
+}
+},
+"TUV": {
+"alcohol": {
+"value": 0.93,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.93 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tv.json"
+},
+"airports": {
+"value": 1.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "1 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/tv.json"
+}
+},
+"TZA": {
+"military_share": {
+"value": 1.3,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tz.json"
+},
+"alcohol": {
+"value": 7.81,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.81 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tz.json"
+},
+"airports": {
+"value": 206.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "206 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tz.json"
+},
+"railways": {
+"value": 4097.0,
+"unit": "km",
+"reference_year": 2022,
+"raw": "4,097 km (2022)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/tz.json"
+}
+},
+"UGA": {
+"military_share": {
+"value": 2.0,
+"unit": "% of GDP",
+"reference_year": 2023,
+"raw": "2% of GDP (2023 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ug.json"
+},
+"alcohol": {
+"value": 6.82,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "6.82 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ug.json"
+},
+"airports": {
+"value": 39.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "39 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ug.json"
+},
+"railways": {
+"value": 1244.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "1,244 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/ug.json"
+}
+},
+"UKR": {
+"military_share": {
+"value": 4.0,
+"unit": "% of GDP",
+"reference_year": 2021,
+"raw": "4% of GDP (2021 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/up.json"
+},
+"alcohol": {
+"value": 5.69,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.69 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/up.json"
+},
+"airports": {
+"value": 152.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "152 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/up.json"
+},
+"railways": {
+"value": 21733.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "21,733 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/europe/up.json"
+}
+},
+"URY": {
+"military_share": {
+"value": 2.1,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "2.1% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/uy.json"
+},
+"alcohol": {
+"value": 5.42,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "5.42 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/uy.json"
+},
+"airports": {
+"value": 65.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "65 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/uy.json"
+},
+"railways": {
+"value": 1673.0,
+"unit": "km",
+"reference_year": 2016,
+"raw": "1,673 km (2016) (operational; government claims overall length is 2,961 km)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/uy.json"
+}
+},
+"USA": {
+"military_share": {
+"value": 3.2,
+"unit": "% of GDP",
+"reference_year": 2025,
+"raw": "3.2% of GDP (2025 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/us.json"
+},
+"alcohol": {
+"value": 8.93,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "8.93 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/us.json"
+},
+"airports": {
+"value": 16116.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "16,116 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/us.json"
+},
+"railways": {
+"value": 293564.2,
+"unit": "km",
+"reference_year": 2014,
+"raw": "293,564.2 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/north-america/us.json"
+}
+},
+"UZB": {
+"military_share": {
+"value": 2.8,
+"unit": "% of GDP",
+"reference_year": 2019,
+"raw": "2.8% of GDP (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/uz.json"
+},
+"alcohol": {
+"value": 2.45,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.45 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/uz.json"
+},
+"airports": {
+"value": 74.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "74 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/uz.json"
+},
+"railways": {
+"value": 4642.0,
+"unit": "km",
+"reference_year": 2018,
+"raw": "4,642 km (2018)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-asia/uz.json"
+}
+},
+"VCT": {
+"alcohol": {
+"value": 7.48,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.48 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/vc.json"
+},
+"airports": {
+"value": 5.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "5 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/central-america-n-caribbean/vc.json"
+}
+},
+"VEN": {
+"military_share": {
+"value": 0.6,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.6% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ve.json"
+},
+"alcohol": {
+"value": 2.51,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.51 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ve.json"
+},
+"airports": {
+"value": 509.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "509 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ve.json"
+},
+"railways": {
+"value": 447.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "447 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/south-america/ve.json"
+}
+},
+"VNM": {
+"military_share": {
+"value": 1.8,
+"unit": "% of GDP",
+"reference_year": 2023,
+"raw": "1.8% of GDP (2023 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/vm.json"
+},
+"alcohol": {
+"value": 3.41,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.41 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/vm.json"
+},
+"airports": {
+"value": 36.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "36 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/vm.json"
+},
+"railways": {
+"value": 2600.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "2,600 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/east-n-southeast-asia/vm.json"
+}
+},
+"VUT": {
+"alcohol": {
+"value": 1.6,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "1.6 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nh.json"
+},
+"airports": {
+"value": 31.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "31 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/nh.json"
+}
+},
+"WSM": {
+"alcohol": {
+"value": 2.18,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "2.18 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/ws.json"
+},
+"airports": {
+"value": 4.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "4 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/australia-oceania/ws.json"
+}
+},
+"YEM": {
+"alcohol": {
+"value": 0.02,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "0.02 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ym.json"
+},
+"airports": {
+"value": 37.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "37 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/middle-east/ym.json"
+}
+},
+"ZAF": {
+"military_share": {
+"value": 0.7,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.7% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sf.json"
+},
+"alcohol": {
+"value": 7.21,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "7.21 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sf.json"
+},
+"airports": {
+"value": 573.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "573 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sf.json"
+},
+"railways": {
+"value": 30400.0,
+"unit": "km",
+"reference_year": 2021,
+"raw": "30,400 km (2021)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/sf.json"
+}
+},
+"ZMB": {
+"military_share": {
+"value": 1.3,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "1.3% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/za.json"
+},
+"alcohol": {
+"value": 3.82,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.82 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/za.json"
+},
+"airports": {
+"value": 120.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "120 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/za.json"
+},
+"railways": {
+"value": 3126.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "3,126 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/za.json"
+}
+},
+"ZWE": {
+"military_share": {
+"value": 0.4,
+"unit": "% of GDP",
+"reference_year": 2024,
+"raw": "0.4% of GDP (2024 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/zi.json"
+},
+"alcohol": {
+"value": 3.11,
+"unit": "litres of pure alcohol per person (15+)",
+"reference_year": 2019,
+"raw": "3.11 liters of pure alcohol (2019 est.)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/zi.json"
+},
+"airports": {
+"value": 144.0,
+"unit": "airports and airfields",
+"reference_year": 2025,
+"raw": "144 (2025)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/zi.json"
+},
+"railways": {
+"value": 3427.0,
+"unit": "km",
+"reference_year": 2014,
+"raw": "3,427 km (2014)",
+"source_url": "https://github.com/factbook/factbook.json/blob/144d6977b2b01ac1cbd220de754c0a005616760b/africa/zi.json"
+}
+}
+},
+"skipped": []
+}

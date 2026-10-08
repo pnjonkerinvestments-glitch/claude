@@ -251,7 +251,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
             const code = path[1]?.toUpperCase();
             const action = method === 'GET' ? 'get' : path[2];
-            if (!['get','join','leave','settings','ready','start','answer','rematch','advance','bot','computer','removeBot'].includes(action)) throw new AppError('INVALID_ACTION');
+            if (!['get','join','leave','settings','ready','start','answer','rematch','advance','bot','computer','removeBot','kick'].includes(action)) throw new AppError('INVALID_ACTION');
             const b = method === 'GET' ? {} : await body(req);
             delete b.connectionToken;
             if (action === 'settings')

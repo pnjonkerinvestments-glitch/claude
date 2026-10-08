@@ -25,6 +25,9 @@ export const tripMessages = {
     competitionOrder: 'Five rounds of four countries, from easy to tricky. Every country in its right place earns 50 points, so a round is worth up to 200. No timer.',
     // puzzles
     rbPickBest: 'Best pick', rbPickNth: '{nth} best of {total}', rbAllFor: 'All subjects for {country}', rbTagBest: 'Best', rbTagYours: 'Your pick', rbReviewHint: 'Tap a country to see all eight subjects in order.',
+    lvlHint_easy: 'Well-known and big countries. Most wrong answers come from other continents.', lvlHint_medium: 'All countries. Wrong answers are often nearby.', lvlHint_hard: 'Lesser-known countries. Wrong answers are look-alikes from the same region.', lvlHint_mixed: 'Every question gets its own level: easy, medium or hard.',
+    rematchKeen: 'Ready for another round: {names}', rematchHostHint: 'Everyone goes back to the room, where you can change the settings.', rematchImIn: 'I\u2019m in', rematchIn: 'You\u2019re in', rematchHostWait: '{name} (host) starts the next round from the room.', lobbyKick: 'Remove {name} from the room', lobbyKickConfirm: 'Remove {name} from the room? They can\u2019t join this room again.', roomKickedTitle: 'You were removed from the room', roomKickedCopy: 'The host removed you. Open your own room or join another one.',
+    lobbyNameEdit: 'Choose your name', lobbyNameLabel: 'Your name in this room and on the scoreboard',
     tpPointsGained: '{n} points gained', tpPointsGained_one: '1 point gained', duelYourCard: 'Your card',
     orderMoved: '{country} is now number {n}.', orderMoved_one: '{country} is now number 1.',
     orderPartial: '{n} of {total} in the right place: you get that share of the points.', orderPartial_one: '1 of {total} in the right place: you get that share of the points.',
@@ -65,6 +68,9 @@ export const tripMessages = {
     competitionOrder: 'Vijf rondes van vier landen, van makkelijk naar lastig. Elk land op de goede plek levert 50 punten op, dus een ronde is tot 200 punten waard. Geen timer.',
     // puzzles
     rbPickBest: 'Beste keuze', rbPickNth: '{nth} beste van {total}', rbAllFor: 'Alle onderwerpen voor {country}', rbTagBest: 'Beste', rbTagYours: 'Jouw keuze', rbReviewHint: 'Tik op een land om alle acht onderwerpen op volgorde te zien.',
+    lvlHint_easy: 'Bekende en grote landen. De meeste foute antwoorden komen van andere continenten.', lvlHint_medium: 'Alle landen. Foute antwoorden liggen vaak in de buurt.', lvlHint_hard: 'Minder bekende landen. Foute antwoorden lijken erop en liggen in dezelfde regio.', lvlHint_mixed: 'Elke vraag krijgt zijn eigen niveau: makkelijk, gemiddeld of moeilijk.',
+    rematchKeen: 'Klaar voor nog een potje: {names}', rematchHostHint: 'Iedereen gaat terug naar de kamer, waar je de instellingen kunt aanpassen.', rematchImIn: 'Ik doe mee', rematchIn: 'Je doet mee', rematchHostWait: '{name} (host) start het volgende potje vanuit de kamer.', lobbyKick: 'Verwijder {name} uit de kamer', lobbyKickConfirm: '{name} uit de kamer verwijderen? Die kan deze kamer daarna niet meer in.', roomKickedTitle: 'Je bent uit de kamer verwijderd', roomKickedCopy: 'De host heeft je verwijderd. Open je eigen kamer of ga naar een andere.',
+    lobbyNameEdit: 'Kies je naam', lobbyNameLabel: 'Je naam in deze kamer en op het scorebord',
     tpPointsGained: '{n} punten erbij', tpPointsGained_one: '1 punt erbij', duelYourCard: 'Jouw kaart',
     orderMoved: '{country} staat nu op plek {n}.', orderMoved_one: '{country} staat nu op plek 1.',
     orderPartial: '{n} van de {total} op de goede plek: daarvoor krijg je een deel van de punten.', orderPartial_one: '1 van de {total} op de goede plek: daarvoor krijg je een deel van de punten.',
@@ -105,6 +111,9 @@ export const tripMessages = {
     competitionOrder: 'Cinco rondas de cuatro países, de fácil a difícil. Cada país en su sitio vale 50 puntos, así que una ronda vale hasta 200. Sin cronómetro.',
     // puzzles
     rbPickBest: 'La mejor opción', rbPickNth: '{nth} mejor de {total}', rbAllFor: 'Todos los temas de {country}', rbTagBest: 'Mejor', rbTagYours: 'Tu elección', rbReviewHint: 'Toca un país para ver los ocho temas en orden.',
+    lvlHint_easy: 'Países conocidos y grandes. La mayoría de las respuestas falsas son de otros continentes.', lvlHint_medium: 'Todos los países. Las respuestas falsas suelen estar cerca.', lvlHint_hard: 'Países menos conocidos. Las respuestas falsas se parecen y están en la misma región.', lvlHint_mixed: 'Cada pregunta tiene su propio nivel: fácil, medio o difícil.',
+    rematchKeen: 'Listos para otra ronda: {names}', rematchHostHint: 'Todos vuelven a la sala, donde puedes cambiar los ajustes.', rematchImIn: 'Me apunto', rematchIn: 'Te has apuntado', rematchHostWait: '{name} (anfitrión) empieza la siguiente ronda desde la sala.', lobbyKick: 'Quitar a {name} de la sala', lobbyKickConfirm: '¿Quitar a {name} de la sala? No podrá volver a entrar en esta sala.', roomKickedTitle: 'Te han quitado de la sala', roomKickedCopy: 'El anfitrión te ha quitado. Abre tu propia sala o únete a otra.',
+    lobbyNameEdit: 'Elige tu nombre', lobbyNameLabel: 'Tu nombre en esta sala y en la clasificación',
     tpPointsGained: '{n} puntos más', tpPointsGained_one: '1 punto más', duelYourCard: 'Tu carta',
     orderMoved: '{country} está ahora en el puesto {n}.', orderMoved_one: '{country} está ahora en el puesto 1.',
     orderPartial: '{n} de {total} en su sitio: recibes esa parte de los puntos.', orderPartial_one: '1 de {total} en su sitio: recibes esa parte de los puntos.',

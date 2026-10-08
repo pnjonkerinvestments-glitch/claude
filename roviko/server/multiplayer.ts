@@ -199,6 +199,8 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
             if (!p) {
                 if (r.phase !== 'lobby' && r.phase !== 'finished')
                     throw new AppError('MATCH_IN_PROGRESS', 409);
+                if (r.kicked?.includes(user.id))
+                    throw new AppError('KICKED', 409);
                 if (r.players.length >= 12)
                     throw new AppError('ROOM_FULL', 409);
                 // Blocked players never end up in the same room; say nothing about who blocked whom.
@@ -258,19 +260,19 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
             }
             else if (action === 'disconnect') { return { state: r, version: row.version }; }
             else if (action === 'rematch') {
-                    // "Run it back": every player who is still here taps it, then a fresh match starts at once
-                    // with new questions. Computer opponents always agree; players who left don't hold it up.
+                    // "Play again" (1.25): the host's tap sends everyone back to the waiting room at once, where the
+                    // host can change rounds, difficulty and the rest before the next match. A guest's tap only says
+                    // "I'm in" (shown to the host; it counts as ready in the waiting room). Computer players stay.
                     if (r.phase !== 'finished')
                         throw new AppError('MATCH_NOT_FINISHED', 409);
                     p.rematch = true;
                     p.lastSeen = Date.now();
-                    const waiting = r.players.filter(x => !x.bot && !x.rematch && Date.now() - x.lastSeen < 20000);
-                    if (!waiting.length) {
-                        r.players = r.players.filter(x => x.bot || x.rematch);
-                        if (!r.players.some(x => x.id === r.host)) r.host = p.id;
+                    if (r.host === user.id) {
+                        r.players = r.players.filter(x => x.bot || Date.now() - x.lastSeen < 20000 || x.rematch);
                         r.previousQuestions = r.questions.map(q => q.id);
-                        r.players.forEach(x => { x.rematch = false; x.ready = false; x.delta = 0; x.previousRank = undefined; });
-                        await startMatch(env, r);
+                        r.players.forEach(x => { x.ready = !!x.bot || (!!x.rematch && x.id !== r.host); x.rematch = false; x.delta = 0; x.previousRank = undefined; x.score = 0; x.streak = 0; x.bestStreak = 0; x.correct = 0; x.results = []; });
+                        r.phase = 'lobby'; r.questions = []; r.round = 0; r.answers = {}; r.answersCompleteAt = undefined; r.startAt = 0; r.deadline = 0; r.revealUntil = 0;
+                        r.events = ['room_reset'];
                     }
                     else r.events = ['player_ready'];
                     changed = true;
@@ -301,6 +303,18 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     r.players.push(botPlayer(r, level));
                     if (r.quick === 'open') r.quick = 'computer';
                     await startMatch(env, r);
+                    changed = true;
+                }
+                else if (action === 'kick') {
+                    // The host removes a player from the waiting room, for example one who never gets ready (1.25).
+                    if (r.phase !== 'lobby')
+                        throw new AppError('MATCH_IN_PROGRESS', 409);
+                    const target = r.players.find(x => x.id === body.id && !x.bot && x.id !== r.host);
+                    if (!target)
+                        throw new AppError('INVALID_INPUT');
+                    r.players = r.players.filter(x => x.id !== target.id);
+                    r.kicked = [...(r.kicked ?? []), target.id].slice(-50);
+                    r.events = ['player_left'];
                     changed = true;
                 }
                 else if (action === 'removeBot') {
@@ -384,6 +398,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     if (queries >= ROTATE_AFTER_QUERIES && inFlight === 0) { send({ type: 'reconnect' }); close(true); return; }
     busy = true; try {
         const { state, version } = await mutateRoom(env, code, null, 'get');
+        if (state.kicked?.includes(user.id) && !state.players.some(p => p.id === user.id)) { send({ type: 'error', code: 'KICKED' }); close(); return; }
         if (state.players.find(p => p.id === user.id)?.connectionToken !== connectionToken) { send({ type: 'error', code: 'DUPLICATE_SESSION' }); close(); return; }
         if (version !== lastVersion || Date.now() - lastHeartbeat > 8000) {
             // Measure once per phase change, not on every update, to keep the query budget for the game itself.

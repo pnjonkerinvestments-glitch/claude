@@ -26,13 +26,21 @@ export function ordinal(n: number, locale: string) {
   return n + (({ one: 'st', two: 'nd', few: 'rd' } as Record<string, string>)[rule] ?? 'th');
 }
 
-/** "Play again": everyone still in the room taps it; the new match starts as soon as all have. */
-export function RematchButton({ room, me, send, t }: { room: { players: Player[] }; me: string; send: (type: string) => boolean; t: T }) {
-  const mine = room.players.find(p => p.id === me)?.rematch;
-  const waiting = room.players.filter(p => !p.bot && p.connected && !p.rematch && p.id !== me).map(p => p.name);
+/**
+ * "Play again" (1.25): the host's tap brings everyone back to the waiting room at once (and the host sees who is in);
+ * a guest taps "I'm in" and waits for the host. In the waiting room the host can change the settings or remove players.
+ */
+export function RematchButton({ room, me, send, t }: { room: { players: Player[]; host?: string }; me: string; send: (type: string) => boolean; t: T }) {
+  const isHost = room.host === me, mine = room.players.find(p => p.id === me)?.rematch;
+  const keen = room.players.filter(p => !p.bot && p.rematch && p.id !== me).map(p => p.name);
+  const host = room.players.find(p => p.id === room.host)?.name ?? '';
+  if (isHost) return <>
+    <button className="btn primary btn-lg mpr-again" onClick={() => send('rematch')}><RefreshCw size={19} aria-hidden="true"/>{t('mpPlayAgain')}</button>
+    <p className="mpr-wait" role="status">{keen.length ? t('rematchKeen').replace('{names}', keen.join(', ')) : t('rematchHostHint')}</p>
+  </>;
   return <>
-    <button className="btn primary btn-lg mpr-again" disabled={!!mine} onClick={() => send('rematch')}>{mine ? <Check size={19} aria-hidden="true"/> : <RefreshCw size={19} aria-hidden="true"/>}{t('mpPlayAgain')}</button>
-    {mine && waiting.length > 0 && <p className="mpr-wait" role="status">{t('rematchWaiting').replace('{names}', waiting.join(', '))}</p>}
+    <button className="btn primary btn-lg mpr-again" disabled={!!mine} onClick={() => send('rematch')}>{mine ? <Check size={19} aria-hidden="true"/> : <RefreshCw size={19} aria-hidden="true"/>}{t(mine ? 'rematchIn' : 'rematchImIn')}</button>
+    <p className="mpr-wait" role="status">{t('rematchHostWait').replace('{name}', host)}</p>
   </>;
 }
 

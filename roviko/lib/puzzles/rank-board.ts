@@ -2,7 +2,7 @@ import { COUNTRIES } from '../game-engine/questions';
 import { random, shuffle, seedHash } from '../game-engine/scoring';
 import { GEOGRAPHY_POLICY } from '../config';
 import { localized } from '../../i18n/content';
-import { RANK_TABLES, type RankCategory } from './rank';
+import { ACTIVE_RANK_TABLES as RANK_TABLES, type RankCategory } from './rank';
 import type { Localized } from './topics';
 
 /**
