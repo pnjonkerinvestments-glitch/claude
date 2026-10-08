@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.25.0 (op de preview, nog niet live)
+## 1.25.0 (live sinds 8 oktober 2026)
 
 - **Moeilijkheid.** Makkelijk, gemiddeld en moeilijk verschillen nu duidelijk. Makkelijk (na feedback "niet te makkelijk"): bekende landen plus de grootste andere (ongeveer 60), één fout antwoord uit hetzelfde continent en twee van elders, Size Shuffle-groottes minstens zo'n 2,4× uit elkaar, op de kaart landen vanaf 50.000 km². Moeilijk: minder bekende landen, foute antwoorden uit dezelfde regio die erop lijken, groottes dicht bij elkaar. Gemiddeld is ongewijzigd (de dagspellen gebruiken dat). Gemengd geeft elke vraag een eigen niveau. De wachtkamer zet onder de keuze één zin uitleg.
 - **Speel opnieuw.** Na een multiplayerwedstrijd stuurt de tik van de host iedereen meteen terug naar de wachtkamer; de host kan rondes, moeilijkheid en de rest aanpassen. Gasten tikken "Ik doe mee" en tellen dan als klaar. Bij oefenspellen opent het het instelscherm met de vorige instellingen.
