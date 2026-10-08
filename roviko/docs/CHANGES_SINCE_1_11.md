@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.29.0 (op de preview, nog niet live)
+## 1.29.0 (live sinds 8 oktober 2026)
 
 - **Naam vaster.** Een account kan zijn naam nog maar eens per 30 dagen wijzigen, alleen op de accountpagina en na een bevestiging ("Daarna kan dat pas weer over 30 dagen"). Is de naam vergrendeld, dan staat er vanaf welke datum het weer kan. De naam die je bij het aanmelden kiest telt als wijziging. Gasten kiezen hun naam nog steeds vrij (ook in de wachtkamer). Avatar en vindbaarheid kun je altijd aanpassen.
 - **Welkomstmail.** Direct na het aanmelden stuurt Roviko een welkomstmail in de taal van de app (NL, EN of ES), met een knop om het e-mailadres te bevestigen, uitleg over het spel en je vriendcode. Verstuurt alleen als e-mail is ingesteld (`RESEND_API_KEY`); anders gaat het aanmelden gewoon door zonder mail.
