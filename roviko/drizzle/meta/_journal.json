@@ -78,6 +78,13 @@
       "when": 1791489833047,
       "tag": "0010_name_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1791491603413,
+      "tag": "0011_lucia",
+      "breakpoints": true
     }
   ]
 }

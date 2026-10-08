@@ -8,6 +8,7 @@ import { roomCode, random } from '../lib/game-engine/scoring';
 import { nameAllowed } from '../lib/name-filter';
 import { blockedIds } from './moderation';
 import { BOT_LEVELS, BOT_NAMES, MAX_BOTS, botAnswer, botDelay, type BotLevel } from '../lib/game-engine/bots';
+import { LUCIA_ID, LUCIA_NAME, LUCIA_AVATAR, LUCIA_SETTINGS } from '../lib/lucia';
 import { generateQuestions, evaluate, publicQuestion, type Settings, type Question } from '../lib/game-engine/questions';
 import { resultStatement } from './stats';
 import type { Room, Player, Env, User } from './types';
@@ -30,6 +31,15 @@ function botPlayer(r: Room, level: BotLevel): Player {
     const name = BOT_NAMES[level].find(n => !taken.has(n)) ?? BOT_NAMES[level][0] + ' ' + (r.players.length + 1);
     return { ...player({ id: 'bot-' + crypto.randomUUID(), name, avatar: 100 + BOT_LEVELS.indexOf(level) } as User), bot: true, level, ready: true };
 }
+/** Lucia as a room player (1.30): a medium computer player that carries her own account id, name and avatar. */
+function luciaPlayer(): Player { return { id: LUCIA_ID, name: LUCIA_NAME, avatar: LUCIA_AVATAR, ready: true, lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [], bot: true, level: 'medium' }; }
+/** A room Lucia hosts, for inviting one of her friends: medium, 15 questions; it starts as soon as someone joins. */
+export async function createLuciaRoom(env: Env) { for (let i = 0; i < 8; i++) {
+    const code = roomCode(), now = Date.now();
+    const r: Room = { code, name: LUCIA_NAME, host: LUCIA_ID, settings: { ...LUCIA_SETTINGS } as Settings, players: [luciaPlayer()], phase: 'lobby', questions: [], round: 0, startAt: 0, deadline: 0, revealUntil: 0, matchId: crypto.randomUUID(), answers: {}, previousQuestions: [], createdAt: now, updatedAt: now, expiresAt: now + TTL, events: ['room_created'] };
+    try { await run(env, 'INSERT INTO multiplayer_rooms(code,state,updated_at,expires_at) VALUES (?,?,?,?)', code, JSON.stringify(r), r.updatedAt, r.expiresAt); return code; }
+    catch (e: any) { if (!String(e.message).includes('UNIQUE')) throw e; }
+} throw new AppError('ROOM_UNAVAILABLE', 503); }
 export async function createRoom(env: Env, user: User, settings: Settings, quick = false) { for (let i = 0; i < 8; i++) {
     const code = roomCode();
     const r: Room = { ...(quick ? { quick: 'open' as const } : {}), code, name: user.name + "'s room", host: user.id, settings, players: [player(user)], phase: 'lobby', questions: [], round: 0, startAt: 0, deadline: 0, revealUntil: 0, matchId: crypto.randomUUID(), answers: {}, previousQuestions: [], createdAt: Date.now(), updatedAt: Date.now(), expiresAt: Date.now() + TTL, events: ['room_created'] };
@@ -46,7 +56,8 @@ export function tick(r: Room, now: number) {
     let changed = false;
     const active = r.players.filter(p => now - p.lastSeen < 45000 || p.bot);
     const host = r.players.find(p => p.id === r.host);
-    if ((!host || now - host.lastSeen > 30000) && active.some(p => !p.bot && p.id !== r.host)) {
+    // A computer host (Lucia, 1.30) never goes away, so her room keeps her as host.
+    if ((!host || (!host.bot && now - host.lastSeen > 30000)) && active.some(p => !p.bot && p.id !== r.host)) {
         r.host = active.find(p => !p.bot && p.id !== r.host)!.id;
         changed = true;
         r.events = ['host_changed'];
@@ -216,6 +227,8 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
             }
             r.events = ['player_joined'];
             changed = true;
+            // Lucia's room (1.30): she is the host and never presses start, so the match begins as soon as a friend is in.
+            if (r.host === LUCIA_ID && r.phase === 'lobby' && r.players.some(x => !x.bot)) await startMatch(env, r);
         }
         else if (user && action !== 'get') {
             if (!p)
@@ -259,6 +272,16 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                 changed = true;
             }
             else if (action === 'disconnect') { return { state: r, version: row.version }; }
+            else if (action === 'luciaJoin') {
+                // A player invited Lucia into their room (1.30): she joins at once as a medium computer player.
+                if (r.phase !== 'lobby') throw new AppError('MATCH_IN_PROGRESS', 409);
+                if (!r.players.some(x => x.id === LUCIA_ID)) {
+                    if (r.players.length >= 12) throw new AppError('ROOM_FULL', 409);
+                    r.players.push(luciaPlayer());
+                    r.events = ['player_joined'];
+                    changed = true;
+                }
+            }
             else if (action === 'rematch') {
                     // "Play again" (1.25): the host's tap sends everyone back to the waiting room at once, where the
                     // host can change rounds, difficulty and the rest before the next match. A guest's tap only says
@@ -267,7 +290,14 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                         throw new AppError('MATCH_NOT_FINISHED', 409);
                     p.rematch = true;
                     p.lastSeen = Date.now();
-                    if (r.host === user.id) {
+                    if (r.host === LUCIA_ID && !r.players.some(x => !x.bot && !x.rematch && Date.now() - x.lastSeen < 20000)) {
+                        // Lucia hosts (1.30): her settings are fixed, so once every player here tapped, the next match starts at once.
+                        r.players = r.players.filter(x => x.bot || x.rematch);
+                        r.previousQuestions = r.questions.map(q => q.id);
+                        r.players.forEach(x => { x.rematch = false; x.ready = !!x.bot; x.delta = 0; x.previousRank = undefined; });
+                        await startMatch(env, r);
+                    }
+                    else if (r.host === user.id) {
                         r.players = r.players.filter(x => x.bot || Date.now() - x.lastSeen < 20000 || x.rematch);
                         r.previousQuestions = r.questions.map(q => q.id);
                         r.players.forEach(x => { x.ready = !!x.bot || (!!x.rematch && x.id !== r.host); x.rematch = false; x.delta = 0; x.previousRank = undefined; x.score = 0; x.streak = 0; x.bestStreak = 0; x.correct = 0; x.results = []; });
