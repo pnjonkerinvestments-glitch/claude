@@ -111,7 +111,8 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
 function NameEditor({ code, t, fail }: { code: string; t: T; fail: (e: unknown) => void }) {
   const { boot, refresh } = useApp();
   const [open, setOpen] = useState(false), [name, setName] = useState(''), [busy, setBusy] = useState(false);
-  if (!boot?.user?.id) return null;
+  // Only guests rename themselves here; an account changes its name on the account page (1.29).
+  if (!boot?.user?.id || !boot.user.guest) return null;
   if (!open) return <button type="button" className="text-link lobby-name-edit" onClick={() => { setName(boot.user.name ?? ''); setOpen(true); }}><Pencil size={15} aria-hidden="true"/>{t('lobbyNameEdit')}</button>;
   const save = async (e: React.FormEvent) => {
     e.preventDefault(); if (busy) return; setBusy(true);

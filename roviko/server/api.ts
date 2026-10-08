@@ -1,4 +1,4 @@
-import { changePassword, mailEnabled, requestReset, resetPassword, sendVerification, verifyEmail } from './account';
+import { changePassword, mailEnabled, requestReset, resetPassword, sendVerification, sendWelcome, verifyEmail } from './account';
 import { competitionSummary } from './competition';
 import { leagueStanding } from './league';
 import { startRank, rankAction } from './ranks';
@@ -12,7 +12,7 @@ import { mergeProgress } from './merge-progress';
 import { z } from 'zod';
 import { ensureCatalog } from './catalog';
 import { seedHash } from '../lib/game-engine/scoring';
-import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin } from './auth';
+import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
 import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
 import silhouettes from '../lib/data/silhouettes.json';
@@ -110,7 +110,10 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
-            const result = await auth(req, env, await body(req), path[1] === 'signup');
+            const input = await body(req), signup = path[1] === 'signup';
+            const result = await auth(req, env, input, signup);
+            // 1.29: a new account gets the welcome email with the confirm button, in the background.
+            if (signup) { const welcome = sendWelcome(req, env, result.user.id, (input as any)?.locale).catch(() => ({ ok: false })); if (ctx) ctx.waitUntil(welcome); else await welcome; }
             return json({ user: result.user }, 200, { 'Set-Cookie': result.cookie });
         }
         const user = await requireUser(req, env);
@@ -132,7 +135,11 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 return json({ user: safeUser(user), stats: await stats(env, user.id) });
             if (method === 'PATCH') {
                 const b = z.object({ name: nameSchema, avatar: z.number().int().min(0).max(7), discoverable: z.boolean() }).parse(await body(req));
-                await run(env, 'UPDATE users SET name=?,avatar=?,discoverable=? WHERE id=?', b.name, b.avatar, +b.discoverable, user.id);
+                // 1.29: an account changes its name at most once per 30 days (guests freely). Avatar and visibility always.
+                const renamed = b.name.trim() !== user.name;
+                const unlock = nameUnlocksAt(user);
+                if (renamed && unlock && unlock > Date.now()) throw new AppError('NAME_LOCKED', 409);
+                await run(env, 'UPDATE users SET name=?,avatar=?,discoverable=?,name_changed_at=? WHERE id=?', b.name.trim(), b.avatar, +b.discoverable, renamed && !user.guest ? Date.now() : user.name_changed_at ?? null, user.id);
                 return json({ ok: true });
             }
             if (method === 'DELETE') {

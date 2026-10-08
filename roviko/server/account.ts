@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { one, run, batch } from './db';
 import { AppError, digest, hashPassword, limit, passwordSchema } from './auth';
 import type { Env, User } from './types';
+import { welcomeMail, mailLocale } from './welcome-mail';
 
 // Account email: verify the address and reset a forgotten password with one-time links.
 // Links are sent through Resend when RESEND_API_KEY is set; without it the features report
@@ -10,12 +11,12 @@ import type { Env, User } from './types';
 const HOUR = 3600000;
 export function mailEnabled(env: Env) { return !!env.RESEND_API_KEY; }
 
-async function sendMail(env: Env, to: string, subject: string, text: string) {
+async function sendMail(env: Env, to: string, subject: string, text: string, html?: string) {
   if (!env.RESEND_API_KEY) throw new AppError('MAIL_UNAVAILABLE', 503);
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM ?? 'Roviko <hello@roviko.app>', to: [to], subject, text }),
+    body: JSON.stringify({ from: env.MAIL_FROM ?? 'Roviko <hello@roviko.app>', to: [to], subject, text, ...(html ? { html } : {}) }),
   });
   if (!r.ok) throw new AppError('MAIL_FAILED', 502);
 }
@@ -44,6 +45,21 @@ export async function sendVerification(req: Request, env: Env, user: User) {
   const link = new URL(req.url).origin + '/api/auth/verify?token=' + token;
   await sendMail(env, user.email, 'Confirm your email for Roviko',
     `Hi ${user.name},\n\nTap this link to confirm your email address for Roviko:\n${link}\n\nThe link works for 48 hours. Did not ask for this? Then you can ignore this email.\n\nRoviko`);
+  return { ok: true };
+}
+
+/**
+ * Right after sign-up (1.29): the welcome email with the confirm button. Does nothing when mail is not set up
+ * (RESEND_API_KEY); a failure never blocks the sign-up itself.
+ */
+export async function sendWelcome(req: Request, env: Env, userId: string, requestedLocale?: unknown) {
+  if (!mailEnabled(env)) return { ok: false };
+  const user = await one(env, 'SELECT * FROM users WHERE id=?', userId) as User | null;
+  if (!user || user.guest || !user.email || user.email_verified) return { ok: false };
+  const token = await newToken(env, user, 'verify', user.email, 48 * HOUR);
+  const origin = new URL(req.url).origin;
+  const mail = welcomeMail(mailLocale(requestedLocale, req.headers.get('Accept-Language')), { name: user.name, friendCode: user.id.slice(0, 8).toUpperCase(), link: origin + '/api/auth/verify?token=' + token, origin });
+  await sendMail(env, user.email, mail.subject, mail.text, mail.html);
   return { ok: true };
 }
 

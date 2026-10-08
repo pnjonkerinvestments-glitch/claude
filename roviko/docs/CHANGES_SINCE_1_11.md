@@ -596,6 +596,15 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.29.0 (op de preview, nog niet live)
+
+- **Naam vaster.** Een account kan zijn naam nog maar eens per 30 dagen wijzigen, alleen op de accountpagina en na een bevestiging ("Daarna kan dat pas weer over 30 dagen"). Is de naam vergrendeld, dan staat er vanaf welke datum het weer kan. De naam die je bij het aanmelden kiest telt als wijziging. Gasten kiezen hun naam nog steeds vrij (ook in de wachtkamer). Avatar en vindbaarheid kun je altijd aanpassen.
+- **Welkomstmail.** Direct na het aanmelden stuurt Roviko een welkomstmail in de taal van de app (NL, EN of ES), met een knop om het e-mailadres te bevestigen, uitleg over het spel en je vriendcode. Verstuurt alleen als e-mail is ingesteld (`RESEND_API_KEY`); anders gaat het aanmelden gewoon door zonder mail.
+- **Wachtwoord minimaal 8 tekens** in plaats van 12 (aanmelden, wijzigen, herstellen).
+- **Migratie `0010_name_lock.sql`**: voegt alleen de kolom `users.name_changed_at` toe. Geen bestaande gegevens worden gewijzigd.
+- Service worker `roviko-shell-v1.29.0`.
+- Getest: build, volledige testset met nieuwe tests (7 tekens geweigerd, 8 goed; naam vergrendeld na aanmelden, na 30 dagen weer één keer; gasten vrij; welkomstmail met link, vriendcode en veilige naam). De mail zelf is als plaatje bekeken, niet echt verstuurd: op de live site staat e-mail nog niet aan.
+
 ## 1.28.0 (live sinds 8 oktober 2026)
 
 - **Rode teller voor vriendschapsverzoeken.** Wacht er een verzoek, dan staat er een rode cirkel met het aantal op Multiplayer in de tabbalk (en bovenaan op de computer), in het menu bij Vrienden en in het vriendenblok. "1 friend request(s) waiting" is nu netjes enkelvoud of meervoud.

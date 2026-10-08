@@ -71,6 +71,13 @@
       "when": 1791293143825,
       "tag": "0009_quiet_leagues",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "6",
+      "when": 1791489833047,
+      "tag": "0010_name_lock",
+      "breakpoints": true
     }
   ]
 }

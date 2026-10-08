@@ -16,7 +16,10 @@ export async function getUser(req: Request, env: Env): Promise<User | null> { co
     throw new AppError('ACCOUNT_BLOCKED', 403); return user; }
 export async function requireUser(req: Request, env: Env) { const user = await getUser(req, env); if (!user)
     throw new AppError('SESSION_EXPIRED', 401); return user; }
-export function safeUser(u: User) { return { id: u.id, name: u.name, avatar: u.avatar, guest: !!u.guest, email: u.email, emailVerified: !!u.email_verified, discoverable: !!u.discoverable, friendCode: u.id.slice(0, 8).toUpperCase() }; }
+/** An account may change its name once per NAME_LOCK_DAYS (1.29); guests choose freely. */
+export const NAME_LOCK_DAYS = 30;
+export function nameUnlocksAt(u: User) { return u.guest || !u.name_changed_at ? null : Number(u.name_changed_at) + NAME_LOCK_DAYS * 86400000; }
+export function safeUser(u: User) { const unlock = nameUnlocksAt(u); return { id: u.id, name: u.name, avatar: u.avatar, guest: !!u.guest, email: u.email, emailVerified: !!u.email_verified, discoverable: !!u.discoverable, friendCode: u.id.slice(0, 8).toUpperCase(), nameLockedUntil: unlock && unlock > Date.now() ? unlock : null }; }
 export function sessionCookie(req: Request, token: string, maxAge = 2592000) { return `rv_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${new URL(req.url).protocol === 'https:' ? '; Secure' : ''}`; }
 export async function newSession(req: Request, env: Env, userId: string) { const token = crypto.randomUUID() + crypto.randomUUID(); await run(env, 'INSERT INTO auth_sessions(token,user_id,expires_at) VALUES (?,?,?)', await digest(token), userId, Date.now() + 30 * 86400000); return sessionCookie(req, token); }
 // Guests get a friendly name ("Curious Fox 18") instead of a code; they can change it once they have an account.
@@ -26,8 +29,8 @@ export function guestName() { const r = crypto.getRandomValues(new Uint8Array(3)
 export async function guest(req: Request, env: Env) { await limit(env, 'guest:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 80); const id = crypto.randomUUID(); const name = guestName(); await run(env, 'INSERT INTO users(id,name,avatar,created_at) VALUES (?,?,?,?)', id, name, 0, Date.now()); return { user: await one(env, 'SELECT * FROM users WHERE id=?', id), cookie: await newSession(req, env, id) }; }
 // Names are the only player text others see: allowed characters only, and the EN/NL/ES filter in lib/name-filter.ts.
 export const nameSchema = z.string().trim().min(2).max(24).refine(v => /^[\p{L}\p{N} _.-]+$/u.test(v) && nameAllowed(v), 'NAME_INVALID');
-export const passwordSchema = z.string().min(12).max(128);
-const credentials = z.object({ email: z.string().email().max(254).transform(v => v.toLowerCase().trim()), password: z.string().min(12).max(128), name: nameSchema.optional() });
+export const passwordSchema = z.string().min(8).max(128);
+const credentials = z.object({ email: z.string().email().max(254).transform(v => v.toLowerCase().trim()), password: passwordSchema, name: nameSchema.optional(), locale: z.enum(['en', 'nl', 'es']).optional() });
 export async function hashPassword(password: string, salt: string) { const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']); return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, key, 256)); }
 export async function auth(req: Request, env: Env, body: any, signup: boolean) {
     await limit(env, 'auth:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 12, 600000);
@@ -41,7 +44,8 @@ export async function auth(req: Request, env: Env, body: any, signup: boolean) {
         if (!user)
             user = (await guest(req, env)).user;
         const salt = crypto.randomUUID();
-        await run(env, 'UPDATE users SET email=?,password=?,name=?,guest=0 WHERE id=?', v.email, salt + ':' + await hashPassword(v.password, salt), v.name ?? user!.name, user!.id);
+        // The name chosen at sign-up counts as a change: the next one is possible after NAME_LOCK_DAYS.
+        await run(env, 'UPDATE users SET email=?,password=?,name=?,guest=0,name_changed_at=? WHERE id=?', v.email, salt + ':' + await hashPassword(v.password, salt), v.name ?? user!.name, v.name ? Date.now() : null, user!.id);
         return { cookie: await newSession(req, env, user!.id), user: safeUser(await one(env, 'SELECT * FROM users WHERE id=?', user!.id)) };
     }
     const u = await one(env, 'SELECT * FROM users WHERE email=?', v.email);

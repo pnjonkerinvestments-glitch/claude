@@ -608,3 +608,4 @@
 }
 .rank-share{display:flex;width:100%;justify-content:center;gap:8px;margin:10px 0 4px}
 .admin-usage table{width:100%;border-collapse:collapse;font-size:.9rem}.admin-usage th,.admin-usage td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--t-line)}
+.field-note{display:block;margin-top:6px;font-size:.82rem;color:var(--t-text)}
