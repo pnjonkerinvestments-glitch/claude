@@ -20,7 +20,7 @@ import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, ONLINE_WINDOW } from './presence';
-import { LUCIA_ID } from '../lib/lucia';
+import { LUCIA_ID, LUCIA_NAME } from '../lib/lucia';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
@@ -291,7 +291,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 throw new AppError('ACCOUNT_REQUIRED', 403);
             // Lucia (1.30) is always around: online, never in a room.
             if (method === 'GET')
-                return json({ friends: (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID && f.status === 'accepted' ? { ...f, online: 1, room_code: null } : f) });
+                return json({ friends: (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID ? { ...f, name: LUCIA_NAME, ...(f.status === 'accepted' ? { online: 1, room_code: null } : {}) } : f) });
             const b = await body(req);
             if (path[1]) {
                 const f = await one(env, 'SELECT * FROM friend_requests WHERE id=? AND (to_id=? OR from_id=?)', path[1], user.id, user.id);

@@ -596,14 +596,14 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.30.0 (op de preview, nog niet live)
+## 1.30.0 (live sinds 8 oktober 2026)
 
-- **Lucia 🤖, de computervriend.** Voeg haar toe met vriendcode **CAFE1C1A** (ze staat niet automatisch bij iedereen). Ze accepteert meteen en staat altijd online.
+- **Lucia 👽, de computervriend.** Voeg haar toe met vriendcode **CAFE1C1A** (ze staat niet automatisch bij iedereen). Ze accepteert meteen en staat altijd online.
 - **Altijd een tegenstander.** Nodig je Lucia uit in je kamer, dan doet ze direct mee als computerspeler op gemiddeld niveau.
 - **Lucia nodigt zelf uit.** Ben je online, niet in een kamer en niet midden in een spel, dan nodigt Lucia je uit voor een potje in haar eigen kamer (zij is host, gemiddeld, 15 vragen), met de gewone uitnodigingskaart bovenin. Hooguit eens per 3 uur. Met het vinkje start het potje meteen. Wil je geen uitnodigingen meer, verwijder haar dan als vriend.
-- **Eerlijk.** Ze heet overal "Lucia 🤖" en potjes met haar tellen als oefenen, niet voor de ranglijsten.
+- **Eerlijk.** Ze heet overal "Lucia 👽" (eerst 🤖; de eigenaar koos 👽 omdat een alien beter bij de aardbol past). In kamers staat onder elke computerspeler nu "Computer · gemiddeld" in plaats van alleen "Gemiddeld". Potjes met haar tellen als oefenen, niet voor de ranglijsten.
 - **Migratie `0011_lucia.sql`**: voegt alleen het account van Lucia toe (zonder e-mail of wachtwoord). Service worker `roviko-shell-v1.30.0`.
-- Getest: build, volledige testset met een nieuwe test (toevoegen met code, meteen vrienden, altijd online, geen uitnodiging tijdens een spel, één uitnodiging per keer, haar kamer start bij binnenkomst met 15 vragen op gemiddeld, ze komt direct in jouw kamer); in de browser op 390 px: vriend toevoegen, uitnodiging van Lucia 🤖 bovenin, vinkje, potje van 15 vragen met Lucia 🤖 in de tussenstand. Niet getest: echte iPhone.
+- Getest: build, volledige testset met een nieuwe test (toevoegen met code, meteen vrienden, altijd online, geen uitnodiging tijdens een spel, één uitnodiging per keer, haar kamer start bij binnenkomst met 15 vragen op gemiddeld, ze komt direct in jouw kamer); in de browser op 390 px: vriend toevoegen, uitnodiging van Lucia 👽 bovenin, vinkje, potje van 15 vragen met Lucia 👽 in de tussenstand. Niet getest: echte iPhone.
 
 ## 1.29.0 (live sinds 8 oktober 2026)
 

@@ -76,7 +76,7 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
         {room.players.map(p => <li key={p.id} className={(p.id === room.host ? 'is-host ' : '') + (p.ready ? 'is-ready ' : '') + (p.bot ? 'is-bot ' : '') + (p.id === me ? 'is-me' : '')}>
           <span className="lobby-avatar"><GlobeAvatar id={p.avatar} size={58}/>{p.id === room.host && <Crown className="lobby-crown" size={20} strokeWidth={2.4} aria-label={t('host')}/>}{p.ready && p.id !== room.host && <span className="lobby-ready" aria-label={t('ready')}><Check size={12} strokeWidth={3.4}/></span>}</span>
           <strong>{nameOf(p)}</strong>
-          <small>{p.bot ? t('botLevel_' + (p.level ?? 'medium')) : p.connected === false ? t('reconnecting') : p.id === room.host ? t('host') : p.ready ? t('ready') : t('notReady')}</small>
+          <small>{p.bot ? t('botInRoom').replace('{level}', t('botLevel_' + (p.level ?? 'medium'))) : p.connected === false ? t('reconnecting') : p.id === room.host ? t('host') : p.ready ? t('ready') : t('notReady')}</small>
           {p.bot && isHost && <button className="lobby-remove" onClick={() => removeComputer(code, p.id, fail)} aria-label={t('removeComputer').replace('{name}', p.name)}><X size={14}/></button>}
           {!p.bot && isHost && p.id !== me && <button className="lobby-remove is-kick" onClick={() => { if (window.confirm(t('lobbyKickConfirm').replace('{name}', p.name))) post('/rooms/' + code + '/kick', { id: p.id }).catch(fail); }} aria-label={t('lobbyKick').replace('{name}', p.name)}><X size={14}/></button>}
           {!p.bot && p.id !== me && <PlayerActions player={p} t={t} room={code}/>}
