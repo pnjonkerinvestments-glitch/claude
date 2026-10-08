@@ -15,14 +15,17 @@ import { BlockedPlayers } from '../multiplayer/PlayerActions';
 
 /** Name, avatar and whether friends can find you. Used on the account page and the passport. */
 export function ProfileEditDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
-  const { t, boot, refresh, fail } = useApp();
+  const { t, boot, refresh, fail, locale } = useApp();
   const u = boot.user;
   const [name, setName] = useState(u.name), [avatar, setAvatar] = useState(u.avatar), [discoverable, setDiscoverable] = useState(u.discoverable), [busy, setBusy] = useState(false);
   useEffect(() => { if (open) { setName(u.name); setAvatar(u.avatar); setDiscoverable(u.discoverable); } }, [open, u.name, u.avatar, u.discoverable]);
-  const save = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await api('/profile', { method: 'PATCH', body: JSON.stringify({ name, avatar, discoverable }) }); await refresh(); onOpenChange(false); } catch (err) { fail(err); } finally { setBusy(false); } };
+  // 1.29: an account changes its name at most once per 30 days. Locked: the field is read-only with the date it opens again;
+  // otherwise a rename asks for a confirmation first.
+  const lockedUntil = !u.guest && u.nameLockedUntil ? new Date(u.nameLockedUntil) : null;
+  const save = async (e: React.FormEvent) => { e.preventDefault(); const renamed = name.trim() !== u.name; if (renamed && !u.guest && !window.confirm(t('nameChangeConfirm').replace('{name}', name.trim()))) return; setBusy(true); try { await api('/profile', { method: 'PATCH', body: JSON.stringify({ name: lockedUntil ? u.name : name, avatar, discoverable }) }); await refresh(); onOpenChange(false); } catch (err) { fail(err); } finally { setBusy(false); } };
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="app-modal"><DialogTitle className="modal-title">{t('editProfile')}</DialogTitle><DialogDescription>{t('nameHint')}</DialogDescription>
     <form onSubmit={save} className="form-stack">
-      <label className="field"><span>{t('displayName')}</span><input className="text-input" value={name} onChange={e => setName(e.target.value)} minLength={2} maxLength={24} required/></label>
+      <label className="field"><span>{t('displayName')}</span><input className="text-input" value={name} readOnly={!!lockedUntil} onChange={e => setName(e.target.value)} minLength={2} maxLength={24} required/>{!u.guest && <small className="field-note">{lockedUntil ? t('nameLockedUntil').replace('{date}', lockedUntil.toLocaleDateString(locale, { day: 'numeric', month: 'long' })) : t('nameOncePerMonth')}</small>}</label>
       <AvatarPicker value={avatar} onChange={setAvatar}/>
       <div className="switch-field"><label htmlFor="discoverable">{t('discoverable')}</label><Switch id="discoverable" checked={discoverable} onCheckedChange={setDiscoverable}/></div>
       <button className="btn primary" disabled={busy}>{t('save')}<Check size={17}/></button>
@@ -45,8 +48,8 @@ function PasswordDialog({ open, onOpenChange, token }: { open: boolean; onOpenCh
   return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="app-modal"><DialogTitle className="modal-title">{t(token ? 'passwordNewTitle' : 'passwordChange')}</DialogTitle><DialogDescription>{t('passwordRule')}</DialogDescription>
     <form onSubmit={save} className="form-stack">
       {!token && <label className="field"><span>{t('passwordCurrent')}</span><input className="text-input" type="password" autoComplete="current-password" value={current} onChange={e => setCurrent(e.target.value)} required/></label>}
-      <label className="field"><span>{t('passwordNew')}</span><input className="text-input" type="password" autoComplete="new-password" value={next} onChange={e => setNext(e.target.value)} minLength={12} maxLength={128} required/></label>
-      <button className="btn primary" disabled={busy || next.length < 12}>{t('save')}<Check size={17}/></button>
+      <label className="field"><span>{t('passwordNew')}</span><input className="text-input" type="password" autoComplete="new-password" value={next} onChange={e => setNext(e.target.value)} minLength={8} maxLength={128} required/></label>
+      <button className="btn primary" disabled={busy || next.length < 8}>{t('save')}<Check size={17}/></button>
     </form>
   </DialogContent></Dialog>;
 }

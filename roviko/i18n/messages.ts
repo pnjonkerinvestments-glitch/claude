@@ -270,7 +270,7 @@ export const messages = {
     "accountCopy": "Save your progress and build your own geography story.",
     "email": "Email",
     "password": "Password",
-    "passwordHint": "At least 12 characters.",
+    "passwordHint": "At least 8 characters.",
     "name": "Explorer name",
     "haveAccount": "Already exploring with us?",
     "newAccount": "New around here?",
@@ -896,7 +896,7 @@ export const messages = {
     "accountCopy": "Sla je voortgang op en schrijf je eigen aardrijkskundeverhaal.",
     "email": "E-mail",
     "password": "Wachtwoord",
-    "passwordHint": "Minstens 12 tekens.",
+    "passwordHint": "Minstens 8 tekens.",
     "name": "Spelersnaam",
     "haveAccount": "Al eerder meegegaan?",
     "newAccount": "Voor het eerst hier?",
@@ -1272,4 +1272,4 @@ export const messages = {
   }
 };
 export type MessageKey = keyof typeof messages.en;
-export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }
+export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }

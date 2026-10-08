@@ -22,6 +22,8 @@ export type User = {
     blocked: number;
     email_verified?: number;
     password?: string | null;
+    /** 1.29: when an account last changed its name (null: never since sign-up without a name). */
+    name_changed_at?: number | null;
     created_at: number;
 };
 export type Player = {

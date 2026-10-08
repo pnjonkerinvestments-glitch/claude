@@ -44,6 +44,10 @@ After a right answer the game moves on by itself after 0.8 seconds (Rank Radar: 
 
 Since 1.27 a share is three short lines without answer squares (name and score, place, call and link; the share picture keeps the squares). Shares of daily games, the day total and today's ranking carry the player's name and place of the day ("#3 of 230 players worldwide today"), in the text, the share picture and the link (`n`, `r`, `p`, `l`). A shared link is a friendly claim: it is shown to the friend and in link previews, never stored or used for rankings; names failing the player-name rules are dropped.
 
+## Accounts (1.29)
+
+Passwords need at least 8 characters. An account can change its name once per 30 days (the sign-up name counts); guests choose their name freely. A new account receives a welcome email with a confirm link when email is configured.
+
 ## Maps, capitals, ordering and borders
 
 Pinpoint accepts the chosen country's source geometry/islands with a declared 25 km touch/simplification tolerance. An outside pin reports distance to the nearest country boundary. Raw map accuracy is 1,000 for a correct pin, otherwise `round(900 * exp(-boundaryDistanceKm / 1600))`; invalid/missing pins get 0. In World Trip, the round earns `round(rawAccuracy / 5)`, capped at 200. A nearer miss never earns less than a farther miss. Neighbour/continent labels explain proximity without inconsistent fixed bonuses. Practice displays distance and correctness, not points. Legacy reference-point games retain their original frozen rules.

@@ -671,3 +671,18 @@ test('survival runs share the day\'s questions, climb in difficulty and end at t
  const today=(await request(a.cookie,'/puzzles/today?competition=1')).data;assert.equal(today.survival.length,3);assert.ok(today.survival.every(x=>x.completed&&x.out&&x.score===2));
  assert.ok(!today.sessions.some(x=>String(x.mode).startsWith('survival')));
 });
+
+test('passwords need 8 characters; an account renames at most once per 30 days, guests freely (1.29)',async()=>{
+ const g=await bootstrap();
+ assert.equal((await request(g.cookie,'/auth/signup','POST',{email:'short-pass@example.test',password:'Seven77'})).status,400,'7 characters is too short');
+ assert.equal((await request(g.cookie,'/profile','PATCH',{name:'Guest Free',avatar:1,discoverable:true})).status,200,'guests rename freely');
+ assert.equal((await request(g.cookie,'/profile','PATCH',{name:'Guest Again',avatar:1,discoverable:true})).status,200);
+ const made=await request(g.cookie,'/auth/signup','POST',{email:'eight-pass@example.test',password:'Eight888',name:'Ollie',locale:'nl'});
+ assert.equal(made.status,200,'8 characters is enough');assert.ok(made.data.user.nameLockedUntil>Date.now(),'the sign-up name counts as a change');
+ const cookie=made.cookie??g.cookie;
+ const locked=await request(cookie,'/profile','PATCH',{name:'Pietje',avatar:2,discoverable:true});assert.equal(locked.status,409);assert.equal(locked.data.error,'NAME_LOCKED');
+ assert.equal((await request(cookie,'/profile','PATCH',{name:'Ollie',avatar:3,discoverable:false})).status,200,'avatar and visibility always');
+ await db.prepare('UPDATE users SET name_changed_at=? WHERE email=?').bind(Date.now()-31*86400000,'eight-pass@example.test').run();
+ assert.equal((await request(cookie,'/profile','PATCH',{name:'Pietje',avatar:3,discoverable:false})).status,200,'after 30 days once more');
+ assert.equal((await request(cookie,'/profile','PATCH',{name:'Pietje Two',avatar:3,discoverable:false})).data.error,'NAME_LOCKED');
+});
