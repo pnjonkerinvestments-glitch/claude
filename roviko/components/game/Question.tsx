@@ -31,7 +31,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
     // Every clue has a fixed slot from the start, so answers never move down while clues appear.
     const clueSlots = q?.clueCount ?? q?.clues?.length ?? 0;
     const openClues = feedback ? clueSlots : competitive ? liveClues : cluesShown;
-    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag) + '?v=2') : '';
+    const flagSrc = q?.flag ? q.flagUrl ?? ('/api/flag/' + encodeURIComponent(q.flag) + '?v=3') : '';
     const [hintPending,setHintPending]=useState(false);
     useEffect(()=>{if(q?.dailyPoints)setCluesShown(q.cluesShown??1);},[q?.cluesShown,q?.id]);
     const [answer, setAnswer] = useState<any>(null);

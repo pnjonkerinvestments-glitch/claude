@@ -98,7 +98,7 @@ export default function RovikoApp({ initialPath = '/' }: {
             await refresh();
         const game = await post('/games', { settings: { ...settings, timer: 0 }, practice, competition:['daily','daily-trail','daily-order'].includes(settings.mode) });
         // Start loading the first flag now, in parallel with opening the game screen.
-        const q = game.question; if (q?.mode === 'flags' && (q.flagUrl || q.flag)) { const img = new Image(); img.src = q.flagUrl ?? '/api/flag/' + encodeURIComponent(q.flag) + '?v=2'; }
+        const q = game.question; if (q?.mode === 'flags' && (q.flagUrl || q.flag)) { const img = new Image(); img.src = q.flagUrl ?? '/api/flag/' + encodeURIComponent(q.flag) + '?v=3'; }
         go('/game/' + game.id);
     }
     catch (e) {

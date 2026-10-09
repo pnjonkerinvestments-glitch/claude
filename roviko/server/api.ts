@@ -45,6 +45,15 @@ async function body(req: Request) { if (Number(req.headers.get('Content-Length')
 catch {
     throw new AppError('INVALID_REQUEST');
 } }
+let communityCache: { at: number; value: Promise<{ community: any; latest: any[] }> } | null = null;
+function communityNow(env: Env) {
+    if (!communityCache || Date.now() - communityCache.at > 60000) {
+        const value = Promise.all([one(env, 'SELECT COUNT(*) games,COUNT(DISTINCT user_id) players FROM game_results'), leaderboard(env, 'all', 'wins')]).then(([community, latest]) => ({ community, latest }));
+        communityCache = { at: Date.now(), value };
+        value.catch(() => { communityCache = null; });
+    }
+    return communityCache.value;
+}
 export async function handleApi(req: Request, env: Env, ctx?: {
     waitUntil: (p: Promise<any>) => void;
 }): Promise<Response> {
@@ -101,14 +110,16 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await ensureCatalog(env);
             const cleanup = pruneExpired(env).catch(() => { /* housekeeping never blocks a visit */ });
             if (ctx) ctx.waitUntil(cleanup); else await cleanup;
-            let user = await getUser(req, env), cookie = '';
+            // 1.34: the community numbers and the top players are the same for everyone, so they are kept for a minute
+            // and read at the same time as the player.
+            const [found, shared] = await Promise.all([getUser(req, env), communityNow(env)]);
+            let user = found, cookie = '';
             if (!user) {
                 const g = await guest(req, env);
                 user = g.user;
                 cookie = g.cookie;
             }
-            const community = await one(env, 'SELECT COUNT(*) games,COUNT(DISTINCT user_id) players FROM game_results');
-            const latest = await leaderboard(env, 'all', 'wins');
+            const { community, latest } = shared;
             return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {

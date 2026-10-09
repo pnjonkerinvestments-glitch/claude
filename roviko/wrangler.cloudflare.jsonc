@@ -41,6 +41,11 @@
   // zonder deze regel laat wrangler ze staan.
   "triggers": { "crons": [] },
 
+  // Smart Placement (1.34): de database staat in Oost-Noord-Amerika (ENAM). Zonder dit draait de worker bij de
+  // speler (Europa) en gaat elke databasevraag de oceaan over; met dit draait hij bij de database, zodat een
+  // verzoek met tien vragen maar één keer de oceaan oversteekt. Statische bestanden blijven bij de speler.
+  "placement": { "mode": "smart" },
+
   "workers_dev": true,
   "preview_urls": false,
   "observability": { "enabled": true }

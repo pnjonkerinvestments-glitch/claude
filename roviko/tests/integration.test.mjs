@@ -551,7 +551,7 @@ test('the next flag can load while the answer is shown, but never early and neve
  const r=(await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:0,answer:g.question.options[0].id})).data;
  assert.match(r.preloadFlag,/^\/api\/flag\//);
  const img=await mf.dispatchFetch(origin+r.preloadFlag,{headers:{Cookie:a.cookie}});assert.equal(img.status,200);await img.arrayBuffer();
- const next=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;assert.equal('/api/flag/'+encodeURIComponent(next.question.flag)+'?v=2',r.preloadFlag,'the preloaded image is exactly the next question');
+ const next=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;assert.equal('/api/flag/'+encodeURIComponent(next.question.flag)+'?v=3',r.preloadFlag,'the preloaded image is exactly the next question');
  const trail=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'trail',count:5}})).data;
  const tr=(await request(a.cookie,'/games/'+trail.id+'/answer','POST',{round:0,answer:trail.question.options[0].id})).data;assert.equal(tr.preloadFlag,undefined,'Clue Trail flags stay hidden');
  const daily=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily'},competition:true})).data;

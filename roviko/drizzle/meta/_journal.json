@@ -92,6 +92,13 @@
       "when": 1791576276642,
       "tag": "0012_name_index",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "6",
+      "when": 1791577192581,
+      "tag": "0013_speed_indexes",
+      "breakpoints": true
     }
   ]
 }
