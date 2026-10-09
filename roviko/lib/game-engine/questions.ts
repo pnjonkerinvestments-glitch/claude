@@ -181,7 +181,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     if (settings.difficulty === 'mixed') while (tiers.length < settings.count) tiers.push(...shuffle(['easy', 'medium', 'hard'], rng));
     let pool = tierPool(settings.difficulty);
     const result: Question[] = [];
-    // Daily Detour: every question type, four times over, shuffled per block of five and never the same type twice in a row.
+    // Daily Detour: every question type twice (ten questions since 1.32), shuffled per block of five and never the same type twice in a row.
     const DETOUR = ['flags', 'capitals', 'pinpoint', 'borders', 'order'];
     const detourOrder: string[] = [];
     // The trip opens gently: a flag and a capital first, the map and the harder types after that.

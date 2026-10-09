@@ -20,7 +20,7 @@ export const tripMessages = {
     agResume: 'Continue',
     homeBeatIt: 'Can you beat it?', mascotBonusLeft_one: 'One bonus trip to go!', homeBonusLine: 'Ten questions each, the same countries for everyone.',
     homeProgress: '{n}/{total} today', homeProgress_one: '1/{total} today', homePoints: '{n} points', homePoints_one: '1 point', homeFirstLine: 'Six short games · no account needed', homeDoneTitle: 'Nice trip. See you tomorrow?', homeDoneBubble: 'Woohoo, 6 out of 6!',
-    agLineDaily: '20 questions, flags to the map', agLineRank: 'Eight countries, eight topics', agLineDuel: 'Seven cards against Roviko', agLineCompare: 'Which country ranks higher?', agLineOrder: 'Sort four countries by size', agLineMosaic: 'Match flags, shapes and facts', agLineTrail: 'Fewer clues, more points',
+    agLineDaily: '10 questions, flags to the map', agLineRank: 'Eight countries, eight topics', agLineDuel: 'Seven cards against Roviko', agLineCompare: 'Which country ranks higher?', agLineOrder: 'Sort four countries by size', agLineMosaic: 'Match flags, shapes and facts', agLineTrail: 'Fewer clues, more points',
     agPractiseDaily: 'Practise the daily games', agPracticeCompare: 'Pick a topic', shufflePlacesRight: 'Countries in place', shufflePerfectRounds: 'Perfect rounds', orderCardCopy: 'Five rounds of four countries. Sort them by size.',
     competitionOrder: 'Five rounds of four countries, from easy to tricky. Every country in its right place earns 50 points, so a round is worth up to 200. No timer.',
     // puzzles
@@ -69,7 +69,7 @@ export const tripMessages = {
     agResume: 'Verder',
     homeBeatIt: 'Kun jij het beter?', mascotBonusLeft_one: 'Nog één bonusreis!', homeBonusLine: 'Tien vragen per spel, voor iedereen dezelfde landen.',
     homeProgress: '{n}/{total} vandaag', homeProgress_one: '1/{total} vandaag', homePoints: '{n} punten', homePoints_one: '1 punt', homeFirstLine: 'Zes korte spellen · geen account nodig', homeDoneTitle: 'Mooie reis. Tot morgen?', homeDoneBubble: 'Joepie, 6 van de 6!',
-    agLineDaily: '20 vragen, van vlag tot kaart', agLineRank: 'Acht landen, acht onderwerpen', agLineDuel: 'Zeven kaarten tegen Roviko', agLineCompare: 'Welk land scoort hoger?', agLineOrder: 'Zet vier landen op grootte', agLineMosaic: 'Koppel vlaggen, vormen en feitjes', agLineTrail: 'Minder hints, meer punten',
+    agLineDaily: '10 vragen, van vlag tot kaart', agLineRank: 'Acht landen, acht onderwerpen', agLineDuel: 'Zeven kaarten tegen Roviko', agLineCompare: 'Welk land scoort hoger?', agLineOrder: 'Zet vier landen op grootte', agLineMosaic: 'Koppel vlaggen, vormen en feitjes', agLineTrail: 'Minder hints, meer punten',
     agPractiseDaily: 'Dagspellen oefenen', agPracticeCompare: 'Kies een onderwerp', shufflePlacesRight: 'Landen op de goede plek', shufflePerfectRounds: 'Foutloze rondes', orderCardCopy: 'Vijf rondes van vier landen. Zet ze op grootte.',
     competitionOrder: 'Vijf rondes van vier landen, van makkelijk naar lastig. Elk land op de goede plek levert 50 punten op, dus een ronde is tot 200 punten waard. Geen timer.',
     // puzzles
@@ -118,7 +118,7 @@ export const tripMessages = {
     agResume: 'Seguir',
     homeBeatIt: '¿Puedes superarlo?', mascotBonusLeft_one: '¡Queda un viaje extra!', homeBonusLine: 'Diez preguntas cada uno, los mismos países para todos.',
     homeProgress: '{n}/{total} hoy', homeProgress_one: '1/{total} hoy', homePoints: '{n} puntos', homePoints_one: '1 punto', homeFirstLine: 'Seis juegos cortos · sin cuenta', homeDoneTitle: 'Buen viaje. ¿Hasta mañana?', homeDoneBubble: '¡Bien! 6 de 6.',
-    agLineDaily: '20 preguntas, de banderas al mapa', agLineRank: 'Ocho países, ocho temas', agLineDuel: 'Siete cartas contra Roviko', agLineCompare: '¿Qué país queda más alto?', agLineOrder: 'Ordena cuatro países por tamaño', agLineMosaic: 'Une banderas, siluetas y datos', agLineTrail: 'Menos pistas, más puntos',
+    agLineDaily: '10 preguntas, de banderas al mapa', agLineRank: 'Ocho países, ocho temas', agLineDuel: 'Siete cartas contra Roviko', agLineCompare: '¿Qué país queda más alto?', agLineOrder: 'Ordena cuatro países por tamaño', agLineMosaic: 'Une banderas, siluetas y datos', agLineTrail: 'Menos pistas, más puntos',
     agPractiseDaily: 'Practica los juegos diarios', agPracticeCompare: 'Elige un tema', shufflePlacesRight: 'Países en su sitio', shufflePerfectRounds: 'Rondas perfectas', orderCardCopy: 'Cinco rondas de cuatro países. Ordénalos por tamaño.',
     competitionOrder: 'Cinco rondas de cuatro países, de fácil a difícil. Cada país en su sitio vale 50 puntos, así que una ronda vale hasta 200. Sin cronómetro.',
     // puzzles

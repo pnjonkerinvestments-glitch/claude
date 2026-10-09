@@ -26,8 +26,8 @@ export function shufflePoints(answer: unknown, correct: unknown) {
 export function trailPoints(correct: boolean, clues = 1) {
   return correct ? 250 - 50 * Math.max(1, Math.min(4, Math.floor(clues))) : 0;
 }
-/** The Daily Detour has 20 questions (50 points each); editions before 1.18 had five stops (200 each). */
-export const DETOUR_ROUNDS = 20;
+/** The Daily Detour has 10 questions (100 points each) since 1.32; 20 (50 each) from 1.18, five stops (200 each) before. */
+export const DETOUR_ROUNDS = 10;
 export function dailyRoundPoints(mode: PointMode, answer: any, rounds = 5) {
   if (mode === 'trail') return trailPoints(answer.correct, answer.cluesUsed);
   // Daily Size Shuffle: partial credit per country in its right place, from the saved list and the saved right order.

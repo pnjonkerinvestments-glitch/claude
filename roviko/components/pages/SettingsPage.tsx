@@ -13,7 +13,7 @@ const LOCALES: [Locale, string][] = [['en', 'English'], ['nl', 'Nederlands'], ['
 
 /** Sound, music, language, theme, the daily reminder (in the app) and optional measurements. */
 export function SettingsPage() {
-  const { t, locale, setLocale, theme, setTheme, muted, toggleSound, music, toggleMusic, measurement, setMeasurement } = useApp();
+  const { t, locale, setLocale, muted, toggleSound, music, toggleMusic, measurement, setMeasurement } = useApp();
   // Vibration only exists in the iOS/Android app; decided after mounting so the server render stays the same.
   const [app, setApp] = useState(false), [haptics, setHaptics] = useState(true);
   useEffect(() => { setApp(isNativeApp()); setHaptics(readPreference('rv_haptics', 'on') === 'on'); }, []);
@@ -35,11 +35,6 @@ export function SettingsPage() {
       <div className="settings-card settings-card-pad">
         <p className="settings-label" id="settings-language"><RovikoIcon name="language" size={22}/>{t('settingsLanguage')}</p>
         <div className="segmented" role="group" aria-labelledby="settings-language">{LOCALES.map(([code, label]) => <button key={code} aria-pressed={locale === code} lang={code} onClick={() => setLocale(code)}>{label}</button>)}</div>
-        <p className="settings-label" id="settings-theme"><RovikoIcon name="palette" size={22}/>{t('settingsTheme')}</p>
-        <div className="segmented" role="group" aria-labelledby="settings-theme">
-          <button aria-pressed={theme !== 'dark'} onClick={() => setTheme('light')}><RovikoIcon name="sun" size={18}/>{t('settingsLight')}</button>
-          <button aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}><RovikoIcon name="moon" size={18}/>{t('settingsDark')}</button>
-        </div>
       </div>
     </section>
 

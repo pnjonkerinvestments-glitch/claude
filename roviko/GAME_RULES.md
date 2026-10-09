@@ -8,7 +8,7 @@ Six games are published once per UTC date: the Daily Detour (the day's main trip
 
 | Game | Rounds | Daily points |
 | --- | --- | --- |
-| Daily Detour (formerly World Trip) | 20: flags, capitals, map, borders and area ordering, four of each, shuffled, never the same type twice in a row | 50 per correct question; map credit is proportional to accuracy (map points ÷ 20). Editions saved before 1.18 keep five stops of 200 |
+| Daily Detour (formerly World Trip) | 10 since 1.32: flags, capitals, map, borders and area ordering, two of each, shuffled, never the same type twice in a row (20, four of each, from 1.18 to 1.31) | 100 per correct question; map credit is proportional to accuracy (map points ÷ 10). Points per question are 1,000 ÷ the number of questions in the saved edition, so 20-question editions keep 50 and editions saved before 1.18 keep five stops of 200 |
 | World Duel (daily since 1.19) | 7 duels, seven cards, each card once (5 before 1.21) | `round(duelsWon / 7 * 1000)`. Since 1.21 the duel is blind: values, wins, score and the perfect route are only sent once all seven cards are played |
 | Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
 | Side by Side | 15 comparisons, from easy to hard; the first wrong answer ends the run (10 before 1.21) | `round(correct / 15 * 1000)` |
@@ -60,7 +60,7 @@ The map supports two-finger zoom, pan, buttons, wheel input and keyboard interac
 
 Capital answers normalize case, accents and punctuation, accept configured aliases and allow one typo for strings at least five characters long. Since 1.23 the English, Dutch and Spanish name of a capital are all accepted (Vienna, Wenen, Viena), Dutch players see the Dutch name, Eswatini has two capitals (Mbabane, administrative; Lobamba, royal and legislative) and La Paz is accepted for Bolivia (Sucre stays the shown answer). Short names need exact normalized matches. Self-revealing capital/country names are filtered. Capital/flag choices never reveal the answer via option flags before submission. Border options that are embedded in the question's target name are excluded.
 
-Size Shuffle orders four countries by total area. Dragging a row (finger or mouse, with pointer events so it also works on iOS; the page scrolls along near the screen edge) or the accessible move buttons only change the draft; **Confirm order** submits it. A screen reader hears where a moved country now stands. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A Daily Detour ordering round is all-or-nothing (50/0 since 1.18; 200/0 in the five-stop editions before).
+Size Shuffle orders four countries by total area. Dragging a row (finger or mouse, with pointer events so it also works on iOS; the page scrolls along near the screen edge) or the accessible move buttons only change the draft; **Confirm order** submits it. A screen reader hears where a moved country now stands. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A Daily Detour ordering round is all-or-nothing (100/0 since 1.32, 50/0 from 1.18; 200/0 in the five-stop editions before).
 
 ## Side by Side
 
