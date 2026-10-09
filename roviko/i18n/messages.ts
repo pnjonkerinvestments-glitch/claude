@@ -9,11 +9,12 @@ import { v121Messages } from './v121';
 import { v122Messages } from './v122';
 import { v123Messages } from './v123';
 import { tripMessages } from './trip';
+import { v132Messages } from './v132';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -504,7 +505,7 @@ export const messages = {
     "journeyExtent": "5 stages",
     "compareExtent": "10 comparisons",
     "mosaicExtent": "4 countries",
-    "dailyCardCopy": "20 mixed questions: flags, capitals, the map and more.",
+    "dailyCardCopy": "10 mixed questions: flags, capitals, the map and more.",
     "compareCardCopy": "Two countries. Which one comes out on top?",
     "mosaicCardCopy": "Match the flags, shapes and country facts. New facts every day.",
     "journeyKinds": "Flags · cities · maps · more",
@@ -640,7 +641,8 @@ export const messages = {
     ...v121Messages.en,
     ...v122Messages.en,
     ...v123Messages.en,
-    ...tripMessages.en
+    ...tripMessages.en,
+    ...v132Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1130,7 +1132,7 @@ export const messages = {
     "journeyExtent": "5 etappes",
     "compareExtent": "10 vergelijkingen",
     "mosaicExtent": "4 landen",
-    "dailyCardCopy": "20 gemengde vragen: vlaggen, hoofdsteden, de kaart en meer.",
+    "dailyCardCopy": "10 gemengde vragen: vlaggen, hoofdsteden, de kaart en meer.",
     "compareCardCopy": "Twee landen. Welk land komt bovenaan?",
     "mosaicCardCopy": "Koppel vlaggen, vormen en landfeitjes. Elke dag andere feiten.",
     "journeyKinds": "Vlaggen · steden · kaarten · meer",
@@ -1268,7 +1270,8 @@ export const messages = {
     ...v121Messages.nl,
     ...v122Messages.nl,
     ...v123Messages.nl,
-    ...tripMessages.nl
+    ...tripMessages.nl,
+    ...v132Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;

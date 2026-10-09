@@ -360,3 +360,35 @@
   .th-bubble,.th-bubble .flame-mark,.home-trip .th-cta,.home-trip .today-row,.th-tick,.th-segs>li,.bt-trip .bonus-check,.welcome-card .welcome-art,.challenge-banner.ch-trip,.ch-trip .peek,.ch-trip .peek .peek-head,.ag-trip [role=tabpanel]{animation:none!important}
   .home-trip .today-row button,.home-trip a.side-row,.th-points,.bt-trip .bonus-stop button,.sv-trip .survival-card>button,.ag-row button,.ag-tile{transition:none!important}
 }
+/* The tour (1.32): the welcome card's look, one card per part of Roviko. A picture or Roviko on mint, the step,
+   a headline, two short lines, where to find it, mint dots and round pills. Skip sits quietly in the corner. */
+.app-modal.welcome-tour{position:relative;display:grid!important;justify-items:center;gap:10px!important;max-width:420px!important;padding:22px 22px 16px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:0 30px 80px rgba(22,59,50,.24)!important;text-align:center}
+.welcome-tour .tour-skip{position:absolute;top:14px;right:18px;z-index:2;padding:6px 10px;border-radius:999px;background:color-mix(in srgb,var(--t-card) 82%,transparent);color:var(--t-soft)!important;font:700 .875rem/1 var(--font-sans);text-decoration:none!important}
+.welcome-tour .tour-skip:hover{background:var(--t-mint);color:var(--t-ink)!important}
+.welcome-tour .tour-art{position:relative;display:grid;place-items:center;width:100%;height:180px;min-height:0;margin-bottom:2px;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;overflow:hidden;animation:tour-in .42s cubic-bezier(.34,1.4,.64,1) both}
+.welcome-tour .tour-art img{box-sizing:border-box;width:100%;height:100%;object-fit:cover}
+.welcome-tour .tour-art img[src*="friends-row"],.welcome-tour .tour-art img[src*="join-mascot"]{object-fit:contain;padding:18px}
+.welcome-tour .tour-art.is-mascot .character{width:150px;height:auto}
+.welcome-tour .tour-flame{position:absolute;right:calc(50% - 112px);top:30px;display:grid;place-items:center;width:64px;height:64px;border-radius:999px;background:var(--t-card);box-shadow:var(--t-shadow);animation:tour-in .5s .15s cubic-bezier(.34,1.56,.64,1) both}
+.welcome-tour .tour-step{margin:4px 0 0!important;color:var(--t-brand)!important;font:800 .75rem/1 var(--font-sans)!important;letter-spacing:.08em;text-transform:uppercase}
+.welcome-tour .modal-title{margin:0!important;color:var(--t-ink)!important;font:600 1.6rem/1.15 var(--font-display)!important;letter-spacing:-.01em;text-wrap:balance}
+.welcome-tour [data-slot=dialog-description]{max-width:36ch;margin:0!important;color:var(--t-soft)!important;font:600 .975rem/1.5 var(--font-sans)!important;text-wrap:pretty}
+.welcome-tour .tour-where{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin:2px 0 0;color:var(--t-soft);font:700 .8125rem/1 var(--font-sans)}
+.welcome-tour .tour-where b{display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 9px;border-radius:999px;background:color-mix(in srgb,var(--t-mint) 70%,var(--t-card));color:var(--t-ink);font-weight:800}
+.welcome-tour .tour-where b svg{color:var(--t-brand)}
+.welcome-tour .tour-perks{display:grid;gap:7px;width:100%;margin:2px 0;padding:0;list-style:none}
+.welcome-tour .tour-perks li{display:flex;align-items:center;gap:12px;min-height:46px;padding:5px 14px 5px 7px;border-radius:999px;background:color-mix(in srgb,var(--t-mint) 55%,var(--t-card));color:var(--t-ink);font:700 .9rem/1.3 var(--font-sans);text-align:left}
+.welcome-tour .tour-perks li svg{flex:0 0 auto;box-sizing:content-box;width:16px;height:16px;margin:0!important;padding:9px;border-radius:999px;background:var(--t-card);color:var(--t-brand)!important}
+.welcome-tour .tour-dots{display:flex;gap:6px;margin:6px 0 4px;padding:0;list-style:none}
+.welcome-tour .tour-dots li{width:8px;height:8px;border-radius:99px;background:color-mix(in srgb,var(--t-ink) 14%,transparent);transition:width .25s ease,background .25s ease}
+.welcome-tour .tour-dots li.is-past{background:color-mix(in srgb,var(--t-brand) 45%,transparent)}
+.welcome-tour .tour-dots li.is-on{width:24px;background:var(--t-brand)}
+.welcome-tour .tour-actions{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:8px;width:100%}
+.welcome-tour .tour-actions.is-final{grid-template-columns:minmax(0,1fr);gap:4px}
+.welcome-tour .tour-actions .btn{min-height:52px;border-radius:999px!important;justify-content:center}
+.welcome-tour .tour-actions.is-final .btn:first-child{min-height:56px}
+.welcome-tour .btn.ghost{background:transparent!important;color:var(--t-ink)!important;box-shadow:none!important;font-weight:700}
+.welcome-tour .btn.ghost:hover{background:var(--t-mint)!important}
+@keyframes tour-in{from{opacity:0;transform:scale(.94) translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.welcome-tour .tour-art,.welcome-tour .tour-flame{animation:none}}
+@media (max-height:700px){.welcome-tour .tour-art{height:140px}.welcome-tour .tour-art.is-mascot .character{width:120px}}

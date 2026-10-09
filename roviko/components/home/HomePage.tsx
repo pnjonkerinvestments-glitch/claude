@@ -18,7 +18,7 @@ import { useCompetition, useLeague, useResetLabel, useToday } from './useDay';
 import { TierBadge, leagueLine } from '../atelier/League';
 import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
-import { WelcomeCard, WelcomeTour, tourSeen } from './WelcomeTour';
+import { WelcomeTour, tourSeen } from './WelcomeTour';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
@@ -78,11 +78,11 @@ export function HomePage() {
     window.addEventListener('roviko:tour', ask);
     return () => window.removeEventListener('roviko:tour', ask);
   }, []);
-  // iPhone visitors in the browser first get the app screen; the welcome card follows only if they stay here.
+  // iPhone visitors in the browser first get the app screen; the tour follows only if they stay here (1.32: the
+  // full tour on the first visit, ending on a free account for guests, instead of the one welcome card).
   const appPrompt = useAppPrompt();
-  const [welcomeOpen, setWelcomeOpen] = useState(false);
-  // A friend's challenge already gives the one next step, so the welcome card waits for a later visit.
-  useEffect(() => { if (appPrompt.decided && !appPrompt.open && firstVisit && !challenge && !tourSeen()) setWelcomeOpen(true); }, [firstVisit, challenge, appPrompt.decided, appPrompt.open]);
+  // A friend's challenge already gives the one next step, so the tour waits for a later visit.
+  useEffect(() => { if (appPrompt.decided && !appPrompt.open && firstVisit && !challenge && !tourSeen()) setTourOpen(true); }, [firstVisit, challenge, appPrompt.decided, appPrompt.open]);
   const pointsToday = competition?.today.score ?? 0;
   const scoreOf = (mode: string) => competition?.scores.find(s => s.mode === mode)?.score;
   const name = (mode: DayMode) => t(dailyTitleKey(mode));
@@ -183,8 +183,7 @@ export function HomePage() {
     </aside>
 
     <AppPrompt open={appPrompt.open} onClose={appPrompt.close} t={t}/>
-    <WelcomeCard open={welcomeOpen} onOpenChange={setWelcomeOpen} t={t} onStart={() => open('daily')}/>
-    <WelcomeTour open={tourOpen} onOpenChange={setTourOpen} guest={!!boot.user.guest} t={t} onStart={() => { if (upNext) open(upNext); }} onSignup={() => app.setModal('signup')}/>
+    <WelcomeTour open={tourOpen} onOpenChange={setTourOpen} guest={!!boot.user.guest} t={t} onStart={() => { if (upNext) open(upNext); }} onSignup={() => app.setModal('signup')} onLogin={() => app.setModal('login')}/>
 
     <Dialog open={mysteryOpen} onOpenChange={setMysteryOpen}>
       <DialogContent className="app-modal mystery-modal">

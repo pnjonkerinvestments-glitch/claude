@@ -62,7 +62,6 @@ function GameSettings({ value, onChange, multiplayer = false, disabled = false, 
 /** First visit: the phone's language (Dutch or Spanish, otherwise English) and its light or dark mode.
  * A choice made in Settings is saved and always wins. */
 function deviceLocale() { try { for (const l of navigator.languages ?? [navigator.language]) { const c = (l || '').slice(0, 2).toLowerCase(); if (c === 'nl' || c === 'es' || c === 'en') return c; } } catch { /* no navigator */ } return 'en'; }
-function deviceTheme() { try { return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; } catch { return 'light'; } }
 function useClock() { const [now, setNow] = useState(Date.now()); useEffect(() => { const id = setInterval(() => setNow(Date.now()), 200); return () => clearInterval(id); }, []); return now; }
 function seconds(ms: number) { return Math.max(0, Math.ceil(ms / 1000)); }
 function prettyTime(ms: number) { const total = Math.round(ms / 1000); return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`; }
@@ -83,8 +82,9 @@ export default function RovikoApp({ initialPath = '/' }: {
     const refresh = useCallback(() => { if (!bootRequest.current) {
         bootRequest.current = api('/bootstrap').then(b => { setBoot(b); setBootLoaded(true); setFatal(''); return b; }).catch((e: any) => { setFatal(e.message); }).finally(() => { bootRequest.current = null; });
     } return bootRequest.current; }, []);
-    useEffect(() => { setPath(window.location.pathname); const savedRegion=readPreference('rv_region','World'); setRegionState(REGIONS.includes(savedRegion) ? savedRegion : 'World'); setMeasurement(readPreference('rv_metrics','off') === 'on'); const savedLocale=readPreference('rv_locale',deviceLocale()); setLocale(savedLocale === 'nl' || savedLocale === 'es' ? savedLocale : 'en'); setTheme(readPreference('rv_theme', deviceTheme()) || 'light'); setMuted(readPreference('rv_sound', soundDefault()) !== 'on'); setMusic(readPreference('rv_music', 'off') === 'on'); refresh(); const pop = () => setPath(window.location.pathname); window.addEventListener('popstate', pop); if ('serviceWorker' in navigator)
+    useEffect(() => { setPath(window.location.pathname); const savedRegion=readPreference('rv_region','World'); setRegionState(REGIONS.includes(savedRegion) ? savedRegion : 'World'); setMeasurement(readPreference('rv_metrics','off') === 'on'); const savedLocale=readPreference('rv_locale',deviceLocale()); setLocale(savedLocale === 'nl' || savedLocale === 'es' ? savedLocale : 'en'); setMuted(readPreference('rv_sound', soundDefault()) !== 'on'); setMusic(readPreference('rv_music', 'off') === 'on'); refresh(); const pop = () => setPath(window.location.pathname); window.addEventListener('popstate', pop); if ('serviceWorker' in navigator)
         navigator.serviceWorker.register('/sw.js').catch(() => { }); return () => window.removeEventListener('popstate', pop); }, [refresh]);
+    // Roviko is always light since 1.32 (no dark mode, also not when the phone is set to dark).
     useEffect(() => { document.documentElement.dataset.theme = theme; writePreference('rv_theme', theme); }, [theme]);
     useEffect(() => { document.documentElement.lang = locale; writePreference('rv_locale', locale); }, [locale]);
     // Inside the App Store / Google Play app (Capacitor) or an installed home-screen app the page runs full screen:
