@@ -51,6 +51,8 @@ SHORTS = {
     'viral-3': dict(song='life-is-a-dream', end=30, fade=1.0, pieces=[(0, 48, None)]),
     'viral-4': dict(song='aerobic-fashion', end=26, fade=1.0, pieces=[(0, 31, None)]),
     'viral-5': dict(song='funkee-monkeee', end=24, fade=1.0, pieces=[(0, 16, None)]),
+    # the end card for the Jean ad
+    'jp-end': dict(song='funkee-monkeee', end=10, fade=0.8, pieces=[(0, 48, None)]),
     # Sounds fake, but it's true: from song beat 50, so the break (song 59-62) sits under time's up and the knock-outs
     # (film 9-12) and the drop (song 63) lands on the reveal (film 13)
     'funfact': dict(song='aerobic-fashion', end=36, fade=1.0, pieces=[(0, 50, None)]),

@@ -1,0 +1,32 @@
+[
+ {
+  "t": 0.01,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -10
+ },
+ {
+  "t": 0.4984,
+  "beat": 1,
+  "sfx": "boing",
+  "gain": -9
+ },
+ {
+  "t": 1.5451,
+  "beat": 3.1,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 1.6697,
+  "beat": 3.35,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 1.8441,
+  "beat": 3.7,
+  "sfx": "expand",
+  "gain": -10
+ }
+]

@@ -1,0 +1,29 @@
+/*
+  Roviko ad (Jean): the phone screen insert
+  6.5 s, 1080x2338 (the phone's own 390x844 ratio), 60 fps, silent. Real screens of roviko.app 1.34 (local copy, local test
+  data): "What is the capital of Australia?" One wrong option is relabelled "Sydney" for the ad (in the app the choices are
+  always capitals). A finger tap lands on Sydney at 2.6 s, the answer screen wipes in from the tap: Sydney red with the cross, Canberra turns green, "Oops, not this one".
+  Put it on the phone in the edit (screen replace, or as a full-screen cut-in / picture in picture).
+*/
+const TEMPO = 120, DIL = TEMPO / 130, DURATION = 6.5;
+const W = 1080, H = 2338, K = W / 390;
+S(document.body, { width: W, height: H, background: C.cream }); S(stage, { width: W, height: H, background: C.cream });
+const shot = n => el(stage, { left: 0, top: 0, width: W, height: H }, `<img src="../roviko-jp/screens/${n}.jpg" style="width:${W}px;height:${H}px;display:block">`);
+const q = shot('q'), a1 = shot('a1');
+const TAP = { x: 195 * K, y: 411 * K }, TT = 2.6;   // Sydney's row on the question screen
+const ring = el(stage, { borderRadius: '50%', border: '10px solid rgba(255,255,255,.95)', boxShadow: '0 0 0 4px rgba(22,59,50,.25)', zIndex: 5 });
+const finger = el(stage, { width: 120, height: 120, borderRadius: 60, background: 'rgba(22,59,50,.28)', boxShadow: '0 0 0 6px rgba(255,255,255,.9)', zIndex: 6 });
+function seek(t) {
+  t = clamp(t, 0, DURATION);
+  // the answer screen wipes in as a circle from the tap (no half-way frames of the app's own animation)
+  const wr = 2600 * E.inOutCubic(clamp((t - TT - 0.03) / 0.3));
+  S(a1, { clipPath: `circle(${wr.toFixed(1)}px at ${TAP.x}px ${TAP.y}px)` }); show(a1, wr > 0.5);
+  // the finger comes in from below right, presses, lifts
+  const p = E.inOutCubic(clamp((t - (TT - 0.7)) / 0.65)), press = t >= TT ? Math.exp(-(t - TT) * 12) : 0;
+  const fx = lerp(TAP.x + 300, TAP.x, p), fy = lerp(TAP.y + 700, TAP.y, p), on = t > TT - 0.7 && t < TT + 0.45;
+  S(finger, { left: fx - 60, top: fy - 60, transform: `scale(${1 - 0.25 * press})` }); show(finger, on);
+  const rp = clamp((t - TT) / 0.45), rr = 30 + 110 * E.outCubic(rp);
+  S(ring, { left: TAP.x - rr, top: TAP.y - rr, width: 2 * rr, height: 2 * rr, opacity: 1 - rp }); show(ring, t >= TT && rp < 1);
+}
+window.seek = seek; window.DURATION = DURATION; window.EVENTS = [];
+window.filmReady = (async () => { await Promise.all([...document.images].map(i => i.decode().catch(() => {}))); seek(+(Q.get('t') || 0)); return true; })();
