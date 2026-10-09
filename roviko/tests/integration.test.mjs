@@ -103,6 +103,26 @@ test('two-player WebSocket rooms, synchronized rounds, score authority, rematch 
  }
  await waitFor(again,x=>x.phase==='finished'&&x.matchId===next.matchId);assert.equal((await request(b.cookie,'/profile')).data.stats.multiGames,2);again.ws.close();rejoinedA.ws.close();
 });
+test('friends are added by username, names of new accounts are unique, shared older names give a choice (1.33)',async()=>{
+ const mk=async(name,mail)=>{const g=await bootstrap();return request(g.cookie,'/auth/signup','POST',{name,email:mail+'@example.test',password:'Synthetic-name-password-'+mail});};
+ const a=await mk('Name Seeker','name-seeker'),b=await mk('Unique Ollie','unique-ollie');assert.equal(a.status,200);assert.equal(b.status,200);
+ const taken=await mk('unique ollie','unique-ollie-2');assert.equal(taken.status,409);assert.equal(taken.data.error,'NAME_TAKEN','a new account cannot take a name in other capitals');
+ const added=await request(a.cookie,'/friends','POST',{name:'  UNIQUE ollie '});assert.equal(added.status,200,JSON.stringify(added.data));assert.equal(added.data.choices,undefined);
+ assert.ok((await request(b.cookie,'/friends')).data.friends.some(f=>f.user_id===a.data.user.id&&f.status==='pending'),'the request reached the named player');
+ assert.equal((await request(a.cookie,'/friends','POST',{name:'Nobody By This Name'})).status,404);
+ assert.equal((await request(a.cookie,'/friends','POST',{name:'Name Seeker'})).status,404,'you cannot add yourself');
+ await db.prepare('UPDATE users SET name_changed_at=NULL WHERE id=?').bind(a.data.user.id).run();const rename=await request(a.cookie,'/profile','PATCH',{name:'Unique Ollie',avatar:0,discoverable:true});assert.equal(rename.status,409);assert.equal(rename.data.error,'NAME_TAKEN','a rename cannot take a used name either');
+ assert.equal((await request(a.cookie,'/profile','PATCH',{name:'name SEEKER',avatar:0,discoverable:true})).status,200,'your own name in other capitals is fine');
+ // Accounts from before 1.33 may share a name: the answer lists them, and picking one sends the request by code.
+ const c=await mk('Twin Old One','twin-one'),d=await mk('Twin Old Two','twin-two');
+ await db.prepare("UPDATE users SET name='Old Twin' WHERE id IN (?,?)").bind(c.data.user.id,d.data.user.id).run();
+ const pick=await request(a.cookie,'/friends','POST',{name:'old twin'});assert.equal(pick.status,200);assert.equal(pick.data.choices.length,2);
+ assert.deepEqual(pick.data.choices.map(x=>x.code).sort(),[c.data.user.friendCode,d.data.user.friendCode].sort());
+ assert.equal((await request(a.cookie,'/friends','POST',{code:pick.data.choices[0].code})).status,200);
+ // Lucia is found by her plain name; nobody new can call themselves Lucia.
+ assert.equal((await request(a.cookie,'/friends','POST',{name:'lucia'})).status,200);
+ assert.equal((await mk('Lucia','lucia-copy')).status,409);
+});
 test('friend privacy and request authorization',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Friend A',email:'friend-a@example.test',password:'Synthetic-friend-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Friend B',email:'friend-b@example.test',password:'Synthetic-friend-password-B'});const req=await request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode});assert.equal(req.status,200);const requests=(await request(bb.cookie,'/friends')).data.friends;assert.equal(requests.length,1);assert.equal((await request(aa.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,200);assert.equal((await request(aa.cookie,'/friends')).data.friends[0].status,'accepted');});
 test('opposite friend requests are unique and a block cannot be undone by the other player',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Pair A',email:'pair-a@example.test',password:'Synthetic-pair-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Pair B',email:'pair-b@example.test',password:'Synthetic-pair-password-B'});const results=await Promise.all([request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode}),request(bb.cookie,'/friends','POST',{code:aa.data.user.friendCode})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);const list=(await request(aa.cookie,'/friends')).data.friends;assert.equal(list.length,1);assert.equal((await request(aa.cookie,'/friends/'+list[0].id,'POST',{status:'blocked'})).status,200);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'rejected'})).status,403);});
 test('cross-origin mutation, injection and name validation',async()=>{const a=await bootstrap();const response=await mf.dispatchFetch(origin+'/api/rooms',{method:'POST',headers:{Cookie:a.cookie,Origin:'https://untrusted.test','Content-Type':'application/json'},body:JSON.stringify({settings})});assert.equal(response.status,403);assert.equal((await request(a.cookie,"/rooms/';DROP")).status,400);assert.equal((await request(a.cookie,'/profile','PATCH',{name:'<img src=x>',avatar:0,discoverable:true})).status,400);});

@@ -1,4 +1,4 @@
-// Copy for 1.32: the first-start tour (one step per part of Roviko, in playing order, account last). Spread last in messages.ts.
+// Copy for 1.32 and 1.33 (adding friends by username): the first-start tour (one step per part of Roviko, in playing order, account last). Spread last in messages.ts.
 export const v132Messages = {
   en: {
     g1Title: 'Hi, I’m Roviko!', g1Copy: 'A small geography game for every day: flags, capitals and the map. Five minutes a day and you know the world a little better. Shall I show you around?',
@@ -8,10 +8,13 @@ export const v132Messages = {
     g5Title: 'Climb the rankings', g5Copy: 'See your place today, this week and among friends, and exactly how many points you need to pass the next player. With an account you also play in a weekly league.',
     g6Title: 'Still hungry? Extra games', g6Copy: 'After the daily games the bonus tour has six more trips, with new countries every day. The classics are always there to practise, as often as you like.',
     g7Title: 'Discover the world', g7Copy: 'Explore all 195 countries, continent by continent. Every country you meet in a game goes into your passport, and each continent has its own stamp to collect.',
-    g8Title: 'Play together', g8Copy: 'Open a room and share the code with friends, or play a random player or the computer. Add friends with your friend code, see who is online and invite them.',
+    g8Title: 'Play together', g8Copy: 'Open a room and share the code with friends, or play a random player or the computer. Add friends by their username, see who is online and invite them.',
     g9Title: 'Save your progress, free', g9Copy: 'Make a free account now, so nothing gets lost:',
     g9Perk1: 'Your streak and points on every device', g9Perk2: 'Your own name in the rankings and the weekly league', g9Perk3: 'Friends: see who is online and challenge them', g9Perk4: 'Ready in 20 seconds, no payment',
     g10Title: 'Ready? Your trip is waiting', g10Copy: 'Start with today’s Daily Detour. You can see this tour again any time in the menu.',
+    yourUsername: 'Your username', mpYourName: 'Your username', friendNameLabel: 'Username or friend code', friendCodeShort: 'Code', friendNamePlaceholder: 'Username, e.g. Ollie', 
+    friendChoose: 'More players have this name. Which one is your friend?',
+    nameTaken: 'Someone already has this name. Try another one.',
     gWhere: 'Find it under', gRankings: 'Rankings', gHaveAccount: 'I already have an account', gLater: 'Play as a guest first', gSignup: 'Create a free account', gStart: 'Start today’s trip', gLetsGo: 'Show me',
   },
   nl: {
@@ -22,10 +25,13 @@ export const v132Messages = {
     g5Title: 'Klim in de ranglijst', g5Copy: 'Zie je plek vandaag, deze week en onder vrienden, en precies hoeveel punten je nodig hebt om de volgende speler in te halen. Met een account speel je ook mee in een weekcompetitie.',
     g6Title: 'Nog niet genoeg? Extra spellen', g6Copy: 'Na de dagspellen heeft de bonustour nog zes reizen, met elke dag nieuwe landen. En de klassiekers staan altijd klaar om te oefenen, zo vaak je wilt.',
     g7Title: 'Ontdek de wereld', g7Copy: 'Bekijk alle 195 landen, continent voor continent. Elk land dat je in een spel tegenkomt komt in je paspoort, en per continent verzamel je een eigen stempel.',
-    g8Title: 'Speel samen', g8Copy: 'Open een kamer en deel de code met vrienden, of speel tegen een willekeurige speler of de computer. Voeg vrienden toe met je vriendencode, zie wie online is en nodig ze uit.',
+    g8Title: 'Speel samen', g8Copy: 'Open een kamer en deel de code met vrienden, of speel tegen een willekeurige speler of de computer. Voeg vrienden toe op hun gebruikersnaam, zie wie online is en nodig ze uit.',
     g9Title: 'Bewaar je voortgang, gratis', g9Copy: 'Maak nu een gratis account, dan raak je niets kwijt:',
     g9Perk1: 'Je reeks en punten op elk apparaat', g9Perk2: 'Je eigen naam in de ranglijst en de weekcompetitie', g9Perk3: 'Vrienden: zie wie online is en daag ze uit', g9Perk4: 'Klaar in 20 seconden, zonder betaling',
     g10Title: 'Klaar? Je reis wacht', g10Copy: 'Begin met de Daily Detour van vandaag. Je kunt deze rondleiding altijd terugzien in het menu.',
+    yourUsername: 'Jouw gebruikersnaam', mpYourName: 'Jouw naam', friendNameLabel: 'Gebruikersnaam of vriendencode', friendCodeShort: 'Code', friendNamePlaceholder: 'Gebruikersnaam, bijv. Ollie', 
+    friendChoose: 'Meer spelers heten zo. Welke is je vriend?',
+    nameTaken: 'Iemand heeft deze naam al. Kies een andere.',
     gWhere: 'Te vinden onder', gRankings: 'Ranglijst', gHaveAccount: 'Ik heb al een account', gLater: 'Eerst als gast spelen', gSignup: 'Maak een gratis account', gStart: 'Begin de reis van vandaag', gLetsGo: 'Laat maar zien',
   },
   es: {
@@ -36,10 +42,13 @@ export const v132Messages = {
     g5Title: 'Sube en la clasificación', g5Copy: 'Mira tu puesto de hoy, de esta semana y entre amigos, y cuántos puntos te faltan para pasar al siguiente jugador. Con una cuenta también juegas una liga semanal.',
     g6Title: '¿Quieres más? Juegos extra', g6Copy: 'Después de los juegos diarios, la ruta extra tiene seis viajes más, con países nuevos cada día. Y los clásicos siempre están para practicar, tantas veces como quieras.',
     g7Title: 'Descubre el mundo', g7Copy: 'Explora los 195 países, continente a continente. Cada país que encuentras en un juego va a tu pasaporte, y cada continente tiene su propio sello.',
-    g8Title: 'Jugad juntos', g8Copy: 'Abre una sala y comparte el código con amigos, o juega contra un jugador al azar o el ordenador. Añade amigos con tu código, mira quién está en línea e invítalos.',
+    g8Title: 'Jugad juntos', g8Copy: 'Abre una sala y comparte el código con amigos, o juega contra un jugador al azar o el ordenador. Añade amigos por su nombre de usuario, mira quién está en línea e invítalos.',
     g9Title: 'Guarda tu progreso, gratis', g9Copy: 'Crea ahora una cuenta gratis y no perderás nada:',
     g9Perk1: 'Tu racha y tus puntos en todos tus dispositivos', g9Perk2: 'Tu propio nombre en la clasificación y la liga semanal', g9Perk3: 'Amigos: mira quién está en línea y rétalos', g9Perk4: 'Lista en 20 segundos, sin pagar',
     g10Title: '¿Listo? Tu viaje te espera', g10Copy: 'Empieza con el Daily Detour de hoy. Puedes volver a ver esta visita cuando quieras en el menú.',
+    yourUsername: 'Tu nombre de usuario', mpYourName: 'Tu nombre', friendNameLabel: 'Nombre de usuario o código de amigo', friendCodeShort: 'Código', friendNamePlaceholder: 'Nombre de usuario, p. ej. Ollie', 
+    friendChoose: 'Varios jugadores tienen este nombre. ¿Cuál es tu amigo?',
+    nameTaken: 'Alguien ya tiene este nombre. Prueba con otro.',
     gWhere: 'Lo encuentras en', gRankings: 'Clasificación', gHaveAccount: 'Ya tengo una cuenta', gLater: 'Jugar primero como invitado', gSignup: 'Crear una cuenta gratis', gStart: 'Empezar el viaje de hoy', gLetsGo: 'Enséñamelo',
   },
 };

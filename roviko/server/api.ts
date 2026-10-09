@@ -21,6 +21,7 @@ import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, luciaAccepts, ONLINE_WINDOW } from './presence';
 import { LUCIA_ID, LUCIA_NAME } from '../lib/lucia';
+import { LUCIA_KEY, NAME_KEY_SQL, nameTaken, searchKey } from './names';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
@@ -140,6 +141,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 const renamed = b.name.trim() !== user.name;
                 const unlock = nameUnlocksAt(user);
                 if (renamed && unlock && unlock > Date.now()) throw new AppError('NAME_LOCKED', 409);
+                // 1.33: an account's name is its username, so no other account may already use it (any capitals).
+                if (renamed && !user.guest && await nameTaken(env, b.name, user.id)) throw new AppError('NAME_TAKEN', 409);
                 await run(env, 'UPDATE users SET name=?,avatar=?,discoverable=?,name_changed_at=? WHERE id=?', b.name.trim(), b.avatar, +b.discoverable, renamed && !user.guest ? Date.now() : user.name_changed_at ?? null, user.id);
                 return json({ ok: true });
             }
@@ -307,10 +310,20 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 return json({ ok: true });
             }
             await limit(env, 'friend:' + user.id, 20, 3600000);
-            const code = z.string().regex(/^[A-Fa-f0-9]{8}$/).parse(b.code);
-            const matches = await rows(env, 'SELECT * FROM users WHERE lower(substr(id,1,8))=? AND guest=0 AND discoverable=1 AND blocked=0', code.toLowerCase());
-            if (matches.length !== 1 || matches[0].id === user.id || await blockedBetween(env, user.id, matches[0].id))
+            // 1.33: a friend is found by username (or, as before, by the 8-character friend code). Names of new accounts
+            // are unique, older accounts may share one: then the answer lists them (name, avatar, code) to pick from.
+            const q = z.object({ name: z.string().trim().min(1).max(40).optional(), code: z.string().trim().max(40).optional() }).refine(v => v.name || v.code).parse(b);
+            const query = (q.name ?? q.code)!;
+            const open = async (list: any[]) => { const out = []; for (const u of list) if (u.id !== user.id && !await blockedBetween(env, user.id, u.id)) out.push(u); return out; };
+            let matches = /^[A-Fa-f0-9]{8}$/.test(query) ? await open(await rows(env, 'SELECT * FROM users WHERE lower(substr(id,1,8))=? AND guest=0 AND discoverable=1 AND blocked=0', query.toLowerCase())) : [];
+            if (matches.length !== 1)
+                matches = await open(searchKey(query) === LUCIA_KEY
+                    ? await rows(env, 'SELECT * FROM users WHERE id=? AND discoverable=1 AND blocked=0', LUCIA_ID)
+                    : await rows(env, 'SELECT * FROM users WHERE ' + NAME_KEY_SQL + '=? AND guest=0 AND discoverable=1 AND blocked=0 ORDER BY created_at LIMIT 8', searchKey(query)));
+            if (!matches.length)
                 throw new AppError('FRIEND_NOT_FOUND', 404);
+            if (matches.length > 1)
+                return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar })) });
             const target = matches[0];
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
                 throw new AppError('REQUEST_EXISTS', 409);

@@ -256,7 +256,7 @@ export const messages = {
     "friendCode": "Your friend code",
     "friendsTitle": "The world’s better with company.",
     "friendsEmpty": "Your next rival could be your favourite person.",
-    "friendsEmptyCopy": "Share your friend code or add theirs to plan your next game.",
+    "friendsEmptyCopy": "Share your username or add a friend by theirs to plan your next game.",
     "addFriend": "Add a friend",
     "friendPlaceholder": "8-character friend code",
     "sendRequest": "Send request",
@@ -322,7 +322,7 @@ export const messages = {
     "roundClosed": "This round has closed.",
     "answerDuplicate": "Your answer is already locked.",
     "matchInProgress": "This game has started. Join when the room returns to the lobby.",
-    "friendNotFound": "No available account matches that friend code.",
+    "friendNotFound": "No account with that username. Check the spelling, or ask for their friend code.",
     "requestExists": "You already have a connection or request with that explorer.",
     "viewResult": "View result",
     "noTracking": "No advertising trackers. Play without an account.",
@@ -883,7 +883,7 @@ export const messages = {
     "friendCode": "Jouw vriendencode",
     "friendsTitle": "De wereld is leuker met gezelschap.",
     "friendsEmpty": "Je volgende rivaal kan je beste vriend zijn.",
-    "friendsEmptyCopy": "Deel je vriendencode of voeg die van een vriend toe voor jullie volgende spel.",
+    "friendsEmptyCopy": "Deel je gebruikersnaam of voeg een vriend toe op de zijne voor jullie volgende spel.",
     "addFriend": "Voeg een vriend toe",
     "friendPlaceholder": "Vriendencode van 8 tekens",
     "sendRequest": "Verstuur verzoek",
@@ -949,7 +949,7 @@ export const messages = {
     "roundClosed": "Deze ronde is afgelopen.",
     "answerDuplicate": "Je antwoord staat al vast.",
     "matchInProgress": "Dit spel is al begonnen. Join als de lobby terug is.",
-    "friendNotFound": "Geen beschikbaar account met deze vriendencode.",
+    "friendNotFound": "Geen account met deze gebruikersnaam. Check de spelling, of vraag om hun vriendencode.",
     "requestExists": "Je hebt al een verbinding of verzoek met deze speler.",
     "viewResult": "Bekijk resultaat",
     "noTracking": "Geen advertentietrackers. Speel zonder account.",
@@ -1275,4 +1275,4 @@ export const messages = {
   }
 };
 export type MessageKey = keyof typeof messages.en;
-export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }
+export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', NAME_TAKEN: 'nameTaken', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }

@@ -596,6 +596,14 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.33.0 (nog niet live; op de preview)
+
+- **Vrienden toevoegen op gebruikersnaam.** Op de vriendenpagina en bij "Vrienden online" op de multiplayerpagina typ je nu de gebruikersnaam van een vriend (hoofdletters maken niet uit). Bovenaan staat "Jouw gebruikersnaam" in plaats van je code; tik erop om hem te kopiëren. De oude vriendcode werkt nog steeds in hetzelfde veld.
+- **Namen zijn uniek voor nieuwe accounts.** Bij aanmelden en bij een naamswijziging krijg je "Iemand heeft deze naam al. Kies een andere." als een ander account die naam al heeft. Bestaande accounts met dezelfde naam blijven zoals ze zijn: zoek je zo'n naam, dan kies je uit een lijstje met avatar en code wie je vriend is.
+- Lucia vind je op "Lucia"; niemand anders kan zo heten.
+- **Migratie `0012_name_index.sql`**: voegt alleen een index toe om snel op naam te zoeken. Geen gegevens veranderd. Service worker `roviko-shell-v1.33.0`.
+- Getest: volledige testset met een nieuwe test (toevoegen op naam in andere hoofdletters, naam bezet bij aanmelden en hernoemen, eigen naam in andere hoofdletters mag, niet jezelf, onbekende naam, keuzelijst bij twee oudere accounts met dezelfde naam en kiezen op code, Lucia op "lucia", niemand anders "Lucia"), typecheck, build, en in de browser op telefoonformaat: vriendenpagina (toevoegen, keuzelijst, foutmelding) en multiplayerpagina (Lucia toevoegen). Niet getest: op een echte iPhone.
+
 ## 1.32.0 (live sinds 9 oktober 2026)
 
 - **Daily Detour: 10 vragen in plaats van 20.** Twee van elk type (vlag, hoofdstad, kaart, buren, grootte), nog steeds makkelijk beginnend. Elke vraag is nu 100 punten waard, dus het maximum blijft 1.000. De vragen van een dag liggen vast zodra de eerste speler begint: de dag waarop 1.32 live gaat houdt nog 20 vragen, de dag erna zijn het er 10. Teksten, uitleg en puntenuitleg zeggen overal 10.
