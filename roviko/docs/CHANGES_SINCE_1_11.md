@@ -596,13 +596,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.32.0 (nog niet live; op de preview)
+## 1.32.0 (live sinds 9 oktober 2026)
 
 - **Daily Detour: 10 vragen in plaats van 20.** Twee van elk type (vlag, hoofdstad, kaart, buren, grootte), nog steeds makkelijk beginnend. Elke vraag is nu 100 punten waard, dus het maximum blijft 1.000. De vragen van een dag liggen vast zodra de eerste speler begint: de dag waarop 1.32 live gaat houdt nog 20 vragen, de dag erna zijn het er 10. Teksten, uitleg en puntenuitleg zeggen overal 10.
 - **Altijd licht.** Roviko start altijd in de lichte kleuren en blijft licht, ook als de telefoon op donker staat. De keuze licht/donker is uit Instellingen gehaald. De iOS-app krijgt bij de volgende build ook `UIUserInterfaceStyle` = Light; de app laadt roviko.app, dus de website-wijziging werkt daar meteen.
 - **Rondleiding bij de eerste start.** In plaats van de ene welkomstkaart krijgt een nieuwe speler meteen een korte, vriendelijke rondleiding van 9 kaartjes, in de volgorde van spelen: wat Roviko is, de Daily Detour, de vijf dagspellen, reeks en reeksschild, de ranglijst en weekcompetitie, de bonustour en klassiekers, landen ontdekken met paspoort en continentstempels, multiplayer en vrienden. Elk kaartje heeft een plaatje of Roviko en "Te vinden onder" met het tabblad. Gasten eindigen op "Bewaar je voortgang, gratis" met een gouden knop voor een gratis account (of eerst als gast spelen) en kunnen op het eerste kaartje meteen inloggen. Overslaan kan altijd; via menu → Rondleiding zie je hem opnieuw.
 - Geen migratie. Service worker `roviko-shell-v1.32.0`.
-- Getest: volledige testset (de drie Detour-tests aangepast aan 10 vragen en 100 punten), typecheck, build, en in de browser op een telefoonformaat: de rondleiding in het Nederlands en Engels, alle 9 stappen, een telefoon op donker blijft licht, "Eerst als gast spelen" start de Omweg met "1/10", "Maak een gratis account" en "Ik heb al een account" openen het juiste venster, daarna komt de rondleiding niet terug. Niet getest: op een echte iPhone en in de App Store-app.
+- Getest: volledige testset (de drie Detour-tests aangepast aan 10 vragen en 100 punten), typecheck, build, en in de browser op een telefoonformaat: de rondleiding in het Nederlands en Engels, alle 9 stappen, een telefoon op donker blijft licht, "Eerst als gast spelen" start de Omweg met "1/10", "Maak een gratis account" en "Ik heb al een account" openen het juiste venster, daarna komt de rondleiding niet terug. Niet getest: op een echte iPhone en in de App Store-app. Live gecontroleerd: `/api/version` geeft 1.32.0, de service worker is `roviko-shell-v1.32.0`, de hoofdpagina's geven 200.
 
 ## 1.31.0 (live sinds 8 oktober 2026)
 
