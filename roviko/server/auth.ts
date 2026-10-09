@@ -2,6 +2,7 @@ import { nameAllowed } from '../lib/name-filter';
 import { mergeProgress } from './merge-progress';
 import { z } from 'zod';
 import { one, run, batch } from './db';
+import { nameTaken } from './names';
 import type { Env, User } from './types';
 export class AppError extends Error {
     constructor(public code: string, public status = 400) { super(code); }
@@ -43,6 +44,9 @@ export async function auth(req: Request, env: Env, body: any, signup: boolean) {
             throw new AppError('ALREADY_SIGNED_IN', 409);
         if (!user)
             user = (await guest(req, env)).user;
+        // 1.33: the name is the username friends add you by, so a new account needs a name nobody else has.
+        if (v.name && await nameTaken(env, v.name, user!.id))
+            throw new AppError('NAME_TAKEN', 409);
         const salt = crypto.randomUUID();
         // The name chosen at sign-up counts as a change: the next one is possible after NAME_LOCK_DAYS.
         await run(env, 'UPDATE users SET email=?,password=?,name=?,guest=0,name_changed_at=? WHERE id=?', v.email, salt + ':' + await hashPassword(v.password, salt), v.name ?? user!.name, v.name ? Date.now() : null, user!.id);

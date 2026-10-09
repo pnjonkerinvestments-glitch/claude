@@ -19,13 +19,20 @@ export async function heartbeat(env: Env, user: User, roomCode?: string | null, 
   if (user.guest) return { invites: [], requests: 0 };
   const now = Date.now();
   const room = roomCode && /^[A-Z2-9]{5}$/.test(roomCode) ? roomCode : null;
-  await run(env, 'INSERT INTO user_presence(user_id,last_seen,room_code) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen=excluded.last_seen,room_code=excluded.room_code', user.id, now, room);
-  await luciaAccepts(env, user.id, now).catch(() => { /* next check */ });
-  if (!room && !playing) await luciaInvites(env, user.id, now).catch(() => { /* Lucia waits for the next check */ });
-  const invites = (await rows(env, `SELECT i.id,i.room_code code,i.created_at,u.id from_id,u.name,u.avatar FROM room_invites i JOIN users u ON u.id=i.from_id
-    WHERE i.to_id=? AND i.status='pending' AND i.created_at>? ORDER BY i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL)).map((i: any) => ({ id: i.id, code: i.code, created_at: i.created_at, name: i.from_id === LUCIA_ID ? LUCIA_NAME : i.name, avatar: i.avatar }));
-  // 1.28: friend requests waiting for you, for the red badge on the Multiplayer tab.
-  const requests = Number((await one(env, "SELECT COUNT(*) n FROM friend_requests WHERE to_id=? AND status='pending'", user.id))?.n ?? 0);
+  // 1.34: being seen and Lucia's turn run side by side; the invites and requests are read together after that.
+  await Promise.all([
+    run(env, 'INSERT INTO user_presence(user_id,last_seen,room_code) VALUES (?,?,?) ON CONFLICT(user_id) DO UPDATE SET last_seen=excluded.last_seen,room_code=excluded.room_code', user.id, now, room),
+    (async () => {
+      await luciaAccepts(env, user.id, now).catch(() => { /* next check */ });
+      if (!room && !playing) await luciaInvites(env, user.id, now).catch(() => { /* Lucia waits for the next check */ });
+    })(),
+  ]);
+  const [inviteRows, pending] = await Promise.all([rows(env, `SELECT i.id,i.room_code code,i.created_at,u.id from_id,u.name,u.avatar FROM room_invites i JOIN users u ON u.id=i.from_id
+    WHERE i.to_id=? AND i.status='pending' AND i.created_at>? ORDER BY i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL),
+    // 1.28: friend requests waiting for you, for the red badge on the Multiplayer tab.
+    one(env, "SELECT COUNT(*) n FROM friend_requests WHERE to_id=? AND status='pending'", user.id)]);
+  const invites = inviteRows.map((i: any) => ({ id: i.id, code: i.code, created_at: i.created_at, name: i.from_id === LUCIA_ID ? LUCIA_NAME : i.name, avatar: i.avatar }));
+  const requests = Number(pending?.n ?? 0);
   return { invites, requests };
 }
 

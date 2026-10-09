@@ -21,6 +21,7 @@ import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { heartbeat, inviteFriend, answerInvite, luciaAccepts, ONLINE_WINDOW } from './presence';
 import { LUCIA_ID, LUCIA_NAME } from '../lib/lucia';
+import { LUCIA_KEY, NAME_KEY_SQL, nameTaken, searchKey } from './names';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
@@ -44,6 +45,15 @@ async function body(req: Request) { if (Number(req.headers.get('Content-Length')
 catch {
     throw new AppError('INVALID_REQUEST');
 } }
+let communityCache: { at: number; value: Promise<{ community: any; latest: any[] }> } | null = null;
+function communityNow(env: Env) {
+    if (!communityCache || Date.now() - communityCache.at > 60000) {
+        const value = Promise.all([one(env, 'SELECT COUNT(*) games,COUNT(DISTINCT user_id) players FROM game_results'), leaderboard(env, 'all', 'wins')]).then(([community, latest]) => ({ community, latest }));
+        communityCache = { at: Date.now(), value };
+        value.catch(() => { communityCache = null; });
+    }
+    return communityCache.value;
+}
 export async function handleApi(req: Request, env: Env, ctx?: {
     waitUntil: (p: Promise<any>) => void;
 }): Promise<Response> {
@@ -100,14 +110,16 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await ensureCatalog(env);
             const cleanup = pruneExpired(env).catch(() => { /* housekeeping never blocks a visit */ });
             if (ctx) ctx.waitUntil(cleanup); else await cleanup;
-            let user = await getUser(req, env), cookie = '';
+            // 1.34: the community numbers and the top players are the same for everyone, so they are kept for a minute
+            // and read at the same time as the player.
+            const [found, shared] = await Promise.all([getUser(req, env), communityNow(env)]);
+            let user = found, cookie = '';
             if (!user) {
                 const g = await guest(req, env);
                 user = g.user;
                 cookie = g.cookie;
             }
-            const community = await one(env, 'SELECT COUNT(*) games,COUNT(DISTINCT user_id) players FROM game_results');
-            const latest = await leaderboard(env, 'all', 'wins');
+            const { community, latest } = shared;
             return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
@@ -140,6 +152,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 const renamed = b.name.trim() !== user.name;
                 const unlock = nameUnlocksAt(user);
                 if (renamed && unlock && unlock > Date.now()) throw new AppError('NAME_LOCKED', 409);
+                // 1.33: an account's name is its username, so no other account may already use it (any capitals).
+                if (renamed && !user.guest && await nameTaken(env, b.name, user.id)) throw new AppError('NAME_TAKEN', 409);
                 await run(env, 'UPDATE users SET name=?,avatar=?,discoverable=?,name_changed_at=? WHERE id=?', b.name.trim(), b.avatar, +b.discoverable, renamed && !user.guest ? Date.now() : user.name_changed_at ?? null, user.id);
                 return json({ ok: true });
             }
@@ -307,10 +321,20 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 return json({ ok: true });
             }
             await limit(env, 'friend:' + user.id, 20, 3600000);
-            const code = z.string().regex(/^[A-Fa-f0-9]{8}$/).parse(b.code);
-            const matches = await rows(env, 'SELECT * FROM users WHERE lower(substr(id,1,8))=? AND guest=0 AND discoverable=1 AND blocked=0', code.toLowerCase());
-            if (matches.length !== 1 || matches[0].id === user.id || await blockedBetween(env, user.id, matches[0].id))
+            // 1.33: a friend is found by username (or, as before, by the 8-character friend code). Names of new accounts
+            // are unique, older accounts may share one: then the answer lists them (name, avatar, code) to pick from.
+            const q = z.object({ name: z.string().trim().min(1).max(40).optional(), code: z.string().trim().max(40).optional() }).refine(v => v.name || v.code).parse(b);
+            const query = (q.name ?? q.code)!;
+            const open = async (list: any[]) => { const out = []; for (const u of list) if (u.id !== user.id && !await blockedBetween(env, user.id, u.id)) out.push(u); return out; };
+            let matches = /^[A-Fa-f0-9]{8}$/.test(query) ? await open(await rows(env, 'SELECT * FROM users WHERE lower(substr(id,1,8))=? AND guest=0 AND discoverable=1 AND blocked=0', query.toLowerCase())) : [];
+            if (matches.length !== 1)
+                matches = await open(searchKey(query) === LUCIA_KEY
+                    ? await rows(env, 'SELECT * FROM users WHERE id=? AND discoverable=1 AND blocked=0', LUCIA_ID)
+                    : await rows(env, 'SELECT * FROM users WHERE ' + NAME_KEY_SQL + '=? AND guest=0 AND discoverable=1 AND blocked=0 ORDER BY created_at LIMIT 8', searchKey(query)));
+            if (!matches.length)
                 throw new AppError('FRIEND_NOT_FOUND', 404);
+            if (matches.length > 1)
+                return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar })) });
             const target = matches[0];
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
                 throw new AppError('REQUEST_EXISTS', 409);

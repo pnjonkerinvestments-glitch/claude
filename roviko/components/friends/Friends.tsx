@@ -135,13 +135,43 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
   </aside>;
 }
 
-/** The friends page: your code, requests, who is online, one-tap invites. */
+type FriendChoice = { code: string; name: string; avatar: number };
+/**
+ * Add a friend by username (1.33), or by friend code as before. When older accounts share the name, the server
+ * lists them and you pick the right one (avatar, name and code); that sends the request by code.
+ */
+function AddFriend({ id, className, onAdded, lead }: { id: string; className: string; onAdded: () => void; lead?: React.ReactNode }) {
+  const { t, fail } = useApp();
+  const [value, setValue] = useState(''), [busy, setBusy] = useState(false), [choices, setChoices] = useState<FriendChoice[] | null>(null);
+  const send = async (body: { name?: string; code?: string }) => {
+    setBusy(true);
+    try {
+      const r = await post('/friends', body);
+      if (r?.choices) { setChoices(r.choices); return; }
+      setValue(''); setChoices(null); toast.success(t('friendSaved')); onAdded();
+    } catch (err) { fail(err); } finally { setBusy(false); }
+  };
+  const query = value.trim();
+  return <>
+    <form className={className} onSubmit={e => { e.preventDefault(); if (query) send({ name: query }); }}>
+      {lead}
+      <label className="sr-only" htmlFor={id}>{t('friendNameLabel')}</label>
+      <input className="code-input is-name" id={id} placeholder={t('friendNamePlaceholder')} maxLength={40} value={value} onChange={e => { setValue(e.target.value); setChoices(null); }} autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false}/>
+      <button className="btn primary friend-add-btn" disabled={busy || !query} aria-busy={busy}><UserPlus size={17} aria-hidden="true"/><span className="friend-add-label">{t('mpAddFriend')}</span></button>
+    </form>
+    {choices && <div className="friend-choices" role="group" aria-label={t('friendChoose')}>
+      <p>{t('friendChoose')}</p>
+      <ul>{choices.map(c => <li key={c.code}><button type="button" disabled={busy} onClick={() => send({ code: c.code })}><Avatar id={c.avatar} name={c.name}/><span className="friend-choice-text"><b>{c.name}</b><small>{t('friendCodeShort')} {c.code}</small></span><Plus size={18} aria-hidden="true"/></button></li>)}</ul>
+    </div>}
+  </>;
+}
+
+/** The friends page: your username, requests, who is online, one-tap invites. */
 export function FriendsPage() {
   const app = useApp(), { t, boot, setModal, fail, copy, go } = app;
   const { friends, reload } = useFriends();
-  const [code, setCode] = useState(''), [busy, setBusy] = useState(false), [inviting, setInviting] = useState('');
+  const [inviting, setInviting] = useState('');
   const act = async (id: string, status: string) => { try { await post('/friends/' + id, { status }); reload(); refreshPresence(); } catch (e) { fail(e); } };
-  const add = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await post('/friends', { code }); setCode(''); toast.success(t('friendSaved')); reload(); } catch (err) { fail(err); } finally { setBusy(false); } };
   const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
   if (boot.user.guest) return <div className="page friends-v2 trip-page"><PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')}/><EmptyState art={<span className="state-icon" aria-hidden="true"><RovikoIcon name="friends" size={34}/></span>} title={t('accountRequired')} copy={t('guestPassport')}><button className="btn primary" onClick={() => setModal('signup')}>{t('signUp')}</button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></EmptyState></div>;
@@ -157,8 +187,8 @@ export function FriendsPage() {
     <PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')} lead={t('friendsListCopy')}/>
     <section className="friend-add" aria-labelledby="friend-add-title">
       <div><h2 id="friend-add-title">{t('friendsAddTitle')}</h2><p className="muted">{t('friendsAddCopy')}</p></div>
-      <button className="friend-code" onClick={() => copy(boot.user.friendCode)} aria-label={t('friendCode') + ' ' + boot.user.friendCode}><small>{t('friendCode')}</small><b>{boot.user.friendCode}</b><Copy size={16} aria-hidden="true"/></button>
-      <form className="friend-form" onSubmit={add}><label className="sr-only" htmlFor="friend-code">{t('friendCode')}</label><input className="code-input" id="friend-code" placeholder={t('friendPlaceholder')} maxLength={8} minLength={8} value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-F0-9]/g, ''))} autoCapitalize="characters" autoComplete="off" spellCheck={false} required/><button className="btn primary friend-add-btn" disabled={busy || code.length !== 8}><Plus size={18} aria-hidden="true"/><span className="friend-add-label">{t('addFriend')}</span></button></form>
+      <button className="friend-code" onClick={() => copy(boot.user.name)} aria-label={t('yourUsername') + ' ' + boot.user.name}><small>{t('yourUsername')}</small><b>{boot.user.name}</b><Copy size={16} aria-hidden="true"/></button>
+      <AddFriend id="friend-name" className="friend-form" onAdded={reload}/>
     </section>
     {friends === null ? <div className="sk-list">{[0, 1, 2].map(i => <Skeleton key={i} className="sk-block sk-list-row"/>)}</div> : <>
       {requests.length > 0 && <section className="page-section"><SectionHeader title={t('friendsRequests')}/><ul className="friend-list-v2">{requests.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={<span className="row-actions"><button className="btn primary btn-sm" onClick={() => act(f.id, 'accepted')}>{t('accept')}</button><button className="btn ghost btn-sm" onClick={() => act(f.id, 'rejected')}>{t('decline')}</button></span>}/>)}</ul></section>}
@@ -177,7 +207,7 @@ export function FriendsPage() {
 export function FriendsOnlinePanel() {
   const app = useApp(), { t, boot, setModal, fail, copy, go } = app;
   const { friends, reload } = useFriends();
-  const [code, setCode] = useState(''), [busy, setBusy] = useState(false), [inviting, setInviting] = useState('');
+  const [inviting, setInviting] = useState('');
   if (boot.user.guest) return <section className="mp-friends is-guest" aria-labelledby="mp-friends-title">
     <div className="mp-friends-head"><RovikoIcon name="friends" size={30}/><div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{t('mpFriendsGuest')}</p></div></div>
     <img className="mp-friends-art" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/>
@@ -186,7 +216,6 @@ export function FriendsOnlinePanel() {
   const accepted = (friends ?? []).filter(f => f.status === 'accepted');
   const online = accepted.filter(f => f.online);
   const requests = (friends ?? []).filter(f => f.status === 'pending' && f.to_id === boot.user.id);
-  const add = async (e: React.FormEvent) => { e.preventDefault(); setBusy(true); try { await post('/friends', { code }); setCode(''); toast.success(t('friendSaved')); reload(); } catch (err) { fail(err); } finally { setBusy(false); } };
   const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
   return <section className="mp-friends" aria-labelledby="mp-friends-title">
@@ -201,11 +230,6 @@ export function FriendsOnlinePanel() {
         ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
         : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
       : <p className="mp-friends-empty">{accepted.length ? t('friendsNobodyOnline') : t('mpFriendsNone')}</p>}
-    <form className="mp-friend-add" onSubmit={add}>
-      <button type="button" className="friend-code" onClick={() => copy(boot.user.friendCode)} aria-label={t('friendCode') + ' ' + boot.user.friendCode}><small>{t('mpYourCode')}</small><b>{boot.user.friendCode}</b><Copy size={15} aria-hidden="true"/></button>
-      <label className="sr-only" htmlFor="mp-friend-code">{t('friendCode')}</label>
-      <input className="code-input" id="mp-friend-code" placeholder={t('friendPlaceholder')} maxLength={8} minLength={8} value={code} onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} autoComplete="off" autoCapitalize="characters"/>
-      <button className="btn secondary" disabled={busy || code.length !== 8}><UserPlus size={17} aria-hidden="true"/>{t('mpAddFriend')}</button>
-    </form>
+    <AddFriend id="mp-friend-name" className="mp-friend-add" onAdded={reload} lead={<button type="button" className="friend-code" onClick={() => copy(boot.user.name)} aria-label={t('yourUsername') + ' ' + boot.user.name}><small>{t('mpYourName')}</small><b>{boot.user.name}</b><Copy size={15} aria-hidden="true"/></button>}/>
   </section>;
 }

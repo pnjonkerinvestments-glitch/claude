@@ -596,13 +596,32 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.32.0 (nog niet live; op de preview)
+## 1.34.0 (nog niet live; op de preview)
+
+- **Vlaggen weer groot op de iPhone.** De vlagbestanden hadden geen eigen breedte en hoogte; Safari tekende ze daardoor soms piepklein (Uruguay 27 pixels breed). Alle 196 vlaggen hebben nu een vaste maat (300 breed, hoogte naar verhouding) en een nieuwe cacheversie (`?v=3`), zodat iedereen meteen de nieuwe krijgt.
+- **Sneller.** De database staat in Oost-Noord-Amerika en de spelers in Europa: elke databasevraag stak de oceaan over, en het opstarten deed er meer dan tien na elkaar. Nu:
+  - Smart Placement: de server draait bij de database, zodat een verzoek de oceaan maar één keer oversteekt.
+  - Vragen die niet op elkaar wachten lopen tegelijk (opstarten, profielcijfers, de controle elke 15 seconden).
+  - De gemeenschapscijfers worden een minuut onthouden; prestaties worden alleen nog geschreven als ze nieuw zijn; de catalogus wordt één keer gecontroleerd.
+  - **Migratie `0013_speed_indexes.sql`**: twee indexen (dagpunten per speler, vriendschapsverzoeken per ontvanger). Geen gegevens veranderd.
+- Service worker `roviko-shell-v1.34.0`.
+- Getest: volledige testset (de vlagtest naar `?v=3`), typecheck, build, in Chromium een vlaggenvraag (Nepal 144×176 pixels, de rest van de pagina's zonder te grote vlaggen) en snelheidsmetingen op de preview (zie hieronder). Niet getest: Safari zelf (geen Safari in de testomgeving; de oorzaak en oplossing zijn de bekende manier waarop Safari SVG's zonder maat tekent).
+
+## 1.33.0 (live met 1.34)
+
+- **Vrienden toevoegen op gebruikersnaam.** Op de vriendenpagina en bij "Vrienden online" op de multiplayerpagina typ je nu de gebruikersnaam van een vriend (hoofdletters maken niet uit). Bovenaan staat "Jouw gebruikersnaam" in plaats van je code; tik erop om hem te kopiëren. De oude vriendcode werkt nog steeds in hetzelfde veld.
+- **Namen zijn uniek voor nieuwe accounts.** Bij aanmelden en bij een naamswijziging krijg je "Iemand heeft deze naam al. Kies een andere." als een ander account die naam al heeft. Bestaande accounts met dezelfde naam blijven zoals ze zijn: zoek je zo'n naam, dan kies je uit een lijstje met avatar en code wie je vriend is.
+- Lucia vind je op "Lucia"; niemand anders kan zo heten.
+- **Migratie `0012_name_index.sql`**: voegt alleen een index toe om snel op naam te zoeken. Geen gegevens veranderd. Service worker `roviko-shell-v1.33.0`.
+- Getest: volledige testset met een nieuwe test (toevoegen op naam in andere hoofdletters, naam bezet bij aanmelden en hernoemen, eigen naam in andere hoofdletters mag, niet jezelf, onbekende naam, keuzelijst bij twee oudere accounts met dezelfde naam en kiezen op code, Lucia op "lucia", niemand anders "Lucia"), typecheck, build, en in de browser op telefoonformaat: vriendenpagina (toevoegen, keuzelijst, foutmelding) en multiplayerpagina (Lucia toevoegen). Niet getest: op een echte iPhone.
+
+## 1.32.0 (live sinds 9 oktober 2026)
 
 - **Daily Detour: 10 vragen in plaats van 20.** Twee van elk type (vlag, hoofdstad, kaart, buren, grootte), nog steeds makkelijk beginnend. Elke vraag is nu 100 punten waard, dus het maximum blijft 1.000. De vragen van een dag liggen vast zodra de eerste speler begint: de dag waarop 1.32 live gaat houdt nog 20 vragen, de dag erna zijn het er 10. Teksten, uitleg en puntenuitleg zeggen overal 10.
 - **Altijd licht.** Roviko start altijd in de lichte kleuren en blijft licht, ook als de telefoon op donker staat. De keuze licht/donker is uit Instellingen gehaald. De iOS-app krijgt bij de volgende build ook `UIUserInterfaceStyle` = Light; de app laadt roviko.app, dus de website-wijziging werkt daar meteen.
 - **Rondleiding bij de eerste start.** In plaats van de ene welkomstkaart krijgt een nieuwe speler meteen een korte, vriendelijke rondleiding van 9 kaartjes, in de volgorde van spelen: wat Roviko is, de Daily Detour, de vijf dagspellen, reeks en reeksschild, de ranglijst en weekcompetitie, de bonustour en klassiekers, landen ontdekken met paspoort en continentstempels, multiplayer en vrienden. Elk kaartje heeft een plaatje of Roviko en "Te vinden onder" met het tabblad. Gasten eindigen op "Bewaar je voortgang, gratis" met een gouden knop voor een gratis account (of eerst als gast spelen) en kunnen op het eerste kaartje meteen inloggen. Overslaan kan altijd; via menu → Rondleiding zie je hem opnieuw.
 - Geen migratie. Service worker `roviko-shell-v1.32.0`.
-- Getest: volledige testset (de drie Detour-tests aangepast aan 10 vragen en 100 punten), typecheck, build, en in de browser op een telefoonformaat: de rondleiding in het Nederlands en Engels, alle 9 stappen, een telefoon op donker blijft licht, "Eerst als gast spelen" start de Omweg met "1/10", "Maak een gratis account" en "Ik heb al een account" openen het juiste venster, daarna komt de rondleiding niet terug. Niet getest: op een echte iPhone en in de App Store-app.
+- Getest: volledige testset (de drie Detour-tests aangepast aan 10 vragen en 100 punten), typecheck, build, en in de browser op een telefoonformaat: de rondleiding in het Nederlands en Engels, alle 9 stappen, een telefoon op donker blijft licht, "Eerst als gast spelen" start de Omweg met "1/10", "Maak een gratis account" en "Ik heb al een account" openen het juiste venster, daarna komt de rondleiding niet terug. Niet getest: op een echte iPhone en in de App Store-app. Live gecontroleerd: `/api/version` geeft 1.32.0, de service worker is `roviko-shell-v1.32.0`, de hoofdpagina's geven 200.
 
 ## 1.31.0 (live sinds 8 oktober 2026)
 
