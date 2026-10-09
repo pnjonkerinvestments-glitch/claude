@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.34.0 (nog niet live; op de preview)
+## 1.34.0 (live sinds 9 oktober 2026)
 
 - **Vlaggen weer groot op de iPhone.** De vlagbestanden hadden geen eigen breedte en hoogte; Safari tekende ze daardoor soms piepklein (Uruguay 27 pixels breed). Alle 196 vlaggen hebben nu een vaste maat (300 breed, hoogte naar verhouding) en een nieuwe cacheversie (`?v=3`), zodat iedereen meteen de nieuwe krijgt.
 - **Sneller.** De database staat in Oost-Noord-Amerika en de spelers in Europa: elke databasevraag stak de oceaan over, en het opstarten deed er meer dan tien na elkaar. Nu:
@@ -605,9 +605,9 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
   - De gemeenschapscijfers worden een minuut onthouden; prestaties worden alleen nog geschreven als ze nieuw zijn; de catalogus wordt één keer gecontroleerd.
   - **Migratie `0013_speed_indexes.sql`**: twee indexen (dagpunten per speler, vriendschapsverzoeken per ontvanger). Geen gegevens veranderd.
 - Service worker `roviko-shell-v1.34.0`.
-- Getest: volledige testset (de vlagtest naar `?v=3`), typecheck, build, in Chromium een vlaggenvraag (Nepal 144×176 pixels, de rest van de pagina's zonder te grote vlaggen) en snelheidsmetingen op de preview (zie hieronder). Niet getest: Safari zelf (geen Safari in de testomgeving; de oorzaak en oplossing zijn de bekende manier waarop Safari SVG's zonder maat tekent).
+- Getest: volledige testset (de vlagtest naar `?v=3`), typecheck, build, in Chromium een vlaggenvraag (Nepal 144×176 pixels, de rest van de pagina's zonder te grote vlaggen) en snelheidsmetingen op de preview (zie hieronder). Niet getest: Safari zelf (geen Safari in de testomgeving; de oorzaak en oplossing zijn de bekende manier waarop Safari SVG's zonder maat tekent). Live gecontroleerd: versie 1.34.0, service worker v1.34.0, `/flags/uy.svg` heeft de nieuwe maat, de deploy (met migraties 0012 en 0013) slaagde, hoofdpagina's 200. Op de preview ging de opstart van ~1,5 naar ~0,6 seconde.
 
-## 1.33.0 (live met 1.34)
+## 1.33.0 (live sinds 9 oktober 2026, samen met 1.34)
 
 - **Vrienden toevoegen op gebruikersnaam.** Op de vriendenpagina en bij "Vrienden online" op de multiplayerpagina typ je nu de gebruikersnaam van een vriend (hoofdletters maken niet uit). Bovenaan staat "Jouw gebruikersnaam" in plaats van je code; tik erop om hem te kopiëren. De oude vriendcode werkt nog steeds in hetzelfde veld.
 - **Namen zijn uniek voor nieuwe accounts.** Bij aanmelden en bij een naamswijziging krijg je "Iemand heeft deze naam al. Kies een andere." als een ander account die naam al heeft. Bestaande accounts met dezelfde naam blijven zoals ze zijn: zoek je zo'n naam, dan kies je uit een lijstje met avatar en code wie je vriend is.
