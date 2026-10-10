@@ -623,3 +623,5 @@
 .friend-choices li small{color:var(--t-soft);font:700 .75rem/1.3 var(--font-sans);letter-spacing:.06em}
 .friend-choices li svg{flex:none;color:var(--t-brand)}
 .mp-friends .friend-choices{margin-top:10px}
+/* Around your place (1.35): a small label and the same list, below the top 10. */
+.rank-around-title{margin:14px 4px 6px;color:var(--t-brand);font:800 .75rem/1 var(--font-sans);letter-spacing:.08em;text-transform:uppercase}

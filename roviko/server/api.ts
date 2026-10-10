@@ -12,7 +12,7 @@ import { mergeProgress } from './merge-progress';
 import { z } from 'zod';
 import { ensureCatalog } from './catalog';
 import { seedHash } from '../lib/game-engine/scoring';
-import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
+import { AppError, auth, getUser, guest, renewSession, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
 import { one, rows, run, batch } from './db';
 import { stats, leaderboard } from './stats';
 import silhouettes from '../lib/data/silhouettes.json';
@@ -34,7 +34,7 @@ function flagCountry(token: string) {
 }
 const duelCache = new Map<string, DuelBoard>();
 function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) { board = generateDuel(seed); if (duelCache.size > 64) duelCache.clear(); duelCache.set(seed, board); } return board; }
-const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
+const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania', 'Americas']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
 const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: ['daily','daily-trail','daily-order'].includes(v?.mode) ? 'mixed' : v?.mode ?? 'mixed' });
 function json(data: any, status = 200, headers: Record<string, string> = {}) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } }); }
 async function body(req: Request) { if (Number(req.headers.get('Content-Length') ?? 0) > 8192)
@@ -112,15 +112,17 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (ctx) ctx.waitUntil(cleanup); else await cleanup;
             // 1.34: the community numbers and the top players are the same for everyone, so they are kept for a minute
             // and read at the same time as the player.
-            const [found, shared] = await Promise.all([getUser(req, env), communityNow(env)]);
-            let user = found, cookie = '';
+            const [found, shared, renewed] = await Promise.all([getUser(req, env), communityNow(env), renewSession(req, env)]);
+            let user = found, cookie = found ? renewed : '';
             if (!user) {
                 const g = await guest(req, env);
                 user = g.user;
                 cookie = g.cookie;
             }
             const { community, latest } = shared;
-            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
+            // A cookie that no longer opens a session: say so, so a player with an account knows to sign in again.
+            const sessionExpired = !found && !!cookieValue(req);
+            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), ...(sessionExpired ? { sessionExpired: true } : {}), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
             const input = await body(req), signup = path[1] === 'signup';

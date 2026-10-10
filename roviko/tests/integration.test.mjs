@@ -123,6 +123,28 @@ test('friends are added by username, names of new accounts are unique, shared ol
  assert.equal((await request(a.cookie,'/friends','POST',{name:'lucia'})).status,200);
  assert.equal((await mk('Lucia','lucia-copy')).status,409);
 });
+test('sessions slide while you keep playing, an expired one says so, and earned badges stay (1.35)',async()=>{
+ const a=await bootstrap();const token=a.cookie.split('=')[1];const hash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(token)))].map(b=>b.toString(16).padStart(2,'0')).join('');
+ const fresh=await request(a.cookie,'/bootstrap');assert.equal(fresh.cookie,undefined,'a fresh session is not rewritten on every visit');
+ await db.prepare('UPDATE auth_sessions SET expires_at=? WHERE token=?').bind(Date.now()+10*86400000,hash).run();
+ const renewed=await request(a.cookie,'/bootstrap');assert.equal(renewed.data.user.id,a.data.user.id);assert.ok(renewed.cookie?.startsWith('rv_session='),'the cookie is sent again');
+ const row=await db.prepare('SELECT expires_at FROM auth_sessions WHERE token=?').bind(hash).first();assert.ok(row.expires_at>Date.now()+59*86400000,'renewed to 60 days');
+ // A badge earned earlier stays in the list even when its condition no longer holds (a broken streak).
+ await db.prepare('INSERT OR IGNORE INTO user_achievements(user_id,achievement_id,earned_at) VALUES (?,?,?)').bind(a.data.user.id,'daily7',Date.now()).run();
+ assert.ok((await request(a.cookie,'/bootstrap')).data.stats.achievements.includes('daily7'));
+ await db.prepare('UPDATE auth_sessions SET expires_at=? WHERE token=?').bind(Date.now()-1000,hash).run();
+ const gone=await request(a.cookie,'/bootstrap');assert.equal(gone.data.sessionExpired,true);assert.notEqual(gone.data.user.id,a.data.user.id);
+ assert.equal((await bootstrap()).data.sessionExpired,undefined,'a first visit without a cookie is not an expired session');
+});
+test('rankings show the players around you and "better than" never counts ties as beaten (1.35)',async()=>{
+ const me=await bootstrap();const date='2025-03-03',now=Date.now();
+ const add=async(id,score)=>{await db.prepare('INSERT OR IGNORE INTO users(id,name,avatar,created_at) VALUES (?,?,?,?)').bind(id,'P '+id.slice(-4),0,now).run();await db.prepare('INSERT INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)').bind('s-'+id,id,'daily','2025-03-03','{}',now).run();await db.prepare('INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)').bind(id,date,'daily','s-'+id,score,now).run();};
+ for(let i=0;i<14;i++) await add('around-'+String(i).padStart(4,'0'),1000-i*50);
+ await add(me.data.user.id,450); await add('around-tie1',450);
+ const r=(await request(me.cookie,'/competition?date='+date+'&mode=daily')).data;
+ assert.equal(r.game.participants,16);assert.equal(r.game.place,12,'ties share a place');assert.equal(r.game.below,2,'only strictly lower scores count as beaten (three share 450)');
+ assert.equal(r.game.leaders.length,10);assert.equal(r.game.around.length,5,'two above, you (or your tie) and two below');assert.ok(r.game.around.some(p=>p.me));
+});
 test('friend privacy and request authorization',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Friend A',email:'friend-a@example.test',password:'Synthetic-friend-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Friend B',email:'friend-b@example.test',password:'Synthetic-friend-password-B'});const req=await request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode});assert.equal(req.status,200);const requests=(await request(bb.cookie,'/friends')).data.friends;assert.equal(requests.length,1);assert.equal((await request(aa.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,200);assert.equal((await request(aa.cookie,'/friends')).data.friends[0].status,'accepted');});
 test('opposite friend requests are unique and a block cannot be undone by the other player',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Pair A',email:'pair-a@example.test',password:'Synthetic-pair-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Pair B',email:'pair-b@example.test',password:'Synthetic-pair-password-B'});const results=await Promise.all([request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode}),request(bb.cookie,'/friends','POST',{code:aa.data.user.friendCode})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);const list=(await request(aa.cookie,'/friends')).data.friends;assert.equal(list.length,1);assert.equal((await request(aa.cookie,'/friends/'+list[0].id,'POST',{status:'blocked'})).status,200);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'rejected'})).status,403);});
 test('cross-origin mutation, injection and name validation',async()=>{const a=await bootstrap();const response=await mf.dispatchFetch(origin+'/api/rooms',{method:'POST',headers:{Cookie:a.cookie,Origin:'https://untrusted.test','Content-Type':'application/json'},body:JSON.stringify({settings})});assert.equal(response.status,403);assert.equal((await request(a.cookie,"/rooms/';DROP")).status,400);assert.equal((await request(a.cookie,'/profile','PATCH',{name:'<img src=x>',avatar:0,discoverable:true})).status,400);});

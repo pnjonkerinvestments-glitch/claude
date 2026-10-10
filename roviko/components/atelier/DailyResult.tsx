@@ -17,7 +17,7 @@ import { GameIcon } from './GameIcon';
 import { nextBonusMode, type BonusMode } from '@/lib/bonus';
 import { useBonusLaunch } from '../home/BonusTour';
 
-type Standing = { score: number; place?: number; participants: number; next?: { name: string; gap: number; place: number } | null };
+type Standing = { score: number; place?: number; participants: number; below?: number; next?: { name: string; gap: number; place: number } | null };
 type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; share?: (text: string) => void; boot: { user?: { guest?: boolean; name?: string }; stats: { dailyCount?: number; dailyStreak?: number; dailyDone?: boolean; streakFreezes?: { available?: number; nextIn?: number } } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
 
 const SAVE_KEY = 'roviko:save-prompt';
@@ -34,6 +34,9 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const { t, locale, boot, fail } = app;
   const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
   const [standingLoaded, setStandingLoaded] = useState(false);
+  const [tomorrow, setTomorrow] = useState<{ emoji?: string; label: Record<string, string> } | null>(null);
+  // 1.35: a ranking that fails to load says so with a retry, instead of "loading" for ever. The score itself is saved.
+  const [standingFailed, setStandingFailed] = useState(false), [retry, setRetry] = useState(0);
   const bonusLaunch = useBonusLaunch({ go: app.go, fail });
   const lock = useRef(false);
   const [scores, setScores] = useState<{ mode: string; score: number }[]>([]);
@@ -47,21 +50,24 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   }, [firstToday, boot.stats.dailyDone, streak, date]);
   useEffect(() => {
     let active = true;
-    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { rememberStanding(mode, date, r.game?.place, r.game?.participants); rememberStanding('day', date, r.today?.place, r.today?.participants); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); } }).catch(() => {}).finally(() => { if (active) setStandingLoaded(true); });
-    api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions, dayModesFor(r.date))); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
+    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { rememberStanding(mode, date, r.game?.place, r.game?.participants); rememberStanding('day', date, r.today?.place, r.today?.participants); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); setStandingFailed(false); } }).catch(() => { if (active) setStandingFailed(true); }).finally(() => { if (active) setStandingLoaded(true); });
+    api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions, dayModesFor(r.date))); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setTomorrow(r.tomorrowTopic ?? null); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
-  }, [date, mode, boot.stats.dailyCount]);
+  }, [date, mode, boot.stats.dailyCount, retry]);
   const dayDone = next === null && scores.length >= 6;
   // Which screen to show is decided once, as soon as both answers are in (or after a short wait), so the
   // last game of the day goes straight to the day summary instead of swapping screens under the player.
   const [view, setView] = useState<'wait' | 'game' | 'day'>(stage ? 'wait' : 'game'), [waited, setWaited] = useState(false);
   useEffect(() => { const id = setTimeout(() => setWaited(true), 1500); return () => clearTimeout(id); }, []);
   const ready = next !== undefined && standingLoaded;
-  if (view === 'wait' && (ready || waited)) setView(ready && dayDone ? 'day' : 'game');
+  // When the answers came in after the short wait and it turns out the day is complete, still show the day summary.
+  const [late, setLate] = useState(false);
+  if (view === 'wait' && (ready || waited)) { setView(ready && dayDone ? 'day' : 'game'); if (!ready) setLate(true); }
+  if (late && view === 'game' && ready) { setLate(false); if (dayDone) setView('day'); }
   const fmt = (n: number) => n.toLocaleString(locale);
   const score = game?.score ?? 0, players = game?.participants ?? 0, place = game?.place ?? 0;
-  // Share of today's other players you scored higher than (ties count as not beaten).
-  const beaten = players > 1 && place ? Math.round((players - place) / (players - 1) * 100) : null;
+  // Share of today's other players you scored strictly higher than (1.35: from the server's count, so ties are not beaten).
+  const below = game?.below, beaten = players > 1 && place && below != null ? Math.round(below / (players - 1) * 100) : null;
   const isBest = best !== undefined && score > best;
   const go = async () => { if (!next || lock.current) return; lock.current = true; setBusy(true); try { await launchDaily(app, next); } catch (e) { fail(e); } finally { lock.current = false; setBusy(false); } };
   // The bonus tour after the day: today's next bonus game, or the bonus tab of all games when none is left.
@@ -71,14 +77,14 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   useEffect(() => { if (mode === 'daily' && boot.user?.guest && !readFlag()) setAskSave(true); }, [mode, boot.user?.guest]);
   const closeSave = () => { writeFlag(); setAskSave(false); };
   const savePrompt = askSave && <aside className="save-prompt" aria-labelledby="save-prompt-title">
-    <strong id="save-prompt-title">{t('savePromptTitle')}</strong><p>{t('savePromptCopy')}</p>
-    <div><button className="btn secondary" onClick={() => { closeSave(); app.setModal?.('signup'); }}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={closeSave}>{t('savePromptLater')}</button></div>
+    <strong id="save-prompt-title">{score > 0 ? t('savePromptPoints').replace('{n}', fmt(score)) : t('savePromptTitle')}</strong><p>{t('savePromptCopy')}</p>
+    <div><button className="btn gold" onClick={() => { closeSave(); app.setModal?.('signup'); }}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={closeSave}>{t('savePromptLater')}</button></div>
   </aside>;
   const streakMoment = <StreakMoment open={moment} date={date} streak={streak} week={week} shieldIn={boot.stats.streakFreezes?.nextIn} shields={boot.stats.streakFreezes?.available} t={t} onClose={() => setMoment(false)}/>;
   if (view === 'wait') return <div className="finish-wait" aria-busy="true"><span className="sr-only">{t('loading')}</span></div>;
   if (view === 'day') return <>
     {streakMoment}
-    <DaySummary screen date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}
+    <DaySummary screen tomorrow={tomorrow} date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}
       current={mode} onBonus={toBonus} bonusBusy={!!bonusLaunch.launching || app.busy}/>
     {savePrompt}
   </>;
@@ -90,7 +96,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
     {summary && summary.length > 0 && <ul className="daily-result-summary">{summary.map(item => <li key={item.label}>{item.icon === 'flame' ? <Flame size={16} aria-hidden="true"/> : item.icon === 'clock' ? <Clock size={16} aria-hidden="true"/> : <Check size={16} strokeWidth={3} aria-hidden="true"/>}<b>{item.value}</b><span>{item.label}</span></li>)}</ul>}
     {trail && trail.length > 0 && <ol className="daily-result-trail" aria-label={summary?.[0]?.label}>{trail.map((ok, i) => <li key={i} className={ok ? 'is-right' : 'is-wrong'} aria-label={String(i + 1)}>{ok ? <Check size={13} strokeWidth={3}/> : <X size={13} strokeWidth={3}/>}</li>)}</ol>}</>}
     <div className="daily-result-compare">
-      <p><Users size={18} aria-hidden="true"/>{!game ? t('loading') : players <= 1 ? t('resultFirstPlayer') : plural(t, 'competitionRank', players, '{count}', fmt(players)).replace('{rank}', fmt(place))}</p>
+      <p><Users size={18} aria-hidden="true"/>{!game ? (standingFailed ? <>{t('standingFailed')} <button type="button" className="text-link" onClick={() => { setStandingFailed(false); setStandingLoaded(false); setRetry(n => n + 1); }}>{t('tryAgain')}</button></> : t('loading')) : players <= 1 ? t('resultFirstPlayer') : plural(t, 'competitionRank', players, '{count}', fmt(players)).replace('{rank}', fmt(place))}</p>
       {beaten !== null && beaten > 0 && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}
       {day?.place ? <p className="daily-result-target">{t('resultDayRank').replace('{rank}', fmt(day.place)).replace('{count}', fmt(day.participants))} · {day.next ? t('rankTarget').replace('{n}', fmt(day.next.gap + 1)).replace('{name}', day.next.name).replace('{place}', fmt(day.next.place)) : t('rankLeading')}</p> : null}
     </div>

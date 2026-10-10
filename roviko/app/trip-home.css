@@ -362,7 +362,7 @@
 }
 /* The tour (1.32): the welcome card's look, one card per part of Roviko. A picture or Roviko on mint, the step,
    a headline, two short lines, where to find it, mint dots and round pills. Skip sits quietly in the corner. */
-.app-modal.welcome-tour{position:relative;display:grid!important;justify-items:center;gap:10px!important;max-width:420px!important;padding:22px 22px 16px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:0 30px 80px rgba(22,59,50,.24)!important;text-align:center}
+.app-modal.welcome-tour{display:grid!important;justify-items:center;gap:10px!important;max-width:420px!important;padding:22px 22px 16px!important;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:0 30px 80px rgba(22,59,50,.24)!important;text-align:center}
 .welcome-tour .tour-skip{position:absolute;top:14px;right:18px;z-index:2;padding:6px 10px;border-radius:999px;background:color-mix(in srgb,var(--t-card) 82%,transparent);color:var(--t-soft)!important;font:700 .875rem/1 var(--font-sans);text-decoration:none!important}
 .welcome-tour .tour-skip:hover{background:var(--t-mint);color:var(--t-ink)!important}
 .welcome-tour .tour-art{position:relative;display:grid;place-items:center;width:100%;height:180px;min-height:0;margin-bottom:2px;border-radius:var(--t-radius-sm)!important;background:var(--t-mint)!important;overflow:hidden;animation:tour-in .42s cubic-bezier(.34,1.4,.64,1) both}
@@ -392,3 +392,40 @@
 @keyframes tour-in{from{opacity:0;transform:scale(.94) translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.welcome-tour .tour-art,.welcome-tour .tour-flame{animation:none}}
 @media (max-height:700px){.welcome-tour .tour-art{height:140px}.welcome-tour .tour-art.is-mascot .character{width:120px}}
+/* Continent of the week (1.35): one white card with the region scene, the week's continent, a progress bar of
+   discovered countries and one forest button. The setup sheet uses the waiting room's segmented pills. */
+.continent-week{display:grid;overflow:hidden;padding:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)}
+.continent-week .cw-art{height:132px;overflow:hidden;background:var(--t-mint)}
+.continent-week .cw-art img{width:100%;height:100%;object-fit:cover;display:block}
+.continent-week .cw-body{display:grid;gap:8px;padding:18px 20px 20px}
+.continent-week .t-kicker{margin:0}
+.continent-week h2{margin:0;color:var(--t-ink);font:600 1.5rem/1.15 var(--font-display)}
+.continent-week .cw-copy{margin:0;color:var(--t-soft);font:600 .9375rem/1.45 var(--font-sans)}
+.cw-progress{display:grid;gap:6px;margin:4px 0 6px}
+.cw-bar{display:block;height:10px;border-radius:999px;background:var(--t-mint);overflow:hidden}
+.cw-bar>span{display:block;height:100%;min-width:10px;border-radius:999px;background:var(--t-brand);transition:width .6s ease}
+.cw-progress small{color:var(--t-soft);font:700 .8125rem/1.3 var(--font-sans)}
+.cw-progress small b{color:var(--t-ink)}
+.continent-week .cw-start{width:100%;min-height:54px;border-radius:999px!important;justify-content:center}
+.app-modal.continent-setup{display:grid!important;gap:12px!important;max-width:440px!important;padding:0 22px 18px!important;overflow:hidden;border:0!important;border-radius:var(--t-radius)!important;background:var(--t-card)!important;text-align:center}
+.continent-setup .cs-art{height:110px;margin:0 -22px 4px;overflow:hidden;background:var(--t-mint)}
+.continent-setup .cs-art img{width:100%;height:100%;object-fit:cover;display:block}
+.continent-setup .modal-title{margin:0!important;color:var(--t-ink)!important;font:600 1.5rem/1.15 var(--font-display)!important}
+.continent-setup [data-slot=dialog-description]{margin:0!important;color:var(--t-soft)!important;font:600 .9375rem/1.45 var(--font-sans)!important}
+.continent-setup .cs-setting{display:grid;gap:6px;text-align:left}
+.continent-setup .cs-setting>span,.continent-setup .cs-modes legend{color:var(--t-ink);font:800 .8125rem/1 var(--font-sans);letter-spacing:.06em;text-transform:uppercase}
+.continent-setup .segmented-pill{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:4px;padding:4px;border-radius:999px}
+.continent-setup .segmented-pill button{min-height:42px;border:0;border-radius:999px;background:transparent;font:700 .9375rem/1 var(--font-sans);cursor:pointer}
+.continent-setup .lobby-level-hint{margin:-4px 0 0;color:var(--t-soft);font:600 .8125rem/1.4 var(--font-sans);text-align:left}
+.continent-setup .cs-modes{margin:0;padding:0;border:0;text-align:left}
+.continent-setup .cs-modes>div{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.continent-setup .cs-modes button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 5px;border:2px solid transparent;border-radius:999px;background:color-mix(in srgb,var(--t-mint) 45%,var(--t-card));color:var(--t-soft);font:700 .875rem/1 var(--font-sans);cursor:pointer;opacity:.6}
+.continent-setup .cs-modes button[aria-pressed=true]{border-color:var(--t-brand);background:var(--t-mint);color:var(--t-ink);opacity:1}
+.continent-setup .cs-modes small{display:block;margin-top:8px;color:var(--t-soft);font:600 .75rem/1.3 var(--font-sans)}
+.continent-setup .cs-go{width:100%;min-height:56px;border-radius:999px!important;justify-content:center}
+.continent-setup .cs-note{margin:-4px 0 0;color:var(--t-soft);font:600 .8125rem/1.4 var(--font-sans)}
+/* In the day summary: the continent first, as a two-line forest button. */
+.ds-continent{display:flex!important;align-items:center;justify-content:space-between!important;gap:12px;text-align:left}
+.ds-continent>span{display:grid;gap:2px}
+.ds-continent small{opacity:.8;font:600 .8125rem/1.2 var(--font-sans)}
+.day-summary.is-screen .ds-actions .ds-continent{grid-column:1/-1}

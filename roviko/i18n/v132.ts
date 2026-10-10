@@ -1,7 +1,7 @@
 // Copy for 1.32 and 1.33 (adding friends by username): the first-start tour (one step per part of Roviko, in playing order, account last). Spread last in messages.ts.
 export const v132Messages = {
   en: {
-    g1Title: 'Hi, I’m Roviko!', g1Copy: 'A small geography game for every day: flags, capitals and the map. Five minutes a day and you know the world a little better. Shall I show you around?',
+    g1Title: 'Hi, I’m Roviko!', g1Copy: 'A small geography game for every day: flags, capitals and the map. Five minutes a day and you know the world a little better. Start right away, or let me show you around first.',
     g2Title: 'Start with the Daily Detour', g2Copy: 'Every day begins here: 10 mixed questions, from flags to the map. There is no timer, so take your time. Up to 1,000 points.',
     g3Title: 'Then five daily games', g3Copy: 'Rank Radar, World Duel, Side by Side, Size Shuffle and Clue Trail. Each is worth up to 1,000 points, and everyone gets the same puzzles. Up to 6,000 points a day.',
     g4Title: 'Come back every day', g4Copy: 'Every day you play grows your streak. Every 7 play days you earn a streak shield (max. 2). Miss a day and the shield keeps your streak alive.',
@@ -18,7 +18,7 @@ export const v132Messages = {
     gWhere: 'Find it under', gRankings: 'Rankings', gHaveAccount: 'I already have an account', gLater: 'Play as a guest first', gSignup: 'Create a free account', gStart: 'Start today’s trip', gLetsGo: 'Show me',
   },
   nl: {
-    g1Title: 'Hoi, ik ben Roviko!', g1Copy: 'Een klein aardrijkskundespel voor elke dag: vlaggen, hoofdsteden en de kaart. Vijf minuten per dag en je kent de wereld weer een beetje beter. Zal ik je even rondleiden?',
+    g1Title: 'Hoi, ik ben Roviko!', g1Copy: 'Een klein aardrijkskundespel voor elke dag: vlaggen, hoofdsteden en de kaart. Vijf minuten per dag en je kent de wereld weer een beetje beter. Begin meteen, of laat je eerst even rondleiden.',
     g2Title: 'Begin met de Daily Detour', g2Copy: 'Elke dag begint hier: 10 gemengde vragen, van vlaggen tot de kaart. Er is geen tijdsdruk, dus neem je tijd. Tot 1.000 punten.',
     g3Title: 'Daarna vijf dagspellen', g3Copy: 'Rank Radar, World Duel, Side by Side, Size Shuffle en Clue Trail. Elk spel is tot 1.000 punten waard en iedereen krijgt dezelfde puzzels. Tot 6.000 punten per dag.',
     g4Title: 'Kom elke dag terug', g4Copy: 'Elke dag dat je speelt groeit je reeks. Elke 7 speeldagen verdien je een reeksschild (max. 2). Mis je een dag, dan houdt het schild je reeks in leven.',
@@ -35,7 +35,7 @@ export const v132Messages = {
     gWhere: 'Te vinden onder', gRankings: 'Ranglijst', gHaveAccount: 'Ik heb al een account', gLater: 'Eerst als gast spelen', gSignup: 'Maak een gratis account', gStart: 'Begin de reis van vandaag', gLetsGo: 'Laat maar zien',
   },
   es: {
-    g1Title: '¡Hola, soy Roviko!', g1Copy: 'Un pequeño juego de geografía para cada día: banderas, capitales y el mapa. Cinco minutos al día y conoces el mundo un poco mejor. ¿Te enseño cómo funciona?',
+    g1Title: '¡Hola, soy Roviko!', g1Copy: 'Un pequeño juego de geografía para cada día: banderas, capitales y el mapa. Cinco minutos al día y conoces el mundo un poco mejor. Empieza ya o deja que te lo enseñe primero.',
     g2Title: 'Empieza con el Daily Detour', g2Copy: 'Cada día empieza aquí: 10 preguntas variadas, de banderas al mapa. No hay reloj, tómate tu tiempo. Hasta 1.000 puntos.',
     g3Title: 'Después, cinco juegos diarios', g3Copy: 'Rank Radar, World Duel, Side by Side, Size Shuffle y Clue Trail. Cada uno vale hasta 1.000 puntos y todos reciben los mismos puzles. Hasta 6.000 puntos al día.',
     g4Title: 'Vuelve cada día', g4Copy: 'Cada día que juegas crece tu racha. Cada 7 días de juego ganas un escudo de racha (máx. 2). Si te saltas un día, el escudo mantiene viva tu racha.',

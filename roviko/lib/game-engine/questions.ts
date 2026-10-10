@@ -5,6 +5,7 @@ import silhouettes from '../data/silhouettes.json';
 import { locateInCountry, type Polygons } from './geometry';
 import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash, orderPlacement, partialOrderPoints, derangedStart } from './scoring';
 import { GEOGRAPHY_POLICY, MODES } from '../config';
+import { inRegion } from '../continent-week';
 export type Country = {
     id: string;
     iso2: string;
@@ -160,7 +161,8 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     const rng = random(seed);
     const enabled = shuffle(MODES.filter(m => !settings.enabledModes || settings.enabledModes.includes(m)), rng);
     if (settings.mode === 'mixed' && !enabled.length) throw new Error('Question unavailable');
-    const regionPool = COUNTRIES.filter(c => settings.region === 'World' || c.region === settings.region);
+    // 'Americas' (1.35, the continent of the week) is North and South America together.
+    const regionPool = COUNTRIES.filter(c => inRegion(c.region, settings.region));
     if (regionPool.length < 4)
         throw new Error('Not enough countries for these settings');
     // Difficulty (1.25 makes the three levels clearly different; medium is unchanged, so daily games stay as they were):

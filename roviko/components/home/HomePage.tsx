@@ -19,6 +19,7 @@ import { TierBadge, leagueLine } from '../atelier/League';
 import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
+import { ContinentCard } from './ContinentWeek';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
@@ -131,7 +132,9 @@ export function HomePage() {
     </section>
 
     <div className="th-main">
-      {allDone && <BonusTour app={app} bonus={bonus} busy={busy} featured/>}
+      {/* 1.35: after the six games the continent of the week comes first, the bonus tour after it. */}
+      {allDone && <ContinentCard featured/>}
+      {allDone && <BonusTour app={app} bonus={bonus} busy={busy} compact/>}
       {allDone && <SurvivalRuns app={app} survival={today?.survival} busy={busy} compact/>}
 
       <section className="home-today th-trip" aria-labelledby="today-title">

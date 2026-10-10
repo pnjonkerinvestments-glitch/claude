@@ -12,6 +12,7 @@ import { ResetCountdown } from './ResetCountdown';
 import { CountUp } from '../ds/Celebration';
 import { Coin } from '../ds/Coin';
 import { FinishConfetti, FinishHero, focusHeadline, toTop } from '../ds/FinishStage';
+import { ContinentCTA } from '../home/ContinentWeek';
 
 /** A square per daily game for the day share: green from 800, yellow from 500, otherwise red. */
 export const dayTrail = (scores: { mode: string; score: number }[], date?: string) => dayModesFor(date).map(m => { const s = scores.find(x => x.mode === m)?.score ?? 0; return s >= 800 ? '🟩' : s >= 500 ? '🟨' : '🟥'; }).join('');
@@ -23,13 +24,15 @@ export const dayTrail = (scores: { mode: string; score: number }[], date?: strin
  * in gold), then one forest pill to the bonus tour, an outline pill to challenge a friend with the day, and
  * the time until the new games. Without `screen` it is the compact card only (under an older result).
  */
-export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name }: {
+export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name, tomorrow }: {
   date: string; scores: { mode: string; score: number }[]; place?: number; players?: number; streak?: number;
   t: (k: string) => string; locale: string; share: (text: string) => void;
   /** The player's name, for "Pietje: #1 of 230 players worldwide today" in the share (1.26). */
   name?: string;
   /** Show it as the whole end screen (with Roviko and the bonus tour), not as a card under a result. */
   screen?: boolean; current?: string; onBonus?: () => void; bonusBusy?: boolean;
+  /** Tomorrow's Side by Side subject (1.35), a concrete reason to come back; never a question or an answer. */
+  tomorrow?: { emoji?: string; label: Record<string, string> } | null;
 }) {
   const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
   const scoreOf = (m: string) => scores.find(s => s.mode === m)?.score ?? 0;
@@ -60,9 +63,11 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
     {place ? <p className="ds-place">{t('resultDayRank').replace('{rank}', n(place)).replace('{count}', n(players ?? 0))}</p> : null}
     {list}
     <div className="ds-actions">
-      {onBonus && <button className="btn primary btn-lg ds-bonus" disabled={bonusBusy} aria-busy={bonusBusy} onClick={onBonus}>{bonusBusy ? t('loading') : t('dayBonus')}<ArrowRight size={19} aria-hidden="true"/></button>}
+      <ContinentCTA/>
+      {onBonus && <button className="btn secondary btn-lg ds-bonus" disabled={bonusBusy} aria-busy={bonusBusy} onClick={onBonus}>{bonusBusy ? t('loading') : t('dayBonus')}<ArrowRight size={19} aria-hidden="true"/></button>}
       <button className="btn secondary btn-lg ds-challenge" onClick={shareDay}><Share2 size={18} aria-hidden="true"/>{t('dayChallenge')}</button>
     </div>
+    {tomorrow && <p className="ds-tomorrow">{t('loopTomorrow').replace('{topic}', (tomorrow.emoji ? tomorrow.emoji + ' ' : '') + (tomorrow.label[locale] ?? tomorrow.label.en))}</p>}
     <p className="ds-reset"><ResetCountdown label={t('dayNewIn')} t={t}/></p>
   </section>;
 }

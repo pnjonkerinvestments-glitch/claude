@@ -46,8 +46,11 @@ export async function ensureLeague(env: Env, user: User, date: string): Promise<
     // Only last week's group moves you; after a week off you start again where you were.
     if (previous.week === addDays(week, -7)) {
       const table = await groupTable(env, previous.week, tier, Number(previous.group_no));
-      const place = table.findIndex(m => m.user_id === user.id) + 1;
-      if (place > 0) tier = nextTier(tier, place, table.length, table[place - 1].score);
+      // Ties share the best place of their score (1.35), so equal scores on a zone line move the same way:
+      // all up at the promotion line, nobody down at the demotion line.
+      const row = table.find(m => m.user_id === user.id);
+      const place = row ? table.findIndex(m => m.score === row.score) + 1 : 0;
+      if (row && place > 0) tier = nextTier(tier, place, table.length, row.score);
     }
   }
   const last = await one(env, 'SELECT group_no,COUNT(*) n FROM league_members WHERE week=? AND tier=? GROUP BY group_no ORDER BY group_no DESC LIMIT 1', week, tier);
@@ -73,7 +76,8 @@ export async function leagueStanding(env: Env, user: User, date: string) {
     // Ties share a place, like every other Roviko ranking.
     const shared = table.findIndex(x => x.score === m.score) + 1;
     if (m.user_id === user.id) place = shared;
-    return { name: m.name, avatar: m.avatar, score: m.score, place: shared, me: m.user_id === user.id, zone: i < top && m.score > 0 ? 'up' : i >= size - bottom ? 'down' : null };
+    // The zones follow the shared place too, so what you see is what happens next week.
+    return { name: m.name, avatar: m.avatar, score: m.score, place: shared, me: m.user_id === user.id, zone: shared <= top && m.score > 0 ? 'up' : bottom && shared > size - bottom ? 'down' : null };
   });
   const change = member.previousTier === null ? null : member.tier > member.previousTier ? 'up' : member.tier < member.previousTier ? 'down' : null;
   return { joined: true, guest: false, week, ends, tier: member.tier, tierName: LEAGUE_TIERS[member.tier], group: member.group_no, size, place, promote: top, demote: bottom, change, members };

@@ -82,3 +82,14 @@ test('a saved daily result joins the league; a guest result never does; an old w
   assert.equal(Number((await db.prepare("SELECT COUNT(*) n FROM league_members WHERE user_id='lg-rec-guest'").first()).n), 0);
   assert.equal(Number((await db.prepare("SELECT COUNT(*) n FROM league_members WHERE user_id='lg-rec-old'").first()).n), 0, 'reopening an old game starts no past membership');
 });
+
+test('ties on the promotion line all move up, and the zones on screen say so (1.35)', async () => {
+  // Week of 2026-09-14: seven players, six tie on 800 points, one has 100. All six tied players are in the top-5 zone.
+  const ids = [];
+  for (let i = 0; i < 7; i++) { const u = await addUser('lg-tie' + i); ids.push(u.id); await score(u.id, '2026-09-14', 'daily', i === 6 ? 100 : 800); await lib.ensureLeague(env, u, '2026-09-14'); }
+  const standing = await lib.leagueStanding(env, user('lg-tie5'), '2026-09-14');
+  assert.equal(standing.members.filter(m => m.zone === 'up').length, 6, 'all six tied on 800 are shown moving up');
+  assert.equal(standing.members.find(m => m.score === 100).zone, null);
+  // Next week every one of the six starts a tier higher, also the one listed sixth.
+  for (const id of ids.slice(0, 6)) { await score(id, '2026-09-21', 'daily', 10); const m = await lib.ensureLeague(env, user(id), '2026-09-21'); assert.equal(m.tier, 1, id + ' moved up'); }
+});

@@ -57,7 +57,8 @@ export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup, o
         : step === READY
         ? <div className="tour-actions is-final"><button className="btn primary btn-lg" onClick={() => { close(); onStart(); }}>{t('gStart')}<ArrowRight size={18} aria-hidden="true"/></button><button className="btn ghost" onClick={() => go(i - 1)}><ArrowLeft size={17} aria-hidden="true"/>{t('tourBack')}</button></div>
         : i === 0
-        ? <div className="tour-actions is-final"><button className="btn primary btn-lg" onClick={() => go(1)}>{t('gLetsGo')}<ArrowRight size={18} aria-hidden="true"/></button>{guest && onLogin && <button className="btn ghost" onClick={() => { close(); onLogin(); }}>{t('gHaveAccount')}</button>}</div>
+        // 1.35: the first card leads to the first question; the tour is the second choice, an account the third.
+        ? <div className="tour-actions is-final"><button className="btn primary btn-lg" onClick={() => { close(); onStart(); }}>{t('gPlayNow')}<ArrowRight size={18} aria-hidden="true"/></button><button className="btn secondary" onClick={() => go(1)}>{t('gShowMe')}</button>{guest && onLogin && <button className="btn ghost tour-login" onClick={() => { close(); onLogin(); }}>{t('gHaveAccount')}</button>}</div>
         : <div className="tour-actions">
             <button className="btn ghost" onClick={() => go(i - 1)}><ArrowLeft size={17} aria-hidden="true"/>{t('tourBack')}</button>
             <button className="btn primary" onClick={() => go(i + 1)}>{t('tourNext')}<ArrowRight size={17} aria-hidden="true"/></button>

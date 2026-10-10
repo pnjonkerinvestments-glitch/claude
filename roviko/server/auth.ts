@@ -21,8 +21,17 @@ export async function requireUser(req: Request, env: Env) { const user = await g
 export const NAME_LOCK_DAYS = 30;
 export function nameUnlocksAt(u: User) { return u.guest || !u.name_changed_at ? null : Number(u.name_changed_at) + NAME_LOCK_DAYS * 86400000; }
 export function safeUser(u: User) { const unlock = nameUnlocksAt(u); return { id: u.id, name: u.name, avatar: u.avatar, guest: !!u.guest, email: u.email, emailVerified: !!u.email_verified, discoverable: !!u.discoverable, friendCode: u.id.slice(0, 8).toUpperCase(), nameLockedUntil: unlock && unlock > Date.now() ? unlock : null }; }
-export function sessionCookie(req: Request, token: string, maxAge = 2592000) { return `rv_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${new URL(req.url).protocol === 'https:' ? '; Secure' : ''}`; }
-export async function newSession(req: Request, env: Env, userId: string) { const token = crypto.randomUUID() + crypto.randomUUID(); await run(env, 'INSERT INTO auth_sessions(token,user_id,expires_at) VALUES (?,?,?)', await digest(token), userId, Date.now() + 30 * 86400000); return sessionCookie(req, token); }
+/** Sessions last 60 days and slide (1.35): a visit with less than 53 days left renews them, so a player who keeps
+ * coming back is never logged out or turned into a new guest. At most one renewal write per session per week. */
+export const SESSION_DAYS = 60, SESSION_RENEW_LEFT_DAYS = 53;
+export async function renewSession(req: Request, env: Env) {
+    const raw = cookieValue(req); if (!raw) return '';
+    const token = await digest(raw), now = Date.now(), until = now + SESSION_DAYS * 86400000;
+    const done = await run(env, 'UPDATE auth_sessions SET expires_at=? WHERE token=? AND expires_at>? AND expires_at<?', until, token, now, now + SESSION_RENEW_LEFT_DAYS * 86400000);
+    return done.meta.changes ? sessionCookie(req, raw) : '';
+}
+export function sessionCookie(req: Request, token: string, maxAge = SESSION_DAYS * 86400) { return `rv_session=${token}; HttpOnly; Path=/; SameSite=Lax; Max-Age=${maxAge}${new URL(req.url).protocol === 'https:' ? '; Secure' : ''}`; }
+export async function newSession(req: Request, env: Env, userId: string) { const token = crypto.randomUUID() + crypto.randomUUID(); await run(env, 'INSERT INTO auth_sessions(token,user_id,expires_at) VALUES (?,?,?)', await digest(token), userId, Date.now() + SESSION_DAYS * 86400000); return sessionCookie(req, token); }
 // Guests get a friendly name ("Curious Fox 18") instead of a code; they can change it once they have an account.
 const ADJECTIVES = ['Curious', 'Brave', 'Swift', 'Sunny', 'Clever', 'Bold', 'Calm', 'Lucky', 'Jolly', 'Nimble', 'Witty', 'Merry', 'Keen', 'Bright', 'Gentle', 'Quick'];
 const ANIMALS = ['Fox', 'Owl', 'Otter', 'Panda', 'Koala', 'Falcon', 'Dolphin', 'Lynx', 'Turtle', 'Robin', 'Heron', 'Puffin', 'Badger', 'Gecko', 'Llama', 'Hare'];
