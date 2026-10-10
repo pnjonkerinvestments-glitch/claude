@@ -596,21 +596,21 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.37.0 (nog niet live; op de preview, samen met 1.35 en 1.36)
+## 1.37.0 (live sinds 10 oktober 2026, samen met 1.35 en 1.36)
 
 - **Niveau naast de naam.** In je vriendenlijst, in de lijst waarmee je vrienden uitnodigt in de wachtkamer, in de uitnodigingsmelding en in de keuzelijst bij dubbele namen staat nu een gouden pilletje met het niveau ("Niv. 12"). Lucia krijgt een pilletje "Computer".
 - **Kies je Roviko bij het aanmaken van een account.** Acht Roviko's met hun naam in een raster; de grote Roviko bovenaan het venster verandert mee met je keuze. Je kunt hem later nog wijzigen op je account.
 - Geen migratie. Service worker `roviko-shell-v1.37.0`.
-- Getest: volledige testset met een nieuwe test (gekozen Roviko wordt bewaard, het niveau van een vriend klopt met zijn dagpunten, Lucia zonder niveau), typecheck, build, en in de browser: het aanmeldvenster met de keuze (Muziek gekozen, na aanmelden avatar 6) en de vriendenlijst met "Niv. 2" en "Computer". Niet getest: de uitnodigingsmelding met niveau in de browser, Safari en een echte iPhone.
+- Getest: volledige testset met een nieuwe test (gekozen Roviko wordt bewaard, het niveau van een vriend klopt met zijn dagpunten, Lucia zonder niveau), typecheck, build, en in de browser: het aanmeldvenster met de keuze (Muziek gekozen, na aanmelden avatar 6) en de vriendenlijst met "Niv. 2" en "Computer". Niet getest: de uitnodigingsmelding met niveau in de browser, Safari en een echte iPhone. Live gecontroleerd: versie 1.37.0, service worker v1.37.0, de deploy slaagde, hoofdpagina's 200, en het rondleidingskaartje staat bij een nieuw bezoek weer in beeld (eerder stond het onder het scherm).
 
-## 1.36.0 (nog niet live; op de preview, samen met 1.35)
+## 1.36.0 (live sinds 10 oktober 2026)
 
 - **Niveau voor iedereen.** Je niveau op het paspoort groeit nu ook door de dagspellen, het continent van de week en oefenen, niet alleen door multiplayer. Oefenen telt tot een maximum per dag. Het paspoort zegt hoeveel XP je nog nodig hebt voor het volgende niveau. De ranglijstpunten veranderen niet.
 - **Uitdagingslinks met datum en echte score.** Een gedeelde link bevat nu de dag en de vriendcode van wie deelt. De pagina toont de echte bewaarde score en plek van die dag (een aangepaste link kan dus niet meer beloven dan er gespeeld is). Een link van een eerdere dag zegt dat eerlijk ("Dat was een eerdere dag. Lukt het jou vandaag beter?") en de knop start de reis van vandaag.
 - Geen migratie. Service worker `roviko-shell-v1.36.0`.
 - Getest: volledige testset met nieuwe tests (reis-XP en niveaus, de controle van een gedeelde score inclusief verborgen naam en onbekende dag, links lezen en maken), typecheck, build, en in de browser een link van 8 oktober met een verzonnen score van 1000: de pagina toonde de echte 958 en #3 van 413, met de tekst voor een eerdere dag en de knop naar vandaag. Niet getest: Safari en een echte iPhone.
 
-## 1.35.0 (nog niet live; op de preview)
+## 1.35.0 (live sinds 10 oktober 2026)
 
 - **Rondleiding weer in beeld.** Sinds 1.32 stond het kaartje van de rondleiding bij nieuwe spelers onder het scherm (een opmaakregel `position:relative`); ze zagen alleen een grijze laag. Hersteld.
 - **Niet meer uitgelogd als je blijft spelen.** Een sessie duurt nu 60 dagen en verlengt zich vanzelf bij elk bezoek. Was je sessie toch verlopen, dan zegt de app dat en kun je meteen inloggen.
