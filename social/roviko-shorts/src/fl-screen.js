@@ -1,0 +1,27 @@
+/*
+  Roviko ad (flags): the two phone screen inserts, fl-screen.html?c=jp | ?c=ca
+  3.2 s each, 1080x2338 (the phone's own 390x844 ratio), 60 fps, silent. Real screens of roviko.app 1.34 (local copy, local
+  test data): Flag Signal 1/10 (Japan's flag) and 2/10 (Canada's flag). For the ad one wrong option is relabelled: "Bangladesh"
+  and "Switzerland" (in the app the other options are random countries). A finger taps that option at exactly 1.0 s; the answer
+  screen wipes in from the tap: the pick red with a cross, the right flag green.
+*/
+const DURATION = 3.2, TT = 1.0;
+const CLIP = { jp: { y: 596 }, ca: { y: 590 } }[Q.get('c') || 'jp'], C0 = Q.get('c') || 'jp';
+const W = 1080, H = 2338, K = W / 390;
+S(document.body, { width: W, height: H, background: C.cream }); S(stage, { width: W, height: H, background: C.cream });
+const shot = n => el(stage, { left: 0, top: 0, width: W, height: H }, `<img src="../roviko-jp/screens/flag-${C0}-${n}.jpg" style="width:${W}px;height:${H}px;display:block">`);
+const q = shot('q'), a = shot('a');
+const TAP = { x: 195 * K, y: CLIP.y * K };
+const ring = el(stage, { borderRadius: '50%', border: '10px solid rgba(255,255,255,.95)', boxShadow: '0 0 0 4px rgba(22,59,50,.25)', zIndex: 5 });
+const finger = el(stage, { width: 120, height: 120, borderRadius: 60, background: 'rgba(22,59,50,.28)', boxShadow: '0 0 0 6px rgba(255,255,255,.9)', zIndex: 6 });
+function seek(t) {
+  t = clamp(t, 0, DURATION);
+  const wr = 2600 * E.inOutCubic(clamp((t - TT - 0.03) / 0.3));
+  S(a, { clipPath: `circle(${wr.toFixed(1)}px at ${TAP.x}px ${TAP.y}px)` }); show(a, wr > 0.5);
+  const p = E.inOutCubic(clamp((t - (TT - 0.7)) / 0.65)), press = t >= TT ? Math.exp(-(t - TT) * 12) : 0;
+  S(finger, { left: lerp(TAP.x + 300, TAP.x, p) - 60, top: lerp(TAP.y + 700, TAP.y, p) - 60, transform: `scale(${1 - 0.25 * press})` }); show(finger, t > TT - 0.7 && t < TT + 0.12);
+  const rp = clamp((t - TT) / 0.22), rr = 30 + 90 * E.outCubic(rp);
+  S(ring, { left: TAP.x - rr, top: TAP.y - rr, width: 2 * rr, height: 2 * rr, opacity: 1 - rp }); show(ring, t >= TT && rp < 1);
+}
+window.seek = seek; window.DURATION = DURATION; window.EVENTS = [];
+window.filmReady = (async () => { await Promise.all([...document.images].map(i => i.decode().catch(() => {}))); seek(+(Q.get('t') || 0)); return true; })();
