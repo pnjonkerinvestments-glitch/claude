@@ -61,6 +61,8 @@ export function PassportPage() {
           <h2>{u.name}</h2>
           <p>{t('passportLevel').replace('{n}', String(s.level))} · {levelName}</p>
           <Progress value={s.levelProgress} className="passport-xp" aria-label={t('level') + ' ' + s.level}/>
+          {/* 1.36: the level grows from daily games and practice too; say how close the next one is. */}
+          {s.xpToNext > 0 && <small className="passport-next">{t('xpToNext').replace('{n}', Number(s.xpToNext).toLocaleString()).replace('{level}', String(s.level + 1))}</small>}
         </div>
         {!u.guest && <button className="btn ghost on-dark" onClick={openEdit}><Settings2 size={17} aria-hidden="true"/>{t('editProfile')}</button>}
       </div>

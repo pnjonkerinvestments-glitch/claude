@@ -34,7 +34,7 @@ const PuzzleGame = React.lazy(() => import('./puzzles/PuzzleGame').then(m => ({ 
 const DuelGame = React.lazy(() => import('./puzzles/DuelGame').then(m => ({ default: m.DuelGame })));
 import { evaluateLearning } from '@/lib/game-engine/learning';
 import { pageTitle } from '@/lib/page-title';
-import { challengeExtras, shareResult } from '@/lib/share';
+import { challengeExtras, shareResult, setSharer } from '@/lib/share';
 import { shareWithImage } from '@/lib/share-image';
 import { createRoomClient } from '@/lib/realtime/room-client';
 import { AppContext, useApp } from './app/context';
@@ -84,7 +84,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     useEffect(() => { if (!sessionGone) return; setSessionGone(false); toast(t('sessionGone'), { duration: 12000, action: { label: t('signIn'), onClick: () => setModal('login') } }); }, [sessionGone, t]);
     const fail = useCallback((e: any) => toast.error(t(errorMessage(e?.message ?? ''))), [t]);
     const refresh = useCallback(() => { if (!bootRequest.current) {
-        bootRequest.current = api('/bootstrap').then(b => { setBoot(b); setBootLoaded(true); setFatal(''); if (b?.sessionExpired) setSessionGone(true); return b; }).catch((e: any) => { setFatal(e.message); }).finally(() => { bootRequest.current = null; });
+        bootRequest.current = api('/bootstrap').then(b => { setBoot(b); setSharer(b?.user?.friendCode); setBootLoaded(true); setFatal(''); if (b?.sessionExpired) setSessionGone(true); return b; }).catch((e: any) => { setFatal(e.message); }).finally(() => { bootRequest.current = null; });
     } return bootRequest.current; }, []);
     useEffect(() => { setPath(window.location.pathname); const savedRegion=readPreference('rv_region','World'); setRegionState(REGIONS.includes(savedRegion) ? savedRegion : 'World'); setMeasurement(readPreference('rv_metrics','off') === 'on'); const savedLocale=readPreference('rv_locale',deviceLocale()); setLocale(savedLocale === 'nl' || savedLocale === 'es' ? savedLocale : 'en'); setMuted(readPreference('rv_sound', soundDefault()) !== 'on'); setMusic(readPreference('rv_music', 'off') === 'on'); refresh(); const pop = () => setPath(window.location.pathname); window.addEventListener('popstate', pop); if ('serviceWorker' in navigator)
         navigator.serviceWorker.register('/sw.js').catch(() => { }); return () => window.removeEventListener('popstate', pop); }, [refresh]);

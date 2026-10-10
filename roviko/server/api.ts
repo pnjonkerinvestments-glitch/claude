@@ -25,6 +25,7 @@ import { LUCIA_KEY, NAME_KEY_SQL, nameTaken, searchKey } from './names';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
+import { DAILY_POINT_MODES } from '../lib/daily-scoring';
 // Duel boards are deterministic per seed; generating one takes up to ~1s, so keep recent ones in memory.
 /** Opaque flag tokens (see publicQuestion) mapped to their country, built once instead of hashing every country per request. */
 let flagTokens: Map<string, typeof COUNTRIES[number]> | undefined;
@@ -93,6 +94,24 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             // Practice boards are public and deterministic. The daily duel is scored and lives in /duels.
             if (path[1] === 'practice' && /^[a-z0-9]{4,16}$/.test(path[2] ?? '')) return json({ date: null, ...duelBoard('roviko:duel:practice:' + path[2]) }, 200, { 'Cache-Control': 'public, max-age=86400' });
             throw new AppError('NOT_FOUND', 404);
+        }
+        // A shared challenge (1.36): the real saved score of the sharer for that edition, so a link cannot claim more.
+        // Public and read-only: friend code, date and game in; points, place and (only when discoverable) the name out.
+        if (path[0] === 'challenge' && method === 'GET') {
+            const code = (url.searchParams.get('u') ?? '').toLowerCase(), date = url.searchParams.get('d') ?? '', mode = url.searchParams.get('m') ?? '';
+            if (!/^[a-f0-9]{8}$/.test(code) || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !(mode === 'day' || (DAILY_POINT_MODES as readonly string[]).includes(mode)))
+                throw new AppError('INVALID_INPUT');
+            await limit(env, 'challenge:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 60);
+            const owners = await rows(env, 'SELECT id,name,discoverable FROM users WHERE lower(substr(id,1,8))=? AND blocked=0 LIMIT 2', code);
+            if (owners.length !== 1) throw new AppError('NOT_FOUND', 404);
+            // The daily Size Shuffle is stored under the Mosaic slot (see MODE_SQL in server/competition.ts).
+            const stored = mode === 'order' ? 'mosaic' : mode, filter = mode === 'day' ? '' : ' AND mode=?', args = mode === 'day' ? [date] : [date, stored];
+            const totals = `SELECT user_id,SUM(score) total FROM daily_scores WHERE date=?${filter} GROUP BY user_id`;
+            const mine = await one(env, `SELECT total FROM (${totals}) WHERE user_id=?`, ...args, owners[0].id);
+            if (!mine) throw new AppError('NOT_FOUND', 404);
+            const rank = await one(env, `SELECT SUM(CASE WHEN total>? THEN 1 ELSE 0 END)+1 place,COUNT(*) players FROM (${totals})`, Number(mine.total), ...args);
+            const owner = owners[0], name = owner.discoverable ? (owner.id === LUCIA_ID ? LUCIA_NAME : owner.name) : null;
+            return json({ points: Number(mine.total), place: Number(rank?.place ?? 1), players: Number(rank?.players ?? 1), name, date, mode }, 200, { 'Cache-Control': 'public, max-age=60' });
         }
         if (path[0] === 'version' && method === 'GET')
             return json({ version: BRAND.version }, 200, { 'Cache-Control': 'no-store' });

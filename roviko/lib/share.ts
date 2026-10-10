@@ -4,7 +4,12 @@ import { nameAllowed } from './name-filter';
 
 /** A friend's challenge from a shared link. Since 1.26 it can also carry the sharer's name and place of the day
  *  (?n=Pietje&r=1&p=230): a friendly claim read from the address, never stored or ranked. */
-export type SharedChallenge = { mode: DayMode | 'day'; points: number; name?: string; place?: number; players?: number };
+export type SharedChallenge = { mode: DayMode | 'day'; points: number; name?: string; place?: number; players?: number;
+    /** 1.36: the edition (UTC date) and the sharer's friend code, so the server can confirm the real saved score. */
+    date?: string; code?: string; verified?: boolean; stale?: boolean };
+/** The player who shares (1.36): their friend code goes into every challenge link. Set when the app knows the player. */
+let sharerCode = '';
+export function setSharer(code?: string | null) { sharerCode = code && /^[A-F0-9]{8}$/.test(code) ? code : ''; }
 /** A name from a link: the same characters and filter as player names, else nothing. */
 export function sharedName(raw: string | null) {
     const v = (raw ?? '').trim().slice(0, 24);
@@ -22,6 +27,9 @@ export function readChallenge(search: string): SharedChallenge | null {
     const name = sharedName(q.get('n')); if (name) out.name = name;
     const r = q.get('r'), p = q.get('p');
     if (r && p && /^\d{1,7}$/.test(r) && /^\d{1,7}$/.test(p) && +r >= 1 && +p >= 2 && +r <= +p) { out.place = +r; out.players = +p; }
+    const d = q.get('d'), u = q.get('u');
+    if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) { out.date = d; out.stale = d !== new Date().toISOString().slice(0, 10); }
+    if (u && /^[A-Fa-f0-9]{8}$/.test(u)) out.code = u.toUpperCase();
     return out;
 }
 
@@ -47,7 +55,7 @@ export function challengeExtras(t: (k: string) => string, locale: string, mode: 
         scored,
         rankLine: st ? '🏆 ' + rank.charAt(0).toLocaleUpperCase(locale) + rank.slice(1) : undefined,
         callLine: t('shareCall'),
-        params: { ...(who ? { n: who } : {}), ...(st ? { r: String(st.place), p: String(st.players) } : {}), l: locale },
+        params: { ...(who ? { n: who } : {}), ...(st ? { r: String(st.place), p: String(st.players) } : {}), ...(sharerCode && date ? { u: sharerCode, d: date } : {}), l: locale },
     };
 }
 

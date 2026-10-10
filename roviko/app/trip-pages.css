@@ -625,3 +625,4 @@
 .mp-friends .friend-choices{margin-top:10px}
 /* Around your place (1.35): a small label and the same list, below the top 10. */
 .rank-around-title{margin:14px 4px 6px;color:var(--t-brand);font:800 .75rem/1 var(--font-sans);letter-spacing:.08em;text-transform:uppercase}
+.passport-next{display:block;margin-top:6px;color:var(--t-soft);font:600 .8125rem/1.35 var(--font-sans)}

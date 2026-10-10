@@ -56,6 +56,12 @@ Since 1.27 a share is three short lines without answer squares (name and score, 
 
 Passwords need at least 8 characters. An account can change its name once per 30 days (the sign-up name counts); guests choose their name freely. A new account receives a welcome email with a confirm link when email is configured.
 
+## Level and challenge links (1.36)
+
+The passport level grows from all play: multiplayer XP, a tenth of the daily-game points (up to 600 a day) and 10 XP per correct answer in solo games, at most 300 a day. Level L starts at (L-1)² × 100 XP. Ranking points are not affected.
+
+A shared score links to the sharer's friend code and the edition date. The page shows the real saved score, place and (if discoverable) name from the server, not the numbers in the link. A link from an earlier day says so and starts today's trip; it never gives points for an old edition.
+
 ## Ties (1.35)
 
 Equal scores share the best place everywhere. In the weekly league that shared place also decides promotion and demotion, so everyone tied on the promotion line moves up and nobody tied on the demotion line moves down; the zones on screen follow the same rule. "Better than X% of today's players" only counts players with a strictly lower score. Outside the top 10 a ranking also lists the two players above and below you.
