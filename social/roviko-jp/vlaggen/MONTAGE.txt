@@ -5,14 +5,14 @@ Hoofdspoor: de Veo-video (20 s), daarna roviko-eindkaart.mp4 (5 s). Totaal 25 s.
 Overlay 1: roviko-vlag-1-japan.mp4
   - Knip: laat de clip lopen van 0,3 s tot 2,6 s in de clip (2,3 s lang).
   - Zet hem op 3,1 s in de tijdlijn → hij loopt tot 5,4 s.
-  - In de clip tikt de vinger op 1,0 s, dus in de tijdlijn op 3,8 s: precies wanneer zij tikt. Bangladesh wordt rood vlak voor de buzzer (4,0 s).
+  - In de clip tikt de vinger op 1,0 s, dus in de tijdlijn op 3,8 s: precies wanneer zij tikt. Bangladesh wordt rood direct na de tik, samen met de "bonk".
 Overlay 2: roviko-vlag-2-canada.mp4
   - Knip: 0,3 s tot 2,6 s in de clip.
   - Zet hem op 8,9 s in de tijdlijn → hij loopt tot 11,2 s.
-  - Tik op 9,6 s, Zwitserland rood vlak voor de buzzer (9,8 s).
-Beide overlays: volledig beeld (knijp tot het scherm vol is), korte in- en uitzoom (0,15 s). Geen geluid nodig, de buzzer zit in de Veo-video.
+  - Tik op 9,6 s, Zwitserland rood direct na de tik.
+Beide overlays: volledig beeld (knijp tot het scherm vol is), korte in- en uitzoom (0,15 s). Geen geluid nodig, de "bonk" zit in de Veo-video, op het moment van de tik (3,8 s en 9,6 s).
 
-Valt de buzzer in jouw Veo-video iets anders? Schuif de overlay tot de rode kleur samenvalt met de buzzer.
+Tikt ze in jouw Veo-video iets eerder of later? Schuif de overlay tot de tik in de clip samenvalt met haar tik.
 
 Tekst bovenin 0–2,5 s: "flag expert btw 💅"
 Exporteren: 1080p, 30 of 60 fps. AI-label aanzetten bij het posten.
