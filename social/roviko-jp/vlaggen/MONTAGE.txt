@@ -1,16 +1,16 @@
 MONTAGE · CapCut · afgestemd op de twee Veo-delen
 
 Hoofdspoor: deel 1 (0–10 s), deel 2 (10–20 s), daarna roviko-eindkaart.mp4 (5 s). Totaal 25 s.
-Plak deel 2 strak tegen deel 1: hij begint met de laatste frame van deel 1, dus de overgang is onzichtbaar.
 
 Overlay 1: roviko-vlag-1-japan.mp4
   - Knip: 0,3 s tot 2,6 s in de clip (2,3 s lang).
-  - Zet hem op 3,1 s in de tijdlijn (loopt tot 5,4 s). De vinger tikt in de clip op 1,0 s → in de tijdlijn op 3,8 s, samen met haar tik en de "bonk".
+  - Zet hem op 2,1 s in de tijdlijn (loopt tot 4,4 s). De vinger tikt in de clip op 1,0 s → in de tijdlijn op 2,8 s, samen met haar tik en de "bonk".
 Overlay 2: roviko-vlag-2-canada.mp4
   - Knip: 0,3 s tot 2,6 s in de clip.
-  - Zet hem op 10,9 s in de tijdlijn (loopt tot 13,2 s). Tik op 11,6 s (= 1,6 s in deel 2).
+  - Zet hem op 7,5 s in de tijdlijn (loopt tot 9,8 s). Tik op 8,2 s.
 Beide overlays: volledig beeld, korte in- en uitzoom (0,15 s), geen geluid nodig.
+Tip: laat de overlays iets eerder stoppen (bijv. 4,0 s en 9,4 s) als je haar boze gezicht langer wilt zien.
 
 Tikt ze in jouw Veo-video iets eerder of later? Schuif de overlay tot de tik in de clip samenvalt met haar tik.
-Tekst bovenin 0–2,5 s: "flag expert btw 💅"
+Tekst bovenin 0–2 s: "flag expert btw 💅"
 Exporteren: 1080p, 30 of 60 fps. AI-label aanzetten bij het posten.

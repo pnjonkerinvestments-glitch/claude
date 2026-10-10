@@ -1,37 +1,49 @@
-VEO-PROMPTS · Roviko "vlaggen" · 2 delen van 10 seconden = 20 seconden
-Veo maakt per keer maximaal ± 10 s (soms 8 s). Daarom twee delen die naadloos op elkaar aansluiten.
+VEO-PROMPTS · Roviko "vlaggen" · 2 delen van 10 s = 20 s
+Waarom deze versie: vorige keer filmde ze zichzelf met een tweede telefoon op een statief, hield ze geen telefoon vast en kwam het kussen al na de eerste fout. Nu: de video IS haar selfiecamera, ze houdt de hele tijd één telefoon vast, en beide vlaggen komen direct na elkaar in deel 1.
 
-DEEL 1: upload referentie-gezicht.png en referentie-vooraanzicht.png als referentie. Kopieer alles tussen de lijnen.
+VOORAF: kies 9:16 (staand). In de Gemini-app kun je dat niet altijd kiezen; gebruik dan Google Flow (Veo) en zet de verhouding op 9:16. Upload bij beide delen de referentiebeelden.
+
+DEEL 1 (de twee vlaggen). Kopieer alles tussen de lijnen.
 ------------------------------------------------------------------------------------------------
-Ultra-realistic, unedited smartphone footage that looks like a real TikTok filmed by a real person at home. NOT cinematic, NOT a commercial, NOT CGI. Shot on an iPhone front camera propped on a desk at chest height: slightly soft focus, natural phone-camera noise in the shadows, auto-exposure, real skin texture with pores and freckles, natural imperfections, a lived-in bedroom (unmade duvet, a few clothes on a chair, warm fairy lights and a small bedside lamp). Vertical 9:16, exactly 10 seconds, one continuous take, the camera never moves or cuts. Medium shot, framed from the knees up.
+VERTICAL 9:16 PORTRAIT VIDEO (taller than wide), exactly 10 seconds, one continuous take, no cuts.
+This IS the selfie video itself: the viewer sees exactly what her own phone camera sees. There is NO tripod, NO second phone, NO ring light and NO camera visible anywhere in the frame.
 
-The woman from the reference images, identical face in every frame: 24 years old, long straight honey-blonde hair with lighter highlights and darker roots, green-hazel eyes, light freckles, a small beauty mark above the right side of her upper lip, small gold hoop earrings. She wears a fitted white cropped t-shirt and high-waisted burgundy leggings that show her curvy figure. She sits on the edge of her bed holding her phone in one hand; the phone screen always faces her and is never visible to the camera. Natural, unpolished movements and real facial expressions, normal human blinking.
+Ultra-realistic, unedited footage that looks like a real TikTok filmed by a real person at home. NOT cinematic, NOT a commercial, NOT CGI. Slightly soft focus, natural phone-camera noise, auto-exposure, real skin texture with pores and freckles, natural imperfections. A lived-in bedroom in the evening: unmade duvet, a few clothes on a chair, warm fairy lights and a small bedside lamp. The camera stands still on her desk facing her at chest height. Medium shot, framed from the knees up.
 
-Timeline (she talks fast and casually, like a real creator):
-0.0–2.5 s: She looks into the camera with a smug smile and says: "Okay, flags. I'm literally a pro at this."
-2.5–3.8 s: She looks down at her phone and says: "Red dot… Bangladesh, easy." At 3.8 s her index finger taps the screen once.
-3.8–5.4 s: The instant her finger touches the screen, the phone plays one very short, soft "wrong answer" sound (a quick two-note "bonk", about a quarter of a second, not loud, not a long alarm). She freezes and stares at the phone.
-5.4–7.8 s: She says, outraged: "Japan?! It's a tomato!" and throws her head back with a groan.
-7.8–10.0 s: She sighs, straightens up, looks back down at her phone and mutters: "Okay. Next one." She ends looking at the phone, sitting upright, holding it in her right hand.
+The woman from the reference images, identical face in every frame: 24 years old, long straight honey-blonde hair with lighter highlights and darker roots, green-hazel eyes, light freckles, a small beauty mark above the right side of her upper lip, small gold hoop earrings. She wears a fitted white cropped t-shirt and high-waisted burgundy leggings that show her curvy figure. She sits cross-legged on her bed.
 
-Audio: only her voice (clear, close, natural lip sync), quiet room tone, and one short "bonk" exactly when her finger touches the screen, never at any other moment. No sound before the tap. No music. No subtitles, no on-screen text, no logos, no watermark.
-------------------------------------------------------------------------------------------------
+She holds ONE smartphone in her right hand the entire time and keeps playing a quiz game on it, like a real person: she looks down at it, taps it with her left index finger, looks up at the camera, looks down again. She never puts the phone down. Its screen always faces her and is never visible to the camera.
 
-DEEL 2: gebruik de LAATSTE FRAME van deel 1 als startbeeld (in Flow: "Extend" op deel 1, of sla de laatste frame op en upload hem als eerste beeld), plus dezelfde referentiebeelden.
-------------------------------------------------------------------------------------------------
-Ultra-realistic, unedited smartphone footage that looks like a real TikTok filmed by a real person at home. NOT cinematic, NOT a commercial, NOT CGI. Shot on an iPhone front camera propped on a desk at chest height: slightly soft focus, natural phone-camera noise in the shadows, auto-exposure, real skin texture with pores and freckles, natural imperfections, a lived-in bedroom (unmade duvet, a few clothes on a chair, warm fairy lights and a small bedside lamp). Vertical 9:16, exactly 10 seconds, one continuous take, the camera never moves or cuts. Medium shot, framed from the knees up.
+Timeline:
+0.0–2.0 s: She looks into the camera, flips her hair, smug: "Flags? Babe, I'm literally a pro."
+2.0–2.8 s: She looks down at her phone: "Red dot… Bangladesh." At 2.8 s her finger taps the screen once.
+2.8–4.6 s: At the exact moment of the tap, the phone plays one very short, soft "wrong" sound (a quick two-note "bonk", a quarter of a second). She frowns at the screen, offended: "What?! It's a tomato…"
+4.6–8.2 s: Still holding the phone, she waves it off and keeps playing straight away: "Whatever. Next one… red and white with a plant on it… easy. Switzerland." At 8.2 s her finger taps the screen once.
+8.2–10.0 s: At the exact moment of the tap, the same short "bonk" plays once. She freezes and stares at the phone with her mouth open, phone still in her hand.
 
-Continue directly from the start frame: the same woman, same bedroom, same outfit, same lighting and camera position. The woman from the reference images, identical face in every frame: 24 years old, long straight honey-blonde hair with lighter highlights and darker roots, green-hazel eyes, light freckles, a small beauty mark above the right side of her upper lip, small gold hoop earrings. She wears a fitted white cropped t-shirt and high-waisted burgundy leggings that show her curvy figure. She sits on the edge of her bed holding her phone in one hand; the phone screen always faces her and is never visible to the camera. Natural, unpolished movements and real facial expressions, normal human blinking.
-
-Timeline (she talks fast and casually, like a real creator):
-0.0–1.6 s: She looks at her phone and says confidently: "Red and white… Switzerland." At 1.6 s her index finger taps the screen once.
-1.6–2.8 s: The instant her finger touches the screen, the phone plays one very short, soft "wrong answer" sound (a quick two-note "bonk", about a quarter of a second). Her face drops.
-2.8–4.2 s: She falls backwards onto the bed, presses a pillow over her face and lets out a muffled scream, kicking her feet.
-4.2–9.2 s: She sits back up with messy hair, looks straight into the camera, half laughing, and says: "I'm so trash at this. Think you can do better? Download Roviko in the App Store." She points at the camera on "you".
-9.2–10.0 s: She holds a playful smile and shrugs. Silence.
-
-Audio: only her voice (clear, close, natural lip sync), quiet room tone, and one short "bonk" exactly when her finger touches the screen, never at any other moment. No sound before the tap. No music. No subtitles, no on-screen text, no logos, no watermark.
+Audio: only her voice (clear, close, natural lip sync, casual and fast like a real creator), quiet room tone, and two short "bonk" sounds, each exactly when her finger touches the screen and never at any other moment. No music. No subtitles, no on-screen text, no logos, no watermark.
 ------------------------------------------------------------------------------------------------
 
-TIP: klinkt de "bonk" op het verkeerde moment? Schrap in de laatste alinea "and one short bonk..." en zet er "No sound effects at all" neer. Zet het geluid dan zelf in CapCut op 3,8 s en 11,6 s (Geluid > Effecten > zoek "wrong" of "error").
-TIP: geeft jouw Veo maar 8 s per clip? Gebruik dan Flow > Extend: maak deel 1, kies Extend en plak de tijdlijn van deel 2.
+DEEL 2 (de reactie en de oproep). Gebruik de LAATSTE FRAME van deel 1 als startbeeld (Flow: "Extend" op deel 1).
+------------------------------------------------------------------------------------------------
+Continue directly from the start frame: same woman, same room, same outfit, same light, same camera position, phone still in her right hand.
+VERTICAL 9:16 PORTRAIT VIDEO (taller than wide), exactly 10 seconds, one continuous take, no cuts.
+This IS the selfie video itself: the viewer sees exactly what her own phone camera sees. There is NO tripod, NO second phone, NO ring light and NO camera visible anywhere in the frame.
+
+Ultra-realistic, unedited footage that looks like a real TikTok filmed by a real person at home. NOT cinematic, NOT a commercial, NOT CGI. Slightly soft focus, natural phone-camera noise, auto-exposure, real skin texture with pores and freckles, natural imperfections. A lived-in bedroom in the evening: unmade duvet, a few clothes on a chair, warm fairy lights and a small bedside lamp. The camera stands still on her desk facing her at chest height. Medium shot, framed from the knees up.
+
+The woman from the reference images, identical face in every frame: 24 years old, long straight honey-blonde hair with lighter highlights and darker roots, green-hazel eyes, light freckles, a small beauty mark above the right side of her upper lip, small gold hoop earrings. She wears a fitted white cropped t-shirt and high-waisted burgundy leggings that show her curvy figure. She sits cross-legged on her bed.
+
+She holds ONE smartphone in her right hand the entire time and keeps playing a quiz game on it, like a real person: she looks down at it, taps it with her left index finger, looks up at the camera, looks down again. She never puts the phone down. Its screen always faces her and is never visible to the camera.
+
+Timeline:
+0.0–3.0 s: She stares at the phone in disbelief and says slowly: "Canada? …Since when do flags have leaves?"
+3.0–4.5 s: She lets her head fall back and groans, then looks at the camera, still holding the phone, completely confused.
+4.5–9.0 s: She holds the phone up next to her face, half laughing, and says straight into the camera: "Okay, I'm trash at this. Think you can do better? Download Roviko in the App Store." She points at the camera with her free hand on "you".
+9.0–10.0 s: She smiles, shrugs and looks back down at her phone as if to try again. Silence.
+
+Audio: only her voice (clear, close, natural lip sync, casual and fast like a real creator), quiet room tone. No sound effects. No music. No subtitles, no on-screen text, no logos, no watermark.
+------------------------------------------------------------------------------------------------
+
+TIP: staat er tóch een tweede telefoon of statief in beeld? Zet aan het begin van de prompt: "No phone on a tripod. No device facing her. The only phone in the video is the one in her hand."
+TIP: valt de "bonk" verkeerd? Schrap de bonk-zin in de laatste alinea van deel 1, zet er "No sound effects" neer, en zet het geluid zelf in CapCut op 2,8 s en 8,2 s.
