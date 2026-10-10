@@ -13,7 +13,21 @@ export type Challenge = import('@/lib/share').SharedChallenge;
 // The challenge lives in the address (?shared=daily&s=820). One small store, so the homepage hero and the
 // banner agree, and closing or playing it clears both.
 let cache: { search: string; value: Challenge | null } = { search: '\0', value: null };
-const snapshot = () => { const s = location.search; if (s !== cache.search) cache = { search: s, value: readChallenge(s) }; return cache.value; };
+const snapshot = () => { const s = location.search; if (s !== cache.search) { cache = { search: s, value: readChallenge(s) }; verify(s, cache.value); } return cache.value; };
+/**
+ * 1.36: a link with the sharer's code and the edition date is checked with the server, which answers with the real
+ * saved score, place and name. The page then shows those instead of what the link says. Without an answer (an old
+ * link, no connection) the link's own numbers stay, as before.
+ */
+function verify(search: string, value: Challenge | null) {
+  if (!value?.code || !value.date) return;
+  const q = new URLSearchParams({ u: value.code, d: value.date, m: value.mode });
+  fetch('/api/challenge?' + q).then(r => r.ok ? r.json() : null).then(real => {
+    if (!real || cache.search !== search || !cache.value) return;
+    cache = { search, value: { ...cache.value, points: real.points, name: real.name ?? cache.value.name, place: real.players >= 2 ? real.place : undefined, players: real.players >= 2 ? real.players : undefined, verified: true } };
+    window.dispatchEvent(new Event('roviko:challenge'));
+  }).catch(() => { /* keep the link's numbers */ });
+}
 const subscribe = (onChange: () => void) => {
   window.addEventListener('roviko:challenge', onChange); window.addEventListener('popstate', onChange);
   return () => { window.removeEventListener('roviko:challenge', onChange); window.removeEventListener('popstate', onChange); };
@@ -27,7 +41,8 @@ export function clearChallenge() {
 }
 /** "A friend scored 820 points in Daily Detour" in the page language. */
 export const challengeLine = (t: (k: string) => string, locale: string, c: Challenge) =>
-  t(c.mode === 'day' ? (c.name ? 'chTitleDayNamed' : 'chTitleDay') : (c.name ? 'chTitleNamed' : 'chTitle')).replace('{name}', c.name ?? '').replace('{n}', c.points.toLocaleString(locale)).replace('{game}', c.mode === 'day' ? '' : t(dailyTitleKey(c.mode)));
+  t(c.mode === 'day' ? (c.name ? 'chTitleDayNamed' : 'chTitleDay') : (c.name ? 'chTitleNamed' : 'chTitle')).replace('{name}', c.name ?? '').replace('{n}', c.points.toLocaleString(locale)).replace('{game}', c.mode === 'day' ? '' : t(dailyTitleKey(c.mode)))
+  + (c.stale && c.date ? ' · ' + new Date(c.date + 'T12:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long' }) : '');
 /** "#1 of 230 players worldwide" when the link carries the friend's place of the day (1.26), else null. */
 export const challengeRank = (t: (k: string) => string, locale: string, c: Challenge) =>
   c.place && c.players ? (c.place === 1 ? t('chRankFirst') : t('chRank').replace('{place}', c.place.toLocaleString(locale)).replace('{players}', c.players.toLocaleString(locale))) : null;
@@ -43,14 +58,15 @@ export function ChallengeBanner({ app }: { app: Parameters<typeof launchDaily>[0
   const challenge = useChallenge(), [busy, setBusy] = useState(false);
   if (!challenge || location.pathname === '/') return null;
   const { t, locale } = app, day = challenge.mode === 'day', game = day ? '' : t(dailyTitleKey(challenge.mode as DayMode));
-  const play = async () => { if (busy) return; setBusy(true); try { clearChallenge(); await launchDaily(app, day ? 'daily' : challenge.mode as DayMode); } catch (e) { app.fail(e); } finally { setBusy(false); } };
+  // An older edition (1.36) cannot be played for points any more: the button starts today's trip instead.
+  const play = async () => { if (busy) return; setBusy(true); try { clearChallenge(); await launchDaily(app, day || challenge.stale ? 'daily' : challenge.mode as DayMode); } catch (e) { app.fail(e); } finally { setBusy(false); } };
   return <aside className="challenge-banner ch-trip" aria-labelledby="challenge-title">
     <Peek mood="curious" size={84}/>
     <span className="t-points ch-score"><Coin size={18}/>{challenge.points.toLocaleString(locale)}</span>
     <strong id="challenge-title">{challengeLine(t, locale, challenge)}</strong>
     {challengeRank(t, locale, challenge) && <span className="ch-rank">🏆 {challengeRank(t, locale, challenge)}</span>}
-    <p>{t('chCopy')}</p>
-    <button className="btn primary" disabled={busy} aria-busy={busy} onClick={play}>{day ? t('tripStart') : t('chPlay').replace('{game}', game)}<ArrowRight size={18} aria-hidden="true"/></button>
+    <p>{t(challenge.stale ? 'chOldCopy' : 'chCopy')}</p>
+    <button className="btn primary" disabled={busy} aria-busy={busy} onClick={play}>{day || challenge.stale ? t('tripStart') : t('chPlay').replace('{game}', game)}<ArrowRight size={18} aria-hidden="true"/></button>
     <button className="icon-btn challenge-close" onClick={clearChallenge} aria-label={t('close')}><X size={18} aria-hidden="true"/></button>
   </aside>;
 }

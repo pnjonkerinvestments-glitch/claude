@@ -623,3 +623,12 @@
 .friend-choices li small{color:var(--t-soft);font:700 .75rem/1.3 var(--font-sans);letter-spacing:.06em}
 .friend-choices li svg{flex:none;color:var(--t-brand)}
 .mp-friends .friend-choices{margin-top:10px}
+/* Around your place (1.35): a small label and the same list, below the top 10. */
+.rank-around-title{margin:14px 4px 6px;color:var(--t-brand);font:800 .75rem/1 var(--font-sans);letter-spacing:.08em;text-transform:uppercase}
+.passport-next{display:block;margin-top:6px;color:var(--t-soft);font:600 .8125rem/1.35 var(--font-sans)}
+/* Levels next to names (1.37): a small gold pill after the name, in friends lists, invites and the name choices. */
+.name-with-level{display:inline-flex!important;align-items:center;flex-wrap:wrap;gap:6px}
+.level-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 8px 2px 6px;border-radius:999px;background:#FFF1CC;color:#8A5A00;font:800 .6875rem/1.4 var(--font-sans);letter-spacing:.02em;white-space:nowrap;vertical-align:middle}
+.level-pill svg{color:#E3A008;fill:#F6B84B}
+.invite-pop .level-pill{font-size:.625rem}
+.level-pill.is-bot{background:color-mix(in srgb,var(--t-mint) 70%,var(--t-card));color:var(--t-mint-ink)}

@@ -35,11 +35,14 @@ async function ranking(env: Env, user: User, scope: Scope = {}) {
   if (scope.mode) { filters.push(MODE_SQL('d.') + '=?'); args.push(scope.mode); }
   if (scope.userIds) { filters.push('d.user_id IN (' + scope.userIds.map(() => '?').join(',') + ')'); args.push(...scope.userIds); }
   const cte = `WITH totals AS (SELECT d.user_id,SUM(d.score) score,COUNT(*) games,CASE WHEN u.discoverable=1 THEN u.name ELSE 'Explorer' END name,u.avatar FROM daily_scores d JOIN users u ON u.id=d.user_id WHERE ${filters.join(' AND ')} GROUP BY d.user_id), ranked AS (SELECT *,RANK() OVER(ORDER BY score DESC) place FROM totals)`;
-  const summary = await one(env, cte + ' SELECT COUNT(*) participants,COALESCE(MAX(CASE WHEN user_id=? THEN score END),0) score,MAX(CASE WHEN user_id=? THEN place END) place,COALESCE(MAX(CASE WHEN user_id=? THEN games END),0) games FROM ranked',...args,user.id,user.id,user.id);
+  // below (1.35): players with a strictly lower score, for "better than X%" without counting ties as beaten.
+  const summary = await one(env, cte + ' SELECT COUNT(*) participants,COALESCE(MAX(CASE WHEN user_id=? THEN score END),0) score,MAX(CASE WHEN user_id=? THEN place END) place,COALESCE(MAX(CASE WHEN user_id=? THEN games END),0) games,SUM(CASE WHEN score<(SELECT score FROM ranked WHERE user_id=?) THEN 1 ELSE 0 END) below FROM ranked',...args,user.id,user.id,user.id,user.id);
   const leaders = await rows(env, cte + ' SELECT name,avatar,score,place,user_id=? me FROM ranked ORDER BY score DESC,user_id LIMIT 10',...args,user.id);
   // The player just above you: the next target. Nothing when you lead or have not played.
   const next = summary?.place > 1 ? await one(env, cte + ' SELECT name,score,place FROM ranked WHERE score>? ORDER BY score ASC,user_id LIMIT 1',...args,summary.score) : null;
-  return {...summary,leaders,next:next?{name:next.name,score:Number(next.score),place:Number(next.place),gap:Number(next.score)-Number(summary.score)}:null};
+  // Around your place (1.35): outside the top 10 you also see the two players above and below you.
+  const around = summary?.place > 10 ? await rows(env, cte + ', numbered AS (SELECT *,ROW_NUMBER() OVER(ORDER BY score DESC,user_id) rn FROM ranked), mine AS (SELECT rn FROM numbered WHERE user_id=?) SELECT name,avatar,score,place,user_id=? me FROM numbered WHERE rn BETWEEN (SELECT rn FROM mine)-2 AND (SELECT rn FROM mine)+2 ORDER BY rn',...args,user.id,user.id) : [];
+  return {...summary,leaders,around,next:next?{name:next.name,score:Number(next.score),place:Number(next.place),gap:Number(next.score)-Number(summary.score)}:null};
 }
 export { weekStart } from './week';
 export async function competitionSummary(env: Env, user: User, date: string, mode?: string) {

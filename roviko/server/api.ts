@@ -12,9 +12,9 @@ import { mergeProgress } from './merge-progress';
 import { z } from 'zod';
 import { ensureCatalog } from './catalog';
 import { seedHash } from '../lib/game-engine/scoring';
-import { AppError, auth, getUser, guest, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
+import { AppError, auth, getUser, guest, renewSession, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
 import { one, rows, run, batch } from './db';
-import { stats, leaderboard } from './stats';
+import { levelsFor, stats, leaderboard } from './stats';
 import silhouettes from '../lib/data/silhouettes.json';
 import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
@@ -25,6 +25,7 @@ import { LUCIA_KEY, NAME_KEY_SQL, nameTaken, searchKey } from './names';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
 import { BRAND, DEFAULT_SETTINGS, REGIONS, MODES } from '../lib/config';
 import type { Env, User } from './types';
+import { DAILY_POINT_MODES } from '../lib/daily-scoring';
 // Duel boards are deterministic per seed; generating one takes up to ~1s, so keep recent ones in memory.
 /** Opaque flag tokens (see publicQuestion) mapped to their country, built once instead of hashing every country per request. */
 let flagTokens: Map<string, typeof COUNTRIES[number]> | undefined;
@@ -34,7 +35,7 @@ function flagCountry(token: string) {
 }
 const duelCache = new Map<string, DuelBoard>();
 function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) { board = generateDuel(seed); if (duelCache.size > 64) duelCache.clear(); duelCache.set(seed, board); } return board; }
-const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
+const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania', 'Americas']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
 const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: ['daily','daily-trail','daily-order'].includes(v?.mode) ? 'mixed' : v?.mode ?? 'mixed' });
 function json(data: any, status = 200, headers: Record<string, string> = {}) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } }); }
 async function body(req: Request) { if (Number(req.headers.get('Content-Length') ?? 0) > 8192)
@@ -94,6 +95,24 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (path[1] === 'practice' && /^[a-z0-9]{4,16}$/.test(path[2] ?? '')) return json({ date: null, ...duelBoard('roviko:duel:practice:' + path[2]) }, 200, { 'Cache-Control': 'public, max-age=86400' });
             throw new AppError('NOT_FOUND', 404);
         }
+        // A shared challenge (1.36): the real saved score of the sharer for that edition, so a link cannot claim more.
+        // Public and read-only: friend code, date and game in; points, place and (only when discoverable) the name out.
+        if (path[0] === 'challenge' && method === 'GET') {
+            const code = (url.searchParams.get('u') ?? '').toLowerCase(), date = url.searchParams.get('d') ?? '', mode = url.searchParams.get('m') ?? '';
+            if (!/^[a-f0-9]{8}$/.test(code) || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !(mode === 'day' || (DAILY_POINT_MODES as readonly string[]).includes(mode)))
+                throw new AppError('INVALID_INPUT');
+            await limit(env, 'challenge:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 60);
+            const owners = await rows(env, 'SELECT id,name,discoverable FROM users WHERE lower(substr(id,1,8))=? AND blocked=0 LIMIT 2', code);
+            if (owners.length !== 1) throw new AppError('NOT_FOUND', 404);
+            // The daily Size Shuffle is stored under the Mosaic slot (see MODE_SQL in server/competition.ts).
+            const stored = mode === 'order' ? 'mosaic' : mode, filter = mode === 'day' ? '' : ' AND mode=?', args = mode === 'day' ? [date] : [date, stored];
+            const totals = `SELECT user_id,SUM(score) total FROM daily_scores WHERE date=?${filter} GROUP BY user_id`;
+            const mine = await one(env, `SELECT total FROM (${totals}) WHERE user_id=?`, ...args, owners[0].id);
+            if (!mine) throw new AppError('NOT_FOUND', 404);
+            const rank = await one(env, `SELECT SUM(CASE WHEN total>? THEN 1 ELSE 0 END)+1 place,COUNT(*) players FROM (${totals})`, Number(mine.total), ...args);
+            const owner = owners[0], name = owner.discoverable ? (owner.id === LUCIA_ID ? LUCIA_NAME : owner.name) : null;
+            return json({ points: Number(mine.total), place: Number(rank?.place ?? 1), players: Number(rank?.players ?? 1), name, date, mode }, 200, { 'Cache-Control': 'public, max-age=60' });
+        }
         if (path[0] === 'version' && method === 'GET')
             return json({ version: BRAND.version }, 200, { 'Cache-Control': 'no-store' });
         if (path[0] === 'health')
@@ -112,15 +131,17 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (ctx) ctx.waitUntil(cleanup); else await cleanup;
             // 1.34: the community numbers and the top players are the same for everyone, so they are kept for a minute
             // and read at the same time as the player.
-            const [found, shared] = await Promise.all([getUser(req, env), communityNow(env)]);
-            let user = found, cookie = '';
+            const [found, shared, renewed] = await Promise.all([getUser(req, env), communityNow(env), renewSession(req, env)]);
+            let user = found, cookie = found ? renewed : '';
             if (!user) {
                 const g = await guest(req, env);
                 user = g.user;
                 cookie = g.cookie;
             }
             const { community, latest } = shared;
-            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
+            // A cookie that no longer opens a session: say so, so a player with an account knows to sign in again.
+            const sessionExpired = !found && !!cookieValue(req);
+            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), ...(sessionExpired ? { sessionExpired: true } : {}), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
             const input = await body(req), signup = path[1] === 'signup';
@@ -305,8 +326,12 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 throw new AppError('ACCOUNT_REQUIRED', 403);
             // Lucia (1.30) is always around: online, never in a room. She accepts a request after a minute (1.31).
             await luciaAccepts(env, user.id);
-            if (method === 'GET')
-                return json({ friends: (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID ? { ...f, name: LUCIA_NAME, ...(f.status === 'accepted' ? { online: 1, room_code: null } : {}) } : f) });
+            if (method === 'GET') {
+                const friendList = (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID ? { ...f, name: LUCIA_NAME, ...(f.status === 'accepted' ? { online: 1, room_code: null } : {}) } : f);
+                // 1.37: each friend's level next to the name; Lucia is a computer, so she has none.
+                const levels = await levelsFor(env, friendList.map((f: any) => f.user_id).filter((id: string) => id !== LUCIA_ID));
+                return json({ friends: friendList.map((f: any) => ({ ...f, level: levels[f.user_id] ?? null })) });
+            }
             const b = await body(req);
             if (path[1]) {
                 const f = await one(env, 'SELECT * FROM friend_requests WHERE id=? AND (to_id=? OR from_id=?)', path[1], user.id, user.id);
@@ -334,7 +359,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (!matches.length)
                 throw new AppError('FRIEND_NOT_FOUND', 404);
             if (matches.length > 1)
-                return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar })) });
+                { const levels = await levelsFor(env, matches.map((u: any) => u.id));
+                return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar, level: u.id === LUCIA_ID ? null : levels[u.id] })) }); }
             const target = matches[0];
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
                 throw new AppError('REQUEST_EXISTS', 409);

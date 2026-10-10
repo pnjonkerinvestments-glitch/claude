@@ -30,6 +30,14 @@ The six classic modes, fresh puzzle/rank practice, personal retries and the Myst
 
 Older native clients use their existing unranked daily edition. The website explicitly requests `competition:true`; a future native update must add the competitive result/hint/serialization handling before opting in. Native app compilation/signing is a separate release gate.
 
+## Continent of the week (1.35)
+
+Every Monday (UTC) one part of the world becomes the continent of the week, in a five-week round: Europe, Africa, Asia, the Americas (North and South America together) and Oceania. It is practice: the player chooses 5, 10, 15 or 20 questions, easy, medium, hard or mixed, and which games take part (Oceania has no neighbour questions). Every game draws new questions from that continent only. No ranking or league points; correct answers count for the passport like any practice game. The card shows how many countries of the continent the player has discovered.
+
+## Sessions and badges (1.35)
+
+A sign-in lasts 60 days and is renewed on each visit, so a returning player keeps the same account or guest. An expired session is reported with a sign-in button. Badges, once earned, stay listed even when their condition no longer holds (a broken streak).
+
 ## Clue Trail
 
 Since 1.25 the clues go from vague to sharp but their kind changes per question. Clue 1 is one vague clue (continent, part of the world, north/south and east/west of the centre, area rounded to two figures, or the number of land neighbours), clue 2 another vague one or the first letter of the capital, clue 3 a land neighbour or the capital (always the neighbour when the capital echoes the country's name), clue 4 always the flag. No clue contains the answer. The continent clue is only used when it rules out at most one choice. Wrong choices depend on the level: easy one from the same continent and two from elsewhere, medium two from the same continent and one from elsewhere (the daily Clue Trail), hard all three from the same continent, the same part of the world first. Answer options do not show flags. Capitals whose names disclose the country are excluded. One answer per country; more clues can be revealed before committing. Clue use survives reload and cannot be refunded. In daily competition only already revealed hints are delivered, and the flag asset is inaccessible before clue 4. Multiplayer shows all four clues and uses its match scoring.
@@ -47,6 +55,16 @@ Since 1.27 a share is three short lines without answer squares (name and score, 
 ## Accounts (1.29)
 
 Passwords need at least 8 characters. An account can change its name once per 30 days (the sign-up name counts); guests choose their name freely. A new account receives a welcome email with a confirm link when email is configured.
+
+## Level and challenge links (1.36)
+
+The passport level grows from all play: multiplayer XP, a tenth of the daily-game points (up to 600 a day) and 10 XP per correct answer in solo games, at most 300 a day. Level L starts at (L-1)² × 100 XP. Ranking points are not affected.
+
+A shared score links to the sharer's friend code and the edition date. The page shows the real saved score, place and (if discoverable) name from the server, not the numbers in the link. A link from an earlier day says so and starts today's trip; it never gives points for an old edition.
+
+## Ties (1.35)
+
+Equal scores share the best place everywhere. In the weekly league that shared place also decides promotion and demotion, so everyone tied on the promotion line moves up and nobody tied on the demotion line moves down; the zones on screen follow the same rule. "Better than X% of today's players" only counts players with a strictly lower score. Outside the top 10 a ranking also lists the two players above and below you.
 
 ## Friends (1.33)
 

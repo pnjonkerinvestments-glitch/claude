@@ -19,6 +19,7 @@ import { TierBadge, leagueLine } from '../atelier/League';
 import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
+import { ContinentCard } from './ContinentWeek';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
@@ -68,7 +69,8 @@ export function HomePage() {
   const firstVisit = bootLoaded && (boot.stats.dailyCount ?? 0) === 0 && completed === 0;
   // A friend's score from a shared link: Roviko says it and, while that game is still open, the pill plays it.
   const challenge = useChallenge();
-  const challengeMode: DayMode | null = !challenge || !ready ? null : challenge.mode === 'day' ? upNext : dailyStateOf(sessions, challenge.mode) === 'done' ? null : challenge.mode;
+  // 1.36: a challenge from an older edition is shown, but today's trip is what the button plays.
+  const challengeMode: DayMode | null = !challenge || !ready || challenge.stale ? null : challenge.mode === 'day' ? upNext : dailyStateOf(sessions, challenge.mode) === 'done' ? null : challenge.mode;
   // The welcome tour: whenever the menu asks for it.
   const [tourOpen, setTourOpen] = useState(false);
   useEffect(() => {
@@ -89,7 +91,7 @@ export function HomePage() {
 
   // What Roviko says and how it stands there, from most to least urgent.
   const [mood, pose, bubble]: [CharacterMood, CharacterPose, string] = !ready ? ['happy', 'wave', '']
-    : challenge && !allDone ? ['curious', 'point', challengeLine(t, locale, challenge) + (challengeRank(t, locale, challenge) ? ' · ' + challengeRank(t, locale, challenge) : '') + '. ' + t('shareCall')]
+    : challenge && !allDone ? ['curious', 'point', challengeLine(t, locale, challenge) + (challengeRank(t, locale, challenge) ? ' · ' + challengeRank(t, locale, challenge) : '') + '. ' + t(challenge.stale ? 'chOldCall' : 'shareCall')]
     : allDone ? ['cheer', 'cheer', nextBonus ? (bonusLeft === BONUS_MODES.length ? t('mascotBonus') : plural(t, 'mascotBonusLeft', bonusLeft)) : t('homeDoneBubble')]
     : savedByShield ? ['wink', 'hips', t('freezeSaved')]
     : atRisk ? ['worried', 'shrug', plural(t, 'mascotRisk', streak)]
@@ -131,7 +133,9 @@ export function HomePage() {
     </section>
 
     <div className="th-main">
-      {allDone && <BonusTour app={app} bonus={bonus} busy={busy} featured/>}
+      {/* 1.35: after the six games the continent of the week comes first, the bonus tour after it. */}
+      {allDone && <ContinentCard featured/>}
+      {allDone && <BonusTour app={app} bonus={bonus} busy={busy} compact/>}
       {allDone && <SurvivalRuns app={app} survival={today?.survival} busy={busy} compact/>}
 
       <section className="home-today th-trip" aria-labelledby="today-title">

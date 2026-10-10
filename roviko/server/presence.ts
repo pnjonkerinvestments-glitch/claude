@@ -3,6 +3,7 @@ import { AppError, limit } from './auth';
 import { one, rows, run } from './db';
 import { LUCIA_ACCEPT_AFTER, LUCIA_ID, LUCIA_INVITE_GAP, LUCIA_NAME } from '../lib/lucia';
 import { createLuciaRoom, mutateRoom } from './multiplayer';
+import { levelsFor } from './stats';
 
 /** A friend counts as online when their open Roviko tab checked in within this window. */
 export const ONLINE_WINDOW = 90_000;
@@ -31,7 +32,9 @@ export async function heartbeat(env: Env, user: User, roomCode?: string | null, 
     WHERE i.to_id=? AND i.status='pending' AND i.created_at>? ORDER BY i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL),
     // 1.28: friend requests waiting for you, for the red badge on the Multiplayer tab.
     one(env, "SELECT COUNT(*) n FROM friend_requests WHERE to_id=? AND status='pending'", user.id)]);
-  const invites = inviteRows.map((i: any) => ({ id: i.id, code: i.code, created_at: i.created_at, name: i.from_id === LUCIA_ID ? LUCIA_NAME : i.name, avatar: i.avatar }));
+  // 1.37: who invites you, with their level (not for Lucia, a computer).
+  const levels = inviteRows.length ? await levelsFor(env, inviteRows.map((i: any) => i.from_id).filter((id: string) => id !== LUCIA_ID)) : {};
+  const invites = inviteRows.map((i: any) => ({ id: i.id, code: i.code, created_at: i.created_at, name: i.from_id === LUCIA_ID ? LUCIA_NAME : i.name, avatar: i.avatar, level: levels[i.from_id] ?? null, bot: i.from_id === LUCIA_ID }));
   const requests = Number(pending?.n ?? 0);
   return { invites, requests };
 }

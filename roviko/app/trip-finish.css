@@ -251,3 +251,4 @@
 /* 1.26: sharing comes first. The challenge button spans the row; a shared link shows the friend's place as a gold pill. */
 .daily-finish .finish-actions .finish-share-big{order:-1;margin-bottom:6px!important}
 .ch-rank{display:inline-flex;align-items:center;gap:6px;margin:4px 0 2px;padding:4px 12px;border-radius:999px;background:color-mix(in srgb,var(--t-gold) 28%,transparent);color:var(--t-gold-ink);font-weight:700;font-size:.9rem}
+.day-summary .ds-tomorrow{margin:14px 0 0;padding:10px 16px;border-radius:999px;background:var(--t-card);color:var(--t-ink);font:700 .9375rem/1.35 var(--font-sans);box-shadow:var(--t-shadow)}
