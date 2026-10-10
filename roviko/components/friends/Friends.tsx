@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
 import { sound } from '@/lib/client';
 import { plural } from '@/lib/plural';
-import { ArrowRight, Check, Copy, DoorOpen, Plus, Send, UserPlus, X } from 'lucide-react';
+import { ArrowRight, Check, Copy, DoorOpen, Plus, Send, Star, UserPlus, X } from 'lucide-react';
 import { RovikoIcon } from '../ds/RovikoIcons';
 import { toast } from 'sonner';
 import { api, post } from '@/lib/client';
@@ -11,9 +11,10 @@ import { useApp } from '../app/context';
 import { PlayerActions } from '../multiplayer/PlayerActions';
 import { A, Avatar } from '../app/shared';
 import { EmptyState, PageHeader, SectionHeader, Skeleton } from '../ds/States';
+import { LUCIA_ID } from '@/lib/lucia';
 
-export type Friend = { id: string; user_id: string; from_id: string; to_id: string; status: 'pending' | 'accepted' | 'blocked'; name: string; avatar: number; score: number; online: number; room_code: string | null };
-export type Invite = { id: string; code: string; name: string; avatar: number; created_at: number };
+export type Friend = { id: string; user_id: string; from_id: string; to_id: string; status: 'pending' | 'accepted' | 'blocked'; name: string; avatar: number; score: number; online: number; room_code: string | null; level?: number | null };
+export type Invite = { id: string; code: string; name: string; avatar: number; created_at: number; level?: number | null; bot?: boolean };
 
 /** Friends with presence, refreshed every 30 seconds while the tab is visible. Guests have no friends list. */
 export function useFriends() {
@@ -74,11 +75,18 @@ function presenceLabel(f: Friend, t: (k: string) => string) {
 }
 
 /** One friend row: who, online or not, and one action. */
+/** A player's level as a small gold pill next to the name (1.37): "Lv 12". Nothing for computers or unknown levels. */
+export function LevelPill({ level }: { level?: number | null }) {
+  const { t } = useApp();
+  if (!level) return null;
+  return <span className="level-pill" aria-label={t('levelAria').replace('{n}', String(level))}><Star size={11} strokeWidth={3} aria-hidden="true"/>{t('levelShort').replace('{n}', String(level))}</span>;
+}
+
 function FriendRow({ friend, action, onBlocked }: { friend: Friend; action?: React.ReactNode; onBlocked?: () => void }) {
   const { t } = useApp();
   return <li className={'friend-row' + (friend.online ? ' is-online' : '')}>
     <span className="friend-avatar"><Avatar id={friend.avatar}/><span className="presence-dot" aria-hidden="true"/></span>
-    <span className="friend-info"><strong>{friend.name}</strong><small>{friend.status === 'accepted' ? presenceLabel(friend, t) : friend.status === 'pending' ? t('pending') : ''}</small></span>
+    <span className="friend-info"><strong className="name-with-level">{friend.name}{friend.user_id === LUCIA_ID ? <span className="level-pill is-bot">{t('computerPill')}</span> : <LevelPill level={friend.level}/>}</strong><small>{friend.status === 'accepted' ? presenceLabel(friend, t) : friend.status === 'pending' ? t('pending') : ''}</small></span>
     {action}
     <PlayerActions player={{ id: friend.user_id, name: friend.name }} t={t} onBlocked={onBlocked}/>
   </li>;
@@ -125,7 +133,7 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
     <span className="invite-pop-avatar"><Avatar id={invite.avatar}/><RovikoIcon name="multiplayer" size={22} className="invite-pop-badge"/></span>
     <div className="invite-pop-text">
       <small className="invite-pop-kicker">{t('invitePopKicker')}</small>
-      <strong id="invite-pop-title">{t('invitePopTitle').replace('{name}', invite.name)}</strong>
+      <strong id="invite-pop-title" className="name-with-level">{t('invitePopTitle').replace('{name}', invite.name)}{invite.bot ? <span className="level-pill is-bot">{t('computerPill')}</span> : <LevelPill level={invite.level}/>}</strong>
       <span id="invite-pop-copy">{t('invitePopCopy').replace('{code}', invite.code)}</span>
     </div>
     <div className="invite-pop-actions">
@@ -135,7 +143,7 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
   </aside>;
 }
 
-type FriendChoice = { code: string; name: string; avatar: number };
+type FriendChoice = { code: string; name: string; avatar: number; level?: number | null };
 /**
  * Add a friend by username (1.33), or by friend code as before. When older accounts share the name, the server
  * lists them and you pick the right one (avatar, name and code); that sends the request by code.
@@ -161,7 +169,7 @@ function AddFriend({ id, className, onAdded, lead }: { id: string; className: st
     </form>
     {choices && <div className="friend-choices" role="group" aria-label={t('friendChoose')}>
       <p>{t('friendChoose')}</p>
-      <ul>{choices.map(c => <li key={c.code}><button type="button" disabled={busy} onClick={() => send({ code: c.code })}><Avatar id={c.avatar} name={c.name}/><span className="friend-choice-text"><b>{c.name}</b><small>{t('friendCodeShort')} {c.code}</small></span><Plus size={18} aria-hidden="true"/></button></li>)}</ul>
+      <ul>{choices.map(c => <li key={c.code}><button type="button" disabled={busy} onClick={() => send({ code: c.code })}><Avatar id={c.avatar} name={c.name}/><span className="friend-choice-text"><b className="name-with-level">{c.name}<LevelPill level={c.level}/></b><small>{t('friendCodeShort')} {c.code}</small></span><Plus size={18} aria-hidden="true"/></button></li>)}</ul>
     </div>}
   </>;
 }

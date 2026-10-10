@@ -14,7 +14,7 @@ import { ensureCatalog } from './catalog';
 import { seedHash } from '../lib/game-engine/scoring';
 import { AppError, auth, getUser, guest, renewSession, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
 import { one, rows, run, batch } from './db';
-import { stats, leaderboard } from './stats';
+import { levelsFor, stats, leaderboard } from './stats';
 import silhouettes from '../lib/data/silhouettes.json';
 import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
@@ -326,8 +326,12 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 throw new AppError('ACCOUNT_REQUIRED', 403);
             // Lucia (1.30) is always around: online, never in a room. She accepts a request after a minute (1.31).
             await luciaAccepts(env, user.id);
-            if (method === 'GET')
-                return json({ friends: (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID ? { ...f, name: LUCIA_NAME, ...(f.status === 'accepted' ? { online: 1, room_code: null } : {}) } : f) });
+            if (method === 'GET') {
+                const friendList = (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID ? { ...f, name: LUCIA_NAME, ...(f.status === 'accepted' ? { online: 1, room_code: null } : {}) } : f);
+                // 1.37: each friend's level next to the name; Lucia is a computer, so she has none.
+                const levels = await levelsFor(env, friendList.map((f: any) => f.user_id).filter((id: string) => id !== LUCIA_ID));
+                return json({ friends: friendList.map((f: any) => ({ ...f, level: levels[f.user_id] ?? null })) });
+            }
             const b = await body(req);
             if (path[1]) {
                 const f = await one(env, 'SELECT * FROM friend_requests WHERE id=? AND (to_id=? OR from_id=?)', path[1], user.id, user.id);
@@ -355,7 +359,8 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (!matches.length)
                 throw new AppError('FRIEND_NOT_FOUND', 404);
             if (matches.length > 1)
-                return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar })) });
+                { const levels = await levelsFor(env, matches.map((u: any) => u.id));
+                return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar, level: u.id === LUCIA_ID ? null : levels[u.id] })) }); }
             const target = matches[0];
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
                 throw new AppError('REQUEST_EXISTS', 409);

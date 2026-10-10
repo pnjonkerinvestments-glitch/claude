@@ -429,3 +429,15 @@
 .ds-continent>span{display:grid;gap:2px}
 .ds-continent small{opacity:.8;font:600 .8125rem/1.2 var(--font-sans)}
 .day-summary.is-screen .ds-actions .ds-continent{grid-column:1/-1}
+/* Choose your Roviko at sign-up (1.37): eight globes with a name in a 4 x 2 grid; the chosen one gets a forest ring
+   and a check, and the big Roviko at the top of the form changes with it. */
+.auth-avatar-big{display:grid;place-items:center;width:124px;height:124px;margin:0 auto;border-radius:999px;background:var(--t-mint);animation:tour-in .35s cubic-bezier(.34,1.56,.64,1) both}
+.roviko-picker{margin:4px 0 0;padding:0;border:0;text-align:left}
+.roviko-picker legend{padding:0;color:var(--t-ink);font:800 .9375rem/1.2 var(--font-sans)}
+.roviko-picker>p{margin:4px 0 10px;color:var(--t-soft);font:600 .8125rem/1.4 var(--font-sans)}
+.roviko-picker>div{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.roviko-picker button{position:relative;display:grid;justify-items:center;gap:2px;padding:8px 2px 6px;border:2px solid transparent;border-radius:18px;background:color-mix(in srgb,var(--t-mint) 45%,var(--t-card));color:var(--t-soft);font:700 .75rem/1.2 var(--font-sans);cursor:pointer;transition:transform .15s ease,border-color .15s ease}
+.roviko-picker button:hover{transform:translateY(-2px)}
+.roviko-picker button.is-on{border-color:var(--t-brand);background:var(--t-mint);color:var(--t-ink)}
+.roviko-picker .rp-check{position:absolute;top:5px;right:5px;box-sizing:content-box;padding:3px;border-radius:999px;background:var(--t-brand);color:#fff}
+@media (prefers-reduced-motion:reduce){.auth-avatar-big{animation:none}.roviko-picker button:hover{transform:none}}

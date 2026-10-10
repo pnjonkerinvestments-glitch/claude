@@ -44,6 +44,24 @@ export function levelOf(xp: number) {
     const level = 1 + Math.floor(Math.sqrt(xp / 100));
     return { level, levelProgress: Math.round((Math.sqrt(xp / 100) % 1) * 100), xpToNext: level * level * 100 - xp };
 }
+/**
+ * Levels of several players at once (1.37), for friends and invites: the same travel XP as `stats`, read with three
+ * grouped queries instead of three per player. Ids without any play are level 1.
+ */
+export async function levelsFor(env: Env, ids: string[]): Promise<Record<string, number>> {
+    const list = [...new Set(ids)].filter(Boolean).slice(0, 100);
+    if (!list.length) return {};
+    const marks = list.map(() => '?').join(',');
+    const [mp, daily, solo] = await Promise.all([
+        rows(env, `SELECT user_id,COALESCE(SUM(xp),0) xp FROM game_results WHERE multiplayer=1 AND user_id IN (${marks}) GROUP BY user_id`, ...list),
+        rows(env, `SELECT user_id,COALESCE(SUM(score),0) points FROM daily_scores WHERE user_id IN (${marks}) GROUP BY user_id`, ...list),
+        rows(env, `SELECT user_id,date(created_at/1000,'unixepoch') day,COALESCE(SUM(correct),0) correct FROM game_results WHERE multiplayer=0 AND user_id IN (${marks}) GROUP BY user_id,day`, ...list)]);
+    const xp = new Map<string, number>(list.map(id => [id, 0]));
+    for (const r of mp) xp.set(r.user_id, (xp.get(r.user_id) ?? 0) + Number(r.xp));
+    for (const r of daily) xp.set(r.user_id, (xp.get(r.user_id) ?? 0) + travelXp(Number(r.points), []));
+    for (const r of solo) xp.set(r.user_id, (xp.get(r.user_id) ?? 0) + travelXp(0, [Number(r.correct)]));
+    return Object.fromEntries([...xp].map(([id, v]) => [id, levelOf(v).level]));
+}
 export function resultStatement(id: string, userId: string, state: any, multiplayer = 0, win = 0) { const arr = state.answers ?? state.results ?? []; return { sql: 'INSERT OR IGNORE INTO game_results(id,user_id,mode,score,xp,correct,total,duration,best_streak,win,multiplayer,risk,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)', args: [id, userId, state.settings?.mode ?? 'mixed', multiplayer ? state.score : 0, multiplayer ? Math.round(state.score / 25) + arr.length * 10 : 0, arr.filter((a: any) => a.correct).length, arr.length, arr.reduce((n: number, a: any) => n + a.responseTime, 0), state.bestStreak ?? 0, win, multiplayer, arr.reduce((n: number, a: any) => n + a.risk, 0), Date.now()] }; }
 export async function leaderboard(env: Env, period: string, category: string) {
     // Solo and daily play are unranked learning activities, including older results.

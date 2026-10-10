@@ -1,6 +1,9 @@
 // Copy for 1.35: kept sessions, fairer results, the continent of the week, "Play now" first, around your place. Spread last in messages.ts.
 export const v135Messages = {
   en: {
+    computerPill: 'Computer',
+    pickRoviko: 'Choose your Roviko', pickRovikoHint: 'This is you in rankings, rooms and on your friends\u2019 screens. You can change it later.', lookExplorer: 'Explorer', lookCool: 'Cool', lookBeanie: 'Beanie', lookFlower: 'Flower', lookCap: 'Cap', lookGlasses: 'Glasses', lookMusic: 'Music', lookSafari: 'Safari',
+    levelShort: 'Lv {n}', levelAria: 'Level {n}',
     chOldCopy: 'That was the challenge of an earlier day. Today there are new puzzles: play today\u2019s trip and share your own score.', chOldCall: 'That was an earlier day. Can you beat it today?',
     xpToNext: '{n} XP to level {level}. Daily games, the continent of the week and multiplayer all count.',
     gPlayNow: 'Play now', gShowMe: 'Show me around first', savePromptPoints: 'Keep your {n} points',
@@ -8,6 +11,9 @@ export const v135Messages = {
     sessionGone: 'Your session had expired. Sign in to get your streak and points back.', standingFailed: 'The ranking did not load. Your score is saved.', tryAgain: 'Try again',
   },
   nl: {
+    computerPill: 'Computer',
+    pickRoviko: 'Kies je Roviko', pickRovikoHint: 'Zo zien anderen je in de ranglijst, in kamers en bij je vrienden. Je kunt hem later nog wijzigen.', lookExplorer: 'Ontdekker', lookCool: 'Cool', lookBeanie: 'Muts', lookFlower: 'Bloem', lookCap: 'Pet', lookGlasses: 'Bril', lookMusic: 'Muziek', lookSafari: 'Safari',
+    levelShort: 'Niv. {n}', levelAria: 'Niveau {n}',
     chOldCopy: 'Dat was de uitdaging van een eerdere dag. Vandaag zijn er nieuwe puzzels: speel de reis van vandaag en deel je eigen score.', chOldCall: 'Dat was een eerdere dag. Lukt het jou vandaag beter?',
     xpToNext: 'Nog {n} XP tot niveau {level}. Dagspellen, het continent van de week en multiplayer tellen allemaal mee.',
     gPlayNow: 'Speel meteen', gShowMe: 'Laat me eerst rondleiden', savePromptPoints: 'Bewaar je {n} punten',
@@ -15,6 +21,9 @@ export const v135Messages = {
     sessionGone: 'Je sessie was verlopen. Log in om je reeks en punten terug te zien.', standingFailed: 'De ranglijst laadde niet. Je score is bewaard.', tryAgain: 'Opnieuw proberen',
   },
   es: {
+    computerPill: 'Ordenador',
+    pickRoviko: 'Elige tu Roviko', pickRovikoHint: 'Así te verán en la clasificación, en las salas y en las pantallas de tus amigos. Puedes cambiarlo después.', lookExplorer: 'Explorador', lookCool: 'Guay', lookBeanie: 'Gorro', lookFlower: 'Flor', lookCap: 'Gorra', lookGlasses: 'Gafas', lookMusic: 'Música', lookSafari: 'Safari',
+    levelShort: 'Nv. {n}', levelAria: 'Nivel {n}',
     chOldCopy: 'Ese fue el reto de un día anterior. Hoy hay puzles nuevos: juega el viaje de hoy y comparte tu propia puntuación.', chOldCall: 'Eso fue otro día. ¿Lo superas hoy?',
     xpToNext: 'Faltan {n} XP para el nivel {level}. Cuentan los juegos diarios, el continente de la semana y el multijugador.',
     gPlayNow: 'Jugar ya', gShowMe: 'Enséñame primero', savePromptPoints: 'Guarda tus {n} puntos',

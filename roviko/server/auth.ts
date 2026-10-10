@@ -40,7 +40,7 @@ export async function guest(req: Request, env: Env) { await limit(env, 'guest:' 
 // Names are the only player text others see: allowed characters only, and the EN/NL/ES filter in lib/name-filter.ts.
 export const nameSchema = z.string().trim().min(2).max(24).refine(v => /^[\p{L}\p{N} _.-]+$/u.test(v) && nameAllowed(v), 'NAME_INVALID');
 export const passwordSchema = z.string().min(8).max(128);
-const credentials = z.object({ email: z.string().email().max(254).transform(v => v.toLowerCase().trim()), password: passwordSchema, name: nameSchema.optional(), locale: z.enum(['en', 'nl', 'es']).optional() });
+const credentials = z.object({ email: z.string().email().max(254).transform(v => v.toLowerCase().trim()), password: passwordSchema, name: nameSchema.optional(), locale: z.enum(['en', 'nl', 'es']).optional(), avatar: z.number().int().min(0).max(7).optional() });
 export async function hashPassword(password: string, salt: string) { const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']); return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, key, 256)); }
 export async function auth(req: Request, env: Env, body: any, signup: boolean) {
     await limit(env, 'auth:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 12, 600000);
@@ -58,7 +58,8 @@ export async function auth(req: Request, env: Env, body: any, signup: boolean) {
             throw new AppError('NAME_TAKEN', 409);
         const salt = crypto.randomUUID();
         // The name chosen at sign-up counts as a change: the next one is possible after NAME_LOCK_DAYS.
-        await run(env, 'UPDATE users SET email=?,password=?,name=?,guest=0,name_changed_at=? WHERE id=?', v.email, salt + ':' + await hashPassword(v.password, salt), v.name ?? user!.name, v.name ? Date.now() : null, user!.id);
+        // 1.37: the Roviko chosen at sign-up becomes the avatar.
+        await run(env, 'UPDATE users SET email=?,password=?,name=?,avatar=?,guest=0,name_changed_at=? WHERE id=?', v.email, salt + ':' + await hashPassword(v.password, salt), v.name ?? user!.name, v.avatar ?? user!.avatar ?? 0, v.name ? Date.now() : null, user!.id);
         return { cookie: await newSession(req, env, user!.id), user: safeUser(await one(env, 'SELECT * FROM users WHERE id=?', user!.id)) };
     }
     const u = await one(env, 'SELECT * FROM users WHERE email=?', v.email);

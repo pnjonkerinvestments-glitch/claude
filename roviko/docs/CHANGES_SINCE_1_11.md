@@ -596,6 +596,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.37.0 (nog niet live; op de preview, samen met 1.35 en 1.36)
+
+- **Niveau naast de naam.** In je vriendenlijst, in de lijst waarmee je vrienden uitnodigt in de wachtkamer, in de uitnodigingsmelding en in de keuzelijst bij dubbele namen staat nu een gouden pilletje met het niveau ("Niv. 12"). Lucia krijgt een pilletje "Computer".
+- **Kies je Roviko bij het aanmaken van een account.** Acht Roviko's met hun naam in een raster; de grote Roviko bovenaan het venster verandert mee met je keuze. Je kunt hem later nog wijzigen op je account.
+- Geen migratie. Service worker `roviko-shell-v1.37.0`.
+- Getest: volledige testset met een nieuwe test (gekozen Roviko wordt bewaard, het niveau van een vriend klopt met zijn dagpunten, Lucia zonder niveau), typecheck, build, en in de browser: het aanmeldvenster met de keuze (Muziek gekozen, na aanmelden avatar 6) en de vriendenlijst met "Niv. 2" en "Computer". Niet getest: de uitnodigingsmelding met niveau in de browser, Safari en een echte iPhone.
+
 ## 1.36.0 (nog niet live; op de preview, samen met 1.35)
 
 - **Niveau voor iedereen.** Je niveau op het paspoort groeit nu ook door de dagspellen, het continent van de week en oefenen, niet alleen door multiplayer. Oefenen telt tot een maximum per dag. Het paspoort zegt hoeveel XP je nog nodig hebt voor het volgende niveau. De ranglijstpunten veranderen niet.
