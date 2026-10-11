@@ -596,21 +596,36 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.37.0 (nog niet live; op de preview, samen met 1.35 en 1.36)
+## 1.38.0 (op de testversie, nog niet live)
+
+- **Leren (nieuw tabblad, `/learn`).** Bovenaan kies je een onderwerp (**Vlaggen**, **Hoofdsteden**, **Kaart**: waar ligt het) en een continent (Europa, Afrika, Azië, Noord-Amerika, Zuid-Amerika, Oceanië). Dat zijn 18 routes; de keuze wordt op het apparaat onthouden. Per continent dezelfde lessen voor elk onderwerp: groepjes van 4 tot 6 landen, bekende landen eerst en buren bij elkaar (Europa 9 lessen, Afrika 12, Azië 10, Noord-Amerika 5, Zuid-Amerika 3, Oceanië 3; alle 195 landen precies één keer per onderwerp, `GROUPS` in `lib/learn.ts`).
+- **Een les** (sneller dan de eerste versie): kennismaken (vlag, of hoofdstad groot, of de kaart met het land in goud en de andere landen van de les in mint), daarna elk land **één keer** oefenen (de twee richtingen om en om; een fout komt één keer terug) en dan "laten zien": elk land één keer tussen lijkende vlaggen of landen die in de buurt liggen. Met **"Ik ken ze al: meteen de toets"** sla je kennismaken en oefenen over.
+- **Vraagsoorten.** Vlaggen: vlag → land en land → vlag. Hoofdsteden: hoofdstad → land en land → hoofdstad. Kaart: "Welk land is gekleurd?" en "Waar ligt …?" (vier landen met A–D op de kaart, aan te tikken). Bij een fout: beide vlaggen naast elkaar, beide land–hoofdstadparen, of op de kaart het goede land groen en jouw keuze rood. Foute opties: lijkende vlaggen (`LOOKALIKES`, nu ook voor Afrika, Azië, Amerika en Oceanië) of de dichtstbijzijnde landen (op coördinaten) voor hoofdsteden en kaart.
+- **Tussentoetsen.** Na elke drie lessen een tussentoets met de landen van die drie lessen door elkaar (maximaal 12, de minst bekende eerst). 80% goed nodig om verder te gaan, anders "Opnieuw proberen". Niet vlak voor de grenscontrole (Zuid-Amerika en Oceanië hebben er daarom geen).
+- **Grenscontrole** per route aan het eind: 15 landen uit het hele continent (Zuid-Amerika en Oceanië: alle 12 en 14), 80% goed voor de stempel van dat continent.
+- **Medailles en herhalen** zoals eerder: brons na de les, zilver en goud bij Herhalen op latere dagen (1, 3, 7 dagen; goud weer na 14), fout = één medaille omlaag. Ook een goede tussentoets of grenscontrole telt als herhaling. Herhalen per route (`/learn/review-<route>`); de gouden teller op de homepage telt alle routes samen. Elk onderwerp heeft eigen voortgang per land (`item:flags:NLD`, `item:capitals:NLD`, `item:map:NLD`).
+- **De kaart** (`components/learn/LearnMap.tsx`) gebruikt hetzelfde grenzenbestand als de buurlandenkaart (`/data/boundaries.json`, één keer geladen); kleine landen krijgen een ring en een stip, Oceanië loopt over de 180°-lijn heen, letters die elkaar raken worden uit elkaar geschoven.
+- **Waar.** Tabbalk (vijf tabbladen), menu, voettekst en op de homepage een rij "Leren" met de laatst gekozen route en een gouden teller als er iets te herhalen is.
+- **Bewaren.** Op het apparaat (localStorage, per gast of account) en met een account ook op de server: `GET /api/learn` en `POST /api/learn` (`server/learn.ts`), samengevoegd per kaart (nieuwste wint), kaarten uit de toekomst op nu gezet, onmogelijke waarden vallen weg, maximaal 2.000 kaarten, verzoek tot 160 kB. Bij inloggen gaat de gastvoortgang mee; bij het verwijderen van een account verdwijnt deze voortgang ook.
+- **Bewust niet.** Leren geeft geen ranglijstpunten, reis-XP of reeksdagen: de score wordt op het apparaat bepaald en punten worden altijd op de server berekend.
+- **Migratie `0014_learn_progress.sql`**: voegt alleen de tabel `learn_progress` toe; geen bestaande data verandert. Service worker `roviko-shell-v1.38.0`.
+- **Getest:** volledige testset 201 geslaagd, 1 bewust overgeslagen (`tests/learn.test.mjs`: 18 routes met elk land één keer per onderwerp, tussentoetsen, medailles, voortgang per onderwerp, samenvoegen en vragen voor elke les van elke route; integratietest voor `/api/learn`), typecheck, build, en in de browser op 390 px: de keuze tussen onderwerp en continent, een hoofdstadles (kennismaken, "ik ken ze al", een fout met de twee paren), een kaartles in Azië (kennismaken, "Waar ligt …?" met letters en een fout op de kaart), de kaart van Oceanië, de route met tussentoetsen en de homepage-rij; eerder ook een hele vlaggenles. **Niet getest:** een tussentoets en de grenscontrole helemaal doorspelen in de browser, elke kaart van elke les bekeken (alleen Azië en Oceanië), synchroniseren tussen twee apparaten, Engels en Spaans op het scherm, Safari en een echte iPhone.
+
+## 1.37.0 (live sinds 10 oktober 2026, samen met 1.35 en 1.36)
 
 - **Niveau naast de naam.** In je vriendenlijst, in de lijst waarmee je vrienden uitnodigt in de wachtkamer, in de uitnodigingsmelding en in de keuzelijst bij dubbele namen staat nu een gouden pilletje met het niveau ("Niv. 12"). Lucia krijgt een pilletje "Computer".
 - **Kies je Roviko bij het aanmaken van een account.** Acht Roviko's met hun naam in een raster; de grote Roviko bovenaan het venster verandert mee met je keuze. Je kunt hem later nog wijzigen op je account.
 - Geen migratie. Service worker `roviko-shell-v1.37.0`.
-- Getest: volledige testset met een nieuwe test (gekozen Roviko wordt bewaard, het niveau van een vriend klopt met zijn dagpunten, Lucia zonder niveau), typecheck, build, en in de browser: het aanmeldvenster met de keuze (Muziek gekozen, na aanmelden avatar 6) en de vriendenlijst met "Niv. 2" en "Computer". Niet getest: de uitnodigingsmelding met niveau in de browser, Safari en een echte iPhone.
+- Getest: volledige testset met een nieuwe test (gekozen Roviko wordt bewaard, het niveau van een vriend klopt met zijn dagpunten, Lucia zonder niveau), typecheck, build, en in de browser: het aanmeldvenster met de keuze (Muziek gekozen, na aanmelden avatar 6) en de vriendenlijst met "Niv. 2" en "Computer". Niet getest: de uitnodigingsmelding met niveau in de browser, Safari en een echte iPhone. Live gecontroleerd: versie 1.37.0, service worker v1.37.0, de deploy slaagde, hoofdpagina's 200, en het rondleidingskaartje staat bij een nieuw bezoek weer in beeld (eerder stond het onder het scherm).
 
-## 1.36.0 (nog niet live; op de preview, samen met 1.35)
+## 1.36.0 (live sinds 10 oktober 2026)
 
 - **Niveau voor iedereen.** Je niveau op het paspoort groeit nu ook door de dagspellen, het continent van de week en oefenen, niet alleen door multiplayer. Oefenen telt tot een maximum per dag. Het paspoort zegt hoeveel XP je nog nodig hebt voor het volgende niveau. De ranglijstpunten veranderen niet.
 - **Uitdagingslinks met datum en echte score.** Een gedeelde link bevat nu de dag en de vriendcode van wie deelt. De pagina toont de echte bewaarde score en plek van die dag (een aangepaste link kan dus niet meer beloven dan er gespeeld is). Een link van een eerdere dag zegt dat eerlijk ("Dat was een eerdere dag. Lukt het jou vandaag beter?") en de knop start de reis van vandaag.
 - Geen migratie. Service worker `roviko-shell-v1.36.0`.
 - Getest: volledige testset met nieuwe tests (reis-XP en niveaus, de controle van een gedeelde score inclusief verborgen naam en onbekende dag, links lezen en maken), typecheck, build, en in de browser een link van 8 oktober met een verzonnen score van 1000: de pagina toonde de echte 958 en #3 van 413, met de tekst voor een eerdere dag en de knop naar vandaag. Niet getest: Safari en een echte iPhone.
 
-## 1.35.0 (nog niet live; op de preview)
+## 1.35.0 (live sinds 10 oktober 2026)
 
 - **Rondleiding weer in beeld.** Sinds 1.32 stond het kaartje van de rondleiding bij nieuwe spelers onder het scherm (een opmaakregel `position:relative`); ze zagen alleen een grijze laag. Hersteld.
 - **Niet meer uitgelogd als je blijft spelen.** Een sessie duurt nu 60 dagen en verlengt zich vanzelf bij elk bezoek. Was je sessie toch verlopen, dan zegt de app dat en kun je meteen inloggen.

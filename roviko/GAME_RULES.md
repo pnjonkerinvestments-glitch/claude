@@ -34,6 +34,10 @@ Older native clients use their existing unranked daily edition. The website expl
 
 Every Monday (UTC) one part of the world becomes the continent of the week, in a five-week round: Europe, Africa, Asia, the Americas (North and South America together) and Oceania. It is practice: the player chooses 5, 10, 15 or 20 questions, easy, medium, hard or mixed, and which games take part (Oceania has no neighbour questions). Every game draws new questions from that continent only. No ranking or league points; correct answers count for the passport like any practice game. The card shows how many countries of the continent the player has discovered.
 
+## Learn (1.38)
+
+Learn teaches flags, capitals and where countries lie, on every continent (18 routes: three topics times six continents). A route has lessons of four to six countries, a midway test after every three lessons (not right before the end) and the border check at the end. A lesson: meet the countries, practise each once (a miss comes back once), then show each once between similar ones (look-alike flags or nearby countries); "I know these" skips straight to that test. Right in that test gives bronze; right again on a later day (review, a midway test or the border check) gives silver, then gold (breaks of 1, 3 and 7 days; gold returns after 14). A miss in a review drops one medal (bronze stays) and the country returns the next day. Only the first answer per country in a session counts. Midway tests ask up to 12 countries of their three lessons; the border check asks up to 15 of the whole continent; both need 80% right, and the next step opens only after a pass. Learn gives no ranking points, XP or streak days. Progress is kept per topic on the device and, for accounts, merged with the server copy (newest card wins).
+
 ## Sessions and badges (1.35)
 
 A sign-in lasts 60 days and is renewed on each visit, so a returning player keeps the same account or guest. An expired session is reported with a sign-in button. Badges, once earned, stay listed even when their condition no longer holds (a broken streak).

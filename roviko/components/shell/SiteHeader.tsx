@@ -17,6 +17,7 @@ function RequestBadge({ n, label }: { n: number; label: string }) {
 
 const NAV = [
   { href: '/', key: 'play', icon: 'play' as RovikoIconName, match: (p: string) => p === '/' || p === '/daily' || p.startsWith('/duel') || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
+  { href: '/learn', key: 'learnTab', icon: 'graduation' as RovikoIconName, match: (p: string) => p === '/learn' || p.startsWith('/learn/') },
   { href: '/explore', key: 'explore', icon: 'explore' as RovikoIconName, match: (p: string) => p === '/explore' },
   { href: '/multiplayer', key: 'navMultiplayer', icon: 'multiplayer' as RovikoIconName, match: (p: string) => p === '/multiplayer' || p === '/friends' || p.startsWith('/room') },
 ] as const;
