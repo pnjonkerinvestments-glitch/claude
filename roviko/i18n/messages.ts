@@ -12,11 +12,12 @@ import { tripMessages } from './trip';
 import { v132Messages } from './v132';
 import { v135Messages } from './v135';
 import { v138Messages } from './v138';
+import { v139Messages } from './v139';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es,...v135Messages.es,...v138Messages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es,...v135Messages.es,...v138Messages.es,...v139Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -470,7 +471,7 @@ export const messages = {
     "dailyStatusUnavailable": "Your saved daily status could not be loaded. Starting the journey will still resume your saved game.",
     "trailClues": "Your clues",
     "trailRule": "One guess per country. Reveal more clues whenever you need them. Your result records how many you used; there are no points or time limit.",
-    "trailMultiplayerRule": "A new clue appears every 2 seconds. Answer earlier for more points; you can choose once.",
+    "trailMultiplayerRule": "A new clue appears every 2.5 seconds. Answer earlier for more points; you can choose once.",
     "trailNextClue": "Reveal next clue",
     "trailUsed": "{n} clues used · 1 guess",
     "mapCountryRule": "Tap inside the country. Islands count. A margin of 25 km around mapped borders allows for touch and map simplification. Zoom in for small countries.",
@@ -562,8 +563,8 @@ export const messages = {
     "duelNextDaily": "New duel in",
     "duelPractice": "Practice duel",
     "reminderTitle": "Daily reminder",
-    "reminderCopy": "Get a friendly nudge at 6 pm when your puzzles are waiting.",
-    "reminderOnCopy": "On. We'll give you a nudge every day at 6 pm.",
+    "reminderCopy": "A nudge only on days you have not played yet, around your own playing time.",
+    "reminderOnCopy": "On. A nudge only on days you have not played yet, around your usual time. After a quiet week they stop by themselves.",
     "reminderDenied": "Notifications are switched off for Roviko. You can turn them on in your phone's settings.",
     "reminderTurnOn": "Turn on",
     "reminderTurnOff": "Turn off",
@@ -646,7 +647,8 @@ export const messages = {
     ...tripMessages.en,
     ...v132Messages.en,
     ...v135Messages.en,
-    ...v138Messages.en
+    ...v138Messages.en,
+    ...v139Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1099,7 +1101,7 @@ export const messages = {
     "dailyStatusUnavailable": "Je dagstatus kon niet worden geladen. Je wereldreis starten hervat nog steeds je opgeslagen spel.",
     "trailClues": "Jouw aanwijzingen",
     "trailRule": "Eén poging per land. Open extra aanwijzingen wanneer je wilt. Je resultaat vermeldt hoeveel je gebruikte; er zijn geen punten of tijdslimiet.",
-    "trailMultiplayerRule": "Elke 2 seconden verschijnt er een nieuwe aanwijzing. Sneller antwoorden levert meer punten op; je kiest één keer.",
+    "trailMultiplayerRule": "Elke 2,5 seconde verschijnt er een nieuwe aanwijzing. Sneller antwoorden levert meer punten op; je kiest één keer.",
     "trailNextClue": "Volgende aanwijzing",
     "trailUsed": "{n} aanwijzingen gebruikt · 1 poging",
     "mapCountryRule": "Tik in het land. Eilanden tellen mee. Rond kaartgrenzen geldt een marge van 25 km voor tikprecisie en kaartvereenvoudiging. Zoom in voor kleine landen.",
@@ -1191,8 +1193,8 @@ export const messages = {
     "duelNextDaily": "Nieuw duel over",
     "duelPractice": "Oefenduel",
     "reminderTitle": "Dagelijkse herinnering",
-    "reminderCopy": "Krijg om 18:00 een seintje als je puzzels klaarstaan.",
-    "reminderOnCopy": "Aan. Je krijgt elke dag om 18:00 een seintje.",
+    "reminderCopy": "Alleen een seintje op dagen dat je nog niet speelde, rond je eigen speeltijd.",
+    "reminderOnCopy": "Aan. Alleen een seintje op dagen dat je nog niet speelde, rond je gewone tijd. Na een stille week stoppen ze vanzelf.",
     "reminderDenied": "Meldingen staan uit voor Roviko. Je kunt ze aanzetten in de instellingen van je telefoon.",
     "reminderTurnOn": "Aanzetten",
     "reminderTurnOff": "Uitzetten",
@@ -1277,8 +1279,9 @@ export const messages = {
     ...tripMessages.nl,
     ...v132Messages.nl,
     ...v135Messages.nl,
-    ...v138Messages.nl
+    ...v138Messages.nl,
+    ...v139Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;
-export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', NAME_TAKEN: 'nameTaken', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }
+export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', NAME_TAKEN: 'nameTaken', REPAIR_USED: 'repairUsed', NOTHING_TO_REPAIR: 'repairNone', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }

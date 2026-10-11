@@ -3,26 +3,35 @@ import { collectStamps } from '../lib/passport';
 import { pendingReviews } from './reviews';
 import { rows, one, run, batch } from './db';
 import { ACHIEVEMENTS } from '../lib/achievements';
-import { streakWithFreezes } from '../lib/streak';
+import { REPAIR_EVERY, repairOffer, streakWithFreezes } from '../lib/streak';
 import type { Env } from './types';
 export async function stats(env: Env, id: string) {
     // 1.34: the independent reads run at the same time instead of one after another.
     const statsRow = one(env, `SELECT COUNT(*) games, COALESCE(SUM(CASE WHEN multiplayer=1 THEN score ELSE 0 END),0) score,COALESCE(SUM(CASE WHEN multiplayer=1 THEN xp ELSE 0 END),0) xp,COALESCE(SUM(correct),0) correct,COALESCE(SUM(total),0) total,COALESCE(SUM(duration),0) duration,COALESCE(MAX(best_streak),0) bestStreak,COALESCE(SUM(win),0) wins,COALESCE(SUM(multiplayer),0) multiGames,COALESCE(SUM(CASE WHEN correct=total THEN 1 ELSE 0 END),0) perfect,COALESCE(MAX(CASE WHEN multiplayer=1 THEN score ELSE 0 END),0) personalBest FROM game_results WHERE user_id=?`, id);
-    const [row, dates, modes, reviews, stampRecords, earned, dailyPoints, soloDays] = await Promise.all([statsRow,
+    const [row, dates, modes, reviews, stampRecords, earned, dailyPoints, soloDays, repairs] = await Promise.all([statsRow,
         rows(env, 'SELECT date FROM daily_challenge_results WHERE user_id=? ORDER BY date DESC', id),
         rows(env, 'SELECT mode,COUNT(*) games, SUM(correct) correct,SUM(total) total FROM game_results WHERE user_id=? GROUP BY mode', id),
         pendingReviews(env, id),
         rows(env, "SELECT country_id,mode,COUNT(DISTINCT session_id) games FROM answers WHERE user_id=? AND correct=1 AND country_id<>'' GROUP BY country_id,mode", id),
         rows(env, 'SELECT achievement_id FROM user_achievements WHERE user_id=?', id),
         one(env, 'SELECT COALESCE(SUM(score),0) points FROM daily_scores WHERE user_id=?', id),
-        rows(env, "SELECT date(created_at/1000,'unixepoch') day,COALESCE(SUM(correct),0) correct FROM game_results WHERE user_id=? AND multiplayer=0 GROUP BY day", id)]);
+        rows(env, "SELECT date(created_at/1000,'unixepoch') day,COALESCE(SUM(correct),0) correct FROM game_results WHERE user_id=? AND multiplayer=0 GROUP BY day", id),
+        rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', id)]);
     // Travel XP (1.36): the level grows from every kind of play, not only multiplayer. Multiplayer XP as before, plus
     // a tenth of the daily-game points (up to 600 a day) and 10 per correct answer in solo games, at most 300 a day,
     // so endless practice cannot run the level up. Ranking points are not touched.
     const s = { ...row, xp: Number(row.xp) + travelXp(Number(dailyPoints?.points ?? 0), soloDays.map((d: any) => Number(d.correct))) };
     const today = new Date().toISOString().slice(0, 10);
     // Streak freezes are derived from the same dates, so they need no extra storage (see lib/streak.ts).
-    const streakState = streakWithFreezes(dates.map((d: { date: string }) => d.date), today);
+    const played = dates.map((d: { date: string }) => d.date), repaired = repairs.map((r: any) => String(r.date));
+    const streakState = streakWithFreezes(played, today, repaired);
+    // 1.39: a free repair once per 30 days for a streak that just broke, and this week as a row of days.
+    const lastRepair = repairs.reduce((m: number, r: any) => Math.max(m, Number(r.created_at)), 0);
+    const streakRepair = Date.now() - lastRepair >= REPAIR_EVERY * 86400000 ? repairOffer(played, today, repaired) : null;
+    const monday = new Date(Date.parse(today + 'T00:00:00Z') - ((new Date(today + 'T00:00:00Z').getUTCDay() + 6) % 7) * 86400000);
+    const playedSet = new Set(played), frozenSet = new Set(streakState.frozenDates), repairedSet = new Set(repaired);
+    const streakWeek = Array.from({ length: 7 }, (_, i) => { const d = new Date(monday.getTime() + i * 86400000).toISOString().slice(0, 10);
+        return { date: d, state: playedSet.has(d) ? 'played' : repairedSet.has(d) ? 'repaired' : frozenSet.has(d) ? 'shield' : d === today ? 'today' : d > today ? 'future' : 'missed' }; });
     const dailyStreak = streakState.streak;
     const metrics = { ...s, dailyStreak, dailyCount: dates.length, ...Object.fromEntries(modes.map((m: any) => [m.mode, m.games])) };
     const have = new Set(earned.map((e: any) => e.achievement_id));
@@ -33,7 +42,7 @@ export async function stats(env: Env, id: string) {
     if (fresh.length)
         await batch(env, fresh.map(a => ({ sql: 'INSERT OR IGNORE INTO user_achievements(user_id,achievement_id,earned_at) VALUES (?,?,?)', args: [id, a.id, Date.now()] })));
     const stamps = collectStamps(stampRecords,COUNTRIES);
-    return { ...s, reviews, stamps, discovered: stamps.length, accuracy: s.total ? Math.round(s.correct / s.total * 100) : 0, averageTime: s.total ? Math.round(s.duration / s.total) : 0, ...levelOf(s.xp), dailyStreak, streakFreezes: { available: streakState.freezes, nextIn: streakState.nextFreezeIn, frozenDates: streakState.frozenDates.slice(-14) }, dailyCount: dates.length, dailyDone: dates.some((d: any) => d.date === today), modes, achievements: [...new Set([...have, ...unlocked.map(a => a.id)])], rating: 1000, recent: await rows(env, 'SELECT * FROM game_results WHERE user_id=? ORDER BY created_at DESC LIMIT 12', id), weak: await rows(env, 'SELECT country_id,mode,correct,attempts FROM concept_performance WHERE user_id=? AND correct<attempts ORDER BY (1.0*correct/attempts),attempts DESC LIMIT 16', id) };
+    return { ...s, reviews, stamps, discovered: stamps.length, accuracy: s.total ? Math.round(s.correct / s.total * 100) : 0, averageTime: s.total ? Math.round(s.duration / s.total) : 0, ...levelOf(s.xp), dailyStreak, streakFreezes: { available: streakState.freezes, nextIn: streakState.nextFreezeIn, frozenDates: streakState.frozenDates.slice(-14) }, streakRepair, streakWeek, dailyCount: dates.length, dailyDone: dates.some((d: any) => d.date === today), modes, achievements: [...new Set([...have, ...unlocked.map(a => a.id)])], rating: 1000, recent: await rows(env, 'SELECT * FROM game_results WHERE user_id=? ORDER BY created_at DESC LIMIT 12', id), weak: await rows(env, 'SELECT country_id,mode,correct,attempts FROM concept_performance WHERE user_id=? AND correct<attempts ORDER BY (1.0*correct/attempts),attempts DESC LIMIT 16', id) };
 }
 export const SOLO_XP_PER_CORRECT = 10, SOLO_XP_DAY_CAP = 300;
 export function travelXp(dailyPoints: number, soloCorrectPerDay: number[]) {

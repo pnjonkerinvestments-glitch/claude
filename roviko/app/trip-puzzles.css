@@ -158,7 +158,8 @@
 .duel-game .duel-route{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:6px!important;margin:6px 0 4px!important;padding:0!important}
 .duel-game .duel-route li{display:grid!important;justify-items:center;align-content:start;gap:5px!important;min-width:0;padding:7px 2px 8px!important;border:2px solid transparent!important;border-radius:16px!important;background:var(--t-card)!important;box-shadow:var(--t-shadow)!important;transition:border-color .2s,background .2s}
 .duel-game .duel-route li>span:first-child{display:grid!important;place-items:center;width:30px!important;height:30px!important;border-radius:999px!important;background:var(--t-mint)!important;color:var(--t-mint-ink)!important;font-size:1rem!important}
-.duel-game .duel-route li small{display:none!important}
+.duel-game .duel-route li small{display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;max-width:100%;color:var(--t-soft)!important;font:700 .625rem/1.15 var(--font-sans)!important;text-align:center;-webkit-hyphens:auto;hyphens:auto;overflow-wrap:anywhere}
+.duel-game .duel-route li.is-current small{color:var(--t-ink)!important}
 .duel-game .duel-route li>.duel-route-flags{display:flex!important;width:auto!important;height:auto!important;min-height:16px;border-radius:0!important;background:none!important}
 .duel-game .duel-route .duel-route-flags img{height:15px!important;width:auto!important;max-width:24px!important;border-radius:3px!important;box-shadow:0 0 0 1px rgba(0,0,0,.08)!important}
 .duel-game .duel-route .duel-route-flags img+img{margin-left:-5px;box-shadow:0 0 0 2px var(--t-card)!important}

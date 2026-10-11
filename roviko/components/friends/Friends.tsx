@@ -190,7 +190,7 @@ export function FriendsPage() {
   const online = accepted.filter(f => f.online), offline = accepted.filter(f => !f.online);
   const playAction = (f: Friend) => f.room_code
     ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
-    : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>;
+    : <button className="btn secondary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>;
   return <div className="page friends-v2 trip-page">
     <PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')} lead={t('friendsListCopy')}/>
     <section className="friend-add" aria-labelledby="friend-add-title">
@@ -236,7 +236,7 @@ export function FriendsOnlinePanel() {
     {friends === null ? <div className="sk-list"><Skeleton className="sk-block sk-list-row"/></div>
       : online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.room_code
         ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
-        : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
+        : <button className="btn secondary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
       : <p className="mp-friends-empty">{accepted.length ? t('friendsNobodyOnline') : t('mpFriendsNone')}</p>}
     <AddFriend id="mp-friend-name" className="mp-friend-add" onAdded={reload} lead={<button type="button" className="friend-code" onClick={() => copy(boot.user.name)} aria-label={t('yourUsername') + ' ' + boot.user.name}><small>{t('mpYourName')}</small><b>{boot.user.name}</b><Copy size={15} aria-hidden="true"/></button>}/>
   </section>;

@@ -50,7 +50,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   }, [firstToday, boot.stats.dailyDone, streak, date]);
   useEffect(() => {
     let active = true;
-    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { rememberStanding(mode, date, r.game?.place, r.game?.participants); rememberStanding('day', date, r.today?.place, r.today?.participants); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); setStandingFailed(false); } }).catch(() => { if (active) setStandingFailed(true); }).finally(() => { if (active) setStandingLoaded(true); });
+    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { rememberStanding(mode, date, r.game?.place, r.game?.participants, r.game?.score ?? 0); rememberStanding('day', date, r.today?.place, r.today?.participants, r.today?.score ?? 0); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); setStandingFailed(false); } }).catch(() => { if (active) setStandingFailed(true); }).finally(() => { if (active) setStandingLoaded(true); });
     api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions, dayModesFor(r.date))); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setTomorrow(r.tomorrowTopic ?? null); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
   }, [date, mode, boot.stats.dailyCount, retry]);
@@ -72,13 +72,15 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const go = async () => { if (!next || lock.current) return; lock.current = true; setBusy(true); try { await launchDaily(app, next); } catch (e) { fail(e); } finally { lock.current = false; setBusy(false); } };
   // The bonus tour after the day: today's next bonus game, or the bonus tab of all games when none is left.
   const toBonus = () => bonusNext ? bonusLaunch.open(bonusNext) : app.go('/daily#classic');
-  // Once per guest, after a finished Detour (never before play or mid-game): keep your streak with a free account.
+  // Once per guest (1.39): not after the very first game, but on the second day of play or once all six are done
+  // today, when there is something real to keep (never before play or mid-game).
   const [askSave, setAskSave] = useState(false);
-  useEffect(() => { if (mode === 'daily' && boot.user?.guest && !readFlag()) setAskSave(true); }, [mode, boot.user?.guest]);
+  const playDays = Number((boot.stats as any)?.dailyCount ?? 0);
+  useEffect(() => { if (boot.user?.guest && !readFlag() && (dayDone || playDays >= 2)) setAskSave(true); }, [boot.user?.guest, dayDone, playDays]);
   const closeSave = () => { writeFlag(); setAskSave(false); };
   const savePrompt = askSave && <aside className="save-prompt" aria-labelledby="save-prompt-title">
     <strong id="save-prompt-title">{score > 0 ? t('savePromptPoints').replace('{n}', fmt(score)) : t('savePromptTitle')}</strong><p>{t('savePromptCopy')}</p>
-    <div><button className="btn gold" onClick={() => { closeSave(); app.setModal?.('signup'); }}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={closeSave}>{t('savePromptLater')}</button></div>
+    <div><button className="btn secondary" onClick={() => { closeSave(); app.setModal?.('signup'); }}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={closeSave}>{t('savePromptLater')}</button></div>
   </aside>;
   const streakMoment = <StreakMoment open={moment} date={date} streak={streak} week={week} shieldIn={boot.stats.streakFreezes?.nextIn} shields={boot.stats.streakFreezes?.available} t={t} onClose={() => setMoment(false)}/>;
   if (view === 'wait') return <div className="finish-wait" aria-busy="true"><span className="sr-only">{t('loading')}</span></div>;

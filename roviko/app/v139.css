@@ -1,0 +1,58 @@
+/* 1.39: small fixes across Roviko (multiplayer games picker, friends rows, streak week card, one main button). */
+
+/* Multiplayer: pick several games. */
+.mode-picker.is-multi .mode-pick{position:relative}
+.mode-picker.is-multi .mode-pick .mode-check{margin-left:auto;color:var(--t-brand);flex-shrink:0}
+.mode-picker.is-multi .mode-pick[aria-pressed=true]{border-color:var(--t-forest)!important;box-shadow:inset 0 0 0 1.5px var(--t-forest)!important}
+.mode-picker-help{margin:0 0 4px;color:var(--t-soft);font-size:.875rem}
+.mode-picker.is-multi>small{color:var(--t-soft);font-size:.8125rem;font-weight:600}
+
+/* Friends (1.39): name and level get the room they need; the play button sits on its own line under them on
+   phones instead of squeezing the name. Grid: avatar | name | ⋯, and the button below the name. */
+.friend-row.friend-row{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"avatar info more" "avatar action action";align-items:center;column-gap:12px!important;row-gap:6px!important;flex-wrap:nowrap!important}
+.friend-row.friend-row>.friend-avatar{grid-area:avatar;align-self:center}
+.friend-row.friend-row>.friend-info{grid-area:info;min-width:0}
+.friend-row.friend-row>.btn,.friend-row.friend-row>.row-actions{grid-area:action;justify-self:start;margin-left:0!important}
+.friend-row.friend-row>.player-actions-btn,.friend-row.friend-row>:last-child:not(.btn):not(.friend-info){grid-area:more;margin-left:0!important}
+.friend-row.friend-row:not(:has(>.btn)):not(:has(>.row-actions)){grid-template-areas:"avatar info more"}
+.friend-row .friend-info strong.name-with-level{display:flex!important;flex-wrap:wrap;align-items:center;gap:4px 8px;white-space:normal!important;overflow:visible!important}
+.friend-row .friend-info strong.name-with-level .level-pill{flex-shrink:0;white-space:nowrap}
+@media (min-width:640px){
+  .friend-row.friend-row{grid-template-columns:auto minmax(0,1fr) auto auto;grid-template-areas:"avatar info action more"}
+  .friend-row.friend-row>.btn,.friend-row.friend-row>.row-actions{justify-self:end}
+}
+
+/* Week card on the home page (1.39). */
+.home-trip .side-row.streak-week{display:grid;gap:10px;align-items:stretch}
+.streak-week .sw-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.streak-week .sw-head strong{color:var(--t-ink);font:600 1.0625rem/1.2 var(--font-display)}
+.streak-week .sw-head small{color:var(--t-soft);font-weight:700;font-size:.8125rem}
+.sw-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin:0;padding:0;list-style:none}
+.sw-days li{display:grid;justify-items:center;gap:4px}
+.sw-days small{color:var(--t-soft);font:700 .75rem/1 var(--font-sans);text-transform:uppercase}
+.sw-dot{display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--t-canvas);box-shadow:inset 0 0 0 2px var(--t-line)}
+.sw-days .is-played .sw-dot{background:#fff1d6;box-shadow:inset 0 0 0 2px #f6b84b}
+.sw-days .is-shield .sw-dot,.sw-days .is-repaired .sw-dot{background:#e3f1fb;color:#2f6fb3;box-shadow:inset 0 0 0 2px #9fc9e6}
+.sw-days .is-today .sw-dot{box-shadow:inset 0 0 0 2.5px var(--t-brand)}
+.sw-days .is-today small{color:var(--t-brand)}
+.sw-days .is-missed .sw-dot{background:color-mix(in srgb,var(--t-canvas) 60%,#e9e3d4)}
+.sw-days .is-future .sw-dot{opacity:.55}
+.sw-shields{display:flex;align-items:center;gap:6px;margin:0;color:var(--t-soft);font-size:.8125rem;font-weight:600}
+.sw-shields svg{color:#2f6fb3;flex-shrink:0}
+
+/* The free repair card (1.39). */
+.streak-repair{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:18px 20px;background:#fff7e6!important;box-shadow:var(--t-shadow),inset 0 0 0 2px #f6d37f!important}
+.streak-repair .sr-icon{position:relative;display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:#fff;flex-shrink:0}
+.streak-repair .sr-icon svg:last-child{position:absolute;right:-2px;bottom:-2px;padding:4px;width:26px;height:26px;border-radius:50%;background:var(--t-forest);color:#fff;box-shadow:0 0 0 2px #fff7e6}
+.streak-repair .sr-copy{flex:1;min-width:180px}
+.streak-repair h2{margin:0;color:var(--t-ink);font:600 1.1875rem/1.2 var(--font-display)}
+.streak-repair p{margin:4px 0 0;color:var(--t-text);font-size:.9375rem;line-height:1.45}
+.streak-repair .btn{margin-left:auto}
+
+/* Party on streak day 3, 7 and 30 (1.39). */
+.streak-moment.is-party{overflow:hidden}
+.sm-party{margin:-4px 0 0;color:#c07a0a;font:800 .875rem/1 var(--font-sans);letter-spacing:.04em;text-transform:uppercase}
+.confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.confetti i{position:absolute;top:-12px;left:calc(var(--i) * 5.6% + 2%);width:8px;height:14px;border-radius:2px;background:hsl(calc(var(--i) * 47deg) 80% 60%);opacity:0;animation:confetti-fall 2.4s cubic-bezier(.2,.7,.4,1) calc(var(--i) * .07s) 2 both}
+@keyframes confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:0;transform:translateY(420px) rotate(calc(var(--i) * 40deg + 200deg))}}
+@media (prefers-reduced-motion:reduce){.confetti{display:none}}

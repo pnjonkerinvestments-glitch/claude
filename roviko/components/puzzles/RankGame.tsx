@@ -20,7 +20,9 @@ export function rankValue(option: RankOption, locale: 'en' | 'nl' | 'es') {
   return formatMetric(option.value, option.unit, locale) + (option.unit === 'm' ? ' m' : '');
 }
 export function RankGame({ id, app }: { id: string; app: any }) {
-  const {t,locale,go,refresh,muted,copy,report,backToStart}=app;
+  const {t,locale,go,refresh,muted,report,backToStart}=app;
+  // 1.39: sharing opens the share sheet (with the result picture) like the other games; copying is the fallback.
+  const copy=(text:string)=>(app.share??app.copy)(text);
   const lang=locale as 'en'|'nl'|'es';
   const [game,setGame]=useState<RankView|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const [selection,setSelection]=useState<string|null>(null);

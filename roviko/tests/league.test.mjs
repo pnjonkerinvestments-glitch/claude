@@ -57,6 +57,11 @@ test('next week the top 5 move up and, in groups of at least 10, the bottom 5 mo
   assert.equal(lib.nextTier(2, 9, 9, 50), 2, 'small groups do not demote');
   assert.equal(lib.nextTier(4, 1, 20, 900), 4, 'diamond is the top');
   assert.equal(lib.nextTier(1, 1, 3, 0), 1, 'no promotion without points');
+  // 1.39: a quarter of the group moves up (1 to 5), not the top 5 of every group.
+  assert.equal(lib.nextTier(0, 2, 5, 400), 0, 'in a group of 5 only the winner moves up');
+  assert.equal(lib.nextTier(0, 1, 5, 400), 1);
+  assert.equal(lib.nextTier(0, 3, 10, 400), 1); assert.equal(lib.nextTier(0, 4, 10, 400), 0);
+  assert.equal(lib.nextTier(0, 1, 1, 50), 1, 'alone in a group you still move up with points');
 });
 
 test('the promotion is applied when the player returns the next week', async () => {

@@ -5,7 +5,8 @@ import type { Env, User } from './types';
 /**
  * Weekly leagues (1.23, accounts only), like Duolingo's: every UTC week (Monday–Sunday) players are put in
  * groups of at most 20 within their tier. The group ranks by the week's daily points (the same ledger as every
- * other ranking, nothing extra is scored). Next week the top 5 move up a tier and, in groups of at least 10,
+ * other ranking, nothing extra is scored). Next week the top quarter moves up a tier (5 in a full group of 20;
+ * 1.39: before, the top 5 moved up in any group, so a group of 5 all went up) and, in groups of at least 10,
  * the bottom 5 move down. Tiers: 0 bronze, 1 silver, 2 gold, 3 emerald, 4 diamond.
  */
 export const LEAGUE_TIERS = ['bronze', 'silver', 'gold', 'emerald', 'diamond'] as const;
@@ -21,9 +22,11 @@ async function groupTable(env: Env, week: string, tier: number, groupNo: number)
     ORDER BY score DESC,m.joined_at ASC`, week, addDays(week, 7), week, tier, groupNo);
   return list.map((r: any) => ({ user_id: r.user_id, name: r.name, avatar: Number(r.avatar), score: Number(r.score), joined_at: Number(r.joined_at) }));
 }
+/** How many move up from a group of `size`: a quarter, at least 1, at most 5 (1.39). */
+export const promotions = (size: number) => Math.min(LEAGUE_UP, Math.max(1, Math.round(size / 4)));
 /** Where a final place in a group of `size` sends a player of `tier` next week. */
 export function nextTier(tier: number, place: number, size: number, score: number) {
-  if (score > 0 && place <= LEAGUE_UP && tier < LEAGUE_TIERS.length - 1) return tier + 1;
+  if (score > 0 && place <= promotions(size) && tier < LEAGUE_TIERS.length - 1) return tier + 1;
   if (size >= LEAGUE_DOWN_MIN && place > size - LEAGUE_DOWN && tier > 0) return tier - 1;
   return tier;
 }
@@ -70,7 +73,7 @@ export async function leagueStanding(env: Env, user: User, date: string) {
     return { joined: false, guest: false, week, ends, tier: last ? Number(last.tier) : 0, tierName: LEAGUE_TIERS[last ? Number(last.tier) : 0] };
   }
   const table = await groupTable(env, week, member.tier, member.group_no);
-  const size = table.length, top = member.tier < LEAGUE_TIERS.length - 1 ? LEAGUE_UP : 0, bottom = member.tier > 0 && size >= LEAGUE_DOWN_MIN ? LEAGUE_DOWN : 0;
+  const size = table.length, top = member.tier < LEAGUE_TIERS.length - 1 ? promotions(size) : 0, bottom = member.tier > 0 && size >= LEAGUE_DOWN_MIN ? LEAGUE_DOWN : 0;
   let place = 0;
   const members = table.map((m, i) => {
     // Ties share a place, like every other Roviko ranking.

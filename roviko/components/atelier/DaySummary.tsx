@@ -36,7 +36,7 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
 }) {
   const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
   const scoreOf = (m: string) => scores.find(s => s.mode === m)?.score ?? 0;
-  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total, extras: (rememberStanding('day', date, place, players), challengeExtras(t, locale, 'day', date, name)) }));
+  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total, extras: (rememberStanding('day', date, place, players, total), challengeExtras(t, locale, 'day', date, name)) }));
   // The day's fanfare, once, when this is the end screen (it stands in for the last game's own stage).
   const title = useRef<HTMLHeadingElement>(null);
   useEffect(() => { if (screen) { sound('win'); warmShareImage(); toTop(); focusHeadline(title.current); } }, [screen]);

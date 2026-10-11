@@ -21,6 +21,7 @@ import { SurvivalRuns } from './Survival';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
 import { ContinentCard } from './ContinentWeek';
 import { LearnRow } from '../learn/LearnRow';
+import { StreakRepair, StreakWeek } from './StreakWeek';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
@@ -83,7 +84,7 @@ export function HomePage() {
   }, []);
   // iPhone visitors in the browser first get the app screen; the tour follows only if they stay here (1.32: the
   // full tour on the first visit, ending on a free account for guests, instead of the one welcome card).
-  const appPrompt = useAppPrompt();
+  const appPrompt = useAppPrompt(!!challenge);
   // A friend's challenge already gives the one next step, so the tour waits for a later visit.
   useEffect(() => { if (appPrompt.decided && !appPrompt.open && firstVisit && !challenge && !tourSeen()) setTourOpen(true); }, [firstVisit, challenge, appPrompt.decided, appPrompt.open]);
   const pointsToday = competition?.today.score ?? 0;
@@ -116,7 +117,8 @@ export function HomePage() {
   const questsDone = useQuests(date, sessions ?? []).quests.filter(q => q.done).length;
   const { data: league } = useLeague(boot);
   const leagueRow = leagueLine(t, league);
-  const guestSave = ready && boot.user.guest && (boot.stats.dailyCount ?? 0) > 0;
+  // 1.39: the save banner from the second day of play, or after all six games today.
+  const guestSave = ready && boot.user.guest && ((boot.stats.dailyCount ?? 0) >= 2 || allDone);
   const progressLine = plural(t, 'homeProgress', completed).replace('{total}', String(lineup.length)) + ' · ' + plural(t, 'homePoints', pointsToday, '{n}', n(pointsToday));
 
   return <div className={'home home-trip' + (allDone ? ' is-done' : '') + (firstVisit ? ' is-first' : '') + (ready ? ' is-ready' : '')}>
@@ -135,6 +137,7 @@ export function HomePage() {
 
     <div className="th-main">
       {/* 1.35: after the six games the continent of the week comes first, the bonus tour after it. */}
+      {ready && <StreakRepair/>}
       {allDone && <ContinentCard featured/>}
       {allDone && <BonusTour app={app} bonus={bonus} busy={busy} compact/>}
       {allDone && <SurvivalRuns app={app} survival={today?.survival} busy={busy} compact/>}
@@ -178,6 +181,7 @@ export function HomePage() {
         <strong id="guest-banner-title">{plural(t, 'guestBannerTitle', Math.max(1, streak))}</strong>
         <button className="t-pill is-gold th-save" onClick={() => app.setModal('signup')}>{t('savePromptCta')}</button>
       </div>}
+      {ready && !firstVisit && <StreakWeek/>}
       {boot.user.guest
         ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><RovikoIcon name="trophy" size={26}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
         : <A href="/leaderboard#league" className="side-row side-league"><span className="side-icon side-tier" aria-hidden="true"><TierBadge tier={league?.tier ?? 0} size={26}/></span><span className="side-copy"><strong>{leagueRow.title}</strong><small>{leagueRow.sub || t('loading')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>}

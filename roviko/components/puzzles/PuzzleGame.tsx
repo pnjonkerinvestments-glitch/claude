@@ -29,7 +29,7 @@ export function PuzzleGame({ id, app }: { id: string; app: any }) {
   // Daily Side by Side: the points this answer brought in (the server's new total minus the old one), for the gold pill.
   const [gain, setGain] = useState<{ id: string; n: number } | null>(null);
   const [checked, setChecked] = useState<ReturnType<typeof reviewMosaic>>(null);
-  const [autoNext, setAutoNext] = useState(() => readPreference('rv_auto_next', readPreference('rv_compare_auto', 'off')) === 'on');
+  const [autoNext, setAutoNext] = useState(() => readPreference('rv_auto_next', readPreference('rv_compare_auto', 'on')) === 'on');
   useEffect(() => { if (game) document.title = t(game.mode) + (game.daily ? ' · ' + game.daily : '') + ' | ' + BRAND.name; }, [game?.mode, game?.daily, locale]);
   const latest = useRef<PuzzleView | null>(null);
   const [order, setOrder] = useState<string[]>([]);

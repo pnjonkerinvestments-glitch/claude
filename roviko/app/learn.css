@@ -224,3 +224,11 @@
 .ln-pairs .is-right svg{color:var(--t-right)}.ln-pairs .is-wrong svg{color:var(--t-red)}
 .ln-recap li span small{display:block;color:var(--t-soft);font-size:.8125rem;font-weight:600}
 .ln-actions .btn.is-gold{background:#f2b234!important;color:#4a3105!important;border-color:transparent!important}
+
+/* 1.39: the sticky game bar (lessons and every game) gets the cream canvas across the full width, so a card
+   scrolling under it no longer shows beside a narrow strip. */
+.game-header.trip-top{box-shadow:0 0 0 100vmax var(--t-canvas)!important;clip-path:inset(0 -100vmax)!important}
+
+/* 1.39: the whole text next to a stop is tappable, not only the round button. */
+.lp-text.is-tappable{cursor:pointer}
+.lp-text.is-tappable .lp-go{cursor:pointer}

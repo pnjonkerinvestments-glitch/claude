@@ -10,6 +10,7 @@ import { followUp } from './follow-up';
 import { measure, measureStart } from './telemetry';
 import { mergeProgress } from './merge-progress';
 import { learnProgress, saveLearnProgress } from './learn';
+import { REPAIR_EVERY, repairOffer } from '../lib/streak';
 import { z } from 'zod';
 import { ensureCatalog } from './catalog';
 import { seedHash } from '../lib/game-engine/scoring';
@@ -192,6 +193,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 await run(env, 'DELETE FROM question_reports WHERE user_id=?', user.id);
                 await run(env, 'DELETE FROM player_reports WHERE reported_id=?', user.id);
                 await run(env, 'DELETE FROM learn_progress WHERE user_id=?', user.id);
+                await run(env, 'DELETE FROM streak_repairs WHERE user_id=?', user.id);
                 await run(env, 'DELETE FROM users WHERE id=?', user.id);
                 return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(req, '', 0) });
             }
@@ -280,6 +282,17 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         }
         // Learn (1.38): progress of the lessons, merged per card (newest wins). The app sends only what changed,
         // except the first time after signing in; 160 kB covers every card of every future route.
+        // Streak repair (1.39): once per 30 days, a streak that just broke after a gap of at most 2 days comes back.
+        if (path[0] === 'streak' && path[1] === 'repair' && method === 'POST') {
+            const [played, repairs] = await Promise.all([rows(env, 'SELECT date FROM daily_challenge_results WHERE user_id=?', user.id), rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', user.id)]);
+            const last = repairs.reduce((m: number, r: any) => Math.max(m, Number(r.created_at)), 0);
+            if (Date.now() - last < REPAIR_EVERY * 86400000) throw new AppError('REPAIR_USED', 409);
+            const offer = repairOffer(played.map((r: any) => String(r.date)), new Date().toISOString().slice(0, 10), repairs.map((r: any) => String(r.date)));
+            if (!offer) throw new AppError('NOTHING_TO_REPAIR', 409);
+            const now = Date.now();
+            await batch(env, offer.days.map(d => ({ sql: 'INSERT OR IGNORE INTO streak_repairs(user_id,date,created_at) VALUES (?,?,?)', args: [user.id, d, now] })));
+            return json({ ok: true, streak: offer.to, days: offer.days });
+        }
         if (path[0] === 'learn' && method === 'GET')
             return json({ progress: await learnProgress(env, user) });
         if (path[0] === 'learn' && method === 'POST')
