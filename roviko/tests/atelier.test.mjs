@@ -63,7 +63,8 @@ test('1.17 illustrations: every artwork the interface references exists and stay
   const regions = ['europe', 'africa', 'asia', 'north-america', 'south-america', 'oceania'];
   const covers = ['rank-radar', 'world-trip', 'side-by-side', 'country-mosaic', 'clue-trail'].flatMap(n => [n + '-480.webp', n + '-960.webp', n + '-1440.webp']);
   const scenes = ['duel', 'mystery', 'classic'].flatMap(n => [n + '-480.webp', n + '-720.webp', n + '-1440.webp']);
-  const perRegion = regions.flatMap(r => ['scene-' + r + '.webp', 'banner-' + r + '.webp', 'pick-' + r + '.webp']);
+  // 1.40: the soft scene and banner pictures became sharp vector maps (scripts/make-continent-art.mjs).
+  const perRegion = [...regions.flatMap(r => ['pick-' + r + '.webp', 'map-' + r + '.svg']), 'map-americas.svg'];
   const classics = ['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order'].map(m => 'classic-' + m + '.webp');
   const facts = ['points', 'day', 'once', 'timer'].map(f => 'fact-' + f + '.webp');
   const headers = [];
@@ -94,7 +95,7 @@ test('1.17 explore and passport: region cards use cleaned scenes; the copy keeps
   assert.match(v17, /\.region-card\.scene-card,\[data-theme=dark\] \.region-card\.scene-card\{aspect-ratio:418\/310/);
   for (const f of ['components/pages/ExplorePage.tsx', 'components/atelier/PassportCollection.tsx']) {
     const src = fs.readFileSync(f, 'utf8');
-    assert.match(src, /scene-card/); assert.match(src, /banner-/); assert.doesNotMatch(src, /region-flags|region-stamp-grid/);
+    assert.match(src, /scene-card/); assert.match(src, /map-|continentArt/); assert.doesNotMatch(src, /region-flags|region-stamp-grid/);
   }
 });
 

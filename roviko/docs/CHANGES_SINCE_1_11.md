@@ -596,6 +596,18 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.40.0 (op de testversie, nog niet live; samen met 1.39)
+
+- **Scherpe beelden.** De illustraties waren zelf onscherp: de bronbestanden zijn klein (ongeveer 600–700 pixels, ook in de map met originele visuals) en waren opgeschaald, en de rondleiding laadde bovendien de kleinste versie (480 pixels) voor een kaart van ruim 400 punten breed op een scherm met 3× zoveel pixels. Omzetten naar vectoren met een tool gaf rafelige randen, dus de meest zichtbare beelden zijn opnieuw getekend in code:
+  - **Rondleiding**: zes eigen tafereeltjes (`components/home/TourArt.tsx`) met de spellogo's, Roviko en de avatars (allemaal vectoren): de Omweg-route, de vijf dagspellen als kaarten met de 6.000-munt, het podium met competitieschild, de extra spellen, ontdekken met stempels, samen spelen.
+  - **Continenten**: de onscherpe landschappen (zoals het Colosseum) zijn vervangen door scherpe kaarten van elk continent, gemaakt uit het grenzenbestand dat het spel al gebruikt (`scripts/make-continent-art.mjs` → `public/art/map-*.svg`, ook een kaart voor Amerika): landen in mint en groen met witte grenzen, de rest van de wereld in zand, een kompasroos en een stippellijn met vliegtuigje. Gebruikt op de continent-van-de-weekkaart, in Leren, bij de grenscontrole en op de continentkaarten in Ontdekken en het paspoort.
+  - **Vrienden** (gastweergave in Multiplayer): getekende avatars in plaats van de onscherpe groepsfoto.
+  - Verwijderd omdat ze niet meer gebruikt worden: `banner-*.webp`, `scene-*.webp`, `friends-row.webp`.
+  - Nagelopen en goed: het logo (256 pixels voor 30 punten), de paginakoppen (Roviko is al een vector), de spelkaarten (versies tot 1440 pixels). De kleine landschapjes bij enkele landen in Ontdekken (Japan, VS, Peru) zijn ongewijzigd.
+- **Nieuw opstartscherm (app).** Roviko die zwaait op de crèmekleurige achtergrond met een zachte mintgloed, een gestippelde cirkel, sterretjes en het woordmerk "roviko." in Fredoka, scherp getekend op 2732 × 2732 en in alle iPhone- en Android-maten. Ook in de donkere stand hetzelfde lichte scherm (vroeger donkergroen), want de app is altijd licht. Het opstartscherm blijft nu staan tot Roviko zijn gegevens heeft (hooguit 4 seconden) en vervaagt dan, zodat er geen leeg scherm tussen zit (`SplashScreen.hide` vanuit de site, `launchShowDuration` 4000 in `roviko-app/capacitor.config.json`). **Let op:** het nieuwe opstartscherm zit in de app zelf en verschijnt pas na een nieuwe app-build (iOS via de workflow *Roviko app* → `ios-release`, Android bij de volgende build).
+- Service worker `roviko-shell-v1.40.0`. Geen migratie.
+- **Getest:** volledige testset 204 geslaagd, 1 bewust overgeslagen (de beeldentest kent nu de kaarten en controleert dat elk bestand gebruikt wordt en onder 140 kB blijft), typecheck, build; in de browser op 390 px met 3× scherpte: alle stappen van de rondleiding, de continentkeuze in Leren, de continentkaarten in Ontdekken, en het opstartscherm als afbeelding (ook bijgesneden zoals een iPhone het toont). **Niet getest:** het opstartscherm in een echte app-build op een telefoon, het verbergen met `SplashScreen.hide` in de app, en het paspoort met de nieuwe kaarten in de browser.
+
 ## 1.39.0 (op de testversie, nog niet live)
 
 **Fouten opgelost**

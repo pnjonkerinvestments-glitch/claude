@@ -143,6 +143,8 @@ export default function RovikoApp({ initialPath = '/' }: {
     const toggleMusic = () => { const on = !music; setMusic(on); writePreference('rv_music', on ? 'on' : 'off'); if (on) startMusic(); else stopMusic(); };
     useEffect(() => { if (!music || musicPlaying()) return; const first = () => startMusic(); window.addEventListener('pointerdown', first, { once: true }); return () => window.removeEventListener('pointerdown', first); }, [music]);
     useSmartReminder(t, bootLoaded, !!boot?.stats?.dailyDone);
+    // 1.40: in the app the launch screen stays until Roviko has its data (or failed), so there is no empty screen in between.
+    useEffect(() => { if (!bootLoaded && !fatal) return; try { (window as any).Capacitor?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 250 }); } catch { /* not in the app */ } }, [bootLoaded, fatal]);
     const ctx = { bootLoaded, setLocale, setTheme, toggleSound, music, toggleMusic, share, backToStart, region, setRegion, measurement, setMeasurement: (on: boolean) => { setMeasurement(on); writePreference('rv_metrics',on ? 'on':'off'); document.cookie = 'rv_metrics=' + (on ? 'on':'off') + '; Path=/; SameSite=Lax; Max-Age=31536000' + (location.protocol === 'https:' ? '; Secure':''); }, t, locale, theme, go, boot, refresh, modal, setModal, playMode, start, busy, setBusy, fail, copy, muted, report: setReport };
     const gamePath = path.startsWith('/rank/') || path.startsWith('/game/') || path.startsWith('/room/') || path.startsWith('/puzzle/') || path.startsWith('/learn/') || path === '/duel' || path === '/duel/practice';
     return <AppContext.Provider value={ctx}><a className="skip-link" href="#main">{t('skipToContent')}</a><SiteHeader path={path} hideTabs={gamePath}/>
