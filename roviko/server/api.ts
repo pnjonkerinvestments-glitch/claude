@@ -9,6 +9,7 @@ import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
 import { measure, measureStart } from './telemetry';
 import { mergeProgress } from './merge-progress';
+import { learnProgress, saveLearnProgress } from './learn';
 import { z } from 'zod';
 import { ensureCatalog } from './catalog';
 import { seedHash } from '../lib/game-engine/scoring';
@@ -38,8 +39,8 @@ function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) 
 const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania', 'Americas']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
 const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: ['daily','daily-trail','daily-order'].includes(v?.mode) ? 'mixed' : v?.mode ?? 'mixed' });
 function json(data: any, status = 200, headers: Record<string, string> = {}) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } }); }
-async function body(req: Request) { if (Number(req.headers.get('Content-Length') ?? 0) > 8192)
-    throw new AppError('REQUEST_TOO_LARGE', 413); const raw = await req.text(); if (raw.length > 8192)
+async function body(req: Request, max = 8192) { if (Number(req.headers.get('Content-Length') ?? 0) > max)
+    throw new AppError('REQUEST_TOO_LARGE', 413); const raw = await req.text(); if (raw.length > max)
     throw new AppError('REQUEST_TOO_LARGE', 413); try {
     return raw ? JSON.parse(raw) : {};
 }
@@ -190,6 +191,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 }
                 await run(env, 'DELETE FROM question_reports WHERE user_id=?', user.id);
                 await run(env, 'DELETE FROM player_reports WHERE reported_id=?', user.id);
+                await run(env, 'DELETE FROM learn_progress WHERE user_id=?', user.id);
                 await run(env, 'DELETE FROM users WHERE id=?', user.id);
                 return json({ ok: true }, 200, { 'Set-Cookie': sessionCookie(req, '', 0) });
             }
@@ -276,6 +278,12 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 return json(result);
             }
         }
+        // Learn (1.38): progress of the lessons, merged per card (newest wins). The app sends only what changed,
+        // except the first time after signing in; 160 kB covers every card of every future route.
+        if (path[0] === 'learn' && method === 'GET')
+            return json({ progress: await learnProgress(env, user) });
+        if (path[0] === 'learn' && method === 'POST')
+            return json({ progress: await saveLearnProgress(env, user, (await body(req, 160000))?.progress) });
         if (path[0] === 'presence' && method === 'POST')
             { const b = z.object({ room: z.string().max(8).nullish(), playing: z.boolean().optional() }).parse(await body(req)); return json(await heartbeat(env, user, b.room, !!b.playing)); }
         if (path[0] === 'invites' && path[1] && method === 'POST')

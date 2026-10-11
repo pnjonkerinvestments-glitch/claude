@@ -20,6 +20,7 @@ import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
 import { ContinentCard } from './ContinentWeek';
+import { LearnRow } from '../learn/LearnRow';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
 import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
@@ -180,6 +181,7 @@ export function HomePage() {
       {boot.user.guest
         ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><RovikoIcon name="trophy" size={26}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
         : <A href="/leaderboard#league" className="side-row side-league"><span className="side-icon side-tier" aria-hidden="true"><TierBadge tier={league?.tier ?? 0} size={26}/></span><span className="side-copy"><strong>{leagueRow.title}</strong><small>{leagueRow.sub || t('loading')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>}
+      <LearnRow/>
       <details className="side-row quests-fold">
         <summary><span className="side-icon" aria-hidden="true"><RovikoIcon name="target" size={26}/></span><span className="side-copy"><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>
         <DailyQuests date={date} sessions={sessions ?? []} t={t} compact onPick={pickQuest}/>

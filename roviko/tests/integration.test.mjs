@@ -774,3 +774,19 @@ test('Lucia 👽: added by friend code, accepts after a minute, always online, i
  assert.equal((await request(cookie,'/rooms/'+own.code+'/invite','POST',{friendId:'cafe1c1a-0000-4000-8000-000000000001'})).status,200);
  const mine=(await request(cookie,'/rooms/'+own.code)).data;assert.equal(mine.host,me.data.user.id,'you stay host of your own room');assert.ok(mine.players.some(p=>p.name==='Lucia 👽'&&p.bot),'she joins your room at once');
 });
+
+test('learn progress (1.38): saved per account, merged per card (newest wins), checked, and deleted with the account',async()=>{
+ const g=await bootstrap();const acc=await request(g.cookie,'/auth/signup','POST',{name:'Flag Learner',email:'flag-learner@example.test',password:'Synthetic-learn-password-1'});assert.equal(acc.status,200,JSON.stringify(acc.data));const c=acc.cookie;
+ assert.deepEqual((await request(c,'/learn')).data.progress,{});
+ const first=await request(c,'/learn','POST',{progress:{'item:flags:NLD':{t:100,lvl:1,due:'2026-10-12',last:'2026-10-11'},'lesson:flags-europe-1':{t:100,day:'2026-10-11',best:5,of:6}}});
+ assert.equal(first.status,200,JSON.stringify(first.data));assert.equal(first.data.progress['item:flags:NLD'].lvl,1);
+ // Another device sends an older copy of NLD and a new card: the newer NLD stays, the new card is added.
+ const second=await request(c,'/learn','POST',{progress:{'item:flags:NLD':{t:50,lvl:0},'item:flags:BEL':{t:120,lvl:2,due:'2026-10-14'},'nonsense':{t:1},'item:flags:DEU':{t:130,lvl:9}}});
+ assert.equal(second.status,200);const p=second.data.progress;assert.equal(p['item:flags:NLD'].lvl,1);assert.equal(p['item:flags:BEL'].lvl,2);assert.equal(p.nonsense,undefined);assert.equal(p['item:flags:DEU'],undefined,'impossible values are dropped');
+ const future=await request(c,'/learn','POST',{progress:{'item:flags:FRA':{t:Date.now()+1e10,lvl:1}}});assert.ok(future.data.progress['item:flags:FRA'].t<=Date.now(),'a card from the future is clamped to now');
+ assert.equal((await request(c,'/learn','POST',{progress:[1,2]})).status,400);
+ assert.equal(Object.keys((await request(c,'/learn')).data.progress).length,4);
+ const other=await bootstrap();assert.deepEqual((await request(other.cookie,'/learn')).data.progress,{},'every player sees only their own progress');
+ assert.equal((await request(c,'/profile','DELETE')).status,200);
+ assert.equal((await db.prepare('SELECT COUNT(*) n FROM learn_progress WHERE user_id=?').bind(acc.data.user.id).first()).n,0);
+});

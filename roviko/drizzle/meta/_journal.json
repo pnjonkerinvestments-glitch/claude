@@ -99,6 +99,13 @@
       "when": 1791577192581,
       "tag": "0013_speed_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1791745651755,
+      "tag": "0014_learn_progress",
+      "breakpoints": true
     }
   ]
 }

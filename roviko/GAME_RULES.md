@@ -34,6 +34,10 @@ Older native clients use their existing unranked daily edition. The website expl
 
 Every Monday (UTC) one part of the world becomes the continent of the week, in a five-week round: Europe, Africa, Asia, the Americas (North and South America together) and Oceania. It is practice: the player chooses 5, 10, 15 or 20 questions, easy, medium, hard or mixed, and which games take part (Oceania has no neighbour questions). Every game draws new questions from that continent only. No ranking or league points; correct answers count for the passport like any practice game. The card shows how many countries of the continent the player has discovered.
 
+## Learn (1.38)
+
+Learn teaches flags in short lessons, starting with the flags of Europe (nine lessons, then the border check). A lesson: meet the flags, practise each one both ways (mistakes come back), then show each flag once between look-alikes. Right in that last step gives bronze; right again on a later day in Review gives silver, then gold (breaks of 1, 3 and 7 days; gold returns after 14). A miss in Review drops one medal (bronze stays) and the flag returns the next day. Only the first answer per country in a session counts. The border check asks 15 flags from all of Europe and needs 12 right for the Europe stamp. Learn gives no ranking points, XP or streak days. Progress is kept on the device and, for accounts, merged with the server copy (newest card wins).
+
 ## Sessions and badges (1.35)
 
 A sign-in lasts 60 days and is renewed on each visit, so a returning player keeps the same account or guest. An expired session is reported with a sign-in button. Badges, once earned, stay listed even when their condition no longer holds (a broken streak).
