@@ -1,0 +1,21 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Roviko mascot PNGs</title>
+<!-- Draws Roviko in one pose on a transparent page: mascot-png.html?pose=wave (used by build/mascot-png.mjs) -->
+<style>html,body{margin:0;background:transparent;overflow:hidden}#stage{position:absolute;left:0;top:0}.a{position:absolute;left:0;top:0}svg{overflow:visible}</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script></head>
+<body><div id="stage"></div><script src="lib/core.js"></script><script>
+const PX = 1000, pose = Q.get('pose') || 'wave';
+S(document.body, { width: PX, height: PX }); S(stage, { width: PX, height: PX });
+const box = el(stage, { left: 0, top: 0, width: PX, height: PX }); const m = Mascot(box, PX); S(m.svg, { left: 0, top: 0 });
+const POSES = {
+  globe: { look: [0, 0], mouth: 'smile' },
+  wave: { look: [0, 0], mouth: 'smile', cheeks: 0.5, legs: 1, arms: [[-112, 66, 22, 10], [118, -86, -18, 10]] },
+  cheer: { happy: 1, mouth: 'grin', cheeks: 0.9, legs: 1, arms: [[-118, -92, -22, 11], [118, -92, -22, 11]] },
+  wink: { wink: 1, mouth: 'grin', cheeks: 0.8, legs: 1, arms: [[-112, 66, 22, 10], [100, -40, -20, 10]] },
+  shock: { look: [0, 0], mouth: 'o', eyesBig: 0.6, brows: 'up', legs: 1, arms: [[-70, -96, -30, 11], [70, -96, -30, 11]] },
+  nervous: { look: [0.6, -0.6], mouth: 'wobble', brows: 'worried', sweat: 1, eyesBig: 0.3, legs: 1, arms: [[-108, 58, 24, 10], [104, 62, 22, 10]] },
+  cool: { look: [0, 0], mouth: 'smile', brow: 1, shades: { on: 1, drop: 0 }, legs: 1, arms: [[-90, 40, 30, 10], [90, 40, -30, 10]] },
+};
+drawMascot(m, POSES[pose]);
+window.filmReady = Promise.resolve(true);
+</script></body></html>
