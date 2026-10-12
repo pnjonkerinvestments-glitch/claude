@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.40.0 (op de testversie, nog niet live; samen met 1.39)
+## 1.40.0 (live sinds 12 oktober 2026, samen met 1.39)
 
 - **Scherpe beelden.** De illustraties waren zelf onscherp: de bronbestanden zijn klein (ongeveer 600–700 pixels, ook in de map met originele visuals) en waren opgeschaald, en de rondleiding laadde bovendien de kleinste versie (480 pixels) voor een kaart van ruim 400 punten breed op een scherm met 3× zoveel pixels. Omzetten naar vectoren met een tool gaf rafelige randen, dus de meest zichtbare beelden zijn opnieuw getekend in code:
   - **Rondleiding**: zes eigen tafereeltjes (`components/home/TourArt.tsx`) met de spellogo's, Roviko en de avatars (allemaal vectoren): de Omweg-route, de vijf dagspellen als kaarten met de 6.000-munt, het podium met competitieschild, de extra spellen, ontdekken met stempels, samen spelen.
@@ -608,7 +608,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 - Service worker `roviko-shell-v1.40.0`. Geen migratie.
 - **Getest:** volledige testset 204 geslaagd, 1 bewust overgeslagen (de beeldentest kent nu de kaarten en controleert dat elk bestand gebruikt wordt en onder 140 kB blijft), typecheck, build; in de browser op 390 px met 3× scherpte: alle stappen van de rondleiding, de continentkeuze in Leren, de continentkaarten in Ontdekken, en het opstartscherm als afbeelding (ook bijgesneden zoals een iPhone het toont). **Niet getest:** het opstartscherm in een echte app-build op een telefoon, het verbergen met `SplashScreen.hide` in de app, en het paspoort met de nieuwe kaarten in de browser.
 
-## 1.39.0 (op de testversie, nog niet live)
+## 1.39.0 (live sinds 12 oktober 2026)
 
 **Fouten opgelost**
 - Clue Trail: de eerste hint liet soms al maar één antwoord over (deel-van-de-wereld-hint). Nu wordt elke hint getoetst aan de vier antwoorden: hint 1 laat er altijd minstens drie over, hint 2 minstens twee.
