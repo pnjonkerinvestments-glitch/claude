@@ -26,9 +26,11 @@ function quiet() { try { return Date.now() - Number(localStorage.getItem(KEY) ??
 function remember() { try { localStorage.setItem(KEY, String(Date.now())); } catch { /* shows again next visit */ } }
 
 /** Whether the get-the-app screen should open on this visit. Decided after mount (it needs the browser). */
-export function useAppPrompt() {
+/** A shared result or challenge link (1.39): the friend came to play that, so the app prompt waits for a later visit. */
+const sharedVisit = () => { try { const q = new URLSearchParams(location.search); return q.has('shared') || q.has('challenge') || q.has('u') || q.has('r'); } catch { return false; } };
+export function useAppPrompt(skip = false) {
   const [open, setOpen] = useState(false), [decided, setDecided] = useState(false);
-  useEffect(() => { if (APP_STORE_URL && !inApp() && iosBrowser() && !quiet()) setOpen(true); setDecided(true); }, []);
+  useEffect(() => { if (APP_STORE_URL && !skip && !sharedVisit() && !inApp() && iosBrowser() && !quiet()) setOpen(true); setDecided(true); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   return { open, decided, close: () => { remember(); setOpen(false); } };
 }
 

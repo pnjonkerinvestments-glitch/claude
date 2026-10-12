@@ -2,6 +2,8 @@ import { spanishCapital, spanishCountry } from '../../i18n/content';
 import { dutchCapital } from '../../i18n/capitals-nl';
 import data from '../data/countries.json';
 import silhouettes from '../data/silhouettes.json';
+import metrics from '../data/country-metrics.json';
+import worldbank from '../data/comparisons.json';
 import { locateInCountry, type Polygons } from './geometry';
 import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash, orderPlacement, partialOrderPoints, derangedStart } from './scoring';
 import { GEOGRAPHY_POLICY, MODES } from '../config';
@@ -123,39 +125,94 @@ const SUBREGION: Record<string, [string, string, string]> = {
 type Clue = { en: string; nl: string; es: string };
 /** A size in two significant figures: 41,850 → 42,000. */
 function roundedArea(area: number) { const step = 10 ** Math.max(0, Math.floor(Math.log10(Math.max(1, area))) - 1); return Math.round(area / step) * step; }
+/** Two significant figures: 8,849 → 8,800; 17,900,000 → 18,000,000. */
+function sig2(n: number) { const step = 10 ** Math.max(0, Math.floor(Math.log10(Math.max(1, n))) - 1); return Math.round(n / step) * step; }
+const ARCHIVE = (metrics as any).records as Record<string, Record<string, { value: number }>>;
+const POPULATION = (worldbank as any).topics.population.values as Record<string, number>;
+/** Currency units in three languages; units that are not listed are names (lek, kwanza) and stay as they are. */
+const UNITS: Record<string, [string, string, string]> = {
+    euro: ['euro', 'euro', 'euro'], franc: ['franc', 'frank', 'franco'], dollar: ['dollar', 'dollar', 'dólar'], pound: ['pound', 'pond', 'libra'],
+    peso: ['peso', 'peso', 'peso'], dinar: ['dinar', 'dinar', 'dinar'], dirham: ['dirham', 'dirham', 'dírham'], rupee: ['rupee', 'roepie', 'rupia'],
+    ruble: ['rouble', 'roebel', 'rublo'], rouble: ['rouble', 'roebel', 'rublo'], shilling: ['shilling', 'shilling', 'chelín'], krona: ['krona', 'kroon', 'corona'],
+    krone: ['krone', 'kroon', 'corona'], króna: ['króna', 'kroon', 'corona'], lira: ['lira', 'lira', 'lira'], real: ['real', 'real', 'real'], rial: ['rial', 'rial', 'rial'],
+    riyal: ['riyal', 'riyal', 'riyal'], mark: ['mark', 'mark', 'marco'], rupiah: ['rupiah', 'roepia', 'rupia'], won: ['won', 'won', 'won'], yen: ['yen', 'yen', 'yen'],
+    yuan: ['yuan', 'yuan', 'yuan'], leu: ['leu', 'leu', 'leu'], lev: ['lev', 'lev', 'lev'], forint: ['forint', 'forint', 'forinto'], złoty: ['złoty', 'zloty', 'esloti'],
+};
+const LANGUAGES: Record<string, [string, string]> = {
+    English: ['Engels', 'el inglés'], French: ['Frans', 'el francés'], Arabic: ['Arabisch', 'el árabe'], Spanish: ['Spaans', 'el español'], Portuguese: ['Portugees', 'el portugués'],
+    Russian: ['Russisch', 'el ruso'], German: ['Duits', 'el alemán'], Italian: ['Italiaans', 'el italiano'], Swahili: ['Swahili', 'el suajili'], Dutch: ['Nederlands', 'el neerlandés'],
+    Malay: ['Maleis', 'el malayo'], Tamil: ['Tamil', 'el tamil'], Chinese: ['Chinees', 'el chino'], Greek: ['Grieks', 'el griego'], Turkish: ['Turks', 'el turco'],
+    Swedish: ['Zweeds', 'el sueco'], Korean: ['Koreaans', 'el coreano'], Persian: ['Perzisch', 'el persa'], Hindi: ['Hindi', 'el hindi'], Quechua: ['Quechua', 'el quechua'],
+    Guaraní: ['Guaraní', 'el guaraní'], Afrikaans: ['Afrikaans', 'el afrikáans'], Serbian: ['Servisch', 'el serbio'], Croatian: ['Kroatisch', 'el croata'], Urdu: ['Urdu', 'el urdu'],
+};
+const unitOf = (c: Country) => { const name = (c.currencies[0] ?? '').toLowerCase(); return name ? name.split(' ').pop()! : ''; };
+const landlocked = (c: Country) => ARCHIVE[c.id]?.coastline?.value === 0;
+/** Does a clue word give the country away (the boliviano for Bolivia, Dutch for the Netherlands)? */
+const echoes = (word: string, c: Country) => { const w = word.toLowerCase().slice(0, 5); return w.length >= 4 && [c.name, c.nl, spanishCountry(c.name)].some(n => n.toLowerCase().replace(/^(the|de|el|la|los|las) /, '').startsWith(w)); };
+type Candidate = { kind: string; clue: Clue; fits: (o: Country) => boolean };
+
 /**
- * Clue Trail (1.25): four clues from vague to sharp, and the order changes from question to question.
- * Clue 1 is one of the vague ones (continent, part of the world, hemispheres, size, number of neighbours),
- * clue 2 another vague one or the first letter of the capital, clue 3 a neighbour or the capital,
- * clue 4 is always the flag (the screen shows the flag image with it, and the flag is only served after clue 4).
- * The continent clue is only used when it does not rule out more than one of the four answers.
+ * Clue Trail (1.39): four clues from vague to sharp, picked from many kinds so every question feels different:
+ * continent, part of the world, hemispheres, size, neighbours, landlocked, currency, an official language,
+ * highest point and population, then the capital or a neighbour, and the flag last (only served after clue 4).
+ * Each clue is checked against the four answers: clue 1 leaves at least three possible, clue 2 at least two
+ * (1.38 and before could rule out all but one with the very first clue), clue 3 points to one.
  */
 export function trailClues(c: Country, options: Country[], rng: () => number): Clue[] {
     const cap = c.capitals[0], capNl = dutchCapital(cap), capEs = spanishCapital(cap);
     const neighbour = shuffle(COUNTRIES.filter(n => c.borders.includes(n.id) && !namesOverlap(n, c)), rng)[0];
-    const outside = options.filter(o => o.region !== c.region).length;
     const sub = SUBREGION[c.subregion];
     const ns = c.latlng[0] >= 0, ew = c.latlng[1] >= 0;
     const size = roundedArea(c.area), n = c.borders.length;
-    const vague: Clue[] = [
-        ...(outside <= 1 ? [{ en: 'Start your search in ' + c.region + '.', nl: 'Begin je zoektocht in ' + (REGION_NL[c.region] ?? c.region) + '.', es: 'Empieza a buscar en ' + (REGION_ES[c.region] ?? c.region) + '.' }] : []),
-        ...(sub ? [{ en: 'I lie in ' + sub[0] + '.', nl: 'Ik lig in ' + sub[1] + '.', es: 'Estoy en ' + sub[2] + '.' }] : []),
-        { en: 'My centre lies ' + (ns ? 'north' : 'south') + ' of the equator and ' + (ew ? 'east' : 'west') + ' of Greenwich.', nl: 'Mijn midden ligt ten ' + (ns ? 'noorden' : 'zuiden') + ' van de evenaar en ten ' + (ew ? 'oosten' : 'westen') + ' van Greenwich.', es: 'Mi centro está al ' + (ns ? 'norte' : 'sur') + ' del ecuador y al ' + (ew ? 'este' : 'oeste') + ' de Greenwich.' },
-        { en: 'My area is about ' + size.toLocaleString('en') + ' km².', nl: 'Mijn oppervlakte is ongeveer ' + size.toLocaleString('nl-NL') + ' km².', es: 'Mi superficie es de unos ' + size.toLocaleString('es-ES') + ' km².' },
-        n === 0 ? { en: 'I have no land neighbours.', nl: 'Ik heb geen buurlanden over land.', es: 'No tengo vecinos por tierra.' }
-            : { en: 'I have ' + n + ' land ' + (n === 1 ? 'neighbour' : 'neighbours') + '.', nl: 'Ik heb ' + n + ' ' + (n === 1 ? 'buurland' : 'buurlanden') + ' over land.', es: 'Tengo ' + n + ' ' + (n === 1 ? 'vecino' : 'vecinos') + ' por tierra.' }
+    const near = (a: number | undefined, b: number | undefined, ratio: number) => !!a && !!b && Math.max(a, b) / Math.min(a, b) <= ratio;
+    const cands: Candidate[] = [
+        { kind: 'continent', fits: o => o.region === c.region, clue: { en: 'Start your search in ' + c.region + '.', nl: 'Begin je zoektocht in ' + (REGION_NL[c.region] ?? c.region) + '.', es: 'Empieza a buscar en ' + (REGION_ES[c.region] ?? c.region) + '.' } },
+        ...(sub ? [{ kind: 'sub', fits: (o: Country) => o.subregion === c.subregion, clue: { en: 'I lie in ' + sub[0] + '.', nl: 'Ik lig in ' + sub[1] + '.', es: 'Estoy en ' + sub[2] + '.' } }] : []),
+        { kind: 'hemi', fits: o => (o.latlng[0] >= 0) === ns && (o.latlng[1] >= 0) === ew, clue: { en: 'My centre lies ' + (ns ? 'north' : 'south') + ' of the equator and ' + (ew ? 'east' : 'west') + ' of Greenwich.', nl: 'Mijn midden ligt ten ' + (ns ? 'noorden' : 'zuiden') + ' van de evenaar en ten ' + (ew ? 'oosten' : 'westen') + ' van Greenwich.', es: 'Mi centro está al ' + (ns ? 'norte' : 'sur') + ' del ecuador y al ' + (ew ? 'este' : 'oeste') + ' de Greenwich.' } },
+        { kind: 'area', fits: o => near(o.area, c.area, 1.6), clue: { en: 'My area is about ' + size.toLocaleString('en') + ' km².', nl: 'Mijn oppervlakte is ongeveer ' + size.toLocaleString('nl-NL') + ' km².', es: 'Mi superficie es de unos ' + size.toLocaleString('es-ES') + ' km².' } },
+        { kind: 'borders', fits: o => o.borders.length === n, clue: n === 0 ? { en: 'I have no land neighbours.', nl: 'Ik heb geen buurlanden over land.', es: 'No tengo vecinos por tierra.' }
+            : { en: 'I have ' + n + ' land ' + (n === 1 ? 'neighbour' : 'neighbours') + '.', nl: 'Ik heb ' + n + ' ' + (n === 1 ? 'buurland' : 'buurlanden') + ' over land.', es: 'Tengo ' + n + ' ' + (n === 1 ? 'vecino' : 'vecinos') + ' por tierra.' } },
     ];
-    const letter: Clue = { en: 'My capital starts with the letter ' + cap.charAt(0).toUpperCase() + '.', nl: 'Mijn hoofdstad begint met de letter ' + capNl.charAt(0).toUpperCase() + '.', es: 'Mi capital empieza por la letra ' + capEs.charAt(0).toUpperCase() + '.' };
+    if (landlocked(c)) cands.push({ kind: 'landlocked', fits: landlocked, clue: { en: 'I have no coast: there is land all around me.', nl: 'Ik heb geen kust: er ligt overal land om me heen.', es: 'No tengo costa: estoy rodeado de tierra.' } });
+    const unit = unitOf(c);
+    if (unit && !echoes(unit, c)) {
+        const [en, nl, es] = UNITS[unit] ?? [unit, unit, unit];
+        cands.push({ kind: 'currency', fits: o => unitOf(o) === unit, clue: { en: 'We pay with the ' + en + '.', nl: 'Wij betalen met de ' + nl + '.', es: 'Pagamos con el ' + es + '.' } });
+    }
+    const lang = shuffle(c.languages.filter(l => LANGUAGES[l] && ![l, LANGUAGES[l][0]].some(w => echoes(w, c))), rng)[0];
+    if (lang) cands.push({ kind: 'language', fits: o => o.languages.includes(lang), clue: { en: 'One of my official languages is ' + lang + '.', nl: 'Een van mijn officiële talen is het ' + LANGUAGES[lang][0] + '.', es: 'Uno de mis idiomas oficiales es ' + LANGUAGES[lang][1] + '.' } });
+    const high = ARCHIVE[c.id]?.highest?.value;
+    if (high && high > 0) { const h = sig2(high); cands.push({ kind: 'highest', fits: o => near(ARCHIVE[o.id]?.highest?.value, high, 1.3), clue: { en: 'My highest point is about ' + h.toLocaleString('en') + ' m above sea level.', nl: 'Mijn hoogste punt ligt ongeveer ' + h.toLocaleString('nl-NL') + ' m boven zeeniveau.', es: 'Mi punto más alto está a unos ' + h.toLocaleString('es-ES') + ' m sobre el nivel del mar.' } }); }
+    const pop = POPULATION[c.id];
+    if (pop && pop > 0) {
+        const p = sig2(pop), big = p >= 1e9 ? [p / 1e9, 'billion', 'miljard', 'mil millones'] as const : p >= 1e6 ? [p / 1e6, 'million', 'miljoen', 'millones'] as const : null;
+        const fmt = (loc: string) => big ? big[0].toLocaleString(loc, { maximumFractionDigits: 1 }) : p.toLocaleString(loc);
+        cands.push({ kind: 'population', fits: o => near(POPULATION[o.id], pop, 1.5), clue: { en: 'About ' + fmt('en') + (big ? ' ' + big[1] : '') + ' people live here.', nl: 'Er wonen ongeveer ' + fmt('nl-NL') + (big ? ' ' + big[2] : '') + ' mensen.', es: 'Aquí viven unas ' + fmt('es-ES') + (big ? ' ' + big[3] : '') + ' personas.' } });
+    }
+    const letter: Candidate = { kind: 'letter', fits: o => (o.capitals[0] ?? '').charAt(0).toUpperCase() === cap.charAt(0).toUpperCase(), clue: { en: 'My capital starts with the letter ' + cap.charAt(0).toUpperCase() + '.', nl: 'Mijn hoofdstad begint met de letter ' + capNl.charAt(0).toUpperCase() + '.', es: 'Mi capital empieza por la letra ' + capEs.charAt(0).toUpperCase() + '.' } };
     const capital: Clue = { en: 'My capital is ' + cap + '.', nl: 'Mijn hoofdstad is ' + capNl + '.', es: 'Mi capital es ' + capEs + '.' };
     const border: Clue | null = neighbour ? { en: 'I share a land border with ' + neighbour.name + '.', nl: 'Ik deel een landgrens met ' + neighbour.nl + '.', es: 'Comparto frontera terrestre con ' + spanishCountry(neighbour.name) + '.' } : null;
     // No clue may contain the answer itself.
-    const [first, ...rest] = shuffle(vague.filter(v => ![c.name, c.nl, spanishCountry(c.name)].some(name => v.en.includes(name) || v.nl.includes(name) || v.es.includes(name))), rng);
+    const safe = cands.filter(v => ![c.name, c.nl, spanishCountry(c.name)].some(name => v.clue.en.includes(name) || v.clue.nl.includes(name) || v.clue.es.includes(name)));
+    // Pick the clue that keeps at least `keep` answers possible; if none can, the one that keeps the most.
+    // The plain ones (continent, hemispheres) weigh less, so the richer facts come up more often.
+    const WEIGHT: Record<string, number> = { continent: 1, hemi: 1, sub: 2, borders: 2, area: 2, letter: 2 };
+    const pickFrom = (pool: Candidate[], left: Country[], keep: number) => {
+        const scored = shuffle(pool, rng).map(x => ({ x, n: left.filter(x.fits).length }));
+        const fit = scored.filter(s => s.n >= keep);
+        if (!fit.length) return scored.sort((a, b) => b.n - a.n)[0]?.x;
+        let roll = rng() * fit.reduce((sum, s) => sum + (WEIGHT[s.x.kind] ?? 4), 0);
+        for (const s of fit) { roll -= WEIGHT[s.x.kind] ?? 4; if (roll <= 0) return s.x; }
+        return fit[fit.length - 1].x;
+    };
+    const first = pickFrom(safe, options, 3)!;
+    const afterFirst = options.filter(first.fits);
     // A capital that echoes the country's name (San Salvador, Guatemala City) would give the answer away: use the neighbour then.
     const words = (v: string) => v.toLowerCase().split(/[^a-zà-ÿ]+/).filter(w => w.length >= 4);
-    const echoes = words(cap).some(w => words(c.name + ' ' + c.nl).includes(w));
-    const sharp = border && (echoes || rng() < .5) ? border : capital;
-    const second = shuffle([...rest, ...(sharp === capital ? [] : [letter])], rng)[0] ?? letter;
-    return [first, second, sharp, { en: 'My flag looks like this.', nl: 'Mijn vlag ziet er zo uit.', es: 'Mi bandera tiene este aspecto.' }];
+    const capEcho = words(cap).some(w => words(c.name + ' ' + c.nl).includes(w));
+    const sharp = border && (capEcho || rng() < .5) ? border : capital;
+    const second = pickFrom([...safe.filter(x => x.kind !== first.kind), ...(sharp === capital ? [] : [letter])], afterFirst, 2) ?? letter;
+    return [first.clue, second.clue, sharp, { en: 'My flag looks like this.', nl: 'Mijn vlag ziet er zo uit.', es: 'Mi bandera tiene este aspecto.' }];
 }
 export function generateQuestions(settings: Settings, seed: string, exclude: string[] = [], weak: string[] = [], focus?: string, blocked: string[] = []) {
     const rng = random(seed);

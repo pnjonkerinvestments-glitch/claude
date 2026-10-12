@@ -10,6 +10,6 @@ export const spanishExtras: Record<string, string> = {
   duelWin: '¡Ganas este duelo!', duelLose: 'Este lo gana Roviko.', duelTip: '{card} habría ganado esta ronda. Cada carta solo una vez: ¡planea tu ruta!',
   duelNext: 'Siguiente duelo', duelResults: 'Ver el resultado', duelResultTitle: 'Ganaste {n} de 7 duelos', duelPerfect: '¡Ruta perfecta! Ganaste a Roviko 7–0.',
   duelRoute: 'La ruta perfecta', duelVs: 'contra', duelYourPick: 'Tu carta', duelNew: 'Jugar un duelo de práctica', duelNextDaily: 'Nuevo duelo en', duelPractice: 'Duelo de práctica',
-  reminderTitle: 'Recordatorio diario', reminderCopy: 'Recibe un aviso amable a las 18:00 cuando tus juegos te esperan.', reminderOnCopy: 'Activado. Te avisaremos cada día a las 18:00.',
+  reminderTitle: 'Recordatorio diario', reminderCopy: 'Solo un aviso los días que aún no has jugado, cerca de tu hora de juego.', reminderOnCopy: 'Activado. Solo un aviso los días que aún no has jugado, cerca de tu hora habitual. Tras una semana sin jugar se detienen solos.',
   reminderDenied: 'Las notificaciones de Roviko están desactivadas. Puedes activarlas en los ajustes del teléfono.', reminderTurnOn: 'Activar', reminderTurnOff: 'Desactivar',
 };

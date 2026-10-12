@@ -790,3 +790,13 @@ test('learn progress (1.38): saved per account, merged per card (newest wins), c
  assert.equal((await request(c,'/profile','DELETE')).status,200);
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM learn_progress WHERE user_id=?').bind(acc.data.user.id).first()).n,0);
 });
+
+test('streak repair (1.39): offered after a short break, once per 30 days, and it brings the streak back',async()=>{
+ const g=await bootstrap();const id=g.data.user.id;const d=n=>new Date(Date.now()-n*86400000).toISOString().slice(0,10);
+ for(const n of [5,4,3]){const rid='repair-'+id+'-'+n;await db.prepare('INSERT INTO game_results(id,user_id,mode,score,xp,correct,total,duration,best_streak,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)').bind(rid,id,'daily',100,0,1,1,1000,1,Date.now()-n*86400000).run();await db.prepare('INSERT INTO daily_challenge_results(user_id,date,result_id,score) VALUES (?,?,?,?)').bind(id,d(n),rid,100).run();}
+ let p=(await request(g.cookie,'/profile')).data.stats;assert.equal(p.dailyStreak,0,'two missed days without a shield break it');
+ assert.ok(p.streakRepair,'a repair is offered');assert.deepEqual(p.streakRepair.days,[d(2),d(1)]);assert.equal(p.streakWeek.length,7);
+ const r=await request(g.cookie,'/streak/repair','POST',{});assert.equal(r.status,200,JSON.stringify(r.data));assert.equal(r.data.streak,3);
+ p=(await request(g.cookie,'/profile')).data.stats;assert.equal(p.dailyStreak,3);assert.equal(p.streakRepair,null);
+ assert.equal((await request(g.cookie,'/streak/repair','POST',{})).status,409,'only once per 30 days');
+});

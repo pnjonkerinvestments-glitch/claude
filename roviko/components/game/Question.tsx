@@ -19,12 +19,12 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
     answerMarks?: Record<string, React.ReactNode>;
 }) {
     const [cluesShown, setCluesShown] = useState(q?.cluesShown ?? 1);
-    // Multiplayer: clues appear one by one, every 2 seconds, so fast readers don't see everything at once.
+    // Multiplayer: clues appear one by one, every 2.5 seconds (1.39, was 2), so everyone can read each clue.
     const clueTotal = q?.clues?.length ?? 0;
     const [live, setLive] = useState({ id: q?.id, n: 1 });
     useEffect(() => {
         if (!competitive || !clueTotal || feedback) return;
-        const id = q?.id, timer = setInterval(() => setLive(prev => ({ id, n: prev.id === id ? Math.min(clueTotal, prev.n + 1) : 2 })), 2000);
+        const id = q?.id, timer = setInterval(() => setLive(prev => ({ id, n: prev.id === id ? Math.min(clueTotal, prev.n + 1) : 2 })), 2500);
         return () => clearInterval(timer);
     }, [competitive, clueTotal, feedback, q?.id]);
     const liveClues = live.id === q?.id ? live.n : 1;

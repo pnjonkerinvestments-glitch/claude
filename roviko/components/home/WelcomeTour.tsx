@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { Character, type CharacterMood, type CharacterPose } from '../ds/Character';
 import { FlameMark } from '../ds/Coin';
 import { RovikoIcon, type RovikoIconName } from '../ds/RovikoIcons';
+import { TourArt } from './TourArt';
 
 export const TOUR_KEY = 'roviko:tour';
 export const tourSeen = () => { try { return localStorage.getItem(TOUR_KEY) === 'done'; } catch { return true; } };
@@ -18,14 +19,15 @@ type Step = { key: string; art?: string; mascot?: [CharacterMood, CharacterPose]
  */
 const STEPS: Step[] = [
   { key: 'g1', mascot: ['cheer', 'wave'] },
-  { key: 'g2', art: '/art/world-trip-480.webp', where: [['play', 'play']] },
-  { key: 'g3', art: '/art/duel-480.webp', where: [['play', 'play']] },
+  { key: 'g2', art: 'scene', where: [['play', 'play']] },
+  { key: 'g3', art: 'scene', where: [['play', 'play']] },
   { key: 'g4', mascot: ['happy', 'cheer'], flame: true, where: [['play', 'play']] },
-  { key: 'g5', art: '/art/rank-radar-480.webp', where: [['trophy', 'gRankings']] },
-  { key: 'g6', art: '/art/classic-480.webp', where: [['play', 'play']] },
-  { key: 'g7', art: '/art/explore-hero.webp', where: [['explore', 'explore'], ['passport', 'navPassport']] },
-  { key: 'g8', art: '/art/friends-row.webp', where: [['multiplayer', 'navMultiplayer']] },
+  { key: 'g5', art: 'scene', where: [['trophy', 'gRankings']] },
+  { key: 'g6', art: 'scene', where: [['play', 'play']] },
+  { key: 'g7', art: 'scene', where: [['explore', 'explore'], ['passport', 'navPassport']] },
+  { key: 'g8', art: 'scene', where: [['multiplayer', 'navMultiplayer']] },
 ];
+// 1.39: on the first visit playing comes first; the account is the quiet second button (asked again on day 2 or after 6/6).
 const ACCOUNT: Step = { key: 'g9', mascot: ['wink', 'point'], perks: ['g9Perk1', 'g9Perk2', 'g9Perk3', 'g9Perk4'] };
 const READY: Step = { key: 'g10', mascot: ['cheer', 'cheer'] };
 
@@ -43,8 +45,8 @@ export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup, o
   return <Dialog open={open} onOpenChange={v => { if (!v) close(); }}>
     <DialogContent className="app-modal welcome-tour" showCloseButton={false} onOpenAutoFocus={e => e.preventDefault()} onKeyDown={e => { if (e.key === 'ArrowRight' && !last) go(i + 1); if (e.key === 'ArrowLeft') go(i - 1); }}>
       {!last && <button type="button" className="tour-skip text-link" onClick={close}>{t('tourSkip')}</button>}
-      <div className={'tour-art' + (step.mascot ? ' is-mascot' : '')} aria-hidden="true" key={step.key}>
-        {step.mascot ? <><Character mood={step.mascot[0]} pose={step.mascot[1]} size={150}/>{step.flame && <span className="tour-flame"><FlameMark size={44}/></span>}</> : <img src={step.art} alt="" width={480} height={270} decoding="async"/>}
+      <div className={'tour-art' + (step.mascot ? ' is-mascot' : ' is-scene')} aria-hidden="true" key={step.key}>
+        {step.mascot ? <><Character mood={step.mascot[0]} pose={step.mascot[1]} size={150}/>{step.flame && <span className="tour-flame"><FlameMark size={44}/></span>}</> : <TourArt step={step.key}/>}
       </div>
       <p className="tour-step">{t('tourStepOf').replace('{n}', String(i + 1)).replace('{total}', String(steps.length))}</p>
       <DialogTitle className="modal-title">{t(step.key + 'Title')}</DialogTitle>
@@ -53,7 +55,7 @@ export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup, o
       {step.perks && <ul className="tour-perks">{step.perks.map(k => <li key={k}><Check size={16} strokeWidth={3} aria-hidden="true"/>{t(k)}</li>)}</ul>}
       <ol className="tour-dots" aria-hidden="true">{steps.map((s, n) => <li key={s.key} className={n === i ? 'is-on' : n < i ? 'is-past' : ''}/>)}</ol>
       {step === ACCOUNT
-        ? <div className="tour-actions is-final"><button className="btn gold btn-lg" onClick={() => { close(); onSignup(); }}>{t('gSignup')}<ArrowRight size={18} aria-hidden="true"/></button><button className="btn ghost" onClick={() => { close(); onStart(); }}>{t('gLater')}</button></div>
+        ? <div className="tour-actions is-final"><button className="btn primary btn-lg" onClick={() => { close(); onStart(); }}>{t('gStart')}<ArrowRight size={18} aria-hidden="true"/></button><button className="btn ghost" onClick={() => { close(); onSignup(); }}>{t('gSignup')}</button></div>
         : step === READY
         ? <div className="tour-actions is-final"><button className="btn primary btn-lg" onClick={() => { close(); onStart(); }}>{t('gStart')}<ArrowRight size={18} aria-hidden="true"/></button><button className="btn ghost" onClick={() => go(i - 1)}><ArrowLeft size={17} aria-hidden="true"/>{t('tourBack')}</button></div>
         : i === 0

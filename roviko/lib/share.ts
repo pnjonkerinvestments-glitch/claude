@@ -36,7 +36,9 @@ export function readChallenge(search: string): SharedChallenge | null {
 /** Today's place of the player, per game ('day' for the whole day), remembered when the result screen loads it,
  *  so every share button can say "#3 of 120" without asking the server again. Only lives in this page. */
 const standings = new Map<string, { place: number; players: number }>();
-export function rememberStanding(mode: string, date: string, place?: number, players?: number) {
+export function rememberStanding(mode: string, date: string, place?: number, players?: number, score?: number) {
+    // 1.39: with 0 points there is nothing to boast about (it read "#1 in the world" when everyone had 0).
+    if (score !== undefined && score <= 0) { standings.delete(mode + ':' + date); return; }
     if (place && players && players >= 2) standings.set(mode + ':' + date, { place, players });
 }
 export function standingFor(mode: string, date?: string | null) { return date ? standings.get(mode + ':' + date) : undefined; }

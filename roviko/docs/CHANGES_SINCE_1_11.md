@@ -596,7 +596,46 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.38.0 (op de testversie, nog niet live)
+## 1.40.0 (op de testversie, nog niet live; samen met 1.39)
+
+- **Scherpe beelden.** De illustraties waren zelf onscherp: de bronbestanden zijn klein (ongeveer 600–700 pixels, ook in de map met originele visuals) en waren opgeschaald, en de rondleiding laadde bovendien de kleinste versie (480 pixels) voor een kaart van ruim 400 punten breed op een scherm met 3× zoveel pixels. Omzetten naar vectoren met een tool gaf rafelige randen, dus de meest zichtbare beelden zijn opnieuw getekend in code:
+  - **Rondleiding**: zes eigen tafereeltjes (`components/home/TourArt.tsx`) met de spellogo's, Roviko en de avatars (allemaal vectoren): de Omweg-route, de vijf dagspellen als kaarten met de 6.000-munt, het podium met competitieschild, de extra spellen, ontdekken met stempels, samen spelen.
+  - **Continenten**: de onscherpe landschappen (zoals het Colosseum) zijn vervangen door scherpe kaarten van elk continent, gemaakt uit het grenzenbestand dat het spel al gebruikt (`scripts/make-continent-art.mjs` → `public/art/map-*.svg`, ook een kaart voor Amerika): landen in mint en groen met witte grenzen, de rest van de wereld in zand, een kompasroos en een stippellijn met vliegtuigje. Gebruikt op de continent-van-de-weekkaart, in Leren, bij de grenscontrole en op de continentkaarten in Ontdekken en het paspoort.
+  - **Vrienden** (gastweergave in Multiplayer): getekende avatars in plaats van de onscherpe groepsfoto.
+  - Verwijderd omdat ze niet meer gebruikt worden: `banner-*.webp`, `scene-*.webp`, `friends-row.webp`.
+  - Nagelopen en goed: het logo (256 pixels voor 30 punten), de paginakoppen (Roviko is al een vector), de spelkaarten (versies tot 1440 pixels). De kleine landschapjes bij enkele landen in Ontdekken (Japan, VS, Peru) zijn ongewijzigd.
+- **Nieuw opstartscherm (app).** Roviko die zwaait op de crèmekleurige achtergrond met een zachte mintgloed, een gestippelde cirkel, sterretjes en het woordmerk "roviko." in Fredoka, scherp getekend op 2732 × 2732 en in alle iPhone- en Android-maten. Ook in de donkere stand hetzelfde lichte scherm (vroeger donkergroen), want de app is altijd licht. Het opstartscherm blijft nu staan tot Roviko zijn gegevens heeft (hooguit 4 seconden) en vervaagt dan, zodat er geen leeg scherm tussen zit (`SplashScreen.hide` vanuit de site, `launchShowDuration` 4000 in `roviko-app/capacitor.config.json`). **Let op:** het nieuwe opstartscherm zit in de app zelf en verschijnt pas na een nieuwe app-build (iOS via de workflow *Roviko app* → `ios-release`, Android bij de volgende build).
+- Service worker `roviko-shell-v1.40.0`. Geen migratie.
+- **Getest:** volledige testset 204 geslaagd, 1 bewust overgeslagen (de beeldentest kent nu de kaarten en controleert dat elk bestand gebruikt wordt en onder 140 kB blijft), typecheck, build; in de browser op 390 px met 3× scherpte: alle stappen van de rondleiding, de continentkeuze in Leren, de continentkaarten in Ontdekken, en het opstartscherm als afbeelding (ook bijgesneden zoals een iPhone het toont). **Niet getest:** het opstartscherm in een echte app-build op een telefoon, het verbergen met `SplashScreen.hide` in de app, en het paspoort met de nieuwe kaarten in de browser.
+
+## 1.39.0 (op de testversie, nog niet live)
+
+**Fouten opgelost**
+- Clue Trail: de eerste hint liet soms al maar één antwoord over (deel-van-de-wereld-hint). Nu wordt elke hint getoetst aan de vier antwoorden: hint 1 laat er altijd minstens drie over, hint 2 minstens twee.
+- Wereldduel: de namen van de onderwerpen in de rij bovenaan waren altijd verborgen. Ze staan er nu klein onder (twee regels, afgebroken waar dat kan).
+- Wereldduel: wie als nieuwe gast direct op `/duel` kwam, kreeg eerst "kon niet laden" (de sessie bestond nog niet). Het scherm wacht nu op de sessie.
+- De herinnering in de app ging ook af als je al gespeeld had (vaste melding per weekdag om 18:00).
+- Delen in Rank Radar kopieerde alleen; nu opent het deelvenster (met plaatje) zoals bij de andere spellen.
+- Met 0 punten deelde je "Nummer 1 van de wereld"; bij 0 punten gaat er geen plek meer mee.
+- Weekcompetitie: de top 5 promoveerde in elke groepsgrootte (een groep van 5 ging helemaal omhoog). Nu het beste kwart: minstens 1, hooguit 5.
+- Het app-venster op de iPhone ging over een uitdagings- of deellink heen; bij zo'n link verschijnt het niet meer.
+- Als een stukje van de pagina niet laadde, bleef het scherm leeg. Nu verschijnt Roviko met "Opnieuw laden" (`components/ds/ErrorBoundary.tsx`).
+
+**Verbeteringen**
+- Slimme herinnering (app): alleen op dagen dat je nog niet speelde, rond je eigen speeltijd (mediaan van de laatste twee weken, een half uur ervoor, vóór de dagwissel, tussen 9:00 en 22:00), en na 7 dagen zonder bezoek stopt hij vanzelf (eenmalige meldingen voor de komende 7 dagen, bij elk bezoek opnieuw gepland). Oude wekelijkse meldingen worden opgeruimd.
+- Account: niet meer na het eerste spel, maar op de tweede speeldag of na 6 van de 6 spellen (bewaarkaart en homepage-banner). In de rondleiding is "Begin de reis van vandaag" de hoofdknop en een account de rustige tweede knop.
+- Reeks in week 1: het eerste reeksschild na 3 speeldagen (daarna elke 7; voor speeldagen vanaf 13 oktober 2026), één keer per 30 dagen gratis herstel van een gebroken reeks (hooguit 2 gemiste dagen, reeks van minstens 2), een feestje met confetti op dag 3, 7 en 30, en een weekkaart op de homepage (ma t/m zo: gespeeld, schild of hersteld, gemist, vandaag). **Migratie `0015_streak_repairs.sql`**: voegt alleen de tabel `streak_repairs` toe.
+- Clue Trail: rijkere hints met meer variatie: munteenheid, een officiële taal, hoogste punt, inwoners, geen kust; de gewone hints (continent, halfrond) komen minder vaak. In multiplayer elke 2,5 seconde een nieuwe hint (was 2).
+- Multiplayer: je kiest nu meerdere spellen tegelijk (één, een paar of allemaal); "Rond de Wereld" is alle spellen.
+- Vrienden: naam en niveau krijgen hun ruimte, de knop staat op telefoons op een eigen regel eronder en is rustiger (lichte knop).
+- Eén hoofdknop per scherm: de knoppen naast de hoofdactie zijn rustiger gemaakt (uitnodigen, kamercode, naam opslaan, account bewaren na een spel, herstel-knop).
+- Automatisch verder na een goed antwoord staat nu standaard aan (wie het zelf had uitgezet, houdt het uit).
+- Leren: ook de tekst en de Start-knop naast een stap zijn aan te tikken; de balk bovenin een les en elk spel loopt bij scrollen over de hele breedte door.
+- Service worker `roviko-shell-v1.39.0`.
+
+**Getest:** volledige testset 204 geslaagd, 1 bewust overgeslagen (nieuw: eerste schild na 3 dagen en herstelregels in `tests/streak.test.mjs`, promotie per groepsgrootte in `tests/league.test.mjs`, integratietest voor herstel via `/api/streak/repair`), typecheck, build; in de browser op 390 px: de spellenkeuze in de wachtkamer (twee spellen gekozen → "2 spellen door elkaar"), de vriendenrij met Lucia, het Wereldduel met onderwerpnamen en het laden als nieuwe gast, de homepage en een les. Een steekproef van 3.000 Clue Trail-vragen: hint 2 is nu verdeeld over continent, taal, hoogste punt, halfrond, deel van de wereld, munt, inwoners en oppervlakte. **Niet getest:** de slimme herinnering op een echte telefoon (alleen in de app; de code plant meldingen via de Capacitor-plugin), de weekkaart en het herstel in de browser met een echte gebroken reeks (wel via de integratietest), het feestje op dag 3/7/30 in de browser, afbreken van onderwerpnamen in Safari, Engels en Spaans op het scherm.
+
+## 1.38.0 (live sinds 11 oktober 2026)
 
 - **Leren (nieuw tabblad, `/learn`).** Bovenaan kies je een onderwerp (**Vlaggen**, **Hoofdsteden**, **Kaart**: waar ligt het) en een continent (Europa, Afrika, Azië, Noord-Amerika, Zuid-Amerika, Oceanië). Dat zijn 18 routes; de keuze wordt op het apparaat onthouden. Per continent dezelfde lessen voor elk onderwerp: groepjes van 4 tot 6 landen, bekende landen eerst en buren bij elkaar (Europa 9 lessen, Afrika 12, Azië 10, Noord-Amerika 5, Zuid-Amerika 3, Oceanië 3; alle 195 landen precies één keer per onderwerp, `GROUPS` in `lib/learn.ts`).
 - **Een les** (sneller dan de eerste versie): kennismaken (vlag, of hoofdstad groot, of de kaart met het land in goud en de andere landen van de les in mint), daarna elk land **één keer** oefenen (de twee richtingen om en om; een fout komt één keer terug) en dan "laten zien": elk land één keer tussen lijkende vlaggen of landen die in de buurt liggen. Met **"Ik ken ze al: meteen de toets"** sla je kennismaken en oefenen over.

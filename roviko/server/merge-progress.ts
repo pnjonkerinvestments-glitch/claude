@@ -18,6 +18,8 @@ export async function mergeProgress(env: Env, guest: User | null, accountId: str
         { sql: 'INSERT OR IGNORE INTO user_achievements(user_id,achievement_id,earned_at) SELECT ?,achievement_id,earned_at FROM user_achievements WHERE user_id=?', args:[accountId,guest.id] },
         { sql: `INSERT INTO learning_reviews(user_id,key,country_id,mode,topic,content,missed,resolved,updated_at) SELECT ?,key,country_id,mode,topic,content,missed,resolved,updated_at FROM learning_reviews WHERE user_id=? ON CONFLICT(user_id,key) DO UPDATE SET content=excluded.content,resolved=excluded.resolved,updated_at=excluded.updated_at WHERE excluded.updated_at>learning_reviews.updated_at`, args:[accountId,guest.id] },
         { sql: 'UPDATE question_reports SET user_id=? WHERE user_id=?', args:[accountId,guest.id] },
+        { sql: 'INSERT OR IGNORE INTO streak_repairs(user_id,date,created_at) SELECT ?,date,created_at FROM streak_repairs WHERE user_id=?', args:[accountId,guest.id] },
+        { sql: 'DELETE FROM streak_repairs WHERE user_id=?', args:[guest.id] },
         { sql: 'DELETE FROM auth_sessions WHERE user_id=?', args:[guest.id] },
         { sql: 'DELETE FROM users WHERE id=? AND guest=1', args:[guest.id] },
         { sql: `INSERT INTO concept_performance(user_id,country_id,mode,correct,attempts) SELECT user_id,country_id,mode,SUM(correct),COUNT(*) FROM answers WHERE user_id=? GROUP BY user_id,country_id,mode ON CONFLICT(user_id,country_id,mode) DO UPDATE SET correct=excluded.correct,attempts=excluded.attempts`, args:[accountId] }

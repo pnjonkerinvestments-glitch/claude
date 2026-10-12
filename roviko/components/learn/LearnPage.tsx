@@ -109,7 +109,7 @@ export function LearnPage() {
             {done && <span className="lp-tick" aria-hidden="true"><Check size={14} strokeWidth={3.4}/></span>}
             {locked && <span className="lp-lock" aria-hidden="true"><LockKeyhole size={14} strokeWidth={2.6}/></span>}
           </button>
-          <span className="lp-text" aria-hidden="true">
+          <span className={'lp-text' + (locked || !loaded ? '' : ' is-tappable')} aria-hidden="true" onClick={locked || !loaded ? undefined : () => go('/learn/' + step.id)}>
             <small>{text.small}</small>
             <strong>{text.strong}</strong>
             <em>{next ? <span className={'t-pill lp-go' + (exam ? ' is-gold' : '')}>{t('learnStart')}<ArrowRight size={15}/></span> : sub}</em>
@@ -122,7 +122,7 @@ export function LearnPage() {
           {passed && <span className="lp-tick" aria-hidden="true"><Check size={14} strokeWidth={3.4}/></span>}
           {!s.bossOpen && <span className="lp-lock" aria-hidden="true"><LockKeyhole size={14} strokeWidth={2.6}/></span>}
         </button>
-        <span className="lp-text" aria-hidden="true">
+        <span className={'lp-text' + (s.bossOpen && loaded ? ' is-tappable' : '')} aria-hidden="true" onClick={s.bossOpen && loaded ? () => go('/learn/boss-' + route.id) : undefined}>
           <small>{t('learnBoss')}</small>
           <strong>{t('learnBossStamp').replace('{continent}', t(route.region))}</strong>
           <em>{s.bossOpen ? <span className="t-pill lp-go is-gold">{passed ? t('learnAgain') : t('learnStart')}<ArrowRight size={15}/></span> : t('learnBossLocked')}</em>

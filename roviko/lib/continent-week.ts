@@ -29,5 +29,6 @@ export function continentModes(region: string): (typeof MODES)[number][] {
 }
 /** The art for a continent card (the region scenes in public/art). */
 export function continentArt(region: string) {
-  return '/art/banner-' + (region === 'Americas' ? 'south-america' : region.toLowerCase().replace(' ', '-')) + '.webp';
+  // 1.40: sharp vector maps (scripts/make-continent-art.mjs) instead of the soft illustrated banners.
+  return '/art/map-' + region.toLowerCase().replace(' ', '-') + '.svg';
 }

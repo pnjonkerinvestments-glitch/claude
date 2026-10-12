@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ArrowUpRight, Search, Shuffle, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { DEFAULT_SETTINGS, REGIONS } from '@/lib/config';
+import { continentArt } from '@/lib/continent-week';
 import { formatScore } from '@/lib/client';
 import { spanishCountry, spanishCapital, spanishContent } from '../../i18n/content';
 import { dutchCapital } from '../../i18n/capitals-nl';
@@ -107,7 +108,7 @@ export function ExplorePage() {
         <section className="page-section" aria-labelledby="explore-regions">
           <SectionHeader id="explore-regions" title={t('exploreByRegion')} action={<button className="text-link" onClick={() => { setShowAll(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>{t('exploreAll')}<ArrowRight size={16} aria-hidden="true"/></button>}/>
           <div className="region-grid">{REGIONS.filter(r => r !== 'World').map(r => <button key={r} type="button" className="region-card scene-card" onClick={() => { setRegion(r); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-            <picture className="region-art"><source media="(min-width: 761px)" srcSet={'/art/banner-' + REGION_ART[r] + '.webp'} width={658} height={210}/><img src={'/art/scene-' + REGION_ART[r] + '.webp'} alt="" width={627} height={465} loading="lazy" decoding="async"/></picture>
+            <picture className="region-art"><img src={continentArt(r)} alt="" width={1440} height={600} loading="lazy" decoding="async"/></picture>
             <span className="region-copy"><strong>{t(r)}</strong><small>{plural(t, 'exploreResults', data.filter(c => c.region === r).length)}</small></span>
             <span className="round-go" aria-hidden="true"><ArrowRight size={17}/></span>
           </button>)}</div>

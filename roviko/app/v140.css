@@ -1,0 +1,56 @@
+/* 1.40: sharp, drawn tour scenes (components/home/TourArt.tsx) instead of soft illustrations. */
+.welcome-tour .tour-art.is-scene{padding:0}
+.tour-scene{position:relative;width:100%;height:100%;overflow:hidden}
+.tour-scene .ta-spark{position:absolute;pointer-events:none}
+.tour-scene .game-icon-lg{width:64px!important;height:64px!important;border-radius:19px!important;box-shadow:0 2px 4px rgba(22,59,50,.08),0 10px 22px rgba(22,59,50,.12)}
+.tour-scene .game-icon-lg>svg{width:70%!important;height:70%!important}
+
+/* Daily Detour: a dotted route with pins, the Detour logo and Roviko. */
+.ts-detour{background:linear-gradient(160deg,#e6f4ec,#cfe8db)}
+.ts-detour .ta-route{position:absolute;inset:0;width:100%;height:100%}
+.ts-detour .ta-pin{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px #1f806b}
+.ts-detour .ta-pin.is-goal{width:18px;height:18px;margin:-9px 0 0 -9px;background:#f6b84b;box-shadow:0 0 0 4px #fff,0 4px 10px rgba(0,0,0,.12)}
+.ts-detour .ta-main{position:absolute;left:24%;top:50%;transform:translate(-50%,-50%) rotate(-6deg);width:88px!important;height:88px!important;border-radius:26px!important}
+.ts-detour .ta-char{position:absolute;right:16%;bottom:6px}
+
+/* Five daily games: the logos fanned like cards, and the 6,000 points coin. */
+.ts-five{background:linear-gradient(160deg,#fde9ec,#f8d9e2)}
+.ts-five .ta-card{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%) translateX(calc(var(--i) * 58px)) translateY(calc(var(--i) * var(--i) * 3px)) rotate(calc(var(--i) * 8deg))}
+.ts-five .ta-card .game-icon-lg{width:70px!important;height:70px!important;background:#fff!important}
+.ts-five .ta-coin{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:inline-flex;align-items:center;gap:6px;padding:5px 14px 5px 6px;border-radius:999px;background:#fff;box-shadow:0 6px 16px rgba(22,59,50,.12);color:#5a3a06;font:700 1rem/1 var(--font-display)}
+
+/* Rankings: a podium with Roviko on top and a league badge. */
+.ts-rank{background:linear-gradient(160deg,#fff4dc,#fde5b4)}
+.ts-rank .ta-podium{position:absolute;left:50%;bottom:0;transform:translateX(-50%);display:flex;align-items:flex-end;gap:6px}
+.ts-rank .ta-step{position:relative;display:grid;justify-items:center;align-content:start;width:78px;border-radius:14px 14px 0 0;background:#fff;box-shadow:0 -2px 10px rgba(90,58,6,.08)}
+.ts-rank .ta-step i{font:700 1.25rem/1 var(--font-display);font-style:normal;color:#c07a0a;margin-top:6px}
+.ts-rank .ta-step.is-1{height:62px}.ts-rank .ta-step.is-2{height:44px}.ts-rank .ta-step.is-3{height:32px}
+.ts-rank .ta-step>.globe-avatar,.ts-rank .ta-step>svg:first-child{position:absolute;bottom:100%;margin-bottom:-4px}
+.ts-rank .ta-step.is-1 .character{position:absolute;bottom:100%;margin-bottom:-8px}
+.ts-rank .ta-badge{position:absolute;right:12%;top:16%;display:grid;place-items:center;width:62px;height:62px;border-radius:50%;background:#fff;box-shadow:0 6px 16px rgba(90,58,6,.14)}
+
+/* Extra games: a neat grid of the classic games and Roviko pointing at it. */
+.ts-extra{background:linear-gradient(160deg,#e3f0fb,#cfe3f6)}
+.ts-extra .ta-grid{position:absolute;left:30%;top:50%;transform:translate(-50%,-50%) rotate(-4deg);display:grid;grid-template-columns:repeat(3,auto);gap:10px}
+.ts-extra .ta-grid .game-icon-lg{width:56px!important;height:56px!important;border-radius:16px!important}
+.ts-extra .ta-char{position:absolute;right:10%;bottom:4px}
+
+/* Explore: passport stamps around a curious Roviko. */
+.ts-explore{background:linear-gradient(160deg,#eaf3e3,#d7ebcc)}
+.ts-explore .ta-char{position:absolute;left:50%;bottom:4px;transform:translateX(-50%)}
+.ts-explore .ta-stamp{position:absolute;display:grid;place-items:center;width:70px;height:70px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(31,128,107,.35),0 8px 18px rgba(22,59,50,.12)}
+.ts-explore .ta-stamp.is-a{left:10%;top:14%;transform:rotate(-10deg)}
+.ts-explore .ta-stamp.is-b{right:13%;top:16%;transform:rotate(8deg)}
+.ts-explore .ta-stamp.is-c{left:19%;bottom:12%;transform:rotate(-6deg);width:62px;height:62px}
+
+/* Together: three friends side by side. */
+.ts-together{background:linear-gradient(160deg,#ece7fb,#ddd5f6)}
+.ts-together .ta-friends{position:absolute;left:50%;top:54%;transform:translate(-50%,-50%);display:flex;align-items:flex-end;gap:2px}
+.ts-together .ta-friends>*:nth-child(2){margin-bottom:10px;filter:drop-shadow(0 8px 14px rgba(40,30,90,.18))}
+.ts-together .ta-bubble,.ts-together .ta-flame{position:absolute;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#fff;box-shadow:0 6px 14px rgba(40,30,90,.14)}
+.ts-together .ta-bubble{left:18%;top:16%}.ts-together .ta-flame{right:17%;top:20%}
+@media (prefers-reduced-motion:no-preference){.tour-scene .ta-spark{animation:ta-twinkle 2.4s ease-in-out infinite}}
+@keyframes ta-twinkle{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.7);opacity:.6}}
+
+/* Drawn friends instead of the soft group picture (1.40). */
+.mp-friends-art.is-drawn{display:flex!important;justify-content:center;align-items:flex-end;gap:2px;max-width:none;margin:4px auto 12px}

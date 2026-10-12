@@ -126,7 +126,7 @@ function NameEditor({ code, t, fail }: { code: string; t: T; fail: (e: unknown) 
   return <form className="lobby-name-form" onSubmit={save}>
     <label htmlFor="lobby-name">{t('lobbyNameLabel')}</label>
     <div><input id="lobby-name" className="input" value={name} maxLength={24} minLength={2} autoComplete="nickname" autoFocus onChange={e => setName(e.target.value)}/>
-    <button className="btn primary" disabled={busy || name.trim().length < 2}>{t('save')}</button>
+    <button className="btn secondary" disabled={busy || name.trim().length < 2}>{t('save')}</button>
     <button type="button" className="btn ghost" onClick={() => setOpen(false)} aria-label={t('cancel')}><X size={16}/></button></div>
   </form>;
 }

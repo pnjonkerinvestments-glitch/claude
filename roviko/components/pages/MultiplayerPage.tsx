@@ -36,7 +36,7 @@ export function JoinForm({ compact = false }: { compact?: boolean }) {
     <label htmlFor={id} className="field-label">{t('roomCode')}</label>
     <div className="join-row">
       <input id={id} className="code-input" placeholder="K7QMA" value={code} onChange={e => { setProblem(''); setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5)); }} maxLength={5} autoComplete="off" autoCorrect="off" autoCapitalize="characters" spellCheck={false} inputMode="text" enterKeyHint="go" aria-invalid={!!problem} aria-describedby={id + '-help'}/>
-      <button className="btn primary" disabled={busy || code.length !== 5} aria-busy={busy}>{t('join')}<ArrowRight size={16} aria-hidden="true"/></button>
+      <button className="btn secondary" disabled={busy || code.length !== 5} aria-busy={busy}>{t('join')}<ArrowRight size={16} aria-hidden="true"/></button>
     </div>
     <p id={id + '-help'} className={problem ? 'field-error' : 'field-help'} role={problem ? 'alert' : undefined}>{problem || t('codeHelp')}</p>
   </form>;

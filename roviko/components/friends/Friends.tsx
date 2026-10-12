@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { api, post } from '@/lib/client';
 import { DEFAULT_SETTINGS } from '@/lib/config';
 import { useApp } from '../app/context';
+import { GlobeAvatar } from '../ds/GlobeAvatar';
 import { PlayerActions } from '../multiplayer/PlayerActions';
 import { A, Avatar } from '../app/shared';
 import { EmptyState, PageHeader, SectionHeader, Skeleton } from '../ds/States';
@@ -190,7 +191,7 @@ export function FriendsPage() {
   const online = accepted.filter(f => f.online), offline = accepted.filter(f => !f.online);
   const playAction = (f: Friend) => f.room_code
     ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
-    : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>;
+    : <button className="btn secondary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>;
   return <div className="page friends-v2 trip-page">
     <PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')} lead={t('friendsListCopy')}/>
     <section className="friend-add" aria-labelledby="friend-add-title">
@@ -218,7 +219,7 @@ export function FriendsOnlinePanel() {
   const [inviting, setInviting] = useState('');
   if (boot.user.guest) return <section className="mp-friends is-guest" aria-labelledby="mp-friends-title">
     <div className="mp-friends-head"><RovikoIcon name="friends" size={30}/><div><h2 id="mp-friends-title">{t('mpFriendsTitle')}</h2><p className="muted">{t('mpFriendsGuest')}</p></div></div>
-    <img className="mp-friends-art" src="/art/friends-row.webp" alt="" aria-hidden="true" width={407} height={88} decoding="async"/>
+    <span className="mp-friends-art is-drawn" aria-hidden="true"><GlobeAvatar id={1} size={58}/><GlobeAvatar id={0} size={74}/><GlobeAvatar id={6} size={58}/><GlobeAvatar id={4} size={58}/></span>
     <div className="mp-friends-actions"><button className="btn primary" onClick={() => setModal('signup')}>{t('passportSave')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></div>
   </section>;
   const accepted = (friends ?? []).filter(f => f.status === 'accepted');
@@ -236,7 +237,7 @@ export function FriendsOnlinePanel() {
     {friends === null ? <div className="sk-list"><Skeleton className="sk-block sk-list-row"/></div>
       : online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.room_code
         ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
-        : <button className="btn primary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
+        : <button className="btn secondary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
       : <p className="mp-friends-empty">{accepted.length ? t('friendsNobodyOnline') : t('mpFriendsNone')}</p>}
     <AddFriend id="mp-friend-name" className="mp-friend-add" onAdded={reload} lead={<button type="button" className="friend-code" onClick={() => copy(boot.user.name)} aria-label={t('yourUsername') + ' ' + boot.user.name}><small>{t('mpYourName')}</small><b>{boot.user.name}</b><Copy size={15} aria-hidden="true"/></button>}/>
   </section>;
