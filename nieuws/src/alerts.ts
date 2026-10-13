@@ -27,7 +27,6 @@ export type Routes = Record<string, Destination>;
 
 /** Soorten meldingen. Woordfilters heten "filter:<naam>". */
 export const WATCHLIST = "volglijst";
-export const TARGETS = "koersdoel";
 export const filterCategory = (name: string) => `filter:${name}`;
 
 export async function ownerUser(store: Store): Promise<string | null> {

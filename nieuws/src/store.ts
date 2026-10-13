@@ -19,15 +19,6 @@ export interface UniverseEntry {
   country: string;
 }
 
-/** Koersdoelen van analisten, in de eigen munt van het aandeel (GBX, SEK, EUR, ...). */
-export interface TargetSnapshot {
-  symbol: string;
-  high: number;
-  low: number;
-  analysts: number;
-  currency: string;
-}
-
 /** Een treffer van een woordfilter, bewaard voor het ochtendoverzicht. */
 export interface EventRecord {
   /** Id van het nieuwsbericht. */
@@ -102,9 +93,6 @@ export interface Store {
   lookupUniverse(symbols: string[]): Promise<UniverseEntry[]>;
   countUniverse(): Promise<number>;
 
-  getTargets(symbols: string[]): Promise<TargetSnapshot[]>;
-  putTargets(rows: TargetSnapshot[], now: number): Promise<void>;
-
   /** Bewaart treffers; een bericht dat er al staat (zelfde id en filter) blijft ongewijzigd. */
   recordEvents(rows: EventRecord[], now: number): Promise<void>;
   /** Treffers die de bot sinds dit moment heeft gezien. */
@@ -135,7 +123,8 @@ const SCHEMA = [
   "CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL)",
   "CREATE TABLE IF NOT EXISTS filter_words (filter TEXT NOT NULL, word TEXT NOT NULL, PRIMARY KEY (filter, word))",
   "CREATE TABLE IF NOT EXISTS universe (symbol TEXT PRIMARY KEY, name TEXT NOT NULL, cap_eur REAL NOT NULL, country TEXT NOT NULL, batch TEXT NOT NULL)",
-  "CREATE TABLE IF NOT EXISTS targets (symbol TEXT PRIMARY KEY, high REAL NOT NULL, low REAL NOT NULL, analysts INTEGER NOT NULL, currency TEXT NOT NULL, updated_at INTEGER NOT NULL)",
+  // De koersdoelen (street high/low) zijn weg; hun tabel ook.
+  "DROP TABLE IF EXISTS targets",
   "CREATE TABLE IF NOT EXISTS events (id TEXT NOT NULL, filter TEXT NOT NULL, symbol TEXT NOT NULL, name TEXT NOT NULL, title TEXT NOT NULL, url TEXT NOT NULL, lang TEXT NOT NULL, published INTEGER NOT NULL, recorded_at INTEGER NOT NULL, checked INTEGER NOT NULL DEFAULT 0, extra TEXT NOT NULL DEFAULT '', PRIMARY KEY (id, filter))",
   "CREATE INDEX IF NOT EXISTS events_recorded_idx ON events (recorded_at)",
   "CREATE TABLE IF NOT EXISTS agenda (key TEXT PRIMARY KEY, date TEXT NOT NULL, kind TEXT NOT NULL, label TEXT NOT NULL, symbol TEXT NOT NULL, name TEXT NOT NULL, title TEXT NOT NULL, url TEXT NOT NULL, created_at INTEGER NOT NULL)",
@@ -336,44 +325,18 @@ export class D1Store implements Store {
     return row?.n ?? 0;
   }
 
-  async getTargets(symbols: string[]): Promise<TargetSnapshot[]> {
-    if (!symbols.length) return [];
-    await this.ready();
-    const { results } = await this.db
-      .prepare(
-        "SELECT symbol, high, low, analysts, currency FROM targets WHERE symbol IN (SELECT value FROM json_each(?))",
-      )
-      .bind(JSON.stringify(symbols))
-      .all<TargetSnapshot>();
-    return results;
-  }
-
-  async putTargets(rows: TargetSnapshot[], now: number): Promise<void> {
-    if (!rows.length) return;
-    await this.ready();
-    const data = JSON.stringify(rows.map((r) => [r.symbol, r.high, r.low, r.analysts, r.currency]));
-    await this.db
-      .prepare(
-        "INSERT INTO targets (symbol, high, low, analysts, currency, updated_at) " +
-          "SELECT json_extract(value, '$[0]'), json_extract(value, '$[1]'), json_extract(value, '$[2]'), " +
-          "json_extract(value, '$[3]'), json_extract(value, '$[4]'), ? FROM json_each(?) WHERE true " +
-          "ON CONFLICT(symbol) DO UPDATE SET high = excluded.high, low = excluded.low, analysts = excluded.analysts, " +
-          "currency = excluded.currency, updated_at = excluded.updated_at",
-      )
-      .bind(now, data)
-      .run();
-  }
-
   async recordEvents(rows: EventRecord[], now: number): Promise<void> {
     if (!rows.length) return;
     await this.ready();
-    const data = JSON.stringify(rows.map((r) => [r.id, r.filter, r.symbol, r.name, r.title, r.url, r.lang, r.published]));
+    const data = JSON.stringify(
+      rows.map((r) => [r.id, r.filter, r.symbol, r.name, r.title, r.url, r.lang, r.published, r.extra ?? ""]),
+    );
     await this.db
       .prepare(
-        "INSERT OR IGNORE INTO events (id, filter, symbol, name, title, url, lang, published, recorded_at) " +
+        "INSERT OR IGNORE INTO events (id, filter, symbol, name, title, url, lang, published, extra, recorded_at) " +
           "SELECT json_extract(value, '$[0]'), json_extract(value, '$[1]'), json_extract(value, '$[2]'), " +
           "json_extract(value, '$[3]'), json_extract(value, '$[4]'), json_extract(value, '$[5]'), " +
-          "json_extract(value, '$[6]'), json_extract(value, '$[7]'), ? FROM json_each(?)",
+          "json_extract(value, '$[6]'), json_extract(value, '$[7]'), json_extract(value, '$[8]'), ? FROM json_each(?)",
       )
       .bind(now, data)
       .run();

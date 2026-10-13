@@ -115,3 +115,29 @@ export async function newListings(store: Store, since: number): Promise<NewListi
     return { ...listing, kind, others };
   });
 }
+
+/**
+ * Beurzen die zelf handelslijnen toevoegen voor buitenlandse aandelen (Münchener Rück op SIX,
+ * Saint-Gobain op Xetra). Daar telt een tweede notering alleen voor een bedrijf uit dat land.
+ */
+const HOME_ONLY: Record<string, string[]> = {
+  XETR: ["Germany"],
+  SIX: ["Switzerland"],
+  VIE: ["Austria"],
+  MIL: ["Italy"],
+};
+
+/**
+ * Een echte nieuwe notering, geen verschoven of extra handelslijn: geen hoofdnotering die van
+ * beurs wisselt (SIX → BX), geen BX, geen internationale orderboeken op de LSE ("0EW2") of in
+ * Milaan ("1MUV2"), en bij de beurzen hierboven alleen bedrijven uit dat land.
+ */
+export function realListing(listing: NewListing): boolean {
+  if (listing.kind === "verhuisd") return false;
+  if (listing.primary) return true;
+  const ticker = listing.symbol.split(":")[1] ?? "";
+  if (listing.exchange === "BX") return false;
+  if ((listing.exchange === "LSE" || listing.exchange === "MIL") && /^\d/.test(ticker)) return false;
+  const home = HOME_ONLY[listing.exchange];
+  return !home || home.includes(listing.country);
+}

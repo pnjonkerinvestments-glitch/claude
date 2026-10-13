@@ -215,19 +215,6 @@ test("/filtertest toont treffers zonder iets te onthouden", async () => {
   assert.equal(store.seen.size, 0);
 });
 
-test("/koersdoel aan en uit, en zichtbaar in /filters", async () => {
-  const { net, store, bot } = deps();
-  await store.setSetting(OWNER_USER_KEY, "1");
-  await handleMessage(bot, msg("/koersdoel uit"));
-  assert.equal(await store.getSetting("targets_off"), "1");
-  await handleMessage(bot, msg("/filters"));
-  assert.match(net.sent.at(-1)!.text, /koersdoel<\/b> \(street high\/low\): uit/);
-  await handleMessage(bot, msg("/koersdoel aan"));
-  assert.equal(await store.getSetting("targets_off"), null);
-  await handleMessage(bot, msg("/koersdoel"));
-  assert.match(net.sent.at(-1)!.text, /staan <b>aan<\/b>/);
-});
-
 test("standaardfilters: nieuwe komen erbij, weggehaalde komen niet terug", async () => {
   const { seed } = await import("../src/index.ts");
   const store = new MemoryStore();
@@ -270,8 +257,11 @@ test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldin
   await handleMessage(bot, topic(undefined, "/hier"));
   await handleMessage(bot, topic(11, "/hier volglijst"));
   await handleMessage(bot, topic(22, "/hier emissies"));
-  await handleMessage(bot, topic(33, "/hier koersdoelen"));
+  await handleMessage(bot, topic(33, "/hier ochtend"));
   assert.deepEqual(net.sentThreads.slice(-3), [11, 22, 33], "antwoord in het eigen onderwerp");
+  // De koersdoelen (street high/low) bestaan niet meer.
+  await handleMessage(bot, topic(55, "/hier koersdoelen"));
+  assert.match(net.sent.at(-1)!.text, /Die soort ken ik niet/);
   await handleMessage(bot, topic(44, "/hier onzin"));
   assert.match(net.sent.at(-1)!.text, /Die soort ken ik niet/);
 
@@ -279,7 +269,7 @@ test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldin
   assert.deepEqual(await loadRoutes(store), {
     volglijst: { chat: "-100500", thread: 11 },
     "filter:emissie": { chat: "-100500", thread: 22 },
-    koersdoel: { chat: "-100500", thread: 33 },
+    ochtend: { chat: "-100500", thread: 33 },
   });
 
   const sender = new AlertSender(store, net.telegram(), "-100500");
@@ -299,20 +289,20 @@ test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldin
   assert.match(net.sent.at(-1)!.text, /Waar gaan de meldingen heen/);
 });
 
-test("/onderwerpen maak: vijf onderwerpen aanmaken en koppelen", async () => {
+test("/onderwerpen maak: vier onderwerpen aanmaken en koppelen", async () => {
   const { net, store, bot } = deps();
   await store.setSetting(OWNER_USER_KEY, "1");
   await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
-  assert.deepEqual(net.topics, ["📰 Volglijst", "💶 Emissies", "🚀 IPO's", "🎯 Koersdoelen", "☀️ Ochtendoverzicht"]);
+  assert.deepEqual(net.topics, ["📰 Volglijst", "💶 Emissies", "🚀 IPO's", "☀️ Ochtendoverzicht"]);
   const { loadRoutes } = await import("../src/alerts.ts");
   const routes = await loadRoutes(store);
-  assert.deepEqual(Object.keys(routes).sort(), ["filter:emissie", "filter:ipo", "koersdoel", "ochtend", "volglijst"]);
+  assert.deepEqual(Object.keys(routes).sort(), ["filter:emissie", "filter:ipo", "ochtend", "volglijst"]);
   assert.equal(await store.getSetting(ALERT_CHAT_KEY), "-100500");
   assert.match(net.sent.at(-1)!.text, /Onderwerpen aangemaakt/);
 
   // Nog een keer: alles bestaat al, niets dubbel.
   await handleMessage(bot, msg("/onderwerpen maak", { chatId: "-100500", chatType: "supergroup", fromId: "1" }));
-  assert.equal(net.topics.length, 5);
+  assert.equal(net.topics.length, 4);
   assert.match(net.sent.at(-1)!.text, /bestaan al/);
 });
 
@@ -394,7 +384,7 @@ test("/direct: filter ook meteen melden of alleen in het ochtendoverzicht (allee
   await handleMessage(bot, msg("/direct emissie uit"));
   assert.ok(JSON.parse((await store.getSetting("filters_digest_only"))!).includes("emissie"));
   await handleMessage(bot, msg("/filters"));
-  assert.match(net.sent.at(-1)!.text, /<b>emissie<\/b> \(1 woorden · alleen in het ochtendoverzicht\)/);
+  assert.match(net.sent.at(-1)!.text, /<b>emissie<\/b> \(1 woorden · alleen in het ochtendoverzicht · vanaf €10,0 mln\)/);
   await handleMessage(bot, msg("/direct emissie aan", { chatId: "-100", chatType: "supergroup", fromId: "2" }));
   assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
 });
@@ -412,4 +402,27 @@ test("/ochtend: laat het overzicht nu zien, in het onderwerp waar het gevraagd i
   assert.match(net.sent.at(-2)!.text, /staat <b>uit<\/b>/);
   await handleMessage(bot, msg("/ochtend aan"));
   assert.equal(await store.getSetting("ochtend_uit"), null);
+});
+
+test("/minimum: standaard €10 mln voor emissies en €100 mln voor ipo, notering en overname; aanpasbaar door de eigenaar", async () => {
+  const { net, store, bot } = deps();
+  await store.setSetting(OWNER_USER_KEY, "1");
+  await store.setSetting(ALERT_CHAT_KEY, "-100");
+  for (const filter of ["emissie", "ipo", "overname", "dividend"]) await store.addFilterWord(filter, "x");
+  await handleMessage(bot, msg("/minimum"));
+  const text = net.sent.at(-1)!.text;
+  assert.match(text, /emissie: vanaf €10,0 mln/);
+  assert.match(text, /ipo: vanaf €100,0 mln/);
+  assert.match(text, /overname: vanaf €100,0 mln/);
+  assert.match(text, /dividend: geen minimum/);
+  await handleMessage(bot, msg("/minimum ipo 250"));
+  assert.match(net.sent.at(-1)!.text, /vanaf €250,0 mln/);
+  await handleMessage(bot, msg("/minimum emissie 0"));
+  const { minCaps } = await import("../src/size.ts");
+  const caps = await minCaps(store);
+  assert.equal(caps.get("ipo"), 250e6);
+  assert.equal(caps.has("emissie"), false);
+  assert.equal(caps.get("overname"), 100e6);
+  await handleMessage(bot, msg("/minimum ipo 50", { chatId: "-100", chatType: "supergroup", fromId: "2" }));
+  assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
 });

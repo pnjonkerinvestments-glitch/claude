@@ -140,17 +140,27 @@ persberichten. Om 08:40 gaat het overzicht, ook als een stap mislukte; dat staat
 De eerste ochtend legt alleen vast welke noteringen er al zijn; nieuwe noteringen zie je vanaf de
 dag erna.
 
-## Koersdoelen: street high / street low
+## Minimale marktwaarde per filter
 
-Elk half uur legt de bot de analistenkoersdoelen vast van de ± 1.300 aandelen in de selectie
-die analistendekking hebben. Stijgt het hoogste koersdoel (een analist zit boven de rest: nieuwe
-street high) of daalt het laagste (nieuwe street low), dan volgt een melding met het oude en
-nieuwe doel, het gemiddelde, het aantal analisten en het potentieel vanaf de huidige koers.
+Om het aantal meldingen beperkt te houden, telt een treffer alleen bij een bedrijf vanaf een
+minimale marktwaarde:
 
-Dit kijkt naar de cijfers, niet naar koppen: "street-high" komt in nieuws over Europese small
-caps vrijwel nooit voor. TradingView rekent koersdoelen om naar euro; de bot rekent terug naar de
-eigen munt van het aandeel, zodat een wisselkoersbeweging geen valse melding geeft. Aan/uit met
-`/koersdoel aan` of `/koersdoel uit`.
+| Filter | Vanaf |
+| --- | --- |
+| `emissie` | €10 mln |
+| `ipo`, `notering`, `overname` | €100 mln |
+
+Dat geldt voor de directe meldingen én voor het ochtendoverzicht (ook voor *Nieuw op de beurs*,
+*Nieuwe en dubbele noteringen* en *Beursgangen op komst*). Een bedrijf buiten de selectie
+(€2,5–500 mln) vraagt de bot op bij de TradingView-screener. Een bedrijf dat nog naar de beurs moet,
+heeft nog geen marktwaarde; dan telt de waardering uit de kop of het persbericht ("Valued at
+SEK 675M", "Bewertung von rund 1,2 Mrd. Euro"). Is de grootte onbekend, dan komt de treffer wel
+door. Aanpassen met `/minimum ipo 250` (in miljoen euro) of `/minimum ipo 0` voor geen minimum.
+
+Bij de nieuwe noteringen tellen alleen echte noteringen: een oud aandeel dat even uit de lijst
+van TradingView was (IPO-datum langer dan 60 dagen geleden) of een hoofdnotering die van beurs
+wisselt (SIX → BX) niet, en extra handelslijnen die een beurs zelf toevoegt (internationale
+orderboeken in Londen en Milaan, BX, buitenlandse aandelen op Xetra, SIX en Wenen) ook niet.
 
 ## Onderwerpen (Telegram Topics)
 
@@ -159,12 +169,12 @@ In een groep met Topics kan elke soort melding een eigen onderwerp krijgen:
 1. Groepsinstellingen → Bewerken → **Topics** aanzetten (de groep wordt dan een supergroep; de
    bot volgt het nieuwe chat-id vanzelf).
 2. De bot beheerder maken met het recht **Onderwerpen beheren**.
-3. In de groep `/onderwerpen maak` sturen. De bot maakt *📰 Volglijst*, *💶 Emissies*, *🚀 IPO's*,
-   *🎯 Koersdoelen* en *☀️ Ochtendoverzicht* aan (wat al bestaat, slaat hij over); al het andere
+3. In de groep `/onderwerpen maak` sturen. De bot maakt *📰 Volglijst*, *💶 Emissies*, *🚀 IPO's*
+   en *☀️ Ochtendoverzicht* aan (wat al bestaat, slaat hij over); al het andere
    (dividend, insolventie, ...) komt in *Algemeen*.
 
 Zonder beheerdersrecht kan het ook met de hand: zelf een onderwerp maken en daarin
-`/hier <soort>` sturen (`/hier volglijst`, `/hier emissie`, `/hier ipo`, `/hier koersdoel`,
+`/hier <soort>` sturen (`/hier volglijst`, `/hier emissie`, `/hier ipo`, `/hier ochtend`,
 `/hier dividend`, ...). `/hier <soort> uit` zet een soort terug naar de standaardplek, en
 `/onderwerpen` laat de indeling zien. Raakt een melding meerdere filters met elk een eigen
 onderwerp, dan komt hij in elk van die onderwerpen.
@@ -219,7 +229,7 @@ onderwerp, dan komt hij in elk van die onderwerpen.
 | `/woordweg dividend Superdividende` | woord weghalen |
 | `/filterweg dividend` | hele filter weghalen |
 | `/filtertest` | treffers in de huidige nieuwsstromen tonen, zonder te melden |
-| `/koersdoel aan` / `uit` | street high/low-meldingen aan- of uitzetten |
+| `/minimum ipo 100` | minimale marktwaarde per filter in miljoen euro, 0 = geen (eigenaar) |
 | `/bereik ipo europa` / `selectie` | filter over al het Europese nieuws of alleen de selectie (eigenaar) |
 | `/onderwerpen` / `/onderwerpen maak` | indeling bekijken / onderwerpen aanmaken (eigenaar) |
 | `/hier emissie` | deze soort melding naar dit onderwerp (eigenaar) |

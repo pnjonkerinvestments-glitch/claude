@@ -7,6 +7,7 @@ import type { Config, Feed } from "./config.ts";
 import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, PATTERNS } from "./config.ts";
 import type { EventRecord, Store, UniverseEntry } from "./store.ts";
 import { escapeHtml, links, meta } from "./telegram.ts";
+import { bigEnough, lookupCaps, minCaps, parseValuation } from "./size.ts";
 import type { Fetch, NewsItem } from "./tradingview.ts";
 import { chartUrl, cleanSummary, fetchStory, parseNewsResponse } from "./tradingview.ts";
 
@@ -329,6 +330,8 @@ export interface Match {
   hits: Hit[];
   /** Leeg bij een treffer buiten de selectie (Europa-brede filters zoals IPO). */
   entry?: UniverseEntry;
+  /** Marktwaarde (of bij een beursgang de waardering) in euro, als die bekend is. */
+  capEur?: number;
 }
 
 async function filterSet(store: Store, key: string, fallback: string[]): Promise<Set<string>> {
@@ -361,6 +364,7 @@ export function eventRecords(match: Match): EventRecord[] {
     url: match.item.link ?? match.item.storyUrl ?? "",
     lang: match.item.lang,
     published: match.item.published,
+    extra: match.capEur === undefined ? undefined : JSON.stringify({ capEur: Math.round(match.capEur) }),
   }));
 }
 
@@ -394,7 +398,38 @@ export async function findMatches(
     const wide = candidate.hits.filter((h) => europe.has(h.filter));
     if (wide.length) matches.push({ item: candidate.item, hits: wide });
   }
-  return { scanned: items.length, matches };
+  return { scanned: items.length, matches: await applyMinCaps(deps, matches, errors) };
+}
+
+/**
+ * Minimale marktwaarde per filter (/minimum): emissies van een bedrijf van €4 mln of een
+ * beursgang van €60 mln vallen af. Buiten de selectie vraagt de bot de marktwaarde op (één
+ * vraag voor alle treffers samen); zonder aandeel telt de waardering uit de kop.
+ */
+async function applyMinCaps(
+  deps: Pick<ScreenDeps, "store" | "fetcher">,
+  matches: Match[],
+  errors: string[],
+): Promise<Match[]> {
+  const caps = await minCaps(deps.store);
+  const capped = (m: Match) => m.hits.some((h) => caps.has(h.filter));
+  const unknown = matches.filter((m) => !m.entry && m.item.symbols.length && capped(m));
+  let looked = new Map<string, number>();
+  if (unknown.length) {
+    try {
+      looked = await lookupCaps(deps.fetcher, unknown.flatMap((m) => m.item.symbols));
+    } catch (error) {
+      errors.push(`marktwaarde opvragen: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+  const kept: Match[] = [];
+  for (const match of matches) {
+    const symbolCap = match.item.symbols.map((s) => looked.get(s)).find((c) => c !== undefined);
+    const capEur = match.entry?.capEur ?? symbolCap ?? parseValuation(match.item.title);
+    const hits = match.hits.filter((h) => bigEnough(h.filter, capEur, caps));
+    if (hits.length) kept.push({ ...match, hits, capEur });
+  }
+  return kept;
 }
 
 export async function checkScreener(deps: ScreenDeps): Promise<ScreenResult> {
