@@ -17,6 +17,7 @@ import {
 } from "../src/morning.ts";
 import { checkScreener, groupFilters, matchFilters } from "../src/screener.ts";
 import { flattenStory } from "../src/tradingview.ts";
+import { parseValuation } from "../src/size.ts";
 import { FakeNet, MemoryStore, item } from "./helpers.ts";
 
 const TZ = "Europe/Amsterdam";
@@ -231,9 +232,26 @@ test("noteringen: eerste ronde legt vast, daarna zijn nieuwe beursgangen en dubb
 
 function morningNet() {
   const net = new FakeNet();
-  const primary: unknown[] = [{ s: "XETR:PFSE", d: ["Pfisterer Holding SE", "XETR", "Germany", "DE000PFSE001"] }];
+  const primary: unknown[] = [
+    { s: "XETR:PFSE", d: ["Pfisterer Holding SE", "XETR", "Germany", "DE000PFSE001"] },
+    { s: "XETR:MUV2", d: ["Munchener Ruckversicherungs-Gesellschaft AG", "XETR", "Germany", "DE0008430026"] },
+    { s: "OSL:ACR", d: ["Axactor ASA", "OSL", "Norway", "NO0010840515"] },
+  ];
   const other: unknown[] = [];
+  // Marktwaarde en IPO-datum van nieuwe noteringen (stap noteringinfo).
+  const listingInfo: Record<string, [number, number | null]> = {
+    "SIX:INFOM": [900e6, at("2026-10-05", "02:00")],
+    "EURONEXT:PFSE": [300e6, null],
+    "VIE:RAT": [20e6, null],
+    "BME:OUD": [2e9, at("1998-05-04", "02:00")],
+    "SIX:MUV2": [60e9, null],
+    "LSE:0EW2": [400e6, null],
+    "OMXSTO:ACRO": [50e6, null],
+  };
   net.scannerHandler = (body) => {
+    if (body.symbols && body.columns.includes("ipo_offer_date")) {
+      return body.symbols.tickers.flatMap((t: string) => (listingInfo[t] ? [{ s: t, d: listingInfo[t] }] : []));
+    }
     if (body.symbols) {
       return body.symbols.tickers.flatMap((t: string) =>
         t === "XETR:PFSE" ? [{ s: t, d: [12.1, "EUR", "Pfisterer Holding SE"] }] : t === "LSE:XYZ" ? [{ s: t, d: [500, "GBX", "XYZ plc"] }] : [],
@@ -316,7 +334,13 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
   );
   net.stories.set("o1", { astDescription: { type: "root", children: [{ type: "p", children: ["Die Annahmefrist endet am 9. Oktober 2026."] }] } });
   primary.push({ s: "SIX:INFOM", d: ["Infomaniak Network SA", "SIX", "Switzerland", "CH0000000001"] });
-  other.push({ s: "SIX:PFSE", d: ["Pfisterer Holding SE", "SIX", "Germany", "DE000PFSE001"] });
+  other.push({ s: "EURONEXT:PFSE", d: ["Pfisterer Holding SE", "EURONEXT", "Germany", "DE000PFSE001"] });
+  // Ruis van 7 oktober: oude of kleine aandelen die even uit de lijst waren, en extra handelslijnen.
+  primary.push({ s: "VIE:RAT", d: ["Rath AG", "VIE", "Austria", "AT0000767306"] });
+  primary.push({ s: "BME:OUD", d: ["Oud Groot SA", "BME", "Spain", "ES0000000OUD"] });
+  other.push({ s: "SIX:MUV2", d: ["Munchener Ruckversicherungs-Gesellschaft AG", "SIX", "Germany", "DE0008430026"] });
+  other.push({ s: "LSE:0EW2", d: ["Sogn Sparebank", "LSE", "Norway", "NO0006000603"] });
+  other.push({ s: "OMXSTO:ACRO", d: ["Axactor ASA", "OMXSTO", "Norway", "NO0010840515"] });
   await store.addAgenda(
     [{ key: "eigen:1", date: "2026-10-07", kind: "eigen", label: "Capital Markets Day Pfisterer", symbol: "", name: "", title: "", url: "" }],
     night,
@@ -341,8 +365,12 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
   assert.match(text, /1 speciaal dividend onder 25% weggelaten/);
   assert.ok(!text.includes("Atresmedia"));
   // Noteringen en IPO-kalender.
-  assert.match(text, /Nieuw op de beurs<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX, Zwitserland\) · nieuw op de beurs/);
-  assert.match(text, /<b>PFSE<\/b> Pfisterer Holding SE \(SIX, Duitsland\) · tweede notering, al genoteerd als XETR:PFSE/);
+  assert.match(text, /Nieuw op de beurs<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX, Zwitserland, €900,0 mln\) · nieuw op de beurs\n\n/);
+  assert.match(
+    text,
+    /dubbele noteringen<\/b>\n• <b>PFSE<\/b> Pfisterer Holding SE \(EURONEXT, Duitsland, €300,0 mln\) · tweede notering, al genoteerd als XETR:PFSE\n\n/,
+  );
+  for (const noise of ["Rath", "Oud Groot", "MUV2", "Sogn", "Axactor"]) assert.ok(!text.includes(noise), noise);
   assert.match(text, /Beursgangen op komst<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX\) · datum nog niet bekend · marktwaarde ±\$900 mln\n\n/);
   // Overname met deadline.
   assert.match(text, /Übernahmeangebot von ABB zu 30 EUR<\/a>\n   ⏰ einde aanmeldtermijn: <b>vr 9 okt<\/b> \(over 3 dagen\)/);
@@ -449,4 +477,93 @@ test("lange overzichten worden in berichten onder de Telegram-grens gesplitst", 
   assert.ok(messages.length >= 3);
   for (const message of messages) assert.ok(message.length <= 4000, `${message.length}`);
   assert.match(messages.at(-1)!, /ingekort/);
+});
+
+// ---------------------------------------------------------------- minimale marktwaarde
+
+test("waardering uit kop of bericht, omgerekend naar euro", () => {
+  const mln = (text: string) => {
+    const value = parseValuation(text);
+    return value === undefined ? undefined : Math.round(value / 1e6);
+  };
+  assert.equal(mln("Prisjakt AB (publ) Plans First North IPO at SEK 31, Valued at SEK 675M"), 59);
+  assert.equal(mln("Infomaniak IPO valued at CHF 1.2 billion"), 1260);
+  assert.equal(mln("Börsengang mit einer Bewertung von rund 1,2 Mrd. Euro"), 1200);
+  assert.equal(mln("Introduction en bourse : la société est valorisée à 250 millions d'euros"), 250);
+  assert.equal(mln("Float would give it a market capitalisation of £50m"), 57);
+  assert.equal(mln("Abenojar Tungsten SA Intents To Undertake An Initial Public Offering On LSE"), undefined);
+  assert.equal(mln("IPO to raise up to SEK 500 million"), undefined, "opbrengst is geen waardering");
+});
+
+test("screener: minimale marktwaarde per filter, ook buiten de selectie en bij beursgangen", async () => {
+  const net = new FakeNet();
+  const store = new MemoryStore();
+  const sent: string[] = [];
+  for (const filter of ["emissie", "overname", "ipo", "notering"]) await store.addFilterWords(filter, DEFAULT_FILTERS[filter]);
+  await store.putUniverse(
+    [
+      { symbol: "XETR:KLEIN", name: "Klein AG", capEur: 6e6, country: "Germany" },
+      { symbol: "XETR:MIDDEN", name: "Midden AG", capEur: 60e6, country: "Germany" },
+      { symbol: "XETR:GROOT", name: "Groot AG", capEur: 300e6, country: "Germany" },
+    ],
+    "b",
+  );
+  // Buiten de selectie: de marktwaarde komt van de screener.
+  net.scannerHandler = (body) =>
+    body.symbols
+      ? body.symbols.tickers.flatMap((t: string) => (t === "OSL:SMALL" ? [{ s: t, d: [40e6] }] : t === "OSL:BIG" ? [{ s: t, d: [2e9] }] : []))
+      : null;
+  const NOW = 1_791_000_000;
+  const run = (now: number) => checkScreener({ store, fetcher: net.fetch, config, now, send: async (html) => void sent.push(html) });
+  await run(NOW);
+  const sym = (s: string) => ({ relatedSymbols: [{ symbol: s }] });
+  net.feeds.set("en", {
+    items: [
+      item("e1", "Klein AG: capital increase placed", NOW + 1, sym("XETR:KLEIN")),
+      item("e2", "Midden AG: capital increase placed", NOW + 2, sym("XETR:MIDDEN")),
+      item("o1", "Midden AG receives recommended cash offer", NOW + 3, sym("XETR:MIDDEN")),
+      item("o2", "Groot AG receives recommended cash offer", NOW + 4, sym("XETR:GROOT")),
+      item("i1", "Prisjakt AB (publ) Plans First North IPO at SEK 31, Valued at SEK 675M", NOW + 5, { relatedSymbols: [] }),
+      item("i2", "REG - Abenojar Tungsten SA - Intention to Float", NOW + 6, { relatedSymbols: [] }),
+      item("n1", "Small ASA plans secondary listing in Stockholm", NOW + 7, sym("OSL:SMALL")),
+      item("n2", "Big ASA plans secondary listing in Stockholm", NOW + 8, sym("OSL:BIG")),
+    ],
+  });
+  await run(NOW + 60);
+  const recorded = store.events.map((e) => `${e.id}:${e.filter}`).sort();
+  assert.deepEqual(recorded, ["e2:emissie", "i2:ipo", "n2:notering", "o2:overname"]);
+  assert.deepEqual(JSON.parse(store.events.find((e) => e.id === "n2")!.extra), { capEur: 2e9 });
+  // Direct: emissie (Midden, €60 mln) en de IPO met onbekende grootte; overname en notering staan in het overzicht.
+  assert.equal(sent.length, 2);
+  assert.match(sent.join("\n"), /Midden AG: capital increase/);
+  assert.match(sent.join("\n"), /Abenojar/);
+  assert.equal(net.scannerBodies.filter((b) => b.symbols).length, 1, "één vraag voor alle marktwaarden");
+});
+
+test("ochtendoverzicht: te kleine bedrijven vallen af, ook als de waardering pas in het bericht staat", async () => {
+  const net = new FakeNet();
+  const store = new MemoryStore();
+  const NOW = at("2026-10-06", "07:00");
+  const ev = (id: string, filter: string, title: string, extra?: string) => ({
+    id, filter, symbol: "", name: "", title, url: "", lang: "en", published: NOW, extra,
+  });
+  await store.recordEvents(
+    [
+      ev("a", "overname", "Klein bod", JSON.stringify({ capEur: 50e6 })),
+      ev("b", "overname", "Groot bod", JSON.stringify({ capEur: 500e6 })),
+      ev("c", "ipo", "Nordic Startup plans IPO on First North"),
+      ev("d", "ipo", "Unknown Co intention to float"),
+      ev("e", "emissie", "Mini plc placing", JSON.stringify({ capEur: 4e6 })),
+    ],
+    NOW,
+  );
+  net.stories.set("c", { astDescription: { type: "root", children: [{ type: "p", children: ["The offering values the company at SEK 400 million. First day of trading is expected on 22 October 2026."] }] } });
+  await checkStories({ store, config, fetcher: net.fetch, now: NOW }, "2026-10-06", 5);
+  assert.deepEqual(JSON.parse(store.events.find((e) => e.id === "c")!.extra), { capEur: 34800000 });
+  assert.equal(store.agenda.length, 0, "geen agendapunt voor een te kleine beursgang");
+  const sent: string[] = [];
+  await runMorningStep({ store, config, fetcher: net.fetch, now: at("2026-10-06", "08:40") }, async (html) => void sent.push(html));
+  const text = sent.join("\n");
+  assert.ok(text.includes("Groot bod") && text.includes("Unknown Co"));
+  for (const small of ["Klein bod", "Nordic Startup", "Mini plc"]) assert.ok(!text.includes(small), small);
 });

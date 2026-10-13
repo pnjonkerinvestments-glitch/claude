@@ -9,14 +9,13 @@
 // rekentijd, 50 uitgaande verzoeken en 50 databasevragen. Zo kan geen van beide de volglijst
 // laten vastlopen.
 
-import { ALERT_THREAD_KEY, AlertSender, TARGETS, WATCHLIST, alertChat } from "./alerts.ts";
+import { ALERT_THREAD_KEY, AlertSender, WATCHLIST, alertChat } from "./alerts.ts";
 import { LAST_MORNING_KEY, LAST_RUN_KEY, LAST_SCREEN_KEY, processUpdates } from "./bot.ts";
 import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
 import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, DEFAULT_FILTERS, loadConfig } from "./config.ts";
 import { DIGEST_ONLY_KEY, EUROPE_FILTERS_KEY, checkScreener, refreshUniverse } from "./screener.ts";
 import { DIGEST, runMorningStep } from "./morning.ts";
-import { sweepTargets } from "./targets.ts";
 import type { Store } from "./store.ts";
 import { D1Store } from "./store.ts";
 import { Telegram } from "./telegram.ts";
@@ -140,19 +139,11 @@ export async function runScreen(env: Env, now = Math.floor(Date.now() / 1000)): 
     } catch (error) {
       errors.push(`screener: ${message(error)}`);
     }
-    // Per run hoogstens één zware screener-vraag: eerst de selectie, anders de koersdoelen.
-    let refreshed = false;
+    // Per run hoogstens één zware screener-vraag.
     try {
-      refreshed = await refreshUniverse(store, config, fetcher, now);
+      await refreshUniverse(store, config, fetcher, now);
     } catch (error) {
       errors.push(`selectie verversen: ${message(error)}`);
-    }
-    if (!refreshed) {
-      try {
-        alerted += (await sweepTargets({ store, config, fetcher, send: (html) => sender.send(html, [TARGETS]), now })) ?? 0;
-      } catch (error) {
-        errors.push(`koersdoelen: ${message(error)}`);
-      }
     }
     for (const error of errors) console.error(error);
     if (alerted) console.log(`screener: ${alerted} melding(en) verstuurd.`);

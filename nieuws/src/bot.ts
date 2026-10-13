@@ -7,7 +7,6 @@ import {
   ALERT_CHAT_KEY,
   ALERT_THREAD_KEY,
   OWNER_USER_KEY,
-  TARGETS,
   WATCHLIST,
   alertChat,
   filterCategory,
@@ -35,9 +34,9 @@ import {
   groupFilters,
 } from "./screener.ts";
 import { addDays, formatDay, localTime, relativeDay } from "./dates.ts";
+import { minCaps, setMinCap } from "./size.ts";
 import { DIGEST, OFF_KEY, SENT_DATE_KEY, nextDigest, previewDigest } from "./morning.ts";
 import type { Store, WatchEntry } from "./store.ts";
-import { TARGETS_OFF_KEY } from "./targets.ts";
 import type { Telegram, TelegramMessage } from "./telegram.ts";
 import { escapeHtml, formatNewsMessage } from "./telegram.ts";
 import type { Fetch } from "./tradingview.ts";
@@ -73,8 +72,8 @@ export const HELP = [
   "/woordweg dividend Sonderdividende · woord weghalen",
   "/filterweg dividend · hele filter weghalen 🔒",
   "/filtertest · treffers van de afgelopen uren tonen, zonder te melden",
-  "/koersdoel aan|uit · meldingen bij een nieuw hoogste of laagste analistenkoersdoel",
   "/bereik ipo europa|selectie · filter over heel Europa of alleen de small caps 🔒",
+  "/minimum ipo 100 · alleen treffers van bedrijven vanaf €100 mln (0 = geen minimum) 🔒",
   "",
   "<b>Ochtendoverzicht</b> (werkdagen 08:40)",
   "/ochtend · overzicht nu tonen, en wanneer het volgende komt",
@@ -90,7 +89,7 @@ export const HELP = [
   "",
   "<b>Onderwerpen (Topics)</b>",
   "/onderwerpen · waar welke melding heen gaat",
-  "/onderwerpen maak · onderwerpen Volglijst, Emissies, IPO's, Koersdoelen en Ochtendoverzicht aanmaken 🔒",
+  "/onderwerpen maak · onderwerpen Volglijst, Emissies, IPO's en Ochtendoverzicht aanmaken 🔒",
   "/hier emissie · meldingen van deze soort naar dit onderwerp 🔒",
   "/hier · alle overige meldingen naar deze chat of dit onderwerp 🔒",
   "",
@@ -101,7 +100,7 @@ export const HELP = [
 ].join("\n");
 
 /** Commando's die alles voor iedereen omgooien; die blijven bij de eigenaar. */
-const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik", "/direct"]);
+const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik", "/direct", "/minimum"]);
 
 function findInList(watch: WatchEntry[], query: string): WatchEntry | undefined {
   const wanted = query.trim().toUpperCase();
@@ -225,13 +224,14 @@ async function showFilters(deps: BotDeps): Promise<string> {
   const filters = groupFilters(await deps.store.listFilterWords());
   const lines: string[] = [];
   const digestOnly = await digestOnlyFilters(deps.store);
+  const caps = await minCaps(deps.store);
   if (!filters.size) lines.push("Er zijn geen woordfilters. Maak er een met bijvoorbeeld /woord dividend Sonderdividende", "");
   for (const [name, words] of filters) {
-    const where = digestOnly.has(name) ? " · alleen in het ochtendoverzicht" : "";
+    const min = caps.get(name);
+    const where = (digestOnly.has(name) ? " · alleen in het ochtendoverzicht" : "") + (min ? ` · vanaf ${formatCap(min)}` : "");
     lines.push(`<b>${escapeHtml(name)}</b> (${words.length} woorden${where})`, words.map(escapeHtml).join(" · "), "");
   }
   lines.push(
-    `🎯 <b>koersdoel</b> (street high/low): ${(await deps.store.getSetting(TARGETS_OFF_KEY)) ? "uit" : "aan"}`,
     "",
     "Hoofdletters en accenten maken niet uit; een woord vindt ook langere vormen (dividend → dividends).",
     "Alle treffers staan ook in het ochtendoverzicht; /direct bepaalt of een filter daarnaast meteen meldt.",
@@ -337,30 +337,9 @@ async function filterTest(deps: BotDeps): Promise<string> {
   return lines.join("\n");
 }
 
-async function targetsSwitch(deps: BotDeps, args: string): Promise<string> {
-  const choice = args.trim().toLowerCase();
-  if (choice === "uit" || choice === "off") {
-    await deps.store.setSetting(TARGETS_OFF_KEY, "1");
-    return "🎯 Koersdoelmeldingen staan uit.";
-  }
-  if (choice === "aan" || choice === "on") {
-    await deps.store.deleteSetting(TARGETS_OFF_KEY);
-    return "🎯 Koersdoelmeldingen staan aan.";
-  }
-  const off = await deps.store.getSetting(TARGETS_OFF_KEY);
-  return [
-    `🎯 Koersdoelmeldingen staan <b>${off ? "uit" : "aan"}</b>.`,
-    "Elk half uur kijk ik naar de analistenkoersdoelen van de aandelen in de screener. Stijgt het hoogste doel " +
-      "(nieuwe street high) of daalt het laagste (nieuwe street low), dan krijg je een melding.",
-    "Aan- of uitzetten: /koersdoel aan of /koersdoel uit",
-  ].join("\n");
-}
-
 const CATEGORY_ALIASES: Record<string, string> = {
   volglijst: WATCHLIST,
   watchlist: WATCHLIST,
-  koersdoel: TARGETS,
-  koersdoelen: TARGETS,
   emissies: filterCategory("emissie"),
   ipos: filterCategory("ipo"),
   "ipo's": filterCategory("ipo"),
@@ -370,7 +349,6 @@ const CATEGORY_ALIASES: Record<string, string> = {
 
 const CATEGORY_LABELS: Record<string, string> = {
   [WATCHLIST]: "📰 Volglijst",
-  [TARGETS]: "🎯 Koersdoelen",
   [DIGEST]: "☀️ Ochtendoverzicht",
 };
 
@@ -401,7 +379,7 @@ async function here(deps: BotDeps, message: TelegramMessage, args: string): Prom
   }
   const category = await resolveCategory(deps, rawCategory);
   if (!category) {
-    return `Die soort ken ik niet. Kies uit: volglijst, koersdoel, ochtend, of een filter (${[
+    return `Die soort ken ik niet. Kies uit: volglijst, ochtend, of een filter (${[
       ...groupFilters(await deps.store.listFilterWords()).keys(),
     ].join(", ")}).`;
   }
@@ -423,7 +401,6 @@ const DEFAULT_TOPICS: Array<[string, string]> = [
   ["📰 Volglijst", WATCHLIST],
   ["💶 Emissies", filterCategory("emissie")],
   ["🚀 IPO's", filterCategory("ipo")],
-  ["🎯 Koersdoelen", TARGETS],
   ["☀️ Ochtendoverzicht", DIGEST],
 ];
 
@@ -465,7 +442,7 @@ async function topics(deps: BotDeps, message: TelegramMessage, args: string): Pr
   const thread = await deps.store.getSetting(ALERT_THREAD_KEY);
   const filters = [...groupFilters(await deps.store.listFilterWords()).keys()].map(filterCategory);
   const lines = ["<b>Waar gaan de meldingen heen?</b>"];
-  for (const category of [WATCHLIST, TARGETS, DIGEST, ...filters]) {
+  for (const category of [WATCHLIST, DIGEST, ...filters]) {
     const route = routes[category];
     const where = !route
       ? "standaardplek"
@@ -607,6 +584,27 @@ async function direct(deps: BotDeps, args: string): Promise<string> {
     : `✅ Filter ${escapeHtml(rawName)} staat nu alleen nog in het ochtendoverzicht.`;
 }
 
+async function minimum(deps: BotDeps, args: string): Promise<string> {
+  const [rawName = "", rawValue = ""] = args.trim().toLowerCase().split(/\s+/);
+  const filters = groupFilters(await deps.store.listFilterWords());
+  const value = rawValue === "uit" || rawValue === "0" ? 0 : rawValue ? parseMillions(rawValue) : null;
+  if (!rawName || !filters.has(rawName) || value === null) {
+    const caps = await minCaps(deps.store);
+    const list = [...filters.keys()].map((f) => `${escapeHtml(f)}: ${caps.has(f) ? `vanaf ${formatCap(caps.get(f)!)}` : "geen minimum"}`);
+    return [
+      "<b>Minimale marktwaarde per filter</b>",
+      ...list,
+      "",
+      "Bij een beursgang telt de waardering uit het bericht. Is de grootte onbekend, dan komt de treffer wel door.",
+      "Aanpassen: /minimum ipo 100 (in miljoen euro) of /minimum ipo 0 voor geen minimum",
+    ].join("\n");
+  }
+  await setMinCap(deps.store, rawName, value);
+  return value
+    ? `✅ Filter ${escapeHtml(rawName)}: alleen nog bedrijven vanaf ${formatCap(value)}.`
+    : `✅ Filter ${escapeHtml(rawName)}: geen minimale marktwaarde meer.`;
+}
+
 /** Verwerkt één binnengekomen bericht. */
 export async function handleMessage(deps: BotDeps, message: TelegramMessage): Promise<void> {
   // Groep is supergroep geworden: nieuw chat-id overnemen als dit de meldingenchat was.
@@ -696,9 +694,6 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
     case "/filtertest":
       reply = await filterTest(deps);
       break;
-    case "/koersdoel":
-      reply = await targetsSwitch(deps, args);
-      break;
     case "/marktwaarde":
       reply = await setCap(deps, args);
       break;
@@ -717,6 +712,9 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
       break;
     case "/direct":
       reply = await direct(deps, args);
+      break;
+    case "/minimum":
+      reply = await minimum(deps, args);
       break;
     default:
       reply = `Dat commando ken ik niet.\n\n${HELP}`;

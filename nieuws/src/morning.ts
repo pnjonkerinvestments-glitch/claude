@@ -15,6 +15,7 @@ import type { Config } from "./config.ts";
 import {
   addDays,
   datesForAgenda,
+  daysBetween,
   fold,
   formatDay,
   localTime,
@@ -23,10 +24,11 @@ import {
   toUnix,
 } from "./dates.ts";
 import type { NewListing } from "./listings.ts";
-import { LISTINGS_DONE_KEY, LISTINGS_JOB_KEY, MAIN_EXCHANGES, newListings, sweepListings } from "./listings.ts";
-import { capRange, countryName } from "./screener.ts";
+import { LISTINGS_DONE_KEY, LISTINGS_JOB_KEY, MAIN_EXCHANGES, newListings, realListing, sweepListings } from "./listings.ts";
+import { capRange, countryName, formatCap } from "./screener.ts";
 import type { AgendaItem, EventRecord, Store } from "./store.ts";
 import { escapeHtml } from "./telegram.ts";
+import { bigEnough, minCaps, parseValuation, readExtra } from "./size.ts";
 import type { Fetch } from "./tradingview.ts";
 import { fetchStory, fields, scanner } from "./tradingview.ts";
 
@@ -106,6 +108,17 @@ export interface Price {
   name: string;
 }
 
+export interface ListingInfo {
+  capEur?: number;
+  /** "2026-10-01", als TradingView een IPO-datum heeft. */
+  ipoDate?: string;
+}
+
+/** Een beursgang die langer geleden is, is een oud aandeel dat even uit de lijst was. */
+const IPO_MAX_AGE_DAYS = 60;
+/** Ruwe koers voor de IPO-kalender (die geeft dollars); voor een grens van €100 mln is dat genoeg. */
+const EUR_PER_USD = 0.9;
+
 export interface DayState {
   date: string;
   done: string[];
@@ -115,6 +128,8 @@ export interface DayState {
   ipos?: IpoRow[];
   gaps?: GapRow[];
   prices?: Record<string, Price>;
+  /** Marktwaarde en IPO-datum van de nieuwe noteringen van vandaag. */
+  listings?: Record<string, ListingInfo>;
 }
 
 async function loadDay(store: Store, today: string): Promise<DayState> {
@@ -424,6 +439,27 @@ const STEPS: Step[] = [
     },
   },
   {
+    // Marktwaarde en IPO-datum van de nieuwe noteringen, voor het minimum per filter.
+    name: "noteringinfo",
+    from: 30,
+    async run({ store, config, fetcher, now }, state) {
+      const fresh = (await newListings(store, await windowStart(store, now))).filter(realListing);
+      if (!fresh.length) return;
+      const { rows } = await scanner(fetcher, {
+        symbols: { tickers: fresh.map((l) => l.symbol).slice(0, 200) },
+        columns: ["market_cap_basic", "ipo_offer_date"],
+        price_conversion: { to_currency: "eur" },
+      });
+      state.listings = {};
+      for (const row of rows) {
+        state.listings[row.s] = {
+          capEur: num(row.d[0]) ?? undefined,
+          ipoDate: isoDate(row.d[1], config.timeZone) || undefined,
+        };
+      }
+    },
+  },
+  {
     name: "koersen",
     from: GAP_MINUTES,
     async run({ store, config, fetcher }, state) {
@@ -451,6 +487,7 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
   const ids = [...byId.keys()].slice(0, limit);
   const items: AgendaItem[] = [];
   const extra: Record<string, string> = {};
+  const caps = await minCaps(store);
   for (const id of ids) {
     const events = byId.get(id)!;
     const event = events[0];
@@ -462,6 +499,20 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
       deps.log?.(`${id}: bericht niet gelezen (${error instanceof Error ? error.message : error})`);
     }
     const full = `${event.title}\n${body}`;
+    // Grootte en dividendbedrag uit het bericht, bij wat de screener al wist.
+    const base = readExtra(event.extra);
+    const next = { ...base };
+    if (next.capEur === undefined) {
+      const valuation = parseValuation(full);
+      if (valuation) next.capEur = Math.round(valuation);
+    }
+    if (events.some((e) => e.filter === "dividend")) {
+      const amount = parseDividendAmount(full);
+      if (amount) Object.assign(next, amount);
+    }
+    if (JSON.stringify(next) !== JSON.stringify(base)) extra[id] = JSON.stringify(next);
+    // Blijkt het bedrijf te klein (waardering in het bericht), dan ook geen agendapunt.
+    if (!events.some((e) => bigEnough(e.filter, next.capEur, caps))) continue;
     const reference = event.published ? localTime(event.published, config.timeZone).date : today;
     // Het filter dat het meest over de datum zegt (een overname gaat voor een notering).
     const kind = DATED_FILTERS.find((f) => events.some((e) => e.filter === f)) ?? event.filter;
@@ -476,10 +527,6 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
         title: event.title,
         url: event.url,
       });
-    }
-    if (events.some((e) => e.filter === "dividend")) {
-      const amount = parseDividendAmount(full);
-      if (amount) extra[id] = JSON.stringify(amount);
     }
   }
   await store.addAgenda(items, now);
@@ -698,8 +745,9 @@ const isBuy = (title: string) => {
 };
 const SELL = /(?<![a-z])(verkauf|verausserung|sell|sells|sold|sale|disposal|vente|cessione|venta|salg|myynti)(?![a-z])/;
 
-function listingLine(listing: NewListing): string {
-  const where = `${escapeHtml(listing.exchange)}${listing.country ? `, ${escapeHtml(countryName(listing.country))}` : ""}`;
+function listingLine(listing: NewListing, capEur?: number): string {
+  const size = capEur ? `, ${formatCap(capEur)}` : "";
+  const where = `${escapeHtml(listing.exchange)}${listing.country ? `, ${escapeHtml(countryName(listing.country))}` : ""}${size}`;
   const head = `• <b>${escapeHtml(ticker(listing.symbol))}</b> ${escapeHtml(listing.name)} (${where})`;
   const others = listing.others.map((o) => escapeHtml(o.symbol)).slice(0, 3).join(", ");
   if (listing.kind === "dubbel") return `${head} · tweede notering, al genoteerd als ${others}`;
@@ -714,7 +762,9 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   const tz = config.timeZone;
   const today = localTime(now, tz).date;
   const since = await windowStart(store, now);
-  const events = await store.eventsSince(since);
+  const caps = await minCaps(store);
+  // Te kleine bedrijven (minimale marktwaarde per filter, /minimum) vallen af.
+  const events = (await store.eventsSince(since)).filter((e) => bigEnough(e.filter, readExtra(e.extra).capEur, caps));
   const byFilter = new Map<string, EventRecord[]>();
   for (const event of events) byFilter.set(event.filter, [...(byFilter.get(event.filter) ?? []), event]);
   const blocks: string[][] = [];
@@ -744,7 +794,9 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   for (const event of byFilter.get("dividend") ?? []) if (!dividendNews.has(event.symbol || event.id)) dividendNews.set(event.symbol || event.id, event);
   for (const event of dividendNews.values()) {
     if (event.symbol && listed.has(event.symbol)) continue;
-    const amount = event.extra ? (JSON.parse(event.extra) as Amount) : parseDividendAmount(event.title);
+    const stored = readExtra(event.extra);
+    const amount: Amount | null =
+      stored.amount !== undefined && stored.currency ? { amount: stored.amount, currency: stored.currency } : parseDividendAmount(event.title);
     const price = event.symbol ? state.prices?.[event.symbol] : undefined;
     const ratio = amount && price ? dividendRatio(amount, price) : null;
     if (ratio !== null && ratio < config.dividendRatio) {
@@ -763,11 +815,20 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   blocks.push(section(`💰 <b>Speciaal dividend ≥ ${percent(config.dividendRatio)} van de koers</b>`, dividendLines));
 
   // Nieuwe noteringen en de IPO-kalender.
-  const fresh = (await newListings(store, since)).filter((l) => l.kind !== "verhuisd" || l.others.some((o) => o.exchange !== l.exchange));
-  blocks.push(section("🆕 <b>Nieuw op de beurs</b>", fresh.filter((l) => l.kind === "ipo").map(listingLine)));
-  blocks.push(section("🔁 <b>Nieuwe en dubbele noteringen</b>", fresh.filter((l) => l.kind !== "ipo").map(listingLine)));
+  // Alleen echte noteringen met een bekende marktwaarde boven het minimum (ipo en notering, /minimum).
+  const info = state.listings ?? {};
+  const fresh = (await newListings(store, since)).filter((l) => {
+    const known = info[l.symbol];
+    if (!realListing(l) || known?.capEur === undefined) return false;
+    if (!bigEnough(l.kind === "ipo" ? "ipo" : "notering", known.capEur, caps)) return false;
+    return !(l.kind === "ipo" && known.ipoDate && daysBetween(known.ipoDate, today) > IPO_MAX_AGE_DAYS);
+  });
+  const line = (l: NewListing) => listingLine(l, info[l.symbol]?.capEur);
+  blocks.push(section("🆕 <b>Nieuw op de beurs</b>", fresh.filter((l) => l.kind === "ipo").map(line)));
+  blocks.push(section("🔁 <b>Nieuwe en dubbele noteringen</b>", fresh.filter((l) => l.kind !== "ipo").map(line)));
   const ipoLines = (state.ipos ?? [])
     .filter((i) => i.status !== "closed" || (i.date && i.date >= today))
+    .filter((i) => i.capUsd === undefined || bigEnough("ipo", i.capUsd * EUR_PER_USD, caps))
     .map((i) => {
       const date = i.date ? `${escapeHtml(formatDay(i.date, today))}` : "datum nog niet bekend";
       const size = i.capUsd ? ` · marktwaarde ±$${Math.round(i.capUsd / 1e6)} mln` : "";

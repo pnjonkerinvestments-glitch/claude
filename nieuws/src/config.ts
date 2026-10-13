@@ -247,6 +247,18 @@ export const DEFAULT_DIGEST_ONLY = ["overname", "splitsing", "handelsstop", "ins
 /** Filters die standaard over al het Europese nieuws werken, niet alleen over de selectie. */
 export const DEFAULT_EUROPE_FILTERS = ["ipo", "notering"];
 
+/**
+ * Minimale marktwaarde (euro) per filter; kleinere bedrijven geven geen treffer. Bij een bedrijf
+ * dat nog niet genoteerd is (IPO), telt de waardering uit de kop of het bericht ("valued at
+ * SEK 675M"). Is de grootte onbekend, dan blijft de treffer staan. Aanpasbaar met /minimum.
+ */
+export const DEFAULT_MIN_CAP: Record<string, number> = {
+  emissie: 10e6,
+  ipo: 100e6,
+  notering: 100e6,
+  overname: 100e6,
+};
+
 export function parseFeeds(raw: string): Feed[] {
   return raw
     .split(";")

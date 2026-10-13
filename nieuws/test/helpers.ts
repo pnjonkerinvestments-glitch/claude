@@ -1,4 +1,4 @@
-import type { AgendaItem, EventRecord, FilterWord, Listing, Store, TargetSnapshot, UniverseEntry, WatchEntry } from "../src/store.ts";
+import type { AgendaItem, EventRecord, FilterWord, Listing, Store, UniverseEntry, WatchEntry } from "../src/store.ts";
 import { Telegram } from "../src/telegram.ts";
 import type { Fetch } from "../src/tradingview.ts";
 import { loadConfig } from "../src/config.ts";
@@ -85,19 +85,11 @@ export class MemoryStore implements Store {
     return this.universe.size;
   }
 
-  targets = new Map<string, TargetSnapshot>();
-  async getTargets(symbols: string[]) {
-    return symbols.flatMap((s) => (this.targets.has(s) ? [{ ...this.targets.get(s)! }] : []));
-  }
-  async putTargets(rows: TargetSnapshot[]) {
-    for (const row of rows) this.targets.set(row.symbol, { ...row });
-  }
-
   events: Array<EventRecord & { recordedAt: number; checked: boolean; extra: string }> = [];
   async recordEvents(rows: EventRecord[], now: number) {
     for (const row of rows) {
       if (this.events.some((e) => e.id === row.id && e.filter === row.filter)) continue;
-      this.events.push({ ...row, recordedAt: now, checked: false, extra: "" });
+      this.events.push({ ...row, recordedAt: now, checked: false, extra: row.extra ?? "" });
     }
   }
   async eventsSince(since: number) {
@@ -175,10 +167,8 @@ export class FakeNet {
   feeds = new Map<string, unknown>();
   feedRequests: string[] = [];
   scannerRows: unknown[] = [];
-  /** Rijen voor de koersdoel-vraag (herkend aan de kolom price_target_high). */
-  targetRows: unknown[] = [];
   scannerBodies: any[] = [];
-  /** Eigen antwoord op een screener-vraag; null = de standaard (selectie of koersdoelen). */
+  /** Eigen antwoord op een screener-vraag; null = de standaard (de selectie). */
   scannerHandler: ((body: any) => unknown[] | null) | null = null;
   /** Berichttekst per id (anders `story`). */
   stories = new Map<string, unknown>();
@@ -229,7 +219,7 @@ export class FakeNet {
       this.scannerBodies.push(body);
       const [from, to] = body.range ?? [0, 1000];
       const custom = this.scannerHandler?.(body);
-      const rows = custom ?? (body.columns.includes("price_target_high") ? this.targetRows : this.scannerRows);
+      const rows = custom ?? this.scannerRows;
       return Response.json({ totalCount: rows.length, data: rows.slice(from, to) });
     }
     if (url.host === "news-mediator.tradingview.com") {
