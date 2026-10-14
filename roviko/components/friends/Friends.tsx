@@ -99,7 +99,7 @@ export function InvitePanel({ code, inRoom = [] }: { code: string; inRoom?: stri
   const { friends } = useFriends();
   const [sent, setSent] = useState<Record<string, boolean>>({});
   const everyone = (friends ?? []).filter(f => f.status === 'accepted'), accepted = everyone.filter(f => !inRoom.includes(f.user_id));
-  const invite = async (f: Friend) => { try { await inviteToPlay({ go: () => {} }, f, code); setSent(s => ({ ...s, [f.user_id]: true })); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } };
+  const invite = async (f: Friend) => { try { await inviteToPlay({ go: () => {} }, f, code); setSent(s => ({ ...s, [f.user_id]: true })); toast.success(t(f.online ? 'inviteSent' : 'inviteSentOffline').replace('{name}', f.name)); } catch (e) { fail(e); } };
   return <section className="invite-panel" aria-labelledby="invite-panel-title">
     <h3 id="invite-panel-title"><RovikoIcon name="addFriend" size={22}/>{t('inviteFriendsTitle')}</h3>
     {boot.user.guest ? <p className="muted">{t('inviteGuest')} <button className="text-link" onClick={() => setModal('signup')}>{t('signUp')}</button></p>
@@ -122,12 +122,14 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
   const invite = invites[0];
   useEffect(() => { if (invite) { try { sound('tap'); navigator.vibrate?.([30, 40, 30]); } catch { /* quiet */ } } }, [invite?.id]);
   if (!invite) return null;
+  // 1.41: join first and only then mark the invite as used, so a failed join never eats the invite silently.
   const answer = async (status: 'accepted' | 'dismissed') => {
     setBusy(status);
     try {
-      await post('/invites/' + invite.id, { status });
+      if (status === 'accepted') await post('/rooms/' + invite.code + '/join');
       dismiss(invite.id);
-      if (status === 'accepted') { await post('/rooms/' + invite.code + '/join'); go('/room/' + invite.code); }
+      await post('/invites/' + invite.id, { status }).catch(() => { /* the room is what matters */ });
+      if (status === 'accepted') go('/room/' + invite.code);
     } catch (e) { dismiss(invite.id); fail(e); } finally { setBusy(''); }
   };
   return <aside className="invite-pop" key={invite.id} role="alertdialog" aria-labelledby="invite-pop-title" aria-describedby="invite-pop-copy">
@@ -181,7 +183,7 @@ export function FriendsPage() {
   const { friends, reload } = useFriends();
   const [inviting, setInviting] = useState('');
   const act = async (id: string, status: string) => { try { await post('/friends/' + id, { status }); reload(); refreshPresence(); } catch (e) { fail(e); } };
-  const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
+  const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t(f.online ? 'inviteSent' : 'inviteSentOffline').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
   if (boot.user.guest) return <div className="page friends-v2 trip-page"><PageHeader art="join-mascot" kicker={t('friendsKicker')} title={t('friendsTitle')}/><EmptyState art={<span className="state-icon" aria-hidden="true"><RovikoIcon name="friends" size={34}/></span>} title={t('accountRequired')} copy={t('guestPassport')}><button className="btn primary" onClick={() => setModal('signup')}>{t('signUp')}</button><button className="btn ghost" onClick={() => setModal('login')}>{t('signIn')}</button></EmptyState></div>;
   const visible = (friends ?? []).filter(f => f.status !== 'blocked');
@@ -224,8 +226,10 @@ export function FriendsOnlinePanel() {
   </section>;
   const accepted = (friends ?? []).filter(f => f.status === 'accepted');
   const online = accepted.filter(f => f.online);
+  // 1.41: offline friends can be invited too (they see it when they open Roviko); online ones first.
+  const shown = [...online, ...accepted.filter(f => !f.online)].slice(0, 6);
   const requests = (friends ?? []).filter(f => f.status === 'pending' && f.to_id === boot.user.id);
-  const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t('inviteSent').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
+  const invite = async (f: Friend) => { setInviting(f.user_id); try { await inviteToPlay(app, f); toast.success(t(f.online ? 'inviteSent' : 'inviteSentOffline').replace('{name}', f.name)); } catch (e) { fail(e); } finally { setInviting(''); } };
   const join = async (f: Friend) => { try { await post('/rooms/' + f.room_code + '/join'); go('/room/' + f.room_code); } catch (e) { fail(e); } };
   return <section className="mp-friends" aria-labelledby="mp-friends-title">
     <div className="mp-friends-head">
@@ -235,9 +239,10 @@ export function FriendsOnlinePanel() {
     </div>
     {requests.length > 0 && <A href="/friends" className="mp-friends-requests"><span className="nav-badge is-inline" aria-hidden="true">{requests.length > 9 ? '9+' : requests.length}</span>{plural(t, 'mpFriendRequests', requests.length)}<ArrowRight size={15} aria-hidden="true"/></A>}
     {friends === null ? <div className="sk-list"><Skeleton className="sk-block sk-list-row"/></div>
-      : online.length ? <ul className="friend-list-v2">{online.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.room_code
+      : shown.length ? <><ul className="friend-list-v2">{shown.map(f => <FriendRow key={f.id} friend={f} onBlocked={reload} action={f.room_code
         ? <button className="btn secondary btn-sm" onClick={() => join(f)}><DoorOpen size={15} aria-hidden="true"/>{t('joinFriend')}</button>
         : <button className="btn secondary btn-sm" disabled={!!inviting} aria-busy={inviting === f.user_id} onClick={() => invite(f)}><Send size={15} aria-hidden="true"/>{t('inviteToPlay')}</button>}/>)}</ul>
+        {!online.length && <p className="mp-friends-empty">{t('friendsNobodyOnline')}</p>}</>
       : <p className="mp-friends-empty">{accepted.length ? t('friendsNobodyOnline') : t('mpFriendsNone')}</p>}
     <AddFriend id="mp-friend-name" className="mp-friend-add" onAdded={reload} lead={<button type="button" className="friend-code" onClick={() => copy(boot.user.name)} aria-label={t('yourUsername') + ' ' + boot.user.name}><small>{t('mpYourName')}</small><b>{boot.user.name}</b><Copy size={15} aria-hidden="true"/></button>}/>
   </section>;

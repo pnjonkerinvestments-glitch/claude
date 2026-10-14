@@ -13,11 +13,12 @@ import { v132Messages } from './v132';
 import { v135Messages } from './v135';
 import { v138Messages } from './v138';
 import { v139Messages } from './v139';
+import { v141Messages } from './v141';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es,...v135Messages.es,...v138Messages.es,...v139Messages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es,...v135Messages.es,...v138Messages.es,...v139Messages.es,...v141Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -648,7 +649,8 @@ export const messages = {
     ...v132Messages.en,
     ...v135Messages.en,
     ...v138Messages.en,
-    ...v139Messages.en
+    ...v139Messages.en,
+    ...v141Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1280,8 +1282,9 @@ export const messages = {
     ...v132Messages.nl,
     ...v135Messages.nl,
     ...v138Messages.nl,
-    ...v139Messages.nl
+    ...v139Messages.nl,
+    ...v141Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;
-export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', NAME_TAKEN: 'nameTaken', REPAIR_USED: 'repairUsed', NOTHING_TO_REPAIR: 'repairNone', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }
+export function errorMessage(code: string) { return ({ MAIL_UNAVAILABLE: 'mailUnavailable', MAIL_FAILED: 'mailFailed', LINK_EXPIRED: 'linkExpired', NAME_INVALID: 'nameInvalid', NAME_LOCKED: 'nameLocked', NAME_TAKEN: 'nameTaken', REPAIR_USED: 'repairUsed', NOTHING_TO_REPAIR: 'repairNone', DUPLICATE_SESSION: 'duplicateSession', QUESTION_UNAVAILABLE: 'questionUnavailable', FINISH_MATCH_TO_SIGN_IN: 'finishMatchFirst', REALTIME_UNAVAILABLE: 'realtimeUnavailable', REQUEST_TIMEOUT: 'requestTimeout', ANSWER_UNCONFIRMED: 'answerUnconfirmed', ROOM_EXPIRED: 'roomNotFound', ROOM_NOT_FOUND: 'roomNotFound', ROOM_FULL: 'roomFull', INVALID_ROOM_CODE: 'invalidCode', INVALID_CREDENTIALS: 'authError', EMAIL_UNAVAILABLE: 'emailUnavailable', INVALID_INPUT: 'invalidInput', HOST_ONLY: 'hostOnly', TOO_MANY_REQUESTS: 'tooMany', SESSION_EXPIRED: 'sessionExpired', ROUND_CLOSED: 'roundClosed', ANSWER_LOCKED: 'answerDuplicate', MATCH_IN_PROGRESS: 'matchInProgress', FRIEND_NOT_FOUND: 'friendNotFound', REQUEST_EXISTS: 'requestExists', ACCOUNT_REQUIRED: 'accountRequired', FORBIDDEN: 'adminRestricted', NOT_FRIENDS: 'notFriends', ROOM_UNAVAILABLE: 'roomUnavailable', KICKED: 'roomKicked', NOT_IN_ROOM: 'notInRoom' } as Record<string, MessageKey>)[code] ?? 'connectionError'; }

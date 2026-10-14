@@ -352,7 +352,7 @@ test('eight Rank Radar rounds persist exactly once, store pick points and expose
   for(const c of g.board.categories)assert.ok(c.label.en&&c.label.nl&&c.explanation.en);
   const used=new Set(g.answers.map(x=>x.value)),answer=g.board.categories.find(c=>!used.has(c.id)).id;
   const reveal=await request(a.cookie,'/ranks/'+g.id+'/answer','POST',{version:g.version,answer,correct:true,points:5000});assert.equal(reveal.status,200,JSON.stringify(reveal.data));
-  g=reveal.data;const last=g.answers.at(-1);assert.ok(last.points>=0&&last.points<=125);sum+=last.points;assert.equal(last.countryId,g.board.rounds[g.round].country.id);
+  g=reveal.data;const last=g.answers.at(-1);assert.ok(last.points>=0&&last.points<=125);sum+=last.points;assert.equal(g.board.v,3);assert.ok(last.place>=1&&last.place<=8,'1.41: the place of the pick is saved');assert.equal(last.points,[125,90,65,45,30,20,10,5][last.place-1]);assert.equal(last.countryId,g.board.rounds[g.round].country.id);
   assert.deepEqual(Object.keys(g.board.rounds[g.round].stats),[answer]);assert.ok(!g.board.rounds[g.round].best);assert.ok(g.board.rounds.slice(g.round+1).every(r=>!r.country));
   const next=await request(a.cookie,'/ranks/'+g.id+'/next','POST',{version:g.version});assert.equal(next.status,200);g=next.data;
  }
@@ -566,6 +566,18 @@ test('competition summary reports earlier personal bests, the best day and yeste
  assert.equal(s.bestDay,700);assert.deepEqual(s.yesterday,{score:700,games:2});
  const fresh=(await request((await bootstrap()).cookie,'/competition')).data;assert.deepEqual(fresh.personalBest,{});assert.equal(fresh.bestDay,null);assert.deepEqual(fresh.yesterday,{score:0,games:0});
 });
+test('Rank Radar 1.41: a day that already has the old board keeps it, a new day gets the v3 board',async()=>{
+ const today=new Date().toISOString().slice(0,10);
+ // Simulate: the daily content of today already exists under the old key, so everybody keeps playing that board.
+ const a=await bootstrap();const g=(await request(a.cookie,'/ranks','POST',{})).data;
+ const rows=(await db.prepare("SELECT kind FROM daily_content WHERE date=? AND kind LIKE 'rank%'").bind(today).all()).results.map(r=>r.kind);
+ assert.ok(rows.some(k=>k.startsWith('rank3')),'a fresh day uses the v3 key: '+rows.join(','));assert.equal(g.board.v,3);
+ const old=JSON.parse((await db.prepare("SELECT content FROM daily_content WHERE date=? AND kind LIKE 'rank3%'").bind(today).first('content')));
+ old.board.v=2;const k3=rows.find(k=>k.startsWith('rank3')),k2=k3.replace('rank3','rank2');
+ await db.prepare('INSERT INTO daily_content(date,kind,dataset_version,content,created_at) VALUES (?,?,?,?,?)').bind(today,k2,'test',JSON.stringify(old),Date.now()).run();
+ const b=await bootstrap();const h=(await request(b.cookie,'/ranks','POST',{})).data;assert.equal(h.board.v,2,'the old board of the day is kept');
+ await db.prepare('DELETE FROM daily_content WHERE date=? AND kind=?').bind(today,k2).run();
+});
 test('friends see who is online and can invite each other straight into a room',async()=>{
  const signup=async(n)=>{const g=await bootstrap();return request(g.cookie,'/auth/signup','POST',{name:'Invite '+n,email:'invite-'+n.toLowerCase()+'@example.test',password:'Synthetic-invite-password-'+n});};
  const a=await signup('A'),b=await signup('B'),c=await signup('C');
@@ -575,11 +587,16 @@ test('friends see who is online and can invite each other straight into a room',
  assert.deepEqual((await request(a.cookie,'/presence','POST',{})).data,{invites:[],requests:0});assert.equal((await request(b.cookie,'/presence','POST',{})).data.requests,0,'accepted: badge gone');
  let seen=(await request(b.cookie,'/friends')).data.friends[0];assert.equal(seen.online,1);assert.equal(seen.name,'Invite A');
  const room=(await request(a.cookie,'/rooms','POST',{settings})).data;
- assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:c.data.user.id})).status,403,'only accepted friends');
+ const notFriend=await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:c.data.user.id});assert.equal(notFriend.status,403,'only accepted friends');assert.equal(notFriend.data.error?.code??notFriend.data.code??notFriend.data.error,'NOT_FRIENDS');
  assert.equal((await request(c.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,403,'only players in the room');
  assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200);
  assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200,'re-inviting refreshes');
  const inbox=(await request(b.cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].code,room.code);assert.equal(inbox[0].name,'Invite A');
+ // 1.41: an invite into a room that already started (or expired) is not shown; back in the waiting room it is.
+ await db.prepare("UPDATE multiplayer_rooms SET state=json_set(state,'$.phase','question') WHERE code=?").bind(room.code).run();
+ assert.deepEqual((await request(b.cookie,'/presence','POST',{})).data.invites,[],'no invite into a match in progress');
+ await db.prepare("UPDATE multiplayer_rooms SET state=json_set(state,'$.phase','lobby') WHERE code=?").bind(room.code).run();
+ assert.equal((await request(b.cookie,'/presence','POST',{})).data.invites.length,1);
  assert.equal((await request(c.cookie,'/invites/'+inbox[0].id,'POST',{status:'accepted'})).status,404,'nobody else can answer it');
  const answer=(await request(b.cookie,'/invites/'+inbox[0].id,'POST',{status:'accepted'})).data;assert.equal(answer.code,room.code);
  assert.equal((await request(b.cookie,'/rooms/'+room.code+'/join','POST',{})).status,200);

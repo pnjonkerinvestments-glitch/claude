@@ -13,12 +13,14 @@ export type RankCategory = { id: string; emoji: string; label: Localized; explan
 export const RANK_CATEGORIES: RankCategory[] = [
   ...TOPICS.filter(t => !['borders','equator','north'].includes(t.id)),
   { id: 'elevation', emoji: '⛰️', label: text('Average elevation','Gemiddelde hoogte'), unit: 'm', retired: true, explanation: text('Mean elevation of the country’s land above sea level.','Gemiddelde hoogte van het land boven zeeniveau.') },
+  // 1.41: Rank Radar only (retired here, so the duel and the old six-question game never pick it).
+  { id: 'density', emoji: '🏘️', label: text('Population density','Bevolkingsdichtheid','Densidad de población'), unit: 'density', retired: true, explanation: text('People per km² of land: the World Bank population divided by the country’s area.','Mensen per km²: de bevolking volgens de Wereldbank gedeeld door de oppervlakte van het land.','Personas por km²: la población del Banco Mundial dividida por la superficie del país.') },
   { id: 'age', emoji: '🧑‍🤝‍🧑', label: text('Median age','Mediane leeftijd'), unit: 'years', explanation: text('Half the population is younger than this age, half older. A 2025 estimate, not an arithmetic average.','De helft van de bevolking is jonger, de helft ouder. Een schatting voor 2025, geen rekenkundig gemiddelde.') , retired: true },
 ];
 type Observation = { value: number; referenceYear: number | null; source: string; sourceUrl: string; estimated?: boolean; place?: string };
 export type RankOption = RankCategory & Observation & { rank: number; coverage: number; position: number; topPercent: number };
 export type RankRound = { id: string; country: { id: string; name: Localized; flag: string }; options: RankOption[]; correct: string };
-export type RankAnswer = { value: string; correct: boolean; countryId: string; questionId: string; responseTime: number; at: number; /** Rank Radar since 1.21: points for this pick (0-125). */ points?: number };
+export type RankAnswer = { value: string; correct: boolean; countryId: string; questionId: string; responseTime: number; at: number; /** Rank Radar since 1.21: points for this pick (0-125). */ points?: number; /** Since 1.41: how good the pick was for this country (1 = its best of the eight subjects). */ place?: number };
 export type RankState = { /** Rank Radar since 1.21 (eight countries, eight subjects); older games have `questions` only. */ board?: import('./rank-board').RankBoard; competition?: import('../daily-scoring').Competition; id: string; mode: 'rank'; daily: string | null; phase: 'question' | 'reveal' | 'finished'; round: number; questions: RankRound[]; answers: RankAnswer[]; streak: number; bestStreak: number; startedAt: number; turnAt: number; datasetVersion?: string };
 export type RankView = Omit<RankState, 'questions' | 'startedAt' | 'turnAt' | 'board'> & { board?: import('./rank-board').PublicRankBoard; total: number; version: number; score?: number; question: RankRound | null; review?: RankRound[]; learning: true; places?: number[] };
 
@@ -36,6 +38,7 @@ function observations(topic: RankCategory): Record<string, Observation> {
   const records = archive.records as Record<string, Record<string, {value: number; reference_year: number | null; source_id: string; source_url: string; estimated: boolean; place?: string}>>;
   return Object.fromEntries(COUNTRIES.flatMap<[string, Observation]>(c => {
     if (topic.id === 'area') return [[c.id, { value:c.area, referenceYear:null, source:'World countries · ODbL 1.0', sourceUrl:'/sources' }]];
+    if (topic.id === 'density') { const pop = (snapshot.topics as any).population; const v = pop?.values[c.id]; return Number.isFinite(v) && c.area > 0 ? [[c.id, { value:Math.round(v / c.area * 10) / 10, referenceYear:pop.reference_year, source:'World Bank population ÷ country area', sourceUrl:'https://data.worldbank.org/indicator/'+pop.indicator }]] : []; }
     if (FUN_IDS.includes(topic.id)) { const o = funObservation(c.id, topic.id); return o ? [[c.id, o]] : []; }
     if (wdi && Number.isFinite(wdi.values[c.id])) return [[c.id, { value:wdi.values[c.id], referenceYear:wdi.reference_year, source:'World Bank · WDI · CC BY 4.0', sourceUrl:'https://data.worldbank.org/indicator/'+wdi.indicator }]];
     const fact = records[c.id]?.[topic.id];

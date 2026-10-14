@@ -7,8 +7,8 @@ import { levelsFor } from './stats';
 
 /** A friend counts as online when their open Roviko tab checked in within this window. */
 export const ONLINE_WINDOW = 90_000;
-/** Invites stay visible for a quarter of an hour; rooms themselves expire after 30 idle minutes. */
-export const INVITE_TTL = 15 * 60_000;
+/** Invites stay visible for half an hour (15 minutes before 1.41), as long as the room is still open to join. */
+export const INVITE_TTL = 30 * 60_000;
 
 const isFriend = (env: Env, a: string, b: string) => one(env, "SELECT id FROM friend_requests WHERE status='accepted' AND ((from_id=? AND to_id=?) OR (from_id=? AND to_id=?))", a, b, b, a);
 
@@ -28,8 +28,12 @@ export async function heartbeat(env: Env, user: User, roomCode?: string | null, 
       if (!room && !playing) await luciaInvites(env, user.id, now).catch(() => { /* Lucia waits for the next check */ });
     })(),
   ]);
+  // 1.41: only invites into rooms you can still join (waiting room, not full, not expired), and a friend's invite
+  // always before Lucia's, so her automatic invite never hides a real one.
   const [inviteRows, pending] = await Promise.all([rows(env, `SELECT i.id,i.room_code code,i.created_at,u.id from_id,u.name,u.avatar FROM room_invites i JOIN users u ON u.id=i.from_id
-    WHERE i.to_id=? AND i.status='pending' AND i.created_at>? ORDER BY i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL),
+    JOIN multiplayer_rooms r ON r.code=i.room_code
+    WHERE i.to_id=? AND i.status='pending' AND i.created_at>? AND r.expires_at>? AND json_extract(r.state,'$.phase')='lobby' AND COALESCE(json_array_length(r.state,'$.players'),0)<12
+    ORDER BY (i.from_id=?) ASC, i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL, now, LUCIA_ID),
     // 1.28: friend requests waiting for you, for the red badge on the Multiplayer tab.
     one(env, "SELECT COUNT(*) n FROM friend_requests WHERE to_id=? AND status='pending'", user.id)]);
   // 1.37: who invites you, with their level (not for Lucia, a computer).
@@ -52,6 +56,8 @@ async function luciaInvites(env: Env, userId: string, now: number) {
   if (!await isFriend(env, userId, LUCIA_ID)) return;
   const last = await one(env, 'SELECT MAX(created_at) at FROM room_invites WHERE from_id=? AND to_id=?', LUCIA_ID, userId);
   if (last?.at && now - Number(last.at) < LUCIA_INVITE_GAP) return;
+  // A friend's invite is waiting: Lucia does not cut in (1.41).
+  if (await one(env, "SELECT id FROM room_invites WHERE to_id=? AND from_id<>? AND status='pending' AND created_at>? LIMIT 1", userId, LUCIA_ID, now - INVITE_TTL)) return;
   const code = await createLuciaRoom(env);
   await run(env, `INSERT INTO room_invites(id,from_id,to_id,room_code,status,created_at) VALUES (?,?,?,?, 'pending', ?)
     ON CONFLICT(from_id,to_id,room_code) DO UPDATE SET status='pending',created_at=excluded.created_at`, crypto.randomUUID(), LUCIA_ID, userId, code, now);
@@ -68,7 +74,7 @@ export async function inviteFriend(env: Env, user: User, code: string, friendId:
   const state = JSON.parse(row.state) as { players: { id: string }[] };
   if (!state.players.some(p => p.id === user.id)) throw new AppError('NOT_IN_ROOM', 403);
   if (state.players.length >= 12) throw new AppError('ROOM_FULL', 409);
-  if (friendId === user.id || !await isFriend(env, user.id, friendId)) throw new AppError('FORBIDDEN', 403);
+  if (friendId === user.id || !await isFriend(env, user.id, friendId)) throw new AppError('NOT_FRIENDS', 403);
   // Lucia never keeps you waiting (1.30): she joins the room straight away as a medium computer player.
   if (friendId === LUCIA_ID) { await mutateRoom(env, code, user, 'luciaJoin'); return { ok: true, joined: true }; }
   const now = Date.now();
