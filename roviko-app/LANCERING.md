@@ -28,16 +28,69 @@ Deze checklist hoort bij versie 1.19 van de website. Wat klaarstaat, staat boven
 
 ## Google Play (Android)
 
-1. **Ontwikkelaarsaccount:** <https://play.google.com/console>, eenmalig $25, met identiteitscontrole. Kies bij voorkeur een **organisatie**-account als je een bedrijf hebt. Bij een nieuw **persoonlijk** account eist Google eerst een gesloten test met minstens 12 testers die 14 dagen meedoen.
-2. **Uploadsleutel** maken en de vier GitHub-secrets zetten: zie `README.md`, stap "Google Play".
-3. **Workflow draaien:** GitHub → Actions → *Roviko app* → *Run workflow*. Download het artifact `roviko-android`. Test eerst `app-debug.apk` op een Android-telefoon.
-4. **App aanmaken in de Play Console:**
-   - Naam, korte en volledige beschrijving: `store-listing.md`.
-   - Icoon 512 px, banner 1024×500 en telefoonscreenshots uit `store/`.
-   - Categorie: *Onderwijs* (of *Spellen → Trivia*).
-   - Invullen: **Data safety** (tabel in `store-listing.md`), **inhoudsclassificatie** (geen geweld, geen chat, geen aankopen), **doelgroep** en **advertenties** (nu nog *nee*; zodra er advertenties in de app zitten *ja*, zie de opmerking over advertenties in `store-listing.md`).
-   - Privacybeleid-URL: `https://roviko.app/privacy`.
-5. **Upload** `app-release.aab` bij *Gesloten testen*, en na de testperiode bij *Productie*. Een beoordeling duurt meestal 1 tot 7 dagen.
+Bijgewerkt voor versie 1.41 (15 oktober 2026). Ontwikkelaar: organisatie-account **Roviko Studio** (KVK en D-U-N-S aangepast). Contact: `support@roviko.app`.
+
+### Stap 1. Uploadsleutel maken (eenmalig, op een computer)
+
+De repository is **openbaar**, dus de sleutel mag nooit in GitHub zelf gemaakt of als bestand opgeslagen worden. Maak hem op je eigen computer:
+
+1. Installeer Java (gratis): <https://adoptium.net> → *Temurin* → installeren.
+2. Open Terminal (Mac) of PowerShell (Windows) en typ:
+   ```sh
+   keytool -genkeypair -v -keystore roviko-upload.jks -alias roviko -keyalg RSA -keysize 2048 -validity 10000
+   ```
+   Kies een sterk wachtwoord (gebruik hetzelfde voor de keystore en de sleutel). Naam: `P. Jonker`, organisatie: `Roviko Studio`, land: `NL`.
+3. Maak er tekst van:
+   - Mac: `base64 -i roviko-upload.jks -o roviko-upload.b64`
+   - Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("roviko-upload.jks")) | Out-File roviko-upload.b64`
+4. Bewaar `roviko-upload.jks` en het wachtwoord op een veilige plek (wachtwoordmanager + back-up). Kwijt is lastig: dan moet Google de sleutel resetten.
+
+### Stap 2. Vier geheimen in GitHub
+
+Repository → *Settings → Secrets and variables → Actions → New repository secret*:
+- `ROVIKO_KEYSTORE_BASE64`: de hele inhoud van `roviko-upload.b64`
+- `ROVIKO_KEYSTORE_PASSWORD`: je wachtwoord
+- `ROVIKO_KEY_ALIAS`: `roviko`
+- `ROVIKO_KEY_PASSWORD`: hetzelfde wachtwoord
+
+Geheimen zijn ook in een openbare repository afgeschermd; niemand anders ziet ze.
+
+### Stap 3. App bouwen
+
+GitHub → *Actions* → **Roviko app** → *Run workflow* (branch `claude/us-premarket-alert-email-etdutq`). Na ongeveer 5 minuten: open de run → *Artifacts* → `roviko-android`. Daarin:
+- `app-debug.apk`: om zelf op een Android-telefoon te testen;
+- `app-release.aab`: dit upload je naar Google Play.
+
+### Stap 4. App aanmaken in de Play Console
+
+*Alle apps → App maken*: naam `Roviko – Aardrijkskunde quiz`, standaardtaal Nederlands, **Game**, **Gratis**, verklaringen aanvinken.
+
+### Stap 5. App-content (Beleid → App-content)
+
+- **Privacybeleid:** `https://roviko.app/privacy`
+- **Advertenties:** *Nee, mijn app bevat geen advertenties* (klopt voor deze build; zie `store-listing.md` als dat verandert).
+- **App-toegang:** *Alle functionaliteit is beschikbaar zonder speciale toegang* (spelen kan als gast).
+- **Contentclassificatie (IARC):** categorie *Game* (quiz/trivia). Geweld, angst, seks, grof taalgebruik, drugs, gokken: allemaal **nee**. *Kunnen gebruikers met elkaar communiceren of content delen?* **Ja**: spelers zien elkaars gekozen naam in ranglijsten en multiplayer (er is geen chat; namen worden gefilterd, melden en blokkeren kan). *Deelt de app de locatie?* Nee. *Digitale aankopen?* Nee. Verwachte uitkomst: PEGI 3 of 7 / iedereen.
+- **Doelgroep en content:** leeftijdsgroepen **13–15, 16–17 en 18+** (niet jonger: dan gelden de strengere Families-regels). *Kan de app kinderen onbedoeld aanspreken?* Nee.
+- **Data safety:** volg de tabel in `store-listing.md`:
+  - *Verzamelt de app gegevens?* Ja. *Versleuteld tijdens overdracht?* Ja (https). *Kunnen gebruikers verwijdering aanvragen?* Ja (in de app: Paspoort → Verwijder mijn account; ook via `support@roviko.app`).
+  - Persoonlijke info → **E-mailadres** (optioneel, alleen bij een account; doel: accountbeheer) en **Gebruikers-ID's / naam** (doel: app-functionaliteit).
+  - App-activiteit → **Andere door gebruikers gegenereerde content / app-interacties** (spelvoortgang; app-functionaliteit) en, alleen als de speler het aanzet, **analyse** (pseudoniem).
+  - Niets gedeeld met derden. Geen locatie, contacten, foto's of advertentie-ID.
+- **Nieuws-app:** nee. **Overheids-app:** nee. **Financiële functies:** geen. **Gezondheid:** nee.
+
+### Stap 6. Winkelvermelding (Groei → Winkelvermelding)
+
+- Teksten: `store-listing.md` (versie 1.41): naam, korte beschrijving (max. 80) en volledige beschrijving, NL en EN (en ES als extra vertaling).
+- App-icoon 512×512: `store/google-play-icon-512.png`. Banner 1024×500: `store/google-play-feature-graphic-nl.png` / `-en.png`.
+- Telefoonscreenshots: `store/google-play-phone/nl/` en `en/`.
+- Categorie: **Spellen → Trivia** (of *Educatief*). Tags: Trivia, Aardrijkskunde, Educatief. Contact-e-mail `support@roviko.app`, website `https://roviko.app`.
+
+### Stap 7. Testen en uitbrengen
+
+1. *Testen → Interne test*: maak een release, upload `app-release.aab`, voeg jezelf toe als tester en installeer via de testlink.
+2. Klopt alles: *Productie → Release maken* → dezelfde `.aab` → *Ter beoordeling verzenden*. Als organisatie-account geldt de regel van 12 testers × 14 dagen niet. Een eerste beoordeling duurt meestal een paar dagen tot een week.
+3. Google Play App Signing (standaard aan) bewaart de echte ondertekeningssleutel; jouw uploadsleutel gebruik je alleen voor uploads.
 
 ## App Store (iPhone en iPad), zonder eigen Mac
 
