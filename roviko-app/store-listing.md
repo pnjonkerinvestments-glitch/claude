@@ -2,19 +2,21 @@
 
 Alles hieronder klopt met de website (versie 1.41, 15 oktober 2026). De tekenlimieten staan erbij. Plaatjes staan in `store/` (zie `LANCERING.md`).
 
+> Noem nergens het aantal spellen (wens van de eigenaar, oktober 2026).
+
 > App Store Connect weigert emoji in de beschrijving ("invalid characters"); gebruik alleen gewone tekens en •.
 
 ## Nederlands
 
 **Naam (max. 30):** Roviko – Aardrijkskunde quiz
-**Ondertitel iOS (max. 30):** Elke dag 6 wereldspellen
-**Promotietekst iOS (max. 170):** Elke dag een kleine wereldreis: zes korte spellen over landen, vlaggen en kaarten. Leer per continent, speel met vrienden en klim in je liga.
-**Korte beschrijving Google (max. 80):** Elke dag zes korte aardrijkskundespellen. Leer vlaggen, landen en de kaart.
+**Ondertitel iOS (max. 30):** Elke dag een wereldreis
+**Promotietekst iOS (max. 170):** Elke dag een kleine wereldreis: korte spellen over landen, vlaggen en kaarten. Leer per continent, speel met vrienden en klim in je liga.
+**Korte beschrijving Google (max. 80):** Elke dag nieuwe aardrijkskundespellen. Leer vlaggen, landen en de kaart.
 
 **Beschrijving:**
-Maak elke dag een kleine reis rond de wereld! Roviko is een vrolijk aardrijkskundespel met elke dag zes korte spellen. Een paar nieuwsgierige minuten, een beetje meer wereld. Voor iedereen die nieuwsgierig is.
+Maak elke dag een kleine reis rond de wereld! Roviko is een vrolijk aardrijkskundespel met elke dag nieuwe korte spellen. Een paar nieuwsgierige minuten, een beetje meer wereld. Voor iedereen die nieuwsgierig is.
 
-ELKE DAG ZES SPELLEN
+ELKE DAG NIEUWE SPELLEN
 • Dagelijkse Omweg: 10 gemengde vragen over vlaggen, hoofdsteden, de kaart, buurlanden en grootte
 • Rank Radar: kies per land het onderwerp waarop het het hoogst staat in de wereld
 • Vormenjacht: herken tien landen aan hun vorm
@@ -43,14 +45,14 @@ Gratis • Geen account nodig • Nederlands, Engels en Spaans
 ## English
 
 **Name (max. 30):** Roviko – Geography Quiz
-**Subtitle (max. 30):** 6 world games every day
-**Promotional text (max. 170):** A small trip around the world every day: six short games about countries, flags and maps. Learn by continent, play with friends and climb your league.
-**Short description (max. 80):** Six short geography games every day. Learn flags, countries and the map.
+**Subtitle (max. 30):** A world trip every day
+**Promotional text (max. 170):** A small trip around the world every day: short games about countries, flags and maps. Learn by continent, play with friends and climb your league.
+**Short description (max. 80):** New geography games every day. Learn flags, countries and the map.
 
 **Description:**
-Take a small trip around the world every day! Roviko is a cheerful geography game with six short games daily. A few curious minutes, a little more of the world. For curious minds of every age.
+Take a small trip around the world every day! Roviko is a cheerful geography game with new short games every day. A few curious minutes, a little more of the world. For curious minds of every age.
 
-SIX GAMES EVERY DAY
+NEW GAMES EVERY DAY
 • Daily Detour: 10 mixed questions on flags, capitals, the map, neighbours and size
 • Rank Radar: for each country, pick the subject where it ranks highest in the world
 • Shape Shift: recognise ten countries by their shape
@@ -79,14 +81,14 @@ Free • No account needed • English, Dutch and Spanish
 ## Español
 
 **Nombre (máx. 30):** Roviko – Quiz de geografía
-**Subtítulo (máx. 30):** 6 juegos del mundo cada día
-**Texto promocional (máx. 170):** Un pequeño viaje por el mundo cada día: seis juegos cortos sobre países, banderas y mapas. Aprende por continente, juega con amigos y sube en tu liga.
-**Descripción corta (máx. 80):** Seis juegos cortos de geografía al día. Aprende banderas, países y el mapa.
+**Subtítulo (máx. 30):** Un viaje por el mundo al día
+**Texto promocional (máx. 170):** Un pequeño viaje por el mundo cada día: juegos cortos sobre países, banderas y mapas. Aprende por continente, juega con amigos y sube en tu liga.
+**Descripción corta (máx. 80):** Nuevos juegos de geografía cada día. Aprende banderas, países y el mapa.
 
 **Descripción:**
-¡Haz cada día un pequeño viaje por el mundo! Roviko es un alegre juego de geografía con seis juegos cortos al día. Unos minutos de curiosidad, un poco más de mundo.
+¡Haz cada día un pequeño viaje por el mundo! Roviko es un alegre juego de geografía con nuevos juegos cortos cada día. Unos minutos de curiosidad, un poco más de mundo.
 
-SEIS JUEGOS CADA DÍA
+JUEGOS NUEVOS CADA DÍA
 • Desvío diario: 10 preguntas variadas sobre banderas, capitales, el mapa, vecinos y tamaño
 • Rank Radar: elige para cada país el tema en el que está más arriba del mundo
 • Cazaformas: reconoce diez países por su forma
