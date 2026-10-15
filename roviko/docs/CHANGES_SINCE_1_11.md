@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.41.0 (op de testversie, nog niet live)
+## 1.41.0 (live sinds 15 oktober 2026)
 
 **Rank Radar zoals GeoRankle, met één duidelijk beste keuze per land.**
 - Nieuw bord (v3, `lib/puzzles/rank-board.ts`): elk land heeft één duidelijk beste onderwerp (hooguit wereldplek #25 en minstens 5 plekken en een derde beter dan het tweede beste), en dat is voor elk land een ander onderwerp. 8 van 8 kan dus altijd, en er is precies één ideale oplossing.
