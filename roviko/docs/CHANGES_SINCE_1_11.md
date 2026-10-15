@@ -596,7 +596,35 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.40.0 (op de testversie, nog niet live; samen met 1.39)
+## 1.41.0 (op de testversie, nog niet live)
+
+**Rank Radar zoals GeoRankle, met één duidelijk beste keuze per land.**
+- Nieuw bord (v3, `lib/puzzles/rank-board.ts`): elk land heeft één duidelijk beste onderwerp (hooguit wereldplek #25 en minstens 5 plekken en een derde beter dan het tweede beste), en dat is voor elk land een ander onderwerp. 8 van 8 kan dus altijd, en er is precies één ideale oplossing.
+- Punten per keuze naar hoe goed die was voor dat land: beste 125, dan 90, 65, 45, 30, 20, 10, 5 (`CHOICE_POINTS`). Gelijke plekken delen de betere plaats.
+- Na elke keuze meteen "Perfecte keuze!" of "3e beste keuze", de wereldplek en een reeks perfecte keuzes op rij. Volgend land na 2 seconden (was 1,3).
+- Aan het eind, naast de punten: perfecte keuzes en jouw #-som tegenover de ideale (zoals GeoRankle).
+- Meer onderwerpen: naast de tien van eerst ook bosbedekking, kinderen per vrouw, stadsleven, internetgebruik, mediane leeftijd en (nieuw) bevolkingsdichtheid (Wereldbank-bevolking gedeeld door oppervlakte). Dichtheid is alleen voor Rank Radar (`retired` in de lijst, dus het duel en het oude spel kiezen hem niet).
+- Overgang: een dag waarvan het oude bord (`rank2`) al bestaat, houdt dat bord en de oude punten; nieuwe dagen krijgen sleutel `rank3`. Zo speelt iedereen op één dag hetzelfde bord.
+
+**World Duel wordt een extra spel, Vormenjacht (Shape Shift) wordt dagspel.**
+- Vanaf `SHAPE_FROM` (`lib/daily-loop.ts`) zijn de vijf dagspellen Rank Radar, Vormenjacht, Side by Side, Size Shuffle en Clue Trail. Vormenjacht: tien landvormen van bekend naar lastig (dezelfde opbouw als de overlevingsrun), 100 punten per goed antwoord, dus 1.000 per dag.
+- Dagen ervoor houden World Duel; de indeling hoort bij de datum, zodat niemand op de wisseldag zeven dagspellen krijgt.
+- In de puntentabel gebruikt Vormenjacht de plek van World Duel (opgeslagen als `duel`, vanaf `SHAPE_FROM` teruggelezen als `shape`; zelfde truc als Size Shuffle en Mosaic). Geen databasewijziging.
+- World Duel staat bij de extra spellen op de Spellen-pagina en in de uitleg: hetzelfde duel van de dag, zonder punten.
+- `SHAPE_FROM` is `2026-10-16`, de eerste UTC-dag na de livegang op 15 oktober. Nooit meer veranderen.
+
+**Uitnodigen voor multiplayer.**
+- De uitnodiging verscheen ook voor kamers die al begonnen, vol of verlopen waren; nu alleen voor kamers in de wachtkamer (`server/presence.ts`).
+- Lucia's automatische uitnodiging kon die van een vriend verbergen (alleen de nieuwste werd getoond). Nu komen vrienden altijd eerst, en Lucia nodigt niet uit als er al een uitnodiging van een vriend wacht.
+- Accepteren: eerst de kamer in, pas daarna telt de uitnodiging als gebruikt (een mislukte poging at de uitnodiging eerst stil op).
+- Uitnodigingen blijven 30 minuten staan (was 15).
+- Op de Multiplayer-pagina staan nu ook vrienden die niet online zijn, met Uitnodigen (de tekst zei al "nodig ze toch uit", maar er was geen knop).
+- Duidelijke meldingen voor geen vrienden (`NOT_FRIENDS`, was de admin-melding), uit de kamer gehaald, kamer niet beschikbaar, niet in de kamer.
+- Niet opgelost: een melding als de app dicht of op de achtergrond staat (pushmeldingen bestaan nog niet voor uitnodigingen).
+
+**Getest:** `npm test` 207 geslaagd, 1 bewust overgeslagen; nieuwe tests voor Vormenjacht (indeling per datum, puntentabel duel/shape), het v3-bord (40+ dagen), de oude punten, de overgangsdag en uitnodigingen naar een begonnen kamer. Rank Radar lokaal doorgespeeld en de dagelijkse Vormenjacht lokaal geopend op telefoonformaat (schermafbeeldingen gecontroleerd). Niet getest: een gescoorde Vormenjacht-dag van begin tot eind (kan pas vanaf `SHAPE_FROM`). Niet getest: uitnodigen tussen twee echte toestellen.
+
+## 1.40.0 (live sinds 12 oktober 2026, samen met 1.39)
 
 - **Scherpe beelden.** De illustraties waren zelf onscherp: de bronbestanden zijn klein (ongeveer 600–700 pixels, ook in de map met originele visuals) en waren opgeschaald, en de rondleiding laadde bovendien de kleinste versie (480 pixels) voor een kaart van ruim 400 punten breed op een scherm met 3× zoveel pixels. Omzetten naar vectoren met een tool gaf rafelige randen, dus de meest zichtbare beelden zijn opnieuw getekend in code:
   - **Rondleiding**: zes eigen tafereeltjes (`components/home/TourArt.tsx`) met de spellogo's, Roviko en de avatars (allemaal vectoren): de Omweg-route, de vijf dagspellen als kaarten met de 6.000-munt, het podium met competitieschild, de extra spellen, ontdekken met stempels, samen spelen.
@@ -608,7 +636,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 - Service worker `roviko-shell-v1.40.0`. Geen migratie.
 - **Getest:** volledige testset 204 geslaagd, 1 bewust overgeslagen (de beeldentest kent nu de kaarten en controleert dat elk bestand gebruikt wordt en onder 140 kB blijft), typecheck, build; in de browser op 390 px met 3× scherpte: alle stappen van de rondleiding, de continentkeuze in Leren, de continentkaarten in Ontdekken, en het opstartscherm als afbeelding (ook bijgesneden zoals een iPhone het toont). **Niet getest:** het opstartscherm in een echte app-build op een telefoon, het verbergen met `SplashScreen.hide` in de app, en het paspoort met de nieuwe kaarten in de browser.
 
-## 1.39.0 (op de testversie, nog niet live)
+## 1.39.0 (live sinds 12 oktober 2026)
 
 **Fouten opgelost**
 - Clue Trail: de eerste hint liet soms al maar één antwoord over (deel-van-de-wereld-hint). Nu wordt elke hint getoetst aan de vier antwoorden: hint 1 laat er altijd minstens drie over, hint 2 minstens twee.

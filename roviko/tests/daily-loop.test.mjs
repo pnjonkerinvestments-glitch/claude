@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import { build } from 'esbuild';
 fs.mkdirSync('.test-runtime', { recursive: true });
 await build({ stdin: { contents: "export * from './lib/daily-loop'; export { ACHIEVEMENTS } from './lib/achievements';", resolveDir: process.cwd() }, outfile: '.test-runtime/daily-loop.mjs', bundle: true, format: 'esm', platform: 'node' });
-const { SHUFFLE_FROM, DAILY_MODES, DAY_MODES, MOSAIC_DAY_MODES, ALL_DAY_MODES, dailyModesFor, dayModesFor, streakMilestone, msUntilReset, formatCountdown, nextDailyMode, completedDailies, streakAtRisk, nearestAchievement, mysteryOfTheDay, ACHIEVEMENTS } = await import('../.test-runtime/daily-loop.mjs');
+const { SHUFFLE_FROM, SHAPE_FROM, DAILY_MODES, DAY_MODES, MOSAIC_DAY_MODES, ALL_DAY_MODES, dailyModesFor, dayModesFor, streakMilestone, msUntilReset, formatCountdown, nextDailyMode, completedDailies, streakAtRisk, nearestAchievement, mysteryOfTheDay, ACHIEVEMENTS } = await import('../.test-runtime/daily-loop.mjs');
 const facts = JSON.parse(fs.readFileSync('lib/data/mosaic-facts.json', 'utf8')).facts;
 const countries = JSON.parse(fs.readFileSync('lib/data/countries.json', 'utf8'));
 
@@ -24,15 +24,15 @@ test('countdown reaches the next 00:00 UTC and formats as hh:mm:ss', () => {
 });
 
 test('next daily resumes a started game first, then the first unplayed one, and none when all are done', () => {
-  // The Daily Detour comes first, then the five daily games with World Duel second (1.24: Size Shuffle fourth).
+  // The Daily Detour comes first, then the five daily games with Shape Shift second (1.41; World Duel before), Size Shuffle fourth.
   assert.equal(nextDailyMode([]), 'daily');
   assert.equal(nextDailyMode([{ mode: 'daily', completed: true }]), 'rank');
-  assert.equal(nextDailyMode([{ mode: 'daily', completed: true }, { mode: 'rank', completed: true }]), 'duel');
+  assert.equal(nextDailyMode([{ mode: 'daily', completed: true }, { mode: 'rank', completed: true }]), 'shape');
   assert.equal(nextDailyMode([{ mode: 'rank', completed: true }, { mode: 'order' }]), 'order');
-  const all = ['daily', 'rank', 'duel', 'compare', 'order', 'trail'].map(mode => ({ mode, completed: true }));
+  const all = ['daily', 'rank', 'shape', 'compare', 'order', 'trail'].map(mode => ({ mode, completed: true }));
   assert.equal(nextDailyMode(all), null);
   assert.equal(completedDailies(all), 6);
-  assert.equal(completedDailies(all, ['rank', 'duel', 'compare', 'order', 'trail']), 5);
+  assert.equal(completedDailies(all, ['rank', 'shape', 'compare', 'order', 'trail']), 5);
   // A day before the switch keeps Country Mosaic; its lineup is passed in.
   const before = dayModesFor('2026-10-07');
   assert.equal(nextDailyMode([{ mode: 'rank', completed: true }, { mode: 'mosaic' }], before), 'mosaic');
@@ -46,7 +46,14 @@ test('the daily lineup is chosen per UTC date: Mosaic before SHUFFLE_FROM, Size 
   const day = d => new Date(Date.parse(SHUFFLE_FROM + 'T00:00:00Z') + d * 86400000).toISOString().slice(0, 10);
   assert.deepEqual([...dailyModesFor(day(-1))], ['rank', 'duel', 'compare', 'mosaic', 'trail']);
   assert.deepEqual([...dailyModesFor(day(0))], ['rank', 'duel', 'compare', 'order', 'trail']);
-  assert.deepEqual([...dayModesFor(day(1))], ['daily', ...DAILY_MODES]);
+  assert.deepEqual([...dayModesFor(day(1))], ['daily', 'rank', 'duel', 'compare', 'order', 'trail']);
+  // 1.41: Shape Shift takes World Duel's place from SHAPE_FROM on.
+  const at = d => new Date(Date.parse(SHAPE_FROM + 'T00:00:00Z') + d * 86400000).toISOString().slice(0, 10);
+  assert.ok(SHAPE_FROM > SHUFFLE_FROM);
+  assert.deepEqual([...dailyModesFor(at(-1))], ['rank', 'duel', 'compare', 'order', 'trail']);
+  assert.deepEqual([...dayModesFor(at(0))], ['daily', ...DAILY_MODES]);
+  assert.deepEqual([...DAILY_MODES], ['rank', 'shape', 'compare', 'order', 'trail']);
+  for (const d of [-1, 0, 30]) { assert.equal(dayModesFor(at(d)).length, 6); assert.ok(!(dayModesFor(at(d)).includes('duel') && dayModesFor(at(d)).includes('shape'))); }
   for (const d of [-30, -1, 0, 1, 400]) { assert.equal(dayModesFor(day(d)).length, 6); assert.ok(!(dayModesFor(day(d)).includes('mosaic') && dayModesFor(day(d)).includes('order'))); }
   assert.equal(dayModesFor(day(-1))[0], 'daily');
   for (const m of [...MOSAIC_DAY_MODES, ...DAY_MODES]) assert.ok(ALL_DAY_MODES.includes(m));

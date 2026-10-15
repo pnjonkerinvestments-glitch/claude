@@ -7,7 +7,7 @@ import { dailyContent } from './daily-content';
 import { resultStatement } from './stats';
 import { generateRankRounds, type RankState, type RankView } from '../lib/puzzles/rank';
 import { choicePlace } from '../lib/puzzles/rank-medals';
-import { bestCategories, generateRankBoard, publicBoard, rankPoints } from '../lib/puzzles/rank-board';
+import { bestCategories, choicePlace as boardPlace, generateRankBoard, publicBoard, rankPoints } from '../lib/puzzles/rank-board';
 import type { Env, User } from './types';
 
 function view(s: RankState, version = 0): RankView {
@@ -28,7 +28,11 @@ export async function startRank(env: Env, user: User, input: unknown) {
   const id=crypto.randomUUID();
   const generate=(seed:string)=>({questions:[],board:generateRankBoard(seed),settings:{mode:'rank'}});
   // New content key for the 1.21 board, so a day that already has the old six-question version is never mixed up.
-  const content=daily?await dailyContent(env,daily,kind.replace(/^rank/,'rank2'),generate):generate(id);
+  // 1.41: the v3 board (one clear best subject per country) gets its own key; a day that already has a v2 board
+  // keeps it, so everybody plays the same board on the day this version goes live.
+  let key=kind.replace(/^rank/,'rank2');
+  if(daily&&!await one(env,'SELECT 1 AS found FROM daily_content WHERE date=? AND kind=?',daily,key))key=kind.replace(/^rank/,'rank3');
+  const content=daily?await dailyContent(env,daily,key,generate):generate(id);
   const blocked=await rows(env,'SELECT question_id FROM disabled_questions');
   if(blocked.some((b:any)=>content.questions.some((q:any)=>q.id===b.question_id)))throw new AppError('QUESTION_UNAVAILABLE',503);
   const s:RankState={id,...(ranked?{competition:{version:1,mode:'rank'} as const}:{}),mode:'rank',daily,phase:'question',round:0,questions:content.questions??[],...(content.board?{board:content.board}:{}),datasetVersion:content.datasetVersion,answers:[],streak:0,bestStreak:0,startedAt:Date.now(),turnAt:Date.now()};
@@ -48,8 +52,8 @@ export async function rankAction(env: Env, user: User, id: string, action: strin
     if(s.phase!=='question')throw new AppError('ANSWER_LOCKED',409);
     const r=s.board.rounds[s.round],used=new Set(s.answers.map(a=>a.value));
     if(!body.answer||!s.board.categories.some(c=>c.id===body.answer)||used.has(body.answer))throw new AppError('INVALID_INPUT');
-    const points=rankPoints(r,body.answer),correct=bestCategories(r).includes(body.answer);
-    s.answers.push({value:body.answer,correct,points,countryId:r.country.id,questionId:r.id,responseTime:Math.max(0,Date.now()-s.turnAt),at:Date.now()});
+    const v=s.board.v??2,points=rankPoints(r,body.answer,v),correct=bestCategories(r,v).includes(body.answer);
+    s.answers.push({value:body.answer,correct,points,place:boardPlace(r,body.answer,v),countryId:r.country.id,questionId:r.id,responseTime:Math.max(0,Date.now()-s.turnAt),at:Date.now()});
     s.streak=correct?s.streak+1:0;s.bestStreak=Math.max(s.bestStreak,s.streak);s.phase='reveal';
   }else if(action==='next'&&s.board&&s.phase==='reveal'){
     if(s.round+1===s.board.rounds.length)s.phase='finished';else{s.round++;s.phase='question';s.turnAt=Date.now();}

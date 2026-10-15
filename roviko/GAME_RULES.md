@@ -24,6 +24,10 @@ After completion, each game shows its score and `#rank of participant count`. On
 
 The new ledger begins with the 1.11 competitive edition. Previously played unranked games are preserved without retroactive points. Guests can compete using their saved browser session. Verified account linking transfers non-duplicate progress; an account's existing daily session/result remains canonical. Guests are not verified unique humans, and resetting an anonymous identity cannot be fully prevented.
 
+## Shape Shift as daily game (1.41)
+
+From `SHAPE_FROM` (lib/daily-loop.ts) Shape Shift replaces World Duel among the five daily games: ten country outlines, north up, from famous to tricky (the survival ramp), four names to choose from, 100 points per right answer (1,000 in all). Earlier dates keep World Duel. In `daily_scores` Shape Shift uses World Duel's slot: stored as `duel`, read back as `shape` from `SHAPE_FROM`. World Duel stays playable as an extra: the same board of the day, no points.
+
 ## Practice and legacy editions
 
 The six classic modes, fresh puzzle/rank practice, personal retries and the Mystery Country bonus warm-up are unranked, untimed and earn no daily points or XP. They retain correct-answer counts, accuracy, learning history, knowledge seals and sourced explanations. Immediate local feedback is allowed because these sessions never enter the points ledger. Daily competition waits for server confirmation and does not send solutions in advance.
@@ -105,6 +109,10 @@ The daily board contains 16 tiles: four flags, four names, four silhouettes and 
 The name is the feedback anchor. Incorrect clues are red with cross icons and “Does not match”; matching clues are green. Competitive feedback does not disclose the wrong tile's other country while its group remains unsolved. Practice can show that extra explanation. Changing the selection clears the prior verdict. Solving a group reveals its sourced fact explanation; finishing reveals all groups.
 
 One dated numerical observation is selected per country each UTC day. Subjects include highest point, mean elevation, coastline, median age, area and WDI indicators. Units, source years and estimate labels are explicit. Missing data are never invented, and equal displayed clues are avoided within a board. A practice board keeps its creation date; a daily board keeps its published date. The earlier clue-only compatibility projection into `metrics-v2` preserves tile IDs, country matches, solved sets and version/history; old raw snapshots remain auditable.
+
+## Rank Radar (1.41)
+
+Since 1.41 (board v3, content key `rank3`) every country of the day has one clear best subject of the eight (world place at most #25, at least five places and a third better than its second best), and the eight countries all have a different best subject, so 8 of 8 is always possible and there is exactly one ideal solution. A pick is worth 125, 90, 65, 45, 30, 20, 10 or 5 points for the country's 1st to 8th best subject (ties share the better place); 1,000 in all. After each pick you see at once how good it was and the world place; at the end your sum of world places next to the ideal one. Subjects: the ten lively ones plus forest cover, births per woman, city living, internet use, median age and population density (World Bank population divided by area). A date whose old board (`rank2`) already exists keeps that board and its points.
 
 ## Rank Radar (1.21)
 

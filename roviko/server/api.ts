@@ -1,5 +1,6 @@
 import { changePassword, mailEnabled, requestReset, resetPassword, sendVerification, sendWelcome, verifyEmail } from './account';
-import { competitionSummary } from './competition';
+import { competitionSummary, ledgerMode } from './competition';
+import { SHAPE_FROM } from '../lib/daily-loop';
 import { leagueStanding } from './league';
 import { startRank, rankAction } from './ranks';
 import { startDuel, duelAction } from './duel';
@@ -37,8 +38,8 @@ function flagCountry(token: string) {
 }
 const duelCache = new Map<string, DuelBoard>();
 function duelBoard(seed: string) { let board = duelCache.get(seed); if (!board) { board = generateDuel(seed); if (duelCache.size > 64) duelCache.clear(); duelCache.set(seed, board); } return board; }
-const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania', 'Americas']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
-const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: ['daily','daily-trail','daily-order'].includes(v?.mode) ? 'mixed' : v?.mode ?? 'mixed' });
+const settingsSchema = z.object({ mode: z.enum(['trail', 'capitals', 'flags', 'pinpoint', 'borders', 'order', 'mixed', 'daily', 'daily-trail', 'daily-order', 'daily-shape']), count: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20)]), timer: z.union([z.literal(0), z.literal(5), z.literal(10), z.literal(15), z.literal(30)]), difficulty: z.enum(['easy', 'medium', 'hard', 'mixed']), region: z.enum(['World', 'Europe', 'Africa', 'Asia', 'North America', 'South America', 'Oceania', 'Americas']), typed: z.boolean().optional(), enabledModes: z.array(z.enum(MODES)).min(1).max(MODES.length).refine(v => new Set(v).size === v.length).optional() });
+const roomSettings = (v: any) => settingsSchema.parse({ ...DEFAULT_SETTINGS, ...v, mode: ['daily','daily-trail','daily-order','daily-shape'].includes(v?.mode) ? 'mixed' : v?.mode ?? 'mixed' });
 function json(data: any, status = 200, headers: Record<string, string> = {}) { return Response.json(data, { status, headers: { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', ...headers } }); }
 async function body(req: Request, max = 8192) { if (Number(req.headers.get('Content-Length') ?? 0) > max)
     throw new AppError('REQUEST_TOO_LARGE', 413); const raw = await req.text(); if (raw.length > max)
@@ -106,8 +107,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await limit(env, 'challenge:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 60);
             const owners = await rows(env, 'SELECT id,name,discoverable FROM users WHERE lower(substr(id,1,8))=? AND blocked=0 LIMIT 2', code);
             if (owners.length !== 1) throw new AppError('NOT_FOUND', 404);
-            // The daily Size Shuffle is stored under the Mosaic slot (see MODE_SQL in server/competition.ts).
-            const stored = mode === 'order' ? 'mosaic' : mode, filter = mode === 'day' ? '' : ' AND mode=?', args = mode === 'day' ? [date] : [date, stored];
+            // The daily Size Shuffle is stored under the Mosaic slot, Shape Shift under the Duel slot (see MODE_SQL in server/competition.ts).
+            if ((mode === 'shape' && date < SHAPE_FROM) || (mode === 'duel' && date >= SHAPE_FROM)) throw new AppError('NOT_FOUND', 404);
+            const stored = ledgerMode(mode), filter = mode === 'day' ? '' : ' AND mode=?', args = mode === 'day' ? [date] : [date, stored];
             const totals = `SELECT user_id,SUM(score) total FROM daily_scores WHERE date=?${filter} GROUP BY user_id`;
             const mine = await one(env, `SELECT total FROM (${totals}) WHERE user_id=?`, ...args, owners[0].id);
             if (!mine) throw new AppError('NOT_FOUND', 404);

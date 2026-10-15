@@ -5,7 +5,7 @@ export const COMPETITION_SUFFIX = ':competitive-v1';
  * Every game that can give daily points: the Daily Detour plus the daily games. A UTC date has six of them
  * (`dayModesFor` in lib/daily-loop.ts): Country Mosaic before the switch to the daily Size Shuffle ('order', 1.24), Size Shuffle after.
  */
-export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'order', 'trail'] as const;
+export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail'] as const;
 export type PointMode = typeof DAILY_POINT_MODES[number];
 export type Competition = { version: 1; mode: PointMode };
 export const DAILY_GAME_MAX = 1000;
@@ -28,12 +28,15 @@ export function trailPoints(correct: boolean, clues = 1) {
 }
 /** The Daily Detour has 10 questions (100 points each) since 1.32; 20 (50 each) from 1.18, five stops (200 each) before. */
 export const DETOUR_ROUNDS = 10;
+/** The daily Shape Shift (1.41): ten outlines, 100 points each. */
+export const SHAPE_ROUNDS = 10;
 export function dailyRoundPoints(mode: PointMode, answer: any, rounds = 5) {
   if (mode === 'trail') return trailPoints(answer.correct, answer.cluesUsed);
   // Daily Size Shuffle: partial credit per country in its right place, from the saved list and the saved right order.
   if (mode === 'order') return shufflePoints(answer.value, answer.correctAnswer);
   if (mode === 'daily') { const n = Math.max(1, rounds); return answer.mode === 'pinpoint' ? Math.round(Math.max(0, Math.min(1000, answer.mapPoints ?? 0)) / n) : answer.correct ? Math.round(1000 / n) : 0; }
-  if (mode === 'compare') return answer.correct ? Math.round(1000 / Math.max(1, rounds)) : 0;
+  // Shape Shift (daily from SHAPE_FROM, 1.41): ten outlines, 100 points each.
+  if (mode === 'compare' || mode === 'shape') return answer.correct ? Math.round(1000 / Math.max(1, rounds)) : 0;
   if (mode === 'duel') return answer.correct ? Math.round(1000 / Math.max(1, rounds)) : 0;
   return 0;
 }

@@ -1,5 +1,6 @@
 import { COMPETITION_SUFFIX, dailyScore, type Competition } from '../lib/daily-scoring';
 import { recordCompetition } from './competition';
+import { dailyModesFor } from '../lib/daily-loop';
 import { z } from 'zod';
 import { AppError } from './auth';
 import { one, run, batch } from './db';
@@ -25,13 +26,15 @@ function view(s: DuelState, version = 0) {
 export async function startDuel(env: Env, user: User, input: unknown) {
   const settings = z.object({ competition: z.boolean().default(true) }).parse(input ?? {});
   const daily = new Date().toISOString().slice(0, 10);
-  const kind = 'duel' + (settings.competition ? COMPETITION_SUFFIX : '');
+  // From SHAPE_FROM (1.41) World Duel is an extra game: the same daily board, but no points and not one of the six.
+  const ranked = settings.competition && (dailyModesFor(daily) as readonly string[]).includes('duel');
+  const kind = 'duel' + (ranked ? COMPETITION_SUFFIX : '');
   const existing = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, daily, kind);
   if (existing) { const s = JSON.parse(existing.state); await record(env, user, s); return view(s, existing.version); }
   // New content key for the seven-round blind duel (1.21), so a day that already has a five-round board is never mixed up.
   const content = await dailyContent(env, daily, 'duel7' + COMPETITION_SUFFIX, seed => ({ board: generateDuel(seed), settings: { mode: 'duel' } }));
   const id = crypto.randomUUID();
-  const s: DuelState = { id, ...(settings.competition ? { competition: { version: 1, mode: 'duel' } as const } : {}), mode: 'duel', daily, phase: 'question', board: content.board, datasetVersion: content.datasetVersion, answers: [], streak: 0, bestStreak: 0, startedAt: Date.now(), turnAt: Date.now() };
+  const s: DuelState = { id, ...(ranked ? { competition: { version: 1, mode: 'duel' } as const } : {}), mode: 'duel', daily, phase: 'question', board: content.board, datasetVersion: content.datasetVersion, answers: [], streak: 0, bestStreak: 0, startedAt: Date.now(), turnAt: Date.now() };
   const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
   if (!inserted.meta.changes) { const saved = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, daily, kind); return view(JSON.parse(saved.state), saved.version); }
   return view(s);

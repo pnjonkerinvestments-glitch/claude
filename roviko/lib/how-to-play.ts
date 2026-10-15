@@ -6,8 +6,8 @@ const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   rank: { emoji: '🎯', steps: [
     { icon: '🌍', text: l('Eight countries and eight subjects a day. The countries come one by one: you never know which one is next.', 'Elke dag acht landen en acht onderwerpen. De landen komen één voor één: je weet nooit welk land hierna komt.', 'Ocho países y ocho temas al día. Los países llegan uno a uno: nunca sabes cuál viene después.') },
-    { icon: '👆', text: l('For each country, pick the subject where it ranks highest in the world. You only see its # place there. Each subject once.', 'Kies per land het onderwerp waarop het het hoogst staat in de wereld. Je ziet alleen die # plek. Elk onderwerp één keer.', 'Para cada país, elige el tema en el que está más arriba del mundo. Solo ves ese puesto #. Cada tema una vez.') },
-    { icon: '🏆', text: l('Its strongest subject is 125 points; a weaker pick gives fewer. You also see the best total possible today.', 'Het sterkste onderwerp is 125 punten; een zwakkere keuze minder. Je ziet ook de beste score die vandaag mogelijk was.', 'Su tema más fuerte vale 125 puntos; uno más débil, menos. También ves el mejor total posible hoy.') },
+    { icon: '👆', text: l('For each country, pick the subject where it ranks highest in the world. Each subject once.', 'Kies per land het onderwerp waarop het het hoogst staat in de wereld. Elk onderwerp één keer.', 'Para cada país, elige el tema en el que está más arriba del mundo. Cada tema una vez.') },
+    { icon: '🏆', text: l('Every country has one clear best subject, and they all differ, so 8 of 8 is possible. Best pick 125 points, second best 90, then fewer.', 'Elk land heeft één duidelijk beste onderwerp, en die zijn allemaal anders, dus 8 van 8 kan. Beste keuze 125 punten, tweede beste 90, daarna minder.', 'Cada país tiene un mejor tema claro, y todos son distintos: 8 de 8 es posible. La mejor elección vale 125 puntos, la segunda 90, luego menos.') },
   ], tip: l('Don’t spend a strong subject too soon: a country later on might need it more.', 'Gebruik een sterk onderwerp niet te snel: een land dat later komt heeft het misschien harder nodig.', 'No gastes un tema fuerte demasiado pronto: un país que viene después puede necesitarlo más.') },
   daily: { emoji: '✈️', steps: [
     { icon: '🧳', text: l('Ten questions from every kind of game, mixed: flags, capitals, the map, neighbours and sizes.', 'Tien vragen uit alle soorten spellen door elkaar: vlaggen, hoofdsteden, de kaart, buurlanden en grootte.', 'Diez preguntas de todos los tipos de juego, mezcladas: banderas, capitales, el mapa, vecinos y tamaños.') },
@@ -67,7 +67,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   shape: { emoji: '🗺️', steps: [
     { icon: '👀', text: l('You see the outline of one country, without the map around it.', 'Je ziet de omtrek van één land, zonder de kaart eromheen.', 'Ves el contorno de un país, sin el mapa alrededor.') },
     { icon: '👆', text: l('Pick the right country from four names.', 'Kies het juiste land uit vier namen.', 'Elige el país correcto entre cuatro nombres.') },
-    { icon: '❤️', text: l('In the daily survival run you have one life: a wrong answer ends the run. It starts with famous shapes and ends with tricky neighbours.', 'In de dagelijkse overlevingsrun heb je één leven: een fout antwoord stopt de run. Het begint met bekende vormen en eindigt met lastige buurlanden.', 'En la partida diaria de supervivencia tienes una vida: un fallo la termina. Empieza con formas famosas y acaba con vecinos difíciles.') },
+    { icon: '🏆', text: l('As a daily game: ten outlines from famous to tricky, 100 points each. In the survival run one wrong answer ends it.', 'Als dagspel: tien vormen van bekend naar lastig, 100 punten per goed antwoord. In de overlevingsrun stopt één fout de run.', 'Como juego diario: diez contornos de famosos a difíciles, 100 puntos cada uno. En la supervivencia, un error termina la partida.') },
   ], tip: l('Look for coastlines, long borders and islands. North is always up.', 'Let op kustlijnen, lange grenzen en eilanden. Het noorden is altijd boven.', 'Fíjate en costas, fronteras largas e islas. El norte siempre está arriba.') },
   room: { emoji: '👥', steps: [
     { icon: '🔑', text: l('Create a room and share the code or link. 2 to 12 players, guests are welcome.', 'Maak een kamer en deel de code of link. 2 tot 12 spelers, ook als gast.', 'Crea una sala y comparte el código o el enlace. De 2 a 12 jugadores, también invitados.') },
@@ -82,8 +82,9 @@ export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', da
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
   // 1.24: the daily Size Shuffle took Country Mosaic's place among the daily games; Mosaic is an extra now.
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'order', 'trail'] },
-  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mosaic', 'mystery', 'shape'] },
+  // 1.41: Shape Shift took World Duel's place (from SHAPE_FROM); the duel is an extra now.
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'trail'] },
+  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['duel', 'mosaic', 'mystery'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];

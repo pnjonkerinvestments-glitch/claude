@@ -10,26 +10,35 @@ export * from './bonus';
  * Mosaic, this date and later get Size Shuffle. The lead sets it to the first UTC day after the release.
  */
 export const SHUFFLE_FROM = '2026-10-08';
-/** The five daily games from SHUFFLE_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
-export const DAILY_MODES = ['rank', 'duel', 'compare', 'order', 'trail'] as const;
+/**
+ * The first UTC date on which Shape Shift ('shape', name the country from its outline) replaces World Duel as daily
+ * game (1.41). World Duel stays as an extra, unscored game. Like SHUFFLE_FROM: set to the first UTC day after the
+ * release and never change it once it has passed. In the ledger Shape Shift uses World Duel's slot (server/competition.ts).
+ */
+export const SHAPE_FROM = '2026-10-16';
+/** The five daily games from SHAPE_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
+export const DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'trail'] as const;
+/** The five daily games from SHUFFLE_FROM until SHAPE_FROM (1.24–1.40): World Duel in second place. */
+export const DUEL_DAILY_MODES = ['rank', 'duel', 'compare', 'order', 'trail'] as const;
 /** The five daily games before SHUFFLE_FROM (1.19–1.23): Country Mosaic in fourth place. */
 export const MOSAIC_DAILY_MODES = ['rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
 export const DAY_MODES = ['daily', ...DAILY_MODES] as const;
+export const DUEL_DAY_MODES = ['daily', ...DUEL_DAILY_MODES] as const;
 export const MOSAIC_DAY_MODES = ['daily', ...MOSAIC_DAILY_MODES] as const;
-export type DailyMode = typeof DAILY_MODES[number] | typeof MOSAIC_DAILY_MODES[number];
+export type DailyMode = typeof DAILY_MODES[number] | typeof DUEL_DAILY_MODES[number] | typeof MOSAIC_DAILY_MODES[number];
 export type DayMode = 'daily' | DailyMode;
 /** Every game that ever was a daily game (old results, shared links, history). */
-export const ALL_DAY_MODES: readonly DayMode[] = ['daily', 'rank', 'duel', 'compare', 'mosaic', 'order', 'trail'];
+export const ALL_DAY_MODES: readonly DayMode[] = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail'];
 const isDate = (date?: string | null): date is string => !!date && /^\d{4}-\d{2}-\d{2}$/.test(date);
 /** The five daily games of one UTC date (YYYY-MM-DD). Without a date: today's lineup on this device's clock. */
 export function dailyModesFor(date?: string | null): readonly DailyMode[] {
   const day = isDate(date) ? date : new Date().toISOString().slice(0, 10);
-  return day < SHUFFLE_FROM ? MOSAIC_DAILY_MODES : DAILY_MODES;
+  return day < SHUFFLE_FROM ? MOSAIC_DAILY_MODES : day < SHAPE_FROM ? DUEL_DAILY_MODES : DAILY_MODES;
 }
 /** The Daily Detour plus the five daily games of one UTC date. */
 export function dayModesFor(date?: string | null): readonly DayMode[] {
   const day = isDate(date) ? date : new Date().toISOString().slice(0, 10);
-  return day < SHUFFLE_FROM ? MOSAIC_DAY_MODES : DAY_MODES;
+  return day < SHUFFLE_FROM ? MOSAIC_DAY_MODES : day < SHAPE_FROM ? DUEL_DAY_MODES : DAY_MODES;
 }
 export type { DailyState } from './bonus';
 

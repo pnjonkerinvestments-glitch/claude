@@ -31,13 +31,14 @@ export async function openPuzzle(app: PuzzleLauncher, mode: PuzzleMode | 'rank',
 export async function launchDaily(app: PuzzleLauncher & { start: (settings: Record<string, unknown>) => Promise<void> }, mode: DayMode) {
   if (mode === 'daily') return app.start({ ...DEFAULT_SETTINGS, mode: 'daily' });
   // The daily Clue Trail and (1.24) the daily Size Shuffle are solo sessions with competition mode 'trail' / 'order'.
-  if (mode === 'trail' || mode === 'order') return app.start({ ...DEFAULT_SETTINGS, mode: 'daily-' + mode });
+  // 1.41: the daily Shape Shift too ('shape').
+  if (mode === 'trail' || mode === 'order' || mode === 'shape') return app.start({ ...DEFAULT_SETTINGS, mode: 'daily-' + mode });
   if (mode === 'duel') return app.go('/duel');
   return openPuzzle(app, mode);
 }
 
 /** One short line per game for the compact lists on the All games page. */
-const LINE: Record<string, string> = { daily: 'agLineDaily', rank: 'agLineRank', duel: 'agLineDuel', compare: 'agLineCompare', order: 'agLineOrder', mosaic: 'agLineMosaic', trail: 'agLineTrail' };
+const LINE: Record<string, string> = { shape: 'agLineShape', daily: 'agLineDaily', rank: 'agLineRank', duel: 'agLineDuel', compare: 'agLineCompare', order: 'agLineOrder', mosaic: 'agLineMosaic', trail: 'agLineTrail' };
 
 /**
  * The practice set-up for Side by Side (a topic) and Country Mosaic (board size): unranked, never today's shared puzzle.
@@ -84,6 +85,8 @@ export function PuzzleDeck({ app, extras = false }: { app: any; dailyPage?: bool
   const n = (v: number) => v.toLocaleString(locale);
   const busy = app.busy || !!launching || !today;
   const mosaicExtra = !lineup.includes('mosaic');
+  // 1.41: World Duel left the six from SHAPE_FROM; it stays here as an extra (today's board, no points).
+  const duelExtra = !lineup.includes('duel');
   return <>
     <section className="ag-day t-card" aria-labelledby="today-title">
       <header className="ag-day-head">
@@ -115,6 +118,7 @@ export function PuzzleDeck({ app, extras = false }: { app: any; dailyPage?: bool
       <header className="ag-day-head"><div><h2 id="extras-title">{t('allGamesExtras')}</h2><p>{t('allGamesExtrasNote')}</p></div></header>
       <ul className="ag-list is-compact">
         {mosaicExtra && <li className="ag-row"><button type="button" disabled={app.busy} onClick={() => setPractice('mosaic')}><span className="ag-icon"><GameIcon mode="mosaic"/></span><span className="ag-copy"><strong>{t('mosaic')}</strong><small>{t('agLineMosaic')}</small></span><span className="ag-end" aria-hidden="true"><ChevronRight size={18} className="ag-chev"/></span></button></li>}
+        {duelExtra && <li className="ag-row"><button type="button" onClick={() => go('/duel')}><span className="ag-icon"><GameIcon mode="duel"/></span><span className="ag-copy"><strong>{t('duel')}</strong><small>{t('agLineDuelExtra')}</small></span><span className="ag-end" aria-hidden="true"><ChevronRight size={18} className="ag-chev"/></span></button></li>}
         <li className="ag-row"><button type="button" onClick={() => go('/multiplayer')}><span className="ag-icon"><GameIcon mode="room"/></span><span className="ag-copy"><strong>{t('cardRoomTitle')}</strong><small>{t('cardRoomTag')}</small></span><span className="ag-end" aria-hidden="true"><ChevronRight size={18} className="ag-chev"/></span></button></li>
         <li className="ag-row"><button type="button" disabled={!today} onClick={() => setMysteryOpen(true)}><span className="ag-icon"><GameIcon mode="mystery"/></span><span className="ag-copy"><strong>{t('cardMysteryTitle')}</strong><small>{t('cardMysteryTag')}</small></span><span className="ag-end" aria-hidden="true"><ChevronRight size={18} className="ag-chev"/></span></button></li>
       </ul>
