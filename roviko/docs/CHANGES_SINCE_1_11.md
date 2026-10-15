@@ -596,6 +596,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.41.2 (op de testversie, nog niet live)
+
+- Op verzoek van de eigenaar noemt geen enkele tekst in de app nog het aantal spellen ("zes spellen", "vijf dagspellen", "zes bonusreizen", "zes klassiekers"), in NL, EN en ES; ook de deeltekst van de site (`app/layout.tsx`). Het aantal stempels per regio, codes van vijf tekens en het aantal landen in een spel bleven staan.
+- De puntenregel van Rank Radar (`competitionRankRule`) beschreef nog het spel van vóór 1.21 (zes landen); nu: acht landen, 125/90/65/45/30/20/10/5.
+- "Ontdek nog zes landen" na een oefenbord heet nu "Speel nog een bord".
+- Getest: `npm test` 207 geslaagd, 1 overgeslagen.
+
 ## 1.41.1 (live sinds 15 oktober 2026)
 
 - Rank Radar: lange Nederlandse onderwerpnamen breken nu op de juiste plek ("Levens-verwachting", "Bevolkings-dichtheid") via een zacht afbreekstreepje (`breakable` in `components/puzzles/RankBoardGame.tsx`), en het vinkje van je keuze staat op het rondje van het onderwerp in plaats van over de naam.

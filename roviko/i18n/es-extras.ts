@@ -2,7 +2,7 @@
 export const spanishExtras: Record<string, string> = {
   rankRadar: 'Rank Radar', rankPlace1: 'Mejor elección', rankPlace2: '2.ª mejor', rankPlace3: '3.ª mejor', rankPlace4: '4.ª mejor',
   rankVerdict1: '¡Elección perfecta!', rankVerdict2: '¡Casi! Tu elección era la 2.ª mejor.', rankVerdict3: 'Tu elección era la 3.ª mejor.', rankVerdict4: 'Esta vez no: era su tema más flojo de los cuatro.',
-  rankMedalSummary: '{gold}× mejor · {silver}× 2.ª · {bronze}× 3.ª', rankPerfectRun: '¡Radar perfecto! Seis veces la mejor elección.', rankTrail: 'Tus medallas hasta ahora',
+  rankMedalSummary: '{gold}× mejor · {silver}× 2.ª · {bronze}× 3.ª', rankPerfectRun: '¡Radar perfecto! Siempre la mejor elección.', rankTrail: 'Tus medallas hasta ahora',
   duel: 'Duelo Mundial', duelTagline: 'Gana a Roviko con tus 7 cartas de países. Un duelo nuevo cada día.', duelCardTitle: 'Juego nuevo', duelPlay: 'Jugar el duelo',
   duelIntro: 'Roviko juega un país en un tema. Gánale con una carta de tu mano. Cada carta solo una vez, ¡así que planea!',
   duelPlanAhead: 'Cada carta solo una vez. Guarda tus cartas fuertes para el tema adecuado.', duelRounds: 'duelos',
