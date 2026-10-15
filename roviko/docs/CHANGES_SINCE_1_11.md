@@ -596,7 +596,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.41.0 (op de testversie, nog niet live)
+## 1.41.1 (op de testversie, nog niet live)
+
+- Rank Radar: lange Nederlandse onderwerpnamen breken nu op de juiste plek ("Levens-verwachting", "Bevolkings-dichtheid") via een zacht afbreekstreepje (`breakable` in `components/puzzles/RankBoardGame.tsx`), en het vinkje van je keuze staat op het rondje van het onderwerp in plaats van over de naam.
+- Leren: bij de tussentoetsen liep de tekst tegen het rondje aan (dat rondje schuift naar de tekst toe); de tekst houdt nu afstand (`app/learn.css`).
+- Getest: lokaal op 360 en 400 px breed bekeken (schermafbeeldingen). `npm test`: 207 geslaagd, 1 bewust overgeslagen.
+
+## 1.41.0 (live sinds 15 oktober 2026)
 
 **Rank Radar zoals GeoRankle, met één duidelijk beste keuze per land.**
 - Nieuw bord (v3, `lib/puzzles/rank-board.ts`): elk land heeft één duidelijk beste onderwerp (hooguit wereldplek #25 en minstens 5 plekken en een derde beter dan het tweede beste), en dat is voor elk land een ander onderwerp. 8 van 8 kan dus altijd, en er is precies één ideale oplossing.

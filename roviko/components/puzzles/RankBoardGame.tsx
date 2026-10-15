@@ -12,6 +12,12 @@ import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 
 type Lang = 'en' | 'nl' | 'es';
+/**
+ * Long Dutch compounds get a soft hyphen at the joint (1.41), so a narrow subject tile breaks
+ * "Levens-verwachting" instead of "Levensverwa-chting". Only shows a hyphen when the word really breaks.
+ */
+const JOINTS: [RegExp, string][] = [[/Levensverwachting/, 'Levens\u00adverwachting'], [/Bevolkingsdichtheid/, 'Bevolkings\u00addichtheid'], [/Landoppervlakte/, 'Land\u00adoppervlakte'], [/Internetgebruik/, 'Internet\u00adgebruik'], [/Bosbedekking/, 'Bos\u00adbedekking'], [/Defensiebudget/, 'Defensie\u00adbudget'], [/Landbouwgrond/, 'Landbouw\u00adgrond'], [/Vliegvelden/, 'Vlieg\u00advelden'], [/Buurlanden/, 'Buur\u00adlanden']];
+export const breakable = (label: string) => JOINTS.reduce((s, [re, to]) => s.replace(re, to), label);
 const fill = (text: string, values: Record<string, string | number>) => Object.entries(values).reduce((s, [k, v]) => s.replaceAll('{' + k + '}', String(v)), text);
 /** After a pick the next country comes by itself; the button is there for anyone who is quicker. */
 const AUTO_NEXT_MS = 2000;
@@ -130,7 +136,7 @@ export function RankBoardGame({ game, app, busy, error, save, again, share }: { 
       return <li key={c.id}><button type="button" className={'rb-row' + (pick === c.id ? ' is-picked' : '') + (isUsed ? ' is-used' : '') + (isNow ? ' is-now' : '')}
         disabled={reveal || by !== undefined || busy || !!error} aria-pressed={pick === c.id} onClick={() => setPick(c.id)}>
         <span className="rb-emoji" aria-hidden="true">{c.emoji}</span>
-        <strong>{c.label[lang] ?? c.label.en}</strong>
+        <strong>{breakable(c.label[lang] ?? c.label.en)}</strong>
         {stat && owner?.country ? <span className="rb-place"><img className="flag-img" src={owner.country.flag} alt={name(owner)}/><b>#{stat.rank}</b></span>
           : pick === c.id ? <span className="rb-tick" aria-hidden="true"><Check size={16} strokeWidth={3}/></span> : null}
       </button></li>;
