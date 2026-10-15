@@ -1,14 +1,15 @@
 import { DAILY_POINT_MODES, DAILY_TOTAL_MAX, dailyScore, type Competition } from '../lib/daily-scoring';
-import { SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
+import { SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
 
 /**
  * The daily Size Shuffle (1.24) has no mode of its own in the ledger: the CHECK on daily_scores.mode only allows the six
  * modes of 1.21 and SQLite cannot widen a CHECK without rebuilding the table. A UTC date has one fourth game, so the
  * Size Shuffle uses Country Mosaic's slot from SHUFFLE_FROM on: stored as 'mosaic', read back as 'order' for those dates.
  * Totals, weeks and leagues only sum scores and never notice. Never change SHUFFLE_FROM once it has passed.
+ * The same for Shape Shift (1.41): it replaces World Duel from SHAPE_FROM on, stored as 'duel', read back as 'shape'.
  */
-export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode;
-const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' ELSE ${alias}mode END`;
+export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode;
+const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' ELSE ${alias}mode END`;
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';

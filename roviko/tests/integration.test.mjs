@@ -578,6 +578,23 @@ test('Rank Radar 1.41: a day that already has the old board keeps it, a new day 
  const b=await bootstrap();const h=(await request(b.cookie,'/ranks','POST',{})).data;assert.equal(h.board.v,2,'the old board of the day is kept');
  await db.prepare('DELETE FROM daily_content WHERE date=? AND kind=?').bind(today,k2).run();
 });
+test('Shape Shift 1.41: a daily game from SHAPE_FROM, stored in the duel slot and read back as shape',async()=>{
+ const {SHAPE_FROM}=await import('../.test-runtime/daily-loop.mjs');
+ const a=await bootstrap();const id=a.data.user.id;
+ const today=new Date().toISOString().slice(0,10);
+ const g=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-shape'},competition:true})).data;
+ assert.equal(g.total,10);assert.equal(g.question.mode,'shape');assert.ok(g.question.shape);
+ assert.equal(!!g.competition,today>=SHAPE_FROM,'only scored from SHAPE_FROM on');
+ // The ledger: a Shape Shift score is a 'duel' row; on dates from SHAPE_FROM it reads back as 'shape'.
+ const sid=crypto.randomUUID(),later=new Date(Date.parse(SHAPE_FROM)+86400000).toISOString().slice(0,10),earlier=new Date(Date.parse(SHAPE_FROM)-86400000).toISOString().slice(0,10);
+ for(const [date,n] of [[later,700],[earlier,400]]){const x=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,completed,created_at) VALUES (?,?,?,?,'{}',1,?)").bind(x,id,'synthetic:'+date,date,Date.now()).run();await db.prepare('INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)').bind(id,date,'duel',x,n,Date.now()).run();}
+ void sid;
+ const code=id.slice(0,8).toLowerCase(),ch=(d,m)=>request(a.cookie,'/challenge?u='+code+'&d='+d+'&m='+m);
+ assert.equal((await ch(later,'shape')).data.points,700);
+ assert.equal((await ch(later,'duel')).status,404,'no duel on a Shape Shift day');
+ assert.equal((await ch(earlier,'shape')).status,404,'no Shape Shift before SHAPE_FROM');
+ assert.equal((await ch(earlier,'duel')).data.points,400);
+});
 test('friends see who is online and can invite each other straight into a room',async()=>{
  const signup=async(n)=>{const g=await bootstrap();return request(g.cookie,'/auth/signup','POST',{name:'Invite '+n,email:'invite-'+n.toLowerCase()+'@example.test',password:'Synthetic-invite-password-'+n});};
  const a=await signup('A'),b=await signup('B'),c=await signup('C');

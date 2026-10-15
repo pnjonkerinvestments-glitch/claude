@@ -15,7 +15,7 @@ export function SoloResults({ result, t, locale, onAgain, onShare, onHome, follo
     const perfect = correct === answers.length;
     const daily = !!result.competition, survival = !!result.survival;
     return <div className={'results-page learning-results' + (daily ? ' is-daily' : '') + (survival ? ' is-survival' : '')}>
-        <FinishStage game={(survival ? t('finSurvival') + ' · ' : result.bonus ? t('bonusKicker') + ' · ' : '') + t(result.competition?.mode === 'trail' ? 'dailyTrail' : result.daily ? 'dailyTitle' : survival ? (result.settings?.mode === 'shape' ? 'shape' : result.settings?.mode ?? 'mixed') : result.settings?.mode ?? 'mixed')}
+        <FinishStage game={(survival ? t('finSurvival') + ' · ' : result.bonus ? t('bonusKicker') + ' · ' : '') + t(result.competition?.mode === 'trail' ? 'dailyTrail' : result.competition?.mode === 'shape' ? 'shape' : result.daily ? 'dailyTitle' : survival ? (result.settings?.mode === 'shape' ? 'shape' : result.settings?.mode ?? 'mixed') : result.settings?.mode ?? 'mixed')}
             headline={t(survival ? (result.out ? 'finishOut' : 'finishPerfect') : perfect ? 'learningPerfectTitle' : 'learningResultTitle')}
             mood={survival && result.out ? (correct >= 10 ? 'wink' : 'worried') : perfect ? 'cheer' : correct / Math.max(1, answers.length) >= .5 ? 'happy' : 'wink'}
             tone={survival ? (result.out ? (correct >= 15 ? 'forest' : 'out') : 'gold') : undefined}

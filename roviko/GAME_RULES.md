@@ -24,6 +24,10 @@ After completion, each game shows its score and `#rank of participant count`. On
 
 The new ledger begins with the 1.11 competitive edition. Previously played unranked games are preserved without retroactive points. Guests can compete using their saved browser session. Verified account linking transfers non-duplicate progress; an account's existing daily session/result remains canonical. Guests are not verified unique humans, and resetting an anonymous identity cannot be fully prevented.
 
+## Shape Shift as daily game (1.41)
+
+From `SHAPE_FROM` (lib/daily-loop.ts) Shape Shift replaces World Duel among the five daily games: ten country outlines, north up, from famous to tricky (the survival ramp), four names to choose from, 100 points per right answer (1,000 in all). Earlier dates keep World Duel. In `daily_scores` Shape Shift uses World Duel's slot: stored as `duel`, read back as `shape` from `SHAPE_FROM`. World Duel stays playable as an extra: the same board of the day, no points.
+
 ## Practice and legacy editions
 
 The six classic modes, fresh puzzle/rank practice, personal retries and the Mystery Country bonus warm-up are unranked, untimed and earn no daily points or XP. They retain correct-answer counts, accuracy, learning history, knowledge seals and sourced explanations. Immediate local feedback is allowed because these sessions never enter the points ledger. Daily competition waits for server confirmation and does not send solutions in advance.

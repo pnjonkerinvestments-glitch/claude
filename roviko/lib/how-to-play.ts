@@ -67,7 +67,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   shape: { emoji: '🗺️', steps: [
     { icon: '👀', text: l('You see the outline of one country, without the map around it.', 'Je ziet de omtrek van één land, zonder de kaart eromheen.', 'Ves el contorno de un país, sin el mapa alrededor.') },
     { icon: '👆', text: l('Pick the right country from four names.', 'Kies het juiste land uit vier namen.', 'Elige el país correcto entre cuatro nombres.') },
-    { icon: '❤️', text: l('In the daily survival run you have one life: a wrong answer ends the run. It starts with famous shapes and ends with tricky neighbours.', 'In de dagelijkse overlevingsrun heb je één leven: een fout antwoord stopt de run. Het begint met bekende vormen en eindigt met lastige buurlanden.', 'En la partida diaria de supervivencia tienes una vida: un fallo la termina. Empieza con formas famosas y acaba con vecinos difíciles.') },
+    { icon: '🏆', text: l('As a daily game: ten outlines from famous to tricky, 100 points each. In the survival run one wrong answer ends it.', 'Als dagspel: tien vormen van bekend naar lastig, 100 punten per goed antwoord. In de overlevingsrun stopt één fout de run.', 'Como juego diario: diez contornos de famosos a difíciles, 100 puntos cada uno. En la supervivencia, un error termina la partida.') },
   ], tip: l('Look for coastlines, long borders and islands. North is always up.', 'Let op kustlijnen, lange grenzen en eilanden. Het noorden is altijd boven.', 'Fíjate en costas, fronteras largas e islas. El norte siempre está arriba.') },
   room: { emoji: '👥', steps: [
     { icon: '🔑', text: l('Create a room and share the code or link. 2 to 12 players, guests are welcome.', 'Maak een kamer en deel de code of link. 2 tot 12 spelers, ook als gast.', 'Crea una sala y comparte el código o el enlace. De 2 a 12 jugadores, también invitados.') },
@@ -82,8 +82,9 @@ export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', da
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
   // 1.24: the daily Size Shuffle took Country Mosaic's place among the daily games; Mosaic is an extra now.
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'duel', 'compare', 'order', 'trail'] },
-  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['mosaic', 'mystery', 'shape'] },
+  // 1.41: Shape Shift took World Duel's place (from SHAPE_FROM); the duel is an extra now.
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'trail'] },
+  { key: 'howToExtras', note: 'howToExtrasNote', modes: ['duel', 'mosaic', 'mystery'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];

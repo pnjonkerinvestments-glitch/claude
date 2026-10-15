@@ -606,6 +606,13 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 - Meer onderwerpen: naast de tien van eerst ook bosbedekking, kinderen per vrouw, stadsleven, internetgebruik, mediane leeftijd en (nieuw) bevolkingsdichtheid (Wereldbank-bevolking gedeeld door oppervlakte). Dichtheid is alleen voor Rank Radar (`retired` in de lijst, dus het duel en het oude spel kiezen hem niet).
 - Overgang: een dag waarvan het oude bord (`rank2`) al bestaat, houdt dat bord en de oude punten; nieuwe dagen krijgen sleutel `rank3`. Zo speelt iedereen op één dag hetzelfde bord.
 
+**World Duel wordt een extra spel, Vormenjacht (Shape Shift) wordt dagspel.**
+- Vanaf `SHAPE_FROM` (`lib/daily-loop.ts`) zijn de vijf dagspellen Rank Radar, Vormenjacht, Side by Side, Size Shuffle en Clue Trail. Vormenjacht: tien landvormen van bekend naar lastig (dezelfde opbouw als de overlevingsrun), 100 punten per goed antwoord, dus 1.000 per dag.
+- Dagen ervoor houden World Duel; de indeling hoort bij de datum, zodat niemand op de wisseldag zeven dagspellen krijgt.
+- In de puntentabel gebruikt Vormenjacht de plek van World Duel (opgeslagen als `duel`, vanaf `SHAPE_FROM` teruggelezen als `shape`; zelfde truc als Size Shuffle en Mosaic). Geen databasewijziging.
+- World Duel staat bij de extra spellen op de Spellen-pagina en in de uitleg: hetzelfde duel van de dag, zonder punten.
+- **Bij live zetten:** `SHAPE_FROM` op de eerste UTC-dag ná de livegang zetten (nu `2026-10-16` voor de testversie) en daarna nooit meer veranderen.
+
 **Uitnodigen voor multiplayer.**
 - De uitnodiging verscheen ook voor kamers die al begonnen, vol of verlopen waren; nu alleen voor kamers in de wachtkamer (`server/presence.ts`).
 - Lucia's automatische uitnodiging kon die van een vriend verbergen (alleen de nieuwste werd getoond). Nu komen vrienden altijd eerst, en Lucia nodigt niet uit als er al een uitnodiging van een vriend wacht.
@@ -615,7 +622,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 - Duidelijke meldingen voor geen vrienden (`NOT_FRIENDS`, was de admin-melding), uit de kamer gehaald, kamer niet beschikbaar, niet in de kamer.
 - Niet opgelost: een melding als de app dicht of op de achtergrond staat (pushmeldingen bestaan nog niet voor uitnodigingen).
 
-**Getest:** `npm test` 206 geslaagd, 1 bewust overgeslagen; nieuwe tests voor het v3-bord (40+ dagen), de oude punten, de overgangsdag en uitnodigingen naar een begonnen kamer. Rank Radar lokaal doorgespeeld op telefoonformaat (schermafbeeldingen gecontroleerd). Niet getest: uitnodigen tussen twee echte toestellen.
+**Getest:** `npm test` 207 geslaagd, 1 bewust overgeslagen; nieuwe tests voor Vormenjacht (indeling per datum, puntentabel duel/shape), het v3-bord (40+ dagen), de oude punten, de overgangsdag en uitnodigingen naar een begonnen kamer. Rank Radar lokaal doorgespeeld en de dagelijkse Vormenjacht lokaal geopend op telefoonformaat (schermafbeeldingen gecontroleerd). Niet getest: een gescoorde Vormenjacht-dag van begin tot eind (kan pas vanaf `SHAPE_FROM`). Niet getest: uitnodigen tussen twee echte toestellen.
 
 ## 1.40.0 (live sinds 12 oktober 2026, samen met 1.39)
 

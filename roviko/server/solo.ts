@@ -1,4 +1,4 @@
-import { dailyScore, dailyRoundPoints, placesRight, COMPETITION_SUFFIX, DETOUR_ROUNDS, SHUFFLE_ROUNDS } from '../lib/daily-scoring';
+import { dailyScore, dailyRoundPoints, placesRight, COMPETITION_SUFFIX, DETOUR_ROUNDS, SHAPE_ROUNDS, SHUFFLE_ROUNDS } from '../lib/daily-scoring';
 import { dailyModesFor } from '../lib/daily-loop';
 import { generateSizeShuffle } from '../lib/puzzles/size-shuffle';
 import { recordCompetition } from './competition';
@@ -42,13 +42,15 @@ export function soloView(stored: Solo) {
 export async function startSolo(env: Env, user: User, settings: Settings, practice = false, focus?: string, competition = false, bonus = false) {
     settings = { ...settings, timer: 0 };
     if (bonus) return startBonus(env, user, settings.mode);
-    const trail = settings.mode === 'daily-trail', shuffle = settings.mode === 'daily-order';
-    const daily = settings.mode === 'daily' || trail || shuffle ? new Date().toISOString().slice(0, 10) : null;
+    const trail = settings.mode === 'daily-trail', shuffle = settings.mode === 'daily-order', shape = settings.mode === 'daily-shape';
+    const daily = settings.mode === 'daily' || trail || shuffle || shape ? new Date().toISOString().slice(0, 10) : null;
     // The daily Size Shuffle only scores on dates whose lineup has it (from SHUFFLE_FROM); before that it is an unscored edition.
-    const ranked = !!daily && competition && (!shuffle || dailyModesFor(daily).includes('order'));
+    // The same for the daily Shape Shift (from SHAPE_FROM, 1.41).
+    const ranked = !!daily && competition && (!shuffle || dailyModesFor(daily).includes('order')) && (!shape || dailyModesFor(daily).includes('shape'));
     const kind = (trail ? 'daily-trail' : settings.mode) + (ranked ? COMPETITION_SUFFIX : '');
     if (daily) {
-        settings = { mode: trail ? 'trail' : shuffle ? 'order' : 'daily', count: trail ? 5 : shuffle ? SHUFFLE_ROUNDS : DETOUR_ROUNDS, timer: 0, difficulty: 'medium', region: 'World' };
+        // Shape Shift: ten outlines from well known to harder (the survival ramp), the same for everyone.
+        settings = { mode: trail ? 'trail' : shuffle ? 'order' : shape ? 'shape' : 'daily', count: trail ? 5 : shuffle ? SHUFFLE_ROUNDS : shape ? SHAPE_ROUNDS : DETOUR_ROUNDS, timer: 0, difficulty: 'medium', region: 'World', ...(shape ? { ramp: true } : {}) };
         const existing = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=? ORDER BY created_at DESC LIMIT 1", user.id, daily, kind);
         if (existing)
             return soloView(JSON.parse(existing.state));
@@ -59,7 +61,7 @@ export async function startSolo(env: Env, user: User, settings: Settings, practi
     // The daily Size Shuffle: its own generator (five rounds, easy to hard); the same countries for everyone on the date.
     const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: (shuffle ? generateSizeShuffle(seed) : prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled))).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled)), settings, datasetVersion: undefined };
     if (content.questions.some((q:any) => disabled.includes(q.id))) throw new AppError('QUESTION_UNAVAILABLE',503);
-    const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':shuffle?'order':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
+    const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':shuffle?'order':shape?'shape':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
     const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
     if (!inserted.meta.changes && daily) {
         const saved = await one(env, "SELECT state FROM game_sessions WHERE user_id=? AND date=? AND kind=?", user.id, daily, kind);

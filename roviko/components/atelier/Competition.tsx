@@ -9,8 +9,8 @@ import { Celebration, type Stage } from '../ds/Celebration';
 import { useToday } from '../home/useDay';
 import { useQuests } from './DailyQuests';
 
-const ruleKeys:Record<PointMode,string>={daily:'competitionDaily',trail:'competitionTrail',compare:'competitionCompare',mosaic:'competitionMosaic',order:'competitionOrder',rank:'competitionRankRule',duel:'competitionDuel'};
-const titles:Record<PointMode,string>={daily:'dailyTitle',trail:'dailyTrail',compare:'compare',mosaic:'mosaic',order:'order',rank:'rankRadar',duel:'duel'};
+const ruleKeys:Record<PointMode,string>={shape:'competitionShape',daily:'competitionDaily',trail:'competitionTrail',compare:'competitionCompare',mosaic:'competitionMosaic',order:'competitionOrder',rank:'competitionRankRule',duel:'competitionDuel'};
+const titles:Record<PointMode,string>={shape:'shape',daily:'dailyTitle',trail:'dailyTrail',compare:'compare',mosaic:'mosaic',order:'order',rank:'rankRadar',duel:'duel'};
 /** Numbers follow the page language (1.000 in Dutch and Spanish), which the app keeps on <html lang>. */
 const pageLang=()=>typeof document==='undefined'?undefined:document.documentElement?.lang||undefined;
 export function DailyScoreRule({mode,t,score}:{mode:PointMode;t:(key:string)=>string;score?:number}) {

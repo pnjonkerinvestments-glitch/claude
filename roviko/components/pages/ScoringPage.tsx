@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { ArrowRight, Crown, Flame, Infinity as InfinityIcon, RotateCcw, Sparkles, Users } from 'lucide-react';
-import { DAY_MODES } from '@/lib/daily-loop';
+import { dayModesFor } from '@/lib/daily-loop';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import { useApp } from '../app/context';
 import { A } from '../app/shared';
@@ -9,7 +9,7 @@ import { GameIcon } from '../atelier/GameIcon';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { PageHeader } from '../ds/States';
 
-const RULES: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail', duel: 'competitionDuel' };
+const RULES: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail', duel: 'competitionDuel', order: 'competitionOrder', shape: 'competitionShape' };
 
 /** Everything about points in one place, so the homepage never has to explain it. */
 export function ScoringPage() {
@@ -29,8 +29,8 @@ export function ScoringPage() {
     </li>)}</ul>
     <section className="page-section" aria-labelledby="scoring-five">
       <header className="section-header"><div><h2 id="scoring-five">{t('scoringFiveTitle')}</h2><p className="muted">{t('scoringFiveLead')}</p></div></header>
-      <div className="five-games">{DAY_MODES.map(m => <A key={m} href={'/how-to-play#' + m} className="five-game"><GameIcon mode={m} size="lg"/><span>{t(dailyTitleKey(m))}</span></A>)}</div>
-      <div className="rule-grid">{DAY_MODES.map(m => <article key={m} className="rule-card">
+      <div className="five-games">{dayModesFor().map(m => <A key={m} href={'/how-to-play#' + m} className="five-game"><GameIcon mode={m} size="lg"/><span>{t(dailyTitleKey(m))}</span></A>)}</div>
+      <div className="rule-grid">{dayModesFor().map(m => <article key={m} className="rule-card">
         <GameIcon mode={m}/>
         <div><h3>{t(dailyTitleKey(m))}</h3><p>{t(RULES[m])}</p></div>
       </article>)}</div>
