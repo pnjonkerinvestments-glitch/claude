@@ -28,7 +28,7 @@ Deze checklist hoort bij versie 1.19 van de website. Wat klaarstaat, staat boven
 
 ## Google Play (Android)
 
-Bijgewerkt voor versie 1.41 (15 oktober 2026). Ontwikkelaar: organisatie-account **Roviko Studio** (KVK en D-U-N-S aangepast). Contact: `support@roviko.app`.
+Bijgewerkt voor versie 1.41 (15 oktober 2026). Ontwikkelaar: organisatie-account **Jonker Studios** (handelsnaam en activiteit bij KVK goedgekeurd in oktober 2026). Contact: `support@roviko.app`.
 
 ### Stap 1. Uploadsleutel maken (eenmalig, op een computer)
 
@@ -39,7 +39,7 @@ De repository is **openbaar**, dus de sleutel mag nooit in GitHub zelf gemaakt o
    ```sh
    keytool -genkeypair -v -keystore roviko-upload.jks -alias roviko -keyalg RSA -keysize 2048 -validity 10000
    ```
-   Kies een sterk wachtwoord (gebruik hetzelfde voor de keystore en de sleutel). Naam: `P. Jonker`, organisatie: `Roviko Studio`, land: `NL`.
+   Kies een sterk wachtwoord (gebruik hetzelfde voor de keystore en de sleutel). Naam: `P. Jonker`, organisatie: `Jonker Studios`, land: `NL`.
 3. Maak er tekst van:
    - Mac: `base64 -i roviko-upload.jks -o roviko-upload.b64`
    - Windows (PowerShell): `[Convert]::ToBase64String([IO.File]::ReadAllBytes("roviko-upload.jks")) | Out-File roviko-upload.b64`
