@@ -611,7 +611,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 - Dagen ervoor houden World Duel; de indeling hoort bij de datum, zodat niemand op de wisseldag zeven dagspellen krijgt.
 - In de puntentabel gebruikt Vormenjacht de plek van World Duel (opgeslagen als `duel`, vanaf `SHAPE_FROM` teruggelezen als `shape`; zelfde truc als Size Shuffle en Mosaic). Geen databasewijziging.
 - World Duel staat bij de extra spellen op de Spellen-pagina en in de uitleg: hetzelfde duel van de dag, zonder punten.
-- **Bij live zetten:** `SHAPE_FROM` op de eerste UTC-dag ná de livegang zetten (nu `2026-10-16` voor de testversie) en daarna nooit meer veranderen.
+- `SHAPE_FROM` is `2026-10-16`, de eerste UTC-dag na de livegang op 15 oktober. Nooit meer veranderen.
 
 **Uitnodigen voor multiplayer.**
 - De uitnodiging verscheen ook voor kamers die al begonnen, vol of verlopen waren; nu alleen voor kamers in de wachtkamer (`server/presence.ts`).
