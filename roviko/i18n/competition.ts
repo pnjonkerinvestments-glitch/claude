@@ -1,5 +1,5 @@
 const en = {
-  competitionTitle:'Your daily scorecard', competitionIntro:'Six games. One daily climb. How far will you go?',
+  competitionTitle:'Your daily scorecard', competitionIntro:'New games every day. One daily climb. How far will you go?',
   competitionToday:'Today’s total', competitionAllTime:'All-time points', competitionGame:'Your game score',
   competitionRank:'#{rank} of {count} players', competitionNoRank:'Finish a daily game to join the ranking.',
   competitionParticipants:'{count} players have finished', competitionRules:'How daily points work',
@@ -8,7 +8,7 @@ const en = {
   competitionTrail:'Five countries. A correct answer earns 200 / 150 / 100 / 50 points after 1 / 2 / 3 / 4 clues. A wrong answer earns 0.',
   competitionDaily:'Ten questions, up to 100 points each. Correct answers earn full points. On the map, closer pins earn more partial points.',
   competitionCompare:'Ten comparisons. Each correct answer earns 100 points; a wrong answer earns 0.',
-  competitionRankRule:'Six countries. Your correct answers ÷ 6 × 1,000, rounded once at the end. Wrong answers earn 0.',
+  competitionRankRule:'Eight countries, eight subjects, each subject once. Per country: its best subject 125 points, the next best 90, then 65, 45, 30, 20, 10 or 5. Up to 1,000 points.',
   competitionMosaic:'Four countries, 250 points each. A wrong match earns 0 for the selected country name, even if you solve it later. Each hint for that country costs 125 points, down to 0. You can always keep learning.',
   competitionAvailable:'{n} points available', competitionHint:'Hint · −125 points', competitionChooseAnchor:'Select a country name before asking for a hint.',
   competitionGameMax:'Up to 1,000 points', competitionLeaderboard:'Daily standings', competitionTotalLeaders:'All-time standings',
@@ -20,7 +20,7 @@ const en = {
 export const competitionMessages = {
   en,
   nl: {
-    competitionTitle:'Jouw dagelijkse scorekaart', competitionIntro:'Zes spellen. Eén dagranglijst. Hoe hoog kom jij?',
+    competitionTitle:'Jouw dagelijkse scorekaart', competitionIntro:'Elke dag nieuwe spellen. Eén dagranglijst. Hoe hoog kom jij?',
     competitionToday:'Dagtotaal', competitionAllTime:'Punten aller tijden', competitionGame:'Jouw spelscore',
     competitionRank:'#{rank} van {count} spelers', competitionNoRank:'Rond een dagspel af om in de ranglijst te komen.',
     competitionParticipants:'{count} spelers zijn klaar', competitionRules:'Zo werken de dagpunten',
@@ -29,7 +29,7 @@ export const competitionMessages = {
     competitionTrail:'Vijf landen. Goed antwoord: 200 / 150 / 100 / 50 punten na 1 / 2 / 3 / 4 hints. Een fout antwoord levert 0 punten op.',
     competitionDaily:'Tien vragen van maximaal 100 punten. Goed is de volle score. Op de kaart krijg je meer deelpunten naarmate je pin dichterbij staat.',
     competitionCompare:'Tien vergelijkingen. Elk goed antwoord levert 100 punten op; fout is 0.',
-    competitionRankRule:'Zes landen. Aantal goede antwoorden ÷ 6 × 1.000, één keer afgerond aan het einde. Fout is 0 punten.',
+    competitionRankRule:'Acht landen, acht onderwerpen, elk onderwerp één keer. Per land: het beste onderwerp 125 punten, het tweede beste 90, daarna 65, 45, 30, 20, 10 of 5. Tot 1.000 punten.',
     competitionMosaic:'Vier landen, elk 250 punten. Een foute combinatie levert 0 op voor de gekozen landnaam, ook als je het later oplost. Elke hint voor dat land kost 125 punten, tot minimaal 0. Je mag altijd verder oefenen.',
     competitionAvailable:'{n} punten te verdienen', competitionHint:'Hint · −125 punten', competitionChooseAnchor:'Kies eerst een landnaam om een hint te vragen.',
     competitionGameMax:'Tot 1.000 punten', competitionLeaderboard:'Dagranglijst', competitionTotalLeaders:'Ranglijst aller tijden',
@@ -39,7 +39,7 @@ export const competitionMessages = {
     dailyTrail:'Dagelijkse Clue Trail', trailCardCopy:'Vijf verborgen landen. Minder hints, meer punten.',
   } satisfies Record<keyof typeof en,string>,
   es: {
-    competitionTitle:'Tu marcador diario', competitionIntro:'Seis juegos. Una clasificación diaria. ¿Hasta dónde llegarás?',
+    competitionTitle:'Tu marcador diario', competitionIntro:'Juegos nuevos cada día. Una clasificación diaria. ¿Hasta dónde llegarás?',
     competitionToday:'Total de hoy', competitionAllTime:'Puntos acumulados', competitionGame:'Tu puntuación',
     competitionRank:'#{rank} de {count} jugadores', competitionNoRank:'Completa un juego diario para entrar en la clasificación.',
     competitionParticipants:'{count} jugadores han terminado', competitionRules:'Cómo funcionan los puntos diarios',
@@ -48,7 +48,7 @@ export const competitionMessages = {
     competitionTrail:'Cinco países. Una respuesta correcta vale 200 / 150 / 100 / 50 puntos tras 1 / 2 / 3 / 4 pistas. Una respuesta incorrecta vale 0.',
     competitionDaily:'Diez preguntas de hasta 100 puntos. Una respuesta correcta da la puntuación completa. En el mapa, cuanto más cerca esté tu marcador, más puntos parciales obtienes.',
     competitionCompare:'Diez comparaciones. Cada respuesta correcta vale 100 puntos; una incorrecta, 0.',
-    competitionRankRule:'Seis países. Respuestas correctas ÷ 6 × 1.000, redondeado una vez al final. Los errores valen 0 puntos.',
+    competitionRankRule:'Ocho países, ocho temas, cada tema una vez. Por país: su mejor tema 125 puntos, el segundo 90, luego 65, 45, 30, 20, 10 o 5. Hasta 1.000 puntos.',
     competitionMosaic:'Cuatro países, 250 puntos cada uno. Una combinación incorrecta deja en 0 los puntos del nombre de país elegido, aunque lo resuelvas después. Cada pista para ese país cuesta 125 puntos, hasta 0. Siempre puedes seguir aprendiendo.',
     competitionAvailable:'{n} puntos disponibles', competitionHint:'Pista · −125 puntos', competitionChooseAnchor:'Elige primero un nombre de país para pedir una pista.',
     competitionGameMax:'Hasta 1.000 puntos', competitionLeaderboard:'Clasificación diaria', competitionTotalLeaders:'Clasificación acumulada',

@@ -15,11 +15,11 @@ export const tripMessages = {
     mpPlaceOf: '{place} of {n} players', mpPlaceOf_one: '{place} of 1 player', mpPodium: 'Podium', mpPlayAgain: 'Play again', mpAllPlayers: 'All players',
     mpHome: 'Home', mpPointsWord: 'points', mpPointsWord_one: 'point', mpRoundsPill: '{n} rounds', mpRoundsPill_one: '1 round', mpTimerPill: '{n} sec per round', mpTimerPill_one: '1 sec per round',
     // finish
-    dayDoneHeadline: 'Nice trip. Same time tomorrow?', dayDoneKicker: 'Day complete · 6/6', dayBonus: 'Bonus tour', dayChallenge: 'Challenge a friend', dayGamesLabel: 'Your six games today', dayNewIn: 'New games in', finSurvival: 'Survival',
+    dayDoneHeadline: 'Nice trip. Same time tomorrow?', dayDoneKicker: 'Day complete · 6/6', dayBonus: 'Bonus tour', dayChallenge: 'Challenge a friend', dayGamesLabel: 'Your games today', dayNewIn: 'New games in', finSurvival: 'Survival',
     // home
     agResume: 'Continue',
     homeBeatIt: 'Can you beat it?', mascotBonusLeft_one: 'One bonus trip to go!', homeBonusLine: 'Ten questions each, the same countries for everyone.',
-    homeProgress: '{n}/{total} today', homeProgress_one: '1/{total} today', homePoints: '{n} points', homePoints_one: '1 point', homeFirstLine: 'Six short games · no account needed', homeDoneTitle: 'Nice trip. See you tomorrow?', homeDoneBubble: 'Woohoo, 6 out of 6!',
+    homeProgress: '{n}/{total} today', homeProgress_one: '1/{total} today', homePoints: '{n} points', homePoints_one: '1 point', homeFirstLine: 'Short games · no account needed', homeDoneTitle: 'Nice trip. See you tomorrow?', homeDoneBubble: 'Woohoo, 6 out of 6!',
     agLineDaily: '10 questions, flags to the map', agLineRank: 'Eight countries, eight topics', agLineDuel: 'Seven cards against Roviko', agLineCompare: 'Which country ranks higher?', agLineOrder: 'Sort four countries by size', agLineMosaic: 'Match flags, shapes and facts', agLineTrail: 'Fewer clues, more points',
     agPractiseDaily: 'Practise the daily games', agPracticeCompare: 'Pick a topic', shufflePlacesRight: 'Countries in place', shufflePerfectRounds: 'Perfect rounds', orderCardCopy: 'Five rounds of four countries. Sort them by size.',
     competitionOrder: 'Five rounds of four countries, from easy to tricky. Every country in its right place earns 50 points, so a round is worth up to 200. No timer.',
@@ -38,7 +38,7 @@ export const tripMessages = {
     orderMoved: '{country} is now number {n}.', orderMoved_one: '{country} is now number 1.',
     orderPartial: '{n} of {total} in the right place: you get that share of the points.', orderPartial_one: '1 of {total} in the right place: you get that share of the points.',
     // pages
-    pgExploreLead: '195 countries. Tap one to visit.', pgRankLead: 'The same six games for everyone, every day.', pgScoringLead: 'Six daily games give points. The rest is for fun.',
+    pgExploreLead: '195 countries. Tap one to visit.', pgRankLead: 'The same games for everyone, every day.', pgScoringLead: 'The daily games give points. The rest is for fun.',
     pgHowLead: 'Every game in three short steps.', pgSourcesLead: 'Every question is built from open data.',
     pgWelcomeBack: 'Welcome back!', pgSignInCopy: 'Sign in and pick up where you left off.', pgPassportSave: 'Keep your stamps, streak and points on every device.', pgSeoKicker: 'Free · no account needed',
     pgGoal_games: '{n} games played', pgGoal_games_one: '1 game played', pgGoal_correct: '{n} right answers', pgGoal_correct_one: '1 right answer', pgGoal_xp: '{n} XP', pgGoal_xp_one: '1 XP',
@@ -64,11 +64,11 @@ export const tripMessages = {
     mpPlaceOf: '{place} van {n} spelers', mpPlaceOf_one: '{place} van 1 speler', mpPodium: 'Podium', mpPlayAgain: 'Nog een keer', mpAllPlayers: 'Alle spelers',
     mpHome: 'Naar start', mpPointsWord: 'punten', mpPointsWord_one: 'punt', mpRoundsPill: '{n} rondes', mpRoundsPill_one: '1 ronde', mpTimerPill: '{n} sec per ronde', mpTimerPill_one: '1 sec per ronde',
     // finish
-    dayDoneHeadline: 'Mooie reis. Morgen weer?', dayDoneKicker: 'Dag compleet · 6/6', dayBonus: 'Bonustour', dayChallenge: 'Daag een vriend uit', dayGamesLabel: 'Je zes spellen van vandaag', dayNewIn: 'Nieuwe spellen over', finSurvival: 'Overleven',
+    dayDoneHeadline: 'Mooie reis. Morgen weer?', dayDoneKicker: 'Dag compleet · 6/6', dayBonus: 'Bonustour', dayChallenge: 'Daag een vriend uit', dayGamesLabel: 'Je spellen van vandaag', dayNewIn: 'Nieuwe spellen over', finSurvival: 'Overleven',
     // home
     agResume: 'Verder',
     homeBeatIt: 'Kun jij het beter?', mascotBonusLeft_one: 'Nog één bonusreis!', homeBonusLine: 'Tien vragen per spel, voor iedereen dezelfde landen.',
-    homeProgress: '{n}/{total} vandaag', homeProgress_one: '1/{total} vandaag', homePoints: '{n} punten', homePoints_one: '1 punt', homeFirstLine: 'Zes korte spellen · geen account nodig', homeDoneTitle: 'Mooie reis. Tot morgen?', homeDoneBubble: 'Joepie, 6 van de 6!',
+    homeProgress: '{n}/{total} vandaag', homeProgress_one: '1/{total} vandaag', homePoints: '{n} punten', homePoints_one: '1 punt', homeFirstLine: 'Korte spellen · geen account nodig', homeDoneTitle: 'Mooie reis. Tot morgen?', homeDoneBubble: 'Joepie, 6 van de 6!',
     agLineDaily: '10 vragen, van vlag tot kaart', agLineRank: 'Acht landen, acht onderwerpen', agLineDuel: 'Zeven kaarten tegen Roviko', agLineCompare: 'Welk land scoort hoger?', agLineOrder: 'Zet vier landen op grootte', agLineMosaic: 'Koppel vlaggen, vormen en feitjes', agLineTrail: 'Minder hints, meer punten',
     agPractiseDaily: 'Dagspellen oefenen', agPracticeCompare: 'Kies een onderwerp', shufflePlacesRight: 'Landen op de goede plek', shufflePerfectRounds: 'Foutloze rondes', orderCardCopy: 'Vijf rondes van vier landen. Zet ze op grootte.',
     competitionOrder: 'Vijf rondes van vier landen, van makkelijk naar lastig. Elk land op de goede plek levert 50 punten op, dus een ronde is tot 200 punten waard. Geen timer.',
@@ -87,7 +87,7 @@ export const tripMessages = {
     orderMoved: '{country} staat nu op plek {n}.', orderMoved_one: '{country} staat nu op plek 1.',
     orderPartial: '{n} van de {total} op de goede plek: daarvoor krijg je een deel van de punten.', orderPartial_one: '1 van de {total} op de goede plek: daarvoor krijg je een deel van de punten.',
     // pages
-    pgExploreLead: '195 landen. Tik er een aan.', pgRankLead: 'Elke dag dezelfde zes spellen voor iedereen.', pgScoringLead: 'Zes dagspellen geven punten. De rest is voor de lol.',
+    pgExploreLead: '195 landen. Tik er een aan.', pgRankLead: 'Elke dag dezelfde spellen voor iedereen.', pgScoringLead: 'De dagspellen geven punten. De rest is voor de lol.',
     pgHowLead: 'Elk spel in drie korte stappen.', pgSourcesLead: 'Elke vraag komt uit open data.',
     pgWelcomeBack: 'Welkom terug!', pgSignInCopy: 'Log in en ga verder waar je was.', pgPassportSave: 'Bewaar je stempels, reeks en punten op elk apparaat.', pgSeoKicker: 'Gratis · geen account nodig',
     pgGoal_games: '{n} spellen gespeeld', pgGoal_games_one: '1 spel gespeeld', pgGoal_correct: '{n} goede antwoorden', pgGoal_correct_one: '1 goed antwoord', pgGoal_xp: '{n} XP', pgGoal_xp_one: '1 XP',
@@ -113,11 +113,11 @@ export const tripMessages = {
     mpPlaceOf: '{place} de {n} jugadores', mpPlaceOf_one: '{place} de 1 jugador', mpPodium: 'Podio', mpPlayAgain: 'Jugar otra vez', mpAllPlayers: 'Todos los jugadores',
     mpHome: 'Ir al inicio', mpPointsWord: 'puntos', mpPointsWord_one: 'punto', mpRoundsPill: '{n} rondas', mpRoundsPill_one: '1 ronda', mpTimerPill: '{n} s por ronda', mpTimerPill_one: '1 s por ronda',
     // finish
-    dayDoneHeadline: 'Buen viaje. ¿Nos vemos mañana?', dayDoneKicker: 'Día completo · 6/6', dayBonus: 'Ruta extra', dayChallenge: 'Reta a un amigo', dayGamesLabel: 'Tus seis juegos de hoy', dayNewIn: 'Nuevos juegos en', finSurvival: 'Supervivencia',
+    dayDoneHeadline: 'Buen viaje. ¿Nos vemos mañana?', dayDoneKicker: 'Día completo · 6/6', dayBonus: 'Ruta extra', dayChallenge: 'Reta a un amigo', dayGamesLabel: 'Tus juegos de hoy', dayNewIn: 'Nuevos juegos en', finSurvival: 'Supervivencia',
     // home
     agResume: 'Seguir',
     homeBeatIt: '¿Puedes superarlo?', mascotBonusLeft_one: '¡Queda un viaje extra!', homeBonusLine: 'Diez preguntas cada uno, los mismos países para todos.',
-    homeProgress: '{n}/{total} hoy', homeProgress_one: '1/{total} hoy', homePoints: '{n} puntos', homePoints_one: '1 punto', homeFirstLine: 'Seis juegos cortos · sin cuenta', homeDoneTitle: 'Buen viaje. ¿Hasta mañana?', homeDoneBubble: '¡Bien! 6 de 6.',
+    homeProgress: '{n}/{total} hoy', homeProgress_one: '1/{total} hoy', homePoints: '{n} puntos', homePoints_one: '1 punto', homeFirstLine: 'Juegos cortos · sin cuenta', homeDoneTitle: 'Buen viaje. ¿Hasta mañana?', homeDoneBubble: '¡Bien! 6 de 6.',
     agLineDaily: '10 preguntas, de banderas al mapa', agLineRank: 'Ocho países, ocho temas', agLineDuel: 'Siete cartas contra Roviko', agLineCompare: '¿Qué país queda más alto?', agLineOrder: 'Ordena cuatro países por tamaño', agLineMosaic: 'Une banderas, siluetas y datos', agLineTrail: 'Menos pistas, más puntos',
     agPractiseDaily: 'Practica los juegos diarios', agPracticeCompare: 'Elige un tema', shufflePlacesRight: 'Países en su sitio', shufflePerfectRounds: 'Rondas perfectas', orderCardCopy: 'Cinco rondas de cuatro países. Ordénalos por tamaño.',
     competitionOrder: 'Cinco rondas de cuatro países, de fácil a difícil. Cada país en su sitio vale 50 puntos, así que una ronda vale hasta 200. Sin cronómetro.',
@@ -136,7 +136,7 @@ export const tripMessages = {
     orderMoved: '{country} está ahora en el puesto {n}.', orderMoved_one: '{country} está ahora en el puesto 1.',
     orderPartial: '{n} de {total} en su sitio: recibes esa parte de los puntos.', orderPartial_one: '1 de {total} en su sitio: recibes esa parte de los puntos.',
     // pages
-    pgExploreLead: '195 países. Toca uno para visitarlo.', pgRankLead: 'Los mismos seis juegos para todos, cada día.', pgScoringLead: 'Seis juegos diarios dan puntos. El resto es por diversión.',
+    pgExploreLead: '195 países. Toca uno para visitarlo.', pgRankLead: 'Los mismos juegos para todos, cada día.', pgScoringLead: 'Los juegos diarios dan puntos. El resto es por diversión.',
     pgHowLead: 'Cada juego en tres pasos cortos.', pgSourcesLead: 'Cada pregunta se basa en datos abiertos.',
     pgWelcomeBack: '¡Hola de nuevo!', pgSignInCopy: 'Inicia sesión y sigue donde lo dejaste.', pgPassportSave: 'Guarda tus sellos, tu racha y tus puntos en todos tus dispositivos.', pgSeoKicker: 'Gratis · sin cuenta',
     pgGoal_games: '{n} partidas jugadas', pgGoal_games_one: '1 partida jugada', pgGoal_correct: '{n} respuestas correctas', pgGoal_correct_one: '1 respuesta correcta', pgGoal_xp: '{n} XP', pgGoal_xp_one: '1 XP',
