@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.41.4 (op de testversie, nog niet live)
+## 1.41.4 (live sinds 16 oktober 2026, PR #37)
 
 - Op verzoek van de eigenaar noemen privacy, voorwaarden en `/support` alleen nog "Jonker Studios" (geen persoonsnaam, geen KVK-nummer). Let op: de Handelsregisterwet vraagt een KVK-nummer op de website van een onderneming; de eigenaar heeft hiervoor gekozen.
 - Getest: `npm test` 207 geslaagd, 1 overgeslagen; `tsc` schoon; tekst op de testversie nagekeken.
