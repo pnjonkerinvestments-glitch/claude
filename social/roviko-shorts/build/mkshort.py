@@ -1,7 +1,7 @@
 """Wrap a short's script (src/short-N-name.js) in the shared page: fonts, mascot, geo data, core.js and extras.js.
 
   python3 build/mkshort.py src/short-11-groupchat.js   ->  short-11-groupchat.html
-The first comment block of the script becomes the page's description; its first line is the title.
+An optional "// @scripts lib/frame.js ..." line after it loads extra scripts. The first comment block of the script becomes the page's description; its first line is the title.
 """
 import re
 import sys
@@ -33,7 +33,7 @@ svg {{ overflow: visible; }}
 <div id="stage"></div>
 <script src="lib/core.js"></script>
 <script src="lib/extras.js"></script>
-<script>
+{extra}<script>
 {body}
 </script>
 </body>
@@ -46,7 +46,11 @@ for src in sys.argv[1:]:
     m = re.match(r'/\*(.*?)\*/\s*', js, re.S)
     doc = m.group(1).strip('\n') if m else ''
     body = js[m.end():] if m else js
+    # an optional "// @scripts a.js b.js" line right after the comment loads more scripts before the body
+    sm = re.match(r'// @scripts (.+)\n', body)
+    extra = ''.join(f'<script src="{x}"></script>\n' for x in sm.group(1).split()) if sm else ''
+    body = body[sm.end():] if sm else body
     title = doc.strip().splitlines()[0].strip() if doc else p.stem
     out = p.parent.parent / (p.stem + '.html')
-    out.write_text(HEAD.format(title=title, doc=doc.rstrip(), body=body.rstrip()))
+    out.write_text(HEAD.format(title=title, doc=doc.rstrip(), body=body.rstrip(), extra=extra))
     print(out)

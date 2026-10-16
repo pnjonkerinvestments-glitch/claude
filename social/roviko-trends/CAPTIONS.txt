@@ -1,0 +1,90 @@
+ROVIKO TRENDS: 5 fotocarrousels naar trending kaartposts, in de Day-stijl
+Elke post heeft tiktok/ (9:16) en instagram/ (4:5). Plaats de slides op volgorde (01, 02, …).
+Dezelfde caption werkt op TikTok en Instagram. Zet de PIN als eerste reactie en pin hem vast.
+
+============================================================
+1. italy: 82.1% of Italy is closer to a foreign capital (4 slides)
+============================================================
+CAPTION:
+
+82.1% of Italy is closer to a FOREIGN capital than to Rome 🇮🇹🤯
+Guess on slide 1, then swipe. San Marino is the plot twist 👀
+Where do you live, and which capital is closest? 👇
+More map chaos every day at roviko.app
+#fyp #foryou #geography #italy #maps
+
+PIN:
+
+We checked it ourselves: a grid over all of Italy, the nearest capital for every point. San Marino 21.0%, Rome only 17.9% 😅 Leave San Marino and Vatican City out, and it's still 62.3%.
+
+============================================================
+2. trend: a trendline through all 195 capitals (3 slides)
+============================================================
+CAPTION:
+
+We drew a line of best fit through all 195 capitals of the world 📈🌍
+It goes straight through Mexico City… and explains absolutely nothing 😂
+Bonus: the "average capital" is in the middle of the Sahara 🏜️
+Can you name the capital of Chad? 👇
+#fyp #foryou #geography #maps #capitals
+
+PIN:
+
+Chad's capital is N'Djamena 🇹🇩 Name 3 more capitals that sit near the red line 👇
+
+============================================================
+3. forest: which country has the most forest? (3 slides)
+============================================================
+CAPTION:
+
+Which country has the most forest on Earth? 🌲
+Canada, Brazil or Russia? Answer before you swipe 👇
+Then see why Canada's forest alone is bigger than India 🤯
+Rank Radar, every day at roviko.app
+#fyp #foryou #geography #nature #quiz
+
+PIN:
+
+Russia 🇷🇺 holds 20% of the world's forest. Just 5 countries hold more than half of it (source: FAO, Global Forest Resources Assessment 2020). Did you get it? ✅ or ❌
+
+============================================================
+4. size: USA + Canada + Greenland vs Russia (3 slides)
+============================================================
+CAPTION:
+
+USA + Canada + Greenland vs Russia. Who's bigger? 🗺️
+Guess first, then swipe 👀
+Slide 3: Canada alone beats the USA 🇨🇦
+Size Shuffle, every day at roviko.app
+#fyp #foryou #geography #maps #sizecomparison
+
+PIN:
+
+Together: 21.5 million km². Russia: 17.1 million km². Russia is still the biggest single country by far 🇷🇺
+
+============================================================
+5. score: what did you score today? (3 slides)
+============================================================
+CAPTION:
+
+What did you score on Roviko today? 🌍
+Play today's trip, tap Share, paste it below 👇
+We pin the best score every day 📌
+Beat Roviko's 4,000/6,000 if you can 😎
+#fyp #foryou #geography #dailychallenge #quiz
+
+PIN:
+
+Drop your score here 👇 Highest score by tonight gets pinned 🏆
+
+------------------------------------------------------------
+BRONNEN EN REKENWERK
+- Italië: eigen raster over heel Italië (0,025°, gewogen naar oppervlakte). Voor elk punt de dichtstbijzijnde hoofdstad,
+  gemeten langs het aardoppervlak. Hoofdsteden van Natural Earth en grenzen van roviko.app. Uitkomst: 82,1% (zelfde als TerribleMaps).
+- Trendlijn: lineaire regressie (breedte op lengte) door de 195 hoofdsteden van roviko.app. Uitkomst: ~18,9°N, vrijwel vlak, r = -0,01.
+  Gemiddelde van alle coördinaten: 18,8°N 21,8°E, in Tsjaad.
+- Bos: FAO Global Forest Resources Assessment 2020 (Rusland 815, Brazilië 497, Canada 347, VS 310, China 220 miljoen ha).
+  India: 3,29 miljoen km² = 329 miljoen ha. De claim "Canada heeft nog 91% van het oorspronkelijke bos" is NIET gebruikt:
+  daar is geen betrouwbare bron voor te vinden.
+- Oppervlakte: roviko.app-data (VS 9.372.610, Canada 9.984.670, Rusland 17.098.242 km²) + Groenland 2.166.086 km².
+- Score: voorbeeld van de deeltekst en de deelkaart van roviko.app (1.34). De scores zijn voorbeelden.

@@ -1,0 +1,237 @@
+/*
+  Roviko trend posts: five photo carousels after trending map posts, in the Day-banner look. trends.html?id=italy-1 (&ig=1 for 4:5).
+  italy: 82.1% of Italy is closer to a foreign capital than to Rome (own grid count, roviko-trends/build_italy.py).
+  trend: a line of best fit through all 195 capitals (flat at ~19°N, through Mexico City); their average point is in Chad.
+  forest: the 5 countries with the most forest (FAO Global Forest Resources Assessment 2020). size: USA + Canada + Greenland vs Russia.
+  score: post your daily score (the share card of roviko.app). Rendered to PNG by build/trends-png.mjs.
+*/
+// @scripts lib/frame.js ../roviko-trends/data/trends.js
+const id = Q.get('id') || 'italy-1';
+const [post, nStr] = id.split('-'), N = +nStr;
+const COUNT = { italy: 4, trend: 3, forest: 3, size: 3, score: 3 };
+const fred = (size, color = C.forest, w = 600) => `font-family:Fredoka;font-weight:${w};font-size:${size}px;color:${color}`;
+const label = (text, size = 22, color = C.green) => `<div style="font-weight:800;font-size:${size}px;letter-spacing:.12em;color:${color}">${text}</div>`;
+const GL_FLAG = h => `<svg height="${h}" viewBox="0 0 18 12" style="display:block;border-radius:${Math.round(h * 0.07)}px;box-shadow:0 0 0 1px rgba(22,59,50,.08), 0 6px 16px rgba(22,59,50,.12)"><rect width="18" height="6" fill="#fff"/><rect y="6" width="18" height="6" fill="#D00C33"/><path d="M3 6a4 4 0 0 1 8 0z" fill="#D00C33"/><path d="M3 6a4 4 0 0 0 8 0z" fill="#fff"/></svg>`;
+const flagOf = (code, h) => code === 'gl' ? GL_FLAG(h) : flagImg(code, h);
+
+// ------------------------------------------------------------------ maps
+// a plain lon/lat map (latitude lines stay straight), every country incl. the land outside roviko's roster
+function flatMap(box, bounds, { land = '#CFE9DA', sea = '#BFE4F8', z = 6 } = {}) {
+  const [lo0, la0, lo1, la1] = bounds, kx = Math.min(box.w / (lo1 - lo0), box.h / (la1 - la0));
+  const ox = box.x + (box.w - kx * (lo1 - lo0)) / 2, oy = box.y + (box.h - kx * (la1 - la0)) / 2;
+  const pt = (lo, la) => [ox + (lo - lo0) * kx, oy + (la1 - la) * kx];
+  const svg = pageSvg(z);
+  const clip = 'c' + Math.random().toString(36).slice(2, 7), defs = svgEl(svg, 'defs');
+  svgEl(svgEl(defs, 'clipPath', { id: clip }), 'rect', { x: box.x, y: box.y, width: box.w, height: box.h, rx: 24 });
+  const g = svgEl(svg, 'g', { 'clip-path': `url(#${clip})` });
+  svgEl(g, 'rect', { x: box.x, y: box.y, width: box.w, height: box.h, fill: sea });
+  const ringD = r => r.map(([lo, la], i) => { const [x, y] = pt(lo, la); return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }).join('') + 'Z';
+  const rings = [...Object.values(GEO).flatMap(p => p.map(q => q[0])), ...(window.GEO_EXTRA || [])];
+  svgEl(g, 'path', { d: rings.filter(r => r.every((q, i) => !i || Math.abs(q[0] - r[i - 1][0]) < 180)).map(ringD).join(''), fill: land, stroke: '#fff', 'stroke-width': 1.2, 'stroke-linejoin': 'round' });
+  return { svg, g, pt, kx };
+}
+// Italy coloured by its nearest capital (TR.italy.grid: [lon, lat, nearest, nearest without San Marino/Vatican])
+const CAPS = { SMR: ['San Marino', 'sm', '#F6B84B'], ITA: ['Rome', 'it', '#1F806B'], LIE: ['Vaduz', 'li', '#36B3F5'], MCO: ['Monaco', 'mc', '#E5484D'],
+  MLT: ['Valletta', 'mt', '#9B7BEA'], VAT: ['Vatican City', 'va', '#F28FB0'], ALB: ['Tirana', 'al', '#FF9F43'], SVN: ['Ljubljana', 'si', '#7ACB4D'],
+  TUN: ['Tunis', 'tn', '#2B4C7E'], CHE: ['Bern', 'ch', '#8FD3E8'], MNE: ['Podgorica', 'me', '#B5A48B'] };
+function italyMap(box, mode) {
+  const f = fitShape('ITA', box), svg = pageSvg(8), defs = svgEl(svg, 'defs'), clip = 'it' + mode;
+  svgEl(svgEl(defs, 'clipPath', { id: clip }), 'path', { d: f.d });
+  if (mode === 'blank') svgEl(svg, 'path', { d: f.d, fill: '#CFE9DA' });
+  else {
+    const g = svgEl(svg, 'g', { 'clip-path': `url(#${clip})` }), px = f.s * 0.1 * Math.PI / 180 * 1.25;
+    let html = '';
+    for (const [lo, la, a, b] of TR.italy.grid) {
+      const cap = mode === 'nomicro' ? b : a, [x, y] = f.pt(lo, la);
+      const col = mode === 'focus' ? (cap === 'SMR' || cap === 'VAT' ? CAPS[cap][2] : '#E3ECE7') : CAPS[cap][2];
+      html += `<rect x="${(x - px / 2).toFixed(1)}" y="${(y - px / 2).toFixed(1)}" width="${px.toFixed(1)}" height="${px.toFixed(1)}" fill="${col}"/>`;
+    }
+    g.innerHTML = html;
+  }
+  svgEl(svg, 'path', { d: f.d, fill: 'none', stroke: C.forest, 'stroke-width': 2.5, 'stroke-linejoin': 'round' });
+  return f;
+}
+function pin(svg, x, y, text, { dx = 18, dy = -60, z = 12, color = C.forest } = {}) {
+  svgEl(svg, 'circle', { cx: x, cy: y, r: 12, fill: color, stroke: '#fff', 'stroke-width': 5 });
+  const l = el(stage, { left: x + dx, top: y + dy, zIndex: z, padding: '6px 16px', borderRadius: 16, background: '#fff', boxShadow: '0 4px 14px rgba(22,59,50,.14)', whiteSpace: 'pre', ...{} }, `<span style="${fred(32)}">${text}</span>`);
+  return l;
+}
+// legend rows: [code, value]
+function legend(x, y, rows, { w = 330, h = 50, size = 30 } = {}) {
+  rows.forEach(([code, v, bold], i) => el(stage, { left: x, top: y + i * h, width: w, height: h - 6, zIndex: 9, display: 'flex', alignItems: 'center', gap: '14px' },
+    `<span style="width:26px;height:26px;border-radius:7px;background:${code ? CAPS[code][2] : '#C9D3CE'};flex:none"></span><span style="flex:1;${fred(size, C.forest, bold ? 600 : 500)};white-space:nowrap">${code ? CAPS[code][0] : 'Others'}</span><span style="${fred(size, bold ? C.green : C.forest, 600)}">${v.toFixed(1)}%</span>`));
+}
+// horizontal bars: [label, flag, value, colour, note]
+function bars(x, y, w, rows, max, { h = 96, unit = '', size = 34 } = {}) {
+  rows.forEach(([name, flag, v, col, note], i) => {
+    const top = y + i * h;
+    el(stage, { left: x, top, zIndex: 9, display: 'flex', alignItems: 'center', gap: '14px', width: w }, `${flag ? flagOf(flag, 34) : ''}<span style="flex:1;${fred(size, C.forest, 500)}">${name}</span><span style="${fred(size, C.green)}">${note}</span>`);
+    el(stage, { left: x, top: top + 48, width: w, height: 22, borderRadius: 11, background: '#EEF2EF', zIndex: 9 });
+    const parts = Array.isArray(v) ? v : [[v, col]]; let acc = 0;
+    parts.forEach(([pv, pc]) => { el(stage, { left: x + w * acc / max, top: top + 48, width: Math.max(4, w * pv / max - 3), height: 22, borderRadius: 11, background: pc, zIndex: 10 }); acc += pv; });
+  });
+}
+
+// ------------------------------------------------------------------ the slides
+header(`${N}/${COUNT[post]}`); cta();
+const SL = {
+  // ---- 82.1% of Italy is closer to a foreign capital than to Rome
+  'italy-1': () => {
+    title('Sounds fake · Italy', 'Most of Italy is closer to', 'a foreign capital than Rome.');
+    wcard(CX, CY, CW, 600);
+    const f = italyMap({ cx: 340, cy: CY + 300, w: 400, h: 540 }, 'blank'), svg = pageSvg(11);
+    const [rx, ry] = f.pt(12.48, 41.89); pin(svg, rx, ry, 'Rome', { dx: 20, dy: -66 });
+    el(stage, { left: 600, top: CY + 60, zIndex: 9 }, label('HOW MUCH OF ITALY?'));
+    ['25%', '50%', '82%'].forEach((o, i) => el(stage, { left: 600, top: CY + 120 + i * 128, width: 320, height: 108, borderRadius: 24, background: C.chip, zIndex: 9, display: 'flex', alignItems: 'center', gap: '20px', padding: '0 24px' },
+      `<span style="width:52px;height:52px;border-radius:26px;background:#fff;display:grid;place-items:center;font-weight:800;font-size:24px;color:${C.green}">${'ABC'[i]}</span><span style="${fred(46, C.forest, 500)}">${o}</span>`));
+    el(stage, { left: 600, top: CY + 530, zIndex: 9 }, label('GUESS, THEN SWIPE →', 20, 'rgba(22,59,50,.45)'));
+    roviko(890, 1470, 190, 'think');
+  },
+  'italy-2': () => {
+    title('Sounds fake · Italy', '82.1% of Italy is closer', 'to a foreign capital.');
+    wcard(CX, CY, CW, 640);
+    italyMap({ cx: 330, cy: CY + 320, w: 400, h: 580 }, 'all');
+    el(stage, { left: 570, top: CY + 40, zIndex: 9 }, label('CLOSEST CAPITAL'));
+    const A = TR.italy.all, top = ['SMR', 'ITA', 'LIE', 'MCO', 'MLT', 'VAT', 'ALB', 'SVN'];
+    legend(570, CY + 86, [...top.map(k => [k, A[k], k === 'ITA']), [null, Object.keys(A).filter(k => !top.includes(k)).reduce((s, k) => s + A[k], 0)]], { w: 350, h: 56 });
+    roviko(200, 1490, 170, 'shock');
+  },
+  'italy-3': () => {
+    title('Wait, what?', 'San Marino wins:', '21% of Italy.');
+    wcard(CX, CY, CW, 640);
+    italyMap({ cx: 330, cy: CY + 320, w: 400, h: 580 }, 'focus');
+    el(stage, { left: 570, top: CY + 50, width: 360, zIndex: 9, ...{} }, `<div style="${fred(36, C.forest, 500)};line-height:1.25">San Marino and Vatican City are countries <b style="color:${C.green};font-weight:600">inside</b> Italy. Their capitals count too.</div>`);
+    [['SMR', 'San Marino'], ['VAT', 'Vatican City'], ['ITA', 'Rome']].forEach(([k, n], i) => el(stage, { left: 570, top: CY + 290 + i * 104, width: 350, height: 88, borderRadius: 22, background: C.chip, zIndex: 9, display: 'flex', alignItems: 'center', gap: '14px', padding: '0 20px' },
+      `${flagImg(CAPS[k][1], 34)}<span style="flex:1;${fred(30, C.forest, 500)};white-space:nowrap">${n}</span><span style="${fred(36, k === 'ITA' ? C.green : CAPS[k][2] === '#F6B84B' ? '#C98A12' : '#D45A86')}">${TR.italy.all[k].toFixed(1)}%</span>`));
+    roviko(200, 1490, 170, 'wink');
+  },
+  'italy-4': () => {
+    const nm = TR.italy.no_micro;
+    title('Leave them out?', `Still ${(100 - nm.ITA).toFixed(1)}%`, 'isn’t closest to Rome.');
+    wcard(CX, CY, CW, 640);
+    italyMap({ cx: 330, cy: CY + 320, w: 400, h: 580 }, 'nomicro');
+    el(stage, { left: 570, top: CY + 40, zIndex: 9 }, label('WITHOUT THE 2 MICRO-STATES'));
+    legend(570, CY + 86, Object.entries(nm).map(([k, v]) => [k, v, k === 'ITA']), { w: 350, h: 56 });
+    bubble(560, 1560, 'Where do YOU live? 👇', { size: 34 });
+    roviko(240, 1520, 190, 'cool');
+  },
+  // ---- a trendline through every capital
+  'trend-1': () => {
+    title('Map facts', 'We drew a trendline', 'through all 195 capitals.');
+    wcard(CX, CY, CW, 560);
+    const B = { x: CX + 24, y: CY + 24, w: CW - 48, h: 440 }, m = flatMap(B, [-180, -58, 180, 83]);
+    TR.caps.forEach(([, , lo, la]) => { const [x, y] = m.pt(lo, la); svgEl(m.g, 'circle', { cx: x, cy: y, r: 5.5, fill: C.forest, stroke: '#fff', 'stroke-width': 1.5 }); });
+    el(stage, { left: CX + 30, top: CY + 486, zIndex: 9 }, label('EVERY DOT IS A CAPITAL · WHERE DOES THE LINE GO?', 20));
+    roviko(880, 1510, 200, 'think');
+  },
+  'trend-2': () => {
+    const T2 = TR.trend;
+    title('Map facts', 'It’s flat at 19°N…', '…right through Mexico City.');
+    wcard(CX, CY, CW, 560);
+    const B = { x: CX + 24, y: CY + 24, w: CW - 48, h: 440 }, m = flatMap(B, [-180, -58, 180, 83]);
+    TR.caps.forEach(([, , lo, la]) => { const [x, y] = m.pt(lo, la); svgEl(m.g, 'circle', { cx: x, cy: y, r: 5, fill: 'rgba(22,59,50,.55)', stroke: '#fff', 'stroke-width': 1.2 }); });
+    const [x1, y1] = m.pt(-180, T2.a - 180 * T2.b), [x2, y2] = m.pt(180, T2.a + 180 * T2.b);
+    svgEl(m.g, 'line', { x1, y1, x2, y2, stroke: C.red, 'stroke-width': 6, 'stroke-linecap': 'round' });
+    const mex = TR.caps.find(c => c[0] === 'MEX'), [mx, my] = m.pt(mex[2], mex[3]);
+    const s2 = pageSvg(11); pin(s2, mx, my, '🇲🇽 Mexico City', { dx: -20, dy: -84 });
+    el(stage, { left: CX + 30, top: CY + 486, zIndex: 9 }, label(`LINE OF BEST FIT · R = ${Math.abs(T2.r).toFixed(2)} (IT EXPLAINS NOTHING 😅)`, 20));
+    roviko(880, 1510, 200, 'shock');
+  },
+  'trend-3': () => {
+    const T2 = TR.trend;
+    title('Map facts', 'The “average capital”', 'is in the Sahara.');
+    wcard(CX, CY, CW, 600);
+    const B = { x: CX + 24, y: CY + 24, w: CW - 48, h: 470 }, m = flatMap(B, [-20, -36, 56, 38]);
+    const [x, y] = m.pt(T2.mlon, T2.mlat), s2 = pageSvg(11);
+    svgEl(s2, 'circle', { cx: x, cy: y, r: 34, fill: 'rgba(229,72,77,.18)' });
+    pin(s2, x, y, '🇹🇩 Chad', { dx: 22, dy: -70, color: C.red });
+    el(stage, { left: CX + 30, top: CY + 516, zIndex: 9 }, label(`AVERAGE OF ALL 195 CAPITALS: ${T2.mlat.toFixed(1)}°N · ${T2.mlon.toFixed(1)}°E`, 20));
+    roviko(880, 1530, 180, 'wink');
+  },
+  // ---- forest (FAO FRA 2020, million hectares)
+  'forest-1': () => {
+    title('Rank Radar · Forest', 'Which country has', 'the most forest?');
+    el(stage, { left: X0, top: 870, zIndex: 9, fontSize: 96, lineHeight: '132px' }, '🌲🌲🌲');
+    options(X0, 1060, 600, ['Canada', 'Brazil', 'Russia']);
+    roviko(800, 1290, 270, 'think');
+  },
+  'forest-2': () => {
+    title('Rank Radar · Forest', 'Russia: 1/5 of all', 'the forest on Earth.');
+    wcard(CX, CY, CW, 640);
+    el(stage, { left: CX + 40, top: CY + 36, zIndex: 9 }, label('FOREST AREA · MILLION HECTARES'));
+    bars(CX + 40, CY + 96, CW - 80, [['Russia', 'ru', 815, C.green, '815 · 20%'], ['Brazil', 'br', 497, '#4FB286', '497 · 12%'], ['Canada', 'ca', 347, '#7ACB9F', '347 · 9%'],
+      ['United States', 'us', 310, '#A6DDBF', '310 · 8%'], ['China', 'cn', 220, '#C8EAD6', '220 · 5%']], 815, { h: 96 });
+    el(stage, { left: CX + 40, top: CY + 586, zIndex: 9 }, label('SOURCE: FAO GLOBAL FOREST RESOURCES ASSESSMENT 2020', 18, 'rgba(22,59,50,.45)'));
+    roviko(900, 1560, 160, 'shock');
+  },
+  'forest-3': () => {
+    title('Rank Radar · Forest', 'Canada’s forest alone', 'is bigger than India.');
+    wcard(CX, CY, CW, 600);
+    el(stage, { left: CX + 40, top: CY + 40, zIndex: 9 }, label('MILLION HECTARES'));
+    bars(CX + 40, CY + 110, CW - 80, [['Canada’s forest', 'ca', 347, C.green, '347'], ['All of India', 'in', 329, '#F6B84B', '329']], 360, { h: 130, size: 40 });
+    el(stage, { left: CX + 40, top: CY + 390, width: CW - 80, zIndex: 9 }, `<div style="${fred(38, C.forest, 500)};line-height:1.3">And 5 countries hold <b style="color:${C.green};font-weight:600">more than half</b> of all the world’s forest.</div>`);
+    roviko(890, 1540, 170, 'wink');
+  },
+  // ---- USA + Canada + Greenland vs Russia (roviko.app areas; Greenland 2,166,086 km²)
+  'size-1': () => {
+    title('Size Shuffle', 'USA + Canada + Greenland', 'vs Russia. Who’s bigger?');
+    wcard(CX, CY, CW, 520);
+    el(stage, { left: CX, top: CY, width: CW, height: 520, zIndex: 9, display: 'flex', alignItems: 'center', justifyContent: 'space-around' },
+      `<div style="display:flex;flex-direction:column;gap:22px;align-items:center">${flagOf('us', 92)}${flagOf('ca', 92)}${flagOf('gl', 92)}</div><div style="width:84px;height:84px;border-radius:42px;background:${C.chip};display:grid;place-items:center;font-weight:800;font-size:30px;color:${C.forest}">vs</div><div>${flagOf('ru', 150)}</div>`);
+    roviko(880, 1480, 210, 'think');
+  },
+  'size-2': () => {
+    title('Size Shuffle', '21.5 million km²', 'vs Russia’s 17.1 million.');
+    wcard(CX, CY, CW, 520);
+    el(stage, { left: CX + 40, top: CY + 36, zIndex: 9 }, label('MILLION KM² · TRUE AREA'));
+    bars(CX + 40, CY + 110, CW - 80, [['USA + Canada + Greenland', null, [[9.37, '#36B3F5'], [9.98, '#E5484D'], [2.17, '#F6B84B']], null, '21.5'], ['Russia', 'ru', 17.1, C.green, '17.1']], 21.6, { h: 140, size: 38 });
+    el(stage, { left: CX + 40, top: CY + 410, zIndex: 9, display: 'flex', gap: '28px' }, [['#36B3F5', 'USA 9.37'], ['#E5484D', 'Canada 9.98'], ['#F6B84B', 'Greenland 2.17']].map(([c, t]) => `<span style="display:flex;align-items:center;gap:10px;${fred(28, C.forest, 500)}"><span style="width:22px;height:22px;border-radius:6px;background:${c}"></span>${t}</span>`).join(''));
+    roviko(880, 1480, 200, 'shock');
+  },
+  'size-3': () => {
+    title('Size Shuffle', 'And Canada alone', 'beats the USA.');
+    wcard(CX, CY, CW, 560);
+    el(stage, { left: CX + 40, top: CY + 36, zIndex: 9 }, label('MILLION KM²'));
+    bars(CX + 40, CY + 100, CW - 80, [['Russia', 'ru', 17.1, '#C8EAD6', '17.1'], ['Canada', 'ca', 9.98, C.green, '9.98'], ['United States', 'us', 9.37, '#7ACB9F', '9.37'], ['China', 'cn', 9.71, '#A6DDBF', '9.71']].sort((a, b) => b[2] - a[2]), 17.1, { h: 104 });
+    roviko(880, 1500, 190, 'wink');
+  },
+  // ---- post your daily score (like the Pindrop crowd)
+  'score-1': () => {
+    title('Daily score', 'What did you score', 'today? 👇');
+    wcard(CX + 80, CY, CW - 160, 620);
+    const x = CX + 130, w = CW - 260;
+    el(stage, { left: x, top: CY + 44, width: w, zIndex: 9, display: 'flex', alignItems: 'center', gap: '14px' }, `<img src="${ASSETS}roviko-globe.svg" style="width:48px;height:48px"><span style="${fred(44)}">Roviko</span><span style="flex:1"></span>${chip('🔥 12', '#FFF1D6', '#B5701A', 24)}`);
+    el(stage, { left: x, top: CY + 130, zIndex: 9 }, label('DAILY DETOUR'));
+    el(stage, { left: x, top: CY + 176, zIndex: 9, fontSize: 60, letterSpacing: '6px' }, '🟩🟩🟥🟩🟩');
+    el(stage, { left: x, top: CY + 270, zIndex: 9 }, `<span style="${fred(110)}">900</span><span style="${fred(44, 'rgba(22,59,50,.5)', 500)}"> / 1,000 pts</span>`);
+    el(stage, { left: x, top: CY + 420, width: w, zIndex: 9, padding: '18px 22px', borderRadius: 22, background: C.chip }, `<span style="${fred(32, C.forest, 500)}">🏆 Number 1 in the world today</span>`);
+    el(stage, { left: x, top: CY + 540, zIndex: 9 }, label('ROVIKO.APP', 20, 'rgba(22,59,50,.45)'));
+    roviko(900, 1500, 190, 'cheer');
+  },
+  'score-2': () => {
+    title('Daily score', 'Share yours', 'in 3 taps.');
+    wcard(CX, CY, CW, 560);
+    [['1', 'Play today’s trip', 'roviko.app · free, no account'], ['2', 'Tap Share', 'on your result screen'], ['3', 'Paste it in the comments', 'we pin the best score 📌']].forEach(([n, a, b], i) =>
+      el(stage, { left: CX + 40, top: CY + 50 + i * 165, width: CW - 80, zIndex: 9, display: 'flex', alignItems: 'center', gap: '28px' },
+        `<span style="width:92px;height:92px;border-radius:46px;background:${C.forest};color:#fff;display:grid;place-items:center;${fred(46, '#fff')};flex:none">${n}</span><div><div style="${fred(46)}">${a}</div><div style="font-weight:700;font-size:28px;color:rgba(22,59,50,.55)">${b}</div></div>`));
+    roviko(890, 1500, 190, 'wave');
+  },
+  'score-3': () => {
+    title('All 6 games', 'Roviko’s day:', '4,000. Beat it 👇');
+    wcard(CX, CY, 620, 640);
+    el(stage, { left: CX + 40, top: CY + 36, zIndex: 9 }, label('TODAY · ALL 6 GAMES'));
+    el(stage, { left: CX + 40, top: CY + 76, zIndex: 9 }, `<span style="${fred(96)}">4,000</span><span style="${fred(40, 'rgba(22,59,50,.5)', 500)}"> / 6,000</span>`);
+    [['Daily Detour', 820], ['World Duel', 640], ['Clue Trail', 900], ['Side by Side', 500], ['Size Shuffle', 760], ['Rank Radar', 380]].forEach(([g, p], i) =>
+      el(stage, { left: CX + 40, top: CY + 230 + i * 64, width: 540, zIndex: 9, display: 'flex', alignItems: 'center', gap: '18px' },
+        `<span style="width:200px;font-weight:700;font-size:26px;color:${C.forest}">${g}</span><span style="flex:1;height:18px;border-radius:9px;background:#EEF2EF;position:relative;overflow:hidden"><span style="position:absolute;left:0;top:0;bottom:0;width:${p / 10}%;background:${C.green};border-radius:9px"></span></span><span style="width:70px;text-align:right;${fred(28)}">${p}</span>`));
+    roviko(860, 1300, 240, 'cool');
+  },
+};
+SL[id]();
+window.filmReady = (async () => {
+  await Promise.all(['500 20px Fredoka', '600 28px Fredoka', '700 13px Manrope', '800 13px Manrope'].map(f => document.fonts.load(f)));
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+  LAYOUT.forEach(f => f());
+  return true;
+})();
