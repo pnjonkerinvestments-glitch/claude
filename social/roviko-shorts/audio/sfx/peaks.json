@@ -257,5 +257,152 @@
   "duration_s": 0.6,
   "source": "synthesised for the shorts (build/sfx.py), no samples",
   "use": "the mascot collapsing in relief"
+ },
+ "scratch": {
+  "file": "scratch.wav",
+  "peak_s": 0.0178,
+  "duration_s": 1.2,
+  "source": "Mixkit sound effect 704 \"Vinyl stop fast scratch\" (Mixkit Sound Effects Free License)",
+  "use": "the record scratch before \"wait, what?\""
+ },
+ "drumroll": {
+  "file": "drumroll.wav",
+  "peak_s": 0.0227,
+  "duration_s": 3.0,
+  "source": "Mixkit sound effect 566 \"Drum Roll\" (Mixkit Sound Effects Free License)",
+  "use": "suspense before a reveal"
+ },
+ "fanfare": {
+  "file": "fanfare.wav",
+  "peak_s": 0.4491,
+  "duration_s": 2.6,
+  "source": "Mixkit sound effect 722 \"Successful horns fanfare\" (Mixkit Sound Effects Free License)",
+  "use": "the winner"
+ },
+ "sadhorn": {
+  "file": "sadhorn.wav",
+  "peak_s": 0.0918,
+  "duration_s": 1.2,
+  "source": "Mixkit sound effect 973 \"Party sad horn\" (Mixkit Sound Effects Free License)",
+  "use": "a flop"
+ },
+ "trombone": {
+  "file": "trombone.wav",
+  "peak_s": 0.4854,
+  "duration_s": 2.2,
+  "source": "Mixkit sound effect 744 \"Trombone disappoint\" (Mixkit Sound Effects Free License)",
+  "use": "wah wah wah"
+ },
+ "laugh": {
+  "file": "laugh.wav",
+  "peak_s": 0.9842,
+  "duration_s": 2.4,
+  "source": "Mixkit sound effect 424 \"Crowd laugh\" (Mixkit Sound Effects Free License)",
+  "use": "the crowd laughing"
+ },
+ "crowdcheer": {
+  "file": "crowdcheer.wav",
+  "peak_s": 0.9738,
+  "duration_s": 2.6,
+  "source": "Mixkit sound effect 459 \"Male crowd cheering short\" (Mixkit Sound Effects Free License)",
+  "use": "the crowd cheering"
+ },
+ "kaching": {
+  "file": "kaching.wav",
+  "peak_s": 0.087,
+  "duration_s": 2.0,
+  "source": "Mixkit sound effect 2067 \"Casino bling achievement\" (Mixkit Sound Effects Free License)",
+  "use": "a big number landing"
+ },
+ "coin2": {
+  "file": "coin2.wav",
+  "peak_s": 0.0889,
+  "duration_s": 0.8,
+  "source": "Mixkit sound effect 2069 \"Winning a coin, video game\" (Mixkit Sound Effects Free License)",
+  "use": "a point"
+ },
+ "boom": {
+  "file": "boom.wav",
+  "peak_s": 0.0338,
+  "duration_s": 1.046,
+  "source": "Mixkit sound effect 2299 \"Short bass hit\" (Mixkit Sound Effects Free License)",
+  "use": "the deep boom on a punchline"
+ },
+ "impactbig": {
+  "file": "impactbig.wav",
+  "peak_s": 0.0745,
+  "duration_s": 2.5,
+  "source": "Mixkit sound effect 2909 \"Cool impact movie trailer\" (Mixkit Sound Effects Free License)",
+  "use": "the big reveal"
+ },
+ "badumtss": {
+  "file": "badumtss.wav",
+  "peak_s": 0.2002,
+  "duration_s": 1.8,
+  "source": "Mixkit sound effect 2893 \"Bad joke drums\" (Mixkit Sound Effects Free License)",
+  "use": "ba-dum-tss"
+ },
+ "boinghit": {
+  "file": "boinghit.wav",
+  "peak_s": 0.1049,
+  "duration_s": 0.9,
+  "source": "Mixkit sound effect 2894 \"Boing hit sound\" (Mixkit Sound Effects Free License)",
+  "use": "a cartoon boing"
+ },
+ "fallwhistle": {
+  "file": "fallwhistle.wav",
+  "peak_s": 0.7949,
+  "duration_s": 1.8,
+  "source": "Mixkit sound effect 395 \"Cartoon falling whistle\" (Mixkit Sound Effects Free License)",
+  "use": "something dropping"
+ },
+ "yes": {
+  "file": "yes.wav",
+  "peak_s": 0.323,
+  "duration_s": 0.898,
+  "source": "Mixkit sound effect 2012 \"Males yes victory\" (Mixkit Sound Effects Free License)",
+  "use": "\"yes!\""
+ },
+ "ticktock": {
+  "file": "ticktock.wav",
+  "peak_s": 2.0063,
+  "duration_s": 3.0,
+  "source": "Mixkit sound effect 1046 \"Bell tick tock timer\" (Mixkit Sound Effects Free License)",
+  "use": "the guessing clock"
+ },
+ "clownhorn": {
+  "file": "clownhorn.wav",
+  "peak_s": 0.0152,
+  "duration_s": 1.4,
+  "source": "Mixkit sound effect 715 \"Clown horn at circus\" (Mixkit Sound Effects Free License)",
+  "use": "honk"
+ },
+ "swish": {
+  "file": "swish.wav",
+  "peak_s": 0.5168,
+  "duration_s": 0.9,
+  "source": "Mixkit sound effect 1490 \"Fast whoosh transition\" (Mixkit Sound Effects Free License)",
+  "use": "a fast transition"
+ },
+ "levelup2": {
+  "file": "levelup2.wav",
+  "peak_s": 1.6132,
+  "duration_s": 2.4,
+  "source": "Mixkit sound effect 2059 \"Game level completed\" (Mixkit Sound Effects Free License)",
+  "use": "level complete"
+ },
+ "slot": {
+  "file": "slot.wav",
+  "peak_s": 0.9805,
+  "duration_s": 3.0,
+  "source": "Mixkit sound effect 1928 \"Slot machine win\" (Mixkit Sound Effects Free License)",
+  "use": "the score counter"
+ },
+ "giggle": {
+  "file": "giggle.wav",
+  "peak_s": 0.539,
+  "duration_s": 1.968,
+  "source": "Mixkit sound effect 108 \"Cartoon monkey mocking and giggling\" (Mixkit Sound Effects Free License)",
+  "use": "mocking laugh"
  }
 }

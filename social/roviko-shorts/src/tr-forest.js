@@ -1,0 +1,101 @@
+/*
+  Roviko trend video 3: "Which country has the most forest?"
+  19.7 s, 1080x1920, 116 BPM ("Games Worldbeat", Mixkit, from the top). Canada, Brazil or Russia? Roviko goes for Brazil
+  ("Amazon. Easy."), the clock ticks, a record scratch: Russia, with a fanfare. The top 5 race up (FAO Global Forest Resources
+  Assessment 2020, million ha: Russia 815, Brazil 497, Canada 347, USA 310, China 220), then Canada's forest alone (347) beats
+  all of India (329 million ha). 5 countries hold more than half of the world's forest.
+*/
+// @scripts lib/trendfilm.js
+const TEMPO = 115.993, DIL = TEMPO / 130, END = 38, DURATION = END * 60 / TEMPO;
+const TL = { q: 0, say: 2, tick: [4, 5, 6, 7], reveal: 8, bars: [11, 14], india: 18, half: 24, ask: 28, end: 30, hop: 34, blink2: 32 };
+const OPTS = [['ca', 'Canada'], ['br', 'Brazil'], ['ru', 'Russia']], RIGHT = 2, PICK = 1;
+const qTag = Tag(uiL, '🌲 MOST FOREST ON EARTH?', { bg: C.forest, fg: C.white, size: 30, h: 70, z: 12 }); centreX(qTag, 430);
+const rows = OPTS.map(([fl, name], i) => {
+  const r = el(uiL, { left: 140, top: 540 + i * 170, width: 800, height: 140, borderRadius: 36, background: C.white, zIndex: 11, transformOrigin: '50% 50%', overflow: 'hidden',
+    boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 16px 36px rgba(22,59,50,.14)' });
+  const fill = el(r, { left: 0, top: 0, width: 800, height: 140, background: i === RIGHT ? '#2FBF71' : C.red, zIndex: 1 });
+  el(r, { left: 0, top: 0, width: 800, height: 140, zIndex: 2 }, `<div style="display:flex;align-items:center;gap:30px;height:140px;padding:0 36px"><span class="ab" style="width:70px;height:70px;border-radius:35px;background:${C.chip};display:grid;place-items:center;font-weight:800;font-size:30px;color:${C.green}">${'ABC'[i]}</span>${flagH(fl, 64)}<span class="nm" style="font-family:Fredoka;font-weight:600;font-size:60px;color:${C.forest}">${name}</span></div>`);
+  return { r, fill, nm: r.querySelector('.nm') };
+});
+// the top 5
+const barCard = tcard(90, 420, 900, 700);
+const barLab = el(uiL, { left: 140, top: 456, zIndex: 11, fontWeight: 800, fontSize: 26, letterSpacing: '.12em', color: C.green, whiteSpace: 'pre' }, 'FOREST · MILLION HECTARES');
+const TOP5 = [['Russia', 'ru', 815, 20, C.green], ['Brazil', 'br', 497, 12, '#4FB286'], ['Canada', 'ca', 347, 9, '#7ACB9F'], ['United States', 'us', 310, 8, '#A6DDBF'], ['China', 'cn', 220, 5, '#C8EAD6']];
+const bars = TOP5.map(([n, fl, v, pc, col], i) => {
+  const y = 520 + i * 118;
+  const head = el(uiL, { left: 140, top: y, width: 800, zIndex: 11 }, `<div style="display:flex;align-items:center;gap:18px">${flagH(fl, 40)}<span style="flex:1;font-family:Fredoka;font-weight:500;font-size:42px;color:${C.forest}">${n}</span><span class="v" style="font-family:Fredoka;font-weight:600;font-size:42px;color:${C.green}"></span></div>`);
+  el(uiL, { left: 140, top: y + 60, width: 800, height: 28, borderRadius: 14, background: '#EEF2EF', zIndex: 11 }).dataset.k = 'track' + i;
+  const bar = el(uiL, { left: 140, top: y + 60, width: 800, height: 28, borderRadius: 14, background: col, zIndex: 12, transformOrigin: '0 50%' });
+  return { head, bar, v, pc, val: head.querySelector('.v'), track: uiL.querySelector(`[data-k="track${i}"]`) };
+});
+const src = el(uiL, { left: 140, top: 1112, zIndex: 11, fontWeight: 800, fontSize: 22, letterSpacing: '.1em', color: 'rgba(22,59,50,.45)', whiteSpace: 'pre' }, 'SOURCE: FAO, GLOBAL FOREST RESOURCES ASSESSMENT 2020');
+// Canada's forest vs all of India
+const indCard = tcard(90, 420, 900, 640);
+const IND = [['Canada’s forest', 'ca', 347, C.green], ['ALL of India', 'in', 329, C.gold]].map(([n, fl, v, col], i) => {
+  const y = 520 + i * 200;
+  const head = el(uiL, { left: 140, top: y, width: 800, zIndex: 11 }, `<div style="display:flex;align-items:center;gap:18px">${flagH(fl, 50)}<span style="flex:1;font-family:Fredoka;font-weight:600;font-size:50px;color:${C.forest}">${n}</span><span class="v" style="font-family:Fredoka;font-weight:600;font-size:50px;color:${C.green}"></span></div>`);
+  const track = el(uiL, { left: 140, top: y + 76, width: 800, height: 44, borderRadius: 22, background: '#EEF2EF', zIndex: 11 });
+  const bar = el(uiL, { left: 140, top: y + 76, width: 800 * v / 360, height: 44, borderRadius: 22, background: col, zIndex: 12, transformOrigin: '0 50%' });
+  return { head, track, bar, v, val: head.querySelector('.v') };
+});
+const indNote = el(uiL, { left: 140, top: 940, width: 800, zIndex: 11, fontFamily: 'Fredoka', fontWeight: 500, fontSize: 38, color: 'rgba(22,59,50,.6)' }, 'million hectares');
+const half = el(uiL, { left: 0, top: 1150, width: 1080, textAlign: 'center', zIndex: 16, transformOrigin: '50% 50%' },
+  `<span style="display:inline-block;padding:16px 30px;border-radius:30px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:600;font-size:46px;box-shadow:0 14px 34px rgba(22,59,50,.3)">5 countries = <span style="color:${C.gold}">more than half</span> 🌍</span>`);
+const says = [['Brazil. Amazon.<br><b>EASY</b> 😎', TL.say, TL.reveal + 0.2], ['RUSSIA?! 😳', TL.reveal + 0.8, TL.bars[1]], ['bigger than INDIA?! 🤯', TL.india + 2, TL.half]]
+  .map(([h, b0, b1]) => ({ bub: Bubble(uiL, h, { x: 370, y: 1250, w: 560, size: 42, tail: 'left', z: 35 }), b0, b1 }));
+const caps = [
+  [['Which country has', 'the <b>most forest</b>? 🌲'], -1.5, TL.reveal],
+  [['<b>Russia.</b> 1/5 of all', 'the forest on Earth 🇷🇺'], TL.reveal, TL.india],
+  [['Canada’s forest alone is', 'bigger than <b>all of India</b> 🤯'], TL.india, TL.ask],
+  [['Did you get it?', '✅ or ❌ in the comments 👇'], TL.ask, TL.end],
+].map(([lines, b0, b1]) => ({ c: Caption(capL, lines, { cy: 236, size: 54 }), b0, b1 }));
+const endCard = EndCard(stage, { my: 690, tagline: 'Rank Radar. A new country every day.' });
+
+// ---- sound
+ev(0.02, 'pop', -12, { rate: 1.1 }); [0.4, 0.8, 1.2].forEach((b, i) => ev(b, 'pop', -9, { rate: 1 + 0.08 * i }));
+ev(TL.say, 'slide', -8); ev(TL.say + 0.1, 'mention', -9); ev(TL.say + 1, 'lock', -8);
+TL.tick.forEach((b, i) => ev(b, 'clock', -7, { rate: 1 + 0.04 * i }));
+ev(TL.reveal, 'scratch', -4); ev(TL.reveal + 0.3, 'clownhorn', -9); ev(TL.reveal + 0.5, 'correct', -7); ev(TL.reveal + 0.6, 'fanfare', -8); ev(TL.reveal + 0.8, 'mention', -10);
+ev(TL.bars[0], 'swish', -8); ev(TL.bars[0] + 0.3, 'slot', -10); TOP5.forEach((_, i) => ev(TL.bars[0] + 0.5 + 0.5 * i, 'coin2', -13, { rate: 1.2 - 0.07 * i }));
+ev(TL.bars[1] + 0.2, 'kaching', -8);
+ev(TL.india, 'swish', -8); ev(TL.india + 0.4, 'drumroll', -10); ev(TL.india + 1.8, 'boom', -4); ev(TL.india + 2, 'mention', -9);
+ev(TL.half, 'impact', -6); ev(TL.half + 0.2, 'yes', -8); ev(TL.half + 0.5, 'crowdcheer', -12);
+ev(TL.ask, 'pop', -8); ev(TL.ask + 0.2, 'mention', -10);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  popAt(qTag, t, TL.q, TL.bars[0] - 0.4);
+  rows.forEach((R, i) => {
+    const out = TL.bars[0] - 0.4 + 0.08 * i, p = popAt(R.r, t, 0.4 + 0.4 * i, out);
+    const picked = i === PICK && b >= TL.say + 1 && b < TL.reveal + 0.3;
+    S(R.r, { boxShadow: picked ? `0 0 0 8px ${C.gold}, 0 16px 36px rgba(22,59,50,.14)` : '0 2px 4px rgba(22,59,50,.06), 0 16px 36px rgba(22,59,50,.14)' });
+    const showFill = i === RIGHT || i === PICK, fr = showFill ? lerp(0, 900, segB(t, TL.reveal + (i === RIGHT ? 0.5 : 0.3), TL.reveal + (i === RIGHT ? 1 : 0.8), E.outCubic)) : 0;
+    S(R.fill, { clipPath: `circle(${fr.toFixed(1)}px at 50% 50%)` }); show(R.fill, fr > 0.5); R.nm.style.color = fr > 300 ? '#fff' : C.forest;
+    if (i === PICK && b >= TL.reveal + 0.3 && b < TL.reveal + 0.9) S(R.r, { transform: `scale(${p}) translateX(${Math.sin((t - T(TL.reveal + 0.3)) * 60) * 10}px)` });
+    if (i === RIGHT && b >= TL.reveal + 0.5) S(R.r, { transform: `scale(${p * (1 + 0.06 * Math.exp(-(t - T(TL.reveal + 0.5)) * 5))})` });
+  });
+  popAt(barCard, t, TL.bars[0], TL.india - 0.3, 2.2, 0.62); popAt(barLab, t, TL.bars[0] + 0.2, TL.india - 0.3); popAt(src, t, TL.bars[0] + 0.4, TL.india - 0.3);
+  bars.forEach((B, i) => {
+    const b0 = TL.bars[0] + 0.5 + 0.5 * i, out = TL.india - 0.3;
+    popAt(B.head, t, b0 - 0.2, out); popAt(B.track, t, b0 - 0.2, out);
+    const g = segB(t, b0, b0 + 2, E.outCubic) * (1 - segB(t, out, out + 0.3));
+    S(B.bar, { transform: `scaleX(${(g * B.v / 815).toFixed(4)})`, visibility: g > 0.001 ? 'visible' : 'hidden' });
+    B.val.textContent = `${rollN(t, b0, b0 + 2, B.v)} · ${rollN(t, b0, b0 + 2, B.pc)}%`;
+  });
+  popAt(indCard, t, TL.india, TL.end + 0.5, 2.2, 0.62); popAt(indNote, t, TL.india + 0.4, TL.end + 0.5);
+  IND.forEach((I, i) => {
+    const b0 = TL.india + 0.4 + 0.3 * i; popAt(I.head, t, b0 - 0.2, TL.end + 0.5); popAt(I.track, t, b0 - 0.2, TL.end + 0.5);
+    const g = segB(t, b0, TL.india + 1.8, i ? E.outCubic : E.inOutCubic) * (1 - segB(t, TL.end + 0.5, TL.end + 0.8));
+    S(I.bar, { transform: `scaleX(${g.toFixed(4)})`, visibility: g > 0.001 ? 'visible' : 'hidden' });
+    I.val.textContent = rollN(t, b0, TL.india + 1.8, I.v);
+  });
+  const hp = popAt(half, t, TL.half, TL.end, 3, 0.45); if (hp > 0.001) S(half, { transform: `scale(${hp}) rotate(${-3 * Math.min(1, hp)}deg)` });
+  says.forEach(s => s.bub.set(spB(t, s.b0, 2.4, 0.6), segB(t, s.b1, s.b1 + 0.3)));
+  caps.forEach(c => c.c.set(spB(t, c.b0, 1.9, 0.62), segB(t, c.b1 - 0.2, c.b1 + 0.15)));
+  const mood = b < TL.say ? 'calm' : b < TL.reveal ? 'smug' : b < TL.bars[1] ? 'shock' : b < TL.india ? 'think' : b < TL.half ? 'shock' : b < TL.ask ? 'cheer' : 'point';
+  rovikoMood(t, b, mood, [3.4, 15.6, 21.2]);
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);

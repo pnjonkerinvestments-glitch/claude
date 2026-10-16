@@ -55,6 +55,13 @@ SHORTS = {
     'jp-end': dict(song='funkee-monkeee', end=10, fade=0.8, pieces=[(0, 48, None)]),
     # the TikTok ad (ad-roviko.html)
     'ad-roviko': dict(song='take-this-higher', end=64, fade=1.2, pieces=[(0, 38, None)]),
+    # trend videos (src/tr-*.js): five new songs, one per video, each from a full-energy beat line
+    'tr-italy': dict(song='upbeat-jazz', end=38, fade=1.0, pieces=[(0, 36, None)]),
+    'tr-trend': dict(song='light-it-up-boy', end=40, fade=1.0, pieces=[(0, 16, None)]),
+    'tr-forest': dict(song='games-worldbeat', end=38, fade=1.0, pieces=[(0, 0, None)]),
+    'tr-size': dict(song='ko-games', end=36, fade=1.0, pieces=[(0, 32, None)]),
+    # Mi Gente: from song beat 24, so its drop (song 32) lands on the score slam (film 8)
+    'tr-score': dict(song='mi-gente', end=40, fade=1.0, pieces=[(0, 24, None)]),
     # Sounds fake, but it's true: from song beat 50, so the break (song 59-62) sits under time's up and the knock-outs
     # (film 9-12) and the drop (song 63) lands on the reveal (film 13)
     'funfact': dict(song='aerobic-fashion', end=36, fade=1.0, pieces=[(0, 50, None)]),

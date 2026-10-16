@@ -1,6 +1,6 @@
 """Blind beat-grid and drop analysis of a music file (numpy only, no prior knowledge).
 
-  python3 build/analyze_music.py audio/music/small-trip-130.wav  ->  audio/music/beatgrid.json
+  python3 build/analyze_music.py audio/music/small-trip-130.wav [out.json]  ->  audio/music/beatgrid.json (or out.json)
 
 1. Onset strength: half-wave rectified spectral flux of a log-magnitude STFT (5.3 ms hop).
 2. Tempo: autocorrelation of the onset envelope, 70-180 BPM, parabolic peak refinement.
@@ -31,7 +31,7 @@ def stft_mag(x, n=2048):
     return np.abs(np.fft.rfft(frames * win, axis=1)), np.fft.rfftfreq(n, 1 / SR)
 
 
-def main(path):
+def main(path, out_path=None):
     x = load(path)
     S, f = stft_mag(x)
     L = np.log1p(100 * S)
@@ -85,7 +85,7 @@ def main(path):
 
     refined = []
     strong = np.percentile(low, 97)
-    hits = [(n_i, t_i) for n_i, t_i in hits if low[int(t_i * fps) - 3:int(t_i * fps) + 4].max() > strong] or hits
+    hits = [(n_i, t_i) for n_i, t_i in hits if low[max(0, int(t_i * fps) - 3):int(t_i * fps) + 4].max(initial=0) > strong] or hits
     for n_i, t_i in hits:
         refined.append((n_i, transient(t_i)))
     n_, tt = np.array(refined).T
@@ -119,7 +119,8 @@ def main(path):
         step = 0.5 * jump(band_low, 1, 0.5) + 0.5 * jump(band_all, 1, 0.5)
         if sustained > 3:
             jumps.append((step, i, bt, jump(band_low, 4, 4), jump(band_all, 4, 4)))
-    score, drop_beat, drop_t, jump_low, jump_all = max(jumps)
+    # no clear drop (a song that starts full and stays there): report the first beat
+    score, drop_beat, drop_t, jump_low, jump_all = max(jumps) if jumps else (0, 0, beats[0], 0.0, 0.0)
     drop_exact = transient(drop_t)
     jump_db = jump_low
 
@@ -133,7 +134,7 @@ def main(path):
         'beats_s': [round(b, 4) for b in beats],
         'downbeats_s': [round(b, 4) for b in beats[::4]],
     }
-    dst = Path(path).with_name('beatgrid.json')
+    dst = Path(out_path) if out_path else Path(path).with_name('beatgrid.json')
     dst.write_text(json.dumps(out, indent=1))
     print(f"tempo {out['bpm']} BPM, period {period * 1000:.2f} ms, first beat {phase * 1000:.1f} ms")
     print(f"grid fit on {len(resid)} beats: mean |error| {np.abs(resid).mean():.2f} ms, max {np.abs(resid).max():.2f} ms")
@@ -143,4 +144,4 @@ def main(path):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2] if len(sys.argv) > 2 else None)

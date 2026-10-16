@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko trend video 1: "82.1% of Italy is closer to a foreign capital than to Rome"</title>
+<!--
+  Roviko trend video 1: "82.1% of Italy is closer to a foreign capital than to Rome"
+  20.7 s, 1080x1920, 110 BPM ("Upbeat Jazz", Mixkit, from song beat 36). Italy appears with a pin on Rome, Roviko is sure
+  Rome wins, three guesses tick by, a record scratch, and every capital's area grows out of it across Italy (own grid count,
+  social/roviko-trends/build_italy.py). 82.1% lands with a boom; San Marino (21%) is the plot twist; without San Marino and
+  Vatican City it is still 62.3%. "Where do YOU live?"
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script src="lib/trendfilm.js"></script>
+<script src="../roviko-trends/data/trends.js"></script>
+<script>
+const TEMPO = 110.004, DIL = TEMPO / 130, END = 38, DURATION = END * 60 / TEMPO;
+const TL = { map: 0, pin: 1.4, say: 2, q: 4, reveal: 8, grow: [8.4, 11.6], stamp: 12, smr: 14, nomicro: 20, ask: 26, end: 30, hop: 34, blink2: 32 };
+const CAPS = { SMR: ['San Marino', 'sm', '#F6B84B'], ITA: ['Rome', 'it', '#1F806B'], LIE: ['Vaduz', 'li', '#36B3F5'], MCO: ['Monaco', 'mc', '#E5484D'],
+  MLT: ['Valletta', 'mt', '#9B7BEA'], VAT: ['Vatican City', 'va', '#F28FB0'], ALB: ['Tirana', 'al', '#FF9F43'], SVN: ['Ljubljana', 'si', '#7ACB4D'],
+  TUN: ['Tunis', 'tn', '#2B4C7E'], CHE: ['Bern', 'ch', '#8FD3E8'], MNE: ['Podgorica', 'me', '#B5A48B'] };
+const panel = tcard(90, 400, 900, 770);
+// Italy on a canvas: every grid square knows its capital and how far it is from it, so the areas grow out of the capitals
+const BOX = { cx: 320, cy: 785, w: 400, h: 690 }, F = fitShape('ITA', BOX);
+const cv = el(uiL, { width: 1080, height: 1920, zIndex: 10 }, '', 'a', 'canvas'); cv.width = 1080; cv.height = 1920;
+const ctx = cv.getContext('2d'), outline = new Path2D(F.d), cell = F.s * 0.1 * Math.PI / 180 * 1.3;
+const capPt = Object.fromEntries(TR.caps.map(([id, , lo, la]) => [id, F.pt(lo, la)]));
+const cells = TR.italy.grid.map(([lo, la, a, b]) => { const [x, y] = F.pt(lo, la); return { x, y, a, b, da: Math.hypot(x - capPt[a][0], y - capPt[a][1]) }; });
+const RMAX = Math.max(...cells.map(c => c.da)) + 10;
+const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const RGB = Object.fromEntries(Object.entries(CAPS).map(([k, v]) => [k, hexRgb(v[2])])), GREY = hexRgb('#E3ECE7');
+const mix3 = (p, q, s) => `rgb(${p.map((v, i) => Math.round(v + (q[i] - v) * s)).join(',')})`;
+function paintItaly(t, b) {
+  ctx.clearRect(0, 0, 1080, 1920);
+  const g = spB(t, TL.map + 0.2, 2.2, 0.62); if (g < 0.001) return;
+  ctx.save(); ctx.translate(BOX.cx, BOX.cy); ctx.scale(g, g); ctx.translate(-BOX.cx, -BOX.cy);
+  ctx.save(); ctx.clip(outline);
+  ctx.fillStyle = '#CFE9DA'; ctx.fillRect(0, 0, 1080, 1920);
+  const R = RMAX * segB(t, TL.grow[0], TL.grow[1], E.inOutSine), foc = segB(t, TL.smr, TL.smr + 0.6) * (1 - segB(t, TL.nomicro - 0.4, TL.nomicro));
+  const nm = segB(t, TL.nomicro + 0.2, TL.nomicro + 1.6, E.inOutCubic);
+  if (R > 0) for (const c of cells) {
+    if (c.da > R) continue;
+    let col = RGB[c.a];
+    if (nm > 0 && c.a !== c.b) col = RGB[c.a].map((v, i) => v + (RGB[c.b][i] - v) * nm);
+    const keep = c.a === 'SMR' || c.a === 'VAT' || c.a === 'ITA';
+    ctx.fillStyle = mix3(col, GREY, keep ? 0 : foc * 0.85);
+    ctx.fillRect(c.x - cell / 2, c.y - cell / 2, cell, cell);
+  }
+  ctx.restore();
+  ctx.lineWidth = 3; ctx.strokeStyle = C.forest; ctx.lineJoin = 'round'; ctx.stroke(outline);
+  // capital rings while the areas grow
+  const ring = segB(t, TL.grow[0], TL.grow[0] + 1.2) * (1 - segB(t, TL.stamp, TL.stamp + 0.5));
+  if (ring > 0) for (const k of ['ITA', 'SMR', 'VAT']) { const [x, y] = capPt[k]; ctx.beginPath(); ctx.arc(x, y, 8 + 30 * ring, 0, Math.PI * 2); ctx.strokeStyle = `rgba(22,59,50,${0.6 * (1 - ring)})`; ctx.lineWidth = 4; ctx.stroke(); }
+  ctx.restore();
+}
+// Rome pin
+const [rx, ry] = capPt.ITA;
+const pinDot = el(uiL, { left: rx - 14, top: ry - 14, width: 28, height: 28, borderRadius: 14, background: C.forest, boxShadow: '0 0 0 6px #fff, 0 6px 14px rgba(22,59,50,.3)', zIndex: 12, transformOrigin: '50% 50%' });
+const pinTag = pinLabel('📍 Rome'); LAYOUT.push(() => S(pinTag, { left: rx + 18, top: ry - 78 }));
+// the three guesses
+const qLab = el(uiL, { left: 560, top: 470, zIndex: 11, fontWeight: 800, fontSize: 24, letterSpacing: '.12em', color: C.green, transformOrigin: '0 50%' }, 'HOW MUCH OF ITALY?');
+const opts = ['25%', '50%', '82%'].map((o, i) => el(uiL, { left: 560, top: 530 + i * 150, width: 380, height: 124, borderRadius: 30, background: C.chip, zIndex: 11, transformOrigin: '50% 50%',
+  display: 'flex', alignItems: 'center', gap: '24px', padding: '0 28px' },
+  `<span style="width:64px;height:64px;border-radius:32px;background:#fff;display:grid;place-items:center;font-weight:800;font-size:28px;color:${C.green}">${'ABC'[i]}</span><span style="font-family:Fredoka;font-weight:600;font-size:56px;color:${C.forest}">${o}</span>`));
+// legends: with the micro-states, and without
+function legendRows(list, top) {
+  return list.map(([k, v], i) => {
+    const r = el(uiL, { left: 560, top: top + i * 64, width: 390, height: 56, zIndex: 11, display: 'flex', alignItems: 'center', gap: '14px', transformOrigin: '0 50%' },
+      `<span style="width:30px;height:30px;border-radius:8px;background:${k ? CAPS[k][2] : '#C9D3CE'};flex:none"></span><span style="flex:1;font-family:Fredoka;font-weight:${k === 'ITA' ? 600 : 500};font-size:34px;color:${C.forest};white-space:nowrap">${k ? CAPS[k][0] : 'Others'}</span><span class="v" style="font-family:Fredoka;font-weight:600;font-size:34px;color:${k === 'ITA' ? C.green : C.forest}"></span>`);
+    return { r, k, v, val: r.querySelector('.v') };
+  });
+}
+const A = TR.italy.all, NM = TR.italy.no_micro, TOP = ['SMR', 'ITA', 'LIE', 'MCO', 'MLT', 'VAT', 'ALB', 'SVN'];
+const leg1 = legendRows([...TOP.map(k => [k, A[k]]), [null, Object.keys(A).filter(k => !TOP.includes(k)).reduce((s, k) => s + A[k], 0)]], 500);
+const leg2 = legendRows(Object.entries(NM), 500);
+const legLab = el(uiL, { left: 560, top: 440, zIndex: 11, fontWeight: 800, fontSize: 24, letterSpacing: '.12em', color: C.green, whiteSpace: 'pre' }, 'CLOSEST CAPITAL');
+const legLab2 = el(uiL, { left: 560, top: 440, zIndex: 11, fontWeight: 800, fontSize: 24, letterSpacing: '.12em', color: C.green, whiteSpace: 'pre' }, 'WITHOUT THE 2 TINY ONES');
+// the stamp
+const stamp = el(uiL, { left: 120, top: 640, width: 420, zIndex: 16, textAlign: 'center', transformOrigin: '50% 50%' },
+  `<div style="display:inline-block;padding:18px 30px;border-radius:30px;background:${C.red};color:#fff;font-family:Fredoka;font-weight:700;font-size:96px;line-height:1;box-shadow:0 16px 40px rgba(229,72,77,.4)">82.1%</div><div style="margin-top:12px;display:inline-block;padding:8px 22px;border-radius:20px;background:#fff;font-weight:800;font-size:28px;letter-spacing:.08em;color:${C.red}">NOT ROME</div>`);
+const says = [['No way. Rome is <b>RIGHT</b> there 😤', TL.say, TL.q + 1.6], ['San Marino?! 😭', TL.smr + 1, TL.nomicro - 0.6], ['…still not Rome 💀', TL.nomicro + 2, TL.ask - 0.4]]
+  .map(([h, b0, b1]) => ({ bub: Bubble(uiL, h, { x: 370, y: 1268, w: 560, size: 42, tail: 'left', z: 35 }), b0, b1 }));
+const caps = [
+  [['Most of Italy is closer to', 'a <b>foreign</b> capital than Rome 🇮🇹'], -1.5, TL.reveal],
+  [['<b>82.1%</b> of Italy is closer', 'to ANOTHER country’s capital 🤯'], TL.reveal, TL.smr],
+  [['<b>San Marino</b> wins: 21% 🇸🇲', '(a country INSIDE Italy)'], TL.smr, TL.nomicro],
+  [['Leave out the 2 tiny ones…', 'still <b>62.3%</b> 😭'], TL.nomicro, TL.ask],
+  [['Where do YOU live? 👇', 'Closest capital in the comments'], TL.ask, TL.end],
+].map(([lines, b0, b1]) => ({ c: Caption(capL, lines, { cy: 236, size: 54 }), b0, b1 }));
+const endCard = EndCard(stage, { my: 690, tagline: 'Map facts that sound fake. Every day.' });
+
+// ---- sound
+ev(0.02, 'pop', -12, { rate: 1.1 }); ev(0.2, 'swish', -10); ev(TL.pin, 'pin', -8); ev(TL.say + 0.05, 'mention', -8);
+ev(TL.q, 'pop', -9); [0, 1, 2].forEach(i => ev(TL.q + 0.5 + 0.4 * i, 'pop', -9, { rate: 1 + 0.1 * i }));
+[5.2, 6, 6.8, 7.6].forEach((b, i) => ev(b, 'clock', -8, { rate: 1 + 0.03 * i }));
+ev(TL.reveal, 'scratch', -4); ev(TL.reveal + 0.3, 'correct', -7); ev(TL.grow[0], 'swish', -8); ev(TL.grow[0] + 0.2, 'expand', -8); ev(TL.grow[0] + 0.4, 'slot', -12);
+ev(TL.stamp, 'boom', -3); ev(TL.stamp + 0.02, 'impactbig', -7); ev(TL.stamp + 0.6, 'laugh', -12);
+ev(TL.smr, 'boinghit', -7); ev(TL.smr + 0.4, 'giggle', -9); ev(TL.smr + 1, 'mention', -9);
+ev(TL.nomicro, 'swish', -8); ev(TL.nomicro + 0.3, 'morph', -9); ev(TL.nomicro + 2, 'badumtss', -6);
+ev(TL.ask, 'pop', -8); ev(TL.ask + 0.2, 'mention', -10);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  popAt(panel, t, TL.map, TL.end + 0.5, 2.2, 0.62);
+  paintItaly(t, b);
+  const pp = popAt(pinDot, t, TL.pin, TL.reveal, 3, 0.45); popAt(pinTag, t, TL.pin + 0.2, TL.reveal, 2.6, 0.55);
+  if (pp > 0.001) S(pinDot, { transform: `translateY(${(1 - Math.min(1, pp)) * -60}px) scale(${pp})` });
+  popAt(qLab, t, TL.q, TL.reveal + 1.2);
+  opts.forEach((o, i) => {
+    popAt(o, t, TL.q + 0.5 + 0.4 * i, TL.reveal + 1.2 + 0.1 * i);
+    const right = i === 2 && b >= TL.reveal + 0.3;
+    S(o, { background: right ? '#2FBF71' : C.chip }); o.lastChild.style.color = right ? '#fff' : C.forest;
+  });
+  // legend 1 rows roll in as the areas grow; legend 2 replaces it
+  const l1on = b < TL.nomicro, dim = segB(t, TL.smr, TL.smr + 0.6) * (1 - segB(t, TL.nomicro - 0.4, TL.nomicro));
+  popAt(legLab, t, TL.grow[0] + 1.2, TL.nomicro - 0.2);
+  leg1.forEach((L, i) => {
+    const p = popAt(L.r, t, TL.grow[0] + 1.4 + 0.18 * i, TL.nomicro - 0.25);
+    L.val.textContent = rollN(t, TL.grow[0] + 1.4 + 0.18 * i, TL.stamp + 1, L.v, 1) + '%';
+    S(L.r, { opacity: (L.k === 'SMR' || L.k === 'VAT' || L.k === 'ITA') ? 1 : 1 - 0.7 * dim });
+    if (L.k === 'SMR' && b >= TL.smr && b < TL.nomicro) S(L.r, { transform: `scale(${p * (1 + 0.08 * Math.max(0, Math.sin((t - T(TL.smr)) * 9)))})` });
+  });
+  popAt(legLab2, t, TL.nomicro + 0.2, TL.end);
+  leg2.forEach((L, i) => { popAt(L.r, t, TL.nomicro + 0.4 + 0.12 * i, TL.end); L.val.textContent = rollN(t, TL.nomicro + 0.4 + 0.12 * i, TL.nomicro + 2.4, L.v, 1) + '%'; });
+  const sp = popAt(stamp, t, TL.stamp, TL.smr - 0.4, 3, 0.4); if (sp > 0.001) S(stamp, { transform: `scale(${sp}) rotate(${-8 * Math.min(1, sp)}deg)` });
+  says.forEach(s => s.bub.set(spB(t, s.b0, 2.4, 0.6), segB(t, s.b1, s.b1 + 0.3)));
+  caps.forEach(c => c.c.set(spB(t, c.b0, 1.9, 0.62), segB(t, c.b1 - 0.2, c.b1 + 0.15)));
+  const mood = b < TL.say ? 'calm' : b < TL.q + 1.6 ? 'smug' : b < TL.reveal ? 'think' : b < TL.smr ? 'shock' : b < TL.nomicro ? 'palm' : b < TL.ask ? 'sad' : 'point';
+  rovikoMood(t, b, mood, [3.2, 9.6, 23.4]);
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

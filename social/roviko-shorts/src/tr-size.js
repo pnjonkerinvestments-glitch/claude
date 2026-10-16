@@ -1,0 +1,95 @@
+/*
+  Roviko trend video 4: "USA + Canada + Greenland vs Russia. Who's bigger?"
+  18.4 s, 1080x1920, 111 BPM ("K.O. Games", Mixkit, from song beat 32). A boxing card: the USA, Canada and Greenland stack up
+  on one side, Russia lands on the other. Roviko bets on Russia; a drumroll, the bars race (roviko.app areas: USA 9.37,
+  Canada 9.98 million km², Greenland 2.17; Russia 17.10): 21.5 vs 17.1, K.O. Then: Canada alone beats the USA.
+*/
+// @scripts lib/trendfilm.js
+const TEMPO = 110.992, DIL = TEMPO / 130, END = 34, DURATION = END * 60 / TEMPO;
+const TL = { vs: 0, say: 3, tick: [4.5, 5.5, 6.5], roll: 6.8, bars: 8, ko: 11.2, solo: 16, ask: 22, end: 26, hop: 30, blink2: 28 };
+// the boxing card
+const vsCard = tcard(90, 420, 900, 700);
+const side = (html, x, y) => el(uiL, { left: x, top: y, zIndex: 11, transformOrigin: '50% 50%' }, html);
+const fl = [['us', 'USA', 470], ['ca', 'Canada', 650], ['gl', 'Greenland', 830]].map(([c, n, y]) => side(`<div style="display:flex;align-items:center;gap:22px">${flagH(c, 96)}<span style="font-family:Fredoka;font-weight:600;font-size:40px;color:${C.forest}">${n}</span></div>`, 140, y));
+const plus = [600, 780].map(y => side(`<span style="font-family:Fredoka;font-weight:700;font-size:44px;color:${C.green}">+</span>`, 200, y - 30));
+const ru = side(`<div style="display:flex;flex-direction:column;align-items:center;gap:20px">${flagH('ru', 170)}<span style="font-family:Fredoka;font-weight:600;font-size:48px;color:${C.forest}">Russia</span></div>`, 640, 600);
+const vs = el(uiL, { left: 500, top: 700, width: 110, height: 110, borderRadius: 55, background: C.gold, color: C.forest, zIndex: 12, display: 'grid', placeItems: 'center', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 42, transformOrigin: '50% 50%' }, 'VS');
+// race
+const raceCard = tcard(90, 420, 900, 560);
+const raceLab = el(uiL, { left: 140, top: 456, zIndex: 11, fontWeight: 800, fontSize: 26, letterSpacing: '.12em', color: C.green, whiteSpace: 'pre' }, 'MILLION KM² · TRUE AREA');
+const MAXV = 21.6, W = 800;
+function raceRow(y, label, parts, total) {
+  const head = el(uiL, { left: 140, top: y, width: W, zIndex: 11 }, `<div style="display:flex;align-items:center;gap:16px"><span style="flex:1;font-family:Fredoka;font-weight:600;font-size:44px;color:${C.forest}">${label}</span><span class="v" style="font-family:Fredoka;font-weight:700;font-size:52px;color:${C.green}"></span></div>`);
+  const track = el(uiL, { left: 140, top: y + 70, width: W, height: 56, borderRadius: 28, background: '#EEF2EF', zIndex: 11, overflow: 'hidden' });
+  let acc = 0;
+  const segs = parts.map(([v, col]) => { const s = el(track, { left: W * acc / MAXV, top: 0, width: W * v / MAXV, height: 56, background: col, transformOrigin: '0 50%' }); acc += v; return { s, v }; });
+  return { head, track, segs, total, val: head.querySelector('.v') };
+}
+const combo = raceRow(520, '🇺🇸 + 🇨🇦 + Greenland', [[9.37, '#36B3F5'], [9.98, C.red], [2.17, C.gold]], 21.52);
+const rus = raceRow(720, '🇷🇺 Russia', [[17.1, C.green]], 17.1);
+const keyRow = el(uiL, { left: 140, top: 900, zIndex: 11 }, `<div style="display:flex;gap:30px">${[['#36B3F5', 'USA 9.37'], [C.red, 'Canada 9.98'], [C.gold, 'Greenland 2.17']].map(([c, t]) => `<span style="display:flex;align-items:center;gap:10px;font-family:Fredoka;font-weight:500;font-size:32px;color:${C.forest}"><span style="width:26px;height:26px;border-radius:7px;background:${c}"></span>${t}</span>`).join('')}</div>`);
+const ko = el(uiL, { left: 0, top: 1000, width: 1080, textAlign: 'center', zIndex: 16, transformOrigin: '50% 50%' },
+  `<span style="display:inline-block;padding:14px 40px;border-radius:30px;background:${C.red};color:#fff;font-family:Fredoka;font-weight:700;font-size:110px;line-height:1;box-shadow:0 16px 40px rgba(229,72,77,.45)">K.O. 🥊</span>`);
+// Canada alone
+const soloCard = tcard(90, 420, 900, 640);
+const SOLO = [['🇷🇺 Russia', 17.1, '#C8EAD6'], ['🇨🇦 Canada', 9.98, C.green], ['🇨🇳 China', 9.71, '#A6DDBF'], ['🇺🇸 USA', 9.37, '#7ACB9F']].map(([n, v, col], i) => {
+  const y = 470 + i * 140;
+  const head = el(uiL, { left: 140, top: y, width: W, zIndex: 11 }, `<div style="display:flex;align-items:center"><span style="flex:1;font-family:Fredoka;font-weight:${i === 1 ? 600 : 500};font-size:42px;color:${C.forest}">${n}</span><span class="v" style="font-family:Fredoka;font-weight:600;font-size:42px;color:${C.green}"></span></div>`);
+  const track = el(uiL, { left: 140, top: y + 62, width: W, height: 32, borderRadius: 16, background: '#EEF2EF', zIndex: 11 });
+  const bar = el(uiL, { left: 140, top: y + 62, width: W * v / 17.1, height: 32, borderRadius: 16, background: col, zIndex: 12, transformOrigin: '0 50%' });
+  return { head, track, bar, v, val: head.querySelector('.v') };
+});
+const says = [['Russia. It’s <b>HUGE</b> 😎', TL.say, TL.bars], ['…I got knocked out 😵', TL.ko + 1, TL.solo], ['Canada > USA?! 🍁', TL.solo + 2.5, TL.ask]]
+  .map(([h, b0, b1]) => ({ bub: Bubble(uiL, h, { x: 370, y: 1250, w: 560, size: 42, tail: 'left', z: 35 }), b0, b1 }));
+const caps = [
+  [['USA + Canada + Greenland', 'vs <b>Russia</b> 🥊 Who’s bigger?'], -1.5, TL.ko],
+  [['Together: <b>21.5M km²</b>', 'Russia: 17.1M 😳'], TL.ko, TL.solo],
+  [['And <b>Canada alone</b>', 'beats the USA 🇨🇦'], TL.solo, TL.ask],
+  [['Who did you pick? 👇', 'Be honest 😅'], TL.ask, TL.end],
+].map(([lines, b0, b1]) => ({ c: Caption(capL, lines, { cy: 236, size: 54 }), b0, b1 }));
+const endCard = EndCard(stage, { my: 690, tagline: 'Size Shuffle. Every day.' });
+
+// ---- sound
+ev(0.02, 'pop', -12, { rate: 1.1 }); [0.4, 0.9, 1.4].forEach((b, i) => ev(b, 'pop', -8, { rate: 1 + 0.1 * i })); ev(2, 'boom', -5); ev(2.4, 'impact', -9);
+ev(TL.say, 'slide', -8); ev(TL.say + 0.1, 'mention', -9);
+TL.tick.forEach((b, i) => ev(b, 'clock', -7, { rate: 1 + 0.04 * i })); ev(TL.roll, 'drumroll', -8);
+ev(TL.bars, 'swish', -8); [8.3, 9.3, 10.3].forEach((b, i) => ev(b, 'coin2', -10, { rate: 1 + 0.12 * i })); ev(TL.bars + 0.3, 'slot', -12);
+ev(TL.ko, 'impactbig', -5); ev(TL.ko + 0.02, 'boom', -4); ev(TL.ko + 0.4, 'crowdcheer', -9); ev(TL.ko + 1, 'clownhorn', -8);
+ev(TL.solo, 'swish', -8); SOLO.forEach((_, i) => ev(TL.solo + 0.4 + 0.3 * i, 'pop', -10, { rate: 1 + 0.06 * i })); ev(TL.solo + 2.5, 'boinghit', -7); ev(TL.solo + 2.7, 'laugh', -11);
+ev(TL.ask, 'pop', -8); ev(TL.ask + 0.2, 'mention', -10);
+ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  const out1 = TL.bars - 0.3;
+  popAt(vsCard, t, TL.vs, out1, 2.2, 0.62);
+  fl.forEach((f, i) => popAt(f, t, 0.4 + 0.5 * i, out1)); plus.forEach((p, i) => popAt(p, t, 0.7 + 0.5 * i, out1));
+  const rp = popAt(ru, t, 2, out1, 3, 0.45); if (rp > 0.001 && b < 3) S(ru, { transform: `scale(${rp}) translateY(${(1 - Math.min(1, rp)) * -80}px)` });
+  const vp = popAt(vs, t, 2.4, out1, 3, 0.4); if (vp > 0.001) S(vs, { transform: `scale(${vp * (1 + 0.06 * Math.sin(t * 9))}) rotate(${Math.sin(t * 4) * 6}deg)` });
+  const out2 = TL.solo - 0.3;
+  popAt(raceCard, t, TL.bars, out2, 2.2, 0.62); popAt(raceLab, t, TL.bars + 0.2, out2); popAt(keyRow, t, TL.bars + 0.4, out2);
+  [combo, rus].forEach((R, k) => {
+    popAt(R.head, t, TL.bars + 0.1 + 0.2 * k, out2); popAt(R.track, t, TL.bars + 0.1 + 0.2 * k, out2);
+    let shown = 0;
+    R.segs.forEach((s, i) => {
+      const b0 = k ? 8.3 : [8.3, 9.3, 10.3][i], b1 = k ? 10.3 : [9.3, 10.3, 10.8][i];
+      const g = segB(t, b0, b1, k ? E.inOutCubic : E.outCubic); S(s.s, { transform: `scaleX(${g.toFixed(4)})` }); shown += s.v * g;
+    });
+    R.val.textContent = shown.toFixed(1) + 'M';
+  });
+  const kp = popAt(ko, t, TL.ko, TL.solo - 0.4, 3, 0.35); if (kp > 0.001) S(ko, { transform: `scale(${kp}) rotate(${-6 * Math.min(1, kp)}deg)` });
+  popAt(soloCard, t, TL.solo, TL.end + 0.5, 2.2, 0.62);
+  SOLO.forEach((R, i) => {
+    const b0 = TL.solo + 0.4 + 0.3 * i; popAt(R.head, t, b0 - 0.2, TL.end + 0.5); popAt(R.track, t, b0 - 0.2, TL.end + 0.5);
+    const g = segB(t, b0, b0 + 1.6, E.outCubic) * (1 - segB(t, TL.end + 0.5, TL.end + 0.8));
+    S(R.bar, { transform: `scaleX(${g.toFixed(4)})`, visibility: g > 0.001 ? 'visible' : 'hidden' }); R.val.textContent = rollN(t, b0, b0 + 1.6, R.v, 2) + 'M';
+    if (i === 1 && b >= TL.solo + 2.5) S(R.head, { transform: `scale(${1 + 0.06 * Math.exp(-(t - T(TL.solo + 2.5)) * 4) * Math.abs(Math.sin((t - T(TL.solo + 2.5)) * 14))})` });
+  });
+  says.forEach(s => s.bub.set(spB(t, s.b0, 2.4, 0.6), segB(t, s.b1, s.b1 + 0.3)));
+  caps.forEach(c => c.c.set(spB(t, c.b0, 1.9, 0.62), segB(t, c.b1 - 0.2, c.b1 + 0.15)));
+  const mood = b < TL.say ? 'calm' : b < TL.bars ? 'smug' : b < TL.ko ? 'think' : b < TL.solo ? 'shock' : b < TL.ask ? 'laugh' : 'point';
+  rovikoMood(t, b, mood, [2.6, 14, 19.4]);
+  endCard.update(t, TL.end, [MX, MY], { hops: [TL.hop], blinks: [TL.blink2] });
+}
+boot(seek, DURATION);
