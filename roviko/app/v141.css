@@ -8,3 +8,16 @@
 .rank-board .rb-verdict.is-p4 strong{background:#fde4dc;color:#8a2d14}
 @keyframes rb-verdict{from{opacity:0;transform:scale(.8) translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.rank-board .rb-verdict{animation:none}}
+/* 1.41.3 supportpagina */
+.support-page .support-contact{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:20px 22px;margin:0 0 22px}
+.support-page .support-contact h2{margin:0 0 4px}
+.support-page .support-contact p{margin:2px 0}
+.support-page .support-contact a:not(.btn){font-weight:700;color:var(--color-forest);word-break:break-all}
+.support-page .support-q{border:1px solid rgba(0,0,0,.08);border-radius:14px;background:#fff;margin:0 0 10px;padding:0 16px}
+.support-page .support-q summary{cursor:pointer;list-style:none;padding:14px 26px 14px 0;font-weight:700;position:relative}
+.support-page .support-q summary::-webkit-details-marker{display:none}
+.support-page .support-q summary::after{content:'+';position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:1.3em;color:var(--color-forest)}
+.support-page .support-q[open] summary::after{content:'−'}
+.support-page .support-q p{margin:0 0 14px}
+.support-page .doc-links{display:flex;gap:14px;flex-wrap:wrap;margin-top:20px}
+@media (max-width:560px){.support-page .support-contact .btn{width:100%;justify-content:center}}

@@ -46,7 +46,10 @@ test("renders the playable branded homepage before hydration", async () => {
   // 1.24: from SHUFFLE_FROM (UTC) the daily Size Shuffle is the fourth daily game instead of Country Mosaic.
   const shuffleFrom=fs.readFileSync('lib/daily-loop.ts','utf8').match(/SHUFFLE_FROM = '([\d-]+)'/)[1];
   const fourth=new Date().toISOString().slice(0,10)>=shuffleFrom?'Size Shuffle':'Country Mosaic';
-  const order=['Daily Detour','Rank Radar','World Duel','Side by Side',fourth,'Daily Clue Trail'].map(n=>trip.indexOf(n));
+  // 1.41: from SHAPE_FROM (UTC) Shape Shift takes the place of World Duel.
+  const shapeFrom=fs.readFileSync('lib/daily-loop.ts','utf8').match(/SHAPE_FROM = '([\d-]+)'/)[1];
+  const second=new Date().toISOString().slice(0,10)>=shapeFrom?'Shape Shift':'World Duel';
+  const order=['Daily Detour','Rank Radar',second,'Side by Side',fourth,'Daily Clue Trail'].map(n=>trip.indexOf(n));
   assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'games in order');
   // One side column: the rankings and the daily quests (folded), and a way to all games.
   assert.match(html, /Daily quests/);
