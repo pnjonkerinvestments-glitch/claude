@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.41.3 (op de testversie, nog niet live)
+## 1.41.3 (live sinds 16 oktober 2026, PR #36)
 
 - Nieuwe pagina `/support` (Hulp/Help/Ayuda): contact via support@roviko.app met een mailknop, en negen veelgestelde vragen (account nodig?, voortgang kwijt, wachtwoord vergeten, account verwijderen, fout in een vraag, uitnodiging komt niet aan, herinnering aan/uit, vervelend gedrag melden). Staat in de sitemap. Bedoeld als Support-URL in App Store Connect en Google Play.
 - Privacy en voorwaarden noemen nu met toestemming van de eigenaar Jonker Studios (eenmanszaak van P. Jonker, KVK 93841361) als maker en verantwoordelijke. Geen huisadres. Datum bijgewerkt naar 16 oktober 2026.
