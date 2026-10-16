@@ -41,7 +41,7 @@ const squares = ANS.map((ok, i) => el(uiL, { left: 270 + i * 106, top: 612, widt
 const score = el(uiL, { left: 270, top: 740, zIndex: 11, transformOrigin: '0 60%' }, `<span class="n" style="font-family:Fredoka;font-weight:700;font-size:150px;color:${C.forest};line-height:1"></span><span style="font-family:Fredoka;font-weight:500;font-size:48px;color:rgba(22,59,50,.5)"> / 1,000 pts</span>`);
 const scoreN = score.querySelector('.n');
 const rank = el(uiL, { left: 270, top: 940, width: 540, height: 96, borderRadius: 26, background: C.chip, zIndex: 11, transformOrigin: '50% 50%' },
-  `<div style="display:flex;align-items:center;height:96px;padding:0 26px;font-family:Fredoka;font-weight:600;font-size:38px;color:${C.forest}">🏆 Number 1 in the world today</div>`);
+  `<div style="display:flex;align-items:center;height:96px;padding:0 26px;font-family:Fredoka;font-weight:600;font-size:34px;white-space:nowrap;color:${C.forest}">🏆 Number 1 in the world today</div>`);
 const flash = el(uiL, { left: 0, top: 0, width: 1080, height: 1920, background: '#fff', zIndex: 60, opacity: 0 });
 // 3 taps
 const stepCard = tcard(90, 420, 900, 620);
@@ -74,7 +74,7 @@ ev(0.02, 'pop', -12, { rate: 1.1 }); ev(0.2, 'swish', -10); ev(0.6, 'pop', -9);
 TL.sq.forEach((b, i) => ANS[i] ? ev(b, 'coin2', -9, { rate: 1 + 0.08 * i }) : ev(b, 'error', -7));
 ev(TL.roll, 'drumroll', -8);
 ev(TL.drop, 'boom', -3); ev(TL.drop + 0.02, 'impactbig', -6); ev(TL.drop + 0.1, 'slot', -10); ev(TL.drop + 1, 'kaching', -7);
-ev(TL.rank, 'fanfare', -8); ev(TL.rank + 0.2, 'cheer', -9); ev(TL.rank + 0.6, 'slide', -8);
+ev(TL.rank, 'fanfare', -8); ev(TL.rank + 0.2, 'crowdcheer', -9); ev(TL.rank + 0.6, 'slide', -8);
 ev(TL.steps, 'swish', -8); [0.4, 1.4, 2.4].forEach((d, i) => { ev(TL.steps + d, 'pop', -8, { rate: 1 + 0.08 * i }); ev(TL.steps + d + 0.2, 'tap', -10); }); ev(TL.steps + 3, 'notify', -9);
 ev(TL.day, 'swish', -8); ev(TL.day + 0.3, 'slot', -12); GAMES.forEach((_, i) => ev(TL.day + 0.6 + 0.4 * i, 'coin2', -12, { rate: 0.95 + 0.06 * i })); ev(TL.day + 3.4, 'kaching', -8); ev(TL.day + 3.6, 'mention', -9);
 ev(TL.ask, 'pop', -8); ev(TL.ask + 0.2, 'mention', -10);
