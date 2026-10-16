@@ -596,7 +596,16 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.41.2 (op de testversie, nog niet live)
+## 1.41.3 (op de testversie, nog niet live)
+
+- Nieuwe pagina `/support` (Hulp/Help/Ayuda): contact via support@roviko.app met een mailknop, en negen veelgestelde vragen (account nodig?, voortgang kwijt, wachtwoord vergeten, account verwijderen, fout in een vraag, uitnodiging komt niet aan, herinnering aan/uit, vervelend gedrag melden). Staat in de sitemap. Bedoeld als Support-URL in App Store Connect en Google Play.
+- Privacy en voorwaarden noemen nu met toestemming van de eigenaar Jonker Studios (eenmanszaak van P. Jonker, KVK 93841361) als maker en verantwoordelijke. Geen huisadres. Datum bijgewerkt naar 16 oktober 2026.
+- "Contact" onderaan de site gaat nu naar `/support` (was een mailtolink).
+- De beschrijving van `/duel` noemt geen dagpunten meer (World Duel is een extra spel).
+- Twee tests gingen er nog van uit dat World Duel vandaag een dagspel is; sinds `SHAPE_FROM` (16 oktober) is dat Vormenjacht. Ze kijken nu naar de datum (`integration.test`: het duel is vanaf dan zonder punten en zonder rij in de puntentabel; `rendered-html.test`: Vormenjacht op plek twee).
+- Getest: `npm test` 207 geslaagd, 1 overgeslagen; `tsc` en `npm run build` schoon; `/support` lokaal 200 en bekeken op 390 en 1280 px (schermafbeeldingen); `/terms` toont Jonker Studios. Niet getest: de mailknop op een echt toestel.
+
+## 1.41.2 (live, PR #35)
 
 - Op verzoek van de eigenaar noemt geen enkele tekst in de app nog het aantal spellen ("zes spellen", "vijf dagspellen", "zes bonusreizen", "zes klassiekers"), in NL, EN en ES; ook de deeltekst van de site (`app/layout.tsx`). Het aantal stempels per regio, codes van vijf tekens en het aantal landen in een spel bleven staan.
 - De puntenregel van Rank Radar (`competitionRankRule`) beschreef nog het spel van vóór 1.21 (zes landen); nu: acht landen, 125/90/65/45/30/20/10/5.

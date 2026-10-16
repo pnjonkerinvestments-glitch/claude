@@ -16,12 +16,16 @@ type Section = { id: string; title: L; body: L[]; todo?: L };
 const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 
 /** Details given by the owner (September 2026). Change them here only; both documents use them. */
-/** Roviko is run privately by P. Jonker (owner's choice to show initials) (no registered company yet); add a KvK number here once registered. */
-// No postal address yet: add one as ', <street>, <postcode> <city>' in `at` once it is really in use.
-const OPERATOR = { name: 'P. Jonker', project: 'Roviko', at: '', email: 'support@roviko.app' };
+/**
+ * Since 16 October 2026 Roviko is offered by Jonker Studios, the sole proprietorship (eenmanszaak) of P. Jonker
+ * (owner's choice to show initials), registered with the Dutch Chamber of Commerce (KVK) under 93841361.
+ * No postal address on the site (owner's home address): add one as ', <street>, <postcode> <city>' in `at` only when asked.
+ */
+const OPERATOR = { name: 'Jonker Studios', owner: 'P. Jonker', kvk: '93841361', project: 'Roviko', at: '', email: 'support@roviko.app' };
+const WHO = l(`${OPERATOR.name} (sole proprietorship of ${OPERATOR.owner}, Dutch Chamber of Commerce no. ${OPERATOR.kvk})`, `${OPERATOR.name} (eenmanszaak van ${OPERATOR.owner}, KVK ${OPERATOR.kvk})`, `${OPERATOR.name} (empresa individual de ${OPERATOR.owner}, Cámara de Comercio neerlandesa n.º ${OPERATOR.kvk})`);
 /** Current hosting. Update this line when the site moves (for example to Cloudflare). */
 const HOSTING = l('Cloudflare', 'Cloudflare', 'Cloudflare');
-export const LEGAL_UPDATED = '2026-09-25';
+export const LEGAL_UPDATED = '2026-10-16';
 
 const PRIVACY: Section[] = [
   { id: 'what-we-keep', title: l('What we keep', 'Wat we bewaren', 'Qué guardamos'), body: [
@@ -58,9 +62,9 @@ const PRIVACY: Section[] = [
       `De website en de database worden gehost door ${HOSTING.nl}. Kies je ervoor om met Google in te loggen, dan bevestigt Google je e-mailadres aan ons. We verkopen geen gegevens en delen ze met niemand anders.`,
       `El sitio web y su base de datos están alojados por ${HOSTING.es}. Si decides iniciar sesión con Google, Google nos confirma tu correo electrónico. No vendemos datos ni los compartimos con nadie más.`)] },
   { id: 'controller', title: l('Who is responsible', 'Wie is verantwoordelijk', 'Quién es responsable'), body: [
-    l(`${OPERATOR.project} is a private project of ${OPERATOR.name}${OPERATOR.at}, who is responsible for your data. Questions, requests to see or correct your data, or complaints: ${OPERATOR.email}. You may also complain to the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).`,
-      `${OPERATOR.project} is een privéproject van ${OPERATOR.name}${OPERATOR.at}, die verantwoordelijk is voor je gegevens. Vragen, verzoeken om je gegevens in te zien of te verbeteren, of klachten: ${OPERATOR.email}. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.`,
-      `${OPERATOR.project} es un proyecto personal de ${OPERATOR.name}${OPERATOR.at}, responsable de tus datos. Preguntas, solicitudes de acceso o rectificación, o quejas: ${OPERATOR.email}. También puedes reclamar ante la autoridad neerlandesa de protección de datos (Autoriteit Persoonsgegevens).`)] },
+    l(`${OPERATOR.project} is made by ${WHO.en}${OPERATOR.at}, which is responsible for your data. Questions, requests to see or correct your data, or complaints: ${OPERATOR.email}. You may also complain to the Dutch Data Protection Authority (Autoriteit Persoonsgegevens).`,
+      `${OPERATOR.project} wordt gemaakt door ${WHO.nl}${OPERATOR.at}, dat verantwoordelijk is voor je gegevens. Vragen, verzoeken om je gegevens in te zien of te verbeteren, of klachten: ${OPERATOR.email}. Je kunt ook een klacht indienen bij de Autoriteit Persoonsgegevens.`,
+      `${OPERATOR.project} lo hace ${WHO.es}${OPERATOR.at}, responsable de tus datos. Preguntas, solicitudes de acceso o rectificación, o quejas: ${OPERATOR.email}. También puedes reclamar ante la autoridad neerlandesa de protección de datos (Autoriteit Persoonsgegevens).`)] },
 ];
 
 const TERMS: Section[] = [
@@ -85,9 +89,9 @@ const TERMS: Section[] = [
       'Roviko is een gratis leerspel en wordt aangeboden zoals het is. We doen ons best om het beschikbaar en de feiten juist te houden, maar kunnen dat niet garanderen. We zijn niet aansprakelijk voor indirecte schade, behalve bij opzet of grove nalatigheid. Wijzigingen in deze voorwaarden maken we op deze pagina bekend, met de datum; belangrijke wijzigingen tonen we ook in het spel.',
       'Roviko es un juego educativo gratuito, ofrecido tal cual. Hacemos lo posible por mantenerlo disponible y los datos correctos, pero no podemos garantizarlo. No somos responsables de daños indirectos, salvo dolo o negligencia grave. Anunciamos los cambios de estas condiciones en esta página, con la fecha; los cambios importantes también se muestran en el juego.')] },
   { id: 'operator', title: l('Who runs Roviko', 'Wie Roviko aanbiedt', 'Quién ofrece Roviko'), body: [
-    l(`Roviko is offered privately by ${OPERATOR.name}${OPERATOR.at}. Contact: ${OPERATOR.email}. Dutch law applies to these terms.`,
-      `Roviko wordt als privéproject aangeboden door ${OPERATOR.name}${OPERATOR.at}. Contact: ${OPERATOR.email}. Op deze voorwaarden is Nederlands recht van toepassing.`,
-      `Roviko lo ofrece a título personal ${OPERATOR.name}${OPERATOR.at}. Contacto: ${OPERATOR.email}. Estas condiciones se rigen por la legislación neerlandesa.`)] },
+    l(`Roviko is offered by ${WHO.en}${OPERATOR.at}. Contact: ${OPERATOR.email}. Dutch law applies to these terms.`,
+      `Roviko wordt aangeboden door ${WHO.nl}${OPERATOR.at}. Contact: ${OPERATOR.email}. Op deze voorwaarden is Nederlands recht van toepassing.`,
+      `Roviko lo ofrece ${WHO.es}${OPERATOR.at}. Contacto: ${OPERATOR.email}. Estas condiciones se rigen por la legislación neerlandesa.`)] },
 ];
 
 type Dataset = { name: string; provider: string; year: string; licence: string; usedFor: L; href: string; downloads: { label: L; href: string }[]; licenceHref: string };
@@ -162,6 +166,46 @@ function SourcesPage() {
   </div>;
 }
 
+/** Support (1.41.3): the questions players actually ask, how to reach us and who runs Roviko. Linked from the stores. */
+const SUPPORT: { q: L; a: L }[] = [
+  { q: l('What is Roviko?', 'Wat is Roviko?', '¿Qué es Roviko?'),
+    a: l('A daily geography game: short games about flags, capitals, the map and countries, the same puzzles for everyone. New ones arrive every day at midnight (UTC).', 'Een dagelijks aardrijkskundespel: korte spellen over vlaggen, hoofdsteden, de kaart en landen, voor iedereen dezelfde puzzels. Elke dag om middernacht (UTC) staan er nieuwe klaar.', 'Un juego diario de geografía: juegos cortos sobre banderas, capitales, el mapa y países, los mismos retos para todos. Cada día a medianoche (UTC) llegan nuevos.') },
+  { q: l('Do I need an account?', 'Heb ik een account nodig?', '¿Necesito una cuenta?'),
+    a: l('No, you can play as a guest. A free account keeps your streak and points on every device and unlocks friends and the weekly league.', 'Nee, je kunt als gast spelen. Met een gratis account bewaar je je reeks en punten op elk apparaat en speel je met vrienden en in de wekelijkse liga.', 'No, puedes jugar como invitado. Con una cuenta gratuita guardas tu racha y tus puntos en todos tus dispositivos y juegas con amigos y en la liga semanal.') },
+  { q: l('I lost my progress or have a new phone', 'Ik ben mijn voortgang kwijt of heb een nieuwe telefoon', 'He perdido mi progreso o tengo un móvil nuevo'),
+    a: l('Sign in with your account and everything comes back. Guest progress is stored in this browser or app only; create an account to keep it safe.', 'Log in met je account, dan is alles terug. Gastvoortgang staat alleen in deze browser of app; maak een account om hem veilig te bewaren.', 'Inicia sesión con tu cuenta y vuelve todo. El progreso de invitado solo se guarda en este navegador o app; crea una cuenta para conservarlo.') },
+  { q: l('I forgot my password', 'Ik ben mijn wachtwoord vergeten', 'He olvidado mi contraseña'),
+    a: l('Choose Sign in and then "Forgot password?". You get an email with a link to choose a new one.', 'Kies Inloggen en daarna "Wachtwoord vergeten?". Je krijgt een e-mail met een link om een nieuw wachtwoord te kiezen.', 'Elige Iniciar sesión y luego "¿Has olvidado tu contraseña?". Recibirás un correo con un enlace para elegir una nueva.') },
+  { q: l('How do I delete my account?', 'Hoe verwijder ik mijn account?', '¿Cómo borro mi cuenta?'),
+    a: l('Go to Passport and choose "Delete my account". Everything is removed at once. You can also email us and we will do it for you.', 'Ga naar Paspoort en kies "Verwijder mijn account". Alles wordt in één keer verwijderd. Je kunt ons ook mailen, dan doen wij het voor je.', 'Ve a Pasaporte y elige "Borrar mi cuenta". Se borra todo de una vez. También puedes escribirnos y lo hacemos por ti.') },
+  { q: l('A question or answer is wrong', 'Een vraag of antwoord klopt niet', 'Una pregunta o respuesta está mal'),
+    a: l('Tap "Report an issue" below the question. We check every report and fix the data.', 'Tik op "Meld een fout" onder de vraag. We bekijken elke melding en passen de gegevens aan.', 'Toca "Informar de un error" debajo de la pregunta. Revisamos cada aviso y corregimos los datos.') },
+  { q: l('My friend\u2019s invite does not arrive', 'De uitnodiging van mijn vriend komt niet aan', 'No me llega la invitación de mi amigo'),
+    a: l('Both of you need an account and must be friends. Keep Roviko open: an invite shows up within a few seconds and stays for 30 minutes, as long as the room is still waiting. You can also join with the room code.', 'Jullie hebben allebei een account nodig en moeten vrienden zijn. Houd Roviko open: een uitnodiging verschijnt binnen een paar seconden en blijft 30 minuten staan, zolang de kamer nog wacht. Je kunt ook meedoen met de kamercode.', 'Los dos necesitáis una cuenta y ser amigos. Mantén Roviko abierto: la invitación aparece en unos segundos y dura 30 minutos, mientras la sala espere. También puedes unirte con el código de la sala.') },
+  { q: l('How do I turn the daily reminder on or off?', 'Hoe zet ik de dagelijkse herinnering aan of uit?', '¿Cómo activo o desactivo el recordatorio diario?'),
+    a: l('In the app, go to Settings and use the reminder switch. You can also turn notifications off for Roviko in your phone\u2019s settings.', 'Ga in de app naar Instellingen en gebruik de knop bij Herinnering. Je kunt meldingen voor Roviko ook uitzetten in de instellingen van je telefoon.', 'En la app, ve a Ajustes y usa el interruptor del recordatorio. También puedes desactivar las notificaciones de Roviko en los ajustes del móvil.') },
+  { q: l('Someone behaves badly', 'Iemand gedraagt zich vervelend', 'Alguien se porta mal'),
+    a: l('Tap the ⋯ next to the player to report or block them. A blocked player is never matched with you again.', 'Tik op de ⋯ naast de speler om hem te melden of te blokkeren. Een geblokkeerde speler wordt nooit meer aan je gekoppeld.', 'Toca ⋯ junto al jugador para informar o bloquearlo. Un jugador bloqueado no volverá a coincidir contigo.') },
+];
+function SupportPage() {
+  const { t, locale } = useApp();
+  const L = locale as 'en' | 'nl' | 'es';
+  const text = { kicker: l('Help', 'Hulp', 'Ayuda'), title: l('How can we help?', 'Waarmee kunnen we helpen?', '¿En qué podemos ayudarte?'), lead: l('Answers to the most common questions. Still stuck? Email us and we reply within a few working days.', 'Antwoorden op de meest gestelde vragen. Kom je er niet uit? Mail ons, we antwoorden binnen een paar werkdagen.', 'Respuestas a las preguntas más frecuentes. ¿Sigues con dudas? Escríbenos y te respondemos en unos días laborables.'),
+    contact: l('Contact', 'Contact', 'Contacto'), mail: l('Email us', 'Mail ons', 'Escríbenos'), who: l(`Roviko is made by ${WHO.en}.`, `Roviko wordt gemaakt door ${WHO.nl}.`, `Roviko lo hace ${WHO.es}.`), faq: l('Frequently asked questions', 'Veelgestelde vragen', 'Preguntas frecuentes') };
+  return <div className="page doc-page trip-page support-page">
+    <PageHeader back={t('backLabel')} kicker={text.kicker[L]} title={text.title[L]} lead={text.lead[L]}/>
+    <section className="support-contact t-card" aria-labelledby="support-contact">
+      <div><h2 id="support-contact">{text.contact[L]}</h2><p><a href={'mailto:' + OPERATOR.email}>{OPERATOR.email}</a></p><p className="muted">{text.who[L]}</p></div>
+      <a className="btn primary" href={'mailto:' + OPERATOR.email}>{text.mail[L]}<ArrowRight size={16} aria-hidden="true"/></a>
+    </section>
+    <section className="doc-body support-faq" aria-labelledby="support-faq">
+      <h2 id="support-faq">{text.faq[L]}</h2>
+      {SUPPORT.map((x, i) => <details key={i} className="support-q"><summary>{x.q[L]}</summary><p>{x.a[L]}</p></details>)}
+      <p className="doc-links"><A href="/how-to-play">{t('howTo')}</A><A href="/privacy">{t('privacy')}</A><A href="/terms">{t('terms')}</A></p>
+    </section>
+  </div>;
+}
+
 export function InfoPage({ kind }: { kind: string }) {
-  return kind === 'sources' ? <SourcesPage/> : <LegalPage kind={kind === 'terms' ? 'terms' : 'privacy'}/>;
+  return kind === 'sources' ? <SourcesPage/> : kind === 'support' ? <SupportPage/> : <LegalPage kind={kind === 'terms' ? 'terms' : 'privacy'}/>;
 }

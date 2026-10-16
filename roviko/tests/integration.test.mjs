@@ -641,7 +641,8 @@ test('the next flag can load while the answer is shown, but never early and neve
  const priv=await privateGame(daily.id);const fr=priv.questions.findIndex(q=>q.mode==='flags');assert.ok(fr>=0,'the detour contains flag questions');
 });
 
-test('the daily World Duel is blind, scored on the server and counts once for 1,000 points',async()=>{
+test('the daily World Duel is blind, scored on the server and counts once for 1,000 points (an unscored extra from SHAPE_FROM)',async()=>{
+ const {SHAPE_FROM}=await import('../.test-runtime/daily-loop.mjs');const ranked=new Date().toISOString().slice(0,10)<SHAPE_FROM;
  const a=await bootstrap(),b=await bootstrap();let g=(await request(a.cookie,'/duels','POST',{competition:true})).data;
  assert.equal(g.total,7);assert.equal(g.blind,true);assert.equal(g.hand.length,7);assert.deepEqual(g.solution,[]);assert.deepEqual(g.plays,[]);
  const other=(await request(b.cookie,'/duels','POST',{competition:true})).data;assert.deepEqual(other.hand,g.hand);assert.deepEqual(other.rounds.map(r=>r.roviko.id),g.rounds.map(r=>r.roviko.id));
@@ -657,11 +658,17 @@ test('the daily World Duel is blind, scored on the server and counts once for 1,
   assert.equal((await request(a.cookie,'/duels/'+g.id+'/play','POST',{version:g.version,card:g.hand[played].id})).status,g.phase==='finished'?409:400,'a card plays once');
  }
  assert.ok(g.rounds.every(r=>Number.isFinite(r.roviko.value)&&Object.keys(r.hand).length===7));assert.equal(g.solution.length,7);
- const wins=g.answers.filter(x=>x.correct).length;assert.equal(g.score,Math.round(wins/7*1000));
+ const wins=g.answers.filter(x=>x.correct).length;const rows=await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE session_id=?').bind(g.id).first();
+ if(!ranked){
+  // From SHAPE_FROM the duel is an extra: no points and no row in the daily ledger (Shape Shift has the slot).
+  assert.equal(g.score,undefined);assert.equal(rows.n,0);assert.ok(g.answers.every(x=>typeof x.correct==='boolean'));
+  return;
+ }
+ assert.equal(g.score,Math.round(wins/7*1000));
  const again=(await request(a.cookie,'/duels','POST',{competition:true})).data;assert.equal(again.id,g.id);
  const summary=(await request(a.cookie,'/competition?mode=duel')).data;assert.equal(summary.game.score,g.score);assert.equal(summary.maxPerDay,6000);
  const today=(await request(a.cookie,'/puzzles/today?competition=1')).data.sessions.find(s=>s.mode==='duel');assert.equal(today.completed,true);assert.equal(today.total,7);
- const rows=await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE session_id=?').bind(g.id).first();assert.equal(rows.n,1);
+ assert.equal(rows.n,1);
  // A perfect route scores the full 1,000.
  let p=other;for(const card of (await privateDuel(p.id)).board.solution)p=(await request(b.cookie,'/duels/'+p.id+'/play','POST',{version:p.version,card})).data;
  assert.equal(p.score,1000);assert.ok(p.answers.every(x=>x.correct));
