@@ -1,0 +1,231 @@
+[
+ {
+  "t": 0.0103,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 0.2069,
+  "beat": 0.4,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1
+ },
+ {
+  "t": 0.4138,
+  "beat": 0.8,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.08
+ },
+ {
+  "t": 0.6207,
+  "beat": 1.2,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.16
+ },
+ {
+  "t": 1.0345,
+  "beat": 2,
+  "sfx": "slide",
+  "gain": -8
+ },
+ {
+  "t": 1.0863,
+  "beat": 2.1,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 1.5518,
+  "beat": 3,
+  "sfx": "lock",
+  "gain": -8
+ },
+ {
+  "t": 2.0691,
+  "beat": 4,
+  "sfx": "clock",
+  "gain": -7,
+  "rate": 1
+ },
+ {
+  "t": 2.5864,
+  "beat": 5,
+  "sfx": "clock",
+  "gain": -7,
+  "rate": 1.04
+ },
+ {
+  "t": 3.1036,
+  "beat": 6,
+  "sfx": "clock",
+  "gain": -7,
+  "rate": 1.08
+ },
+ {
+  "t": 3.6209,
+  "beat": 7,
+  "sfx": "clock",
+  "gain": -7,
+  "rate": 1.12
+ },
+ {
+  "t": 4.1382,
+  "beat": 8,
+  "sfx": "scratch",
+  "gain": -4
+ },
+ {
+  "t": 4.2934,
+  "beat": 8.3,
+  "sfx": "clownhorn",
+  "gain": -9
+ },
+ {
+  "t": 4.3968,
+  "beat": 8.5,
+  "sfx": "correct",
+  "gain": -7
+ },
+ {
+  "t": 4.4485,
+  "beat": 8.6,
+  "sfx": "fanfare",
+  "gain": -8
+ },
+ {
+  "t": 4.552,
+  "beat": 8.8,
+  "sfx": "mention",
+  "gain": -10
+ },
+ {
+  "t": 5.69,
+  "beat": 11,
+  "sfx": "swish",
+  "gain": -8
+ },
+ {
+  "t": 5.8452,
+  "beat": 11.3,
+  "sfx": "slot",
+  "gain": -10
+ },
+ {
+  "t": 5.9486,
+  "beat": 11.5,
+  "sfx": "coin2",
+  "gain": -13,
+  "rate": 1.2
+ },
+ {
+  "t": 6.2073,
+  "beat": 12,
+  "sfx": "coin2",
+  "gain": -13,
+  "rate": 1.13
+ },
+ {
+  "t": 6.4659,
+  "beat": 12.5,
+  "sfx": "coin2",
+  "gain": -13,
+  "rate": 1.06
+ },
+ {
+  "t": 6.7245,
+  "beat": 13,
+  "sfx": "coin2",
+  "gain": -13,
+  "rate": 0.99
+ },
+ {
+  "t": 6.9832,
+  "beat": 13.5,
+  "sfx": "coin2",
+  "gain": -13,
+  "rate": 0.9199999999999999
+ },
+ {
+  "t": 7.3453,
+  "beat": 14.2,
+  "sfx": "kaching",
+  "gain": -8
+ },
+ {
+  "t": 9.3109,
+  "beat": 18,
+  "sfx": "swish",
+  "gain": -8
+ },
+ {
+  "t": 9.5178,
+  "beat": 18.4,
+  "sfx": "drumroll",
+  "gain": -10
+ },
+ {
+  "t": 10.242,
+  "beat": 19.8,
+  "sfx": "boom",
+  "gain": -4
+ },
+ {
+  "t": 10.3455,
+  "beat": 20,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 12.4145,
+  "beat": 24,
+  "sfx": "impact",
+  "gain": -6
+ },
+ {
+  "t": 12.518,
+  "beat": 24.2,
+  "sfx": "yes",
+  "gain": -8
+ },
+ {
+  "t": 12.6732,
+  "beat": 24.5,
+  "sfx": "crowdcheer",
+  "gain": -12
+ },
+ {
+  "t": 14.4836,
+  "beat": 28,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 14.5871,
+  "beat": 28.2,
+  "sfx": "mention",
+  "gain": -10
+ },
+ {
+  "t": 15.5699,
+  "beat": 30.1,
+  "sfx": "swoosh",
+  "gain": -7
+ },
+ {
+  "t": 15.6992,
+  "beat": 30.35,
+  "sfx": "sparkle",
+  "gain": -7
+ },
+ {
+  "t": 15.8803,
+  "beat": 30.7,
+  "sfx": "expand",
+  "gain": -10
+ }
+]
