@@ -17,12 +17,12 @@ const l = (en: string, nl: string, es: string): L => ({ en, nl, es });
 
 /** Details given by the owner (September 2026). Change them here only; both documents use them. */
 /**
- * Since 16 October 2026 Roviko is offered by Jonker Studios, the sole proprietorship (eenmanszaak) of P. Jonker
- * (owner's choice to show initials), registered with the Dutch Chamber of Commerce (KVK) under 93841361.
+ * Since 16 October 2026 Roviko is offered by Jonker Studios. The owner chose to show only that name
+ * (no personal name, no KVK number): add them to WHO only when the owner asks.
  * No postal address on the site (owner's home address): add one as ', <street>, <postcode> <city>' in `at` only when asked.
  */
-const OPERATOR = { name: 'Jonker Studios', owner: 'P. Jonker', kvk: '93841361', project: 'Roviko', at: '', email: 'support@roviko.app' };
-const WHO = l(`${OPERATOR.name} (sole proprietorship of ${OPERATOR.owner}, Dutch Chamber of Commerce no. ${OPERATOR.kvk})`, `${OPERATOR.name} (eenmanszaak van ${OPERATOR.owner}, KVK ${OPERATOR.kvk})`, `${OPERATOR.name} (empresa individual de ${OPERATOR.owner}, Cámara de Comercio neerlandesa n.º ${OPERATOR.kvk})`);
+const OPERATOR = { name: 'Jonker Studios', project: 'Roviko', at: '', email: 'support@roviko.app' };
+const WHO = l(OPERATOR.name, OPERATOR.name, OPERATOR.name);
 /** Current hosting. Update this line when the site moves (for example to Cloudflare). */
 const HOSTING = l('Cloudflare', 'Cloudflare', 'Cloudflare');
 export const LEGAL_UPDATED = '2026-10-16';
