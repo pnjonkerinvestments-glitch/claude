@@ -78,7 +78,7 @@ ev(0.02, 'pop', -12, { rate: 1.1 }); [0.4, 0.9, 1.4].forEach((b, i) => ev(b, 'po
 ev(TL.say, 'slide', -8); ev(TL.say + 0.1, 'mention', -9);
 TL.tick.forEach((b, i) => ev(b, 'clock', -7, { rate: 1 + 0.04 * i })); ev(TL.roll, 'drumroll', -8);
 ev(TL.bars, 'swish', -8); [8.3, 9.3, 10.3].forEach((b, i) => ev(b, 'coin2', -10, { rate: 1 + 0.12 * i })); ev(TL.bars + 0.3, 'slot', -12);
-ev(TL.ko, 'impactbig', -5); ev(TL.ko + 0.02, 'boom', -4); ev(TL.ko + 0.4, 'cheer', -9); ev(TL.ko + 1, 'clownhorn', -8);
+ev(TL.ko, 'impactbig', -5); ev(TL.ko + 0.02, 'boom', -4); ev(TL.ko + 0.4, 'crowdcheer', -9); ev(TL.ko + 1, 'clownhorn', -8);
 ev(TL.solo, 'swish', -8); SOLO.forEach((_, i) => ev(TL.solo + 0.4 + 0.3 * i, 'pop', -10, { rate: 1 + 0.06 * i })); ev(TL.solo + 2.5, 'boinghit', -7); ev(TL.solo + 2.7, 'laugh', -11);
 ev(TL.ask, 'pop', -8); ev(TL.ask + 0.2, 'mention', -10);
 ev(TL.end + 0.1, 'swoosh', -7); ev(TL.end + 0.35, 'sparkle', -7); ev(TL.end + 0.7, 'expand', -10);
