@@ -17,7 +17,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
   compare: { emoji: '⚖️', steps: [
     { icon: '🌎', text: l('Two countries and one subject of the day, for example land neighbours.', 'Twee landen en één onderwerp van de dag, bijvoorbeeld het aantal buurlanden.', 'Dos países y un tema del día, por ejemplo los países vecinos.') },
     { icon: '👆', text: l('Tap the country with the higher value.', 'Tik op het land met de hoogste waarde.', 'Toca el país con el valor más alto.') },
-    { icon: '💥', text: l('One country stays and a new one joins. 15 rounds, easy to close; one mistake ends the run.', 'Eén land blijft en er komt een nieuw bij. 15 rondes, makkelijk tot nipt; één fout en je bent af.', 'Un país se queda y llega otro. 15 rondas, de fácil a reñido; un error termina la partida.') },
+    { icon: '❤️', text: l('One country stays and a new one joins. 15 rounds, easy to close; you have three lives.', 'Eén land blijft en er komt een nieuw bij. 15 rondes, makkelijk tot nipt; je hebt drie levens.', 'Un país se queda y llega otro. 15 rondas, de fácil a reñido; tienes tres vidas.') },
   ], tip: l('All 15 right is 1,000 points. No timer, so take your time on the close ones.', 'Alle 15 goed is 1.000 punten. Geen timer, dus neem je tijd bij de nipte.', 'Las 15 bien son 1000 puntos. Sin cronómetro: tómate tu tiempo en las reñidas.') },
   mosaic: { emoji: '🧩', steps: [
     { icon: '🔲', text: l('The board hides four countries in tiles: names, flags, shapes, facts and more.', 'Op het bord zitten vier landen verstopt in tegels: namen, vlaggen, vormen, weetjes en meer.', 'El tablero esconde cuatro países en fichas: nombres, banderas, siluetas, datos y más.') },

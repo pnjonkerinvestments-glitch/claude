@@ -11,7 +11,7 @@ Six games are published once per UTC date: the Daily Detour (the day's main trip
 | Daily Detour (formerly World Trip) | 10 since 1.32: flags, capitals, map, borders and area ordering, two of each, shuffled, never the same type twice in a row (20, four of each, from 1.18 to 1.31) | 100 per correct question; map credit is proportional to accuracy (map points ÷ 10). Points per question are 1,000 ÷ the number of questions in the saved edition, so 20-question editions keep 50 and editions saved before 1.18 keep five stops of 200 |
 | World Duel (daily since 1.19) | 7 duels, seven cards, each card once (5 before 1.21) | `round(duelsWon / 7 * 1000)`. Since 1.21 the duel is blind: values, wins, score and the perfect route are only sent once all seven cards are played |
 | Daily Clue Trail | 5 countries | Correct after 1/2/3/4 clues: 200/150/100/50; wrong: 0 |
-| Side by Side | 15 comparisons, from easy to hard; the first wrong answer ends the run (10 before 1.21) | `round(correct / 15 * 1000)` |
+| Side by Side | 15 comparisons, from easy to hard; three lives since 1.42: the third wrong answer ends the run (one mistake from 1.21 to 1.41; 10 rounds before 1.21) | `round(correct / 15 * 1000)` |
 | Size Shuffle (daily from `SHUFFLE_FROM`, 1.24) | 5 rounds of 4 countries, sorted by area, from easy (well-known countries, sizes far apart) to hard (sizes within about 1.1–1.6× of each other); no country twice | 50 per country in its right place, so up to 200 per round and 1,000 in all. The order and the areas are only sent after each answer is saved |
 | Country Mosaic (daily before `SHUFFLE_FROM`) | 4 country groups | 250 per group. A wrong submission forfeits points for its selected country-name anchor. Each hint for that country costs 125, minimum 0 |
 | Rank Radar | 8 countries, 8 subjects, each subject once (6 questions before 1.21) | Up to 125 per country (see Rank Radar); sum of the eight picks |
@@ -95,6 +95,8 @@ Capital answers normalize case, accents and punctuation, accept configured alias
 Size Shuffle orders four countries by total area. Dragging a row (finger or mouse, with pointer events so it also works on iOS; the page scrolls along near the screen edge) or the accessible move buttons only change the draft; **Confirm order** submits it. A screen reader hears where a moved country now stands. An incorrect submission marks each misplaced row red with a cross and its correct place, followed by the complete correct ordering. A Daily Detour ordering round is all-or-nothing (100/0 since 1.32, 50/0 from 1.18; 200/0 in the five-stop editions before).
 
 ## Side by Side
+
+**Lives (1.42).** A run has three lives (`COMPARE_LIVES`, `livesLeft` in `lib/puzzles/model.ts`): every wrong answer costs one, the third ends the run (`out`). The score is unchanged: right answers ÷ 15 × 1,000. The lives are part of the day's shared content (`lives: 3` in `daily_content`), so a date whose content was stored before 1.42 keeps the one-mistake rule (`suddenDeath`) for everyone that day. Practice runs have three lives too. Survival is unchanged: one mistake ends a survival run. The hearts sit in the question card; after a wrong answer a chip says how many lives are left.
 
 Choose the greater figure (or more northerly latitude). The left country moves right on the next round regardless of which answer was chosen; a fresh country arrives left, and the old right country retires. Source years, units and values are explained after submission. Practice may show the already learned carried value; daily answers still require server validation.
 

@@ -113,7 +113,6 @@ export function HomePage() {
   const play = () => { const mode = challengeMode ?? upNext; if (!mode) return; if (challenge) clearChallenge(); open(mode); };
 
   const week = competition?.week, standing = competition?.today;
-  const weekLine = week?.place ? t('weekRankLine').replace('{rank}', n(week.place)).replace('{count}', n(week.participants)) : standing?.place ? t('resultDayRank').replace('{rank}', n(standing.place)).replace('{count}', n(standing.participants)) : '';
   const questsDone = useQuests(date, sessions ?? []).quests.filter(q => q.done).length;
   const { data: league } = useLeague(boot);
   const leagueRow = leagueLine(t, league);
@@ -134,6 +133,16 @@ export function HomePage() {
         : <button className="btn primary btn-lg th-cta" disabled={busy} aria-busy={!!launching} onClick={play}>{cta}<ArrowRight size={20} aria-hidden="true"/></button>}
       {todayError && <p className="inline-error" role="alert">{t('dailyStatusUnavailable')} <button className="text-link" onClick={retry}>{t('retry')}</button></p>}
     </section>
+
+    {/* 1.42: your place in the rankings right under the main button (was a row at the bottom of the side column). */}
+    {ready && !firstVisit && <A href={boot.user.guest || !league?.joined ? '/leaderboard' : '/leaderboard#league'} className="home-ranks" aria-label={t('leaderboard')}>
+      <span className="hr-cell"><small>{t('rankStripToday')}</small>{standing?.place ? <b>#{n(standing.place)}<em>{t('rankStripOf').replace('{n}', n(standing.participants))}</em></b> : <b className="is-empty">{t('rankStripNone')}</b>}</span>
+      <span className="hr-cell"><small>{t('rankStripWeek')}</small>{week?.place ? <b>#{n(week.place)}<em>{t('rankStripOf').replace('{n}', n(week.participants))}</em></b> : <b className="is-empty">{t('rankStripNone')}</b>}</span>
+      {!boot.user.guest && league?.joined
+        ? <span className="hr-cell hr-league"><small>{leagueRow.title}</small><b><TierBadge tier={league.tier ?? 0} size={20}/>#{league.place}<em>{t('rankStripOf').replace('{n}', String(league.size))}</em></b></span>
+        : <span className="hr-cell hr-league"><small>{t('leaderboard')}</small><b className="hr-trophy"><RovikoIcon name="trophy" size={22}/></b></span>}
+      <ChevronRight size={18} className="hr-go" aria-hidden="true"/>
+    </A>}
 
     <div className="th-main">
       {/* 1.35: after the six games the continent of the week comes first, the bonus tour after it. */}
@@ -182,9 +191,6 @@ export function HomePage() {
         <button className="t-pill is-gold th-save" onClick={() => app.setModal('signup')}>{t('savePromptCta')}</button>
       </div>}
       {ready && !firstVisit && <StreakWeek/>}
-      {boot.user.guest
-        ? <A href="/leaderboard" className="side-row side-rank"><span className="side-icon" aria-hidden="true"><RovikoIcon name="trophy" size={26}/></span><span className="side-copy"><strong>{t('leaderboard')}</strong><small>{weekLine || t('weekRankEmpty')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
-        : <A href="/leaderboard#league" className="side-row side-league"><span className="side-icon side-tier" aria-hidden="true"><TierBadge tier={league?.tier ?? 0} size={26}/></span><span className="side-copy"><strong>{leagueRow.title}</strong><small>{leagueRow.sub || t('loading')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>}
       <LearnRow/>
       <details className="side-row quests-fold">
         <summary><span className="side-icon" aria-hidden="true"><RovikoIcon name="target" size={26}/></span><span className="side-copy"><strong>{t('questsTitle')}</strong><small>{t('questsLead')}</small></span><b className="fold-count">{questsDone}/3</b><ChevronRight size={18} className="fold-chevron" aria-hidden="true"/></summary>

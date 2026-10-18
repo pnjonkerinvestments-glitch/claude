@@ -56,9 +56,14 @@ export function usePresence(path: string) {
     beat();
     // Every 15 seconds (was 40) so an invite from a friend shows up while they wait in the room.
     const id = setInterval(beat, 15000);
+    // 1.42: in between, a cheap read-only check every 3 seconds; a new invite runs the full heartbeat at once.
+    let seen = '';
+    const check = () => { if (document.visibilityState !== 'visible') return; api('/invites/check').then(r => { const key = r.n + ':' + r.last; if (active && seen && key !== seen && r.n > 0) beat(); seen = key; }).catch(() => {}); };
+    check();
+    const quick = setInterval(check, 3000);
     document.addEventListener('visibilitychange', beat);
     window.addEventListener('roviko:presence', beat);
-    return () => { active = false; clearInterval(id); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
+    return () => { active = false; clearInterval(id); clearInterval(quick); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
   }, [bootLoaded, boot.user.guest, boot.user.id, room, playing]);
   return { invites: invites.filter(i => i.code !== room), dismiss: (id: string) => setInvites(list => list.filter(i => i.id !== id)) };
 }

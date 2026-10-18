@@ -35,13 +35,14 @@ test('a personal retry contains only misses, preserves Europe, resumes once and 
  const following=await request(a.cookie,'/next-round','POST',{sessionId:retry.id,intent:'next'});assert.equal(following.status,200,JSON.stringify(following.data));const next=(await request(a.cookie,following.data.href.replace('/game/','/games/'))).data;assert.equal(next.settings.mode,'capitals');assert.equal(next.settings.region,'Europe');assert.equal(next.total,5);assert.equal(next.daily,null);
 });
 
-test('a comparison run ends on the first miss; its retry keeps units and years, and the daily result stays',async()=>{
+test('a comparison run has three lives (1.42) and ends on the third miss; its retry keeps units and years, and the daily result stays',async()=>{
  const a=await bootstrap();let p=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;const misses=[];
- while(p.phase!=='finished'){const q=structuredClone(p.question);const wrong=p.round===5;if(wrong)misses.push(q);const answer=wrong?q.countries.find(c=>c.id!==q.correct).id:q.correct;const saved=await request(a.cookie,'/puzzles/'+p.id+'/answer','POST',{version:p.version,answer});assert.equal(saved.status,200);p=(await request(a.cookie,'/puzzles/'+p.id+'/next','POST',{version:saved.data.version})).data;}
+ assert.equal(p.lives,3);assert.equal(p.suddenDeath,undefined);
+ while(p.phase!=='finished'){const q=structuredClone(p.question);const wrong=[3,5,8].includes(p.round);if(wrong)misses.push(q);const answer=wrong?q.countries.find(c=>c.id!==q.correct).id:q.correct;const saved=await request(a.cookie,'/puzzles/'+p.id+'/answer','POST',{version:p.version,answer});assert.equal(saved.status,200);p=(await request(a.cookie,'/puzzles/'+p.id+'/next','POST',{version:saved.data.version})).data;}
  const retry=await request(a.cookie,'/next-round','POST',{sessionId:p.id,intent:'review'});assert.equal(retry.status,200,JSON.stringify(retry.data));let fresh=(await request(a.cookie,retry.data.href.replace('/puzzle/','/puzzles/'))).data;
- assert.equal(fresh.total,1,'the run ended on its first miss');assert.equal(fresh.daily,null);assert.equal(fresh.practice,true);
+ assert.equal(fresh.total,3,'the run ended on its third miss');assert.equal(fresh.daily,null);assert.equal(fresh.practice,true);
  for(let i=0;i<fresh.total;i++){assert.deepEqual(fresh.question,{...misses[i],carried:false});const saved=await request(a.cookie,'/puzzles/'+fresh.id+'/answer','POST',{version:fresh.version,answer:fresh.question.correct});assert.equal(saved.status,200);fresh=(await request(a.cookie,'/puzzles/'+fresh.id+'/next','POST',{version:saved.data.version})).data;}
- assert.equal(fresh.phase,'finished');const daily=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;assert.equal(daily.id,p.id);assert.equal(daily.answers.filter(a=>a.correct).length,5);assert.equal(daily.answers.length,6);assert.equal(daily.out,true);assert.equal((await request(a.cookie,'/profile')).data.stats.dailyCount,1);
+ assert.equal(fresh.phase,'finished');const daily=(await request(a.cookie,'/puzzles','POST',{mode:'compare'})).data;assert.equal(daily.id,p.id);assert.equal(daily.answers.filter(a=>a.correct).length,6);assert.equal(daily.answers.length,9);assert.equal(daily.out,true);assert.equal((await request(a.cookie,'/profile')).data.stats.dailyCount,1);
 });
 
 test('a completed Mosaic opens a targeted retry for its mismatched flag',async()=>{
@@ -604,9 +605,12 @@ test('friends see who is online and can invite each other straight into a room',
  assert.deepEqual((await request(a.cookie,'/presence','POST',{})).data,{invites:[],requests:0});assert.equal((await request(b.cookie,'/presence','POST',{})).data.requests,0,'accepted: badge gone');
  let seen=(await request(b.cookie,'/friends')).data.friends[0];assert.equal(seen.online,1);assert.equal(seen.name,'Invite A');
  const room=(await request(a.cookie,'/rooms','POST',{settings})).data;
+ const before=(await request(b.cookie,'/invites/check')).data;
  const notFriend=await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:c.data.user.id});assert.equal(notFriend.status,403,'only accepted friends');assert.equal(notFriend.data.error?.code??notFriend.data.code??notFriend.data.error,'NOT_FRIENDS');
  assert.equal((await request(c.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,403,'only players in the room');
  assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200);
+ // 1.42: the quick read-only check sees the new invite, so the app can fetch it within seconds.
+ const after=(await request(b.cookie,'/invites/check')).data;assert.equal(after.n,before.n+1);assert.ok(after.last>0);
  assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200,'re-inviting refreshes');
  const inbox=(await request(b.cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].code,room.code);assert.equal(inbox[0].name,'Invite A');
  // 1.41: an invite into a room that already started (or expired) is not shown; back in the waiting room it is.
