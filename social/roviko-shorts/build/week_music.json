@@ -154,5 +154,17 @@
     null
    ]
   ]
+ },
+ "wk-D4P4": {
+  "song": "take-this-higher",
+  "end": 32,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    38,
+    null
+   ]
+  ]
  }
 }
