@@ -1,0 +1,167 @@
+/* 1.42: Side by Side lives */
+.compare-lives{display:inline-flex;gap:2px;margin:0 8px 0 0;font-size:15px;line-height:1;vertical-align:middle}
+.compare-lives .is-lost{opacity:.55;filter:grayscale(1)}
+.compare-lives .is-full:last-of-type{animation:none}
+.compare-lives .compare-life-lost{margin-left:8px;padding:3px 10px;border-radius:999px;background:#fde4dc;color:#8a2d14;font:800 .8rem/1.2 var(--font-sans);white-space:nowrap;animation:rb-verdict .45s var(--spring) both}
+/* 1.42: rankings strip on the home screen, right under the main button */
+.home-ranks{display:flex;align-items:stretch;gap:0;max-width:640px;width:calc(100% - 32px);box-sizing:border-box;margin:16px auto 4px;padding:10px 8px 10px 4px;background:#fff;border-radius:18px;box-shadow:0 1px 0 rgba(0,0,0,.04),0 8px 22px rgba(23,58,46,.08);color:var(--color-forest);text-decoration:none;position:relative;z-index:1}
+.home-ranks .hr-cell{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:0 6px;text-align:center}
+.home-ranks .hr-cell+.hr-cell{border-left:1px solid rgba(23,58,46,.1)}
+.home-ranks small{font-size:11px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.home-ranks b{display:inline-flex;align-items:baseline;gap:4px;font-size:21px;line-height:1.15;font-weight:900;white-space:nowrap}
+.home-ranks b em{font-style:normal;font-size:12px;font-weight:700;opacity:.6}
+.home-ranks b.is-empty{font-size:14px;font-weight:800;opacity:.55;padding-top:3px}
+.home-ranks .hr-league b{align-items:center}
+.home-ranks .hr-trophy{color:#c98a12}
+.home-ranks .hr-go{align-self:center;flex:none;opacity:.45}
+.home-ranks:hover{box-shadow:0 1px 0 rgba(0,0,0,.04),0 10px 26px rgba(23,58,46,.13)}
+@media(max-width:380px){.home-ranks b{font-size:18px}.home-ranks b em{font-size:11px}}
+
+/* ===== 1.42 · every game on one iPhone screen =====
+   Measured at 390×844 (iPhone 12–16) and 375×667 (iPhone SE), in the app and in Safari. */
+@media (max-width:560px){
+  /* The 112px bottom room is only for the fixed "Next" bar; without that bar the page ends right after the game. */
+  .game-main:not(:has(.solo-next-row,.puzzle-bottom .btn.primary,.rank-controls .btn.primary,.duel-next,.compare-out)),
+  .is-app .game-main:not(:has(.solo-next-row,.puzzle-bottom .btn.primary,.rank-controls .btn.primary,.duel-next,.compare-out)){padding-bottom:calc(12px + env(safe-area-inset-bottom))!important}
+  .game-main .solo-game{margin-bottom:0!important}
+  .game-main .game-header{margin-bottom:4px!important}
+  .game-main .game-body{padding-block:4px!important}
+  /* Roviko peeks over the question card: a smaller gap above the card. */
+  .game-main .q-card,.game-main .comparison-heading.tp-card,.game-main .rb-hero.tp-card{margin-top:34px!important}
+  .game-main .tp-card>.peek,.game-main .q-card>.peek,.game-main .q-card .peek{transform:scale(.8);transform-origin:bottom center}
+  .game-main .q-card{padding-block:14px!important}
+  /* Four short answers sit two by two. */
+  .learning-game .answer-grid{margin-top:14px!important;margin-bottom:6px!important}
+  .learning-game .answer-grid:has(>.answer-option:nth-child(4):last-child){display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+  .learning-game .answer-grid:has(>.answer-option:nth-child(4):last-child)>.answer-option{min-height:58px!important;padding:8px 10px!important;text-align:center;justify-content:center}
+  .learning-game .answer-grid>.answer-option img{width:30px!important;height:auto!important;flex:none}
+  .learning-game .answer-grid>.answer-option{gap:8px!important}
+  .game-main .shape-stage{max-height:34vh}
+  .game-main .shape-stage svg{max-height:34vh}
+  .learning-game .answer-grid .option-country{overflow-wrap:anywhere;hyphens:auto;line-height:1.2}
+  /* Small links at the end: report an issue, sources. */
+  .game-main .report-link{min-height:34px!important;margin-top:4px!important;padding-block:6px!important}
+  .game-main .puzzle-bottom{margin-top:8px!important}
+  .game-main .puzzle-bottom>.text-link{min-height:34px}
+  .game-main .puzzle-game .puzzle-source{margin-top:4px!important;line-height:1.3!important}
+  .game-main .rank-footer{margin-top:2px!important}
+  /* Clue Trail: tighter clue rows, the next-clue button and the points pill side by side. */
+  .trail-clues .clue-slots li{min-height:42px!important;padding-block:5px!important}
+  .trail-clues{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 10px}
+  .trail-clues>.clue-slots{flex:1 0 100%}
+  .trail-clues>.trail-more{min-height:42px!important;margin:0!important}
+  .trail-clues>.trail-available{margin:0!important}
+  /* Rank Radar: the board ends at its button. */
+  .rank-board{padding-bottom:calc(8px + env(safe-area-inset-bottom))!important}
+  .rank-board .rb-hero{margin-bottom:8px!important}
+  .rank-board .rb-actions{margin-top:8px!important;padding-top:8px!important}
+  /* Side by Side */
+  .puzzle-compare .comparison-heading{margin-bottom:10px!important;padding-block:14px 16px!important}
+  /* Size Shuffle */
+  .learning-game .question-help{margin-block:6px!important}
+  .learning-game .answer-submit{margin-top:12px!important}
+}
+/* Short phones (iPhone SE, and Safari with its bars): Roviko does not peek, everything moves up. */
+@media (max-width:560px) and (max-height:740px){
+  .game-main .peek{display:none!important}
+  .game-main .game-header{padding-block:2px!important}
+  .learning-game .order-list .order-item{min-height:54px!important;padding-block:3px!important}
+  .learning-game .question-help{font-size:.85rem!important;line-height:1.3!important}
+  .game-main .q-card,.game-main .comparison-heading.tp-card,.game-main .rb-hero.tp-card{margin-top:6px!important}
+  .game-main .q-card{padding-block:10px!important}
+  .game-main .q-card h1,.game-main .question-heading h1{font-size:1.35rem!important;line-height:1.2!important}
+  .learning-game .answer-grid:has(>.answer-option:nth-child(4):last-child)>.answer-option{min-height:52px!important}
+  .trail-clues .clue-slots li{min-height:38px!important;padding-block:3px!important}
+  .rank-board .rb-row{min-height:50px!important;padding-block:4px!important}
+  .game-main .shape-stage,.game-main .shape-stage svg{max-height:27vh}
+}
+
+/* ===== 1.42 · after answering: the answer, the explanation and "Next" on one screen ===== */
+@media (max-width:560px){
+  .game-main:has(.solo-next-row){padding-bottom:calc(86px + env(safe-area-inset-bottom))!important}
+  .question-content:has(.answer-feedback) .peek{display:none!important}
+  .question-content:has(.answer-feedback) .q-card{margin-top:6px!important;padding-block:10px!important}
+  .question-content:has(.answer-feedback) .q-card h1,.question-content:has(.answer-feedback) .question-heading h1{font-size:1.2rem!important;line-height:1.2!important}
+  .question-content:has(.answer-feedback) .flag-stage{margin-top:8px!important}
+  .question-content:has(.answer-feedback) .flag-stage img,.question-content:has(.answer-feedback) .flag-stage .flag-img{max-height:92px!important;width:auto!important;max-width:100%}
+  .question-content:has(.answer-feedback) .shape-stage,.question-content:has(.answer-feedback) .shape-stage svg{max-height:110px!important}
+  .question-content:has(.answer-feedback) .question-help{display:none!important}
+  /* The marks sit on the corner of the answer, never over the name. */
+  .learning-game .answer-grid>.answer-option .answer-key{top:-8px!important;right:-6px!important;margin:0!important;width:26px!important;height:26px!important;transform:none!important}
+  .learning-game .answer-grid>.answer-option .answer-key svg{width:15px;height:15px}
+  .learning-game .answer-grid>.answer-option .answer-status{display:none!important}
+  /* A short explanation: the right answer is already green above, the order already marked. */
+  .answer-feedback{margin:10px 0 0!important;padding:12px 14px!important}
+  .answer-feedback .feedback-heading{margin-bottom:4px!important}
+  .answer-feedback .feedback-heading :is(h2,h3,strong){font-size:1.15rem!important}
+  .question-content:has(.answer-grid) .answer-feedback :is(.your-answer-copy,.correction-label,.correct-answer){display:none!important}
+  .answer-feedback .correction-label:has(+.correct-order),.answer-feedback .correct-order{display:none!important}
+  .answer-feedback .fact{margin-top:4px!important;font-size:.875rem!important;line-height:1.35!important}
+  .question-content:has(.answer-feedback) .report-link{margin-top:2px!important}
+}
+@media (max-width:560px){
+  /* Rank Radar after a pick: the verdict on one full-width line under the country, the name never split mid-word. */
+  .rank-board .rb-hero h1{overflow-wrap:normal!important;word-break:normal!important;hyphens:auto}
+  .rank-board .rb-hero .rb-verdict{grid-column:1/-1;justify-self:stretch;justify-content:flex-start;flex-wrap:nowrap;margin:4px 0 0!important;padding:0!important;background:none!important}
+  .rank-board .rb-hero .rb-verdict strong{padding:4px 12px;font-size:.95rem}
+  .rank-board .rb-hero .rb-verdict span{font-size:.9rem;white-space:nowrap}
+  .rank-board .rb-hero .rb-verdict em{flex-basis:auto;font-size:.85rem;white-space:nowrap}
+  /* The ✓/✕ marks inside the answer's corner. */
+  .learning-game .answer-grid>.answer-option .answer-key{top:5px!important;right:5px!important;width:20px!important;height:20px!important}
+  .learning-game .answer-grid>.answer-option .answer-key svg{width:12px;height:12px}
+  .learning-game .answer-grid>.answer-option{padding-inline:14px!important}
+  /* Size Shuffle: the rows already say which places are right. */
+  .question-content:has(.order-list) .answer-feedback .feedback-heading+p:not(.fact){display:none!important}
+}
+@media (max-width:560px) and (max-height:740px){
+  .question-content:has(.answer-feedback) .question-heading h1{display:none!important}
+  .question-content:has(.answer-feedback) .flag-stage img,.question-content:has(.answer-feedback) .flag-stage .flag-img{max-height:72px!important}
+  .question-content:has(.answer-feedback) .shape-stage,.question-content:has(.answer-feedback) .shape-stage svg{max-height:90px!important}
+  .learning-game .answer-grid>.answer-option{min-height:46px!important;font-size:.92rem!important}
+  .learning-game .order-list .order-item{min-height:50px!important}
+  .trail-clues .clue-slots li{font-size:.9rem!important;line-height:1.25!important}
+  .trail-clues>.trail-more{min-height:38px!important}
+  .rank-board .rb-row{min-height:46px!important}
+  .rank-board .rb-hero.tp-card{padding-block:8px!important}
+  .game-main .report-link,.game-main .rank-footer .text-link{min-height:28px!important;padding-block:2px!important}
+}
+@media (max-width:560px){.question-content:has(.answer-feedback) .flag-stage{min-height:0!important;height:auto!important;padding-block:4px!important}}
+@media (max-width:560px){
+  /* Pinpoint after the pin: a lower map (the world still fits), the country is already named above. */
+  .question-content:has(.answer-feedback) .map-wrap .world-map{height:210px!important;min-height:0!important;max-height:210px!important}
+  .question-content:has(.map-wrap):has(.answer-feedback) .answer-feedback :is(.correction-label,.correct-answer){display:none!important}
+}
+@media (max-width:560px) and (max-height:740px){
+  .question-content:has(.answer-feedback) .map-wrap .world-map{height:150px!important;max-height:150px!important}
+  .question-content:has(.answer-feedback) .map-wrap .map-caption{display:none!important}
+}
+@media (max-width:560px){.question-content:has(.map-wrap) .answer-feedback .fact{display:none!important}}
+@media (max-width:560px){
+  /* Side by Side after an answer: the question line steps aside for the values and the explanation. */
+  .game-main:has(.puzzle-compare .puzzle-bottom .btn.primary):not(:has(.compare-out)){padding-bottom:calc(86px + env(safe-area-inset-bottom))!important}
+  .puzzle-compare:has(.comparison-reveal) .comparison-heading h1{display:none}
+  .puzzle-compare:has(.comparison-reveal) .comparison-heading .peek{display:none!important}
+  .puzzle-compare:has(.comparison-reveal) .comparison-heading.tp-card{margin-top:6px!important;padding-block:10px!important}
+  .puzzle-compare:has(.comparison-reveal) .comparison-country .country-key{display:none}
+  .puzzle-compare:has(.comparison-reveal) .comparison-country{padding-top:14px!important}
+  .puzzle-compare .comparison-reveal{margin-top:10px!important;padding:12px 14px!important}
+  .puzzle-compare .comparison-reveal .comparison-detail{display:none}
+  .puzzle-compare:has(.comparison-reveal) .puzzle-source,.puzzle-compare:has(.comparison-reveal) .auto-next-wrap{display:none}
+}
+@media (max-width:560px){.game-main:has(.puzzle-compare .compare-out){padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}.puzzle-bottom:has(.btn.primary) .compare-out{margin:0 0 6px!important}}
+@media (max-width:560px){
+  /* World Duel: room for the "Next" button only while it is there. */
+  .duel-game:not(:has(.duel-next)){padding-bottom:8px!important}
+  .duel-game .duel-arena.tp-card{margin-top:34px!important;margin-bottom:10px!important}
+}
+@media (max-width:560px) and (max-height:740px){
+  .duel-game .duel-arena.tp-card{margin-top:8px!important}
+  .duel-game .duel-arena .peek{display:none!important}
+}
+/* Wide screens: the rankings strip sits under the hero in the left column, the side rows after it. */
+@media (min-width:980px){
+  .home.home-trip:has(>.home-ranks){grid-template-rows:auto auto 1fr}
+  .home-trip>.home-ranks{grid-column:1;grid-row:2;width:100%;max-width:none;margin:0}
+  .home-trip:has(>.home-ranks)>.th-main{grid-row:1/span 3}
+  .home-trip:has(>.home-ranks)>.home-side{grid-row:3}
+}

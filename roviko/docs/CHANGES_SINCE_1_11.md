@@ -596,6 +596,18 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.42.0 (op de testversie, nog niet live)
+
+**Drie levens in Side by Side.** Een fout kost een leven; pas bij de derde fout stopt de run. Punten blijven goede antwoorden ÷ 15 × 1.000. De levens horen bij de inhoud van de dag (`lives: 3` in `daily_content`): een dag waarvan de inhoud al vóór deze versie was opgeslagen, houdt de oude regel (één fout) voor iedereen, zodat niemand op de wisseldag een voordeel heeft. Oefenen heeft ook drie levens. Overleven (survival) blijft: één fout en je bent af. Hartjes in de vraagkaart, na een fout een label "Eén leven kwijt · nog 2" / "Laatste leven!". Teksten in uitleg en puntenregels aangepast (`i18n/v142.ts`, `lib/how-to-play.ts`). De andere dagspellen stopten al niet bij een fout.
+
+**Uitnodigingen sneller binnen.** Naast de hartslag van elke 15 seconden kijkt de app nu elke 3 seconden met een lichte, alleen-lezen vraag (`GET /api/invites/check`: één geïndexeerde telling, geen schrijfactie en geen rate-limit-schrijfactie) of er een nieuwe uitnodiging is; zo ja, dan haalt hij hem meteen op. Een uitnodiging verschijnt dus binnen een paar seconden in plaats van tot 15 seconden later. Niet opgelost: als de app op de achtergrond staat, komt er nog geen melding.
+
+**Je plek in de ranglijst bovenaan.** Op het startscherm staat direct onder de grote knop een kaart met je plek vandaag, deze week en (met account) je liga, of de ranglijst. De rij onderaan de zijkolom is weg. Op brede schermen staat de kaart links onder de held.
+
+**Elk spel op één iPhone-scherm.** Op telefoons (`app/v142.css`): de lege ruimte onderaan (112 px) is er alleen nog als de knop "Volgende" in beeld is, Roviko gluurt kleiner over de vraagkaart (op korte schermen niet), vier antwoorden staan twee aan twee, Clue Trail-hints zijn compacter, en na het antwoorden wordt de vraag kleiner en de uitleg korter (het juiste antwoord staat al groen in beeld). Gemeten zonder scrollen: alle zes dagspellen, vraag én antwoord, de Dagelijkse Omweg met alle tien vragen (ook de kaart), Side by Side met fouten en einde run, World Duel en Overleven, op 390×844 en 375×667 (iPhone SE) in de app en op 390×664 (Safari).
+
+**Getest:** `npm test` 208 geslaagd, 1 overgeslagen (nieuw: `tests/lives.test.mjs`; aangepast: Side by Side eindigt nu bij de derde fout; uitnodiging zichtbaar via `/invites/check`). `tsc` en build schoon. Lokaal met Playwright gemeten en bekeken (schermafbeeldingen). Niet getest: een echt toestel, en uitnodigen tussen twee echte toestellen.
+
 ## 1.41.4 (live sinds 16 oktober 2026, PR #37)
 
 - Op verzoek van de eigenaar noemen privacy, voorwaarden en `/support` alleen nog "Jonker Studios" (geen persoonsnaam, geen KVK-nummer). Let op: de Handelsregisterwet vraagt een KVK-nummer op de website van een onderneming; de eigenaar heeft hiervoor gekozen.

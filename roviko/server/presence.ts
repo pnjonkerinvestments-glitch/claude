@@ -43,6 +43,14 @@ export async function heartbeat(env: Env, user: User, roomCode?: string | null, 
   return { invites, requests };
 }
 
+/** 1.42: a cheap read-only check (one indexed read, no writes) the app makes every few seconds, so a new invite
+ * shows up within seconds instead of waiting for the next heartbeat. The app runs the full heartbeat when it changes. */
+export async function inviteCheck(env: Env, user: User) {
+  if (user.guest) return { n: 0, last: 0 };
+  const r = await one(env, "SELECT COUNT(*) n, MAX(created_at) last FROM room_invites WHERE to_id=? AND status='pending' AND created_at>?", user.id, Date.now() - INVITE_TTL);
+  return { n: Number(r?.n ?? 0), last: Number(r?.last ?? 0) };
+}
+
 /** Lucia accepts friend requests that have waited a minute (1.31). Cheap: one indexed update on the request pair. */
 export async function luciaAccepts(env: Env, userId: string, now = Date.now()) {
   await run(env, "UPDATE friend_requests SET status='accepted' WHERE from_id=? AND to_id=? AND status='pending' AND created_at<=?", userId, LUCIA_ID, now - LUCIA_ACCEPT_AFTER);

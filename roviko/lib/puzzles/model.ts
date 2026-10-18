@@ -6,7 +6,7 @@ export type MosaicFact = { id: string; category: string; explanation: Localized;
 export type Tile = { id: string; kind: 'flag' | 'name' | 'shape' | 'fact' | 'capital'; countryId: string; text?: Localized; image?: string; path?: string; fact?: MosaicFact };
 export type MosaicBoard = { id: string; size: 3 | 4 | 5; factEdition?: string; factDate?: string; tiles: Tile[]; countries: CountryLabel[] };
 export type Attempt = { at?: number; correct: boolean; value: string | string[]; countryId: string; responseTime: number; questionId: string };
-export type PuzzleState = { hintSelection?:string[]; /** One mistake ends the run (Side by Side since 1.21). */ suddenDeath?: boolean; /** The run ended on a mistake. */ out?: boolean; competition?: import('../daily-scoring').Competition; mosaicAid?: Record<string,{wrong:boolean;hints:number}>; practice?: boolean; reviewOf?: string; datasetVersion?: string; id: string; mode: PuzzleMode; daily: string | null; phase: 'question' | 'reveal' | 'finished'; round: number; startedAt: number; turnAt: number; settings: { topic: string; size: 3 | 4 | 5 }; questions: CompareRound[]; board: MosaicBoard | null; answers: Attempt[]; solved: string[]; streak: number; bestStreak: number };
+export type PuzzleState = { hintSelection?:string[]; /** One mistake ends the run (Side by Side since 1.21). */ suddenDeath?: boolean; /** Lives at the start of a Side by Side run (1.42: 3); the run ends when they are all lost. Days already started under the one-mistake rule keep it. */ lives?: number; /** The run ended on a mistake. */ out?: boolean; competition?: import('../daily-scoring').Competition; mosaicAid?: Record<string,{wrong:boolean;hints:number}>; practice?: boolean; reviewOf?: string; datasetVersion?: string; id: string; mode: PuzzleMode; daily: string | null; phase: 'question' | 'reveal' | 'finished'; round: number; startedAt: number; turnAt: number; settings: { topic: string; size: 3 | 4 | 5 }; questions: CompareRound[]; board: MosaicBoard | null; answers: Attempt[]; solved: string[]; streak: number; bestStreak: number };
 export type PuzzleView = Omit<PuzzleState, 'questions' | 'startedAt' | 'turnAt'> & { question: CompareRound | null; review?: CompareRound[]; total: number; version: number; score?: number; mosaicReview?: ReturnType<typeof reviewMosaic>; hintSelection?: string[]; learning: true };
 export function checkMosaic(board: MosaicBoard, solved: string[], ids: string[]) {
   if (ids.length !== board.size || new Set(ids).size !== board.size) return { valid: false, correct: false, countryId: '', closest: 0 };
@@ -48,4 +48,12 @@ export function reviewMosaic(board: MosaicBoard, ids: string[]) {
     countryId: name.countryId,
     tiles: tiles.map(tile => ({ id: tile.id, kind: tile.kind, countryId: tile.countryId, correct: tile.countryId === name.countryId })),
   };
+}
+
+/** Side by Side lives (1.42): three mistakes end the run; Survival keeps one life. */
+export const COMPARE_LIVES = 3;
+/** Lives left in a Side by Side run (undefined when the run has no lives). */
+export function livesLeft(s: { lives?: number; suddenDeath?: boolean; answers: { correct: boolean }[] }): number | undefined {
+  const max = s.lives ?? (s.suddenDeath ? 1 : undefined);
+  return max === undefined ? undefined : Math.max(0, max - s.answers.filter(a => !a.correct).length);
 }

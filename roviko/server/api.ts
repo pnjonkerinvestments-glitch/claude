@@ -22,7 +22,7 @@ import silhouettes from '../lib/data/silhouettes.json';
 import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
-import { heartbeat, inviteFriend, answerInvite, luciaAccepts, ONLINE_WINDOW } from './presence';
+import { heartbeat, inviteCheck, inviteFriend, answerInvite, luciaAccepts, ONLINE_WINDOW } from './presence';
 import { LUCIA_ID, LUCIA_NAME } from '../lib/lucia';
 import { LUCIA_KEY, NAME_KEY_SQL, nameTaken, searchKey } from './names';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
@@ -155,6 +155,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             return json({ user: result.user }, 200, { 'Set-Cookie': result.cookie });
         }
         const user = await requireUser(req, env);
+        // 1.42: the quick invite check is read-only, so it skips the rate-limit write (it runs every few seconds).
+        if (path[0] === 'invites' && path[1] === 'check' && method === 'GET')
+            return json(await inviteCheck(env, user));
         await limit(env, 'api:' + user.id, 240);
         if (path[0] === 'auth' && path[1] === 'verify' && path[2] === 'send' && method === 'POST')
             return json(await sendVerification(req, env, user));

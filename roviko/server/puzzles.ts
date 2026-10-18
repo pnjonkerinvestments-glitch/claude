@@ -9,7 +9,7 @@ import { one, rows, run, batch } from './db';
 import { resultStatement } from './stats';
 import { TOPICS } from '../lib/puzzles/topics';
 import { COMPARE_ROUNDS, dailyTopic, generateComparisons, generateMosaic } from '../lib/puzzles/generate';
-import { checkMosaic, reviewMosaic, mosaicHint, type PuzzleState, type PuzzleView } from '../lib/puzzles/model';
+import { checkMosaic, reviewMosaic, mosaicHint, livesLeft, COMPARE_LIVES, type PuzzleState, type PuzzleView } from '../lib/puzzles/model';
 import type { Env, User } from './types';
 import { dailyModesFor } from '../lib/daily-loop';
 
@@ -54,11 +54,12 @@ export async function startPuzzle(env: Env, user: User, input: unknown, focus?: 
   const id = crypto.randomUUID(), seed = daily ? 'roviko:puzzle:v1:' + settings.mode + ':' + daily : id;
   const topic = daily ? dailyTopic(daily).id : settings.topic ?? TOPICS[0].id;
   const size = daily ? 4 : settings.size;
-  const generate = (seed: string) => ({ settings: { topic, size }, questions: settings.mode === 'compare' ? generateComparisons(topic, seed, COMPARE_ROUNDS, focus, [], true) : [], board: settings.mode === 'mosaic' ? generateMosaic(size, seed, focus, daily ?? new Date().toISOString().slice(0, 10)) : null });
+  const generate = (seed: string) => ({ settings: { topic, size }, ...(settings.mode === 'compare' ? { lives: COMPARE_LIVES } : {}), questions: settings.mode === 'compare' ? generateComparisons(topic, seed, COMPARE_ROUNDS, focus, [], true) : [], board: settings.mode === 'mosaic' ? generateMosaic(size, seed, focus, daily ?? new Date().toISOString().slice(0, 10)) : null });
   const content = daily ? await dailyContent(env, daily, kind, generate) : { ...generate(seed), datasetVersion: undefined };
   const blocked = await rows(env, 'SELECT question_id FROM disabled_questions');
   if (blocked.some((r:any) => content.board?.id === r.question_id || content.questions.some((q:any) => q.id === r.question_id))) throw new AppError('QUESTION_UNAVAILABLE',503);
-  const s: PuzzleState = { ...(settings.mode === 'compare' && content.questions.length >= COMPARE_ROUNDS ? { suddenDeath: true } : {}), id,...(ranked?{competition:{version:1,mode:settings.mode} as const}:{}), mode: settings.mode, daily, ...content, phase: 'question', round: 0, startedAt: Date.now(), turnAt: Date.now(), answers: [], solved: [], streak: 0, bestStreak: 0 };
+  // 1.42: new content carries three lives; a day whose content was stored before keeps the one-mistake rule, so everyone plays it the same way.
+  const s: PuzzleState = { ...(settings.mode === 'compare' && content.questions.length >= COMPARE_ROUNDS && !content.lives ? { suddenDeath: true } : {}), id,...(ranked?{competition:{version:1,mode:settings.mode} as const}:{}), mode: settings.mode, daily, ...content, phase: 'question', round: 0, startedAt: Date.now(), turnAt: Date.now(), answers: [], solved: [], streak: 0, bestStreak: 0 };
   const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
   if (!inserted.meta.changes && daily) {
     const saved = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, daily, kind);
@@ -107,7 +108,7 @@ export async function puzzleAction(env: Env, user: User, id: string, action: str
     s.turnAt = Date.now();
     s.streak = correct ? s.streak + 1 : 0; s.bestStreak = Math.max(s.bestStreak, s.streak);
   } else if (action === 'next' && s.mode === 'compare' && s.phase === 'reveal') {
-    if (s.suddenDeath && !s.answers.at(-1)?.correct) { s.phase = 'finished'; s.out = true; }
+    if (!s.answers.at(-1)?.correct && livesLeft(s) === 0) { s.phase = 'finished'; s.out = true; }
     else if (s.round + 1 === s.questions.length) s.phase = 'finished';
     else {
       s.round++; s.phase = 'question'; s.turnAt = Date.now();
