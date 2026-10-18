@@ -77,7 +77,9 @@ def load(path):
 
 
 def main(name):
-    cfg = SHORTS[name]
+    # the content-week reels (build/week.sh) write their song, start beat and length to build/week_music.json
+    extra = ROOT / 'build' / 'week_music.json'
+    cfg = SHORTS.get(name) or json.loads(extra.read_text())[name]
     grid = json.loads((MUSIC / f"beatgrid-{cfg['song']}.json").read_text())
     P, B0 = grid['beat_period_s'], grid['first_beat_s']
     x = load(MUSIC / f"mixkit-{cfg['song']}.mp3")

@@ -1,0 +1,126 @@
+/*
+  Roviko content week (19-25 Oct 2026), post 1 of every day: Guess the Country. wk-country.html?d=1..7
+  Three clue cards drop in (iPhone-style glass cards, own glyphs, no emoji), a ring timer counts each clue down, then the answer:
+  silhouette, true-ratio flag and name, and a fact that pays off the watch. Each day a different build: plain, Roviko guessing,
+  hard-to-easy, a sharpening shape, a map clue, points per clue, and 3 seconds per clue.
+*/
+// @scripts lib/trendfilm.js lib/ios.js
+const D = +(Q.get('d') || 1);
+const DAY = {
+  1: { iso: 'NPL', fl: 'np', name: 'Nepal', song: 'games-worldbeat', tempo: 115.993, level: 'MEDIUM', hook: ['Name this country', 'before the last clue'],
+    clues: [['mountain', '8 of the 10 highest mountains on Earth are here'], ['pin', 'It sits between India and China'], ['flag', 'Its flag is not a rectangle']],
+    fact: ['bulb', 'Mount Everest (8,849&nbsp;m) is on its border with China. And it has the only national flag that isn’t a rectangle.'],
+    cta: ['Clue 1, 2 or 3?', 'Say when you got it'], mood: 'think' },
+  2: { iso: 'MDG', fl: 'mg', name: 'Madagascar', song: 'bob', tempo: 119.996, level: 'EASY', hook: ['Roviko says he gets this', 'on clue 2. Can you?'],
+    clues: [['globe', 'It’s an island in the Indian Ocean'], ['heart', 'It’s the home of the lemurs'], ['map', 'It’s the 4th-biggest island on Earth']],
+    roviko: { after: 1, say: 'Easy. Sri Lanka.' }, fact: ['bulb', 'It split from India about 88&nbsp;million years ago. That’s why most of its wildlife lives nowhere else.'],
+    cta: ['Did you beat Roviko?', 'Tell him in the comments'], mood: 'smug' },
+  3: { iso: 'BTN', fl: 'bt', name: 'Bhutan', song: 'fun-and-games', tempo: 99.547, level: 'HARD', hook: ['Hard mode:', 'clues go from hard to easy'],
+    clues: [['sparkles', 'It measures Gross National Happiness'], ['mountain', 'It’s a kingdom in the Himalayas'], ['flag', 'There’s a white dragon on its flag']], tiers: ['HARD', 'MEDIUM', 'EASY'],
+    fact: ['bulb', 'Its constitution says at least 60% of the country must stay forest. Forever.'],
+    cta: ['Which clue gave it away?', '1, 2 or 3'], mood: 'think' },
+  4: { iso: 'MAR', fl: 'ma', name: 'Morocco', song: 'light-it-up-boy', tempo: 118.998, level: 'MEDIUM', hook: ['The shape gets sharper', 'with every clue'], blurShape: true,
+    clues: [['columns', 'Its capital is not its biggest city'], ['mountain', 'The Atlas Mountains run through it'], ['eye', 'On a clear day you can see Europe from here']],
+    fact: ['bulb', 'The capital is Rabat, not Casablanca or Marrakesh. And Spain is only 14&nbsp;km away.'],
+    cta: ['How blurry was it', 'when you got it?'], mood: 'think' },
+  5: { iso: 'NAM', fl: 'na', name: 'Namibia', song: 'keeping-fit', tempo: 130.001, level: 'HARD', hook: ['Africa expert?', 'Prove it in 3 clues'], mapClue: true,
+    clues: [['sparkles', 'Its flag has a golden sun'], ['mountain', 'It’s named after one of the oldest deserts on Earth'], ['pin', 'It’s right here:']],
+    fact: ['bulb', 'The Namib desert is at least 55&nbsp;million years old. Older than the Sahara by tens of millions of years.'],
+    cta: ['Send this to your', 'Africa expert'], mood: 'think' },
+  6: { iso: 'PER', fl: 'pe', name: 'Peru', song: 'upbeat-jazz', tempo: 110.004, level: 'MEDIUM', hook: ['Fewer clues, more points.', 'Play this with a friend'], points: [3, 2, 1],
+    clues: [['map', 'The Amazon River starts in its mountains'], ['globe', 'It shares Lake Titicaca with Bolivia'], ['mountain', 'Machu Picchu is here']],
+    fact: ['bulb', 'Its capital, Lima, gets less than 2&nbsp;cm of rain a year. It’s a big city in a desert.'],
+    cta: ['Your score: 3, 2 or 1?', 'Now send it to your friend'], mood: 'calm' },
+  7: { iso: 'MNG', fl: 'mn', name: 'Mongolia', song: 'mi-gente', tempo: 110.002, level: 'MEDIUM', hook: ['Week finale:', '3 clues, 3 seconds each'], gap: 6,
+    clues: [['people', 'It’s the least densely populated country'], ['map', 'It borders only Russia and China'], ['crown', 'Genghis Khan was born here']],
+    fact: ['bulb', 'Its capital, Ulaanbaatar, is the coldest capital city in the world.'],
+    cta: ['Got all 7 this week?', 'Count your score'], mood: 'calm' },
+}[D];
+const TEMPO = DAY.tempo, DIL = TEMPO / 130;
+const GAP = DAY.gap || 4, C0 = 1;
+const TL = { tag: 0, c: [C0, C0 + GAP, C0 + 2 * GAP] };
+TL.rev = TL.c[2] + GAP; TL.fact = TL.rev + 1.6; TL.cta = TL.rev + 6.5; TL.endB = TL.rev + 11;
+const END = Math.ceil(TL.endB), DURATION = END * 60 / TEMPO;
+const tag = seriesTag(...SERIES.country.slice(0, 2), SERIES.country[2], `${DAYS[D]} · ${DAY.level}`);
+// clue cards
+const CY = 450, CH = 170, CG = 22;
+const clues = DAY.clues.map(([ic, txt], i) => {
+  const isMap = DAY.mapClue && i === 2;
+  const h = isMap ? 360 : CH, y = CY + i * (CH + CG);
+  const card = glass(90, y, 900, h, 10 + i);
+  const chip = DAY.points ? `<span style="padding:8px 18px;border-radius:999px;background:${C.forest};color:#fff;font-family:Manrope;font-weight:800;font-size:24px">${DAY.points[i]} PT${DAY.points[i] > 1 ? 'S' : ''}</span>`
+    : DAY.tiers ? `<span style="padding:8px 18px;border-radius:999px;background:${[IOS.red, IOS.orange, IOS.green][i]};color:#fff;font-family:Manrope;font-weight:800;font-size:24px">${DAY.tiers[i]}</span>` : '';
+  el(card, { left: 0, top: 0, width: 900, height: CH }, `<div style="display:flex;align-items:center;gap:28px;height:${CH}px;padding:0 34px">${iconTile(ic, 92, ...[['#5AC8FA', '#0A84FF'], ['#34C759', '#1F806B'], ['#FF9F0A', '#FF6B00']][i])}<div style="flex:1"><div style="display:flex;align-items:center;gap:14px"><span style="font-family:Manrope;font-weight:800;font-size:24px;letter-spacing:.14em;color:${IOS.grey}">CLUE ${i + 1}</span>${chip}</div><div style="font-family:Fredoka;font-weight:600;font-size:44px;line-height:1.15;color:${C.forest};margin-top:4px">${txt}</div></div></div>`);
+  return { card, y, h };
+});
+let mini = null;
+if (DAY.mapClue) {   // a small map of Africa with a pin, no names
+  const c = clues[2], B = { x: 130, y: c.y + 160, w: 820, h: 180 };
+  mini = flatMap(B, [-20, -36, 52, 0], { z: 13 });
+  const ctr = geoCentre(DAY.iso), [px, py] = mini.pt(ctr.lon, ctr.lat);
+  svgEl(mini.g, 'circle', { cx: px, cy: py, r: 16, fill: IOS.red, stroke: '#fff', 'stroke-width': 5 });
+}
+// the shape that sharpens (d4)
+let blur = null;
+if (DAY.blurShape) {
+  blur = glass(330, 1060, 350, 240, 9);
+  const f = fitShape(DAY.iso, { cx: 175, cy: 125, w: 300, h: 210 });
+  const s = svgEl(blur, 'svg', { width: 350, height: 250 }); s.style.position = 'absolute';
+  blur.shape = svgEl(s, 'path', { d: f.d, fill: C.green });
+}
+// a mystery card where the shape will be (all days but the sharpening shape)
+let mystery = null;
+if (!DAY.blurShape && !DAY.mapClue) {
+  mystery = glass(330, 1060, 350, 240, 9);
+  el(mystery, { left: 0, top: 0, width: 350, height: 240, display: 'grid', placeItems: 'center' }, `<div style="display:flex;flex-direction:column;align-items:center;gap:10px">${glyph('question', 110, C.green)}<span style="font-family:Manrope;font-weight:800;font-size:24px;letter-spacing:.16em;color:${IOS.grey}">WHO AM I?</span></div>`);
+}
+const ring = ringTimer(900, DAY.mapClue ? 1300 : 1170, 66);
+// the answer
+const ans = glass(90, 450, 900, 560, 20);
+const fS = fitShape(DAY.iso, { cx: 300, cy: 280, w: 380, h: 420 });
+const ansSvg = svgEl(ans, 'svg', { width: 900, height: 560 }); ansSvg.style.position = 'absolute';
+const shape = svgEl(ansSvg, 'path', { d: fS.d, fill: '#CFE9DA', stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round' });
+el(ans, { left: 520, top: 120, width: 340 }, `<div style="display:flex;flex-direction:column;gap:22px;align-items:flex-start">${flagW(DAY.fl, 150)}<div style="font-family:Fredoka;font-weight:700;font-size:${DAY.name.length > 8 ? 66 : 80}px;color:${C.forest};line-height:1">${DAY.name}</div><div style="display:flex;align-items:center;gap:10px">${glyph('check', 42, IOS.green)}<span style="font-family:Manrope;font-weight:800;font-size:26px;letter-spacing:.1em;color:${IOS.green}">ANSWER</span></div></div>`);
+const fact = factCard(DAY.fact[0], ['#FFD60A', '#FF9F0A'], 'DID YOU KNOW', DAY.fact[1], { y: 1040 });
+const says = [];
+if (DAY.roviko) says.push({ bub: Bubble(uiL, DAY.roviko.say, { x: 370, y: 1250, w: 520, size: 42, tail: 'left', z: 35 }), b0: TL.c[DAY.roviko.after] + 1.2, b1: TL.rev });
+if (DAY.roviko) says.push({ bub: Bubble(uiL, '…oh. Wrong.', { x: 370, y: 1250, w: 420, size: 42, tail: 'left', z: 35 }), b0: TL.rev + 0.8, b1: TL.cta });
+const caps = [[DAY.hook, -1.5, TL.rev], [[`It’s <b>${DAY.name}</b>`, ''], TL.rev, TL.cta], [DAY.cta, TL.cta, END + 1]]
+  .map(([lines, b0, b1]) => ({ c: Caption(capL, lines.filter(Boolean), { cy: 300, size: 52 }), b0, b1 }));
+
+// ---- sound
+ev(0.02, 'pop', -12, { rate: 1.1 }); ev(0.15, 'swish', -10);
+TL.c.forEach((b, i) => { ev(b, 'pop', -7, { rate: 1 + 0.08 * i }); ev(b + 0.1, 'swish', -12); for (let k = 1; k < GAP - 0.5; k++) ev(b + k, 'clock', -12, { rate: 1 + 0.05 * k }); });
+if (DAY.roviko) { ev(says[0].b0, 'mention', -8); ev(TL.rev + 0.3, 'trombone', -8); }
+ev(TL.rev - 1.2, 'drumroll', -10); ev(TL.rev, 'impactbig', -6); ev(TL.rev + 0.05, 'correct', -6); ev(TL.rev + 0.3, 'crowdcheer', -13);
+ev(TL.fact, 'pop', -8); ev(TL.fact + 0.1, 'sparkle', -10);
+ev(TL.cta, 'swish', -10); ev(TL.cta + 0.2, 'mention', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  popAt(tag, t, TL.tag);
+  clues.forEach((c, i) => {
+    const p = popAt(c.card, t, TL.c[i], TL.rev - 0.3 + 0.06 * i, 2.4, 0.6);
+    if (p > 0.001) S(c.card, { transform: `translateY(${(1 - Math.min(1, p)) * 60}px) scale(${0.9 + 0.1 * p})` });
+  });
+  if (mini) S(mini.wrap, { transform: clues[2].card.style.transform, visibility: clues[2].card.style.visibility, transformOrigin: '540px ' + (clues[2].y + 180) + 'px' });
+  if (blur) {
+    popAt(blur, t, 0.4, TL.rev - 0.3);
+    const k = b < TL.c[0] ? 0 : b < TL.c[1] ? 1 : b < TL.c[2] ? 2 : 3, bl = [34, 22, 12, 5][k] - segB(t, TL.c[Math.min(2, k)], TL.c[Math.min(2, k)] + 0.6) * 0;
+    blur.shape.style.filter = `blur(${bl}px)`;
+  }
+  if (mystery) { const mp = popAt(mystery, t, 0.4, TL.rev - 0.3); if (mp > 0.001) S(mystery, { transform: `scale(${mp}) rotate(${Math.sin(t * 3) * 2}deg)` }); }
+  // ring: counts each clue down; hidden at the reveal
+  const ci = TL.c.findLastIndex(c => b >= c), inClue = ci >= 0 && b < TL.rev;
+  if (inClue) { const b0 = TL.c[ci], q = clamp((b - b0) / GAP); ring.set(q, Math.max(1, Math.ceil((1 - q) * GAP * 60 / TEMPO))); }
+  popAt(ring.e, t, TL.c[0], TL.rev - 0.3);
+  const ap = popAt(ans, t, TL.rev, END + 2, 2.4, 0.55);
+  const sp = spB(t, TL.rev + 0.2, 2.6, 0.55); shape.style.transform = `scale(${sp})`; shape.style.transformOrigin = '300px 280px';
+  popAt(fact, t, TL.fact, END + 2, 2.4, 0.6);
+  says.forEach(s => s.bub.set(spB(t, s.b0, 2.4, 0.6), segB(t, s.b1, s.b1 + 0.3)));
+  caps.forEach(c => c.c.set(spB(t, c.b0, 1.9, 0.62), segB(t, c.b1 - 0.2, c.b1 + 0.15)));
+  const mood = b < TL.c[0] ? 'calm' : b < TL.rev ? (DAY.roviko && b >= says[0].b0 ? 'smug' : 'think') : b < TL.rev + 2 ? (DAY.roviko ? 'shock' : 'cheer') : b < TL.cta ? 'calm' : 'point';
+  rovikoMood(t, b, mood, [3.4, 9.8, 16.2, 22]);
+}
+boot(seek, DURATION);

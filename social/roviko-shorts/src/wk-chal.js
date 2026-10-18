@@ -1,0 +1,199 @@
+/*
+  Roviko content week (19-25 Oct 2026), post 3 of every day: Geo Challenge, a different game each day. wk-chal.html?d=1..7
+  1 Bigger: Germany vs Japan (true-scale shapes) · 2 Capital trap: Australia (+ two quick-fire traps) · 3 Shape: a turned
+  silhouette, which long country is it (Norway) · 4 Map lie: Spain vs Sweden, Mercator vs true size · 5 Odd one out, 3 rounds
+  · 6 Find Laos on the map · 7 Ljubljana is the capital of…? Areas: roviko.app data.
+*/
+// @scripts lib/trendfilm.js lib/ios.js
+const D = +(Q.get('d') || 1);
+const SONG = { 1: ['fun-and-games', 99.547], 2: ['ko-games', 110.992], 3: ['upbeat-jazz', 110.004], 4: ['bob', 119.996], 5: ['light-it-up-boy', 118.998], 6: ['games-worldbeat', 115.993], 7: ['keeping-fit', 130.001] }[D];
+const TEMPO = SONG[1], DIL = TEMPO / 130;
+const LEVEL = { 1: 'BIGGER OR SMALLER', 2: 'CAPITAL TRAP', 3: 'NAME THE SHAPE', 4: 'MAPS LIE', 5: 'ODD ONE OUT', 6: 'FIND IT ON THE MAP', 7: 'CAPITAL CHALLENGE' }[D];
+const tag = seriesTag(...SERIES.challenge.slice(0, 2), SERIES.challenge[2], `${DAYS[D]} · ${LEVEL}`);
+const ring = ringTimer(900, 1250, 66);
+let TL, END, update, caps, says = [], ask = { b: 2, len: 6 };
+const capOf = list => list.map(([lines, b0, b1]) => ({ c: Caption(capL, lines, { cy: 300, size: 52 }), b0, b1 }));
+const sayOf = list => list.map(([h, b0, b1, w = 430]) => ({ bub: Bubble(uiL, h, { x: 360, y: 1268, w, size: 40, tail: 'left', z: 35 }), b0, b1 }));
+// equal-area outline of a country around its own centre, s px per sphere radius, centred at (cx, cy)
+function trueShape(svg, iso, cx, cy, s, attrs) {
+  const ctr = geoCentre(iso), P = laea(ctr.lon, ctr.lat), rings = ctr.near.flatMap(p => p.map(r => r.map(([lo, la]) => P(lo, la))));
+  const b = bboxOf(rings.flat()), ox = cx - s * (b[0] + b[2]) / 2, oy = cy - s * (b[1] + b[3]) / 2;
+  const e = svgEl(svg, 'path', Object.assign({ d: rings.map(r => r.map(([x, y], i) => (i ? 'L' : 'M') + (ox + s * x).toFixed(1) + ' ' + (oy + s * y).toFixed(1)).join('') + 'Z').join(''), 'stroke-linejoin': 'round' }, attrs));
+  e.style.transformOrigin = `${cx}px ${cy}px`; return { e, w: s * (b[2] - b[0]), h: s * (b[3] - b[1]) };
+}
+const pageSvgW = (z = 12) => { const w = el(uiL, { width: 1080, height: 1920, zIndex: z }); const s = svgEl(w, 'svg', { width: 1080, height: 1920 }); s.style.position = 'absolute'; return { w, s }; };
+const vsCards = (a, b, y = 450) => [a, b].map(([code, name], i) => {
+  const c = glass(i ? 560 : 90, y, 430, 210, 11);
+  el(c, { left: 0, top: 0, width: 430, height: 210, display: 'grid', placeItems: 'center' }, `<div style="display:flex;flex-direction:column;align-items:center;gap:14px">${flagW(code, 92)}<span style="font-family:Fredoka;font-weight:600;font-size:46px;color:${C.forest}">${name}</span></div>`);
+  return c;
+});
+const vsDot = () => el(uiL, { left: 490, top: 505, width: 100, height: 100, borderRadius: 50, background: C.forest, color: '#fff', zIndex: 13, display: 'grid', placeItems: 'center', fontFamily: 'Manrope', fontWeight: 800, fontSize: 32, transformOrigin: '50% 50%' }, 'VS');
+const areaChip = (txt, x, y, win) => el(uiL, { left: x - 200, top: y, width: 400, textAlign: 'center', zIndex: 16, transformOrigin: '50% 50%' },
+  `<span style="display:inline-flex;align-items:center;gap:10px;padding:12px 24px;border-radius:999px;background:${win ? IOS.green : '#fff'};color:${win ? '#fff' : C.forest};font-family:Fredoka;font-weight:600;font-size:40px;box-shadow:0 8px 20px rgba(22,59,50,.16)">${win ? glyph('crown', 36, '#fff') : ''}${txt}</span>`);
+
+if (D === 1 || D === 4) {
+  // ---------------- 1: Germany vs Japan · 4: Spain vs Sweden (Mercator first)
+  const A = D === 1 ? ['de', 'Germany', 'DEU', 357114] : ['es', 'Spain', 'ESP', 505992], B = D === 1 ? ['jp', 'Japan', 'JPN', 377930] : ['se', 'Sweden', 'SWE', 450295];
+  const win = A[3] > B[3] ? 0 : 1;
+  TL = { cards: 0.4, rev: 8, shapes: 8.4, nums: 10, merc: 2.4, morph: 8, fact: 12.6, cta: 17.4 }; END = 23;
+  const cards = vsCards(A, B), vs = vsDot();
+  const stage2 = glass(90, 690, 900, 520, 10);
+  const { w: sw, s: svg } = pageSvgW(12);
+  const scale = D === 1 ? 1250 : 1500;
+  const sA = trueShape(svg, A[2], 320, 950, scale, { fill: win === 0 ? '#BFEBD0' : '#FBD5D3', stroke: C.forest, 'stroke-width': 3 });
+  const sB = trueShape(svg, B[2], D === 1 ? 720 : 760, 950, scale, { fill: win === 1 ? '#BFEBD0' : '#FBD5D3', stroke: C.forest, 'stroke-width': 3 });
+  let mA = null, mB = null;
+  if (D === 4) {   // the same two countries on a Mercator map (north stretched): Sweden looks bigger
+    const merc = (iso, cx, cy, k) => { const ctr = geoCentre(iso), y = la => Math.log(Math.tan(Math.PI / 4 + la * Math.PI / 360));
+      const rings = ctr.near.flatMap(p => p.map(r => r.map(([lo, la]) => [lo * Math.PI / 180, -y(la)])));
+      const b = bboxOf(rings.flat()), ox = cx - k * (b[0] + b[2]) / 2, oy = cy - k * (b[1] + b[3]) / 2;
+      const e = svgEl(svg, 'path', { d: rings.map(r => r.map(([x, yy], i) => (i ? 'L' : 'M') + (ox + k * x).toFixed(1) + ' ' + (oy + k * yy).toFixed(1)).join('') + 'Z').join(''), fill: '#DDE7F2', stroke: '#5B7FA6', 'stroke-width': 3, 'stroke-linejoin': 'round' });
+      e.style.transformOrigin = `${cx}px ${cy}px`; return e; };
+    mA = merc('ESP', 320, 950, 1500 / 2.3); mB = merc('SWE', 760, 950, 1500 / 2.3);
+  }
+  const lab = el(uiL, { left: 130, top: 716, zIndex: 13, transformOrigin: '0 50%', whiteSpace: 'pre' }, `<span style="font-family:Manrope;font-weight:800;font-size:24px;letter-spacing:.12em;color:${IOS.grey}">${D === 4 ? 'ON A NORMAL WEB MAP' : 'TRUE SIZE, SAME SCALE'}</span>`);
+  const lab2 = el(uiL, { left: 130, top: 716, zIndex: 13, transformOrigin: '0 50%', whiteSpace: 'pre' }, `<span style="font-family:Manrope;font-weight:800;font-size:24px;letter-spacing:.12em;color:${IOS.green}">TRUE SIZE, SAME SCALE</span>`);
+  const nA = areaChip(`${A[3].toLocaleString('en-US')} km²`, 320, 1120, win === 0), nB = areaChip(`${B[3].toLocaleString('en-US')} km²`, 760, 1120, win === 1);
+  const diff = Math.abs(A[3] - B[3]);
+  const fact = factCard('ruler', ['#5AC8FA', '#0A84FF'], 'THE DIFFERENCE', D === 1 ? `Japan is bigger by about ${(Math.round(diff / 100) * 100).toLocaleString('en-US')}&nbsp;km²: roughly half the Netherlands.` : `Spain is bigger by about ${Math.round(diff / 1000)},000&nbsp;km²: about the size of Croatia. Web maps stretch the north.`, { x: 330, w: 660, y: 1240 });
+  caps = capOf(D === 1 ? [[['Which one is', '<b>bigger</b>?'], -1.5, TL.rev], [['<b>Japan.</b> Yes, really.'], TL.rev, TL.cta], [['Settle it: who in your', 'group chat said Germany?'], TL.cta, END + 1]]
+    : [[['On the map Sweden looks bigger.', 'Which one <b>really</b> is?'], -1.5, TL.rev], [['<b>Spain.</b> The map lied.'], TL.rev, TL.cta], [['Which map trick', 'should we expose next?'], TL.cta, END + 1]]);
+  says = sayOf(D === 1 ? [['Germany. Obviously.', 2.6, TL.rev], ['…wait, WHAT?', TL.rev + 1.6, TL.fact]] : [['Sweden. Look at it!', 2.6, TL.rev], ['the map LIED to me', TL.rev + 1.6, TL.fact]]);
+  update = (t, b) => {
+    cards.forEach((c, i) => popAt(c, t, TL.cards + 0.3 * i, END + 2)); popAt(vs, t, TL.cards + 0.8, END + 2, 3, 0.45);
+    popAt(stage2, t, D === 4 ? TL.merc : TL.shapes - 0.2, END + 2, 2.2, 0.62); S(sw, { visibility: stage2.style.visibility });
+    const sp = spB(t, TL.shapes, 2.4, 0.55); [sA.e, sB.e].forEach(e => { e.style.transform = `scale(${sp})`; e.style.opacity = 1; });
+    if (D === 4) { const mp = spB(t, TL.merc + 0.2, 2.4, 0.55) * (1 - segB(t, TL.morph - 0.2, TL.morph + 0.3, E.inCubic)); [mA, mB].forEach(e => { e.style.transform = `scale(${mp})`; e.style.opacity = mp > 0.01 ? 1 : 0; }); popAt(lab, t, TL.merc + 0.4, TL.morph - 0.2); }
+    else popAt(lab, t, TL.shapes + 0.4, END + 2);
+    popAt(lab2, t, D === 4 ? TL.morph + 0.4 : 1e9, END + 2);
+    popAt(nA, t, TL.nums, END + 2); popAt(nB, t, TL.nums + 0.3, END + 2);
+    popAt(fact, t, TL.fact, END + 2);
+    if (b >= TL.rev) cards.forEach((c, i) => c.style.boxShadow = i === win ? `0 0 0 8px ${IOS.green}, 0 22px 50px rgba(22,59,50,.14)` : '');
+  };
+  ev(TL.cards, 'pop', -8); ev(TL.cards + 0.3, 'pop', -8, { rate: 1.1 }); ev(TL.cards + 0.8, 'boom', -8);
+  if (D === 4) { ev(TL.merc, 'swish', -10); ev(TL.morph, 'scratch', -5); ev(TL.morph + 0.2, 'morph', -8); }
+  ev(TL.rev, 'impactbig', -6); ev(TL.shapes, 'expand', -8); ev(TL.nums, 'kaching', -8); ev(TL.rev + 1.6, 'boinghit', -8); ev(TL.fact, 'pop', -8);
+  ask = { b: D === 4 ? 4 : 2, len: D === 4 ? 4 : 6 };
+} else if (D === 2) {
+  // ---------------- 2: capital trap, Australia, then two quick-fire traps
+  TL = { list: 0.4, rev: 8, fact: 10.4, q1: 13.6, q2: 15.6, cta: 19, }; END = 25;
+  const list = optionList(140, 450, 800, ['Sydney', 'Melbourne', 'Canberra', 'Perth'], { h: 124 });
+  const flagT = el(uiL, { left: 0, top: 1000, width: 1080, zIndex: 12, transformOrigin: '50% 50%' }, `<div style="display:flex;justify-content:center">${flagW('au', 110)}</div>`);
+  const fact = factCard('columns', ['#5AC8FA', '#0A84FF'], 'WHY CANBERRA', 'Sydney and Melbourne both wanted to be the capital. So Australia built a new city in between.', { x: 330, w: 660, y: 1000 });
+  const quick = [['tr', 'Turkey', 'Istanbul', 'Ankara'], ['ca', 'Canada', 'Toronto', 'Ottawa']].map(([fl, c, wrong, right], i) => el(uiL, { left: 90, top: 1000, width: 900, zIndex: 17, transformOrigin: '50% 50%' },
+    `<div style="display:flex;align-items:center;gap:22px;padding:24px 30px;border-radius:40px;background:rgba(255,255,255,.95);box-shadow:0 22px 50px rgba(22,59,50,.16)">${flagW(fl, 70)}<span style="font-family:Fredoka;font-weight:600;font-size:46px;color:${C.forest}">${c}:</span><span style="font-family:Fredoka;font-weight:500;font-size:44px;color:${IOS.red};text-decoration:line-through">${wrong}</span>${glyph('arrow', 40, IOS.grey)}<span style="font-family:Fredoka;font-weight:700;font-size:48px;color:${IOS.green}">${right}</span></div>`));
+  caps = capOf([[['Capital of Australia?', 'Careful, it’s a trap'], -1.5, TL.rev], [['<b>Canberra.</b> Not Sydney.'], TL.rev, TL.q1], [['Same trap,', 'two more countries'], TL.q1, TL.cta], [['Send this to someone', 'who said Sydney'], TL.cta, END + 1]]);
+  says = sayOf([['Sydney. Easy.', 2.6, TL.rev], ['…Canberra?!', TL.rev + 0.8, TL.q1]]);
+  update = (t, b) => {
+    popAt(list.box, t, TL.list, END + 2, 2.4, 0.6); popAt(flagT, t, TL.list + 0.4, TL.rev - 0.2);
+    list.mark(0, 'xmark', spB(t, TL.rev, 3, 0.5)); list.mark(2, 'check', spB(t, TL.rev + 0.3, 3, 0.5));
+    popAt(fact, t, TL.fact, TL.q1 - 0.2); quick.forEach((q, i) => popAt(q, t, [TL.q1, TL.q2][i], i ? END + 2 : TL.q2 - 0.15));
+  };
+  ev(TL.list, 'pop', -8); ev(TL.rev, 'error', -6); ev(TL.rev + 0.05, 'scratch', -7); ev(TL.rev + 0.3, 'correct', -6); ev(TL.rev + 0.5, 'laugh', -12);
+  ev(TL.fact, 'pop', -8); ev(TL.q1, 'swish', -8); ev(TL.q1 + 0.1, 'coin2', -8); ev(TL.q2, 'swish', -8); ev(TL.q2 + 0.1, 'coin2', -8, { rate: 1.1 });
+} else if (D === 3) {
+  // ---------------- 3: a turned silhouette; four long countries; it turns upright at the reveal
+  TL = { shape: 0.4, list: 1.2, rev: 8, fact: 11, cta: 17.4 }; END = 23;
+  const card = glass(90, 450, 900, 400, 10);
+  const { w: sw, s: svg } = pageSvgW(12);
+  const f = fitShape('NOR', { cx: 540, cy: 650, w: 340, h: 340 });
+  const shape = svgEl(svg, 'path', { d: f.d, fill: C.green, stroke: C.forest, 'stroke-width': 2, 'stroke-linejoin': 'round' }); shape.style.transformOrigin = '540px 650px';
+  const list = optionList(140, 880, 800, ['Chile', 'Norway', 'Vietnam', 'Italy'], { h: 90, size: 44 });
+  const fact = factCard('map', ['#34C759', '#1F806B'], 'WAIT, WHAT', 'Count every fjord and island and Norway’s coast is about 100,000&nbsp;km. That’s 2.5 times around the Earth.', { x: 330, w: 660, y: 1000 });
+  caps = capOf([[['All 4 are long and thin.', 'Which one is this?'], -1.5, TL.rev], [['<b>Norway</b>, turned sideways'], TL.rev, TL.cta], [['Did you need it upright?', 'Watch it again'], TL.cta, END + 1]]);
+  says = sayOf([['Chile. 100%.', 3, TL.rev]]);
+  update = (t, b) => {
+    popAt(card, t, 0, END + 2, 2.2, 0.62); S(sw, { visibility: card.style.visibility });
+    const sp = spB(t, TL.shape, 2.4, 0.55), rot = lerp(-90, 0, segB(t, TL.rev, TL.rev + 1, E.inOutCubic));
+    shape.style.transform = `scale(${sp}) rotate(${rot}deg)`; shape.style.fill = b >= TL.rev ? '#BFEBD0' : C.green;
+    popAt(list.box, t, TL.list, TL.fact - 0.2); list.mark(0, 'xmark', spB(t, TL.rev - 0.2, 3, 0.5)); list.mark(1, 'check', spB(t, TL.rev, 3, 0.5));
+    popAt(fact, t, TL.fact, END + 2);
+  };
+  ev(TL.shape, 'pop', -8); ev(TL.list, 'pop', -9); ev(TL.rev, 'swish', -7); ev(TL.rev + 0.2, 'morph', -7); ev(TL.rev + 0.4, 'correct', -6); ev(TL.rev + 1, 'crowdcheer', -12); ev(TL.fact, 'pop', -8);
+} else if (D === 5) {
+  // ---------------- 5: odd one out, three rounds getting harder
+  const R = [['Rome', 'Madrid', 'Milan', 'Paris', 2, 'EASY', 'Milan is big, but Rome is the capital of Italy'], ['Ankara', 'Istanbul', 'Rabat', 'Cairo', 1, 'MEDIUM', 'Istanbul is Turkey’s biggest city. The capital is Ankara'],
+    ['Quito', 'Lima', 'Guayaquil', 'Santiago', 2, 'HARD', 'Guayaquil is Ecuador’s biggest city. The capital is Quito']];
+  TL = { r: [0.4, 7.4, 14.4], len: 7, cta: 21.6, rev: 5 }; END = 27;
+  const rounds = R.map(([a, b, c, d, odd, lvl, why], k) => {
+    const g = el(uiL, { left: 90, top: 440, width: 900, height: 700, zIndex: 11, transformOrigin: '50% 50%' });
+    el(g, { left: 0, top: 0, width: 900 }, `<div style="display:flex;justify-content:space-between;align-items:center;padding:0 10px"><span style="font-family:Manrope;font-weight:800;font-size:26px;letter-spacing:.12em;color:${IOS.grey}">ROUND ${k + 1} OF 3</span><span style="padding:8px 20px;border-radius:999px;background:${[IOS.green, IOS.orange, IOS.red][k]};color:#fff;font-family:Manrope;font-weight:800;font-size:24px">${lvl}</span></div>`);
+    const tiles = [a, b, c, d].map((city, i) => { const tl = el(g, { left: (i % 2) * 460, top: 70 + Math.floor(i / 2) * 230, width: 440, height: 210, borderRadius: 40, background: 'rgba(255,255,255,.92)', transformOrigin: '50% 50%',
+      boxShadow: '0 1px 2px rgba(22,59,50,.06), 0 18px 40px rgba(22,59,50,.12)' }, `<div style="height:210px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">${glyph('columns', 52, i === odd ? C.forest : C.forest)}<span style="font-family:Fredoka;font-weight:600;font-size:52px;color:${C.forest}">${city}</span></div>`);
+      return tl; });
+    const why_ = el(g, { left: 0, top: 560, width: 900, textAlign: 'center', transformOrigin: '50% 0%' }, `<span style="display:inline-block;padding:16px 28px;border-radius:30px;background:rgba(255,255,255,.95);box-shadow:0 10px 24px rgba(22,59,50,.12);font-family:Fredoka;font-weight:500;font-size:38px;color:${C.forest}">${why}</span>`);
+    return { g, tiles, odd, why: why_ };
+  });
+  const score = el(uiL, { left: 0, top: 1180, width: 1080, textAlign: 'center', zIndex: 16, transformOrigin: '50% 50%' }, `<span style="display:inline-flex;align-items:center;gap:14px;padding:16px 32px;border-radius:999px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:600;font-size:48px">${glyph('trophy', 46, IOS.yellow)}Your score: ? / 3</span>`);
+  caps = capOf([[['Which one is', '<b>NOT</b> a capital?'], -1.5, TL.cta], [['3/3? Prove it.', 'Comment your score'], TL.cta, END + 1]]);
+  update = (t, b) => {
+    rounds.forEach((r, k) => {
+      const b0 = TL.r[k], rev = b0 + 4.6, out = k < 2 ? TL.r[k + 1] - 0.3 : TL.cta - 0.3;
+      popAt(r.g, t, b0, out, 2.4, 0.6);
+      r.tiles.forEach((tl, i) => { const p = spB(t, b0 + 0.2 + 0.12 * i, 2.6, 0.55); const odd = i === r.odd && b >= rev;
+        S(tl, { transform: `scale(${p * (odd ? 1 + 0.06 * Math.exp(-(t - T(rev)) * 5) : 1)})`, background: odd ? IOS.red : b >= rev ? 'rgba(255,255,255,.6)' : 'rgba(255,255,255,.92)', opacity: b >= rev && !odd ? 0.55 : 1 });
+        tl.querySelectorAll('span').forEach(s => s.style.color = odd ? '#fff' : C.forest); });
+      popAt(r.why, t, rev + 0.6, out);
+    });
+    popAt(score, t, TL.cta - 0.6, END + 2, 3, 0.45);
+  };
+  TL.r.forEach((b0, k) => { ev(b0, 'swish', -9); ev(b0 + 0.3, 'pop', -9); for (let i = 1; i <= 3; i++) ev(b0 + 1 + i, 'clock', -11, { rate: 1 + 0.05 * i }); ev(b0 + 4.6, 'scratch', -6); ev(b0 + 4.7, 'error', -8); ev(b0 + 5.2, 'pop', -10); });
+  ev(TL.cta - 0.6, 'kaching', -8); ev(TL.cta, 'mention', -10);
+  ask = null;
+} else if (D === 6) {
+  // ---------------- 6: find Laos; five numbered pins on a map of mainland Southeast Asia
+  TL = { map: 0.2, pins: 1, rev: 8, fact: 10.6, cta: 17.4 }; END = 23;
+  const card = glass(90, 440, 900, 780, 10);
+  const B = { x: 110, y: 460, w: 860, h: 740 }, M = flatMap(B, [92, 6, 112, 28], { z: 11 });
+  const PINS = [['THA', 3], ['LAO', 2], ['VNM', 5], ['KHM', 4], ['MMR', 1]];
+  const pinEls = PINS.map(([iso, n]) => { const c = geoCentre(iso); let [x, y] = M.pt(c.lon, c.lat); if (iso === 'VNM') [x, y] = M.pt(108.2, 14.2); if (iso === 'THA') [x, y] = M.pt(101, 15.4); if (iso === 'LAO') [x, y] = M.pt(102.6, 19.6);
+    return { iso, e: el(uiL, { left: x - 40, top: y - 40, width: 80, height: 80, borderRadius: 40, background: C.forest, color: '#fff', zIndex: 14, display: 'grid', placeItems: 'center', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 44,
+      border: '5px solid #fff', boxShadow: '0 8px 20px rgba(22,59,50,.3)', transformOrigin: '50% 50%' }, String(n)) }; });
+  // Laos fills green at the reveal
+  const ringsL = GEO.LAO.map(p => p[0]); const laos = svgEl(M.g, 'path', { d: ringsL.map(r => r.map(([lo, la], i) => { const [x, y] = M.pt(lo, la); return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }).join('') + 'Z').join(''), fill: IOS.green, opacity: 0 });
+  const fact = factCard('pin', ['#34C759', '#1F806B'], 'DID YOU KNOW', 'Laos is the only landlocked country in Southeast Asia.', { x: 330, w: 660, y: 1240 });
+  caps = capOf([[['Which number', 'is <b>Laos</b>?'], -1.5, TL.rev], [['It’s <b>number 2</b>'], TL.rev, TL.cta], [['Send this to a friend.', 'Which number would they pick?'], TL.cta, END + 1]]);
+  says = sayOf([['Number 4. Trust me.', 3, TL.rev]]);
+  update = (t, b) => {
+    popAt(card, t, TL.map, END + 2, 2.2, 0.62); S(M.wrap, { transform: card.style.transform, visibility: card.style.visibility });
+    pinEls.forEach((p, i) => { const pp = popAt(p.e, t, TL.pins + 0.25 * i, END + 2, 3, 0.45); const right = p.iso === 'LAO';
+      if (b >= TL.rev) S(p.e, { background: right ? IOS.green : C.forest, opacity: right ? 1 : 0.4, transform: `scale(${pp * (right ? 1.25 : 1)})` }); });
+    laos.setAttribute('opacity', (0.85 * segB(t, TL.rev, TL.rev + 0.5)).toFixed(2));
+    popAt(fact, t, TL.fact, END + 2);
+  };
+  ev(TL.map, 'swish', -10); PINS.forEach((_, i) => ev(TL.pins + 0.25 * i, 'pop', -9, { rate: 1 + 0.06 * i }));
+  ev(TL.rev, 'pin', -6); ev(TL.rev + 0.1, 'correct', -6); ev(TL.rev + 0.4, 'crowdcheer', -12); ev(TL.rev + 0.8, 'trombone', -10); ev(TL.fact, 'pop', -8);
+} else {
+  // ---------------- 7: Ljubljana is the capital of…?
+  TL = { city: 0.2, list: 1, rev: 8, fact: 10.6, cta: 17.4 }; END = 23;
+  const city = el(uiL, { left: 0, top: 440, width: 1080, textAlign: 'center', zIndex: 12, transformOrigin: '50% 50%' }, `<span style="display:inline-flex;align-items:center;gap:18px;padding:20px 40px;border-radius:999px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:700;font-size:72px">${glyph('columns', 60, '#fff')}Ljubljana</span>`);
+  const list = optionList(140, 600, 800, ['Slovakia', 'Slovenia', 'Croatia', 'Serbia'], { h: 120, flags: ['sk', 'si', 'hr', 'rs'] });
+  const fact = factCard('sparkles', ['#AF52DE', '#7D3CC8'], 'BONUS', 'Ljubljana’s symbol is a dragon. And Slovakia’s capital? Bratislava.', { x: 330, w: 660, y: 1120 });
+  caps = capOf([[['This city is the', 'capital of…?'], -1.5, TL.rev], [['<b>Slovenia</b>'], TL.rev, TL.cta], [['Which capital do', 'you always mix up?'], TL.cta, END + 1]]);
+  says = sayOf([['Slovakia. Same thing.', 3, TL.rev], ['it is NOT the same thing', TL.rev + 1, TL.fact]]);
+  update = (t, b) => {
+    popAt(city, t, TL.city, END + 2, 2.6, 0.5); popAt(list.box, t, TL.list, END + 2, 2.4, 0.6);
+    list.mark(0, 'xmark', spB(t, TL.rev - 0.1, 3, 0.5)); list.mark(1, 'check', spB(t, TL.rev + 0.2, 3, 0.5));
+    popAt(fact, t, TL.fact, END + 2);
+  };
+  ev(TL.city, 'boom', -8); ev(TL.list, 'pop', -9); ev(TL.rev, 'error', -7); ev(TL.rev + 0.2, 'correct', -6); ev(TL.rev + 1, 'badumtss', -8); ev(TL.fact, 'pop', -8); ev(TL.fact + 0.1, 'sparkle', -10);
+}
+const DURATION = END * 60 / TEMPO;
+says.forEach(s => ev(s.b0, 'mention', -9));
+if (ask) for (let k = 1; k < ask.len; k++) ev(ask.b + k, 'clock', -11, { rate: 1 + 0.04 * k });
+ev(0.02, 'pop', -12, { rate: 1.1 }); ev(TL.cta, 'swish', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  popAt(tag, t, 0);
+  update(t, b);
+  if (ask) { const inAsk = b >= ask.b && b < TL.rev; if (inAsk) { const q = clamp((b - ask.b) / ask.len); ring.set(q, Math.max(1, Math.ceil((1 - q) * ask.len * 60 / TEMPO))); } popAt(ring.e, t, ask.b, TL.rev - 0.2); }
+  else popAt(ring.e, t, 1e9);
+  says.forEach(s => s.bub.set(spB(t, s.b0, 2.4, 0.6), segB(t, s.b1, s.b1 + 0.3)));
+  caps.forEach(c => c.c.set(spB(t, c.b0, 1.9, 0.62), segB(t, c.b1 - 0.2, c.b1 + 0.15)));
+  const smug = says.length && b >= says[0].b0 && b < TL.rev;
+  const mood = b < 2 ? 'calm' : b < TL.rev ? (smug ? 'smug' : 'think') : b < TL.rev + 2.5 ? (says.length ? 'shock' : 'cheer') : b < TL.cta ? 'calm' : 'point';
+  rovikoMood(t, b, mood, [3, 11, 19]);
+}
+boot(seek, DURATION);
