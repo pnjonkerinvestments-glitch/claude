@@ -1,0 +1,146 @@
+[
+ {
+  "t": 0.2182,
+  "beat": 0.4,
+  "sfx": "pop",
+  "gain": -9
+ },
+ {
+  "t": 0.5454,
+  "beat": 1,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 0.3273,
+  "beat": 0.6,
+  "sfx": "pop",
+  "gain": -9
+ },
+ {
+  "t": 0.6545,
+  "beat": 1.2,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 0.4364,
+  "beat": 0.8,
+  "sfx": "pop",
+  "gain": -9
+ },
+ {
+  "t": 0.7636,
+  "beat": 1.4,
+  "sfx": "pop",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 2.1818,
+  "beat": 4,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.04
+ },
+ {
+  "t": 2.7272,
+  "beat": 5,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.08
+ },
+ {
+  "t": 3.2727,
+  "beat": 6,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.12
+ },
+ {
+  "t": 3.8181,
+  "beat": 7,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.16
+ },
+ {
+  "t": 4.3636,
+  "beat": 8,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.2
+ },
+ {
+  "t": 4.909,
+  "beat": 9,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 5.1817,
+  "beat": 9.5,
+  "sfx": "coin2",
+  "gain": -9,
+  "rate": 1
+ },
+ {
+  "t": 5.1272,
+  "beat": 9.4,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 5.3999,
+  "beat": 9.9,
+  "sfx": "coin2",
+  "gain": -9,
+  "rate": 1.1
+ },
+ {
+  "t": 5.3454,
+  "beat": 9.8,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 5.6181,
+  "beat": 10.3,
+  "sfx": "coin2",
+  "gain": -9,
+  "rate": 1.2
+ },
+ {
+  "t": 5.7817,
+  "beat": 10.6,
+  "sfx": "kaching",
+  "gain": -8
+ },
+ {
+  "t": 7.6362,
+  "beat": 14,
+  "sfx": "impactbig",
+  "gain": -8
+ },
+ {
+  "t": 7.8544,
+  "beat": 14.4,
+  "sfx": "sparkle",
+  "gain": -9
+ },
+ {
+  "t": 10.9089,
+  "beat": 20,
+  "sfx": "mention",
+  "gain": -10
+ },
+ {
+  "t": 0.0109,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ }
+]
