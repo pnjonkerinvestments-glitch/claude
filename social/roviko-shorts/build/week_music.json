@@ -58,5 +58,17 @@
     null
    ]
   ]
+ },
+ "wk-D2P3": {
+  "song": "ko-games",
+  "end": 25,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    32,
+    null
+   ]
+  ]
  }
 }
