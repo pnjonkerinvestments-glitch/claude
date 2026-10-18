@@ -82,5 +82,17 @@
     null
    ]
   ]
+ },
+ "wk-D3P1": {
+  "song": "fun-and-games",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
  }
 }
