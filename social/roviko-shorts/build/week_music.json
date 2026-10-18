@@ -238,5 +238,17 @@
     null
    ]
   ]
+ },
+ "wk-D7P1": {
+  "song": "mi-gente",
+  "end": 30,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    24,
+    null
+   ]
+  ]
  }
 }
