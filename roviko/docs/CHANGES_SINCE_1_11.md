@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.42.0 (op de testversie, nog niet live)
+## 1.42.0 (live sinds 18 oktober 2026, PR #38)
 
 **Drie levens in Side by Side.** Een fout kost een leven; pas bij de derde fout stopt de run. Punten blijven goede antwoorden ÷ 15 × 1.000. De levens horen bij de inhoud van de dag (`lives: 3` in `daily_content`): een dag waarvan de inhoud al vóór deze versie was opgeslagen, houdt de oude regel (één fout) voor iedereen, zodat niemand op de wisseldag een voordeel heeft. Oefenen heeft ook drie levens. Overleven (survival) blijft: één fout en je bent af. Hartjes in de vraagkaart, na een fout een label "Eén leven kwijt · nog 2" / "Laatste leven!". Teksten in uitleg en puntenregels aangepast (`i18n/v142.ts`, `lib/how-to-play.ts`). De andere dagspellen stopten al niet bij een fout.
 
