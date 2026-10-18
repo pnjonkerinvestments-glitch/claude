@@ -190,5 +190,17 @@
     null
    ]
   ]
+ },
+ "wk-D5P3": {
+  "song": "light-it-up-boy",
+  "end": 27,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    16,
+    null
+   ]
+  ]
  }
 }
