@@ -1,0 +1,88 @@
+/*
+  Roviko content week (19-25 Oct 2026): one banner per post, in the "Day" look (logo, day badge, series eyebrow, two-line hook,
+  one card that shows the challenge without the answer, Roviko, a CTA pill). 1080x1920. wk-banner.html?id=D1P1 … D7P5
+  P5 = the daily map challenge carousel (#21-27); its card shows that post's first question slide.
+*/
+// @scripts lib/frame.js lib/ios.js
+const uiL = stage;
+const id = Q.get('id') || 'D1P1', D = +id[1], P = id.slice(2);
+const DAYNAME = { 1: 'Mon 19 Oct', 2: 'Tue 20 Oct', 3: 'Wed 21 Oct', 4: 'Thu 22 Oct', 5: 'Fri 23 Oct', 6: 'Sat 24 Oct', 7: 'Sun 25 Oct' };
+header(DAYNAME[D]);
+const bcard = (h = 600, y = CY) => wcard(CX, y, CW, h, 5, { borderRadius: 40 });
+const at = (x, y, html, z = 8, css = {}) => el(stage, Object.assign({ left: x, top: y, zIndex: z }, css), html);
+const cluesRow = (rows, y0 = CY + 34) => rows.forEach(([ic, txt], i) => at(CX + 30, y0 + i * 132, `<div style="display:flex;align-items:center;gap:24px;width:${CW - 60}px">${iconTile(ic, 84, ...[['#5AC8FA', '#0A84FF'], ['#34C759', '#1F806B'], ['#FF9F0A', '#FF6B00']][i])}<div><div style="font-family:Manrope;font-weight:800;font-size:22px;letter-spacing:.14em;color:${IOS.grey}">CLUE ${i + 1}</div><div style="font-family:Fredoka;font-weight:600;font-size:38px;line-height:1.15;color:${C.forest}">${txt}</div></div></div>`));
+const qTile = (x, y, s = 150) => at(x, y, `<div style="width:${s}px;height:${s}px;border-radius:${s * 0.27}px;background:${C.chip};display:grid;place-items:center">${glyph('question', s * 0.6, C.green)}</div>`);
+const flagRow = (codes, labels, y, h = 150) => at(CX, y, `<div style="display:flex;justify-content:center;align-items:flex-end;gap:40px;width:${CW}px">${codes.map((c, i) => `<div style="display:flex;flex-direction:column;align-items:center;gap:16px">${flagW(c, h)}<span style="font-family:Fredoka;font-weight:600;font-size:40px;color:${C.forest}">${labels[i]}</span></div>`).join('')}</div>`);
+const pillsRow = (items, y) => at(CX, y, `<div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;width:${CW}px">${items.map(([t, bg, fg]) => `<span style="padding:10px 20px;border-radius:999px;background:${bg};color:${fg};font-family:Manrope;font-weight:800;font-size:22px;letter-spacing:.06em">${t}</span>`).join('')}</div>`);
+const optList = (labels, y, flags = null) => at(CX + 30, y, `<div style="width:${CW - 60}px;border-radius:30px;background:${C.chip};overflow:hidden">${labels.map((l, i) => `<div style="display:flex;align-items:center;gap:22px;height:96px;padding:0 28px;border-top:${i ? `2px solid ${IOS.sep}` : 'none'}">${flags ? flagW(flags[i], 44) : `<span style="width:52px;height:52px;border-radius:26px;background:#fff;display:grid;place-items:center;font-family:Manrope;font-weight:800;font-size:24px;color:${C.forest}">${'ABCD'[i]}</span>`}<span style="font-family:Fredoka;font-weight:600;font-size:42px;color:${C.forest}">${l}</span></div>`).join('')}</div>`);
+function miniMap(B, bounds, pins = [], hi = null) {   // flat lon/lat map in the card with numbered pins
+  const [lo0, la0, lo1, la1] = bounds, k = Math.min(B.w / (lo1 - lo0), B.h / (la1 - la0)), ox = B.x + (B.w - k * (lo1 - lo0)) / 2, oy = B.y + (B.h - k * (la1 - la0)) / 2;
+  const pt = (lo, la) => [ox + (lo - lo0) * k, oy + (la1 - la) * k];
+  const s = svgEl(el(stage, { width: 1080, height: 1920, zIndex: 7 }), 'svg', { width: 1080, height: 1920 }); s.style.position = 'absolute';
+  const cid = 'mm' + D + P, defs = svgEl(s, 'defs'); svgEl(svgEl(defs, 'clipPath', { id: cid }), 'rect', { x: B.x, y: B.y, width: B.w, height: B.h, rx: 28 });
+  const g = svgEl(s, 'g', { 'clip-path': `url(#${cid})` }); svgEl(g, 'rect', { x: B.x, y: B.y, width: B.w, height: B.h, fill: '#BFE4F8' });
+  const ringD = r => r.map(([lo, la], i) => { const [x, y] = pt(lo, la); return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }).join('') + 'Z';
+  for (const iso in GEO) svgEl(g, 'path', { d: GEO[iso].map(p => p.map(ringD).join('')).join(''), fill: iso === hi ? C.gold : '#CFE9DA', stroke: '#fff', 'stroke-width': 1.5, 'fill-rule': 'evenodd' });
+  (window.GEO_EXTRA || []).filter(r => r.every((q, i) => !i || Math.abs(q[0] - r[i - 1][0]) < 180)).forEach(r => svgEl(g, 'path', { d: ringD(r), fill: '#CFE9DA', stroke: '#fff', 'stroke-width': 1.5 }));
+  pins.forEach(([lo, la, n]) => { const [x, y] = pt(lo, la); at(x - 34, y - 34, `<div style="width:68px;height:68px;border-radius:34px;background:${C.forest};color:#fff;border:5px solid #fff;display:grid;place-items:center;font-family:Fredoka;font-weight:700;font-size:38px;box-shadow:0 6px 16px rgba(22,59,50,.3)">${n}</div>`, 9); });
+}
+const shapeSvg = (iso, box, rot = 0, fill = C.green) => { const f = fitShape(iso, box); const s = svgEl(el(stage, { width: 1080, height: 1920, zIndex: 8 }), 'svg', { width: 1080, height: 1920 }); s.style.position = 'absolute';
+  svgEl(s, 'path', { d: f.d, fill, stroke: C.forest, 'stroke-width': 2, 'stroke-linejoin': 'round', transform: `rotate(${rot} ${box.cx} ${box.cy})` }); };
+
+const COUNTRY = {
+  1: ['Medium', 'Name this country', 'before the last clue.', [['mountain', '8 of the 10 highest mountains on Earth are here'], ['pin', 'It sits between India and China'], ['flag', 'Its flag is not a rectangle']]],
+  2: ['Easy · vs Roviko', 'Roviko gets it on clue 2.', 'Can you?', [['globe', 'It’s an island in the Indian Ocean'], ['heart', 'It’s the home of the lemurs'], ['map', 'It’s the 4th-biggest island on Earth']]],
+  3: ['Hard mode', 'Hard to easy:', 'when do you get it?', [['sparkles', 'It measures Gross National Happiness'], ['mountain', 'It’s a kingdom in the Himalayas'], ['flag', 'There’s a white dragon on its flag']]],
+  4: ['Medium', 'The shape gets sharper', 'with every clue.', [['columns', 'Its capital is not its biggest city'], ['mountain', 'The Atlas Mountains run through it'], ['eye', 'On a clear day you can see Europe from here']]],
+  5: ['Hard', 'Africa expert?', 'Prove it in 3 clues.', [['sparkles', 'Its flag has a golden sun'], ['mountain', 'It’s named after one of the oldest deserts on Earth'], ['pin', 'It’s right here: (map)']]],
+  6: ['Medium · 3-2-1 points', 'Fewer clues, more points.', 'Play it with a friend.', [['map', 'The Amazon River starts in its mountains'], ['globe', 'It shares Lake Titicaca with Bolivia'], ['mountain', 'Machu Picchu is here']]],
+  7: ['Week finale', '3 clues, 3 seconds each.', 'Ready?', [['people', 'It’s the least densely populated country'], ['map', 'It borders only Russia and China'], ['crown', 'Genghis Khan was born here']]],
+};
+const MAPCH = { 1: [21, 'Europe'], 2: [22, 'Africa'], 3: [23, 'Asia'], 4: [24, 'The Americas'], 5: [25, 'Islands only'], 6: [26, 'Europe'], 7: [27, 'Around the world'] };
+const B = {
+  P1: () => { const [lv, a, b, clues] = COUNTRY[D]; title(`Guess the country · ${lv}`, a, b); cta('Watch and guess  →'); bcard(620); cluesRow(clues); qTile(CX + CW - 190, CY + 440, 140); roviko(220, 1540, 200, 'think'); },
+  P5: () => { const [n, region] = MAPCH[D]; title(`Map challenge #${n} · ${region}`, '5 countries.', 'Easy to Legend.'); cta('Swipe to play  →');
+    bcard(640); at(CX + 30, CY + 30, `<img src="../roviko-carousels/out/post-${n}/instagram/02.png" style="width:${CW - 60}px;height:480px;object-fit:cover;object-position:50% 12%;border-radius:28px;display:block">`);
+    pillsRow([['EASY', '#1F806B', '#fff'], ['MEDIUM', '#36B3F5', '#06224F'], ['HARD', '#F6B84B', '#163B32'], ['VERY HARD', '#E5484D', '#fff'], ['LEGEND', '#06224F', '#F6B84B']], CY + 540); roviko(880, 1560, 180, 'cool'); },
+  D1P2: () => { title('Guess the flag · Spot the difference', 'Same flag?', 'Find 2 differences.'); cta('Watch and spot it  →'); bcard(560); flagRow(['nl', 'lu'], ['Netherlands', 'Luxembourg'], CY + 90, 190); at(CX, CY + 430, `<div style="width:${CW}px;text-align:center;font-family:Manrope;font-weight:800;font-size:26px;letter-spacing:.12em;color:${IOS.grey}">2 DIFFERENCES · 3 SECONDS</div>`); roviko(880, 1560, 190, 'think'); },
+  D2P2: () => { title('Guess the flag · Pick one', 'Which one is', 'New Zealand?'); cta('Watch and pick  →'); bcard(560); flagRow(['au', 'nz'], ['A', 'B'], CY + 110, 180); roviko(880, 1560, 190, 'think'); },
+  D3P2: () => { title('Guess the flag · Pick one', 'One is Romania, one is Chad.', 'Which is Chad?'); cta('Watch and pick  →'); bcard(560); flagRow(['ro', 'td'], ['A', 'B'], CY + 110, 200); roviko(880, 1560, 190, 'shock'); },
+  D4P2: () => { title('Guess the flag · Pick one', 'Quick:', 'which one is Ireland?'); cta('Watch and pick  →'); bcard(560); flagRow(['ci', 'ie'], ['A', 'B'], CY + 120, 170); roviko(880, 1560, 190, 'think'); },
+  D5P2: () => { title('Guess the flag · Name all 3', 'Mali, Senegal or Guinea?', 'Name all 3.'); cta('Watch and score  →'); bcard(560); flagRow(['ml', 'sn', 'gn'], ['A', 'B', 'C'], CY + 120, 150); roviko(880, 1560, 190, 'think'); },
+  D6P2: () => { title('Guess the flag · Swipe', 'Monaco, Indonesia', 'or Poland?'); cta('Swipe for the answers  →'); bcard(560); flagRow(['mc', 'id', 'pl'], ['A', 'B', 'C'], CY + 120, 150); roviko(880, 1560, 190, 'shock'); },
+  D7P2: () => { title('Guess the flag · Spot the difference', 'Slovakia vs Slovenia.', 'Spot the difference.'); cta('Watch and spot it  →'); bcard(560); flagRow(['sk', 'si'], ['Slovakia', 'Slovenia'], CY + 110, 180); roviko(880, 1560, 190, 'think'); },
+  D1P3: () => { title('Geo challenge · Bigger or smaller', 'Germany or Japan:', 'which is bigger?'); cta('Watch the reveal  →'); bcard(520); flagRow(['de', 'jp'], ['Germany', 'Japan'], CY + 100, 170); at(510, CY + 160, `<div style="width:60px;height:60px;border-radius:30px;background:${C.forest};color:#fff;display:grid;place-items:center;font-family:Manrope;font-weight:800;font-size:22px">VS</div>`, 9); roviko(220, 1560, 200, 'cool'); },
+  D2P3: () => { title('Geo challenge · Capital trap', 'Capital of Australia?', 'Careful, it’s a trap.'); cta('Watch the trap  →'); bcard(500); optList(['Sydney', 'Melbourne', 'Canberra', 'Perth'], CY + 40); roviko(880, 1560, 190, 'cool'); },
+  D3P3: () => { title('Geo challenge · Name the shape', 'All 4 are long and thin.', 'Which one is this?'); cta('Watch it turn  →'); bcard(600); shapeSvg('NOR', { cx: 540, cy: CY + 300, w: 340, h: 340 }, -90); roviko(880, 1560, 190, 'think'); },
+  D4P3: () => { title('Geo challenge · Maps lie', 'On the map Sweden looks bigger.', 'Which one really is?'); cta('Watch the map lie  →'); bcard(520); flagRow(['es', 'se'], ['Spain', 'Sweden'], CY + 100, 170); roviko(220, 1560, 200, 'cool'); },
+  D5P3: () => { title('Geo challenge · Odd one out', 'Which one is', 'NOT a capital?'); cta('3 rounds. Play along  →'); bcard(520);
+    at(CX + 30, CY + 40, `<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;width:${CW - 60}px">${['Rome', 'Madrid', 'Milan', 'Paris'].map(c => `<div style="height:200px;border-radius:30px;background:${C.chip};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px">${glyph('columns', 48, C.forest)}<span style="font-family:Fredoka;font-weight:600;font-size:48px;color:${C.forest}">${c}</span></div>`).join('')}</div>`); roviko(880, 1560, 190, 'think'); },
+  D6P3: () => { title('Geo challenge · Find it on the map', 'Which number', 'is Laos?'); cta('Watch the reveal  →'); bcard(620);
+    miniMap({ x: CX + 20, y: CY + 20, w: CW - 40, h: 580 }, [92, 6, 112, 28], [[96.5, 21, 1], [102.6, 19.6, 2], [101, 15.4, 3], [104.9, 12.6, 4], [108.2, 14.2, 5]]); roviko(220, 1580, 180, 'cool'); },
+  D7P3: () => { title('Geo challenge · Capital challenge', 'Ljubljana is', 'the capital of…?'); cta('Watch and pick  →'); bcard(520); optList(['Slovakia', 'Slovenia', 'Croatia', 'Serbia'], CY + 40, ['sk', 'si', 'hr', 'rs']); roviko(880, 1560, 190, 'think'); },
+  D1P4: () => { title('Friend challenge', 'Send this to your', 'smartest friend.'); cta('Swipe to play  →'); bcard(520);
+    const t1 = chatBubble('you think you’re good at geography?', { x: CX + 40, y: CY + 60, size: 38, parent: stage }); S(t1, { zIndex: 9 });
+    const me = chatBubble('prove it.', { x: CX + CW - 260, y: CY + 230, me: true, size: 40, parent: stage }); S(me, { zIndex: 9 });
+    pillsRow([['5 QUESTIONS', C.forest, '#fff'], ['NO GOOGLING', C.chip, C.forest], ['COMPARE SCORES', C.chip, C.forest]], CY + 400); roviko(880, 1580, 180, 'cool'); },
+  D2P4: () => { title('Country Mosaic', 'Match each shape', 'to its flag.'); cta('Watch and match  →'); bcard(600);
+    [['VNM', 'is'], ['CUB', 'vn'], ['ISL', 'cu']].forEach(([iso, fl], i) => { shapeSvg(iso, { cx: CX + 200, cy: CY + 110 + i * 190, w: 220, h: 150 }); at(CX + CW - 330, CY + 50 + i * 190, flagW(fl, 110)); }); roviko(540, 1580, 170, 'think'); },
+  D3P4: () => { title('Halloween', 'The haunted house', 'of geography.'); cta('Enter if you dare  →'); bcard(560, CY);
+    at(CX, CY + 80, `<div style="width:${CW}px;display:flex;justify-content:center;gap:40px">${iconTile('ghost', 200, '#3A3A4A', '#11231D')}${iconTile('pumpkin', 200, '#FF9F0A', '#FF6B00')}</div>`);
+    at(CX, CY + 360, `<div style="width:${CW}px;text-align:center;font-family:Fredoka;font-weight:500;font-size:44px;color:${C.forest}">6 rooms. Every geography fan’s nightmare.</div>`); roviko(880, 1580, 180, 'nervous'); },
+  D4P4: () => { title('World Duel', 'You vs Roviko.', 'Answer before he does.'); cta('Watch and play along  →'); bcard(460);
+    at(CX + 30, CY + 40, `<div style="width:${CW - 60}px;display:flex;align-items:center;justify-content:space-around;height:150px;border-radius:30px;background:${C.chip}"><span style="display:flex;align-items:center;gap:14px">${iconTile('people', 76, '#5AC8FA', '#0A84FF')}<span style="font-family:Fredoka;font-weight:600;font-size:46px;color:${C.forest}">You ?</span></span><span style="font-family:Manrope;font-weight:800;font-size:28px;color:${IOS.grey}">VS</span><span style="display:flex;align-items:center;gap:14px"><span style="font-family:Fredoka;font-weight:600;font-size:46px;color:${C.forest}">Roviko</span><img src="${ASSETS}roviko-globe.svg" style="width:76px;height:76px"></span></div>`);
+    at(CX + 30, CY + 230, `<div style="width:${CW - 60}px;font-family:Fredoka;font-weight:600;font-size:46px;color:${C.forest};text-align:center">5 quick questions.<br>Keep score.</div>`); roviko(220, 1580, 190, 'cool'); },
+  D5P4: () => { title('Swipe to reveal', 'Which country?', 'Swipe to zoom out.'); cta('Swipe to zoom out  →'); bcard(620); miniMap({ x: CX + 20, y: CY + 20, w: CW - 40, h: 580 }, [15.5, 42.75, 18.5, 44.0]); roviko(880, 1580, 180, 'think'); },
+  D6P4: () => { title('POV', 'You’re the', 'geography friend.'); cta('Watch, then tag yours  →'); bcard(560);
+    const a = chatBubble('the capital of Brazil is Rio', { x: CX + 40, y: CY + 70, size: 38, parent: stage }), b = chatBubble('Brasília.', { x: CX + CW - 250, y: CY + 210, me: true, size: 40, parent: stage }), c = chatBubble('you’re no fun', { x: CX + 40, y: CY + 360, size: 38, parent: stage });
+    [a, b, c].forEach(e => S(e, { zIndex: 9 })); roviko(880, 1580, 180, 'cool'); },
+  D7P4: () => { title('Weekly score', 'This week in', '7 questions.'); cta('Swipe and keep score  →'); bcard(480);
+    at(CX, CY + 60, `<div style="width:${CW}px;display:flex;justify-content:center;gap:26px">${['flag', 'globe', 'map', 'columns'].map((g, i) => iconTile(g, 130, ...[['#FF6B5E', '#E5484D'], ['#34C759', '#1F806B'], ['#5AC8FA', '#0A84FF'], ['#FFCC00', '#FF9500']][i])).join('')}</div>`);
+    at(CX, CY + 260, `<div style="width:${CW}px;text-align:center;font-family:Fredoka;font-weight:600;font-size:52px;color:${C.forest}">Your score: __ / 7</div>`); roviko(880, 1580, 180, 'cool'); },
+};
+(B[id] || B[P])();
+window.filmReady = (async () => {
+  await Promise.all(['500 20px Fredoka', '600 28px Fredoka', '700 13px Manrope', '800 13px Manrope'].map(f => document.fonts.load(f)));
+  await document.fonts.ready; await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+  LAYOUT.forEach(f => f()); return true;
+})();

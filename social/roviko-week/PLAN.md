@@ -727,3 +727,25 @@ Max. 4 promoposts: er zijn er 3 (D2-P4, D4-P4, D7-P4). Elke dag heeft minstens �
   - bij carrousels eventueel muziek uit de Instagram-bibliotheek toevoegen;
   - de link in de bio controleren.
 - **Licenties:** de muziek en geluidjes komen van Mixkit (gratis licentie, ook voor social media). De vlaggen en kaartdata komen uit roviko.app.
+
+---
+
+## Aanvulling: dagelijkse kaartchallenge (P5) en banners
+
+- **Wat:** elke dag een extra "Guess the country"-carrousel in het bekende format. Het zijn 12 slides: een cover, 5 landen (Easy → Legend) met steeds een vraag- en een antwoordslide, en een scoreslide. Het zijn **map challenge #21–27**, met 35 landen die nog niet eerder in de reeks zaten:
+
+| Dag | # | Thema | Easy → Legend |
+|---|---|---|---|
+| Ma 19 | 21 | Europe | Spain, Germany, Ukraine, Belarus, Slovenia |
+| Di 20 | 22 | Africa | Algeria, Mozambique, Botswana, Togo, Gambia |
+| Wo 21 | 23 | Asia | South Korea, Malaysia, Iraq, Azerbaijan, Brunei |
+| Do 22 | 24 | The Americas | Canada, Costa Rica, Dominican Republic, Jamaica, Trinidad and Tobago |
+| Vr 23 | 25 | Islands only | Cyprus, Malta, Cape Verde, Bahamas, Bahrain |
+| Za 24 | 26 | Europe | Netherlands, Denmark, Serbia, Bosnia and Herzegovina, Luxembourg |
+| Zo 25 | 27 | Around the world | Australia, Sweden, Uganda, Qatar, Timor-Leste |
+
+- **Bestanden:** `D?/D?P5/instagram/01–12.png` (4:5) en `D?/D?P5/tiktok/01–12.png` (3:4).
+- **Mechanisme:** scorechallenge en swipe-retentie. **Doel:** reacties ("__/5") en terugkerende kijkers (de reeks loopt door).
+- **Feiten:** hoofdsteden en buurlanden zijn gecontroleerd met de data van roviko.app (`roviko/lib/data/countries.json`).
+- **Banners:** `D?/banners/D?P?-banner.png`, één per post (35 in totaal), 1080×1920 in de Day-stijl. Ze laten de uitdaging zien zonder het antwoord. Te gebruiken als Story-aankondiging ("new post"), als omslag, of voor pinned Highlights.
+- **Captions:** staan in `D?/CAPTIONS.txt` onder D?-P5.

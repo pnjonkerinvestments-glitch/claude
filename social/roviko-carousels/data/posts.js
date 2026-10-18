@@ -141,11 +141,61 @@ window.POSTS = [
     { id: 'HND', name: 'Honduras', flag: 'hn', span: 16, hint: 'In Central America, on 2 seas', fact: 'Capital: Tegucigalpa · 3 land neighbours' },
     { id: 'SLV', name: 'El Salvador', flag: 'sv', span: 12, hint: 'The smallest country in Central America', fact: 'Capital: San Salvador · no Caribbean coast' },
   ] },
-  { n: 20, region: 'Around the world', next: null, countries: [
+  { n: 20, region: 'Around the world', next: 'Europe', countries: [
     { id: 'GBR', name: 'United Kingdom', flag: 'gb', span: 22, fact: 'Capital: London · 1 land neighbour: Ireland' },
     { id: 'PAK', name: 'Pakistan', flag: 'pk', span: 32, fact: 'Capital: Islamabad (not Karachi)' },
     { id: 'SDN', name: 'Sudan', flag: 'sd', span: 34, hint: 'On the Nile, south of Egypt', fact: 'Capital: Khartoum · where the Blue and White Nile meet' },
     { id: 'ARM', name: 'Armenia', flag: 'am', span: 14, hint: 'Landlocked, in the Caucasus', fact: 'Capital: Yerevan · 4 land neighbours' },
     { id: 'ERI', name: 'Eritrea', flag: 'er', span: 18, hint: 'On the Red Sea, next to Ethiopia', fact: 'Capital: Asmara · 3 land neighbours' },
+  ] },
+  // round 5 (content week 19-25 Oct 2026): one a day, map challenge #21-27
+  { n: 21, region: 'Europe', next: 'Africa', countries: [
+    { id: 'ESP', name: 'Spain', flag: 'es', span: 28, fact: 'Capital: Madrid · it also has 2 cities in Africa' },
+    { id: 'DEU', name: 'Germany', flag: 'de', span: 26, fact: 'Capital: Berlin · 9 land neighbours' },
+    { id: 'UKR', name: 'Ukraine', flag: 'ua', span: 34, hint: 'On the Black Sea', fact: 'Capital: Kyiv · the largest country entirely in Europe' },
+    { id: 'BLR', name: 'Belarus', flag: 'by', span: 26, hint: 'Landlocked, between Poland and Russia', fact: 'Capital: Minsk · 5 land neighbours' },
+    { id: 'SVN', name: 'Slovenia', flag: 'si', span: 14, hint: 'Between the Alps and the Adriatic', fact: 'Capital: Ljubljana · its coast is only about 47 km long' },
+  ] },
+  { n: 22, region: 'Africa', next: 'Asia', countries: [
+    { id: 'DZA', name: 'Algeria', flag: 'dz', span: 40, fact: 'Capital: Algiers · Africa’s biggest country' },
+    { id: 'MOZ', name: 'Mozambique', flag: 'mz', span: 34, fact: 'Capital: Maputo · a long coast on the Indian Ocean' },
+    { id: 'BWA', name: 'Botswana', flag: 'bw', span: 22, hint: 'Landlocked, mostly Kalahari', fact: 'Capital: Gaborone · home of the Okavango Delta' },
+    { id: 'TGO', name: 'Togo', flag: 'tg', span: 12, hint: 'A thin strip in West Africa', fact: 'Capital: Lomé · 3 land neighbours' },
+    { id: 'GMB', name: 'Gambia', flag: 'gm', span: 12, hint: 'Almost surrounded by Senegal', fact: 'Capital: Banjul · the smallest country on mainland Africa' },
+  ] },
+  { n: 23, region: 'Asia', next: 'the Americas', countries: [
+    { id: 'KOR', name: 'South Korea', flag: 'kr', span: 14, fact: 'Capital: Seoul · only 1 land neighbour' },
+    { id: 'MYS', name: 'Malaysia', flag: 'my', span: 26, fact: 'Capital: Kuala Lumpur · split in two by the South China Sea' },
+    { id: 'IRQ', name: 'Iraq', flag: 'iq', span: 22, hint: 'Between Iran and Syria', fact: 'Capital: Baghdad · the Tigris and Euphrates run through it' },
+    { id: 'AZE', name: 'Azerbaijan', flag: 'az', span: 14, hint: 'On the Caspian Sea', fact: 'Capital: Baku · the lowest-lying capital in the world' },
+    { id: 'BRN', name: 'Brunei', flag: 'bn', span: 8, hint: 'On the island of Borneo', fact: 'Capital: Bandar Seri Begawan · split into 2 parts by Malaysia' },
+  ] },
+  { n: 24, region: 'The Americas', next: 'the islands', countries: [
+    { id: 'CAN', name: 'Canada', flag: 'ca', span: 80, fact: 'Capital: Ottawa (not Toronto) · the longest coastline on Earth' },
+    { id: 'CRI', name: 'Costa Rica', flag: 'cr', span: 12, fact: 'Capital: San José · it abolished its army in 1948' },
+    { id: 'DOM', name: 'Dominican Republic', flag: 'do', span: 12, hint: 'Shares an island with Haiti', fact: 'Capital: Santo Domingo · on the island of Hispaniola' },
+    { id: 'JAM', name: 'Jamaica', flag: 'jm', span: 10, hint: 'An island south of Cuba', fact: 'Capital: Kingston · the 3rd-largest island in the Caribbean' },
+    { id: 'TTO', name: 'Trinidad and Tobago', flag: 'tt', span: 8, hint: 'Just off the coast of Venezuela', fact: 'Capital: Port of Spain · two main islands' },
+  ] },
+  { n: 25, region: 'Islands only', next: 'Europe', countries: [
+    { id: 'CYP', name: 'Cyprus', flag: 'cy', span: 8, fact: 'Capital: Nicosia · its flag shows the island itself' },
+    { id: 'MLT', name: 'Malta', flag: 'mt', span: 6, fact: 'Capital: Valletta · the smallest country in the EU' },
+    { id: 'CPV', name: 'Cape Verde', flag: 'cv', span: 8, hint: 'Off the coast of West Africa', fact: 'Capital: Praia · 10 volcanic islands' },
+    { id: 'BHS', name: 'Bahamas', flag: 'bs', span: 10, hint: 'Islands just north of Cuba', fact: 'Capital: Nassau · about 700 islands' },
+    { id: 'BHR', name: 'Bahrain', flag: 'bh', span: 5, hint: 'An island country in the Persian Gulf', fact: 'Capital: Manama · a 25 km causeway links it to Saudi Arabia' },
+  ] },
+  { n: 26, region: 'Europe', next: 'the whole world', countries: [
+    { id: 'NLD', name: 'Netherlands', flag: 'nl', span: 12, fact: 'Capital: Amsterdam · about a quarter lies below sea level' },
+    { id: 'DNK', name: 'Denmark', flag: 'dk', span: 14, fact: 'Capital: Copenhagen · 1 land neighbour: Germany' },
+    { id: 'SRB', name: 'Serbia', flag: 'rs', span: 14, hint: 'Landlocked, in the Balkans', fact: 'Capital: Belgrade · where the Sava meets the Danube' },
+    { id: 'BIH', name: 'Bosnia and Herzegovina', flag: 'ba', span: 12, hint: 'Almost landlocked: a 20 km coast', fact: 'Capital: Sarajevo · its only coast, at Neum, is about 20 km' },
+    { id: 'LUX', name: 'Luxembourg', flag: 'lu', span: 6, hint: 'Between Belgium, France and Germany', fact: 'Capital: Luxembourg (same name) · one of Europe’s smallest countries' },
+  ] },
+  { n: 27, region: 'Around the world', next: null, countries: [
+    { id: 'AUS', name: 'Australia', flag: 'au', span: 50, fact: 'Capital: Canberra (not Sydney) · a whole continent' },
+    { id: 'SWE', name: 'Sweden', flag: 'se', span: 24, fact: 'Capital: Stockholm · built on 14 islands' },
+    { id: 'UGA', name: 'Uganda', flag: 'ug', span: 12, hint: 'Landlocked, on Lake Victoria', fact: 'Capital: Kampala · the equator crosses it' },
+    { id: 'QAT', name: 'Qatar', flag: 'qa', span: 6, hint: 'A peninsula in the Persian Gulf', fact: 'Capital: Doha · 1 land neighbour: Saudi Arabia' },
+    { id: 'TLS', name: 'Timor-Leste', flag: 'tl', span: 8, hint: 'Shares an island with Indonesia', fact: 'Capital: Dili · independent since 2002' },
   ] },
 ];

@@ -1,6 +1,7 @@
 ROVIKO @playroviko · VRIJDAG 23 OKTOBER
 Eén caption per post: kopieer de tekst tussen CAPTION en HASHTAGS, plak de hashtags eronder.
 Reels: upload de .mp4 met het eigen geluid en kies de -cover.jpg als omslag.
+Banners: in banners/ staat per post een banner (1080x1920) voor Stories, of als omslag/aankondiging.
 
 ============================================================
 D5-P1  ·  Reel  ·  voorstel 08:00
@@ -57,4 +58,19 @@ How many zooms did you need: 1, 2, 3 or 4?
 HASHTAGS:
 
 #geography #maps #croatia #guessthecountry
+
+============================================================
+D5-P5  ·  Carousel (12 slides) · Map challenge #25 · Islands only  ·  voorstel 15:00
+Bestand(en): D5P5/instagram/01-12.png (4:5) · D5P5/tiktok/01-12.png (3:4) · banner: banners/D5P5-banner.png
+============================================================
+
+CAPTION:
+
+Map challenge #25: islands only 🏝️
+5 island countries. No mainland allowed.
+How many did you get? 👇
+
+HASHTAGS:
+
+#guessthecountry #geographyquiz #islands #maps
 

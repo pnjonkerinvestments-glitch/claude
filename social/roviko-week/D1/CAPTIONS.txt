@@ -1,6 +1,7 @@
 ROVIKO @playroviko · MAANDAG 19 OKTOBER
 Eén caption per post: kopieer de tekst tussen CAPTION en HASHTAGS, plak de hashtags eronder.
 Reels: upload de .mp4 met het eigen geluid en kies de -cover.jpg als omslag.
+Banners: in banners/ staat per post een banner (1080x1920) voor Stories, of als omslag/aankondiging.
 
 ============================================================
 D1-P1  ·  Reel  ·  voorstel 08:00
@@ -61,4 +62,19 @@ What did you get? 👇
 HASHTAGS:
 
 #geographyquiz #quiz #trivia #friends
+
+============================================================
+D1-P5  ·  Carousel (12 slides) · Map challenge #21 · Europe  ·  voorstel 15:00
+Bestand(en): D1P5/instagram/01-12.png (4:5) · D1P5/tiktok/01-12.png (3:4) · banner: banners/D1P5-banner.png
+============================================================
+
+CAPTION:
+
+Map challenge #21: Europe 🇪🇺
+5 countries, no names, Easy to Legend.
+Guess before you swipe, then comment your score: __/5 👇
+
+HASHTAGS:
+
+#guessthecountry #geographyquiz #europe #maps
 

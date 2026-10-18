@@ -1,6 +1,7 @@
 ROVIKO @playroviko · ZONDAG 25 OKTOBER
 Eén caption per post: kopieer de tekst tussen CAPTION en HASHTAGS, plak de hashtags eronder.
 Reels: upload de .mp4 met het eigen geluid en kies de -cover.jpg als omslag.
+Banners: in banners/ staat per post een banner (1080x1920) voor Stories, of als omslag/aankondiging.
 
 ============================================================
 D7-P1  ·  Reel  ·  voorstel 08:00
@@ -57,4 +58,19 @@ Your score /7? Comment it, and play a new round every day in Roviko (free, no ad
 HASHTAGS:
 
 #geographyquiz #quiz #trivia #roviko
+
+============================================================
+D7-P5  ·  Carousel (12 slides) · Map challenge #27 · Around the world  ·  voorstel 15:00
+Bestand(en): D7P5/instagram/01-12.png (4:5) · D7P5/tiktok/01-12.png (3:4) · banner: banners/D7P5-banner.png
+============================================================
+
+CAPTION:
+
+Map challenge #27: around the world, the week finale 🌍
+One from every corner of the map.
+Your score /5? And your score for the whole week? 👇
+
+HASHTAGS:
+
+#guessthecountry #geographyquiz #maps #quiz
 
