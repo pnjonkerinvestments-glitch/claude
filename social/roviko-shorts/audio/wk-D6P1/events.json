@@ -1,0 +1,165 @@
+[
+ {
+  "t": 0.0109,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 0.0818,
+  "beat": 0.15,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 0.5454,
+  "beat": 1,
+  "sfx": "pop",
+  "gain": -7,
+  "rate": 1
+ },
+ {
+  "t": 0.6,
+  "beat": 1.1,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 1.0909,
+  "beat": 2,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 1.6363,
+  "beat": 3,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 2.1817,
+  "beat": 4,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 2.7272,
+  "beat": 5,
+  "sfx": "pop",
+  "gain": -7,
+  "rate": 1.08
+ },
+ {
+  "t": 2.7817,
+  "beat": 5.1,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 3.2726,
+  "beat": 6,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 3.818,
+  "beat": 7,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 4.3635,
+  "beat": 8,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 4.9089,
+  "beat": 9,
+  "sfx": "pop",
+  "gain": -7,
+  "rate": 1.16
+ },
+ {
+  "t": 4.9635,
+  "beat": 9.1,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 5.4543,
+  "beat": 10,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 5.9998,
+  "beat": 11,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 6.5452,
+  "beat": 12,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 6.4361,
+  "beat": 11.8,
+  "sfx": "drumroll",
+  "gain": -10
+ },
+ {
+  "t": 7.0907,
+  "beat": 13,
+  "sfx": "impactbig",
+  "gain": -6
+ },
+ {
+  "t": 7.1179,
+  "beat": 13.05,
+  "sfx": "correct",
+  "gain": -6
+ },
+ {
+  "t": 7.2543,
+  "beat": 13.3,
+  "sfx": "crowdcheer",
+  "gain": -13
+ },
+ {
+  "t": 7.9633,
+  "beat": 14.6,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 8.0179,
+  "beat": 14.7,
+  "sfx": "sparkle",
+  "gain": -10
+ },
+ {
+  "t": 10.636,
+  "beat": 19.5,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 10.7451,
+  "beat": 19.7,
+  "sfx": "mention",
+  "gain": -10
+ }
+]
