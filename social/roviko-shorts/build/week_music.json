@@ -262,5 +262,17 @@
     null
    ]
   ]
+ },
+ "wk-D7P3": {
+  "song": "keeping-fit",
+  "end": 23,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    4,
+    null
+   ]
+  ]
  }
 }
