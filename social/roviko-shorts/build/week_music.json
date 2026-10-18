@@ -214,5 +214,17 @@
     null
    ]
   ]
+ },
+ "wk-D6P3": {
+  "song": "games-worldbeat",
+  "end": 23,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
  }
 }
