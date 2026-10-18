@@ -142,5 +142,17 @@
     null
    ]
   ]
+ },
+ "wk-D4P3": {
+  "song": "bob",
+  "end": 23,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    16,
+    null
+   ]
+  ]
  }
 }
