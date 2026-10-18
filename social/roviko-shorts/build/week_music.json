@@ -226,5 +226,17 @@
     null
    ]
   ]
+ },
+ "wk-D6P4": {
+  "song": "fun-and-games",
+  "end": 30,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
  }
 }

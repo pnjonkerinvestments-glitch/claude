@@ -1,0 +1,93 @@
+[
+ {
+  "t": 0.7233,
+  "beat": 1.2,
+  "sfx": "mention",
+  "gain": -8
+ },
+ {
+  "t": 2.2904,
+  "beat": 3.8,
+  "sfx": "send",
+  "gain": -8
+ },
+ {
+  "t": 2.4712,
+  "beat": 4.1,
+  "sfx": "boom",
+  "gain": -8
+ },
+ {
+  "t": 3.8575,
+  "beat": 6.4,
+  "sfx": "mention",
+  "gain": -8
+ },
+ {
+  "t": 5.4246,
+  "beat": 9,
+  "sfx": "send",
+  "gain": -8
+ },
+ {
+  "t": 5.6054,
+  "beat": 9.3,
+  "sfx": "boom",
+  "gain": -8
+ },
+ {
+  "t": 6.9917,
+  "beat": 11.6,
+  "sfx": "mention",
+  "gain": -8
+ },
+ {
+  "t": 8.5588,
+  "beat": 14.2,
+  "sfx": "send",
+  "gain": -8
+ },
+ {
+  "t": 8.7396,
+  "beat": 14.5,
+  "sfx": "boom",
+  "gain": -8
+ },
+ {
+  "t": 10.1259,
+  "beat": 16.8,
+  "sfx": "mention",
+  "gain": -8
+ },
+ {
+  "t": 11.693,
+  "beat": 19.4,
+  "sfx": "send",
+  "gain": -8
+ },
+ {
+  "t": 11.8738,
+  "beat": 19.7,
+  "sfx": "badumtss",
+  "gain": -7
+ },
+ {
+  "t": 12.4162,
+  "beat": 20.6,
+  "sfx": "laugh",
+  "gain": -11
+ },
+ {
+  "t": 13.5012,
+  "beat": 22.4,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 0.0121,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ }
+]
