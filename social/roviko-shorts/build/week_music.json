@@ -1,0 +1,50 @@
+{
+ "wk-D1P1": {
+  "song": "games-worldbeat",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "wk-D1P2": {
+  "song": "ko-games",
+  "end": 23,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    32,
+    null
+   ]
+  ]
+ },
+ "wk-D1P3": {
+  "song": "fun-and-games",
+  "end": 23,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "wk-D2P1": {
+  "song": "bob",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    16,
+    null
+   ]
+  ]
+ }
+}
