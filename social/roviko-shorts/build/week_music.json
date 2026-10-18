@@ -166,5 +166,17 @@
     null
    ]
   ]
+ },
+ "wk-D5P1": {
+  "song": "keeping-fit",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    4,
+    null
+   ]
+  ]
  }
 }

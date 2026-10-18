@@ -1,0 +1,165 @@
+[
+ {
+  "t": 0.0092,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 0.0692,
+  "beat": 0.15,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 0.4615,
+  "beat": 1,
+  "sfx": "pop",
+  "gain": -7,
+  "rate": 1
+ },
+ {
+  "t": 0.5077,
+  "beat": 1.1,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 0.9231,
+  "beat": 2,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 1.3846,
+  "beat": 3,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 1.8461,
+  "beat": 4,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 2.3077,
+  "beat": 5,
+  "sfx": "pop",
+  "gain": -7,
+  "rate": 1.08
+ },
+ {
+  "t": 2.3538,
+  "beat": 5.1,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 2.7692,
+  "beat": 6,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 3.2307,
+  "beat": 7,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 3.6923,
+  "beat": 8,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 4.1538,
+  "beat": 9,
+  "sfx": "pop",
+  "gain": -7,
+  "rate": 1.16
+ },
+ {
+  "t": 4.2,
+  "beat": 9.1,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 4.6153,
+  "beat": 10,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.05
+ },
+ {
+  "t": 5.0769,
+  "beat": 11,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.1
+ },
+ {
+  "t": 5.5384,
+  "beat": 12,
+  "sfx": "clock",
+  "gain": -12,
+  "rate": 1.15
+ },
+ {
+  "t": 5.4461,
+  "beat": 11.8,
+  "sfx": "drumroll",
+  "gain": -10
+ },
+ {
+  "t": 6,
+  "beat": 13,
+  "sfx": "impactbig",
+  "gain": -6
+ },
+ {
+  "t": 6.023,
+  "beat": 13.05,
+  "sfx": "correct",
+  "gain": -6
+ },
+ {
+  "t": 6.1384,
+  "beat": 13.3,
+  "sfx": "crowdcheer",
+  "gain": -13
+ },
+ {
+  "t": 6.7384,
+  "beat": 14.6,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 6.7846,
+  "beat": 14.7,
+  "sfx": "sparkle",
+  "gain": -10
+ },
+ {
+  "t": 8.9999,
+  "beat": 19.5,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 9.0922,
+  "beat": 19.7,
+  "sfx": "mention",
+  "gain": -10
+ }
+]
