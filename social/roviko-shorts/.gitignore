@@ -11,3 +11,4 @@ out/zoom-*.png
 audio/flag-*/mix.wav
 tmp/
 out/*.zip
+audio/.measure.wav
