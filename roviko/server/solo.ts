@@ -5,7 +5,7 @@ import { recordCompetition } from './competition';
 import { validAnswer } from '../lib/game-engine/validate-answer';
 import { reviewSession, reviewStatements } from './reviews';
 import { dailyContent } from './daily-content';
-import { prepareGeography, enrichMapFeedback } from './geography';
+import { prepareGeography, enrichMapFeedback, withGeometry } from './geography';
 import { one, rows, run, batch } from './db';
 import { AppError } from './auth';
 import { generateQuestions, publicQuestion, type Settings } from '../lib/game-engine/questions';
@@ -21,7 +21,7 @@ function learningState(s: Solo): Solo {
     return { ...s, settings: { ...s.settings, timer: 0 }, score: s.bonus || s.survival ? s.answers.filter(a => a.correct).length : 0, xp: 0, personalBest: 0, answers: s.answers.map(a => ({ ...a, points: 0, risk: 0 })) };
 }
 export function soloView(stored: Solo) {
-    const s = learningState(stored), q = s.questions[s.round];
+    const s = learningState(stored), q = s.questions[s.round] && withGeometry(s.questions[s.round]);
     const cluesShown = s.cluesShown?.[s.round] ?? 1;
     const question: any = s.phase === 'finished' ? null : { ...publicQuestion(q,s.phase === 'reveal'), cluesShown, solution: learningSolution(q) };
     if(question && q.flag && (s.competition || /^[a-z]+:[0-9a-f-]{36}$/.test(q.id))) question.flagUrl='/api/game-asset/'+s.id+'/'+s.round;
@@ -59,7 +59,7 @@ export async function startSolo(env: Env, user: User, settings: Settings, practi
     const weak = practice ? (await rows(env, 'SELECT country_id FROM concept_performance WHERE user_id=? AND correct<attempts ORDER BY (1.0*correct/attempts) LIMIT 20', user.id)).map((x: any) => x.country_id) : [];
     const id = crypto.randomUUID();
     // The daily Size Shuffle: its own generator (five rounds, easy to hard); the same countries for everyone on the date.
-    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: (shuffle ? generateSizeShuffle(seed) : prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled))).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled)), settings, datasetVersion: undefined };
+    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: (shuffle ? generateSizeShuffle(seed) : prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled))).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled), settings.count === 0), settings, datasetVersion: undefined };
     if (content.questions.some((q:any) => disabled.includes(q.id))) throw new AppError('QUESTION_UNAVAILABLE',503);
     const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':shuffle?'order':shape?'shape':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
     const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());
@@ -126,8 +126,9 @@ export async function soloAction(env: Env, user: User, id: string, action: strin
         if (elapsed < 0)
             throw new AppError('ROUND_NOT_STARTED', 409);
         const value = body.answer;
-        if (!validAnswer(s.questions[s.round], value)) throw new AppError('INVALID_INPUT');
-        const result = enrichMapFeedback(s.questions[s.round], value, { ...evaluateLearning(s.questions[s.round], value, s.streak), responseTime: Math.max(0, elapsed) });
+        const current = withGeometry(s.questions[s.round]);
+        if (!validAnswer(current, value)) throw new AppError('INVALID_INPUT');
+        const result = enrichMapFeedback(current, value, { ...evaluateLearning(current, value, s.streak), responseTime: Math.max(0, elapsed) });
         s.answers.push({ ...result, value, at: Date.now(), cluesUsed: s.questions[s.round].clues ? s.cluesShown?.[s.round] ?? 1 : undefined, questionId: s.questions[s.round].id });
         if(s.competition) { const a=s.answers.at(-1)!; if(s.competition.mode==='order') a.orderRight=placesRight(value,a.correctAnswer); a.points=dailyRoundPoints(s.competition.mode,a,s.questions.length); s.score=dailyScore(s); }
         s.streak = result.streak;

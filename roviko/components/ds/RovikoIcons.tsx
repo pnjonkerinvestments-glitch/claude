@@ -53,6 +53,22 @@ const Compass: Art = () => <>
   {shine(6.6, 5.6, 2, .9)}
 </>;
 
+/** 1.43 · the Games tab: two game cards, a flag in front and a question mark behind. */
+const Games: Art = () => <>
+  <g transform="rotate(-12 9 12)">
+    <rect x="3.2" y="4.4" width="11.6" height="15.2" rx="2.6" fill={RV.green}/>
+    <path d="M7.6 10.2c0-1.5 1.1-2.5 2.5-2.5s2.4.9 2.4 2.2c0 1.5-1.7 1.8-2 3.1" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+    <circle cx="10.4" cy="15.4" r=".95" fill="#fff"/>
+  </g>
+  <g transform="rotate(8 15 13)">
+    <rect x="9.2" y="5.2" width="12.2" height="15.6" rx="2.6" fill={NAVY} opacity=".18" transform="translate(.4 .9)"/>
+    <rect x="9.2" y="5.2" width="12.2" height="15.6" rx="2.6" fill={PAPER} stroke="#E4DCC6" strokeWidth=".8"/>
+    <rect x="11.3" y="9" width="8" height="2" fill={RV.red}/><rect x="11.3" y="11" width="8" height="2" fill="#fff"/><rect x="11.3" y="13" width="8" height="2" fill={NAVY}/>
+    <rect x="11.3" y="9" width="8" height="6" rx=".6" fill="none" stroke="#D9D0B8" strokeWidth=".5"/>
+    <path d="M12 17.6h6.6" stroke="#D9D0B8" strokeWidth="1.1" strokeLinecap="round"/>
+  </g>
+</>;
+
 const Play: Art = () => <>
   <MiniGlobe x={11} y={11.6} r={10}/>
   <circle cx="18.6" cy="18.4" r="5" fill={RV.gold} stroke={PAPER} strokeWidth="1.3"/>
@@ -423,7 +439,7 @@ const CheckCircle: Art = () => <><circle cx="12" cy="12" r="10" fill={RV.landDee
 
 const ICONS = {
   // tab bar and menu
-  play: Play, explore: Compass, multiplayer: Friends, passport: Passport,
+  play: Play, games: Games, explore: Compass, multiplayer: Friends, passport: Passport,
   account: Account, friends: Friends, settings: Settings, trophy: Trophy, tour: Compass, help: Help, scoring: Scoring,
   // multiplayer choices
   group: Group, random: Random, robot: Robot,

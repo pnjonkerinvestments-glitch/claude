@@ -19,12 +19,12 @@ type Step = { key: string; art?: string; mascot?: [CharacterMood, CharacterPose]
  */
 const STEPS: Step[] = [
   { key: 'g1', mascot: ['cheer', 'wave'] },
-  { key: 'g2', art: 'scene', where: [['play', 'play']] },
-  { key: 'g3', art: 'scene', where: [['play', 'play']] },
-  { key: 'g4', mascot: ['happy', 'cheer'], flame: true, where: [['play', 'play']] },
+  { key: 'g2', art: 'scene', where: [['play', 'navToday']] },
+  { key: 'g3', art: 'scene', where: [['play', 'navToday']] },
+  { key: 'g4', mascot: ['happy', 'cheer'], flame: true, where: [['play', 'navToday']] },
   { key: 'g5', art: 'scene', where: [['trophy', 'gRankings']] },
-  { key: 'g6', art: 'scene', where: [['play', 'play']] },
-  { key: 'g7', art: 'scene', where: [['explore', 'explore'], ['passport', 'navPassport']] },
+  { key: 'g6', art: 'scene', where: [['games', 'navGames']] },
+  { key: 'g7', art: 'scene', where: [['games', 'navGames'], ['passport', 'navPassport']] },
   { key: 'g8', art: 'scene', where: [['multiplayer', 'navMultiplayer']] },
 ];
 // 1.39: on the first visit playing comes first; the account is the quiet second button (asked again on day 2 or after 6/6).

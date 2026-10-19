@@ -4,8 +4,10 @@ import data from '../data/countries.json';
 import silhouettes from '../data/silhouettes.json';
 import metrics from '../data/country-metrics.json';
 import worldbank from '../data/comparisons.json';
+import funMetrics from '../data/fun-metrics.json';
+import heritage from '../data/mosaic-facts.json';
 import { locateInCountry, type Polygons } from './geometry';
-import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash, orderPlacement, partialOrderPoints, derangedStart } from './scoring';
+import { random, shuffle, matches, haversine, scoreAnswer, mapScore, mapAccuracyPoints, seedHash, orderPlacement, partialOrderPoints, randomStart } from './scoring';
 import { GEOGRAPHY_POLICY, MODES } from '../config';
 import { inRegion } from '../continent-week';
 export type Country = {
@@ -129,6 +131,11 @@ function roundedArea(area: number) { const step = 10 ** Math.max(0, Math.floor(M
 function sig2(n: number) { const step = 10 ** Math.max(0, Math.floor(Math.log10(Math.max(1, n))) - 1); return Math.round(n / step) * step; }
 const ARCHIVE = (metrics as any).records as Record<string, Record<string, { value: number }>>;
 const POPULATION = (worldbank as any).topics.population.values as Record<string, number>;
+const WB = (worldbank as any).topics as Record<string, { values: Record<string, number> }>;
+const FUN = (funMetrics as any).records as Record<string, Record<string, { value: number }>>;
+/** Heritage and nature facts (UNESCO, CC BY-SA 3.0 IGO), one per country for about forty countries. */
+const HERITAGE = new Map<string, Clue>(((heritage as any).facts as { countryId: string; clues: Clue[] }[]).filter(f => f.clues?.[0]).map(f => [f.countryId, f.clues[0]]));
+const AREA_RANK = new Map([...COUNTRIES].filter(x => x.area > 0).sort((a, b) => b.area - a.area).map((x, i) => [x.id, i + 1]));
 /** Currency units in three languages; units that are not listed are names (lek, kwanza) and stay as they are. */
 const UNITS: Record<string, [string, string, string]> = {
     euro: ['euro', 'euro', 'euro'], franc: ['franc', 'frank', 'franco'], dollar: ['dollar', 'dollar', 'dólar'], pound: ['pound', 'pond', 'libra'],
@@ -158,7 +165,7 @@ type Candidate = { kind: string; clue: Clue; fits: (o: Country) => boolean };
  * Each clue is checked against the four answers: clue 1 leaves at least three possible, clue 2 at least two
  * (1.38 and before could rule out all but one with the very first clue), clue 3 points to one.
  */
-export function trailClues(c: Country, options: Country[], rng: () => number): Clue[] {
+export function trailClues(c: Country, options: Country[], rng: () => number, used: Set<string> = new Set()): Clue[] {
     const cap = c.capitals[0], capNl = dutchCapital(cap), capEs = spanishCapital(cap);
     const neighbour = shuffle(COUNTRIES.filter(n => c.borders.includes(n.id) && !namesOverlap(n, c)), rng)[0];
     const sub = SUBREGION[c.subregion];
@@ -166,8 +173,10 @@ export function trailClues(c: Country, options: Country[], rng: () => number): C
     const size = roundedArea(c.area), n = c.borders.length;
     const near = (a: number | undefined, b: number | undefined, ratio: number) => !!a && !!b && Math.max(a, b) / Math.min(a, b) <= ratio;
     const cands: Candidate[] = [
-        { kind: 'continent', fits: o => o.region === c.region, clue: { en: 'Start your search in ' + c.region + '.', nl: 'Begin je zoektocht in ' + (REGION_NL[c.region] ?? c.region) + '.', es: 'Empieza a buscar en ' + (REGION_ES[c.region] ?? c.region) + '.' } },
-        ...(sub ? [{ kind: 'sub', fits: (o: Country) => o.subregion === c.subregion, clue: { en: 'I lie in ' + sub[0] + '.', nl: 'Ik lig in ' + sub[1] + '.', es: 'Estoy en ' + sub[2] + '.' } }] : []),
+        ...(sub ? [{ kind: 'sub', fits: (o: Country) => o.subregion === c.subregion, clue: [
+            { en: 'You will find me in ' + sub[0] + '.', nl: 'Je vindt me in ' + sub[1] + '.', es: 'Me encontrarás en ' + sub[2] + '.' },
+            { en: 'Look for me in ' + sub[0] + '.', nl: 'Zoek me in ' + sub[1] + '.', es: 'Búscame en ' + sub[2] + '.' },
+            { en: 'My home is ' + sub[0] + '.', nl: 'Mijn thuis is ' + sub[1] + '.', es: 'Mi hogar está en ' + sub[2] + '.' }][Math.floor(rng() * 3)] }] : []),
         { kind: 'hemi', fits: o => (o.latlng[0] >= 0) === ns && (o.latlng[1] >= 0) === ew, clue: { en: 'My centre lies ' + (ns ? 'north' : 'south') + ' of the equator and ' + (ew ? 'east' : 'west') + ' of Greenwich.', nl: 'Mijn midden ligt ten ' + (ns ? 'noorden' : 'zuiden') + ' van de evenaar en ten ' + (ew ? 'oosten' : 'westen') + ' van Greenwich.', es: 'Mi centro está al ' + (ns ? 'norte' : 'sur') + ' del ecuador y al ' + (ew ? 'este' : 'oeste') + ' de Greenwich.' } },
         { kind: 'area', fits: o => near(o.area, c.area, 1.6), clue: { en: 'My area is about ' + size.toLocaleString('en') + ' km².', nl: 'Mijn oppervlakte is ongeveer ' + size.toLocaleString('nl-NL') + ' km².', es: 'Mi superficie es de unos ' + size.toLocaleString('es-ES') + ' km².' } },
         { kind: 'borders', fits: o => o.borders.length === n, clue: n === 0 ? { en: 'I have no land neighbours.', nl: 'Ik heb geen buurlanden over land.', es: 'No tengo vecinos por tierra.' }
@@ -189,6 +198,37 @@ export function trailClues(c: Country, options: Country[], rng: () => number): C
         const fmt = (loc: string) => big ? big[0].toLocaleString(loc, { maximumFractionDigits: 1 }) : p.toLocaleString(loc);
         cands.push({ kind: 'population', fits: o => near(POPULATION[o.id], pop, 1.5), clue: { en: 'About ' + fmt('en') + (big ? ' ' + big[1] : '') + ' people live here.', nl: 'Er wonen ongeveer ' + fmt('nl-NL') + (big ? ' ' + big[2] : '') + ' mensen.', es: 'Aquí viven unas ' + fmt('es-ES') + (big ? ' ' + big[3] : '') + ' personas.' } });
     }
+    // 1.43: more facts, so a trail rarely opens the same way twice. Every number is from the bundled, sourced data.
+    const fmt = (n: number, loc: string, d = 0) => n.toLocaleString(loc, { maximumFractionDigits: d, minimumFractionDigits: d });
+    const L = ['en', 'nl-NL', 'es-ES'] as const;
+    const wb = (k: string, id = c.id) => WB[k]?.values?.[id];
+    const income = wb('income');
+    if (income && income > 0) { const v = sig2(income); cands.push({ kind: 'income', fits: o => near(wb('income', o.id), income, 1.5), clue: { en: 'My economy makes about $' + fmt(v, L[0]) + ' per person a year.', nl: 'Mijn economie levert per inwoner zo’n $' + fmt(v, L[1]) + ' per jaar op.', es: 'Mi economía produce unos ' + fmt(v, L[2]) + ' $ por habitante al año.' } }); }
+    const life = wb('life');
+    if (life) { const v = Math.round(life); cands.push({ kind: 'life', fits: o => Math.abs((wb('life', o.id) ?? -99) - life) <= 2.5, clue: { en: 'People here live to about ' + v + ' on average.', nl: 'Mensen worden hier gemiddeld zo’n ' + v + ' jaar oud.', es: 'Aquí la gente vive de media unos ' + v + ' años.' } }); }
+    const forest = wb('forest');
+    if (forest !== undefined && forest >= 0) {
+        const v = Math.round(forest / 5) * 5;
+        cands.push({ kind: 'forest', fits: o => Math.abs((wb('forest', o.id) ?? -99) - forest) <= 8, clue: forest < 2.5
+            ? { en: 'I have hardly any forest.', nl: 'Ik heb bijna geen bos.', es: 'Casi no tengo bosques.' }
+            : { en: 'About ' + v + '% of my land is forest.', nl: 'Zo’n ' + v + '% van mijn land is bos.', es: 'Cerca del ' + v + '% de mi territorio es bosque.' } });
+    }
+    const urban = wb('urban');
+    if (urban !== undefined) { const v = Math.round(urban / 5) * 5; cands.push({ kind: 'urban', fits: o => Math.abs((wb('urban', o.id) ?? -99) - urban) <= 8, clue: { en: 'About ' + v + '% of my people live in towns and cities.', nl: 'Ongeveer ' + v + '% van mijn inwoners woont in een stad.', es: 'Cerca del ' + v + '% de mi gente vive en ciudades.' } }); }
+    const net = wb('internet');
+    if (net !== undefined) { const v = Math.max(1, Math.round(net / 10)); cands.push({ kind: 'internet', fits: o => Math.max(1, Math.round((wb('internet', o.id) ?? -99) / 10)) === v, clue: v >= 10 ? { en: 'Almost everyone here is online.', nl: 'Bijna iedereen is hier online.', es: 'Aquí casi todo el mundo usa internet.' } : { en: 'About ' + v + ' in 10 people here use the internet.', nl: 'Ongeveer ' + v + ' op de 10 mensen gebruiken hier internet.', es: 'Unas ' + v + ' de cada 10 personas usan internet aquí.' } }); }
+    const births = wb('births');
+    if (births) { const v = Math.round(births * 10) / 10; cands.push({ kind: 'births', fits: o => Math.abs((wb('births', o.id) ?? -99) - births) <= 0.4, clue: { en: 'Women here have about ' + fmt(v, L[0], 1) + ' children on average.', nl: 'Vrouwen krijgen hier gemiddeld zo’n ' + fmt(v, L[1], 1) + ' kinderen.', es: 'Aquí las mujeres tienen de media unos ' + fmt(v, L[2], 1) + ' hijos.' } }); }
+    const age = ARCHIVE[c.id]?.age?.value;
+    if (age) { const v = Math.round(age); cands.push({ kind: 'age', fits: o => Math.abs((ARCHIVE[o.id]?.age?.value ?? -99) - age) <= 3, clue: { en: 'Half of my people are younger than ' + v + '.', nl: 'De helft van mijn inwoners is jonger dan ' + v + '.', es: 'La mitad de mi gente tiene menos de ' + v + ' años.' } }); }
+    const coast = ARCHIVE[c.id]?.coastline?.value;
+    if (coast && coast > 0) { const v = sig2(coast); cands.push({ kind: 'coast', fits: o => near(ARCHIVE[o.id]?.coastline?.value, coast, 1.6), clue: { en: 'My coastline is about ' + fmt(v, L[0]) + ' km long.', nl: 'Mijn kustlijn is ongeveer ' + fmt(v, L[1]) + ' km lang.', es: 'Mi costa mide unos ' + fmt(v, L[2]) + ' km.' } }); }
+    const airports = FUN[c.id]?.airports?.value;
+    if (airports && airports >= 3) { const v = sig2(airports); cands.push({ kind: 'airports', fits: o => near(FUN[o.id]?.airports?.value, airports, 1.5), clue: { en: 'I have about ' + fmt(v, L[0]) + ' airports and airfields.', nl: 'Ik heb ongeveer ' + fmt(v, L[1]) + ' vliegvelden.', es: 'Tengo unos ' + fmt(v, L[2]) + ' aeropuertos y aeródromos.' } }); }
+    const rail = FUN[c.id]?.railways?.value;
+    if (rail && rail >= 50) { const v = sig2(rail); cands.push({ kind: 'rail', fits: o => near(FUN[o.id]?.railways?.value, rail, 1.6), clue: { en: 'My railways add up to about ' + fmt(v, L[0]) + ' km.', nl: 'Mijn spoorlijnen zijn samen zo’n ' + fmt(v, L[1]) + ' km lang.', es: 'Mis vías de tren suman unos ' + fmt(v, L[2]) + ' km.' } }); }
+    const rank = AREA_RANK.get(c.id);
+    if (rank) cands.push({ kind: 'arearank', fits: o => Math.abs((AREA_RANK.get(o.id) ?? 999) - rank) <= 8, clue: rank === 1 ? { en: 'No country is bigger than me.', nl: 'Geen land is groter dan ik.', es: 'Ningún país es más grande que yo.' } : { en: 'By area I am number ' + rank + ' in the world.', nl: 'Qua oppervlakte ben ik nummer ' + rank + ' van de wereld.', es: 'Por superficie soy el número ' + rank + ' del mundo.' } });
     const letter: Candidate = { kind: 'letter', fits: o => (o.capitals[0] ?? '').charAt(0).toUpperCase() === cap.charAt(0).toUpperCase(), clue: { en: 'My capital starts with the letter ' + cap.charAt(0).toUpperCase() + '.', nl: 'Mijn hoofdstad begint met de letter ' + capNl.charAt(0).toUpperCase() + '.', es: 'Mi capital empieza por la letra ' + capEs.charAt(0).toUpperCase() + '.' } };
     const capital: Clue = { en: 'My capital is ' + cap + '.', nl: 'Mijn hoofdstad is ' + capNl + '.', es: 'Mi capital es ' + capEs + '.' };
     const border: Clue | null = neighbour ? { en: 'I share a land border with ' + neighbour.name + '.', nl: 'Ik deel een landgrens met ' + neighbour.nl + '.', es: 'Comparto frontera terrestre con ' + spanishCountry(neighbour.name) + '.' } : null;
@@ -196,13 +236,15 @@ export function trailClues(c: Country, options: Country[], rng: () => number): C
     const safe = cands.filter(v => ![c.name, c.nl, spanishCountry(c.name)].some(name => v.clue.en.includes(name) || v.clue.nl.includes(name) || v.clue.es.includes(name)));
     // Pick the clue that keeps at least `keep` answers possible; if none can, the one that keeps the most.
     // The plain ones (continent, hemispheres) weigh less, so the richer facts come up more often.
-    const WEIGHT: Record<string, number> = { continent: 1, hemi: 1, sub: 2, borders: 2, area: 2, letter: 2 };
+    // 1.43: kinds already used earlier in this game weigh far less, so five countries get five different openings.
+    const WEIGHT: Record<string, number> = { hemi: 1, sub: 2, borders: 2, area: 2, letter: 2 };
+    const weight = (kind: string) => (WEIGHT[kind] ?? 4) * (used.has(kind) ? 0.15 : 1);
     const pickFrom = (pool: Candidate[], left: Country[], keep: number) => {
         const scored = shuffle(pool, rng).map(x => ({ x, n: left.filter(x.fits).length }));
         const fit = scored.filter(s => s.n >= keep);
         if (!fit.length) return scored.sort((a, b) => b.n - a.n)[0]?.x;
-        let roll = rng() * fit.reduce((sum, s) => sum + (WEIGHT[s.x.kind] ?? 4), 0);
-        for (const s of fit) { roll -= WEIGHT[s.x.kind] ?? 4; if (roll <= 0) return s.x; }
+        let roll = rng() * fit.reduce((sum, s) => sum + weight(s.x.kind), 0);
+        for (const s of fit) { roll -= weight(s.x.kind); if (roll <= 0) return s.x; }
         return fit[fit.length - 1].x;
     };
     const first = pickFrom(safe, options, 3)!;
@@ -210,8 +252,15 @@ export function trailClues(c: Country, options: Country[], rng: () => number): C
     // A capital that echoes the country's name (San Salvador, Guatemala City) would give the answer away: use the neighbour then.
     const words = (v: string) => v.toLowerCase().split(/[^a-zà-ÿ]+/).filter(w => w.length >= 4);
     const capEcho = words(cap).some(w => words(c.name + ' ' + c.nl).includes(w));
-    const sharp = border && (capEcho || rng() < .5) ? border : capital;
-    const second = pickFrom([...safe.filter(x => x.kind !== first.kind), ...(sharp === capital ? [] : [letter])], afterFirst, 2) ?? letter;
+    // The sharp third clue: the capital, a neighbour or (1.43) a heritage or nature fact, whichever this game used least.
+    const fact = HERITAGE.get(c.id);
+    const factSafe = fact && ![c.name, c.nl, spanishCountry(c.name)].some(name => fact.en.includes(name) || fact.nl.includes(name) || fact.es.includes(name)) ? fact : null;
+    const sharps = [...(capEcho ? [] : [{ kind: 'capital', clue: capital }]), ...(border ? [{ kind: 'border', clue: border }] : []), ...(factSafe ? [{ kind: 'heritage', clue: factSafe }] : [])];
+    const fresh = sharps.filter(x => !used.has(x.kind));
+    const pickSharp = (fresh.length ? fresh : sharps)[Math.floor(rng() * (fresh.length || sharps.length))] ?? { kind: 'capital', clue: capital };
+    const sharp = pickSharp.clue;
+    const second = pickFrom([...safe.filter(x => x.kind !== first.kind), ...(pickSharp.kind === 'capital' ? [] : [letter])], afterFirst, 2) ?? letter;
+    used.add(first.kind); used.add(second.kind); used.add(pickSharp.kind);
     return [first.clue, second.clue, sharp, { en: 'My flag looks like this.', nl: 'Mijn vlag ziet er zo uit.', es: 'Mi bandera tiene este aspecto.' }];
 }
 export function generateQuestions(settings: Settings, seed: string, exclude: string[] = [], weak: string[] = [], focus?: string, blocked: string[] = []) {
@@ -228,6 +277,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     // hard  = lesser-known countries, wrong answers from the same part of the world, sizes close together;
     // mixed = each question gets one of the three, in a shuffled rotation.
     const tierPool = (tier: string) => {
+        if (settings.count === 0) return regionPool;
         if (tier === 'easy') { const simple = regionPool.filter(c => fame(c) < 1.12); if (simple.length >= 6) return simple; }
         if (tier === 'hard') {
             const obscure = regionPool.filter(c => !familiar.includes(c.id)), deep = obscure.filter(c => fame(c) >= 1.2);
@@ -236,8 +286,12 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         }
         return regionPool;
     };
+    // 1.43: count 0 is "All": every country of the chosen region once (Size Shuffle: about a quarter as many lists).
+    const all = settings.count === 0;
+    const target = all ? (settings.mode === 'order' ? Math.ceil(regionPool.length / 4) : regionPool.length) : settings.count;
+    const usedCountries = new Set<string>();
     const tiers: string[] = [];
-    if (settings.difficulty === 'mixed') while (tiers.length < settings.count) tiers.push(...shuffle(['easy', 'medium', 'hard'], rng));
+    if (settings.difficulty === 'mixed') while (tiers.length < target) tiers.push(...shuffle(['easy', 'medium', 'hard'], rng));
     let pool = tierPool(settings.difficulty);
     const result: Question[] = [];
     // Daily Detour: every question type twice (ten questions since 1.32), shuffled per block of five and never the same type twice in a row.
@@ -251,8 +305,10 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         detourOrder.push(...block);
     }
     let used = new Set(exclude);
+    // Clue Trail (1.43): the kinds of clue already given in this game, so the next country opens differently.
+    const trailUsed = new Set<string>();
     let attempts = 0;
-    while (result.length < settings.count && attempts++ < settings.count * 200) {
+    while (result.length < target && attempts++ < target * 200) {
         const i = result.length;
         const daily = seed.startsWith('daily:');
         const mode = settings.mode === 'daily' ? detourOrder[i] : settings.mode === 'mixed' ? enabled[i % enabled.length] : settings.mode;
@@ -266,13 +322,15 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             candidates = candidates.filter(c => pinnable(c) && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id) && (settings.mode !== 'daily' || i >= 5 || c.area >= PIN_SMALL_AREA));
         // The first three Detour questions are about well-known countries.
         if (settings.mode === 'daily' && i < 3) { const known = candidates.filter(c => familiar.includes(c.id)); if (known.length) candidates = known; }
-        const level = settings.ramp ? i / Math.max(1, settings.count - 1) : 0;
+        const level = settings.ramp ? i / Math.max(1, target - 1) : 0;
         if (mode === 'shape') candidates = candidates.filter(c => SHAPES[c.id] && c.area >= 2000 && !GEOGRAPHY_POLICY.puzzleSensitiveCountries.includes(c.id));
         if (settings.ramp && mode !== 'order') candidates = rampWindow(candidates, level);
         if (settings.ramp && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
         // Easy maps only ask for big countries; easy and hard Size Shuffle need a country that can anchor a usable list.
         if (tier === 'easy' && mode === 'pinpoint') { const big = candidates.filter(c => c.area >= PIN_SMALL_AREA); if (big.length >= 4) candidates = big; }
         if (!settings.ramp && tier !== 'medium' && mode === 'order') candidates = candidates.filter(c => c.area >= 300);
+        // "All": each country once; the game ends when every country of the region had its turn.
+        if (all) { candidates = candidates.filter(c => !usedCountries.has(c.id)); if (!candidates.length) break; }
         if (!candidates.length)
             throw new Error('Question unavailable');
         const weighted = focus && i === 0 ? candidates.filter(c => c.id === focus) : !daily && weak.length && rng() < .45 ? candidates.filter(c => weak.includes(c.id)) : [];
@@ -280,7 +338,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         let id = mode + ':' + seedHash('roviko-v1:' + mode + ':' + c.id).toString(36);
         if (blocked.some(item => item === id || item.split('-')[0] === id)) continue;
         if (used.has(id)) {
-            if (attempts > settings.count * 20) {
+            if (attempts > target * 20) {
                 // Small regions can exhaust their eligible countries. Prefer new
                 // targets first, then permit a repeat with a fresh round ID.
                 id += '-' + seedHash(seed + ':' + i).toString(36);
@@ -290,7 +348,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             else
                 continue;
         }
-        used.add(id);
+        used.add(id); usedCountries.add(c.id);
         const q: Question = { id, mode, countryId: c.id, prompt: { en: '', nl: '' }, options: [], correct: c.id, answerLabel: { en: c.name, nl: c.nl }, fact: { en: `${c.name} is in ${c.subregion}. ${c.capitals.length ? 'Its capital ' + (c.capitals.length > 1 ? 'cities are ' : 'is ') + c.capitals.join(' / ') + '.' : ''}`, nl: `${c.nl}: ${c.capitals.length ? 'hoofdstad' + (c.capitals.length > 1 ? 'en' : '') + ' ' + c.capitals.map(dutchCapital).join(' / ') + '. ' : ''}${c.area.toLocaleString('nl-NL')} km² oppervlakte.` }, difficulty: tiers.length ? tier : settings.difficulty };
         const others = COUNTRIES.filter(x => x.id !== c.id && x.capitals.length);
         const nearby = shuffle(others.filter(x => x.region === c.region), rng);
@@ -319,7 +377,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             const sameSub = shuffle(nearby.filter(x => x.subregion === c.subregion), rng), otherSub = nearby.filter(x => x.subregion !== c.subregion);
             const wrong = tier === 'easy' ? [...nearby.slice(0, 1), ...far.slice(0, 2)] : tier === 'hard' ? [...sameSub, ...otherSub].slice(0, 3) : [...nearby.slice(0, 2), ...far.slice(0, 1)];
             const options = [c, ...wrong];
-            q.clues = trailClues(c, options, rng);
+            q.clues = trailClues(c, options, rng, trailUsed);
             q.flag = c.iso2;
             q.options = shuffle(options, rng).map(({id,name,nl}) => ({id,en:name,nl}));
         }
@@ -349,7 +407,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             if (settings.ramp && !ramped) continue;
             const list = ramped ?? [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
             // Since 1.23.1 no country starts in its right place: confirming the list untouched earns nothing (multiplayer gives partial points).
-            q.options = derangedStart([...list].sort((a, b) => b.area - a.area), rng).map(nameOption);
+            q.options = randomStart([...list].sort((a, b) => b.area - a.area), rng).map(nameOption);
             q.correct = [...list].sort((a, b) => b.area - a.area).map(x => x.id);
             q.prompt = { en: 'Put these countries in order. Largest area first.', nl: 'Zet de landen op volgorde. Grootste oppervlakte bovenaan.' };
             q.answerLabel = { en: (q.correct as string[]).map(id => list.find(c => c.id === id)!.name).join(' → '), nl: (q.correct as string[]).map(id => list.find(c => c.id === id)!.nl).join(' → ') };
@@ -359,7 +417,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
             throw new Error('Unknown mode');
         result.push(q);
     }
-    if (result.length !== settings.count)
+    if (all ? result.length < 4 : result.length !== settings.count)
         throw new Error('Question selection exhausted');
     return result;
 }

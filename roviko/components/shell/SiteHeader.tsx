@@ -16,9 +16,10 @@ function RequestBadge({ n, label }: { n: number; label: string }) {
 }
 
 const NAV = [
-  { href: '/', key: 'play', icon: 'play' as RovikoIconName, match: (p: string) => p === '/' || p === '/daily' || p.startsWith('/duel') || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
+  // 1.43: "Today" is the home trip; "Games" is every game with its choices (it took Explore's place, which moved into it).
+  { href: '/', key: 'navToday', icon: 'play' as RovikoIconName, match: (p: string) => p === '/' || p.startsWith('/duel') || p.startsWith('/game') || p.startsWith('/puzzle') || p.startsWith('/rank/') },
+  { href: '/daily', key: 'navGames', icon: 'games' as RovikoIconName, match: (p: string) => p === '/daily' || p === '/explore' },
   { href: '/learn', key: 'learnTab', icon: 'graduation' as RovikoIconName, match: (p: string) => p === '/learn' || p.startsWith('/learn/') },
-  { href: '/explore', key: 'explore', icon: 'explore' as RovikoIconName, match: (p: string) => p === '/explore' },
   { href: '/multiplayer', key: 'navMultiplayer', icon: 'multiplayer' as RovikoIconName, match: (p: string) => p === '/multiplayer' || p === '/friends' || p.startsWith('/room') },
 ] as const;
 
@@ -47,6 +48,7 @@ function AppMenu() {
         {item('/friends', 'friends', t('friendsList'), requests ? t(requests === 1 ? 'navRequests_one' : 'navRequests').replace('{n}', String(requests)) : t('menuFriendsNote'))}
         {item('/settings', 'settings', t('settingsTitle'), t('menuSettingsNote'))}
         <hr/>
+        {item('/explore', 'explore', t('explore'), t('menuExploreNote'))}
         {item('/leaderboard', 'trophy', t('leaderboard'))}
         <A href="/" onClick={() => { close(); try { sessionStorage.setItem('roviko:tour-open', '1'); } catch { /* ignore */ } window.dispatchEvent(new Event('roviko:tour')); }}><RovikoIcon name="tour" size={22}/><span><strong>{t('menuTour')}</strong><small>{t('menuTourNote')}</small></span><ChevronRight size={17} aria-hidden="true" className="menu-chevron"/></A>
         {item('/how-to-play', 'help', t('howToLink'))}

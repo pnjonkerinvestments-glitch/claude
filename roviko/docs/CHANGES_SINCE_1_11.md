@@ -596,7 +596,23 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.42.0 (op de testversie, nog niet live)
+## 1.43.0 (op de testversie, nog niet live)
+
+**Tab "Spellen" in plaats van "Ontdekken".** De tabbalk is nu Vandaag (de reis van vandaag, was "Spelen"), Spellen (`/daily`), Leren, Multiplayer, Paspoort. Op de Spellen-pagina staat bovenaan **Vrij spelen**: grote tegels voor Clue Trail, City Circuit, Flag Signal, Pinpoint, Next Door, Size Shuffle en (nieuw als klassieker) Vormenjacht, plus "Herhaal je fouten", "Verras me" en het oefenen van de dagspellen. Daaronder de dagspellen, de extra's, bonustour en overleven, het continent van de week en een rij naar Ontdekken. Ontdekken staat ook in het menu. De rondleiding noemt de nieuwe tabs. Nieuw tab-icoon `games` (`components/ds/RovikoIcons.tsx`).
+
+**Keuzemenu meteen bij het kiezen van een spel** (`components/game/SoloSetup.tsx`): Waar? (wereld of een continent), Hoe moeilijk?, Hoeveel vragen? (5, 10, 20 of **Alle**). De laatste keuze per spel wordt onthouden (`rv_setup_<spel>` in de browser).
+
+**"Alle" (count 0).** Elk land van de gekozen regio precies één keer, bijvoorbeeld alle 195 vlaggen of alle 45 van Europa (Size Shuffle: ongeveer een kwart zoveel lijsten). Moeilijkheid bepaalt dan alleen de foute antwoorden. Pinpoint met "Alle" bewaart de landsgrenzen niet in het opgeslagen spel (alles samen is te groot voor één databaserij); de server zoekt ze bij elke vraag en elk antwoord op (`withGeometry` in `server/geography.ts`). Kamers in multiplayer spelen nooit "Alle" (wordt 10).
+
+**Clue Trail origineler.** Geen vaste opening "Begin je zoektocht in ..." meer. Nieuwe soorten hints uit de bestaande, gebronde data: inkomen per inwoner, levensverwachting, bos, stad, internet, kinderen per vrouw, mediane leeftijd, kustlijn, vliegvelden, spoorlijnen, plek in oppervlakte, en als derde hint soms een erfgoed- of natuurweetje (UNESCO, ongeveer veertig landen). Binnen één spel komt dezelfde soort hint zelden terug. De vierde hint blijft de vlag. Gemiddelde temperatuur zit er niet in: daar is geen open bron voor in de data en die kon vanaf hier niet worden opgehaald; er is niets verzonnen. Opgeslagen dagedities houden hun hints.
+
+**Size Shuffle begint willekeurig** (`randomStart`): elke volgorde behalve de al goede kan, dus soms staan er al landen goed. Let op: een lijst zonder te schuiven bevestigen kan nu (wat) punten opleveren. Opgeslagen dagedities houden hun volgorde.
+
+**Knoppen nagelopen.** Automatische controle op alle pagina's, het keuzemenu, alle dagspellen (vraag en antwoord) en een eindscherm, in NL, EN en ES op 375 en 360 px: geen afgekapte of overlopende knoppen meer. Engels "Back for one more" werd "Stays on" (paste niet op smalle schermen).
+
+**Getest:** `npm test` 209 geslaagd, 1 overgeslagen (nieuw: "Alle" voor vlaggen en Pinpoint met geldig antwoord en kleine opslag, Vormenjacht als klassieker, kamers zonder "Alle"; aangepast: Clue Trail-tests en de Size Shuffle-starttest). Lokaal bekeken met schermafbeeldingen. Niet getest: een echt toestel en een volledig gespeelde "Alle"-ronde van 195 vragen.
+
+## 1.42.0 (live sinds 18 oktober 2026, PR #38)
 
 **Drie levens in Side by Side.** Een fout kost een leven; pas bij de derde fout stopt de run. Punten blijven goede antwoorden ÷ 15 × 1.000. De levens horen bij de inhoud van de dag (`lives: 3` in `daily_content`): een dag waarvan de inhoud al vóór deze versie was opgeslagen, houdt de oude regel (één fout) voor iedereen, zodat niemand op de wisseldag een voordeel heeft. Oefenen heeft ook drie levens. Overleven (survival) blijft: één fout en je bent af. Hartjes in de vraagkaart, na een fout een label "Eén leven kwijt · nog 2" / "Laatste leven!". Teksten in uitleg en puntenregels aangepast (`i18n/v142.ts`, `lib/how-to-play.ts`). De andere dagspellen stopten al niet bij een fout.
 

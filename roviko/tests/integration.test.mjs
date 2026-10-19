@@ -845,3 +845,18 @@ test('streak repair (1.39): offered after a short break, once per 30 days, and i
  p=(await request(g.cookie,'/profile')).data.stats;assert.equal(p.dailyStreak,3);assert.equal(p.streakRepair,null);
  assert.equal((await request(g.cookie,'/streak/repair','POST',{})).status,409,'only once per 30 days');
 });
+
+test('"All" (1.43): every country of a region once, pinpoint keeps its outlines out of the stored game and still scores, rooms never play All',async()=>{
+ const a=await bootstrap();
+ const flags=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'flags',count:0,region:'Europe'}})).data;
+ assert.equal(flags.total,45,'all 45 European flags');
+ let pin=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'pinpoint',count:0,region:'World'}})).data;
+ assert.ok(pin.total>=150,'every pinnable country of the world');
+ const row=await db.prepare('SELECT length(state) n FROM game_sessions WHERE id=?').bind(pin.id).first();assert.ok(row.n<400000,'the stored game stays small: '+row.n);
+ assert.ok(pin.question.solution.geometry?.length,'the outline comes back for the current question');
+ const target=pin.question.solution.correct;
+ const res=(await request(a.cookie,'/games/'+pin.id+'/answer','POST',{round:pin.round,answer:target}));assert.equal(res.status,200);
+ pin=(await request(a.cookie,'/games/'+pin.id)).data;assert.equal(pin.feedback.correct,true,'a pin on the point inside the country is right');
+ const shape=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'shape',count:5,region:'Africa'}})).data;assert.equal(shape.total,5);assert.ok(shape.question.shape);
+ const room=(await request(a.cookie,'/rooms','POST',{settings:{...settings,count:0}})).data;assert.equal(room.settings?.count??(await request(a.cookie,'/rooms/'+room.code)).data.settings.count,10);
+});
