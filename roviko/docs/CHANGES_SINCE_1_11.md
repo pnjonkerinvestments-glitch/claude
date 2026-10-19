@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.43.0 (op de testversie, nog niet live)
+## 1.43.0 (live sinds 19 oktober 2026, PR #39)
 
 **Tab "Spellen" in plaats van "Ontdekken".** De tabbalk is nu Vandaag (de reis van vandaag, was "Spelen"), Spellen (`/daily`), Leren, Multiplayer, Paspoort. Op de Spellen-pagina staat bovenaan **Vrij spelen**: grote tegels voor Clue Trail, City Circuit, Flag Signal, Pinpoint, Next Door, Size Shuffle en (nieuw als klassieker) Vormenjacht, plus "Herhaal je fouten", "Verras me" en het oefenen van de dagspellen. Daaronder de dagspellen, de extra's, bonustour en overleven, het continent van de week en een rij naar Ontdekken. Ontdekken staat ook in het menu. De rondleiding noemt de nieuwe tabs. Nieuw tab-icoon `games` (`components/ds/RovikoIcons.tsx`).
 
