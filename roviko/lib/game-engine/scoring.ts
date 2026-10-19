@@ -27,12 +27,14 @@ export function mapAccuracyPoints(correct: boolean, distance: number | null) {
     if (distance === null || !Number.isFinite(distance)) return 0;
     return correct ? 1000 : Math.round(900 * Math.exp(-Math.max(0, distance) / 1600));
 }
-/** Size Shuffle start: the sorted list moved along one random cycle (Sattolo), so no country starts in its right place
- *  and confirming an untouched list never earns (partial) points. Uses as many rng calls as shuffle(), so the rest of a
- *  seeded question set stays the same. */
-export function derangedStart<T>(sorted: T[], rng: () => number): T[] {
+/** Size Shuffle start (1.43): a uniformly random order (Fisher–Yates), so the start follows no pattern and some
+ *  countries may already stand right; only the fully sorted list is excluded (then the list moves one place).
+ *  Uses as many rng calls as shuffle(), so the rest of a seeded question set stays the same. Stored daily editions
+ *  keep the order they were saved with. */
+export function randomStart<T>(sorted: T[], rng: () => number): T[] {
     const idx = sorted.map((_, i) => i);
-    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rng() * i); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    if (idx.length > 1 && idx.every((v, i) => v === i)) idx.push(idx.shift()!);
     return idx.map(i => sorted[i]);
 }
 /** Size Shuffle: how many rows of a sorted list sit in their right place (0 for anything that is not a list). */

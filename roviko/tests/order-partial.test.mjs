@@ -52,14 +52,17 @@ test('Daily Detour points for Size Shuffle stay all-or-nothing (50 per fully rig
   assert.equal(e.dailyRoundPoints('daily',{...half,mode:'order'},20),0);
   assert.equal(e.dailyRoundPoints('daily',{...half,mode:'order',points:750},20),0,'even a stray multiplayer points field never reaches the daily ledger');
 });
-test('no country starts in its right place, so confirming an untouched list earns nothing',()=>{
+test('Size Shuffle starts in a random order (1.43): never already sorted, but sometimes with countries in their right place',()=>{
+  const placed=new Set();
   for(const mode of ['order','mixed'])for(const difficulty of ['easy','medium','hard'])for(let k=0;k<20;k++){
     for(const q of e.generateQuestions({mode,count:5,timer:15,difficulty,region:'World'},'start-'+mode+difficulty+k).filter(q=>q.mode==='order')){
       const start=q.options.map(o=>o.id);
-      assert.equal(e.orderPlacement(start,q.correct),0,q.id);
+      assert.notDeepEqual(start,q.correct,'never already sorted');
       assert.deepEqual([...start].sort(),[...q.correct].sort());
-      assert.equal(e.evaluate(q,start,0,15000,0).points,0);
+      placed.add(e.orderPlacement(start,q.correct));
     }
   }
-  const rng=e.random('cycle');for(let k=0;k<200;k++){const d=e.derangedStart(['a','b','c','d'],rng);assert.equal(e.orderPlacement(d,['a','b','c','d']),0);}
+  assert.ok(placed.has(0)&&placed.has(1)&&placed.has(2),'no fixed pattern: 0, 1 or 2 rows can start right');
+  const rng=e.random('uniform'),seen=new Set();for(let k=0;k<400;k++){const d=e.randomStart(['a','b','c','d'],rng);assert.notDeepEqual(d,['a','b','c','d']);seen.add(d.join(''));}
+  assert.equal(seen.size,23,'every order but the sorted one occurs');
 });

@@ -207,3 +207,11 @@ Sri Lanka has no land borders (the source listed India). Eswatini lists Mbabane 
 ## Trip style (1.23, presentation only)
 
 The owner's mock-ups restyled every screen (cream canvas, white cards, a coin score pill, mint answer pills without number badges, Roviko peeking over the question card, podium results in multiplayer). No rule, round, timer, score or server contract changed: keys 1–4 still answer, Rank Radar still locks a subject, the Duel stays blind until the last card, Mosaic hints still cost 125. Points shown as "+50" or "+1,583" come from what the server already sent (the points of that answer, or the difference between two totals); the browser never computes daily points itself. The daily-points texts on `/scoring` and in the in-game notes now describe Rank Radar (eight countries, up to 125 each) and Side by Side (fifteen comparisons, the first wrong answer ends the run) as they have worked since 1.21; before, they still described the six-question and ten-comparison versions.
+
+## Free play and "All" (1.43)
+
+Every classic game (Clue Trail, City Circuit, Flag Signal, Pinpoint, Next Door, Size Shuffle and Shape Shift) opens its choices when picked: region (world or a continent), difficulty and 5, 10, 20 or All questions. All (`count: 0`) asks every eligible country of the region exactly once (Size Shuffle: about a quarter as many lists); difficulty then only shapes the wrong answers. No points, as with all practice. Rooms never use All.
+
+Clue Trail clues (1.43): no fixed opening; clue kinds include part of the world, hemispheres, area and area rank, neighbours, landlocked, currency, language, highest point, population, income per person, life expectancy, forest, city living, internet use, births per woman, median age, coastline, airports and railways; the third clue is the capital, a neighbour or a heritage/nature fact; the fourth is always the flag. Clue 1 keeps at least three answers possible and clue 2 at least two. Within a game, kinds already used weigh much less.
+
+Size Shuffle (1.43) starts in a uniformly random order other than the sorted one.

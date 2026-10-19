@@ -6,10 +6,12 @@ import { Character, Peek } from './ds/Character';
 import { GameScene, type SceneMode } from './ds/GameScene';
 import { withSpanish } from '../i18n/content';
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { RotateCcw, Sparkles } from 'lucide-react';
+import { RotateCcw, Sparkles, ChevronRight } from 'lucide-react';
+import { RovikoIcon } from './ds/RovikoIcons';
 import { ArrowRight, Heart, Globe2, Flame, Check, Settings2, LockKeyhole, Send, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Switch } from '@/components/ui/switch';
+import { SoloSetup } from './game/SoloSetup';
 import { Progress } from '@/components/ui/progress';
 import { Toaster, toast } from 'sonner';
 import { APP_STORE_URL, BRAND, DEFAULT_SETTINGS, MODES, QUICK_NEXT_MS, REGIONS } from '@/lib/config';
@@ -128,7 +130,8 @@ export default function RovikoApp({ initialPath = '/' }: {
         starting.current=false; setBusy(false);
     } };
     // `previous` (1.25): "Play again" after a practice game reopens this setup with the last settings instead of starting at once.
-    const playMode = (m: string, previous?: any) => { setMode(m); setSetup({ ...DEFAULT_SETTINGS, mode: m, region, ...(previous ?? {}), timer: 0 }); setModal('game'); };
+    // 1.43: picking a classic game opens its choices at once; the last choices for that game come back.
+    const playMode = (m: string, previous?: any) => { let saved: any = {}; try { saved = JSON.parse(readPreference('rv_setup_' + m, '{}')) ?? {}; } catch { saved = {}; } setMode(m); setSetup({ ...DEFAULT_SETTINGS, region, ...saved, ...(previous ?? {}), mode: m, timer: 0 }); setModal('game'); };
     // Results use the phone's share sheet when there is one (chat apps), and copying otherwise.
     const share = async (value: string) => { try { if (navigator.share && matchMedia('(pointer: coarse)').matches) { if (await shareWithImage(value)) return; await navigator.share({ text: value }); return; } } catch (e) { if ((e as Error)?.name === 'AbortError') return; } await copy(value); };
     const copy = async (value: string) => { try {
@@ -151,7 +154,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     return <AppContext.Provider value={ctx}><a className="skip-link" href="#main">{t('skipToContent')}</a><SiteHeader path={path} hideTabs={gamePath}/>
  <main id="main" className={'site-main ' + (gamePath ? 'game-main' : '')}><ErrorBoundary resetKey={path} title={t('screenFailTitle')} copy={t('screenFailCopy')} retry={t('screenFailRetry')}><React.Suspense fallback={<Loading variant={gamePath ? 'game' : 'page'}/>}>{fatal ? <ErrorState title={t('stateErrorTitle')} copy={t(errorMessage(fatal))} onRetry={refresh} retryLabel={t('retry')}/> : !bootLoaded && ['/game/', '/puzzle/', '/rank/', '/room/', '/duel', '/profile', '/friends', '/account', '/admin', '/leaderboard'].some(v => path.startsWith(v)) ? <Loading variant={gamePath ? 'game' : path === '/leaderboard' || path === '/friends' ? 'list' : path === '/profile' ? 'passport' : 'page'}/> : path === '/' ? <><ChallengeBanner app={ctx}/><HomePage /></> : path === '/scoring' ? <ScoringPage /> : path === '/multiplayer' ? <MultiplayerPage /> : path.startsWith('/room/') ? <RoomScreen key={path} code={path.split('/')[2]}/> : path.startsWith('/game/') ? <SoloScreen key={path} id={path.split('/')[2]}/> : path.startsWith('/rank/') ? <RankGame key={path} id={path.split('/')[2]} app={ctx}/> : path.startsWith('/puzzle/') ? <PuzzleGame key={path} id={path.split('/')[2]} app={ctx}/> : path === '/daily' ? <><ChallengeBanner app={ctx}/><AllGames /></> : path === '/duel' || path === '/duel/practice' ? <DuelScreen key={path} practice={path === '/duel/practice'}/> : path === '/how-to-play' ? <HowToScreen /> : path === '/leaderboard' ? <RankingsPage /> : path === '/profile' ? <PassportPage /> : path === '/friends' ? <FriendsPage /> : path === '/account' ? <AccountPage /> : path === '/settings' ? <SettingsPage /> : path === '/explore' ? <ExplorePage /> : path === '/learn' ? <LearnPage /> : path.startsWith('/learn/') ? <LearnSession key={path} id={path.split('/')[2]}/> : path === '/admin' ? <Admin /> : ['/privacy', '/terms', '/sources', '/support'].includes(path) ? <InfoPage kind={path.slice(1)}/> : <SEOPage slug={path.slice(1)}/>}</React.Suspense></ErrorBoundary></main>
  {!gamePath && <footer className="app-footer"><div className="footer-inner"><div className="footer-brand"><Character mood="happy" pose="wave" size={150} className="footer-character"/><A href="/" aria-label={BRAND.name}><Logo /></A><p>{t('footerCopy')}</p></div><nav className="footer-nav" aria-label={t('navMore')}><div><h2>{t('play')}</h2><A href="/daily">{t('viewAllGames')}</A><A href="/how-to-play">{t('howToLink')}</A><A href="/scoring">{t('scoringLink')}</A><A href="/leaderboard">{t('leaderboard')}</A></div><div><h2>{t('explore')}</h2><A href="/learn">{t('learnTab')}</A><A href="/explore">{t('exploreAll')}</A><A href="/multiplayer">{t('togetherTitle')}</A><A href="/profile">{t('navPassport')}</A></div><div><h2>{BRAND.name}</h2><A href="/sources">{t('sourcesKicker')}</A><A href="/privacy">{t('privacy')}</A><A href="/terms">{t('terms')}</A><A href="/support">{t('contact')}</A><a href={APP_STORE_URL} rel="noopener" className="footer-app-link">{t('appFooterLink')}</a>{boot?.isAdmin && <A href="/admin">{t('admin')}</A>}</div></nav></div><p className="copyright">© {new Date().getFullYear()} {BRAND.name}</p></footer>}
- <Dialog open={modal === 'game'} onOpenChange={v => !v && setModal(null)}><DialogContent className="app-modal"><GameIcon mode={mode} size="lg" className="modal-logo"/><DialogTitle className="modal-title">{t(mode)}</DialogTitle><DialogDescription>{t(mode + 'Desc')}</DialogDescription><p className="solo-pace-note"><span aria-hidden="true">🌿</span>{t('soloNote')}</p><GameSettings value={setup} onChange={setSetup}/><button className="btn primary wide" disabled={busy} onClick={() => start(setup)}>{busy ? t('loading') : t('startGame')}<ArrowRight size={18}/></button></DialogContent></Dialog>
+ <Dialog open={modal === 'game'} onOpenChange={v => !v && setModal(null)}><DialogContent className="app-modal"><GameIcon mode={mode} size="lg" className="modal-logo"/><DialogTitle className="modal-title">{t(mode)}</DialogTitle><DialogDescription>{t(mode + 'Desc')}</DialogDescription><SoloSetup value={setup} onChange={setSetup} t={t}/><button className="btn primary wide setup-start" disabled={busy} onClick={() => { writePreference('rv_setup_' + setup.mode, JSON.stringify({ count: setup.count, difficulty: setup.difficulty, region: setup.region, typed: setup.typed })); start(setup); }}>{busy ? t('loading') : setup.count === 0 ? t('setupStartAll') : t('setupStart').replace('{n}', String(setup.count))}<ArrowRight size={18}/></button></DialogContent></Dialog>
  <Dialog open={manualCopy !== null} onOpenChange={v => !v && setManualCopy(null)}><DialogContent className="app-modal"><DialogTitle>{t('manualCopyTitle')}</DialogTitle><DialogDescription>{t('manualCopyHelp')}</DialogDescription><textarea className="text-input manual-share" aria-label={t('share')} readOnly value={manualCopy ?? ''} onFocus={e => e.target.select()}/><button className="btn secondary" onClick={() => setManualCopy(null)}>{t('done')}</button></DialogContent></Dialog>
  <PresenceLayer path={path}/><AuthModal /><CreateRoomModal /><ReportModal value={report} onClose={() => setReport(null)}/><Toaster theme={theme as any} position="bottom-center" richColors/></AppContext.Provider>;
 }
@@ -159,30 +162,32 @@ function PresenceLayer({ path }: { path: string }) { const { invites, dismiss } 
 function AllGames() {
     const app = useApp(), { t, start, playMode, busy, region, setRegion, boot } = app;
     const { data: today } = useToday(boot);
-    // Bonus tour, survival and practice one at a time (1.23), so the page stays short; since 1.24 all compact (no big pictures).
-    const [moreTab, setMoreTab] = useState<'bonus' | 'survival' | 'classic'>('bonus');
-    useEffect(() => { if (location.hash === '#classic') setMoreTab('classic'); else if (location.hash === '#survival') setMoreTab('survival'); }, []);
-    // Tabs as in the tab bar: a white pill with a mint pill for the open one; arrow keys move between them.
-    const TABS = ['bonus', 'survival', 'classic'] as const;
+    // 1.43: the Games tab. Free play first (every classic game opens its choices at once), then practice versions of
+    // the daily games, today's games and the extras, the bonus tour and survival, and the way into Explore.
+    const [moreTab, setMoreTab] = useState<'bonus' | 'survival'>('bonus');
+    useEffect(() => { if (location.hash === '#survival') setMoreTab('survival'); else if (location.hash === '#classic') document.getElementById('classic')?.scrollIntoView(); }, []);
+    const TABS = ['bonus', 'survival'] as const;
     const tabKey = (e: React.KeyboardEvent, k: typeof TABS[number]) => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; e.preventDefault(); const nextTab = TABS[(TABS.indexOf(k) + d + TABS.length) % TABS.length]; setMoreTab(nextTab); document.getElementById('tab-' + nextTab)?.focus(); };
-    return <div className="page all-games ag-trip ag-calm">
+    return <div className="page all-games ag-trip ag-calm ag-hub">
         <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
+        <section id="classic" className="classic-section ag-free t-card" aria-labelledby="classic-title">
+          <header className="ag-day-head"><div><h2 id="classic-title">{t('hubFreeTitle')}</h2><p>{t('hubFreeLead')}</p></div></header>
+          <ul className="ag-free-tiles">{[...MODES, 'shape'].map(mode => <li key={mode}>
+            <button type="button" className="ag-free-tile" disabled={busy} onClick={() => playMode(mode)}><GameIcon mode={mode}/><span><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span></button>
+          </li>)}</ul>
+          <div className="ag-free-more">
+            {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true"><RotateCcw size={22} strokeWidth={2.2}/></span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><ChevronRight size={18} aria-hidden="true"/></button>}
+            <button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><Sparkles size={17} aria-hidden="true"/>{t('surpriseMe')}</button>
+          </div>
+          <DailyPractice app={app}/>
+        </section>
         <PuzzleDeck app={app} extras/>
-        {/* 1.35: the continent of the week, always here too (on the homepage it appears after the six games). */}
-        <ContinentCard/>
-        <div className="more-games-tabs segmented-pill" role="tablist" aria-label={t('allGamesMore')}>{TABS.map(k => <button key={k} type="button" role="tab" id={'tab-' + k} aria-selected={moreTab === k} tabIndex={moreTab === k ? 0 : -1} aria-controls={'panel-' + k} onClick={() => setMoreTab(k)} onKeyDown={e => tabKey(e, k)}>{t(k === 'bonus' ? 'allGamesTabBonus' : k === 'survival' ? 'allGamesTabSurvival' : 'allGamesTabClassic')}</button>)}</div>
+        <div className="more-games-tabs segmented-pill" role="tablist" aria-label={t('allGamesMore')}>{TABS.map(k => <button key={k} type="button" role="tab" id={'tab-' + k} aria-selected={moreTab === k} tabIndex={moreTab === k ? 0 : -1} aria-controls={'panel-' + k} onClick={() => setMoreTab(k)} onKeyDown={e => tabKey(e, k)}>{t(k === 'bonus' ? 'allGamesTabBonus' : 'allGamesTabSurvival')}</button>)}</div>
         {moreTab === 'bonus' && <div role="tabpanel" id="panel-bonus" aria-labelledby="tab-bonus">{today ? <BonusTour app={app} bonus={today.bonus} busy={busy} compact/> : <Loading variant="list"/>}</div>}
         {moreTab === 'survival' && <div role="tabpanel" id="panel-survival" aria-labelledby="tab-survival">{today ? <SurvivalRuns app={app} survival={today.survival} busy={busy} compact intro/> : <Loading variant="list"/>}</div>}
-        {moreTab === 'classic' && <section id="classic" role="tabpanel" aria-labelledby="tab-classic" className="classic-section ag-practise t-card">
-          <header className="ag-day-head"><div><h2 id="classic-title">{t('allGamesClassic')}</h2><p>{t('allGamesClassicNote')}</p></div></header>
-          <div className="classic-controls"><Choice label={t('region')} value={region} onChange={setRegion} options={REGIONS.map(v => ({ value: v, label: v === 'World' ? t('allRegions') : t(v) }))}/><button className="btn secondary surprise-button" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: MODES[Math.floor(Math.random()*MODES.length)], region, count:5 })}><Sparkles size={17} aria-hidden="true"/>{t('surpriseMe')}</button></div>
-          {boot.stats.weak?.length > 0 && <button className="review-card" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode: 'mixed', region }, true)}><span className="review-card-icon" aria-hidden="true"><RotateCcw size={22} strokeWidth={2.2}/></span><span className="review-card-copy"><strong>{t('reviewCardTitle')}</strong><small>{t('reviewCardCopy').replace('{n}', String(new Set(boot.stats.weak.map((w: { country_id: string }) => w.country_id)).size))}</small></span><span className="btn secondary review-card-cta">{t('reviewCardCta')}<ArrowRight size={17}/></span></button>}
-          <ul className="ag-tiles">{MODES.map(mode => <li key={mode} className="ag-tile-wrap">
-            <button type="button" className="ag-tile" disabled={busy} onClick={() => start({ ...DEFAULT_SETTINGS, mode, region })}><GameIcon mode={mode}/><span><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span></button>
-            <button type="button" className="icon-btn ag-tile-settings" disabled={busy} aria-label={t('gameSettings').replace('{game}', t(mode))} title={t('gameSettings').replace('{game}', t(mode))} onClick={() => playMode(mode)}><Settings2 size={16}/></button>
-          </li>)}</ul>
-          <DailyPractice app={app}/>
-        </section>}
+        {/* 1.35: the continent of the week; 1.43: Explore lives here now that Games took its tab. */}
+        <ContinentCard/>
+        <A href="/explore" className="side-row ag-explore-row"><span className="side-icon" aria-hidden="true"><RovikoIcon name="explore" size={26}/></span><span className="side-copy"><strong>{t('hubExploreTitle')}</strong><small>{t('hubExploreLead')}</small></span><ChevronRight size={18} aria-hidden="true"/></A>
     </div>;
 }
 function CreateRoomModal() { const { modal, setModal, t, boot, refresh, go, fail } = useApp(); const [name, setName] = useState(''), [avatar, setAvatar] = useState(0), [busy, setBusy] = useState(false); useEffect(() => { if (modal === 'room') {

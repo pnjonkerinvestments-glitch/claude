@@ -2,7 +2,9 @@ import boundaries from '../public/data/boundaries.json';
 import { locateInCountry, type Polygons } from '../lib/game-engine/geometry';
 import { COUNTRIES, type Question } from '../lib/game-engine/questions';
 /** Server-only dataset. Only the current learning question includes its geometry. */
-export function prepareGeography(questions: Question[]) {
+/** Pinpoint: the country's outline and a point inside it. A long "All" game (1.43) keeps only the point and the rule in
+ * its stored state (every outline together would be too big for one row); withGeometry adds the outline when needed. */
+export function prepareGeography(questions: Question[], lean = false) {
     return questions.map(q => {
         if (q.mode !== 'pinpoint') return q;
         const geometry = (boundaries as Record<string, Polygons>)[q.countryId];
@@ -12,7 +14,7 @@ export function prepareGeography(questions: Question[]) {
             const p = [...geometry].sort((a, b) => b[0].length - a[0].length)[0][0][0];
             point = [p[1], p[0]];
         }
-        return { ...q, correct: point, geometry, mapRule: 'country-v1' as const, toleranceKm: 25,
+        return { ...q, correct: point, ...(lean ? {} : { geometry }), mapRule: 'country-v1' as const, toleranceKm: 25,
             fact: { en: 'A pin inside the country or within 25 km of its mapped boundary is accepted. Included islands count too.', nl: 'Een pin in het land of binnen 25 km van de kaartgrens telt als goed. Opgenomen eilanden tellen mee.' } };
     });
 }
@@ -27,4 +29,11 @@ export function enrichMapFeedback<T extends {correct:boolean;distance:number|nul
     const target=COUNTRIES.find(c=>c.id===q.countryId);
     const selected=COUNTRIES.find(c=>boxes.get(c.id)?.some(([west,east,south,north])=>answer[0]>=south&&answer[0]<=north&&(east-west>180||(answer[1]>=west&&answer[1]<=east)))&&locateInCountry(answer,(boundaries as Record<string, Polygons>)[c.id],0).correct);
     return {...result,mapRelation:selected && target?.borders.includes(selected.id)?'mapNeighbour':selected && target?.region===selected.region?'mapContinent':'mapDistanceCredit'};
+}
+
+/** The outline of a lean pinpoint question, looked up again from the bundled boundaries (1.43). */
+export function withGeometry(q: Question): Question {
+    if (q.mode !== 'pinpoint' || q.geometry || q.mapRule !== 'country-v1') return q;
+    const geometry = (boundaries as Record<string, Polygons>)[q.countryId];
+    return geometry?.length ? { ...q, geometry } : q;
 }

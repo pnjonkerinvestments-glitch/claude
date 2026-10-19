@@ -22,6 +22,7 @@ import './v139.css';
 import './v140.css';
 import './v141.css';
 import './v142.css';
+import './v143.css';
 export const metadata: Metadata = { title: BRAND.name + ' — The world is your playground', description: 'A little curiosity. A whole world of play. Play original geography games, take the daily expedition and challenge friends in live private rooms.', manifest: '/manifest.webmanifest', icons: { icon: '/favicon.png', apple: '/icon-192.png' }, itunes: { appId: APP_STORE_ID }, openGraph: { title: BRAND.name + ' — Hello, world. Let’s play.', description: 'New geography games every day, surprising country rankings and classic quizzes. Play solo or with friends.', type: 'website' } };
 export default function RootLayout({ children }: {
     children: React.ReactNode;
