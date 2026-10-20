@@ -172,7 +172,7 @@ function AllGames() {
         <PageHeader art="spot-side-by-side" kicker={t('allGamesKicker')} title={t('allGamesTitle')} lead={t('allGamesLead')}/>
         <section id="classic" className="classic-section ag-free t-card" aria-labelledby="classic-title">
           <header className="ag-day-head"><div><h2 id="classic-title">{t('hubFreeTitle')}</h2><p>{t('hubFreeLead')}</p></div></header>
-          <ul className="ag-free-tiles">{[...MODES, 'shape'].map(mode => <li key={mode}>
+          <ul className="ag-free-tiles">{MODES.map(mode => <li key={mode}>
             <button type="button" className="ag-free-tile" disabled={busy} onClick={() => playMode(mode)}><GameIcon mode={mode}/><span><strong>{t(mode)}</strong><small>{t('category' + mode)}</small></span></button>
           </li>)}</ul>
           <div className="ag-free-more">

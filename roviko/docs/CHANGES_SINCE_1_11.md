@@ -596,6 +596,11 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.44.0 (op de testversie, nog niet live)
+
+- **Vormenjacht in multiplayer.** `shape` staat nu in `MODES` (`lib/config.ts`), dus je kiest Vormenjacht in een kamer, alleen of samen met andere spellen, en Rond de Wereld (alle spellen door elkaar) en "Verras me" kunnen ook landvormen geven. Het continent van de week kan ook landvormen vragen. Lopende kamers houden hun vragen.
+- Getest: `npm test` 210 geslaagd, 1 overgeslagen (nieuw: een kamer met alleen Vormenjacht, het antwoord blijft op de server en wordt gescoord, en een mix van Vormenjacht en vlaggen; aangepast: tests die zes klassiekers verwachtten verwachten er nu zeven). Lokaal bekeken: de spelkeuze in de kamer en een multiplayerronde met een landvorm. Niet getest: een ronde met twee echte toestellen.
+
 ## 1.43.0 (live sinds 19 oktober 2026, PR #39)
 
 **Tab "Spellen" in plaats van "Ontdekken".** De tabbalk is nu Vandaag (de reis van vandaag, was "Spelen"), Spellen (`/daily`), Leren, Multiplayer, Paspoort. Op de Spellen-pagina staat bovenaan **Vrij spelen**: grote tegels voor Clue Trail, City Circuit, Flag Signal, Pinpoint, Next Door, Size Shuffle en (nieuw als klassieker) Vormenjacht, plus "Herhaal je fouten", "Verras me" en het oefenen van de dagspellen. Daaronder de dagspellen, de extra's, bonustour en overleven, het continent van de week en een rij naar Ontdekken. Ontdekken staat ook in het menu. De rondleiding noemt de nieuwe tabs. Nieuw tab-icoon `games` (`components/ds/RovikoIcons.tsx`).

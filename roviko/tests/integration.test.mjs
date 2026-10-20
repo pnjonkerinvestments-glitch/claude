@@ -394,7 +394,7 @@ test('room options validate count and mode exclusions, enforce the host and pers
   const rematch=await request(host.cookie,path+'/rematch','POST',{});assert.equal(rematch.status,200);assert.deepEqual(rematch.data.settings.enabledModes,['flags','order']);assert.equal(rematch.data.settings.count,count);
  }
  const standard=(await request(host.cookie,'/rooms','POST',{settings:{...settings,mode:'mixed',count:20}})).data;
- await request(host.cookie,'/rooms/'+standard.code+'/start','POST',{});assert.equal(new Set((await stored(standard.code)).questions.map(q=>q.mode)).size,6);
+ await request(host.cookie,'/rooms/'+standard.code+'/start','POST',{});assert.equal(new Set((await stored(standard.code)).questions.map(q=>q.mode)).size,7);
 });
 
 test('map accuracy points survive saving and reload without accepting a client-supplied score',async()=>{
@@ -859,4 +859,19 @@ test('"All" (1.43): every country of a region once, pinpoint keeps its outlines 
  pin=(await request(a.cookie,'/games/'+pin.id)).data;assert.equal(pin.feedback.correct,true,'a pin on the point inside the country is right');
  const shape=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'shape',count:5,region:'Africa'}})).data;assert.equal(shape.total,5);assert.ok(shape.question.shape);
  const room=(await request(a.cookie,'/rooms','POST',{settings:{...settings,count:0}})).data;assert.equal(room.settings?.count??(await request(a.cookie,'/rooms/'+room.code)).data.settings.count,10);
+});
+
+test('Shape Shift in multiplayer (1.44): a room of outlines, and outlines in a mix of chosen games',async()=>{
+ const a=await bootstrap(),b=await bootstrap();
+ const room=(await request(a.cookie,'/rooms','POST',{settings:{...settings,mode:'shape',count:5}})).data,code=room.code;
+ assert.equal((await request(b.cookie,'/rooms/'+code+'/join','POST',{})).status,200);
+ assert.equal((await request(a.cookie,'/rooms/'+code+'/start','POST',{})).status,200);
+ const raw=await stored(code);assert.equal(raw.settings.mode,'shape');assert.equal(raw.questions.length,5);assert.ok(raw.questions.every(q=>q.mode==='shape'&&q.shape));
+ await alter(code,r=>{r.startAt=Date.now()-800;r.deadline=Date.now()+4000;});
+ const g=(await request(b.cookie,'/rooms/'+code)).data;assert.equal(g.phase,'question');assert.match(g.question.shape,/^M/);assert.equal(g.question.options.length,4);assert.equal(g.question.correct,undefined,'the answer stays on the server');
+ assert.equal((await request(a.cookie,'/rooms/'+code+'/answer','POST',{round:0,matchId:raw.matchId,answer:raw.questions[0].correct})).status,200);
+ const mix=(await request(a.cookie,'/rooms','POST',{settings:{...settings,mode:'mixed',enabledModes:['shape','flags'],count:10}})).data;
+ assert.equal((await request(b.cookie,'/rooms/'+mix.code+'/join','POST',{})).status,200);
+ assert.equal((await request(a.cookie,'/rooms/'+mix.code+'/start','POST',{})).status,200);
+ const modes=new Set((await stored(mix.code)).questions.map(q=>q.mode));assert.deepEqual([...modes].sort(),['flags','shape']);
 });
