@@ -385,7 +385,7 @@ test("/direct: filter ook meteen melden of alleen in het ochtendoverzicht (allee
   await handleMessage(bot, msg("/direct emissie uit"));
   assert.ok(JSON.parse((await store.getSetting("filters_digest_only"))!).includes("emissie"));
   await handleMessage(bot, msg("/filters"));
-  assert.match(net.sent.at(-1)!.text, /<b>emissie<\/b> \(1 woorden · alleen in het ochtendoverzicht · vanaf €10,0 mln\)/);
+  assert.match(net.sent.at(-1)!.text, /<b>emissie<\/b> \(1 woorden · alleen in het ochtendoverzicht · vanaf €40,0 mln\)/);
   await handleMessage(bot, msg("/direct emissie aan", { chatId: "-100", chatType: "supergroup", fromId: "2" }));
   assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
 });
@@ -405,14 +405,14 @@ test("/ochtend: laat het overzicht nu zien, in het onderwerp waar het gevraagd i
   assert.equal(await store.getSetting("ochtend_uit"), null);
 });
 
-test("/minimum: standaard €10 mln voor emissies, €100 mln voor ipo en €250 mln voor overnames; aanpasbaar door de eigenaar", async () => {
+test("/minimum: standaard €40 mln voor emissies, €100 mln voor ipo en €250 mln voor overnames; aanpasbaar door de eigenaar", async () => {
   const { net, store, bot } = deps();
   await store.setSetting(OWNER_USER_KEY, "1");
   await store.setSetting(ALERT_CHAT_KEY, "-100");
   for (const filter of ["emissie", "ipo", "overname", "dividend"]) await store.addFilterWord(filter, "x");
   await handleMessage(bot, msg("/minimum"));
   const text = net.sent.at(-1)!.text;
-  assert.match(text, /emissie: vanaf €10,0 mln/);
+  assert.match(text, /emissie: vanaf €40,0 mln/);
   assert.match(text, /ipo: vanaf €100,0 mln/);
   assert.match(text, /overname: vanaf €250,0 mln/);
   assert.match(text, /dividend: geen minimum/);
@@ -451,4 +451,25 @@ test("eenmalige omzetting oktober 2026: insiders weg, emissies, claims en overna
   await store.setSetting("filters_europe", JSON.stringify(["ipo"]));
   await seed(store, {} as never);
   assert.deepEqual(JSON.parse(store.settings.get("filters_europe")!), ["ipo"]);
+});
+
+test("eenmalige omzetting: emissies en claims vanaf €40 mln en rechtenalarm vanaf 0,5%, ook als het eerder was aangepast", async () => {
+  const { seed } = await import("../src/index.ts");
+  const { minCaps } = await import("../src/size.ts");
+  const { rightsAlertThreshold } = await import("../src/morning.ts");
+  const store = new MemoryStore();
+  await store.setSetting("seeded", "1");
+  await store.setSetting("migrations", JSON.stringify(["2026-10-minder-rommel"]));
+  await store.setSetting("filters_min_cap", JSON.stringify({ emissie: 10e6, ipo: 250e6 }));
+  await store.setSetting("rights_alert_pct", "0.02");
+  await seed(store, {} as never);
+  const caps = await minCaps(store);
+  assert.equal(caps.get("emissie"), 40e6);
+  assert.equal(caps.get("claim"), 40e6);
+  assert.equal(caps.get("ipo"), 250e6, "andere aanpassingen blijven staan");
+  assert.equal(await rightsAlertThreshold(store), 0.005);
+  // Daarna mag de eigenaar het weer zelf aanpassen.
+  await store.setSetting("rights_alert_pct", "0.01");
+  await seed(store, {} as never);
+  assert.equal(await rightsAlertThreshold(store), 0.01);
 });

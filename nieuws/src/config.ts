@@ -297,8 +297,8 @@ export const DEFAULT_EUROPE_FILTERS = ["ipo", "notering", "emissie", "claim", "o
  * SEK 675M"). Is de grootte onbekend, dan blijft de treffer staan. Aanpasbaar met /minimum.
  */
 export const DEFAULT_MIN_CAP: Record<string, number> = {
-  emissie: 10e6,
-  claim: 10e6,
+  emissie: 40e6,
+  claim: 40e6,
   ipo: 100e6,
   // Ook voor de blokken Nieuw op de beurs en Nieuwe en dubbele noteringen in het ochtendoverzicht.
   notering: 1e9,

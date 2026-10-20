@@ -98,7 +98,7 @@ export const HELP = [
   "/agendaweg 12 · agendapunt weghalen",
   "/rechten · lopende claimemissies: slotkoersen, uitgifteprijs, verhouding en of meedoen loont",
   "/rechten UNIAXA 20,56 10/59 · zelf prijs en verhouding invullen (10 nieuwe aandelen per 59 rechten)",
-  "/rechtenalarm 2 · melding tijdens de beurs als meedoen via rechten 2% goedkoper is dan het aandeel (0 = uit) 🔒",
+  "/rechtenalarm 0,5 · melding tijdens de beurs als meedoen via rechten 0,5% goedkoper is dan het aandeel (0 = uit) 🔒",
   "",
   "<b>Screener</b>",
   "/marktwaarde 2,5 500 · bandbreedte in miljoen euro 🔒",
@@ -671,11 +671,11 @@ async function rightsAlert(deps: BotDeps, args: string): Promise<string> {
   if (!raw) {
     const now = await rightsAlertThreshold(deps.store);
     return now
-      ? `🧾 Rechtenalarm: melding als meedoen via de rechten minstens ${String(now * 100).replace(".", ",")}% goedkoper is dan het aandeel (laat van het recht tegen bied van het aandeel), tijdens de beurs. Aanpassen: /rechtenalarm 3 · uit: /rechtenalarm 0`
-      : "🧾 Rechtenalarm staat uit. Aanzetten: /rechtenalarm 2";
+      ? `🧾 Rechtenalarm: melding als meedoen via de rechten minstens ${String(Number((now * 100).toFixed(2))).replace(".", ",")}% goedkoper is dan het aandeel (laat van het recht tegen bied van het aandeel), tijdens de beurs. Aanpassen: /rechtenalarm 1 · uit: /rechtenalarm 0`
+      : "🧾 Rechtenalarm staat uit. Aanzetten: /rechtenalarm 0,5";
   }
   const value = raw === "uit" ? 0 : parseNumber(raw);
-  if (!Number.isFinite(value) || value < 0 || value > 50) return "Gebruik: /rechtenalarm 2 (procent), of /rechtenalarm 0 om uit te zetten";
+  if (!Number.isFinite(value) || value < 0 || value > 50) return "Gebruik: /rechtenalarm 0,5 (procent), of /rechtenalarm 0 om uit te zetten";
   await deps.store.setSetting(RIGHTS_ALERT_KEY, String(value / 100));
   return value ? `✅ Rechtenalarm vanaf ${escapeHtml(raw)}% voordeel.` : "✅ Rechtenalarm staat uit.";
 }
