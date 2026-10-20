@@ -18,10 +18,10 @@ Origineel artikel · TradingView · Grafiek
 Komt hetzelfde nieuws in dezelfde minuut in meerdere varianten binnen (Duits en Engels
 persbericht, Reuters, TradingView-samenvatting), dan krijg je die samen in één bericht.
 
-Daarnaast elke werkdag om 08:40 een **ochtendoverzicht** met alles wat sinds gisteren nieuw is:
-speciaal dividend van minstens 25% van de koers, nieuwe beursgangen en dubbele noteringen,
-overnames met hun deadline, FDA-nieuws, insiders, vroege koersen en een agenda van de komende
-dagen. Zie [Ochtendoverzicht](#ochtendoverzicht-werkdagen-0840).
+Daarnaast elke werkdag om 08:40 een **ochtendoverzicht** voor de daghandelaar, met wat de meeste
+mensen missen: claimemissies en de laatste handelsdag van de rechten, speciaal dividend van
+minstens 25% van de koers, overnames met hun deadline, emissies, grote nieuwe noteringen en een
+agenda van de komende dagen. Zie [Ochtendoverzicht](#ochtendoverzicht-werkdagen-0840).
 
 ## Screener: filterwoorden op Europese small caps
 
@@ -51,7 +51,13 @@ Grafiek
   - `dividend`: speciaal dividend (Sonderdividende, dividende exceptionnel, ...)
   - `insolventie`: faillissement en surseance (Insolvenz, redressement judiciaire, composizione
     negoziata, administrators, ...)
-  - `emissie`: aandelenemissies (placing, rights issue, Kapitalerhöhung, augmentation de capital, ...)
+  - `emissie`: aandelenemissies (placing, rights issue, Kapitalerhöhung, augmentation de capital, ...).
+    Over heel Europa vanaf €10 mln, maar niet in Londen (dagelijks tientallen placings van kleine
+    AIM-fondsen).
+  - `claim`: claimemissies, emissies met verhandelbare rechten (rights issue, Bezugsangebot, diritti di
+    opzione, droits préférentiels de souscription, företrädesemission, fortrinnsrettsemisjon, ...).
+    "Unter Ausschluss des Bezugsrechts" telt juist niet. Ook een gewone emissie wordt een claimemissie
+    als het persbericht over verhandelbare rechten gaat.
   - `ipo`: beursgangen (IPO, Börsengang, introduction en bourse, quotazione in borsa, ...). Werkt over
     al het nieuws uit de gekozen landen, niet alleen de selectie: een bedrijf dat naar de beurs
     gaat staat nog niet in de screener. Instelbaar per filter met `/bereik <filter> europa|selectie`.
@@ -62,8 +68,6 @@ Grafiek
   - `splitsing`: spin-offs, splits en reverse splits (Abspaltung, regroupement d'actions, contrasplit, ...)
   - `handelsstop`: handelsstops en hervatting (trading halt, Handel ausgesetzt, suspension de cotation, ...)
   - `adhoc`: koersgevoelige informatie (PTA-Adhoc, inside information, Insiderinformation, ...)
-  - `insider`: directors' dealings (Director/PDMR, Managers' transactions, Eigengeschäfte; EQS-koppen
-    als "Bedrijf: Persoon, Kauf" via een vast patroon)
   - `index`: opname in of verwijdering uit een index (INDEX-MONITOR, in den SDax, intègre l'indice, ...)
   - `fda`: FDA, EMA, CHMP, PDUFA, fase 2/3-resultaten
   - `notering`: dubbele noteringen, overstap naar een andere beurs of ander segment, aangekondigde
@@ -89,56 +93,62 @@ van de komende dagen.
 Alles sinds ma 5 okt, 08:40
 
 ⏰ Agenda komende 7 dagen
-• do 8 okt (over 2 dagen) DVD Deep Value Driller AS · ex-dividend 20,60 NOK (94% van de koers)
+• ma 12 okt (over 6 dagen) UNI (MIL) · rechtenhandel begint · Unipol, prezzo aumento capitale …
 • vr 9 okt (over 3 dagen) PFSE Pfisterer Holding SE · einde aanmeldtermijn · Übernahmeangebot …
 
+🧾 Claimemissies en rechtenhandel
+• UNIAXA rechten UNIPOL ASSICURAZIONI SPA (MIL, €23,0 mld) · 🆕 rechtenhandel net begonnen
+   rechtenhandel begint ma 12 okt · laatste handelsdag rechten di 20 okt · inschrijving sluit ma 26 okt
+
 💰 Speciaal dividend ≥ 25% van de koers
-• DVD Deep Value Driller AS: 20,60 NOK bij koers 21,85 NOK = 94% · ex do 8 okt
-
-🆕 Nieuw op de beurs
-• INFOM Infomaniak Network SA (SIX, Zwitserland) · nieuw op de beurs
-
-🔁 Nieuwe en dubbele noteringen
-• DSFIR DSM-Firmenich AG (SIX, Zwitserland) · tweede notering, al genoteerd als EURONEXT:DSFIR
+• A3M Atresmedia: …
 
 🤝 Overnames, squeeze-outs en delistings
-• PFSE Pfisterer Holding SE: Übernahmeangebot von ABB zu 30 EUR
-   ⏰ einde aanmeldtermijn: vr 9 okt (over 3 dagen)
+• SPX Spectris PLC: Recommended Cash Acquisition of Spectris plc by Advent
+   ⏰ vergadering: do 12 nov (over 37 dagen)
+
+💶 Emissies
+• MUX Mutares SE: Kapitalerhöhung erfolgreich platziert
 …
 ```
 
 | Blok | Waar het vandaan komt |
 | --- | --- |
-| ⏰ Agenda | Datums uit persberichten (deadline van een bod, PDUFA-datum, eerste handelsdag, ex-dividend, vergadering, squeeze-out), ex-dividenddatums ≥ 25%, de IPO-kalender en wat je zelf toevoegt met `/agenda` |
-| 💰 Speciaal dividend ≥ 25% | Aangekondigd dividend uit de TradingView-screener (alle Europese aandelen, in eigen munt, gedeeld door de koers), plus speciaal-dividendnieuws: het bedrag uit het bericht naast de koers. Kleiner dan 25% wordt weggelaten; zonder bedrag staat het er met "bedrag niet gevonden" |
-| 🆕 Nieuw op de beurs / 🔁 Dubbele noteringen | Elke ochtend alle noteringen op de Europese beurzen vergelijken met gisteren. Nieuw bedrijf (onbekend ISIN) = beursgang; bekend ISIN op een nieuwe hoofdbeurs = dubbele notering |
-| 📅 Beursgangen op komst | IPO-kalender van TradingView (status "pending") |
-| 🤝 Overnames · ⛔ Handelsstops · 📣 Ad-hoc · 💊 FDA/EMA/studies · ✂️ Spin-offs en splits · 📊 Indexwijzigingen · 🚀/🔁 Noteringen in het nieuws · 💶 Emissies · ⚠️ Insolventie | Woordfilters op de nieuwsstromen (zie hieronder). Ad-hoc alleen sinds het slot van gisteren (17:30) |
-| 👔 Insiders | Directors' dealings per aandeel; 🟢 *cluster* bij twee of meer aankopen in 14 dagen |
-| 📈 Vroege koersen | Lang & Schwarz en Tradegate om 08:28: bewegingen van ≥ 4% t.o.v. gisteravond (Tradegate loopt 15 minuten achter) |
-| 🗓️ Cijfers vandaag | Aandelen uit de selectie die vandaag cijfers publiceren (voorbeurs/nabeurs) |
+| ⏰ Agenda | Datums uit persberichten (laatste handelsdag van claimrechten, einde inschrijving, PUSU-deadline, einde aanmeldtermijn van een bod, court meeting, PDUFA-datum, eerste handelsdag, ex-dividend), vervaldatums van claimrechten, ex-dividenddatums ≥ 25%, de IPO-kalender en wat je zelf toevoegt met `/agenda` |
+| 🧾 Claimemissies en rechtenhandel | **Rechtenkalender**: elke ochtend alle claimrechten op de Europese beurzen (TradingView kent ze als type "right", met de vervaldatum in de omschrijving), gekoppeld aan het bedrijf. 🆕 = de rechtenhandel is net begonnen. Daaronder de data uit het persbericht ("negoziabili dal 12 al 20 ottobre" → *laatste handelsdag rechten*). Plus nieuws over claimemissies (filter `claim`) |
+| 💰 Speciaal dividend ≥ 25% | Aangekondigd dividend uit de TradingView-screener (alle Europese aandelen, in eigen munt, gedeeld door de koers), plus speciaal-dividendnieuws: het bedrag uit het bericht naast de koers. Kleiner dan 25% wordt weggelaten |
+| 🤝 Overnames | Biedingen vanaf €250 mln in heel Europa, ook in Londen (Rule 2.7, possible offer, scheme of arrangement), met de eerstvolgende deadline uit de agenda |
+| 💶 Emissies | Placings, ABB's en kapitaalverhogingen vanaf €10 mln in heel Europa, **behalve Londen**. Een claimemissie staat bij de claimemissies |
+| 🆕 Nieuw op de beurs / 🔁 Dubbele noteringen | Alle noteringen op de Europese beurzen vergelijken met gisteren, alleen vanaf **€1 mld** marktwaarde |
+| 📅 Beursgangen en noteringen op komst | IPO-kalender van TradingView (status "pending", vanaf €100 mln) en IPO- en noteringsnieuws |
+| ⛔ Handelsstops · 📣 Ad-hoc · 💊 FDA/EMA/studies · ✂️ Spin-offs en splits · 📊 Indexwijzigingen · ⚠️ Insolventie | Woordfilters op de nieuwsstromen. Ad-hoc alleen sinds het slot van gisteren (17:30) |
 
-De nieuwe filters (`overname`, `splitsing`, `handelsstop`, `adhoc`, `insider`, `index`, `fda`,
-`notering`) melden niet meteen: ze staan alleen in het ochtendoverzicht. Met `/direct overname aan`
-meldt een filter ook direct. De bestaande filters (dividend, emissie, insolventie, IPO) melden
-gewoon direct en staan daarnaast ook in het overzicht.
+**Niet meer in het overzicht** (te veel ruis): vroege koersen, cijfers van vandaag en insiders.
+**Euronext Growth Oslo** telt nergens mee: de bot haalt elke dag de lijst bij Euronext op en laat
+die aandelen weg uit meldingen, dividend, noteringen en claimrechten.
 
-**Agenda.** Van berichten over overnames, FDA, noteringen, IPO's, splitsingen, indexwijzigingen
-en speciaal dividend leest de bot het hele persbericht en zet de datums die nog komen in de agenda,
-met wat voor datum het is ("Annahmefrist endet am 23. Oktober" → *einde aanmeldtermijn*, "PDUFA
-target action date of March 15" → *PDUFA-datum*). Zelf toevoegen kan ook:
-`/agenda 23-10 PFSE einde aanmeldtermijn`. Wat binnen 7 dagen valt staat bovenaan het overzicht,
-`/agenda` toont alles.
+De filters `overname`, `splitsing`, `handelsstop`, `adhoc`, `index`, `fda` en `notering` melden
+niet meteen: ze staan alleen in het ochtendoverzicht. Met `/direct overname aan` meldt een filter
+ook direct. Dividend, emissie, claim, insolventie en IPO melden direct en staan daarnaast ook in het
+overzicht.
+
+**Agenda.** Van berichten over overnames, claimemissies (en emissies, om te zien of het om een
+claimemissie gaat), FDA, noteringen, IPO's, splitsingen, indexwijzigingen en speciaal dividend leest
+de bot het hele persbericht en zet de datums die nog komen in de agenda, met wat voor datum het is
+("I diritti … negoziabili dal 12 al 20 ottobre" → *laatste handelsdag rechten*, "PUSU deadline
+… 3 November" → *PUSU-deadline*, "Annahmefrist endet am 23. Oktober" → *einde aanmeldtermijn*).
+Zelf toevoegen kan ook: `/agenda 23-10 PFSE einde aanmeldtermijn`. Wat binnen 7 dagen valt staat
+bovenaan het overzicht, `/agenda` toont alles.
 
 **Opzetten.** Heb je de onderwerpen al aangemaakt, stuur dan nog eens `/onderwerpen maak`: alleen
 het onderwerp *☀️ Ochtendoverzicht* komt erbij. Of maak het zelf en stuur daarin
 `/hier ochtend`. `/ochtend` toont het overzicht zoals het er nu uitziet.
 
-Hoe het werkt: de bot doet vanaf 07:00 per minuut één stap (noteringen, dividend, cijfers,
-IPO-kalender, koersen voor het dividendnieuws, om 08:28 de vroege koersen) en leest tussendoor
-persberichten. Om 08:40 gaat het overzicht, ook als een stap mislukte; dat staat er dan onderaan.
-De eerste ochtend legt alleen vast welke noteringen er al zijn; nieuwe noteringen zie je vanaf de
-dag erna.
+Hoe het werkt: de bot doet vanaf 07:00 per minuut één stap (lijst van Euronext Growth Oslo,
+noteringen, dividend, IPO-kalender, rechtenkalender, koersen voor het dividendnieuws) en leest
+tussendoor persberichten. Om 08:40 gaat het overzicht, ook als een stap mislukte; dat staat er dan
+onderaan. De eerste ochtend legt alleen vast welke noteringen er al zijn; nieuwe noteringen zie je
+vanaf de dag erna.
 
 ## Minimale marktwaarde per filter
 
@@ -147,8 +157,10 @@ minimale marktwaarde:
 
 | Filter | Vanaf |
 | --- | --- |
-| `emissie` | €10 mln |
-| `ipo`, `notering`, `overname` | €100 mln |
+| `emissie`, `claim` | €10 mln |
+| `ipo` | €100 mln |
+| `overname` | €250 mln |
+| `notering` (ook de blokken nieuwe en dubbele noteringen) | €1 mld |
 
 Dat geldt voor de directe meldingen én voor het ochtendoverzicht (ook voor *Nieuw op de beurs*,
 *Nieuwe en dubbele noteringen* en *Beursgangen op komst*). Een bedrijf buiten de selectie
@@ -262,7 +274,6 @@ De startlijst (`WATCHLIST` in `wrangler.jsonc`) wordt alleen bij de allereerste 
 | `STORY_DETAILS` | `true` | samenvatting en bronlink ophalen |
 | `OCHTEND_TIJD` | `08:40` | tijd van het ochtendoverzicht (lokale tijd, werkdagen) |
 | `OCHTEND_DIVIDEND_PCT` | `25` | speciaal dividend vanaf dit percentage van de koers |
-| `OCHTEND_KOERS_PCT` | `4` | vroege koersen vanaf deze beweging |
 | `AGENDA_DAGEN` | `7` | zoveel dagen vooruit staat de agenda in het overzicht |
 
 Met twee talen past een volglijst van 15 aandelen in één minuut. Bij meer aandelen worden ze

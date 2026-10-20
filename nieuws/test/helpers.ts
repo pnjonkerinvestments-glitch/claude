@@ -143,6 +143,9 @@ export class MemoryStore implements Store {
   async listingsSince(since: number) {
     return [...this.listings.values()].filter((l) => l.firstSeen >= since).map((l) => ({ ...l }));
   }
+  async primaryListings(exchanges: string[]) {
+    return [...this.listings.values()].filter((l) => l.primary && exchanges.includes(l.exchange)).map((l) => ({ ...l }));
+  }
   async listingsByIsin(isins: string[]) {
     return [...this.listings.values()].filter((l) => l.isin && isins.includes(l.isin)).map((l) => ({ ...l }));
   }
@@ -170,6 +173,10 @@ export class FakeNet {
   scannerBodies: any[] = [];
   /** Eigen antwoord op een screener-vraag; null = de standaard (de selectie). */
   scannerHandler: ((body: any) => unknown[] | null) | null = null;
+  /** CSV van Euronext Growth Oslo (live.euronext.com); null = niet bereikbaar. */
+  growthCsv: string | null = null;
+  /** Antwoord van de zoekfunctie per beurs (exchange=...), anders `search`. */
+  searchByExchange = new Map<string, unknown>();
   /** Berichttekst per id (anders `story`). */
   stories = new Map<string, unknown>();
   /** message_thread_id per verstuurd bericht (zelfde volgorde als sent). */
@@ -234,7 +241,12 @@ export class FakeNet {
       if (this.newsStatus !== 200) return new Response("nee", { status: this.newsStatus });
       return Response.json([]);
     }
-    if (url.host === "symbol-search.tradingview.com") return Response.json(this.search);
+    if (url.host === "symbol-search.tradingview.com") {
+      return Response.json(this.searchByExchange.get(url.searchParams.get("exchange") ?? "") ?? this.search);
+    }
+    if (url.host === "live.euronext.com") {
+      return this.growthCsv === null ? new Response("nee", { status: 503 }) : new Response(this.growthCsv);
+    }
     return new Response("onbekend", { status: 404 });
   };
 

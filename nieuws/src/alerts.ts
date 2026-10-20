@@ -28,6 +28,8 @@ export type Routes = Record<string, Destination>;
 /** Soorten meldingen. Woordfilters heten "filter:<naam>". */
 export const WATCHLIST = "volglijst";
 export const filterCategory = (name: string) => `filter:${name}`;
+/** Zonder eigen onderwerp gaan claimemissies naar het onderwerp van de emissies. */
+const SHARED_ROUTE: Record<string, string> = { "filter:claim": "filter:emissie" };
 
 export async function ownerUser(store: Store): Promise<string | null> {
   return (await store.getSetting(OWNER_USER_KEY)) ?? (await store.getSetting(LEGACY_OWNER_KEY));
@@ -83,7 +85,9 @@ export class AlertSender {
   /** Bestemmingen voor deze soorten, zonder dubbele; zonder eigen bestemming naar de standaardchat. */
   async destinations(categories: string[]): Promise<Destination[]> {
     this.routes ??= await loadRoutes(this.store);
-    const list = categories.length ? categories.map((c) => this.routes![c] ?? this.fallback) : [this.fallback];
+    const list = categories.length
+      ? categories.map((c) => this.routes![c] ?? (SHARED_ROUTE[c] ? this.routes![SHARED_ROUTE[c]] : undefined) ?? this.fallback)
+      : [this.fallback];
     const unique = new Map(list.map((d) => [`${d.chat}#${d.thread ?? ""}`, d]));
     return [...unique.values()];
   }

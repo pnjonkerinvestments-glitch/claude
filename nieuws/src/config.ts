@@ -19,7 +19,6 @@ export interface Env {
   SCREEN_COUNTRIES?: string;
   OCHTEND_TIJD?: string;
   OCHTEND_DIVIDEND_PCT?: string;
-  OCHTEND_KOERS_PCT?: string;
   AGENDA_DAGEN?: string;
 }
 
@@ -55,8 +54,6 @@ export interface Config {
   digestMinutes: number;
   /** Speciaal dividend telt mee vanaf dit deel van de koers (0,25 = 25%). */
   dividendRatio: number;
-  /** Vroege koersen (L&S, Tradegate) vanaf deze beweging in procenten. */
-  gapPercent: number;
   /** Zoveel dagen vooruit staat de agenda in het ochtendoverzicht. */
   agendaDays: number;
 }
@@ -129,6 +126,27 @@ export const DEFAULT_FILTERS: Record<string, string[]> = {
     "claimemissie", "aandelenemissie", "nyemission", "riktad emission", "företrädesemission", "emisjon",
     "kapitalforhøjelse", "rettet emission", "osakeanti",
   ],
+  // Claimemissies: emissies waarbij aandeelhouders (verhandelbare) rechten krijgen. Zie ook EXCLUDE
+  // ("unter Ausschluss des Bezugsrechts" is juist géén claimemissie) en de rechtenkalender.
+  claim: [
+    // Engels
+    "rights issue", "rights offering", "rights offer", "subscription rights", "pre-emptive rights",
+    "rights trading", "nil paid rights",
+    // Duits
+    "Bezugsangebot", "Bezugsrechtsemission", "Bezugsrechtskapitalerhöhung", "Bezugsfrist", "Bezugsrechtshandel",
+    "mit Bezugsrecht", "Bezugsrecht", "Bezugsrechte",
+    // Frans
+    "droit préférentiel de souscription", "droits préférentiels de souscription", "maintien du DPS", "avec DPS",
+    "droits de souscription",
+    // Italiaans
+    "in opzione", "diritti di opzione", "diritto di opzione", "offerta in opzione",
+    // Spaans en Portugees
+    "derechos de suscripción preferente", "derechos de suscripción", "direitos de subscrição", "direitos de preferência",
+    // Nederlands, Scandinavisch en Fins
+    "claimemissie", "claimrechten", "företrädesemission", "teckningsrätter", "uniträtter", "fortrinnsrettsemisjon",
+    "fortrinnsrett", "tegningsretter", "tegningsrettighedsemission", "fortegningsret", "merkintäoikeusanti",
+    "merkintäoikeudet",
+  ],
   // Werkt standaard over al het Europese nieuws, niet alleen de selectie (zie /bereik).
   // Getest tegen ruim 10.000 koppen: "debut", "listing", "cotation" en "admission to trading"
   // gaven vooral ruis (Frans "début", obligaties, handelsstops) en staan er bewust niet in.
@@ -155,6 +173,10 @@ export const DEFAULT_FILTERS: Record<string, string[]> = {
     "takeover", "tender offer", "recommended offer", "recommended cash offer", "cash offer", "Rule 2.7",
     "Rule 2.4", "possible offer", "firm offer", "firm intention", "offer period", "acceptance period", "PUSU",
     "put up or shut up", "squeeze-out", "squeeze out", "delisting", "merger agreement", "scheme of arrangement",
+    "recommended acquisition", "recommended cash acquisition", "recommended final offer", "possible cash offer",
+    "statement regarding possible offer", "statement re possible offer", "scheme document", "court sanction",
+    "unconditional offer", "offer unconditional", "increased offer", "revised offer", "competing offer",
+    "hostile bid", "takeover bid", "bid for", "agreed to be acquired", "to be acquired by", "acquisition proposal",
     // Duits
     "Übernahmeangebot", "Pflichtangebot", "Erwerbsangebot", "Delisting-Angebot", "Annahmefrist", "Angebotsunterlage",
     "Beherrschungsvertrag", "Barabfindung",
@@ -186,13 +208,6 @@ export const DEFAULT_FILTERS: Record<string, string[]> = {
     "sospensione dalle negoziazioni", "sospeso dalle negoziazioni", "riammissione alle negoziazioni",
     "suspensión de cotización", "suspensión cautelar", "suspensão da negociação", "handelsstopp", "handelsstop",
     "observation status", "observationsstatus",
-  ],
-  // Koppen van EQS ("Bedrijf: Persoon, Kauf") herkent een vast patroon; zie PATTERNS.
-  insider: [
-    "Director/PDMR", "PDMR", "Director Dealing", "Directors' Dealings", "Managers' transactions",
-    "Manager's transaction", "Eigengeschäfte", "EQS-DD", "PTA-DD", "Mandatory notification of trade",
-    "Meldepliktig handel", "Insynshandel", "Johdon liiketoimet", "ledende medarbejderes transaktioner",
-    "transactions des dirigeants", "internal dealing", "director buys", "director raises stake",
   ],
   // "MAR" alleen gaf vooral insidermeldingen ("Artikel 19 MAR"), "Ad-hoc" alleen ook "Ad-hoc-Gruppe".
   adhoc: [
@@ -229,23 +244,52 @@ export const DEFAULT_FILTERS: Record<string, string[]> = {
 };
 
 /**
- * Vaste patronen naast de woorden, voor koppen die je met losse woorden niet goed vangt.
- * EQS-insidermeldingen heten bijvoorbeeld "FIT GROUP AG: Diyar Acar, Kauf"; het woord "Kauf"
- * alleen zou ook elke "Kaufempfehlung" vinden.
+ * Vaste patronen naast de woorden, voor koppen die je met losse woorden niet goed vangt
+ * (filternaam → patronen). Op dit moment geen.
  */
-export const PATTERNS: Record<string, Array<{ label: string; pattern: RegExp }>> = {
-  insider: [
-    {
-      label: "EQS-DD",
-      pattern: /^[^:]{2,90}: [^:,]{2,90}, (Kauf|Verkauf|Erwerb|Veräußerung|Zeichnung|buy|sell|purchase|sale|subscription)\b/i,
-    },
+export const PATTERNS: Record<string, Array<{ label: string; pattern: RegExp }>> = {};
+
+/**
+ * Woorden die een treffer van dat filter juist tegenhouden. "Barkapitalerhöhung unter Ausschluss
+ * des Bezugsrechts" is een gewone emissie, geen claimemissie; "Ausübung Bezugsrechte" is een
+ * insider die zijn rechten uitoefent.
+ */
+export const EXCLUDE: Record<string, string[]> = {
+  // Obligaties zijn geen aandelenemissie of overname ("Avviato collocamento sindacato AT1",
+  // "Notice to Noteholders and Delisting of Notes").
+  emissie: [
+    "AT1", "Tier 1", "Tier 2", "bond", "bonds", "green bond", "obbligazion", "Anleihe", "Schuldverschreibung",
+    "Schuldschein", "senior notes", "senior unsecured", "EMTN", "covered bond", "obligations", "noteholders",
+  ],
+  overname: ["noteholders", "of notes", "bond", "bonds", "obbligazion", "Anleihe", "Form 8.3", "Form 8 (OPD)"],
+  claim: [
+    "Ausschluss des Bezugsrechts", "Ausschluss der Bezugsrechte", "ohne Bezugsrecht", "Ausübung Bezugsrechte",
+    "Ausübung von Bezugsrechten", "senza diritto di opzione", "esclusione del diritto di opzione", "sans DPS",
+    "suppression du droit préférentiel", "suppression du DPS", "non-pre-emptive", "disapplication of pre-emption",
+    "exclusión del derecho de suscripción", "utan företrädesrätt", "rettet emisjon", "directed issue",
   ],
 };
 
+/** Filters die niet meer bestaan; bij een bestaande installatie worden ze eenmalig weggehaald. */
+export const RETIRED_FILTERS = ["insider"];
+
+/**
+ * Beurzen waarvan een filter niets wil horen: emissies in Londen (dagelijks tientallen placings
+ * van kleine AIM-fondsen). Ook koppen zonder aandeel met het Londense "REG - "-voorvoegsel tellen
+ * dan niet.
+ */
+export const EXCLUDED_EXCHANGES: Record<string, string[]> = {
+  emissie: ["LSE", "AQUIS"],
+  claim: ["LSE", "AQUIS"],
+};
+
 /** Filters die standaard niet direct melden, maar alleen in het ochtendoverzicht staan. */
-export const DEFAULT_DIGEST_ONLY = ["overname", "splitsing", "handelsstop", "insider", "adhoc", "index", "fda", "notering"];
-/** Filters die standaard over al het Europese nieuws werken, niet alleen over de selectie. */
-export const DEFAULT_EUROPE_FILTERS = ["ipo", "notering"];
+export const DEFAULT_DIGEST_ONLY = ["overname", "splitsing", "handelsstop", "adhoc", "index", "fda", "notering"];
+/**
+ * Filters die standaard over al het Europese nieuws werken, niet alleen over de selectie: een
+ * claimemissie van Unipol (€23 mld) of een Brits bod van €2 mld valt ver buiten de small caps.
+ */
+export const DEFAULT_EUROPE_FILTERS = ["ipo", "notering", "emissie", "claim", "overname"];
 
 /**
  * Minimale marktwaarde (euro) per filter; kleinere bedrijven geven geen treffer. Bij een bedrijf
@@ -254,9 +298,11 @@ export const DEFAULT_EUROPE_FILTERS = ["ipo", "notering"];
  */
 export const DEFAULT_MIN_CAP: Record<string, number> = {
   emissie: 10e6,
+  claim: 10e6,
   ipo: 100e6,
-  notering: 100e6,
-  overname: 100e6,
+  // Ook voor de blokken Nieuw op de beurs en Nieuwe en dubbele noteringen in het ochtendoverzicht.
+  notering: 1e9,
+  overname: 250e6,
 };
 
 export function parseFeeds(raw: string): Feed[] {
@@ -328,7 +374,6 @@ export function loadConfig(env: Env): Config {
       .filter(Boolean),
     digestMinutes: parseClock(env.OCHTEND_TIJD, 8 * 60 + 40),
     dividendRatio: number(env.OCHTEND_DIVIDEND_PCT, 25) / 100,
-    gapPercent: number(env.OCHTEND_KOERS_PCT, 4),
     agendaDays: Math.floor(number(env.AGENDA_DAGEN, 7)),
   };
 }

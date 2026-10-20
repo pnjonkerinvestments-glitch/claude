@@ -12,12 +12,12 @@ import {
   pack,
   parseDividendAmount,
   parseDividends,
-  parseGaps,
   runMorningStep,
 } from "../src/morning.ts";
 import { checkScreener, groupFilters, matchFilters } from "../src/screener.ts";
 import { flattenStory } from "../src/tradingview.ts";
 import { parseValuation } from "../src/size.ts";
+import { parseGrowthCsv } from "../src/growth.ts";
 import { FakeNet, MemoryStore, item } from "./helpers.ts";
 
 const TZ = "Europe/Amsterdam";
@@ -36,7 +36,7 @@ test("klok: 08:40 in Amsterdam, ook in de wintertijd", () => {
 test("datums uit echte koppen en persberichten, met het soort datum", () => {
   const dates = (text: string) => datesForAgenda(text, "2026-10-06", "2026-10-06");
   assert.deepEqual(dates("80 Mile Extends PUSU Deadline For Greenland Energy Offer To Nov 3"), [
-    { date: "2026-11-03", label: "einde aanmeldtermijn" },
+    { date: "2026-11-03", label: "PUSU-deadline (bod of afzien)" },
   ]);
   assert.deepEqual(dates("Webuild, Opa su Trevi in programma da 28 settembre a 20 novembre"), [
     { date: "2026-11-20", label: "einde periode" },
@@ -113,31 +113,27 @@ test("aangekondigd dividend uit de screener: in eigen munt, vanaf 25% van de koe
   assert.deepEqual(rows.map((r) => [r.symbol, r.exDate, r.payDate]), [["OSL:DVD", "2026-10-08", "2026-10-16"]]);
 });
 
-test("vroege koersen: één regel per bedrijf (meeste volume), grootste beweging eerst, zonder schijnkoersen", () => {
-  const gaps = parseGaps([
-    { s: "LS:GTY", d: ["Gateway Real Estate", "LS", "Germany", 0.38, "EUR", 15.9, 10000, "DE000A0JJTG7"] },
-    { s: "TRADEGATE:GTY", d: ["Gateway Real Estate", "TRADEGATE", "Germany", 0.379, "EUR", 15.5, 90000, "DE000A0JJTG7"] },
-    { s: "LS:SBX", d: ["SynBiotic", "LS", "Germany", 0.88, "EUR", -22, 5000, "DE000A3E5A59"] },
-    // Echte koppen uit de test van 6 oktober: geen handel van betekenis.
-    { s: "LS:A41BED", d: ["Alligator Bioscience AB", "LS", "Sweden", 0.0001, "EUR", -99.6, 1000, "SE1"] },
-    { s: "LS:A2PHDZ", d: ["Alterity", "LS", "Germany", 0.282, "EUR", 39, 1, "AU1"] },
-  ]);
-  assert.deepEqual(gaps.map((g) => g.symbol), ["LS:SBX", "TRADEGATE:GTY"]);
-});
-
 // ---------------------------------------------------------------- screener
 
-test("insiderpatroon van EQS en de nieuwe filters tegen echte koppen", () => {
+test("claimemissies, Britse biedingen en de andere filters tegen echte koppen", () => {
   const filters = groupFilters(
-    ["overname", "insider", "adhoc", "fda", "index", "notering", "splitsing", "handelsstop"].flatMap((filter) =>
+    ["overname", "claim", "adhoc", "fda", "index", "notering", "splitsing", "handelsstop"].flatMap((filter) =>
       DEFAULT_FILTERS[filter].map((word) => ({ filter, word })),
     ),
   );
   const hit = (title: string) => matchFilters(title, filters).map((h) => h.filter).join(",") || undefined;
-  assert.equal(hit("FIT GROUP AG: Diyar Acar, Kauf"), "insider");
-  assert.equal(hit("REG - Land Sec. Group PLC - Director/PDMR Shareholding"), "insider");
-  assert.equal(hit("Lemonsoft Oyj – Managers’ Transactions – Rite LS SPV AB"), "insider");
-  assert.equal(hit("Kaufempfehlung für Rubean"), undefined);
+  // Insiders bestaan niet meer.
+  assert.equal(hit("FIT GROUP AG: Diyar Acar, Kauf"), undefined);
+  assert.equal(hit("REG - Land Sec. Group PLC - Director/PDMR Shareholding"), undefined);
+  // Claimemissies, maar niet "unter Ausschluss des Bezugsrechts" of een insider die rechten uitoefent.
+  assert.equal(hit("Orexo Resolves To Carry Out Rights Issue Of SEK 250 Mln"), "claim");
+  assert.equal(hit("Unipol, aumento di capitale in opzione da 2,5 miliardi"), "claim");
+  assert.equal(hit("Techstep ASA: Fortrinnsrettsemisjon - tegningsperioden starter i dag"), "claim");
+  assert.equal(hit("Algene Holding SE: Barkapitalerhöhung unter Ausschluss des Bezugsrechts mit einem Volumen von bis zu EUR 3 Mio."), undefined);
+  assert.equal(hit("Lenzing AG: Oberbank AG, Erwerb: Ausübung Bezugsrechte"), undefined);
+  // Britse biedingen.
+  assert.equal(hit("REG - Spectris PLC - Recommended Cash Acquisition of Spectris plc by Advent"), "overname");
+  assert.equal(hit("REG - Assura PLC - Statement regarding possible offer"), "overname");
   assert.equal(hit("AKVA group ASA: Agreement on a recommended voluntary cash offer for all shares"), "overname");
   assert.equal(hit("Pininfarina, azionista Mahindra lancia Opa con obiettivo delisting"), "overname");
   assert.equal(hit("Nürnberger Beteiligungs-AG: Squeeze-out-Verlangen. Barabfindung auf EUR 120,00 je Aktie"), "overname");
@@ -146,7 +142,7 @@ test("insiderpatroon van EQS en de nieuwe filters tegen echte koppen", () => {
   assert.equal(hit("PTA-Adhoc: Jost AG: Vorstand erwartet für 2026 Umsatz über dem Rekordjahr"), "adhoc");
   assert.equal(hit("Inside Information: Preliminary result of Martela Corporation’s directed share issue"), "adhoc");
   assert.equal(hit("BOOSTER Precision Components gibt Verlängerung der Stillhaltevereinbarung mit Ad-hoc-Gruppe bekannt"), undefined);
-  assert.equal(hit("XETR:AAD Managers' transactions announcement according to article 19 MAR"), "insider");
+  assert.equal(hit("XETR:AAD Managers' transactions announcement according to article 19 MAR"), undefined);
   assert.equal(hit("Idorsia Announces Positive Phase 3 Precision Study Findings"), "fda");
   assert.equal(hit("Studie: Alle europäischen Autobauer schaffen Emissionsziele bis 2027"), undefined);
   assert.equal(hit("Glencore Gets Approval for Agua Rica Project in Argentina"), undefined);
@@ -236,12 +232,13 @@ function morningNet() {
     { s: "XETR:PFSE", d: ["Pfisterer Holding SE", "XETR", "Germany", "DE000PFSE001"] },
     { s: "XETR:MUV2", d: ["Munchener Ruckversicherungs-Gesellschaft AG", "XETR", "Germany", "DE0008430026"] },
     { s: "OSL:ACR", d: ["Axactor ASA", "OSL", "Norway", "NO0010840515"] },
+    { s: "MIL:UNI", d: ["UNIPOL ASSICURAZIONI SPA", "MIL", "Italy", "IT0004810054"] },
   ];
   const other: unknown[] = [];
   // Marktwaarde en IPO-datum van nieuwe noteringen (stap noteringinfo).
   const listingInfo: Record<string, [number, number | null]> = {
-    "SIX:INFOM": [900e6, at("2026-10-05", "02:00")],
-    "EURONEXT:PFSE": [300e6, null],
+    "SIX:INFOM": [1.5e9, at("2026-10-05", "02:00")],
+    "EURONEXT:PFSE": [1.2e9, null],
     "VIE:RAT": [20e6, null],
     "BME:OUD": [2e9, at("1998-05-04", "02:00")],
     "SIX:MUV2": [60e9, null],
@@ -249,6 +246,9 @@ function morningNet() {
     "OMXSTO:ACRO": [50e6, null],
   };
   net.scannerHandler = (body) => {
+    if (body.symbols && body.columns.length === 1) {
+      return body.symbols.tickers.flatMap((t: string) => (t === "MIL:UNI" ? [{ s: t, d: [23e9] }] : []));
+    }
     if (body.symbols && body.columns.includes("ipo_offer_date")) {
       return body.symbols.tickers.flatMap((t: string) => (listingInfo[t] ? [{ s: t, d: listingInfo[t] }] : []));
     }
@@ -263,10 +263,8 @@ function morningNet() {
       return [
         { s: "OSL:DVD", d: ["Deep Value Driller AS", "Norway", 21.85, "NOK", 20.6, at("2026-10-08", "11:59"), at("2026-10-16", "11:59")] },
         { s: "BME:A3M", d: ["Atresmedia", "Spain", 5.75, "EUR", 0.6723, at("2026-12-14", "11:59"), null] },
+        { s: "OSL:GROW", d: ["Growth Oslo AS", "Norway", 10, "NOK", 5, at("2026-10-09", "11:59"), null] },
       ];
-    }
-    if (columns.includes("earnings_release_next_time")) {
-      return body.filter[3].left === "earnings_release_next_date" ? [{ s: "LSE:DEBS", d: ["boohoo group Plc", "United Kingdom", -1, 1] }] : [];
     }
     if (columns.includes("ipo_offer_status")) {
       return body.filter[0].left === "ipo_offer_status"
@@ -276,14 +274,22 @@ function morningNet() {
           ]
         : [];
     }
-    if (columns.includes("change")) {
-      return [
-        { s: "TRADEGATE:GTY", d: ["Gateway Real Estate AG", "TRADEGATE", "Germany", 0.379, "EUR", 15.9, 9000, "DE1"] },
-        { s: "LS:A0PFSE", d: ["Pfisterer", "LS", "Germany", 14.5, "EUR", 19.8, 2000, "DE000PFSE001"] },
-      ];
-    }
     return null;
   };
+  // Euronext Growth Oslo en de claimrechten op Euronext Milan.
+  net.growthCsv = [
+    "Name;ISIN;Symbol;Market;Currency",
+    '"European Equities"',
+    ...Array.from({ length: 30 }, (_, i) => `"GROEI ${i}";NO00000000${String(i).padStart(2, "0")};GR${i};"Euronext Growth Oslo";NOK`),
+    '"GROWTH OSLO";NO00000GRW01;GROW;"Euronext Growth Oslo";NOK',
+  ].join("\n");
+  net.searchByExchange.set("MIL", {
+    symbols: [
+      { symbol: "UNIAXA", description: "UNIPOL ASSICURAZIONI SPA Rights 2026-26.10.26 fOR Shares", type: "right", exchange: "MIL", isin: "IT0005733370" },
+      { symbol: "OLDR", description: "Oud SpA Rights 2026-01.10.26 For Shares", type: "right", exchange: "MIL" },
+      { symbol: "UNI", description: "UNIPOL ASSICURAZIONI SPA", type: "stock", exchange: "MIL" },
+    ],
+  });
   return { net, primary, other };
 }
 
@@ -299,13 +305,16 @@ async function runDay(
   }
 }
 
-test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, noteringen, nieuws en koersen", async () => {
+test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, claimemissies, dividend, overnames, emissies en noteringen", async () => {
   const { net, primary, other } = morningNet();
   const store = new MemoryStore();
   const sent: string[] = [];
 
-  // Maandag: de eerste ronde noteringen legt alleen vast.
+  // Maandag: de eerste ronde noteringen legt alleen vast; de rechten van Unipol bestaan nog niet.
+  const milRights = net.searchByExchange.get("MIL");
+  net.searchByExchange.set("MIL", { symbols: [] });
   await runDay({ store, net }, "2026-10-05", "06:55", "09:00", sent);
+  net.searchByExchange.set("MIL", milRights);
   assert.equal(sent.length, 1, "maandag één overzicht");
   assert.match(sent[0], /Ochtendoverzicht ma 5 okt/);
   assert.ok(!sent[0].includes("Nieuw op de beurs"));
@@ -322,9 +331,10 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
       ev("d1", "dividend", "XETR:PFSE", "Pfisterer Holding SE", "Pfisterer: Vorstand schlägt Sonderdividende von 4,00 EUR vor"),
       ev("d2", "dividend", "LSE:XYZ", "XYZ plc", "XYZ plc declares special dividend of 5p"),
       ev("i1", "insider", "XETR:R1B", "Rubean AG", "Rubean AG: M2 Venture GmbH, Kauf"),
-      ev("i2", "insider", "XETR:R1B", "Rubean AG", "Rubean AG: Hans Meier, Kauf"),
-      ev("i3", "insider", "XETR:HFG", "HelloFresh SE", "HelloFresh SE: Fund, Erwerb von Aktien aufgrund ausgeübter Optionen"),
-      ev("i4", "insider", "XETR:HFG", "HelloFresh SE", "HelloFresh SE: Fund, Kauf"),
+      ev("c1", "emissie", "MIL:UNI", "", "Unipol, prezzo aumento capitale fissato a 20,56 euro, al via il 12 ottobre"),
+      ev("e1", "emissie", "LSE:TINY", "Tiny plc", "REG - Tiny plc - Placing to raise £2 million"),
+      ev("e2", "emissie", "XETR:MUX", "Mutares SE", "Mutares: Kapitalerhöhung erfolgreich platziert"),
+      ev("g1", "emissie", "OSL:GROW", "Growth Oslo AS", "Growth Oslo AS: private placement completed"),
       ev("n1", "ipo", "", "", "Dolomiti Energia, Ipo in stand-by"),
       ev("a1", "adhoc", "XETR:JST", "Jost AG", "PTA-Adhoc: Jost AG: Prognose angehoben"),
       ev("a0", "adhoc", "XETR:OLD", "Oud AG", "PTA-Adhoc: Oud AG: van gistermiddag", at("2026-10-05", "15:00")),
@@ -333,6 +343,12 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
     night,
   );
   net.stories.set("o1", { astDescription: { type: "root", children: [{ type: "p", children: ["Die Annahmefrist endet am 9. Oktober 2026."] }] } });
+  net.stories.set("c1", {
+    astDescription: {
+      type: "root",
+      children: [{ type: "p", children: ["I diritti di opzione saranno esercitabili dal 12 al 26 ottobre e negoziabili dal 12 al 20 ottobre."] }],
+    },
+  });
   primary.push({ s: "SIX:INFOM", d: ["Infomaniak Network SA", "SIX", "Switzerland", "CH0000000001"] });
   other.push({ s: "EURONEXT:PFSE", d: ["Pfisterer Holding SE", "EURONEXT", "Germany", "DE000PFSE001"] });
   // Ruis van 7 oktober: oude of kleine aandelen die even uit de lijst waren, en extra handelslijnen.
@@ -364,27 +380,33 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, dividend, 
   assert.match(text, /<b>PFSE<\/b> Pfisterer Holding SE: €4,00 bij koers €12,10 = <b>33%<\/b>/);
   assert.match(text, /1 speciaal dividend onder 25% weggelaten/);
   assert.ok(!text.includes("Atresmedia"));
-  // Noteringen en IPO-kalender.
-  assert.match(text, /Nieuw op de beurs<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX, Zwitserland, €900,0 mln\) · nieuw op de beurs\n\n/);
+  // Claimemissie: rechtenlijn met alle data, en het emissiebericht niet nog eens onder Emissies.
   assert.match(
     text,
-    /dubbele noteringen<\/b>\n• <b>PFSE<\/b> Pfisterer Holding SE \(EURONEXT, Duitsland, €300,0 mln\) · tweede notering, al genoteerd als XETR:PFSE\n\n/,
+    /Claimemissies en rechtenhandel<\/b>\n• <b>UNIAXA<\/b> rechten UNIPOL ASSICURAZIONI SPA \(MIL, €23,0 mld\) · 🆕 <b>rechtenhandel net begonnen<\/b>\n   rechtenhandel begint <b>ma 12 okt<\/b> \(over 6 dagen\) · laatste handelsdag rechten <b>di 20 okt<\/b> \(over 14 dagen\) · inschrijving sluit <b>ma 26 okt<\/b> \(over 20 dagen\) · rechten vervallen <b>ma 26 okt<\/b> \(over 20 dagen\)\n\n/,
+  );
+  assert.ok(!text.includes("OLDR"), "verlopen rechten");
+  assert.match(text, /ma 12 okt<\/b> \(over 6 dagen\) <b>UNI<\/b> \(MIL\) · rechtenhandel begint/);
+  // Emissies: niet uit Londen, niet de claimemissie, niet van Euronext Growth Oslo.
+  assert.match(text, /Emissies<\/b>\n• <b>MUX<\/b> Mutares SE: <a href="https:\/\/example.com\/e2">Mutares: Kapitalerhöhung erfolgreich platziert<\/a>\n\n/);
+  for (const noise of ["Tiny plc", "Growth Oslo", "Rubean", "Insider", "Vroege koersen", "Cijfers vandaag"]) assert.ok(!text.includes(noise), noise);
+  // Noteringen pas vanaf €1 mld, en de IPO-kalender met IPO-nieuws.
+  assert.match(text, /Nieuw op de beurs<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX, Zwitserland, €1,5 mld\) · nieuw op de beurs\n\n/);
+  assert.match(
+    text,
+    /dubbele noteringen<\/b>\n• <b>PFSE<\/b> Pfisterer Holding SE \(EURONEXT, Duitsland, €1,2 mld\) · tweede notering, al genoteerd als XETR:PFSE\n\n/,
   );
   for (const noise of ["Rath", "Oud Groot", "MUV2", "Sogn", "Axactor"]) assert.ok(!text.includes(noise), noise);
-  assert.match(text, /Beursgangen op komst<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX\) · datum nog niet bekend · marktwaarde ±\$900 mln\n\n/);
+  assert.match(
+    text,
+    /Beursgangen en noteringen op komst<\/b>\n• <b>INFOM<\/b> Infomaniak Network SA \(SIX\) · datum nog niet bekend · marktwaarde ±\$900 mln\n• <a href="https:\/\/example.com\/n1">Dolomiti Energia, Ipo in stand-by<\/a>\n\n/,
+  );
   // Overname met deadline.
   assert.match(text, /Übernahmeangebot von ABB zu 30 EUR<\/a>\n   ⏰ einde aanmeldtermijn: <b>vr 9 okt<\/b> \(over 3 dagen\)/);
   // Ad-hoc alleen sinds het slot van gisteren.
   assert.match(text, /Jost AG: Prognose angehoben/);
   assert.ok(!text.includes("van gistermiddag"));
   assert.match(text, /<b>GMAB<\/b> \(OMXCOP\): <a href="https:\/\/example.com\/f1">Genmab Phase 3/);
-  // Insiders: cluster van twee aankopen.
-  assert.match(text, /<b>R1B<\/b> Rubean AG: 2× aankoop · 🟢 <b>cluster: 2 aankopen in 14 dagen<\/b>/);
-  assert.match(text, /<b>HFG<\/b> HelloFresh SE: 1× aankoop · <a/, "opties uitoefenen is geen aankoop, dus geen cluster");
-  assert.match(text, /\n• <a href="https:\/\/example.com\/n1">Dolomiti Energia, Ipo in stand-by<\/a>/);
-  // Koersen (met de ticker van de hoofdnotering) en cijfers.
-  assert.match(text, /<b>PFSE<\/b> Pfisterer Holding SE: <b>\+19,8%<\/b> naar €14,50 \(L&amp;S\)\n• <b>GTY<\/b> Gateway Real Estate AG: <b>\+15,9%<\/b> naar €0,379 \(Tradegate\)/);
-  assert.match(text, /<b>DEBS<\/b> boohoo group Plc · voorbeurs/);
   // In het eigen onderwerp (zoals runMorning het verstuurt).
   const { AlertSender } = await import("../src/alerts.ts");
   await new AlertSender(store, net.telegram(), "-100").send("x", [DIGEST]);
@@ -451,14 +473,14 @@ test("berichten lezen: datums naar de agenda, dividendbedrag bij het bericht, é
       { id: "x1", filter: "overname", symbol: "EURONEXT:ALERS", name: "Eurobio", title: "Eurobio : dépôt de l'OPR", url: "", lang: "fr", published: NOW },
       { id: "x1", filter: "notering", symbol: "EURONEXT:ALERS", name: "Eurobio", title: "Eurobio : dépôt de l'OPR", url: "", lang: "fr", published: NOW },
       { id: "x2", filter: "dividend", symbol: "XETR:PFSE", name: "Pfisterer", title: "Pfisterer: Sonderdividende", url: "", lang: "de", published: NOW },
-      { id: "x3", filter: "insider", symbol: "XETR:R1B", name: "Rubean", title: "Rubean AG: X, Kauf", url: "", lang: "de", published: NOW },
+      { id: "x3", filter: "emissie", symbol: "XETR:MUX", name: "Mutares", title: "Mutares: Kapitalerhöhung platziert", url: "", lang: "de", published: NOW },
     ],
     NOW,
   );
   net.stories.set("x1", { astDescription: { type: "root", children: [{ type: "p", children: ["L'offre sera ouverte du 8 octobre au 21 octobre 2026 inclus. Retrait obligatoire le 23 octobre 2026."] }] } });
   net.stories.set("x2", { astDescription: JSON.stringify({ type: "root", children: [{ type: "p", children: ["Der Vorstand schlägt eine Sonderdividende von 4,00 EUR je Aktie vor. Ex-Tag ist der 15.10.2026."] }] }) });
   const checked = await checkStories({ store, config, fetcher: net.fetch, now: NOW }, "2026-10-06");
-  assert.equal(checked, 2, "insiderberichten worden niet gelezen");
+  assert.equal(checked, 3, "ook emissies worden gelezen (is het een claimemissie?)");
   assert.deepEqual(
     store.agenda.map((a) => [a.kind, a.date, a.label]),
     [
@@ -566,4 +588,51 @@ test("ochtendoverzicht: te kleine bedrijven vallen af, ook als de waardering pas
   const text = sent.join("\n");
   assert.ok(text.includes("Groot bod") && text.includes("Unknown Co"));
   for (const small of ["Klein bod", "Nordic Startup", "Mini plc"]) assert.ok(!text.includes(small), small);
+});
+
+// ---------------------------------------------------------------- minder rommel (oktober 2026)
+
+test("Euronext Growth Oslo uit de download van Euronext", () => {
+  const csv = [
+    'Name;ISIN;Symbol;Market;Currency;"Open Price"',
+    '"European Equities"',
+    '"20 Oct 2026"',
+    '"3030 DVD";NO0010955917;DVD;"Euronext Growth Oslo";NOK;2.50',
+    '"AASEN SPAREBANK";NO0010672181;AASB;"Euronext Growth Oslo";NOK;136.04',
+    '"EQUINOR";NO0010096985;EQNR;"Oslo Børs";NOK;250',
+  ].join("\n");
+  assert.deepEqual(parseGrowthCsv(csv), { symbols: ["OSL:DVD", "OSL:AASB"], isins: ["NO0010955917", "NO0010672181"] });
+});
+
+test("screener: emissies en claimemissies over heel Europa, maar niet uit Londen of van Euronext Growth Oslo", async () => {
+  const net = new FakeNet();
+  const store = new MemoryStore();
+  const sent: string[] = [];
+  for (const filter of ["emissie", "claim", "overname"]) await store.addFilterWords(filter, DEFAULT_FILTERS[filter]);
+  await store.setSetting("growth_oslo", JSON.stringify({ date: "2026-10-20", symbols: ["OSL:GROW"], isins: [] }));
+  const caps: Record<string, number> = { "MIL:UNI": 23e9, "LSE:BIG": 3e9, "OSL:GROW": 50e6, "LSE:SPX": 4e9 };
+  net.scannerHandler = (body) =>
+    body.symbols ? body.symbols.tickers.flatMap((t: string) => (caps[t] ? [{ s: t, d: [caps[t]] }] : [])) : null;
+  const NOW = 1_791_000_000;
+  const run = (now: number) => checkScreener({ store, fetcher: net.fetch, config, now, send: async (html) => void sent.push(html) });
+  await run(NOW);
+  const sym = (s: string) => ({ relatedSymbols: [{ symbol: s }] });
+  net.feeds.set("en", {
+    items: [
+      item("u1", "Unipol, aumento di capitale in opzione da 2,5 miliardi", NOW + 1, sym("MIL:UNI")),
+      item("l1", "REG - Big plc - Placing to raise £50 million", NOW + 2, sym("LSE:BIG")),
+      item("l2", "REG - Small Mining plc - Placing and Subscription", NOW + 3, { relatedSymbols: [] }),
+      item("g1", "Growth AS: private placement completed", NOW + 4, sym("OSL:GROW")),
+      item("g2", "Volare Shipping Starts Trading On Euronext Growth Oslo after private placement", NOW + 5, { relatedSymbols: [] }),
+      item("s1", "REG - Spectris PLC - Recommended Cash Acquisition of Spectris plc by Advent", NOW + 6, sym("LSE:SPX")),
+    ],
+  });
+  await run(NOW + 60);
+  assert.deepEqual(
+    store.events.map((e) => `${e.id}:${e.filter}`).sort(),
+    ["s1:overname", "u1:claim", "u1:emissie"],
+    "Unipol (€23 mld) en het Britse bod wel; Londense placings en Growth Oslo niet",
+  );
+  assert.equal(sent.length, 1, "de claimemissie meldt direct; overnames staan alleen in het overzicht");
+  assert.match(sent[0], /Filter: (claim, emissie|emissie, claim)/);
 });

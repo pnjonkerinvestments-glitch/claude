@@ -114,6 +114,8 @@ export interface Store {
   putListings(rows: Listing[], now: number): Promise<void>;
   listingsSince(since: number): Promise<Listing[]>;
   listingsByIsin(isins: string[]): Promise<Listing[]>;
+  /** Primaire noteringen op deze beurzen (om claimrechten aan hun bedrijf te koppelen). */
+  primaryListings(exchanges: string[]): Promise<Listing[]>;
 }
 
 const SCHEMA = [
@@ -463,6 +465,16 @@ export class D1Store implements Store {
     const { results } = await this.db
       .prepare(`SELECT ${LISTING_COLUMNS} FROM listings WHERE isin IN (SELECT value FROM json_each(?))`)
       .bind(JSON.stringify(wanted))
+      .all<Omit<Listing, "primary"> & { isPrimary: number }>();
+    return results.map(listing);
+  }
+
+  async primaryListings(exchanges: string[]): Promise<Listing[]> {
+    if (!exchanges.length) return [];
+    await this.ready();
+    const { results } = await this.db
+      .prepare(`SELECT ${LISTING_COLUMNS} FROM listings WHERE is_primary = 1 AND exchange IN (SELECT value FROM json_each(?))`)
+      .bind(JSON.stringify(exchanges))
       .all<Omit<Listing, "primary"> & { isPrimary: number }>();
     return results.map(listing);
   }

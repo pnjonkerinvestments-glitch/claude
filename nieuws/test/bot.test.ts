@@ -225,7 +225,7 @@ test("standaardfilters: nieuwe komen erbij, weggehaalde komen niet terug", async
   const filters = new Set(store.words.map((w) => w.filter));
   assert.deepEqual(
     [...filters].sort(),
-    ["adhoc", "emissie", "fda", "handelsstop", "index", "insider", "insolventie", "ipo", "notering", "overname", "splitsing"],
+    ["adhoc", "claim", "emissie", "fda", "handelsstop", "index", "insolventie", "ipo", "notering", "overname", "splitsing"],
   );
 
   await store.removeFilter("emissie");
@@ -242,7 +242,7 @@ test("nieuw standaardfilter krijgt zijn bereik ook als de groep dat al had aange
   await store.setSetting("filters_europe", JSON.stringify(["ipo", "dividend"]));
   await store.setSetting("filters_digest_only", JSON.stringify(["emissie"]));
   await seed(store, {} as never);
-  assert.deepEqual(JSON.parse(store.settings.get("filters_europe")!).sort(), ["dividend", "ipo", "notering"]);
+  assert.deepEqual(JSON.parse(store.settings.get("filters_europe")!).sort(), ["claim", "dividend", "emissie", "ipo", "notering", "overname"]);
   assert.ok(JSON.parse(store.settings.get("filters_digest_only")!).includes("overname"));
   assert.ok(JSON.parse(store.settings.get("filters_digest_only")!).includes("emissie"));
 });
@@ -277,7 +277,8 @@ test("onderwerpen: /hier per soort, antwoorden in hetzelfde onderwerp, en meldin
   await sender.send("volglijst", ["volglijst"]);
   await sender.send("emissie en dividend", ["filter:emissie", "filter:dividend"]);
   await sender.send("los");
-  assert.deepEqual(net.sentThreads, [11, 22, undefined, undefined], "dividend heeft geen onderwerp: naar algemeen");
+  await sender.send("claim", ["filter:claim"]);
+  assert.deepEqual(net.sentThreads, [11, 22, undefined, undefined, 22], "dividend: algemeen; claim: bij de emissies");
 
   await handleMessage(bot, topic(22, "/hier emissie uit"));
   assert.equal((await loadRoutes(store))["filter:emissie"], undefined);
@@ -404,7 +405,7 @@ test("/ochtend: laat het overzicht nu zien, in het onderwerp waar het gevraagd i
   assert.equal(await store.getSetting("ochtend_uit"), null);
 });
 
-test("/minimum: standaard €10 mln voor emissies en €100 mln voor ipo, notering en overname; aanpasbaar door de eigenaar", async () => {
+test("/minimum: standaard €10 mln voor emissies, €100 mln voor ipo en €250 mln voor overnames; aanpasbaar door de eigenaar", async () => {
   const { net, store, bot } = deps();
   await store.setSetting(OWNER_USER_KEY, "1");
   await store.setSetting(ALERT_CHAT_KEY, "-100");
@@ -413,7 +414,7 @@ test("/minimum: standaard €10 mln voor emissies en €100 mln voor ipo, noteri
   const text = net.sent.at(-1)!.text;
   assert.match(text, /emissie: vanaf €10,0 mln/);
   assert.match(text, /ipo: vanaf €100,0 mln/);
-  assert.match(text, /overname: vanaf €100,0 mln/);
+  assert.match(text, /overname: vanaf €250,0 mln/);
   assert.match(text, /dividend: geen minimum/);
   await handleMessage(bot, msg("/minimum ipo 250"));
   assert.match(net.sent.at(-1)!.text, /vanaf €250,0 mln/);
@@ -422,7 +423,32 @@ test("/minimum: standaard €10 mln voor emissies en €100 mln voor ipo, noteri
   const caps = await minCaps(store);
   assert.equal(caps.get("ipo"), 250e6);
   assert.equal(caps.has("emissie"), false);
-  assert.equal(caps.get("overname"), 100e6);
+  assert.equal(caps.get("overname"), 250e6);
   await handleMessage(bot, msg("/minimum ipo 50", { chatId: "-100", chatType: "supergroup", fromId: "2" }));
   assert.match(net.sent.at(-1)!.text, /alleen de beheerder/);
+});
+
+test("eenmalige omzetting oktober 2026: insiders weg, emissies, claims en overnames over heel Europa", async () => {
+  const { seed } = await import("../src/index.ts");
+  const store = new MemoryStore();
+  await store.setSetting("seeded", "1");
+  await store.setSetting(
+    "filters_seeded_list",
+    JSON.stringify(["dividend", "insolventie", "emissie", "ipo", "overname", "splitsing", "handelsstop", "insider", "adhoc", "index", "fda", "notering"]),
+  );
+  await store.addFilterWords("insider", ["PDMR", "Director/PDMR"]);
+  await store.addFilterWords("emissie", ["placing"]);
+  await store.setSetting("filters_europe", JSON.stringify(["ipo", "notering"]));
+  await store.setSetting("filters_digest_only", JSON.stringify(["overname", "insider", "adhoc"]));
+  await store.setSetting("routes", JSON.stringify({ "filter:insider": { chat: "-1", thread: 9 }, volglijst: { chat: "-1", thread: 3 } }));
+  await seed(store, {} as never);
+  assert.ok(!store.words.some((w) => w.filter === "insider"));
+  assert.ok(store.words.some((w) => w.filter === "claim" && w.word === "diritti di opzione"));
+  assert.deepEqual(JSON.parse(store.settings.get("filters_europe")!).sort(), ["claim", "emissie", "ipo", "notering", "overname"]);
+  assert.deepEqual(JSON.parse(store.settings.get("filters_digest_only")!).sort(), ["adhoc", "overname"]);
+  assert.deepEqual(Object.keys(JSON.parse(store.settings.get("routes")!)), ["volglijst"]);
+  // Nog een keer: niets verandert meer (de groep mag het daarna zelf aanpassen).
+  await store.setSetting("filters_europe", JSON.stringify(["ipo"]));
+  await seed(store, {} as never);
+  assert.deepEqual(JSON.parse(store.settings.get("filters_europe")!), ["ipo"]);
 });
