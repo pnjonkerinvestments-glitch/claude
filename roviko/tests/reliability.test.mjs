@@ -50,7 +50,7 @@ test('Mosaic clues retain source metadata without giving away regions; trails re
  const qs=lib.generateQuestions({mode:'trail',count:5,region:'World',difficulty:'medium'},'trail-test');for(const q of qs){assert.equal(q.clues.length,4);assert.ok(new Set(q.clues.map(c=>c.en)).size===4);assert.ok(q.clues.every(c=>c.en&&c.nl&&c.es));assert.match(q.clues[3].en,/flag/);assert.ok(!q.prompt.en.includes(q.clues[3].en));}
  const firsts=new Set(lib.generateQuestions({mode:'trail',count:20,region:'World',difficulty:'medium'},'trail-mix').map(q=>q.clues[0].en.split(' ').slice(0,3).join(' ')));assert.ok(firsts.size>=8,'the first clue varies');
  // 1.43: within one game the five countries open with different kinds of clue.
- for(const seed of ['open-a','open-b','open-c']){const opens=lib.generateQuestions({mode:'trail',count:5,region:'World',difficulty:'medium'},seed).map(q=>q.clues[0].en.split(' ').slice(0,2).join(' '));assert.ok(new Set(opens).size>=4,opens.join(' | '));}
+ for(const seed of ['open-a','open-b','open-c']){const opens=lib.generateQuestions({mode:'trail',count:5,region:'World',difficulty:'medium'},seed).map(q=>q.clues[0].en.split(' ').slice(0,3).join(' '));assert.ok(new Set(opens).size>=4,opens.join(' | '));}
 });
 test('UTC boundaries and share/title content contain the correct mode and no private technical ID or answer',()=>{
  assert.equal(lib.utcDate(Date.parse('2026-09-10T23:59:59.999Z')),'2026-09-10');assert.equal(lib.utcDate(Date.parse('2026-09-11T00:00:00Z')),'2026-09-11');

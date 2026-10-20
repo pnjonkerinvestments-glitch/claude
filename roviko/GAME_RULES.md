@@ -215,3 +215,5 @@ Every classic game (Clue Trail, City Circuit, Flag Signal, Pinpoint, Next Door, 
 Clue Trail clues (1.43): no fixed opening; clue kinds include part of the world, hemispheres, area and area rank, neighbours, landlocked, currency, language, highest point, population, income per person, life expectancy, forest, city living, internet use, births per woman, median age, coastline, airports and railways; the third clue is the capital, a neighbour or a heritage/nature fact; the fourth is always the flag. Clue 1 keeps at least three answers possible and clue 2 at least two. Within a game, kinds already used weigh much less.
 
 Size Shuffle (1.43) starts in a uniformly random order other than the sorted one.
+
+Shape Shift in multiplayer (1.44): `shape` is one of the classic `MODES`, so rooms can play it alone or mixed with other games, with the room's timer and the usual multiplayer scoring.

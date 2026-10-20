@@ -37,7 +37,7 @@ test('mixed games honour excluded modes for every round count and cover all enab
   const q=lib.generateQuestions({...settings,count,enabledModes},`modes-${count}`);
   assert.equal(q.length,count);assert.ok(q.every(q=>enabledModes.includes(q.mode)));assert.equal(new Set(q.map(q=>q.mode)).size,enabledModes.length);
  }
- assert.equal(new Set(lib.generateQuestions({...settings,count:20},'all-modes').map(q=>q.mode)).size,6);
+ assert.equal(new Set(lib.generateQuestions({...settings,count:20},'all-modes').map(q=>q.mode)).size,7,'all seven classics, Shape Shift included (1.44)');
  assert.throws(()=>lib.generateQuestions({...settings,enabledModes:[]},'none'));
 });
 
