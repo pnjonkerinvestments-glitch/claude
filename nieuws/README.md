@@ -99,6 +99,8 @@ Alles sinds ma 5 okt, 08:40
 🧾 Claimemissies en rechtenhandel
 • UNIAXA rechten UNIPOL ASSICURAZIONI SPA (MIL, €23,0 mld) · 🆕 rechtenhandel net begonnen
    rechtenhandel begint ma 12 okt · laatste handelsdag rechten di 20 okt · inschrijving sluit ma 26 okt
+   💹 slot recht €0,70 · aandeel €24,86 · uitgifte €20,56 · 10 nieuwe aandelen per 59 rechten · bron
+   ➖ nauwelijks marge: via rechten €24,69 per aandeel = 0,7% goedkoper dan het aandeel, recht 4,0% onder z'n waarde €0,729
 
 💰 Speciaal dividend ≥ 25% van de koers
 • A3M Atresmedia: …
@@ -115,7 +117,7 @@ Alles sinds ma 5 okt, 08:40
 | Blok | Waar het vandaan komt |
 | --- | --- |
 | ⏰ Agenda | Datums uit persberichten (laatste handelsdag van claimrechten, einde inschrijving, PUSU-deadline, einde aanmeldtermijn van een bod, court meeting, PDUFA-datum, eerste handelsdag, ex-dividend), vervaldatums van claimrechten, ex-dividenddatums ≥ 25%, de IPO-kalender en wat je zelf toevoegt met `/agenda` |
-| 🧾 Claimemissies en rechtenhandel | **Rechtenkalender**: elke ochtend alle claimrechten op de Europese beurzen (TradingView kent ze als type "right", met de vervaldatum in de omschrijving), gekoppeld aan het bedrijf. 🆕 = de rechtenhandel is net begonnen. Daaronder de data uit het persbericht ("negoziabili dal 12 al 20 ottobre" → *laatste handelsdag rechten*). Plus nieuws over claimemissies (filter `claim`) |
+| 🧾 Claimemissies en rechtenhandel | **Rechtenkalender**: elke ochtend alle claimrechten op de Europese beurzen (TradingView kent ze als type "right", met de vervaldatum in de omschrijving), gekoppeld aan het bedrijf. 🆕 = de rechtenhandel is net begonnen. Daaronder de data uit het persbericht ("negoziabili dal 12 al 20 ottobre" → *laatste handelsdag rechten*) en **de rekensom**: slotprint van het recht en van het aandeel, uitgifteprijs en verhouding, en of meedoen via de rechten goedkoper is dan het aandeel kopen (zie *Claimrechten doorrekenen*). Plus nieuws over claimemissies (filter `claim`) |
 | 💰 Speciaal dividend ≥ 25% | Aangekondigd dividend uit de TradingView-screener (alle Europese aandelen, in eigen munt, gedeeld door de koers), plus speciaal-dividendnieuws: het bedrag uit het bericht naast de koers. Kleiner dan 25% wordt weggelaten |
 | 🤝 Overnames | Biedingen vanaf €250 mln in heel Europa, ook in Londen (Rule 2.7, possible offer, scheme of arrangement), met de eerstvolgende deadline uit de agenda |
 | 💶 Emissies | Placings, ABB's en kapitaalverhogingen vanaf €10 mln in heel Europa, **behalve Londen**. Een claimemissie staat bij de claimemissies |
@@ -132,6 +134,32 @@ niet meteen: ze staan alleen in het ochtendoverzicht. Met `/direct overname aan`
 ook direct. Dividend, emissie, claim, insolventie en IPO melden direct en staan daarnaast ook in het
 overzicht.
 
+**Claimrechten doorrekenen.** Per lopende claimemissie zoekt de bot de uitgifteprijs en de
+verhouding in de persberichten, in de eigen taal en in het Engels ("10 nuove azioni ogni 59 azioni",
+"3 DPS permettront de souscrire à 1 action nouvelle", "Bezugsverhältnis 7:2", "fem (5) teckningsrätter
+berättigar till teckning av en (1) ny aktie", "seven (7) unit rights entitle … one hundred (100)
+units", ...). De koersen komen van de koersverbinding van TradingView (de screener kent geen rechten).
+Dan:
+
+- waarde van één recht = (koers aandeel − uitgifteprijs) × nieuwe aandelen per recht;
+- via rechten betaal je per nieuw aandeel: uitgifteprijs + koers recht × rechten per nieuw aandeel;
+- ✅ *winstgevend* als dat minstens 1% onder de koers van het aandeel ligt, ➖ bij 0–1%, ❌ als het
+  aandeel kopen goedkoper is. Alles vóór kosten; de nieuwe aandelen komen pas na de inschrijving, dus
+  wie het verschil wil vastzetten verkoopt het aandeel short.
+
+Units (Zweden) rekent de bot alleen door als bekend is uit hoeveel aandelen een unit bestaat
+("SEK 2,40 per unit, 0,60 per aandeel"); de gratis warrants tellen niet mee. In Noorwegen geeft één
+recht doorgaans één nieuw aandeel; staat de verhouding er niet, dan rekent de bot daarmee en zegt dat
+erbij. Vindt de bot iets niet, dan staat er ❔ en kun je het zelf invullen: `/rechten UNIAXA 20,56 10/59`.
+
+**Rechtenwacht.** Tijdens de beurs (09:00–17:30; het eerste half uur elke minuut, daarna om de vijf
+minuten) rekent de bot dezelfde som met de laatprijs van het recht en de biedprijs van het aandeel.
+Is meedoen minstens 2% goedkoper dan het aandeel, dan komt er meteen een melding in het onderwerp
+Emissies, met een waarschuwing op de laatste handelsdag van de rechten. Opnieuw alleen als het
+voordeel nog een procentpunt groter wordt. Zoals bij Unipol op 20 oktober 2026: de rechten openden op
+€0,51 bij een aandeel van €24,26, dus via de rechten €23,57 per aandeel, 2,8% goedkoper (het recht
+noteerde 19% onder zijn waarde). Drempel aanpassen: `/rechtenalarm 3`, uitzetten: `/rechtenalarm 0`.
+
 **Agenda.** Van berichten over overnames, claimemissies (en emissies, om te zien of het om een
 claimemissie gaat), FDA, noteringen, IPO's, splitsingen, indexwijzigingen en speciaal dividend leest
 de bot het hele persbericht en zet de datums die nog komen in de agenda, met wat voor datum het is
@@ -145,7 +173,8 @@ het onderwerp *☀️ Ochtendoverzicht* komt erbij. Of maak het zelf en stuur da
 `/hier ochtend`. `/ochtend` toont het overzicht zoals het er nu uitziet.
 
 Hoe het werkt: de bot doet vanaf 07:00 per minuut één stap (lijst van Euronext Growth Oslo,
-noteringen, dividend, IPO-kalender, rechtenkalender, koersen voor het dividendnieuws) en leest
+noteringen, dividend, IPO-kalender, rechtenkalender, voorwaarden van de claimemissies, koersen van
+de rechten, koersen voor het dividendnieuws) en leest
 tussendoor persberichten. Om 08:40 gaat het overzicht, ook als een stap mislukte; dat staat er dan
 onderaan. De eerste ochtend legt alleen vast welke noteringen er al zijn; nieuwe noteringen zie je
 vanaf de dag erna.
@@ -252,6 +281,9 @@ onderwerp, dan komt hij in elk van die onderwerpen.
 | `/agenda` | alles wat gepland staat (komende 4 maanden), met nummers |
 | `/agenda 23-10 PFSE einde bod` | zelf iets in de agenda zetten (ook `23-10-2026`, `2026-10-23`, `23 okt`) |
 | `/agendaweg 12` | agendapunt weghalen |
+| `/rechten` | lopende claimemissies met slotkoersen, uitgifteprijs, verhouding en of meedoen loont |
+| `/rechten UNIAXA 20,56 10/59` | zelf uitgifteprijs en verhouding invullen (10 nieuwe aandelen per 59 rechten); `/rechten UNIAXA weg` laat de bot opnieuw zoeken (eigenaar) |
+| `/rechtenalarm 2` | melding tijdens de beurs als meedoen via de rechten 2% goedkoper is dan het aandeel; 0 = uit (eigenaar) |
 | `/direct overname aan` / `uit` | filter ook direct melden, of alleen in het ochtendoverzicht (eigenaar) |
 | `/hier ochtend` | ochtendoverzicht naar dit onderwerp (eigenaar) |
 

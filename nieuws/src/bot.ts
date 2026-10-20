@@ -35,7 +35,21 @@ import {
 } from "./screener.ts";
 import { addDays, formatDay, localTime, relativeDay } from "./dates.ts";
 import { minCaps, setMinCap } from "./size.ts";
-import { DIGEST, OFF_KEY, SENT_DATE_KEY, nextDigest, previewDigest } from "./morning.ts";
+import type { DayState } from "./morning.ts";
+import {
+  DAY_KEY,
+  DIGEST,
+  OFF_KEY,
+  RIGHTS_ALERT_KEY,
+  SENT_DATE_KEY,
+  loadTerms,
+  nextDigest,
+  previewDigest,
+  rightsAlertThreshold,
+  rightsCalcLines,
+  saveTerms,
+} from "./morning.ts";
+import { parseNumber } from "./amount.ts";
 import type { Store, WatchEntry } from "./store.ts";
 import type { Telegram, TelegramMessage } from "./telegram.ts";
 import { escapeHtml, formatNewsMessage } from "./telegram.ts";
@@ -82,6 +96,9 @@ export const HELP = [
   "/agenda · deadlines, PDUFA-datums, eerste handelsdagen, ex-dividend, ...",
   "/agenda 23-10 PFSE einde aanmeldtermijn · zelf iets in de agenda zetten",
   "/agendaweg 12 · agendapunt weghalen",
+  "/rechten · lopende claimemissies: slotkoersen, uitgifteprijs, verhouding en of meedoen loont",
+  "/rechten UNIAXA 20,56 10/59 · zelf prijs en verhouding invullen (10 nieuwe aandelen per 59 rechten)",
+  "/rechtenalarm 2 · melding tijdens de beurs als meedoen via rechten 2% goedkoper is dan het aandeel (0 = uit) 🔒",
   "",
   "<b>Screener</b>",
   "/marktwaarde 2,5 500 · bandbreedte in miljoen euro 🔒",
@@ -100,7 +117,7 @@ export const HELP = [
 ].join("\n");
 
 /** Commando's die alles voor iedereen omgooien; die blijven bij de eigenaar. */
-const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik", "/direct", "/minimum"]);
+const OWNER_ONLY = new Set(["/hier", "/filterweg", "/bereik", "/direct", "/minimum", "/rechtenalarm"]);
 
 function findInList(watch: WatchEntry[], query: string): WatchEntry | undefined {
   const wanted = query.trim().toUpperCase();
@@ -605,6 +622,64 @@ async function minimum(deps: BotDeps, args: string): Promise<string> {
     : `✅ Filter ${escapeHtml(rawName)}: geen minimale marktwaarde meer.`;
 }
 
+async function rights(deps: BotDeps, args: string): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+  const today = localTime(now, deps.config.timeZone).date;
+  let state: Partial<DayState> = {};
+  try {
+    state = JSON.parse((await deps.store.getSetting(DAY_KEY)) ?? "{}") as DayState;
+  } catch {
+    // Geen stand: dan alleen wat zelf ingevoerd is.
+  }
+  const lines = state.rights ?? [];
+  const terms = await loadTerms(deps.store);
+  const [rawSymbol = "", ...rest] = args.trim().split(/\s+/).filter(Boolean);
+  if (!rawSymbol) {
+    if (!lines.length) return "Er lopen nu geen claimemissies (of de bot heeft de rechtenkalender vandaag nog niet opgehaald; dat gebeurt vanaf 07:00).";
+    const out = [`<b>Claimemissies</b> (koersen van ${escapeHtml(state.date ? formatDay(state.date, today) : "vandaag")}, ochtend)`];
+    for (const line of [...lines].sort((a, b) => (a.expiry || "9").localeCompare(b.expiry || "9"))) {
+      const expiry = line.expiry ? ` · inschrijving tot ${escapeHtml(formatDay(line.expiry, today))}` : "";
+      out.push(`• <b>${escapeHtml(line.symbol.split(":").pop() ?? line.symbol)}</b> rechten ${escapeHtml(line.company)} (${escapeHtml(line.exchange)})${expiry}`);
+      out.push(...rightsCalcLines(line, terms[line.symbol], state.quotes, today, deps.config.timeZone));
+    }
+    out.push("", "Zelf invullen: /rechten UNIAXA 20,56 10/59 · weghalen: /rechten UNIAXA weg");
+    return out.join("\n").slice(0, 4000);
+  }
+  const wanted = rawSymbol.toUpperCase();
+  const line = lines.find((l) => l.symbol === wanted || l.symbol.split(":").pop() === wanted);
+  const symbol = line?.symbol ?? (wanted.includes(":") ? wanted : "");
+  if (!symbol) return `Geen lopende rechten met ticker ${escapeHtml(wanted)}. Zie /rechten, of gebruik beurs:ticker (MIL:UNIAXA).`;
+  if (/^(weg|wis|reset)$/i.test(rest[0] ?? "")) {
+    delete terms[symbol];
+    await saveTerms(deps.store, terms);
+    return `🗑️ Voorwaarden van ${escapeHtml(symbol)} weg; de bot zoekt ze morgenochtend opnieuw in het nieuws.`;
+  }
+  const price = rest[0] ? parseNumber(rest[0].replace(/^[€$£]/, "")) : NaN;
+  const ratio = /^(\d+(?:[.,]\d+)?)\s*[/:]\s*(\d+(?:[.,]\d+)?)$/.exec(rest[1] ?? "");
+  if (!(price > 0) || !ratio) {
+    return "Gebruik: /rechten &lt;ticker&gt; &lt;uitgifteprijs&gt; &lt;nieuwe aandelen&gt;/&lt;rechten&gt;\nBijvoorbeeld: /rechten UNIAXA 20,56 10/59 (10 nieuwe aandelen per 59 rechten, €20,56 per aandeel)";
+  }
+  const newShares = parseNumber(ratio[1]);
+  const perRights = parseNumber(ratio[2]);
+  terms[symbol] = { price, newShares, perRights, manual: true, checked: today };
+  await saveTerms(deps.store, terms);
+  return `✅ ${escapeHtml(symbol)}: uitgifte ${escapeHtml(rest[0])}, ${newShares} nieuw per ${perRights} ${perRights === 1 ? "recht" : "rechten"}. Staat morgen in het ochtendoverzicht en telt mee voor /rechtenalarm.`;
+}
+
+async function rightsAlert(deps: BotDeps, args: string): Promise<string> {
+  const raw = args.trim().toLowerCase().replace("%", "");
+  if (!raw) {
+    const now = await rightsAlertThreshold(deps.store);
+    return now
+      ? `🧾 Rechtenalarm: melding als meedoen via de rechten minstens ${String(now * 100).replace(".", ",")}% goedkoper is dan het aandeel (laat van het recht tegen bied van het aandeel), tijdens de beurs. Aanpassen: /rechtenalarm 3 · uit: /rechtenalarm 0`
+      : "🧾 Rechtenalarm staat uit. Aanzetten: /rechtenalarm 2";
+  }
+  const value = raw === "uit" ? 0 : parseNumber(raw);
+  if (!Number.isFinite(value) || value < 0 || value > 50) return "Gebruik: /rechtenalarm 2 (procent), of /rechtenalarm 0 om uit te zetten";
+  await deps.store.setSetting(RIGHTS_ALERT_KEY, String(value / 100));
+  return value ? `✅ Rechtenalarm vanaf ${escapeHtml(raw)}% voordeel.` : "✅ Rechtenalarm staat uit.";
+}
+
 /** Verwerkt één binnengekomen bericht. */
 export async function handleMessage(deps: BotDeps, message: TelegramMessage): Promise<void> {
   // Groep is supergroep geworden: nieuw chat-id overnemen als dit de meldingenchat was.
@@ -637,7 +712,7 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
   if (!isOwner) {
     const inAlertGroup = isGroup && message.chatId === (await alertChat(deps.store, deps.fixedChatId));
     if (!inAlertGroup) return;
-    if (OWNER_ONLY.has(command) || (["/marktwaarde", "/onderwerpen", "/ochtend"].includes(command) && args.trim())) {
+    if (OWNER_ONLY.has(command) || (["/marktwaarde", "/onderwerpen", "/ochtend", "/rechten", "/claim"].includes(command) && args.trim())) {
       await answer("🔒 Dat kan alleen de beheerder van de bot.");
       return;
     }
@@ -715,6 +790,13 @@ export async function handleMessage(deps: BotDeps, message: TelegramMessage): Pr
       break;
     case "/minimum":
       reply = await minimum(deps, args);
+      break;
+    case "/rechten":
+    case "/claim":
+      reply = await rights(deps, args);
+      break;
+    case "/rechtenalarm":
+      reply = await rightsAlert(deps, args);
       break;
     default:
       reply = `Dat commando ken ik niet.\n\n${HELP}`;

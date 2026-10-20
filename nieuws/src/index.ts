@@ -9,7 +9,8 @@
 // rekentijd, 50 uitgaande verzoeken en 50 databasevragen. Zo kan geen van beide de volglijst
 // laten vastlopen.
 
-import { ALERT_THREAD_KEY, AlertSender, WATCHLIST, alertChat, loadRoutes, saveRoutes } from "./alerts.ts";
+import { ALERT_THREAD_KEY, AlertSender, WATCHLIST, alertChat, filterCategory, loadRoutes, saveRoutes } from "./alerts.ts";
+import { workerSocket } from "./quotes.ts";
 import { LAST_MORNING_KEY, LAST_RUN_KEY, LAST_SCREEN_KEY, processUpdates } from "./bot.ts";
 import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
@@ -199,9 +200,13 @@ export async function runMorning(env: Env, now = Math.floor(Date.now() / 1000)):
     const thread = Number(await store.getSetting(ALERT_THREAD_KEY)) || undefined;
     const sender = new AlertSender(store, new Telegram(env.TELEGRAM_BOT_TOKEN, fetcher), chatId, thread);
     const log = (text: string) => console.log(text);
-    const result = await runMorningStep({ store, config, fetcher, now, log }, (html) => sender.send(html, [DIGEST]));
+    const result = await runMorningStep(
+      { store, config, fetcher, now, log, openSocket: workerSocket(fetcher), alert: (html) => sender.send(html, [filterCategory("claim")]) },
+      (html) => sender.send(html, [DIGEST]),
+    );
     for (const error of result.errors) console.error(error);
     if (result.sent) console.log(`ochtendoverzicht verstuurd (${result.sent} bericht(en)).`);
+    if (result.alerts) console.log(`rechtenwacht: ${result.alerts} melding(en) verstuurd.`);
     if (result.step || result.sent || result.errors.length) {
       await store.setSetting(LAST_MORNING_KEY, JSON.stringify({ at: now, step: result.step ?? null, sent: result.sent ?? 0, errors: result.errors }));
     }

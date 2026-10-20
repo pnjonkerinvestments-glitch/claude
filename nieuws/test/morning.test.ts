@@ -18,7 +18,8 @@ import { checkScreener, groupFilters, matchFilters } from "../src/screener.ts";
 import { flattenStory } from "../src/tradingview.ts";
 import { parseValuation } from "../src/size.ts";
 import { parseGrowthCsv } from "../src/growth.ts";
-import { FakeNet, MemoryStore, item } from "./helpers.ts";
+import type { OpenSocket } from "../src/quotes.ts";
+import { FakeNet, MemoryStore, fakeSocket, item } from "./helpers.ts";
 
 const TZ = "Europe/Amsterdam";
 const config = loadConfig({ STORY_DETAILS: "false", SCREEN_FEEDS: "en:DE,GB" } as never);
@@ -294,14 +295,14 @@ function morningNet() {
 }
 
 async function runDay(
-  deps: { store: MemoryStore; net: FakeNet },
+  deps: { store: MemoryStore; net: FakeNet; socket?: OpenSocket },
   date: string,
   from: string,
   to: string,
   sent: string[],
 ): Promise<void> {
   for (let now = at(date, from); now <= at(date, to); now += 60) {
-    await runMorningStep({ store: deps.store, config, fetcher: deps.net.fetch, now }, async (html) => void sent.push(html));
+    await runMorningStep({ store: deps.store, config, fetcher: deps.net.fetch, now, openSocket: deps.socket }, async (html) => void sent.push(html));
   }
 }
 
@@ -349,6 +350,26 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, claimemiss
       children: [{ type: "p", children: ["I diritti di opzione saranno esercitabili dal 12 al 26 ottobre e negoziabili dal 12 al 20 ottobre."] }],
     },
   });
+  // Uitgifteprijs en verhouding staan in het Italiaanse bericht over de claimemissie.
+  net.news.set("MIL:UNI", {
+    items: [
+      item("u0", "Unipol, utile semestrale in crescita", night - 3600, { relatedSymbols: [{ symbol: "MIL:UNI" }] }),
+      item("u1", "Unipol, prezzo aumento capitale fissato a 20,56 euro, al via il 12 ottobre", night, { relatedSymbols: [{ symbol: "MIL:UNI" }] }),
+    ],
+  });
+  net.stories.set("u1", {
+    astDescription: {
+      type: "root",
+      children: [
+        {
+          type: "p",
+          children: [
+            "L'operazione prevede l'emissione di massime 121.582.320 nuove azioni, da offrire in opzione agli azionisti nel rapporto di 10 nuove azioni ogni 59 azioni Unipol detenute.",
+          ],
+        },
+      ],
+    },
+  });
   primary.push({ s: "SIX:INFOM", d: ["Infomaniak Network SA", "SIX", "Switzerland", "CH0000000001"] });
   other.push({ s: "EURONEXT:PFSE", d: ["Pfisterer Holding SE", "EURONEXT", "Germany", "DE000PFSE001"] });
   // Ruis van 7 oktober: oude of kleine aandelen die even uit de lijst waren, en extra handelslijnen.
@@ -363,9 +384,14 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, claimemiss
   );
   await store.setSetting("routes", JSON.stringify({ [DIGEST]: { chat: "-100", thread: 77 } }));
 
-  await runDay({ store, net }, "2026-10-06", "06:55", "08:39", sent);
+  // Slotprints van maandag: recht €0,70, aandeel €24,86.
+  const socket = fakeSocket({
+    "MIL:UNIAXA": { lp: 0.7, lp_time: at("2026-10-05", "17:35"), currency_code: "EUR" },
+    "MIL:UNI": { lp: 24.86, lp_time: at("2026-10-05", "17:35"), currency_code: "EUR" },
+  });
+  await runDay({ store, net, socket: socket.open }, "2026-10-06", "06:55", "08:39", sent);
   assert.equal(sent.length, 0, "niets vóór 08:40");
-  await runDay({ store, net }, "2026-10-06", "08:40", "10:00", sent);
+  await runDay({ store, net, socket: socket.open }, "2026-10-06", "08:40", "10:00", sent);
   assert.equal(sent.length, 1, "precies één keer");
   const text = sent[0];
 
@@ -383,7 +409,7 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, claimemiss
   // Claimemissie: rechtenlijn met alle data, en het emissiebericht niet nog eens onder Emissies.
   assert.match(
     text,
-    /Claimemissies en rechtenhandel<\/b>\n• <b>UNIAXA<\/b> rechten UNIPOL ASSICURAZIONI SPA \(MIL, €23,0 mld\) · 🆕 <b>rechtenhandel net begonnen<\/b>\n   rechtenhandel begint <b>ma 12 okt<\/b> \(over 6 dagen\) · laatste handelsdag rechten <b>di 20 okt<\/b> \(over 14 dagen\) · inschrijving sluit <b>ma 26 okt<\/b> \(over 20 dagen\) · rechten vervallen <b>ma 26 okt<\/b> \(over 20 dagen\)\n\n/,
+    /Claimemissies en rechtenhandel<\/b>\n• <b>UNIAXA<\/b> rechten UNIPOL ASSICURAZIONI SPA \(MIL, €23,0 mld\) · 🆕 <b>rechtenhandel net begonnen<\/b>\n   rechtenhandel begint <b>ma 12 okt<\/b> \(over 6 dagen\) · laatste handelsdag rechten <b>di 20 okt<\/b> \(over 14 dagen\) · inschrijving sluit <b>ma 26 okt<\/b> \(over 20 dagen\) · rechten vervallen <b>ma 26 okt<\/b> \(over 20 dagen\)\n   💹 slot recht €0,70 · aandeel €24,86 · uitgifte €20,56 · 10 nieuwe aandelen per 59 rechten · <a href="https:\/\/www.tradingview.com\/news\/u1\/">bron<\/a>\n   ➖ nauwelijks marge: via rechten €24,69 per aandeel = 0,7% goedkoper dan het aandeel, recht 4,0% onder z'n waarde €0,729\n\n/,
   );
   assert.ok(!text.includes("OLDR"), "verlopen rechten");
   assert.match(text, /ma 12 okt<\/b> \(over 6 dagen\) <b>UNI<\/b> \(MIL\) · rechtenhandel begint/);

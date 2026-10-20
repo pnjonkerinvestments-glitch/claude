@@ -21,6 +21,7 @@ import { dividendPayload, ipoPayload, parseDividends } from "../src/morning.ts";
 import { scanner } from "../src/tradingview.ts";
 import { fetchGrowthOslo } from "../src/growth.ts";
 import { RIGHTS_EXCHANGES, searchRights } from "../src/rights.ts";
+import { fetchQuotes, nodeSocket } from "../src/quotes.ts";
 
 const symbols = process.argv.slice(2).length ? process.argv.slice(2) : ["XETR:1INN"];
 const langs = ["de", "en"];
@@ -187,9 +188,20 @@ try {
     }
   }
   console.log(`== claimrechten: ${all.length}`, all.slice(0, 8).map((r) => `${r.symbol} ${r.company} ${r.expiry || "?"}`).join(" | "));
+  // Koersen van rechten komen via de websocket van TradingView (de screener kent ze niet).
+  try {
+    const symbols = ["XETR:SAP", ...all.slice(0, 5).map((r) => r.symbol)];
+    const quotes = await fetchQuotes(nodeSocket(), symbols);
+    console.log(`== koersen: ${quotes.size} van ${symbols.length}`, [...quotes.values()].map((q) => `${q.symbol} ${q.last} ${q.currency}`).join(" | "));
+    if (!quotes.get("XETR:SAP")?.last) throw new Error("geen koers voor XETR:SAP");
+  } catch (error) {
+    console.log(`!! koersen: ${(error as Error).message}`);
+    problems++;
+  }
 }
 
 if (problems) {
   console.error(`\n${problems} probleem/problemen gevonden`);
   process.exit(1);
 }
+process.exit(0);
