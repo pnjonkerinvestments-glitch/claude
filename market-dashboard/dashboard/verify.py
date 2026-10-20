@@ -1,0 +1,96 @@
+"""`python -m dashboard verify`: hits every configured source once and reports what came back."""
+
+from __future__ import annotations
+
+from datetime import date, timedelta
+
+from . import refresh
+from .sources import cboe, cftc, fred, prices
+from .sources.http import client
+
+
+def _report(ok: bool, name: str, detail: str) -> bool:
+    print(f"[{'OK ' if ok else 'FAIL'}] {name}: {detail}")
+    return ok
+
+
+def _check(name, fn) -> bool:
+    try:
+        ok, detail = fn()
+    except Exception as exc:
+        ok, detail = False, f"{type(exc).__name__}: {exc}"
+    return _report(ok, name, detail)
+
+
+def verify(cfg: dict) -> int:
+    today = date.today()
+    results = []
+
+    def fred_check(series_id):
+        def run():
+            data = fred.fetch_series(cfg["fred"]["api_url"], cfg["fred_api_key"], series_id,
+                                     (today - timedelta(days=14)).isoformat())
+            last = max(data) if data else None
+            return bool(data), f"{len(data)} obs, latest {last} = {data.get(last)}"
+        return run
+
+    for sid in cfg["fred"]["series"]:
+        results.append(_check(f"FRED {sid}", fred_check(sid)))
+
+    def cboe_check(sym):
+        def run():
+            data = cboe.fetch_index_history(cfg["cboe"]["index_history_url"], sym)
+            last = max(data) if data else None
+            return bool(data), f"{len(data)} rows, latest {last} = {data.get(last)}"
+        return run
+
+    for sym in cfg["cboe"]["vix_symbols"]:
+        results.append(_check(f"CBOE {sym}", cboe_check(sym)))
+
+    def pc_check():
+        with client() as http:
+            for back in range(1, 8):
+                day = today - timedelta(days=back)
+                if day.weekday() < 5:
+                    ratios = cboe.fetch_put_call(cfg["cboe"]["put_call_url"], day.isoformat(), http)
+                    if ratios:
+                        return "equity" in ratios and "index" in ratios, f"{day}: {ratios}"
+        return False, "no put/call file found for the last 7 days"
+
+    results.append(_check("CBOE put/call", pc_check))
+
+    def cftc_check():
+        codes = cfg["cftc"]["contracts"]
+        rows = cftc.fetch_tff(cfg["cftc"]["api_url"], list(codes),
+                              (today - timedelta(weeks=4)).isoformat())
+        parsed = cftc.parse_rows(rows)
+        lines = []
+        for code, label in codes.items():
+            by_date = parsed.get(code)
+            if by_date:
+                last = max(by_date)
+                lines.append(f"{code} ({label}) -> '{by_date[last]['name']}' as of {last}")
+            else:
+                lines.append(f"{code} ({label}) -> NO ROWS")
+        return all(c in parsed for c in codes), "\n       " + "\n       ".join(lines)
+
+    results.append(_check("CFTC TFF", cftc_check))
+
+    def yahoo_check(tickers, optional=()):
+        def run():
+            data = prices.download_closes(tickers, "5d")
+            missing = [t for t in tickers if t not in data]
+            hard = [t for t in missing if t not in optional]
+            detail = f"{len(data)}/{len(tickers)} tickers with data"
+            if missing:
+                detail += f"; missing: {', '.join(missing)}"
+            return not hard, detail
+        return run
+
+    vstoxx = cfg["prices"].get("vstoxx_ticker")
+    results.append(_check("Yahoo indices/ETFs", yahoo_check(refresh.price_tickers(cfg),
+                                                            optional=(vstoxx,))))
+    results.append(_check("Yahoo index members", yahoo_check(refresh.component_tickers(cfg))))
+
+    print(f"\n{sum(results)}/{len(results)} checks passed.")
+    return 0 if all(results) else 1

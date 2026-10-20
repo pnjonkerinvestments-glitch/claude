@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Overview</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header id="ticker-tape" class="ticker"></header>
+
+  <main class="grid">
+    <section class="block" id="regime" style="grid-area: regime">
+      <div class="block-head"><h2>Market regime</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="indicators"></div>
+      <div class="verdict"></div>
+    </section>
+
+    <section class="block" id="today" style="grid-area: today">
+      <div class="block-head"><h2>Today</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="expected"></div>
+      <h3>Economic calendar <span class="muted">US &amp; euro area, high importance</span></h3>
+      <div id="calendar" class="widget calendar"></div>
+      <h3>Sector heatmap
+        <span class="toggle" role="group" aria-label="Heatmap market">
+          <button type="button" data-heatmap="europe" class="active">Europe</button>
+          <button type="button" data-heatmap="us">S&amp;P 500</button>
+        </span>
+      </h3>
+      <div id="heatmap" class="widget heatmap"></div>
+    </section>
+
+    <section class="block" id="rates" style="grid-area: rates">
+      <div class="block-head"><h2>Rates &amp; credit</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="table-wrap"><table class="rates-table">
+        <thead><tr><th>Series</th><th class="num">Value</th><th class="num">1d</th><th>3 months</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </section>
+
+    <section class="block" id="positioning" style="grid-area: positioning">
+      <div class="block-head"><h2>Positioning &amp; sentiment</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <h3>COT, Traders in Financial Futures <span class="muted cot-date"></span></h3>
+      <div class="table-wrap"><table class="cot-table">
+        <thead>
+          <tr><th rowspan="2">Contract</th><th colspan="3" class="grp">Leveraged funds</th><th colspan="3" class="grp">Asset managers</th></tr>
+          <tr><th class="num">Net</th><th class="num">1w</th><th class="num" title="Percentile of net position within its 3-year range">Index</th>
+              <th class="num">Net</th><th class="num">1w</th><th class="num" title="Percentile of net position within its 3-year range">Index</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table></div>
+      <div class="charts-2">
+        <figure><figcaption>Equity put/call, 3 months</figcaption><div class="chart"><canvas id="pc-equity"></canvas></div></figure>
+        <figure><figcaption>Index put/call, 3 months</figcaption><div class="chart"><canvas id="pc-index"></canvas></div></figure>
+      </div>
+      <figure><figcaption>VIX term structure, 3 months</figcaption><div class="chart"><canvas id="vix-term"></canvas></div></figure>
+    </section>
+
+    <section class="block" id="riskonoff" style="grid-area: riskonoff">
+      <div class="block-head"><h2>Risk-on / risk-off</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="ratio-charts"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+# Market overview dashboard configuration.
+# All regime thresholds live here. Restart the dashboard after editing.
+
+server:
+  host: 127.0.0.1        # use 0.0.0.0 to let colleagues connect; overridable with --host / DASHBOARD_HOST
+  port: 8050             # overridable with --port / DASHBOARD_PORT
+
+timezone: Europe/Amsterdam
+database: data/dashboard.sqlite
+
+# ---------------------------------------------------------------------------
+# Refresh schedule (times in Europe/Amsterdam)
+# ---------------------------------------------------------------------------
+refresh:
+  daily_times: ["18:00", "22:30"]   # prices, breadth, ratios, FRED, CBOE
+  daily_days: mon-fri
+  cot_time: "22:00"                 # CFTC publishes Friday 15:30 ET
+  cot_day: fri
+
+# ---------------------------------------------------------------------------
+# Block 1: market regime thresholds
+# Every indicator scores green = +1, orange = 0, red = -1.
+# ---------------------------------------------------------------------------
+regime:
+  trend:
+    # Number of moving averages (20, 50, 200 day) the index closes above.
+    moving_averages: [20, 50, 200]
+    green_min_above: 3      # above all three -> green
+    orange_min_above: 1     # above 1 or 2 -> orange, above none -> red
+
+  breadth:
+    # % of index members above their 50- and 200-day average.
+    green_min_pct: 60       # both >= 60% -> green
+    red_max_pct: 40         # both <= 40% -> red, otherwise orange
+
+  vix_level:
+    green_below: 18
+    red_above: 25
+
+  vix_term_structure:
+    # Ratio VIX / VIX3M. Below 1 = contango (normal), above 1 = backwardation (stress).
+    green_below: 0.95
+    red_above: 1.00
+
+  vstoxx_level:
+    green_below: 20
+    red_above: 27
+
+  put_call:
+    # Percentile of the 5-day average CBOE equity put/call ratio within the last year.
+    # A high put/call ratio means heavy hedging (fear).
+    average_days: 5
+    lookback_days: 252
+    green_below_pct: 60
+    red_above_pct: 85
+
+  credit:
+    # ICE BofA US High Yield OAS, in percent; change over 20 observations in basis points.
+    change_days: 20
+    green_max_level: 4.0
+    green_max_change_bp: 0
+    red_min_level: 5.0
+    red_min_change_bp: 50
+
+  yield_curve:
+    # 10Y minus 2Y in percentage points.
+    green_above: 0.50
+    red_below: 0.00
+
+  verdict:
+    # score = (#green - #red) / #indicators with data, in percent.
+    risk_on_min_pct: 33
+    risk_off_max_pct: -33
+
+# ---------------------------------------------------------------------------
+# Data sources
+# ---------------------------------------------------------------------------
+prices:
+  history_period: 2y       # fetched on first start (enough for 200-day averages)
+  update_period: 1mo       # fetched on each scheduled refresh
+  indices:
+    SPX:   {ticker: "^GSPC",    name: "S&P 500"}
+    NDX:   {ticker: "^NDX",     name: "Nasdaq-100"}
+    SX5E:  {ticker: "^STOXX50E", name: "Euro Stoxx 50"}
+    DAX:   {ticker: "^GDAXI",   name: "DAX"}
+    AEX:   {ticker: "^AEX",     name: "AEX"}
+  vstoxx_ticker: "^V2TX"   # optional; the VSTOXX parts are hidden when this returns no data
+  ratios:
+    HYG_IEF:     {numerator: "HYG",  denominator: "IEF", name: "HYG / IEF"}
+    COPPER_GOLD: {numerator: "HG=F", denominator: "GC=F", name: "Copper / gold"}
+    RSP_SPY:     {numerator: "RSP",  denominator: "SPY", name: "RSP / SPY"}
+  ratio_ma_days: 50
+  ratio_chart_days: 126    # about 6 months
+
+# Index members used for breadth (Yahoo Finance tickers).
+# Checked against Wikipedia constituent tables, Oct 2026. Membership changes at index
+# reviews (quarterly for DAX/AEX, September for Euro Stoxx 50); update the lists then.
+breadth_components:
+  SX5E: [ABI.BR, AD.AS, ADS.DE, ADYEN.AS, AI.PA, AIR.PA, ALV.DE, ARGX.BR, ASML.AS, BAS.DE,
+         BAYN.DE, BBVA.MC, BMW.DE, BN.PA, BNP.PA, CS.PA, DB1.DE, DBK.DE, DG.PA, DHL.DE,
+         DTE.DE, EL.PA, ENEL.MI, ENI.MI, ENR.DE, IBE.MC, IFX.DE, INGA.AS, ISP.MI, ITX.MC,
+         MBG.DE, MC.PA, MUV2.DE, NDA-FI.HE, OR.PA, PRX.AS, RACE.MI, RHM.DE, RMS.PA, SAF.PA,
+         SAN.MC, SAN.PA, SAP.DE, SGO.PA, SIE.DE, SU.PA, TTE.PA, UCG.MI, VOW3.DE, WKL.AS]
+  DAX:  [ADS.DE, AIR.DE, ALV.DE, BAS.DE, BAYN.DE, BEI.DE, BMW.DE, BNR.DE, CBK.DE, CON.DE,
+         DB1.DE, DBK.DE, DHL.DE, DTE.DE, DTG.DE, ENR.DE, EOAN.DE, FME.DE, FRE.DE, G1A.DE,
+         HEI.DE, HEN3.DE, HNR1.DE, IFX.DE, MBG.DE, MRK.DE, MTX.DE, MUV2.DE, PAH3.DE, QIA.DE,
+         RHM.DE, RWE.DE, SAP.DE, SHL.DE, SIE.DE, G24.DE, SY1.DE, VNA.DE, VOW3.DE, ZAL.DE]
+  AEX:  [ABN.AS, AD.AS, ADYEN.AS, AGN.AS, AKZA.AS, ASM.AS, ASML.AS, ASRNL.AS, BESI.AS, DSFIR.AS,
+         EXO.AS, HEIA.AS, IMCD.AS, INGA.AS, KPN.AS, MT.AS, NN.AS, PHIA.AS, PRX.AS,
+         RAND.AS, REN.AS, SHELL.AS, UMG.AS, UNA.AS, WKL.AS]
+
+cboe:
+  index_history_url: "https://cdn.cboe.com/api/global/us_indices/daily_prices/{symbol}_History.csv"
+  vix_symbols: [VIX9D, VIX, VIX3M]
+  put_call_url: "https://cdn.cboe.com/data/us/options/market_statistics/daily/{date}_daily_options"
+  put_call_history_days: 380   # calendar days fetched on first start
+  chart_days: 63               # about 3 months
+
+fred:
+  api_url: "https://api.stlouisfed.org/fred/series/observations"
+  history_days: 400
+  sparkline_days: 63
+  series:
+    DGS2:         "US 2Y"
+    DGS10:        "US 10Y"
+    DGS30:        "US 30Y"
+    T10Y2Y:       "2s10s spread"
+    DFII10:       "US 10Y real yield"
+    BAMLH0A0HYM2: "High-yield spread (OAS)"
+
+cftc:
+  # Traders in Financial Futures, futures only (Socrata dataset on publicreporting.cftc.gov)
+  api_url: "https://publicreporting.cftc.gov/resource/gpe5-46if.json"
+  history_weeks: 160           # 3-year COT index plus a margin
+  index_weeks: 156
+  contracts:
+    "13874A": "E-mini S&P 500"
+    "209742": "Nasdaq-100 E-mini"
+    "043602": "10Y T-Note"
+    "099741": "Euro FX"
+    "1170E1": "VIX futures"
+
+# ---------------------------------------------------------------------------
+# TradingView widgets (free embeds; see README for delays)
+# ---------------------------------------------------------------------------
+tradingview:
+  ticker_tape:
+    - {proName: "CME_MINI:ES1!",   title: "ES"}
+    - {proName: "CME_MINI:NQ1!",   title: "NQ"}
+    - {proName: "TVC:SX5E",        title: "Euro Stoxx 50"}
+    - {proName: "XETR:DAX",        title: "DAX"}
+    - {proName: "EURONEXT:AEX",    title: "AEX"}
+    - {proName: "TVC:VIX",         title: "VIX"}
+    - {proName: "TVC:US10Y",       title: "US 10Y"}
+    - {proName: "TVC:DE10Y",       title: "Bund 10Y"}
+    - {proName: "FX:EURUSD",       title: "EUR/USD"}
+    - {proName: "TVC:UKOIL",       title: "Brent"}
+    - {proName: "TVC:GOLD",        title: "Gold"}
+  calendar:
+    countries: "us,eu"
+    importance: "1"            # 1 = high importance only; "0,1" adds medium
+  heatmap:
+    europe: "SX5E"
+    us: "SPX500"
