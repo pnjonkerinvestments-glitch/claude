@@ -30,8 +30,8 @@ cp .env.example .env        # then fill in FRED_API_KEY
    **Request API Key**. Describe the use briefly (e.g. "internal market dashboard").
 3. Put the 32-character key in `.env`: `FRED_API_KEY=...`
 
-Without a key, the "Rates & credit" block and the credit and yield-curve indicators show
-a warning. Everything else keeps working.
+Without a key, the dashboard uses FRED's public CSV download (the one behind FRED's own
+charts) for the same series. That works today, but the API with a key is the supported route.
 
 ## Starting
 
@@ -103,7 +103,8 @@ markets are under `tradingview:`.
   therefore show "n/a" and are not counted. If you find a free Yahoo-style ticker, set
   `prices.vstoxx_ticker` and they appear automatically.
 - **CBOE VIX history** comes from `cdn.cboe.com`, which redirects to `cdn-api.cboe.com`.
-  Behind a strict firewall, allow both.
+  Behind a strict firewall, allow both. If CBOE cannot be reached, VIX, VIX9D and VIX3M are
+  taken from Yahoo (`^VIX`, `^VIX9D`, `^VIX3M`), which carries the same index closes.
 - **Put/call ratios** come from CBOE's daily market statistics, published the next
   morning. The latest value is therefore always the previous US session.
 - **COT** shows positions as of Tuesday, published the following Friday.
@@ -131,3 +132,11 @@ Delays can change. Hovering over a symbol in a widget shows TradingView's own st
 If a symbol shows "only available on TradingView", replace it under
 `tradingview.ticker_tape` in `config.yaml` (e.g. `FOREXCOM:SPXUSD` for the S&P 500).
 The calendar shows times in the browser's time zone (Amsterdam on our machines).
+
+The heatmap data sets come from TradingView's widget code: `SX5E` (Euro Stoxx 50) for
+Europe and `SPX500` for the S&P 500. `DAX`, `AEX`, `SXXP` (STOXX 600) and `AllEU` also work.
+
+The widgets need these hosts in the browser: `s3.tradingview.com`,
+`www.tradingview-widget.com`, `widgetdata.tradingview.com`, `pushstream.tradingview.com`,
+`scanner.tradingview.com`, `chartevents-reuters.tradingview.com` and
+`widget-sheriff.tradingview-widget.com`. Chart.js loads from `cdn.jsdelivr.net`.
