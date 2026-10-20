@@ -110,6 +110,7 @@ breadth_components:
          RAND.AS, REN.AS, SHELL.AS, UMG.AS, UNA.AS, WKL.AS]
 
 cboe:
+  # Falls back to Yahoo (^VIX, ^VIX9D, ^VIX3M) when CBOE cannot be reached.
   index_history_url: "https://cdn.cboe.com/api/global/us_indices/daily_prices/{symbol}_History.csv"
   vix_symbols: [VIX9D, VIX, VIX3M]
   put_call_url: "https://cdn.cboe.com/data/us/options/market_statistics/daily/{date}_daily_options"
@@ -117,7 +118,8 @@ cboe:
   chart_days: 63               # about 3 months
 
 fred:
-  api_url: "https://api.stlouisfed.org/fred/series/observations"
+  api_url: "https://api.stlouisfed.org/fred/series/observations"   # used with FRED_API_KEY
+  csv_url: "https://fred.stlouisfed.org/graph/fredgraph.csv"        # keyless fallback
   history_days: 400
   sparkline_days: 63
   series:

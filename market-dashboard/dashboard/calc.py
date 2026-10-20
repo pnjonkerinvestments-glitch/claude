@@ -157,10 +157,13 @@ def regime_verdict(colors: list[str], risk_on_min_pct: float, risk_off_max_pct: 
         label = "Risk-off"
     else:
         label = "Neutral"
+    def sign(x: float, spec: str) -> str:
+        return format(x, spec).replace("-", "−")
+
     explanation = (
         f"{counts[GREEN]} green (+1), {counts[ORANGE]} orange (0), {counts[RED]} red (−1)"
-        f" → score {score:+d} of {counted} = {pct:+.0f}%. "
-        f"Risk-on at ≥ {risk_on_min_pct:+g}%, risk-off at ≤ {risk_off_max_pct:+g}%.".replace("-", "−")
+        f" → score {sign(score, '+d')} of {counted} = {sign(pct, '+.0f')}%. "
+        f"Risk-on at ≥ {sign(risk_on_min_pct, '+g')}%, risk-off at ≤ {sign(risk_off_max_pct, '+g')}%."
     )
     if counts[NODATA]:
         explanation += f" {counts[NODATA]} indicator(s) without data not counted."

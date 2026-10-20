@@ -34,3 +34,8 @@ def test_cftc_net_positions():
     parsed = cftc.parse_rows(rows)
     assert parsed["13874A"]["2026-10-13"]["lev"] == -250
     assert parsed["13874A"]["2026-10-13"]["am"] == 700
+
+
+def test_fred_csv_skips_missing_values():
+    text = "observation_date,DGS10\n2026-10-12,\n2026-10-13,5.21\n2026-10-14,.\n"
+    assert fred.parse_csv(text) == {"2026-10-13": 5.21}

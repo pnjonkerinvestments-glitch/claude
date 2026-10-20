@@ -28,10 +28,14 @@ def verify(cfg: dict) -> int:
 
     def fred_check(series_id):
         def run():
-            data = fred.fetch_series(cfg["fred"]["api_url"], cfg["fred_api_key"], series_id,
-                                     (today - timedelta(days=14)).isoformat())
+            start = (today - timedelta(days=14)).isoformat()
+            if cfg["fred_api_key"]:
+                data, via = fred.fetch_series(cfg["fred"]["api_url"], cfg["fred_api_key"],
+                                              series_id, start), "API"
+            else:
+                data, via = fred.fetch_series_csv(cfg["fred"]["csv_url"], series_id, start), "CSV, no key"
             last = max(data) if data else None
-            return bool(data), f"{len(data)} obs, latest {last} = {data.get(last)}"
+            return bool(data), f"{len(data)} obs via {via}, latest {last} = {data.get(last)}"
         return run
 
     for sid in cfg["fred"]["series"]:

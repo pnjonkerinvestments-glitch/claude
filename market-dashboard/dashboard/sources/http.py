@@ -2,12 +2,9 @@
 
 import httpx
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) "
-                  "Chrome/124.0 Safari/537.36 market-dashboard",
-    "Accept": "*/*",
-}
+# httpx's default User-Agent on purpose: FRED's CSV server drops requests with a
+# browser-like or custom one.
 
 
 def client(timeout: float = 30.0) -> httpx.Client:
-    return httpx.Client(headers=HEADERS, timeout=timeout, follow_redirects=True)
+    return httpx.Client(timeout=timeout, follow_redirects=True)

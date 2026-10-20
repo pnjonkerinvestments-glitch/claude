@@ -135,3 +135,9 @@ def test_expected_move_formula():
 
 def test_expected_move_scales_linearly():
     assert calc.expected_move(4000, 20) == pytest.approx(2 * calc.expected_move(4000, 10))
+
+
+def test_verdict_explanation_uses_minus_signs_only_for_numbers():
+    v = calc.regime_verdict([RED, RED, ORANGE], 33, -33)
+    assert "score −2 of 3" in v.explanation
+    assert "Risk-on at ≥ +33%, risk-off at ≤ −33%" in v.explanation

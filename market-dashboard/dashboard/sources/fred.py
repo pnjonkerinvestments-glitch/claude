@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import csv
+import io
+
 from .http import client
 
 
@@ -30,3 +33,24 @@ def fetch_series(api_url: str, api_key: str, series_id: str, start: str) -> dict
                 message = resp.text[:200]
             raise RuntimeError(f"HTTP {resp.status_code}: {message}")
         return parse_observations(resp.json())
+
+
+def parse_csv(text: str) -> dict[str, float]:
+    """fredgraph.csv: a date column and one value column; empty or '.' marks a missing day."""
+    reader = csv.reader(io.StringIO(text.strip()))
+    next(reader, None)
+    out = {}
+    for row in reader:
+        try:
+            out[row[0]] = float(row[1])
+        except (IndexError, ValueError):
+            continue
+    return out
+
+
+def fetch_series_csv(csv_url: str, series_id: str, start: str) -> dict[str, float]:
+    """Keyless fallback: the CSV behind FRED's own charts."""
+    with client() as http:
+        resp = http.get(csv_url, params={"id": series_id, "cosd": start})
+        resp.raise_for_status()
+        return parse_csv(resp.text)

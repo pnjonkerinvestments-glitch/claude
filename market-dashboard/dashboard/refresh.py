@@ -63,11 +63,17 @@ def refresh_components(store: Store, cfg: dict) -> None:
 
 
 def refresh_cboe_vix(store: Store, cfg: dict) -> None:
+    """CBOE's own history files; Yahoo's copy of the same index (^VIX etc.) if CBOE fails."""
     c = cfg["cboe"]
     for symbol in c["vix_symbols"]:
-        points = cboe.fetch_index_history(c["index_history_url"], symbol)
+        try:
+            points = cboe.fetch_index_history(c["index_history_url"], symbol)
+        except Exception as exc:
+            log.warning("CBOE %s failed (%s); using Yahoo ^%s", symbol, exc, symbol)
+            period = cfg["prices"]["update_period" if store.has(f"cboe:{symbol}") else "history_period"]
+            points = prices.download_closes([f"^{symbol}"], period).get(f"^{symbol}", {})
         if not points:
-            raise RuntimeError(f"empty CBOE history for {symbol}")
+            raise RuntimeError(f"no {symbol} data from CBOE or Yahoo")
         store.upsert(f"cboe:{symbol}", points)
 
 
@@ -77,7 +83,6 @@ def refresh_cboe_pc(store: Store, cfg: dict, today: date) -> None:
     start = (max(date.fromisoformat(max(stored)) + timedelta(days=1),
                  today - timedelta(days=14)) if stored
              else today - timedelta(days=c["put_call_history_days"]))
-    found = 0
     with client() as http:
         day = start
         while day <= today:
@@ -86,7 +91,6 @@ def refresh_cboe_pc(store: Store, cfg: dict, today: date) -> None:
                 if ratios:
                     for name, value in ratios.items():
                         store.upsert(f"pc:{name}", {day.isoformat(): value})
-                    found += 1
                 time.sleep(0.15)
             day += timedelta(days=1)
     latest = max(store.dates("pc:equity"), default=None)
@@ -95,16 +99,18 @@ def refresh_cboe_pc(store: Store, cfg: dict, today: date) -> None:
 
 
 def refresh_fred(store: Store, cfg: dict, today: date) -> None:
+    """FRED API with the key from .env; without a key, FRED's public CSV download."""
     f = cfg["fred"]
-    if not cfg["fred_api_key"]:
-        raise RuntimeError("FRED_API_KEY is not set in .env")
     errors = []
     for series_id in f["series"]:
         start = (today - timedelta(days=f["history_days"] if not store.has(f"fred:{series_id}")
                                    else 30)).isoformat()
         try:
-            store.upsert(f"fred:{series_id}",
-                         fred.fetch_series(f["api_url"], cfg["fred_api_key"], series_id, start))
+            if cfg["fred_api_key"]:
+                points = fred.fetch_series(f["api_url"], cfg["fred_api_key"], series_id, start)
+            else:
+                points = fred.fetch_series_csv(f["csv_url"], series_id, start)
+            store.upsert(f"fred:{series_id}", points)
         except Exception as exc:  # keep fetching the other series
             errors.append(f"{series_id}: {exc}")
     if errors:
