@@ -7,6 +7,9 @@ import threading
 import time
 from datetime import date, datetime, timedelta
 
+import pandas as pd
+
+from . import derived, frames
 from .db import Store
 from .sources import cboe, cftc, fred, prices
 from .sources.http import client
@@ -14,41 +17,54 @@ from .sources.http import client
 log = logging.getLogger("dashboard.refresh")
 _lock = threading.Lock()
 
-DAILY_SOURCES = ("prices", "components", "cboe_vix", "cboe_pc", "fred")
+DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred")
 WEEKLY_SOURCES = ("cftc",)
 
 
 def price_tickers(cfg: dict) -> list[str]:
+    """Every non-member ticker the page uses."""
     p = cfg["prices"]
     tickers = [i["ticker"] for i in p["indices"].values()]
-    if p.get("vstoxx_ticker"):
-        tickers.append(p["vstoxx_ticker"])
+    for table in ("us_etfs", "eu_etfs"):
+        tickers.append(p[table]["benchmark"])
+        tickers += [item[0] for item in p[table]["items"]]
+    for group in ("commodities", "crypto", "asia", "dollar", "rates_futures"):
+        tickers += [item["ticker"] for item in p[group]]
+    tickers.append(p["volatility"]["move"])
     for r in p["ratios"].values():
         tickers += [r["numerator"], r["denominator"]]
+    tickers += [a["price"] for a in cfg["cftc"]["assets"] if a.get("price")]
+    tickers += cfg["signals"]["rsi_watch"]
+    tickers += ["^VIX", "^VIX9D", "^VIX3M"]
     return list(dict.fromkeys(tickers))
 
 
+def long_history_tickers(cfg: dict) -> set[str]:
+    """Tickers fetched with their full history (multi-year and COT charts)."""
+    return set(cfg["prices"]["long_history"]) | {
+        a["price"] for a in cfg["cftc"]["assets"] if a.get("price")}
+
+
 def component_tickers(cfg: dict) -> list[str]:
-    seen: dict[str, None] = {}
-    for members in cfg["breadth_components"].values():
-        seen.update(dict.fromkeys(members))
-    return list(seen)
+    return list(dict.fromkeys([t for t, _, _ in frames.sp500_members()] + frames.eu_members(cfg)))
 
 
 def _store_prices(store: Store, cfg: dict, tickers: list[str]) -> list[str]:
     """Download closes (full history on first run) and return the tickers without data."""
+    p = cfg["prices"]
+    long = long_history_tickers(cfg)
     new = [t for t in tickers if not store.has(f"px:{t}")]
     known = [t for t in tickers if t not in new]
-    data = prices.download_closes(new, cfg["prices"]["history_period"])
-    data.update(prices.download_closes(known, cfg["prices"]["update_period"]))
+    data = prices.download_closes([t for t in new if t in long], p["long_history_period"])
+    data.update(prices.download_closes([t for t in new if t not in long], p["history_period"]))
+    data.update(prices.download_closes(known, p["update_period"]))
     for t, points in data.items():
         store.upsert(f"px:{t}", points)
     return [t for t in tickers if t not in data]
 
 
 def refresh_prices(store: Store, cfg: dict) -> None:
-    vstoxx = cfg["prices"].get("vstoxx_ticker")
-    missing = [t for t in _store_prices(store, cfg, price_tickers(cfg)) if t != vstoxx]
+    missing = _store_prices(store, cfg, price_tickers(cfg))
     if missing:
         raise RuntimeError(f"no data for {', '.join(missing)}")
 
@@ -62,6 +78,32 @@ def refresh_components(store: Store, cfg: dict) -> None:
         log.warning("no data for index members: %s", ", ".join(missing))
 
 
+def _store_series(store: Store, key: str, s: pd.Series) -> None:
+    s = s.dropna()
+    store.upsert(key, {d.date().isoformat(): float(v) for d, v in s.items()})
+
+
+def refresh_breadth(store: Store, cfg: dict) -> None:
+    """Breadth series from member closes, stored so the page does not recompute them."""
+    b = cfg["breadth"]
+    us = frames.frame(store, [t for t, _, _ in frames.sp500_members()])
+    eu = frames.frame(store, frames.eu_members(cfg))
+    spx = frames.price(store, cfg["prices"]["indices"]["SPX"]["ticker"])
+    if us.empty or spx.empty:
+        raise RuntimeError("no S&P 500 member prices yet")
+    keep = b["chart_days"]
+    for name, fr in (("US", us), ("EU", eu)):
+        if fr.empty:
+            continue
+        _store_series(store, f"drv:breadth:{name}:above50", derived.pct_above_ma(fr, 50).iloc[-keep:])
+        _store_series(store, f"drv:breadth:{name}:above200", derived.pct_above_ma(fr, 200).iloc[-keep:])
+    _store_series(store, "drv:breadth:US:outperform",
+                  derived.pct_outperforming(us, spx, b["outperform_days"]).iloc[-keep:])
+    mc = derived.mcclellan(us, b["mcclellan_fast"], b["mcclellan_slow"])
+    _store_series(store, "drv:breadth:US:mcclellan", mc["oscillator"].iloc[-keep:])
+    _store_series(store, "drv:breadth:US:summation", mc["summation"].iloc[-keep:])
+
+
 def refresh_cboe_vix(store: Store, cfg: dict) -> None:
     """CBOE's own history files; Yahoo's copy of the same index (^VIX etc.) if CBOE fails."""
     c = cfg["cboe"]
@@ -70,8 +112,7 @@ def refresh_cboe_vix(store: Store, cfg: dict) -> None:
             points = cboe.fetch_index_history(c["index_history_url"], symbol)
         except Exception as exc:
             log.warning("CBOE %s failed (%s); using Yahoo ^%s", symbol, exc, symbol)
-            period = cfg["prices"]["update_period" if store.has(f"cboe:{symbol}") else "history_period"]
-            points = prices.download_closes([f"^{symbol}"], period).get(f"^{symbol}", {})
+            points = dict(store.series(f"px:^{symbol}"))
         if not points:
             raise RuntimeError(f"no {symbol} data from CBOE or Yahoo")
         store.upsert(f"cboe:{symbol}", points)
@@ -119,16 +160,23 @@ def refresh_fred(store: Store, cfg: dict, today: date) -> None:
 
 def refresh_cftc(store: Store, cfg: dict, today: date) -> None:
     c = cfg["cftc"]
-    codes = list(c["contracts"])
-    first = not all(store.has(f"cot:{code}:lev") for code in codes)
-    since = today - timedelta(weeks=c["history_weeks"] if first else 6)
-    parsed = cftc.parse_rows(cftc.fetch_tff(c["api_url"], codes, since.isoformat()))
-    for code, by_date in parsed.items():
-        store.upsert(f"cot:{code}:lev", {d: v["lev"] for d, v in by_date.items()})
-        store.upsert(f"cot:{code}:am", {d: v["am"] for d, v in by_date.items()})
-    missing = [code for code in codes if code not in parsed and not store.has(f"cot:{code}:lev")]
+    missing = []
+    for dataset, url in c["datasets"].items():
+        assets = [a for a in c["assets"] if a["dataset"] == dataset]
+        if not assets:
+            continue
+        first = not all(store.has(f"cot:{a['key']}:net") for a in assets)
+        since = c["history_start"] if first else (today - timedelta(weeks=6)).isoformat()
+        rows = cftc.fetch(url, dataset, [a["code"] for a in assets], since)
+        parsed = cftc.parse_rows(rows, {a["code"]: a["cohort"] for a in assets})
+        for a in assets:
+            by_date = parsed.get(a["code"], {})
+            store.upsert(f"cot:{a['key']}:net", {d: v["net"] for d, v in by_date.items()})
+            store.upsert(f"cot:{a['key']}:oi", {d: v["oi"] for d, v in by_date.items()})
+            if not by_date and not store.has(f"cot:{a['key']}:net"):
+                missing.append(f"{a['label']} ({a['code']})")
     if missing:
-        raise RuntimeError(f"no COT rows for contract code(s) {', '.join(missing)}")
+        raise RuntimeError(f"no COT rows for {', '.join(missing)}")
 
 
 def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
@@ -136,6 +184,7 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
     jobs = {
         "prices": lambda today: refresh_prices(store, cfg),
         "components": lambda today: refresh_components(store, cfg),
+        "breadth": lambda today: refresh_breadth(store, cfg),
         "cboe_vix": lambda today: refresh_cboe_vix(store, cfg),
         "cboe_pc": lambda today: refresh_cboe_pc(store, cfg, today),
         "fred": lambda today: refresh_fred(store, cfg, today),

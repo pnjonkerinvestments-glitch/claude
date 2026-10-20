@@ -1,4 +1,4 @@
-"""Block assembly against a temporary SQLite cache, including the failed-source fallback."""
+"""Sections built from a temporary SQLite cache, including the failed-source fallback."""
 
 from datetime import date, datetime, timedelta
 
@@ -35,66 +35,76 @@ def store(cfg):
     rising = {d: 100 + i for i, d in enumerate(days)}
     for idx in cfg["prices"]["indices"].values():
         s.upsert(f"px:{idx['ticker']}", rising)
-    for members in cfg["breadth_components"].values():
-        for t in members:
-            s.upsert(f"px:{t}", rising)
+    for t in ("SPY", "QQQ", "SMH", "RSP", "CL=F"):
+        s.upsert(f"px:{t}", rising)
+    s.upsert("drv:breadth:US:above50", {d: 70.0 for d in days[-50:]})
+    s.upsert("drv:breadth:US:above200", {d: 65.0 for d in days[-50:]})
+    s.upsert("drv:breadth:EU:above50", {d: 30.0 for d in days[-50:]})
+    s.upsert("drv:breadth:EU:above200", {d: 35.0 for d in days[-50:]})
     for sym, level in (("VIX9D", 13.0), ("VIX", 15.0), ("VIX3M", 17.0)):
         s.upsert(f"cboe:{sym}", {d: level for d in days})
     s.upsert("pc:equity", {d: 0.6 + (i % 10) / 100 for i, d in enumerate(days)})
-    s.upsert("pc:index", {d: 1.1 for d in days})
     s.upsert("fred:BAMLH0A0HYM2", {d: 3.0 for d in days})
     s.upsert("fred:T10Y2Y", {d: 0.6 for d in days})
     s.upsert("fred:DGS10", {days[-2]: 4.10, days[-1]: 4.15})
     weeks = [d for d in days if date.fromisoformat(d).weekday() == 1]
-    s.upsert("cot:13874A:lev", {d: -1000 * i for i, d in enumerate(weeks)})
-    s.upsert("cot:13874A:am", {d: 500 * i for i, d in enumerate(weeks)})
-    for t in ("HYG", "IEF", "HG=F", "GC=F", "RSP", "SPY"):
-        s.upsert(f"px:{t}", rising)
+    s.upsert("cot:vix:net", {d: -1000.0 * i for i, d in enumerate(weeks)})
+    s.upsert("cot:vix:oi", {d: 100000.0 for d in weeks})
     return s
 
 
-def test_regime_block_all_green_is_risk_on(store, cfg):
-    b = blocks.regime_block(store, cfg)
-    colors = {i["key"]: i["color"] for i in b["indicators"]}
+def test_regime_tally(store, cfg):
+    r = blocks.regime(store, cfg)
+    colors = {i["key"]: i["color"] for i in r["indicators"]}
     assert colors["trend_SPX"] == "green"
-    assert colors["breadth_DAX"] == "green"
+    assert colors["breadth_US"] == "green" and colors["breadth_EU"] == "red"
     assert colors["vix_term"] == "green"
-    assert colors["vstoxx"] == "nodata"
-    assert b["verdict"]["label"] == "Risk-on"
-    assert all(i["reason"] for i in b["indicators"])
+    assert r["verdict"]["counted"] == len(r["indicators"])
+    assert all(i["reason"] for i in r["indicators"])
 
 
-def test_today_block_expected_move(store, cfg):
-    b = blocks.today_block(store, cfg)
-    spx, sx5e = b["expected_moves"]
-    assert spx["available"] and spx["points"] == pytest.approx(399 * 0.15 / 252 ** 0.5)
-    assert not sx5e["available"]
+def test_signals_flag_cot_extreme(store, cfg):
+    texts = [s["text"] for s in blocks.signals(store, cfg)]
+    assert any(t.startswith("VIX: asset managers net/OI at the 2nd percentile") for t in texts)
 
 
-def test_rates_and_positioning(store, cfg):
-    rates = {r["id"]: r for r in blocks.rates_block(store, cfg)["rows"]}
-    assert rates["DGS10"]["change_bp"] == pytest.approx(5)
-    assert not rates["DGS2"]["available"]
-    pos = blocks.positioning_block(store, cfg)
-    es = pos["contracts"][0]
-    assert es["lev"]["cot_index"] == 0 and es["am"]["cot_index"] == 100
-    assert es["lev"]["change"] == -1000
-    assert date.fromisoformat(pos["report_date"]).weekday() == 1
-    assert len(pos["vix_term"]["dates"]) == cfg["cboe"]["chart_days"]
+def test_today_expected_move(store, cfg):
+    m = blocks.today_section(store, cfg)["expected_moves"][0]
+    assert m["points"] == pytest.approx(399 * 0.15 / 252 ** 0.5)
+
+
+def test_positioning_and_cot_chart(store, cfg):
+    pos = blocks.positioning_section(store, cfg)
+    vix = next(r for r in pos["rows"] if r["key"] == "vix")
+    weeks = len(store.series("cot:vix:net"))
+    assert vix["pct_all"] == pytest.approx(100 / weeks)      # steadily falling: latest is the low
+    assert vix["cohort_short"] == "AM" and pos["default_key"] == "vix"
+    chart = pos["chart"]
+    assert chart["available"] and len(chart["panels"]) == 2
+
+
+def test_chart_aligns_series():
+    import pandas as pd
+    a = pd.Series([1.0, 2.0], index=pd.to_datetime(["2026-01-01", "2026-01-02"]))
+    b = pd.Series([5.0], index=pd.to_datetime(["2026-01-02"]))
+    c = blocks.chart("x", "X", [blocks.panel([blocks.series_spec("a", a), blocks.series_spec("b", b)])])
+    assert c["dates"] == ["2026-01-01", "2026-01-02"]
+    assert c["panels"][0]["series"][1]["values"] == [None, 5.0]
 
 
 def test_failed_source_keeps_last_values_with_warning(store, cfg):
     store.record("fred", datetime(2026, 10, 19, 18, 0, tzinfo=cfg["tz"]))
     store.record("fred", datetime(2026, 10, 20, 18, 0, tzinfo=cfg["tz"]), "HTTPError: 500")
-    b = blocks.rates_block(store, cfg)
-    assert "refresh failed" in b["warnings"][0] and "HTTPError: 500" in b["warnings"][0]
-    assert b["updated_at"].startswith("Mon 19 Oct")
+    b = blocks.rates_section(store, cfg)
+    assert any("refresh failed" in w and "HTTPError: 500" in w for w in b["warnings"])
     assert any(r["available"] for r in b["rows"])
 
 
-def test_api_serves_page_and_data(store, cfg):
+def test_every_section_builds_and_api_serves(store, cfg):
     with TestClient(create_app(cfg, start_jobs=False)) as client:
         assert client.get("/").status_code == 200
         data = client.get("/api/dashboard").json()
-        assert set(data) >= {"regime", "today", "rates", "positioning", "riskonoff"}
-        assert client.get("/api/widgets").json()["heatmap"]["us"] == "SPX500"
+        for name in blocks.BUILDERS:
+            assert "error" not in data[name], (name, data[name].get("error"))
+        assert client.get("/api/cot/vix").json()["available"]
+        assert client.get("/api/cot/nope").status_code == 404

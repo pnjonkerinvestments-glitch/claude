@@ -63,22 +63,20 @@ def verify(cfg: dict) -> int:
 
     results.append(_check("CBOE put/call", pc_check))
 
-    def cftc_check():
-        codes = cfg["cftc"]["contracts"]
-        rows = cftc.fetch_tff(cfg["cftc"]["api_url"], list(codes),
+    def cftc_check(dataset, url):
+        def run():
+            assets = [a for a in cfg["cftc"]["assets"] if a["dataset"] == dataset]
+            rows = cftc.fetch(url, dataset, [a["code"] for a in assets],
                               (today - timedelta(weeks=4)).isoformat())
-        parsed = cftc.parse_rows(rows)
-        lines = []
-        for code, label in codes.items():
-            by_date = parsed.get(code)
-            if by_date:
-                last = max(by_date)
-                lines.append(f"{code} ({label}) -> '{by_date[last]['name']}' as of {last}")
-            else:
-                lines.append(f"{code} ({label}) -> NO ROWS")
-        return all(c in parsed for c in codes), "\n       " + "\n       ".join(lines)
+            parsed = cftc.parse_rows(rows, {a["code"]: a["cohort"] for a in assets})
+            lines = [f"{a['code']} {a['label']}: "
+                     + (f"latest {max(parsed[a['code']])}" if a["code"] in parsed else "NO ROWS")
+                     for a in assets]
+            return all(a["code"] in parsed for a in assets), "\n       " + "\n       ".join(lines)
+        return run
 
-    results.append(_check("CFTC TFF", cftc_check))
+    for dataset, url in cfg["cftc"]["datasets"].items():
+        results.append(_check(f"CFTC {dataset}", cftc_check(dataset, url)))
 
     def yahoo_check(tickers, optional=()):
         def run():
@@ -91,9 +89,7 @@ def verify(cfg: dict) -> int:
             return not hard, detail
         return run
 
-    vstoxx = cfg["prices"].get("vstoxx_ticker")
-    results.append(_check("Yahoo indices/ETFs", yahoo_check(refresh.price_tickers(cfg),
-                                                            optional=(vstoxx,))))
+    results.append(_check("Yahoo indices/ETFs", yahoo_check(refresh.price_tickers(cfg))))
     results.append(_check("Yahoo index members", yahoo_check(refresh.component_tickers(cfg))))
 
     print(f"\n{sum(results)}/{len(results)} checks passed.")

@@ -5,68 +5,154 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Market Overview</title>
   <link rel="icon" href="data:,">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash.
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
   <link rel="stylesheet" href="/static/style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <header id="ticker-tape" class="ticker"></header>
-
-  <main class="grid">
-    <section class="block" id="regime" style="grid-area: regime">
-      <div class="block-head"><h2>Market regime</h2><span class="updated"></span></div>
-      <div class="warnings"></div>
-      <div class="indicators"></div>
-      <div class="verdict"></div>
-    </section>
-
-    <section class="block" id="today" style="grid-area: today">
-      <div class="block-head"><h2>Today</h2><span class="updated"></span></div>
-      <div class="warnings"></div>
-      <div class="expected"></div>
-      <h3>Economic calendar <span class="muted">US &amp; euro area, high importance</span></h3>
-      <div id="calendar" class="widget calendar"></div>
-      <h3>Sector heatmap
-        <span class="toggle" role="group" aria-label="Heatmap market">
-          <button type="button" data-heatmap="europe" class="active">Europe</button>
-          <button type="button" data-heatmap="us">S&amp;P 500</button>
-        </span>
-      </h3>
-      <div id="heatmap" class="widget heatmap"></div>
-    </section>
-
-    <section class="block" id="rates" style="grid-area: rates">
-      <div class="block-head"><h2>Rates &amp; credit</h2><span class="updated"></span></div>
-      <div class="warnings"></div>
-      <div class="table-wrap"><table class="rates-table">
-        <thead><tr><th>Series</th><th class="num">Value</th><th class="num">1d</th><th>3 months</th></tr></thead>
-        <tbody></tbody>
-      </table></div>
-    </section>
-
-    <section class="block" id="positioning" style="grid-area: positioning">
-      <div class="block-head"><h2>Positioning &amp; sentiment</h2><span class="updated"></span></div>
-      <div class="warnings"></div>
-      <h3>COT, Traders in Financial Futures <span class="muted cot-date"></span></h3>
-      <div class="table-wrap"><table class="cot-table">
-        <thead>
-          <tr><th rowspan="2">Contract</th><th colspan="3" class="grp">Leveraged funds</th><th colspan="3" class="grp">Asset managers</th></tr>
-          <tr><th class="num">Net</th><th class="num">1w</th><th class="num" title="Percentile of net position within its 3-year range">Index</th>
-              <th class="num">Net</th><th class="num">1w</th><th class="num" title="Percentile of net position within its 3-year range">Index</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table></div>
-      <div class="charts-2">
-        <figure><figcaption>Equity put/call, 3 months</figcaption><div class="chart"><canvas id="pc-equity"></canvas></div></figure>
-        <figure><figcaption>Index put/call, 3 months</figcaption><div class="chart"><canvas id="pc-index"></canvas></div></figure>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#summary">Market Overview</a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#summary">Summary</a><a href="#today">Today</a><a href="#stocks">Stocks</a>
+        <a href="#appetite">Risk appetite</a><a href="#volatility">Volatility</a><a href="#positioning">Positioning</a>
+        <a href="#rates">Rates</a><a href="#dollar">Dollar</a><a href="#commodities">Commodities</a>
+        <a href="#crypto">Crypto</a><a href="#asia">Asia</a>
+      </nav>
+      <div class="topbar-right">
+        <span class="generated muted"></span>
+        <div class="seg" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="light">Light</button>
+          <button type="button" data-theme-set="dark">Dark</button>
+        </div>
       </div>
-      <figure><figcaption>VIX term structure, 3 months</figcaption><div class="chart"><canvas id="vix-term"></canvas></div></figure>
+    </div>
+    <div id="ticker-tape" class="ticker"></div>
+  </header>
+
+  <main class="page">
+    <section id="summary" class="section">
+      <div class="section-head"><h2>Where we stand</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="verdict"></div>
+      <div class="indicators"></div>
+      <div class="summary-grid">
+        <div class="tiles"></div>
+        <div class="signals-box">
+          <h3>Signals</h3>
+          <ul class="signals"></ul>
+        </div>
+      </div>
     </section>
 
-    <section class="block" id="riskonoff" style="grid-area: riskonoff">
-      <div class="block-head"><h2>Risk-on / risk-off</h2><span class="updated"></span></div>
+    <section id="today" class="section">
+      <div class="section-head"><h2>Today</h2><span class="updated"></span></div>
       <div class="warnings"></div>
-      <div class="ratio-charts"></div>
+      <div class="today-grid">
+        <div class="card">
+          <h3>Expected move today</h3>
+          <div class="expected"></div>
+          <h3>Economic calendar <span class="muted">US &amp; euro area, high importance</span></h3>
+          <div id="calendar" class="widget calendar"></div>
+        </div>
+        <div class="card">
+          <h3>Heatmap
+            <span class="seg small" role="group" aria-label="Heatmap market">
+              <button type="button" data-heatmap="us" class="active">S&amp;P 500</button>
+              <button type="button" data-heatmap="europe">STOXX 600</button>
+            </span>
+          </h3>
+          <div id="heatmap" class="widget heatmap"></div>
+        </div>
+      </div>
     </section>
+
+    <section id="stocks" class="section">
+      <div class="section-head"><h2>Stocks &amp; breadth</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="charts"></div>
+      <div class="card">
+        <h3>Leaders and laggards <span class="muted">1-month return relative to SPY, 3-month as dot</span></h3>
+        <div class="leaders"></div>
+      </div>
+      <div class="card">
+        <h3>Sectors &amp; themes
+          <span class="seg small" role="group" aria-label="Table market">
+            <button type="button" data-perf="us" class="active">US</button>
+            <button type="button" data-perf="eu">Europe (STOXX 600)</button>
+          </span>
+        </h3>
+        <div class="table-wrap"><table class="perf-table"></table></div>
+      </div>
+    </section>
+
+    <section id="appetite" class="section">
+      <div class="section-head"><h2>Risk appetite</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="charts"></div>
+    </section>
+
+    <section id="volatility" class="section">
+      <div class="section-head"><h2>Volatility &amp; sentiment</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="charts"></div>
+    </section>
+
+    <section id="positioning" class="section">
+      <div class="section-head"><h2>Positioning (COT)</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="positioning-grid">
+        <div class="card">
+          <h3>COT percentiles <span class="muted cot-date"></span></h3>
+          <div class="table-wrap"><table class="cot-table"></table></div>
+          <p class="legend"><span class="pill low">≤ 10</span> crowded short &nbsp; <span class="pill high">≥ 90</span> crowded long. Net position as share of open interest; click a row for its chart.</p>
+        </div>
+        <div class="cot-chart"></div>
+      </div>
+    </section>
+
+    <section id="rates" class="section">
+      <div class="section-head"><h2>Rates &amp; credit</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="card"><div class="table-wrap"><table class="rates-table"></table></div></div>
+      <div class="charts"></div>
+    </section>
+
+    <section id="dollar" class="section">
+      <div class="section-head"><h2>Dollar</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="card"><div class="table-wrap"><table class="asset-table"></table></div></div>
+      <div class="charts"></div>
+    </section>
+
+    <section id="commodities" class="section">
+      <div class="section-head"><h2>Commodities</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="card"><div class="table-wrap"><table class="asset-table"></table></div></div>
+      <div class="charts"></div>
+    </section>
+
+    <section id="crypto" class="section">
+      <div class="section-head"><h2>Crypto</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="card"><div class="table-wrap"><table class="asset-table"></table></div></div>
+      <div class="charts"></div>
+    </section>
+
+    <section id="asia" class="section">
+      <div class="section-head"><h2>Asia</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="card"><div class="table-wrap"><table class="asset-table"></table></div></div>
+      <div class="charts"></div>
+    </section>
+
+    <footer class="footer muted">
+      Data: Yahoo Finance, CBOE, CFTC, FRED; live quotes, calendar and heatmap by TradingView.
+      "↗" opens the chart in TradingView (your own account). Not investment advice.
+    </footer>
   </main>
 
   <script src="/static/app.js"></script>

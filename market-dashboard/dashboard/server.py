@@ -8,7 +8,8 @@ from contextlib import asynccontextmanager
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -54,10 +55,26 @@ def create_app(cfg: dict | None = None, start_jobs: bool = True) -> FastAPI:
             sched.shutdown(wait=False)
 
     app = FastAPI(title="Market overview", lifespan=lifespan)
+    app.add_middleware(GZipMiddleware, minimum_size=1000)
+    cache: dict = {}
+
+    def data_version() -> tuple:
+        """Changes whenever any source is refreshed (or fails), so the cache stays current."""
+        return tuple(store.status(src)["last_attempt"]
+                     for src in refresh.DAILY_SOURCES + refresh.WEEKLY_SOURCES)
 
     @app.get("/api/dashboard")
     def dashboard_data():
-        return blocks.dashboard(store, cfg)
+        version = data_version()
+        if cache.get("version") != version:
+            cache.update(version=version, data=blocks.dashboard(store, cfg))
+        return cache["data"]
+
+    @app.get("/api/cot/{key}")
+    def cot_chart(key: str):
+        if key not in {a["key"] for a in cfg["cftc"]["assets"]}:
+            raise HTTPException(404, "unknown COT asset")
+        return blocks.cot_chart(store, cfg, key)
 
     @app.get("/api/widgets")
     def widget_config():

@@ -1,0 +1,161 @@
+"""Indicator maths on pandas series and frames. Pure functions, no I/O."""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+
+
+def pct_above_ma(frame: pd.DataFrame, days: int) -> pd.Series:
+    """Per date: % of columns whose close is above their own `days`-day average.
+
+    Members without enough history on a date are left out of that date's count.
+    """
+    ma = frame.rolling(days, min_periods=days).mean()
+    valid = ma.notna() & frame.notna()
+    above = (frame > ma) & valid
+    count = valid.sum(axis=1)
+    return (100.0 * above.sum(axis=1) / count).where(count > 0)
+
+
+def pct_outperforming(frame: pd.DataFrame, index: pd.Series, days: int) -> pd.Series:
+    """Per date: % of members whose `days`-day return beats the index's `days`-day return."""
+    member_ret = frame / frame.shift(days) - 1
+    index_ret = (index / index.shift(days) - 1).reindex(frame.index)
+    valid = member_ret.notna() & index_ret.notna().values[:, None]
+    beats = member_ret.gt(index_ret, axis=0) & valid
+    count = valid.sum(axis=1)
+    return (100.0 * beats.sum(axis=1) / count).where(count > 0)
+
+
+def mcclellan(frame: pd.DataFrame, fast: int = 19, slow: int = 39) -> pd.DataFrame:
+    """Ratio-adjusted McClellan oscillator and summation index from member closes.
+
+    Net advances = (advancers - decliners) / (advancers + decliners) x 1000, so the result
+    does not depend on how many members have data on a given day.
+    """
+    change = frame.diff()
+    adv = (change > 0).sum(axis=1)
+    dec = (change < 0).sum(axis=1)
+    total = (adv + dec).replace(0, np.nan)
+    net = (1000.0 * (adv - dec) / total).iloc[1:]
+    osc = net.ewm(span=fast, adjust=False).mean() - net.ewm(span=slow, adjust=False).mean()
+    return pd.DataFrame({"net": net, "oscillator": osc, "summation": osc.cumsum()})
+
+
+def rsi(close: pd.Series, days: int = 14) -> pd.Series:
+    """Wilder's relative strength index."""
+    delta = close.diff()
+    gain = delta.clip(lower=0).ewm(alpha=1 / days, adjust=False, min_periods=days).mean()
+    loss = (-delta.clip(upper=0)).ewm(alpha=1 / days, adjust=False, min_periods=days).mean()
+    rs = gain / loss
+    return 100 - 100 / (1 + rs)
+
+
+def decline_streak(close: pd.Series, threshold_pct: float = -1.0) -> pd.Series:
+    """Trading days since the last daily change at or below `threshold_pct` percent."""
+    hit = (close.pct_change() * 100 <= threshold_pct).to_numpy()
+    out, run = [], 0
+    for h in hit:
+        run = 0 if h else run + 1
+        out.append(run)
+    return pd.Series(out, index=close.index)
+
+
+def weekly_returns(close: pd.Series) -> pd.Series:
+    """Friday-to-Friday % change (the last week may still be in progress)."""
+    weekly = close.resample("W-FRI").last().dropna()
+    return weekly.pct_change().dropna() * 100
+
+
+def rolling_corr(a: pd.Series, b: pd.Series, days: int) -> pd.Series:
+    """Rolling correlation of daily changes."""
+    joined = pd.concat([a.diff(), b.diff()], axis=1, join="inner").dropna()
+    return joined.iloc[:, 0].rolling(days).corr(joined.iloc[:, 1])
+
+
+def percentile_of_last(values: pd.Series) -> float | None:
+    """Percentile (0-100) of the latest value within the series."""
+    values = values.dropna()
+    if values.empty:
+        return None
+    return float(100.0 * (values <= values.iloc[-1]).mean())
+
+
+def expanding_percentile(values: pd.Series, min_periods: int = 52) -> pd.Series:
+    """Each point's percentile within all data up to and including it (no look-ahead)."""
+    arr = values.to_numpy(dtype=float)
+    out = np.full(len(arr), np.nan)
+    for i in range(min_periods - 1, len(arr)):
+        window = arr[: i + 1]
+        window = window[~np.isnan(window)]
+        if len(window):
+            out[i] = 100.0 * (window <= arr[i]).mean()
+    return pd.Series(out, index=values.index)
+
+
+def cot_percentiles(net: pd.Series, oi: pd.Series) -> dict:
+    """Latest COT net position as percentile: net/OI over all history, 5 years and 1 year,
+    and the raw net contracts over all history."""
+    ratio = (net / oi.replace(0, np.nan)).dropna()
+    if ratio.empty:
+        return {}
+    end = ratio.index[-1]
+
+    def since(years: int) -> pd.Series:
+        return ratio[ratio.index > end - pd.DateOffset(years=years)]
+
+    return {
+        "net": float(net.iloc[-1]),
+        "change": float(net.iloc[-1] - net.iloc[-2]) if len(net) > 1 else None,
+        "net_oi_pct": float(100 * ratio.iloc[-1]),
+        "pct_all": percentile_of_last(ratio),
+        "pct_5y": percentile_of_last(since(5)),
+        "pct_1y": percentile_of_last(since(1)),
+        "pct_nominal": percentile_of_last(net),
+        "since": ratio.index[0].date().isoformat(),
+        "date": end.date().isoformat(),
+    }
+
+
+def vol_compression(close: pd.Series, rv_days: int = 90, range_days: int = 180,
+                    lookback: int = 1460) -> pd.DataFrame:
+    """Realized volatility and trading-range width, each as a trailing percentile.
+
+    A compression regime is when both sit in their lowest percentiles: quiet price action
+    that tends to end in a large move (direction unknown).
+    """
+    logret = np.log(close).diff()
+    rv = logret.rolling(rv_days).std() * np.sqrt(365) * 100
+    width = (close.rolling(range_days).max() / close.rolling(range_days).min() - 1) * 100
+
+    def trailing_pct(s: pd.Series) -> pd.Series:
+        return s.rolling(lookback, min_periods=rv_days).apply(
+            lambda w: 100.0 * (w <= w[-1]).mean(), raw=True)
+
+    return pd.DataFrame({"rv": rv, "rv_pct": trailing_pct(rv),
+                         "range": width, "range_pct": trailing_pct(width)})
+
+
+def performance(close: pd.Series, bench: pd.Series | None = None) -> dict:
+    """Returns over 1 week / 1 month / 3 months, relative returns vs a benchmark,
+    position vs the 50- and 200-day average and RSI."""
+    close = close.dropna()
+    out: dict = {"last": float(close.iloc[-1]), "date": close.index[-1].date().isoformat()}
+    for label, days in (("w1", 5), ("m1", 21), ("m3", 63)):
+        out[label] = (float(100 * (close.iloc[-1] / close.iloc[-1 - days] - 1))
+                      if len(close) > days else None)
+    if bench is not None:
+        bench = bench.dropna()
+        for label, days in (("rel_m1", 21), ("rel_m3", 63)):
+            if len(bench) > days and out.get(label[4:]) is not None:
+                b = 100 * (bench.iloc[-1] / bench.iloc[-1 - days] - 1)
+                out[label] = out[label[4:]] - float(b)
+            else:
+                out[label] = None
+    for days in (50, 200):
+        ma = close.rolling(days).mean().iloc[-1]
+        out[f"vs{days}"] = None if np.isnan(ma) else float(100 * (close.iloc[-1] / ma - 1))
+    r = rsi(close).iloc[-1] if len(close) > 15 else np.nan
+    out["rsi"] = None if np.isnan(r) else float(r)
+    return out

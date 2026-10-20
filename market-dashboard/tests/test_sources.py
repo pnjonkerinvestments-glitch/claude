@@ -26,14 +26,17 @@ def test_cboe_put_call_json():
     assert cboe.parse_put_call(payload) == {"total": 0.91, "index": 1.2, "equity": 0.62}
 
 
-def test_cftc_net_positions():
+def test_cftc_net_positions_per_cohort():
     rows = [{"report_date_as_yyyy_mm_dd": "2026-10-13T00:00:00.000", "cftc_contract_market_code": "13874A",
-             "market_and_exchange_names": "E-MINI S&P 500 - CHICAGO MERCANTILE EXCHANGE",
-             "lev_money_positions_long": "100", "lev_money_positions_short": "350",
-             "asset_mgr_positions_long": "900", "asset_mgr_positions_short": "200"}]
-    parsed = cftc.parse_rows(rows)
-    assert parsed["13874A"]["2026-10-13"]["lev"] == -250
-    assert parsed["13874A"]["2026-10-13"]["am"] == 700
+             "open_interest_all": "2000000", "lev_money_positions_long": "100", "lev_money_positions_short": "350",
+             "asset_mgr_positions_long": "900", "asset_mgr_positions_short": "200"},
+            {"report_date_as_yyyy_mm_dd": "2026-10-13T00:00:00.000", "cftc_contract_market_code": "088691",
+             "open_interest_all": "500000", "m_money_positions_long_all": "150000",
+             "m_money_positions_short_all": "40000"}]
+    parsed = cftc.parse_rows(rows, {"13874A": "am", "088691": "mm"})
+    assert parsed["13874A"]["2026-10-13"] == {"net": 700, "oi": 2000000}
+    assert parsed["088691"]["2026-10-13"] == {"net": 110000, "oi": 500000}
+    assert cftc.parse_rows(rows, {"13874A": "lf"})["13874A"]["2026-10-13"]["net"] == -250
 
 
 def test_fred_csv_skips_missing_values():
