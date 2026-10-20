@@ -28,14 +28,29 @@ import { capRange, countryName, formatCap } from "./screener.ts";
 import type { AgendaItem, EventRecord, Store } from "./store.ts";
 import { escapeHtml } from "./telegram.ts";
 import { RETIRED_FILTERS } from "./config.ts";
+import { parseNumber } from "./amount.ts";
 import { growthSymbols, isGrowthOslo, refreshGrowthOslo } from "./growth.ts";
-import type { RightsLine } from "./rights.ts";
-import { RIGHTS_EXCHANGES, RIGHTS_SEEN_KEY, companyKey, searchRights } from "./rights.ts";
+import type { Quote, OpenSocket } from "./quotes.ts";
+import { fetchQuotes } from "./quotes.ts";
+import type { RightsLine, RightsTerms, RightsValue } from "./rights.ts";
+import {
+  RIGHTS_EXCHANGES,
+  RIGHTS_LANG,
+  RIGHTS_SEEN_KEY,
+  RIGHTS_TERMS_KEY,
+  RIGHTS_TITLE,
+  companyKey,
+  mergeTerms,
+  parseRightsTerms,
+  rightsValue,
+  searchRights,
+  termsComplete,
+} from "./rights.ts";
 import { DEFAULT_FILTERS } from "./config.ts";
 import { excludedExchange, groupFilters, matchFilters } from "./screener.ts";
 import { bigEnough, lookupCaps, minCaps, parseValuation, readExtra } from "./size.ts";
-import type { Fetch } from "./tradingview.ts";
-import { fetchStory, fields, scanner } from "./tradingview.ts";
+import type { Fetch, NewsItem } from "./tradingview.ts";
+import { chartUrl, fetchNews, fetchStory, fields, scanner } from "./tradingview.ts";
 
 /** Soort melding (en onderwerp) van het ochtendoverzicht. */
 export const DIGEST = "ochtend";
@@ -53,6 +68,20 @@ const PREP_MINUTES = 100;
 const LATE_MINUTES = 120;
 /** Berichten lezen per run (rekentijd: Workers Free geeft 10 ms per aanroep). */
 const STORIES_PER_RUN = 3;
+/** Zoveel rechtenlijnen per minuut naar hun voorwaarden zoeken (elk tot 6 verzoeken). */
+const TERMS_PER_RUN = 3;
+/** Hoe oud een bericht over een claimemissie mag zijn om er de voorwaarden uit te halen. */
+const TERMS_MAX_AGE_DAYS = 120;
+/** Melding als meedoen via de rechten zoveel goedkoper is dan het aandeel (/rechtenalarm). */
+export const RIGHTS_ALERT_KEY = "rights_alert_pct";
+const DEFAULT_RIGHTS_ALERT = 0.02;
+/** Wat er vandaag al gemeld is: {date, edges: {symbool: voordeel}}. */
+const RIGHTS_ALERTED_KEY = "rights_alerted";
+/** Laatste ronde van de rechtenwacht, voor /status en controle. */
+export const RIGHTS_WATCH_KEY = "rights_watch";
+/** De rechtenwacht kijkt tijdens de beurs: de eerste half uur elke minuut, daarna om de 5 minuten. */
+const WATCH_FROM = 9 * 60;
+const WATCH_TO = 17 * 60 + 30;
 const KEEP_EVENTS_SECONDS = 45 * 24 * 3600;
 const MAX_LINES = 12;
 const MAX_MESSAGE = 3900;
@@ -108,6 +137,8 @@ export interface DayState {
   prices?: Record<string, Price>;
   /** Lopende claimrechten (rechtenkalender). */
   rights?: RightsLine[];
+  /** Slotkoersen van de rechten en hun aandelen. */
+  quotes?: Record<string, Quote>;
   /** Marktwaarde en IPO-datum van de nieuwe noteringen van vandaag. */
   listings?: Record<string, ListingInfo>;
 }
@@ -145,6 +176,10 @@ export interface MorningDeps {
   fetcher: Fetch;
   now: number;
   log?: (message: string) => void;
+  /** Koersverbinding voor rechten; zonder deze geen koersen en geen rechtenwacht. */
+  openSocket?: OpenSocket;
+  /** Directe melding (rechtenwacht), naar het onderwerp van claimemissies. */
+  alert?: (html: string) => Promise<void>;
 }
 
 const PRIMARY_STOCKS = [
@@ -230,7 +265,8 @@ interface Step {
   name: string;
   /** Vanaf zoveel minuten vóór het overzicht. */
   from: number;
-  run: (deps: MorningDeps, state: DayState, today: string) => Promise<void>;
+  /** Geeft true als er nog werk over is; dan komt de stap de volgende minuut terug. */
+  run: (deps: MorningDeps, state: DayState, today: string) => Promise<void | boolean>;
 }
 
 const STEPS: Step[] = [
@@ -358,6 +394,41 @@ const STEPS: Step[] = [
     },
   },
   {
+    // Uitgifteprijs en verhouding van elke claimemissie, uit de persberichten (eenmaal gevonden blijft het staan).
+    name: "rechtenvoorwaarden",
+    from: PREP_MINUTES,
+    async run({ store, fetcher, now }, state, today) {
+      const cache = await loadTerms(store);
+      const todo = (state.rights ?? []).filter(
+        (l) => l.companySymbol && !cache[l.symbol]?.manual && !termsComplete(cache[l.symbol]) && cache[l.symbol]?.checked !== today,
+      );
+      for (const line of todo.slice(0, TERMS_PER_RUN)) {
+        try {
+          cache[line.symbol] = { ...(await findTerms(fetcher, line, now)), checked: today };
+        } catch (error) {
+          state.errors.push(`voorwaarden ${line.symbol}: ${error instanceof Error ? error.message : String(error)}`);
+          cache[line.symbol] = { ...cache[line.symbol], checked: today };
+        }
+      }
+      const current = new Set((state.rights ?? []).map((l) => l.symbol));
+      await saveTerms(
+        store,
+        Object.fromEntries(Object.entries(cache).filter(([symbol, t]) => current.has(symbol) || (t.checked && daysBetween(t.checked, today) < 30))),
+      );
+      return todo.length > TERMS_PER_RUN;
+    },
+  },
+  {
+    // Slotkoersen van de rechten en hun aandelen, om uit te rekenen of meedoen loont.
+    name: "rechtenkoersen",
+    from: 20,
+    async run({ openSocket }, state) {
+      if (!openSocket || !state.rights?.length) return;
+      const symbols = state.rights.flatMap((l) => [l.symbol, ...(l.companySymbol ? [l.companySymbol] : [])]);
+      state.quotes = Object.fromEntries(await fetchQuotes(openSocket, symbols));
+    },
+  },
+  {
     // Koersen van aandelen met speciaal-dividendnieuws, om het bedrag naast de koers te leggen.
     name: "prijzen",
     from: 15,
@@ -469,6 +540,8 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
 export interface RunResult {
   step?: string;
   sent?: number;
+  /** Meldingen van de rechtenwacht. */
+  alerts?: number;
   stories: number;
   errors: string[];
 }
@@ -524,18 +597,37 @@ export async function runMorningStep(deps: MorningDeps, send: (html: string) => 
     }
   }
 
+  const runStep = async (step: Step) => {
+    result.step = step.name;
+    let more = false;
+    try {
+      more = (await step.run(deps, state, today)) === true;
+    } catch (error) {
+      state.errors.push(`${step.name}: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    if (!more) state.done.push(step.name);
+    await store.setSetting(DAY_KEY, JSON.stringify(state));
+  };
+
   // De voorbereidende stappen, één per minuut, alleen vóór het overzicht.
   if (!result.step && active) {
     const step = STEPS.find((s) => !state.done.includes(s.name) && untilDigest <= s.from && untilDigest > 0);
-    if (step) {
-      result.step = step.name;
+    if (step) await runStep(step);
+  }
+
+  // Tijdens de beurs: rechten die ver onder hun waarde noteren. Was er vanochtend geen
+  // rechtenkalender (storing, of net live gezet), dan eerst die.
+  const watching = local.weekday <= 5 && local.minutes > WATCH_FROM && local.minutes <= WATCH_TO;
+  if (!result.step && watching && deps.openSocket) {
+    const missing = ["rechten", "rechtenvoorwaarden"].find((name) => !state.done.includes(name));
+    if (missing) await runStep(STEPS.find((s) => s.name === missing)!);
+    else if (local.minutes - WATCH_FROM <= 30 || local.minutes % 5 === 0) {
       try {
-        await step.run(deps, state, today);
+        result.alerts = await watchRights(deps, state, today);
       } catch (error) {
-        state.errors.push(`${step.name}: ${error instanceof Error ? error.message : String(error)}`);
+        result.errors.push(`rechtenwacht: ${error instanceof Error ? error.message : String(error)}`);
+        await store.setSetting(RIGHTS_WATCH_KEY, JSON.stringify({ at: now, error: error instanceof Error ? error.message : String(error) }));
       }
-      state.done.push(step.name);
-      await store.setSetting(DAY_KEY, JSON.stringify(state));
     }
   }
 
@@ -546,6 +638,192 @@ export async function runMorningStep(deps: MorningDeps, send: (html: string) => 
     result.errors.push(`berichten lezen: ${error instanceof Error ? error.message : String(error)}`);
   }
   return result;
+}
+
+// ---------------------------------------------------------------- claimrechten: voorwaarden en waarde
+
+export async function loadTerms(store: Store): Promise<Record<string, RightsTerms>> {
+  try {
+    return JSON.parse((await store.getSetting(RIGHTS_TERMS_KEY)) ?? "{}") as Record<string, RightsTerms>;
+  } catch {
+    return {};
+  }
+}
+
+export async function saveTerms(store: Store, terms: Record<string, RightsTerms>): Promise<void> {
+  await store.setSetting(RIGHTS_TERMS_KEY, JSON.stringify(terms));
+}
+
+/**
+ * Uitgifteprijs en verhouding uit het nieuws over het bedrijf, in de eigen taal en in het Engels:
+ * de nieuwste berichten over de claimemissie, tot prijs en verhouding allebei bekend zijn.
+ */
+export async function findTerms(fetcher: Fetch, line: RightsLine, now: number): Promise<RightsTerms> {
+  const symbol = line.companySymbol;
+  if (!symbol) return {};
+  const items = new Map<string, NewsItem & { lang: string }>();
+  for (const lang of new Set([RIGHTS_LANG[line.exchange] ?? "en", "en"])) {
+    try {
+      for (const item of await fetchNews(fetcher, symbol, lang)) if (!items.has(item.id)) items.set(item.id, { ...item, lang });
+    } catch {
+      // Taal niet beschikbaar: dan alleen de andere.
+    }
+  }
+  const recent = [...items.values()]
+    .filter((item) => item.published > now - TERMS_MAX_AGE_DAYS * 86400 && RIGHTS_TITLE.test(fold(item.title)))
+    .sort((a, b) => b.published - a.published);
+  const found: RightsTerms[] = [];
+  for (const item of recent.slice(0, 4)) {
+    let story = "";
+    try {
+      const details = await fetchStory(fetcher, item.id, item.lang);
+      story = details.text ?? details.summary ?? "";
+    } catch {
+      // Alleen de kop dan.
+    }
+    const terms = parseRightsTerms(`${item.title}\n${story}`);
+    if (terms.price || terms.newShares) found.push({ ...terms, source: item.title, url: item.storyUrl ?? item.link ?? "" });
+    if (termsComplete(mergeTerms(found))) break;
+  }
+  const terms = mergeTerms(found);
+  // In Noorwegen krijg je een aantal rechten naar rato, en geeft elk recht één nieuw aandeel.
+  if (terms.price && !terms.newShares && line.exchange === "OSL" && !terms.units) {
+    terms.newShares = 1;
+    terms.perRights = 1;
+    terms.assumed = "1 recht = 1 nieuw aandeel, zoals gebruikelijk in Noorwegen";
+  }
+  return terms;
+}
+
+/** Koers met genoeg decimalen voor rechten van een paar cent. */
+function quotePrice(value: number, currency: string | undefined): string {
+  const digits = value >= 10 ? 2 : value >= 1 ? 3 : value >= 0.1 ? 3 : 4;
+  const shown = value.toLocaleString("nl-NL", { minimumFractionDigits: Math.min(digits, 2), maximumFractionDigits: digits });
+  const cur = (currency ?? "").toUpperCase();
+  if (cur === "EUR") return `€${shown}`;
+  if (cur === "GBP") return `£${shown}`;
+  return cur ? `${shown} ${cur}` : shown;
+}
+
+function pct1(ratio: number): string {
+  return `${(Math.abs(ratio) * 100).toLocaleString("nl-NL", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`;
+}
+
+function ratioText(terms: RightsTerms): string {
+  const what = terms.units ? (terms.newShares === 1 ? "unit" : "units") : terms.newShares === 1 ? "nieuw aandeel" : "nieuwe aandelen";
+  const unit = terms.units && terms.sharesPerUnit ? ` (${terms.sharesPerUnit} ${terms.sharesPerUnit === 1 ? "aandeel" : "aandelen"} per unit)` : "";
+  return `${formatCount(terms.newShares!)} ${what} per ${formatCount(terms.perRights!)} ${terms.perRights === 1 ? "recht" : "rechten"}${unit}`;
+}
+
+function formatCount(value: number): string {
+  return value.toLocaleString("nl-NL", { maximumFractionDigits: 4 });
+}
+
+/** "via rechten €24,69 per aandeel = 0,7% goedkoper dan het aandeel (recht 4% onder z'n waarde €0,729)". */
+export function verdict(value: RightsValue, currency: string | undefined): string {
+  const via = `via rechten ${quotePrice(value.viaRights, currency)} per aandeel`;
+  const under = value.discount !== null && value.discount > 0 ? `, recht ${pct1(value.discount)} onder z'n waarde ${quotePrice(value.value, currency)}` : "";
+  if (value.edge >= 0.01) return `✅ <b>winstgevend</b>: ${via} = <b>${pct1(value.edge)} goedkoper</b> dan het aandeel${under}`;
+  if (value.edge >= 0) return `➖ nauwelijks marge: ${via} = ${pct1(value.edge)} goedkoper dan het aandeel${under}`;
+  return `❌ niet winstgevend: ${via} = ${pct1(value.edge)} duurder dan het aandeel; het aandeel kopen is goedkoper`;
+}
+
+/** De regels onder een rechtenlijn in het overzicht: slotkoersen, voorwaarden en de rekensom. */
+export function rightsCalcLines(line: RightsLine, terms: RightsTerms | undefined, quotes: Record<string, Quote> | undefined, today: string, tz: string): string[] {
+  const right = quotes?.[line.symbol];
+  const share = line.companySymbol ? quotes?.[line.companySymbol] : undefined;
+  const parts: string[] = [];
+  const printed = (q: Quote | undefined, label: string) => {
+    if (q?.last === undefined) return;
+    const day = q.lastTime ? localTime(q.lastTime, tz).date : "";
+    const old = day && daysBetween(day, today) > 4 ? ` (laatst verhandeld ${escapeHtml(formatDay(day, today))})` : "";
+    parts.push(`${label} ${escapeHtml(quotePrice(q.last, q.currency))}${old}`);
+  };
+  printed(right, "slot recht");
+  printed(share, "aandeel");
+  if (terms?.price) parts.push(`uitgifte ${escapeHtml(quotePrice(terms.price, terms.currency === "KR" ? share?.currency : terms.currency))}`);
+  if (terms?.newShares && terms.perRights) parts.push(escapeHtml(ratioText(terms)));
+  const source = terms?.manual ? " (zelf ingevoerd)" : terms?.url ? ` · <a href="${escapeHtml(terms.url)}">bron</a>` : "";
+  const lines: string[] = [];
+  if (parts.length) lines.push(`   💹 ${parts.join(" · ")}${source}`);
+  const value = right?.last !== undefined && share?.last !== undefined ? rightsValue(terms, share.last, right.last, share.currency) : null;
+  if (value) {
+    lines.push(`   ${verdict(value, share?.currency)}${terms?.assumed ? ` (aanname: ${escapeHtml(terms.assumed)})` : ""}`);
+  } else if (!termsComplete(terms)) {
+    const missing = !terms?.price ? (terms?.newShares ? "uitgifteprijs" : "uitgifteprijs en verhouding") : terms.units && terms.newShares ? "samenstelling van de unit" : "verhouding";
+    lines.push(`   ❔ ${missing} niet gevonden · zelf invullen: /rechten ${escapeHtml(ticker(line.symbol))} &lt;prijs&gt; &lt;nieuw&gt;/&lt;rechten&gt;`);
+  }
+  return lines;
+}
+
+/** Hoeveel voordeel (0,02 = 2%) een melding waard is; 0 = uit. */
+export async function rightsAlertThreshold(store: Store): Promise<number> {
+  const raw = await store.getSetting(RIGHTS_ALERT_KEY);
+  const value = raw === null ? NaN : Number(raw);
+  return Number.isFinite(value) && value >= 0 ? value : DEFAULT_RIGHTS_ALERT;
+}
+
+/**
+ * Rechtenwacht: koopt je nu de rechten (tegen de laatprijs) en schrijf je in, hoeveel goedkoper
+ * is dat dan dan het aandeel verkopen (tegen de biedprijs)? Boven de drempel een melding, en
+ * opnieuw als het voordeel nog een procentpunt groter wordt.
+ */
+export async function watchRights(deps: MorningDeps, state: DayState, today: string): Promise<number> {
+  const { store, now, openSocket, alert, config } = deps;
+  if (!openSocket || !alert) return 0;
+  const threshold = await rightsAlertThreshold(store);
+  if (!threshold) return 0;
+  const cache = await loadTerms(store);
+  const lines = (state.rights ?? []).filter((l) => l.companySymbol && termsComplete(cache[l.symbol]));
+  if (!lines.length) {
+    await store.setSetting(RIGHTS_WATCH_KEY, JSON.stringify({ at: now, lines: 0 }));
+    return 0;
+  }
+  const quotes = await fetchQuotes(openSocket, lines.flatMap((l) => [l.symbol, l.companySymbol!]));
+  let raw: { date?: string; edges?: Record<string, number> } = {};
+  try {
+    raw = JSON.parse((await store.getSetting(RIGHTS_ALERTED_KEY)) ?? "{}");
+  } catch {
+    // Opnieuw beginnen.
+  }
+  const edges = raw.date === today ? (raw.edges ?? {}) : {};
+  const tradedToday = (q: Quote | undefined) => !!q?.lastTime && localTime(q.lastTime, config.timeZone).date === today;
+  const later = await store.listAgenda(today, addDays(today, 60));
+  let sent = 0;
+  const seen: Record<string, number> = {};
+  for (const line of lines) {
+    const rq = quotes.get(line.symbol);
+    const sq = quotes.get(line.companySymbol!);
+    // Alleen als allebei vandaag verhandeld zijn; anders is de koers van gisteren.
+    if (!rq || !sq || !tradedToday(rq) || !tradedToday(sq)) continue;
+    const rightPrice = rq.ask ?? rq.last;
+    const sharePrice = sq.bid ?? sq.last;
+    if (rightPrice === undefined || sharePrice === undefined) continue;
+    const terms = cache[line.symbol];
+    const value = rightsValue(terms, sharePrice, rightPrice, sq.currency);
+    if (!value) continue;
+    seen[line.symbol] = Math.round(value.edge * 1000) / 1000;
+    const before = edges[line.symbol];
+    if (value.edge < threshold || (before !== undefined && value.edge < before + 0.01)) continue;
+    const lastDay = later.find((item) => item.symbol === line.companySymbol && /laatste handelsdag rechten/.test(item.label));
+    const warn = lastDay?.date === today ? "\n⚠️ <b>vandaag laatste handelsdag van de rechten</b>" : "";
+    const subscribe = line.expiry ? ` (inschrijven kan tot ${escapeHtml(formatDay(line.expiry, today))})` : "";
+    await alert(
+      [
+        `🧾💰 <b>${escapeHtml(ticker(line.symbol))}</b> rechten ${escapeHtml(line.company)}: meedoen is nu <b>${pct1(value.edge)} goedkoper</b> dan het aandeel`,
+        `recht ${escapeHtml(quotePrice(rightPrice, rq.currency))}${rq.ask !== undefined ? " (laat)" : ""} · aandeel ${escapeHtml(quotePrice(sharePrice, sq.currency))}${sq.bid !== undefined ? " (bied)" : ""} · uitgifte ${escapeHtml(quotePrice(terms.price!, sq.currency))} · ${escapeHtml(ratioText(terms))}`,
+        `via rechten ${escapeHtml(quotePrice(value.viaRights, sq.currency))} per aandeel${value.discount !== null ? ` · recht ${pct1(value.discount)} onder z'n waarde ${escapeHtml(quotePrice(value.value, sq.currency))}` : ""}${warn}`,
+        ...(terms.assumed ? [`Aanname: ${escapeHtml(terms.assumed)}; check het prospectus.`] : []),
+        `De nieuwe aandelen komen pas na de inschrijving${subscribe}: wie het verschil wil vastzetten, verkoopt het aandeel short. Vóór kosten.`,
+        `<a href="${escapeHtml(chartUrl(line.symbol))}">grafiek recht</a> · <a href="${escapeHtml(chartUrl(line.companySymbol!))}">grafiek aandeel</a>`,
+      ].join("\n"),
+    );
+    edges[line.symbol] = value.edge;
+    sent++;
+  }
+  await store.setSetting(RIGHTS_ALERTED_KEY, JSON.stringify({ date: today, edges }));
+  await store.setSetting(RIGHTS_WATCH_KEY, JSON.stringify({ at: now, lines: lines.length, quotes: quotes.size, edges: seen, sent }));
+  return sent;
 }
 
 // ---------------------------------------------------------------- bedragen
@@ -567,14 +845,6 @@ const SPECIAL = "(?:special|extraordinary|extra|one-off|one-time|bonus|sonder|zu
 const DIVIDEND = "(?:dividend|dividende|dividendo|distribution|ausschuttung|utdelning|utbytte|udbytte|osinko)\\w*";
 /** "special dividend", "Sonderdividende", maar ook "dividende exceptionnel", "dividendo straordinario". */
 const DIVIDEND_WORDS = new RegExp(`${SPECIAL}\\s*(?:cash\\s+)?${DIVIDEND}|${DIVIDEND}\\s+${SPECIAL}`);
-
-function parseNumber(raw: string): number {
-  let value = raw.replace(/\s/g, "");
-  if (/[.,]\d{3}[.,]\d{1,4}$/.test(value) || /^\d{1,3}([.,]\d{3})+$/.test(value) && !/[.,]\d{3}$/.test(value)) {
-    value = value.replace(/[.,](?=\d{3}(?:[.,]|$))/g, "");
-  }
-  return Number(value.replace(",", "."));
-}
 
 /**
  * Het bedrag van een speciaal dividend uit kop of tekst: het eerste bedrag met munt binnen
@@ -725,6 +995,7 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   // Claimemissies: lopende rechtenlijnen met hun data, en nieuws over claimemissies.
   const claimLines: string[] = [];
   const withRights = new Set<string>();
+  const terms = state.rights?.length ? await loadTerms(store) : {};
   for (const r of [...(state.rights ?? [])].sort((a, b) => (a.expiry || "9").localeCompare(b.expiry || "9"))) {
     if (r.companySymbol) withRights.add(r.companySymbol);
     const fresh = r.firstSeen && r.firstSeen >= localTime(since, tz).date ? " · 🆕 <b>rechtenhandel net begonnen</b>" : "";
@@ -733,8 +1004,11 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
       .map((item) => `${escapeHtml(item.label)} ${when(item.date)}`);
     if (r.expiry) dates.push(`rechten vervallen ${when(r.expiry)}`);
     claimLines.push(
-      `• <b>${escapeHtml(ticker(r.symbol))}</b> rechten ${escapeHtml(r.company)} (${escapeHtml(r.exchange)}${size})${fresh}` +
-        (dates.length ? `\n   ${dates.join(" · ")}` : ""),
+      [
+        `• <b>${escapeHtml(ticker(r.symbol))}</b> rechten ${escapeHtml(r.company)} (${escapeHtml(r.exchange)}${size})${fresh}`,
+        ...(dates.length ? [`   ${dates.join(" · ")}`] : []),
+        ...rightsCalcLines(r, terms[r.symbol], state.quotes, today, tz),
+      ].join("\n"),
     );
   }
   claimLines.push(...newsLines((byFilter.get("claim") ?? []).filter((e) => !withRights.has(e.symbol))));

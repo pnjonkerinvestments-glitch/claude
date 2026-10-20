@@ -1,3 +1,4 @@
+import type { OpenSocket } from "../src/quotes.ts";
 import type { AgendaItem, EventRecord, FilterWord, Listing, Store, UniverseEntry, WatchEntry } from "../src/store.ts";
 import { Telegram } from "../src/telegram.ts";
 import type { Fetch } from "../src/tradingview.ts";
@@ -278,4 +279,35 @@ export function msg(text: string, opts: { chatId?: string; fromId?: string; chat
     fromId: opts.fromId ?? opts.chatId ?? "1",
     fromName: "Pepijn",
   };
+}
+
+/** Koersverbinding die per symbool vaste velden teruggeeft (zoals de websocket van TradingView). */
+export function fakeSocket(fields: Record<string, Record<string, unknown>>) {
+  const opened: string[][] = [];
+  const open: OpenSocket = async () => {
+    let listener: (data: string) => void = () => {};
+    const reply = (m: string, p: unknown[]) => {
+      const body = JSON.stringify({ m, p });
+      queueMicrotask(() => listener(`~m~${body.length}~m~${body}`));
+    };
+    return {
+      send(data: string) {
+        const body = JSON.parse(data.replace(/^~m~\d+~m~/, "")) as { m: string; p: string[] };
+        if (body.m !== "quote_add_symbols") return;
+        const [session, ...symbols] = body.p;
+        opened.push(symbols);
+        for (const symbol of symbols) {
+          if (fields[symbol]) reply("qsd", [session, { n: symbol, s: "ok", v: fields[symbol] }]);
+          else reply("qsd", [session, { n: symbol, s: "error", v: {} }]);
+          reply("quote_completed", [session, symbol]);
+        }
+      },
+      close() {},
+      onMessage(fn: (data: string) => void) {
+        listener = fn;
+      },
+      onClose() {},
+    };
+  };
+  return { open, opened, fields };
 }
