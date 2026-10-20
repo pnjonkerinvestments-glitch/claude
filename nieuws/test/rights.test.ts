@@ -173,12 +173,12 @@ test("rechtenwacht: niet op koersen van gisteren, niet onder de drempel, en uit 
 
   const now = at("2026-10-20", "09:01");
   const small = await watchSetup({
-    "MIL:UNIAXA": { lp: 0.7, lp_time: now, ask: 0.7, currency_code: "EUR" },
+    "MIL:UNIAXA": { lp: 0.72, lp_time: now, ask: 0.72, currency_code: "EUR" },
     "MIL:UNI": { lp: 24.9, lp_time: now, bid: 24.86, currency_code: "EUR" },
   });
-  assert.equal(await watchRights(small.deps("09:05"), JSON.parse((await small.store.getSetting(DAY_KEY))!), "2026-10-20"), 0, "0,7% is te weinig");
-  await small.store.setSetting("rights_alert_pct", "0.005");
-  assert.equal(await watchRights(small.deps("09:06"), JSON.parse((await small.store.getSetting(DAY_KEY))!), "2026-10-20"), 1, "drempel 0,5%");
+  assert.equal(await watchRights(small.deps("09:05"), JSON.parse((await small.store.getSetting(DAY_KEY))!), "2026-10-20"), 0, "0,2% is te weinig");
+  await small.store.setSetting("rights_alert_pct", "0.001");
+  assert.equal(await watchRights(small.deps("09:06"), JSON.parse((await small.store.getSetting(DAY_KEY))!), "2026-10-20"), 1, "drempel 0,1%");
   await small.store.setSetting("rights_alert_pct", "0");
   small.socket.opened.length = 0;
   assert.equal(await watchRights(small.deps("09:07"), JSON.parse((await small.store.getSetting(DAY_KEY))!), "2026-10-20"), 0);
@@ -223,7 +223,7 @@ test("/rechten toont de rekensom en neemt zelf ingevulde voorwaarden aan; /recht
   assert.match(net.sent.at(-1)!.text, /Geen lopende rechten met ticker ONBEKEND/);
 
   await handleMessage(bot, msg("/rechtenalarm"));
-  assert.match(net.sent.at(-1)!.text, /minstens 2% goedkoper/);
+  assert.match(net.sent.at(-1)!.text, /minstens 0,5% goedkoper/);
   await handleMessage(bot, msg("/rechtenalarm 3,5"));
   assert.equal(await store.getSetting("rights_alert_pct"), "0.035");
   await handleMessage(bot, msg("/rechtenalarm 1", { chatId: "-100", chatType: "supergroup", fromId: "2" }));

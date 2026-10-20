@@ -14,9 +14,10 @@ import { workerSocket } from "./quotes.ts";
 import { LAST_MORNING_KEY, LAST_RUN_KEY, LAST_SCREEN_KEY, processUpdates } from "./bot.ts";
 import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
-import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, DEFAULT_FILTERS, RETIRED_FILTERS, loadConfig } from "./config.ts";
+import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, DEFAULT_FILTERS, DEFAULT_MIN_CAP, RETIRED_FILTERS, loadConfig } from "./config.ts";
 import { DIGEST_ONLY_KEY, EUROPE_FILTERS_KEY, checkScreener, refreshUniverse } from "./screener.ts";
-import { DIGEST, runMorningStep } from "./morning.ts";
+import { DIGEST, RIGHTS_ALERT_KEY, runMorningStep } from "./morning.ts";
+import { MIN_CAP_KEY } from "./size.ts";
 import type { Store } from "./store.ts";
 import { D1Store } from "./store.ts";
 import { Telegram } from "./telegram.ts";
@@ -35,14 +36,31 @@ const MORNING_LOCK_KEY = "morning_lock";
 /** Langer dan een normale run, korter dan het cron-interval plus wat marge. */
 const LOCK_SECONDS = 55;
 
+/** Eenmalige omzettingen van bestaande installaties. */
+async function migrate(store: Store): Promise<void> {
+  const raw = await store.getSetting(MIGRATIONS_KEY);
+  const done = new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
+  if (!done.has("2026-10-minder-rommel")) await lessNoise(store);
+  done.add("2026-10-minder-rommel");
+  // Emissies en claimemissies pas vanaf €40 mln, rechtenalarm vanaf 0,5% (ook als het eerder was aangepast).
+  if (!done.has("2026-10-emissies-40m")) {
+    const caps = await store.getSetting(MIN_CAP_KEY);
+    if (caps) {
+      const stored = JSON.parse(caps) as Record<string, number>;
+      for (const filter of ["emissie", "claim"]) if (filter in stored) stored[filter] = DEFAULT_MIN_CAP[filter];
+      await store.setSetting(MIN_CAP_KEY, JSON.stringify(stored));
+    }
+    await store.deleteSetting(RIGHTS_ALERT_KEY);
+    done.add("2026-10-emissies-40m");
+  }
+  await store.setSetting(MIGRATIONS_KEY, JSON.stringify([...done]));
+}
+
 /**
  * Oktober 2026, "minder rommel": insiders weg, en emissies, claimemissies en overnames over heel
  * Europa (Unipol en grote Britse biedingen vallen ver buiten de small caps).
  */
-async function migrate(store: Store): Promise<void> {
-  const raw = await store.getSetting(MIGRATIONS_KEY);
-  const done = new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
-  if (done.has("2026-10-minder-rommel")) return;
+async function lessNoise(store: Store): Promise<void> {
   for (const filter of RETIRED_FILTERS) await store.removeFilter(filter);
   const routes = await loadRoutes(store);
   for (const filter of RETIRED_FILTERS) delete routes[`filter:${filter}`];
@@ -58,8 +76,6 @@ async function migrate(store: Store): Promise<void> {
     for (const filter of remove) list.delete(filter);
     await store.setSetting(key, JSON.stringify([...list]));
   }
-  done.add("2026-10-minder-rommel");
-  await store.setSetting(MIGRATIONS_KEY, JSON.stringify([...done]));
 }
 
 export async function seed(store: Store, env: Env): Promise<void> {

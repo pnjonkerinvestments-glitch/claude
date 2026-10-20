@@ -409,7 +409,7 @@ test("ochtendoverzicht: op werkdagen om 08:40 één keer, met agenda, claimemiss
   // Claimemissie: rechtenlijn met alle data, en het emissiebericht niet nog eens onder Emissies.
   assert.match(
     text,
-    /Claimemissies en rechtenhandel<\/b>\n• <b>UNIAXA<\/b> rechten UNIPOL ASSICURAZIONI SPA \(MIL, €23,0 mld\) · 🆕 <b>rechtenhandel net begonnen<\/b>\n   rechtenhandel begint <b>ma 12 okt<\/b> \(over 6 dagen\) · laatste handelsdag rechten <b>di 20 okt<\/b> \(over 14 dagen\) · inschrijving sluit <b>ma 26 okt<\/b> \(over 20 dagen\) · rechten vervallen <b>ma 26 okt<\/b> \(over 20 dagen\)\n   💹 slot recht €0,70 · aandeel €24,86 · uitgifte €20,56 · 10 nieuwe aandelen per 59 rechten · <a href="https:\/\/www.tradingview.com\/news\/u1\/">bron<\/a>\n   ➖ nauwelijks marge: via rechten €24,69 per aandeel = 0,7% goedkoper dan het aandeel, recht 4,0% onder z'n waarde €0,729\n\n/,
+    /Claimemissies en rechtenhandel<\/b>\n• <b>UNIAXA<\/b> rechten UNIPOL ASSICURAZIONI SPA \(MIL, €23,0 mld\) · 🆕 <b>rechtenhandel net begonnen<\/b>\n   rechtenhandel begint <b>ma 12 okt<\/b> \(over 6 dagen\) · laatste handelsdag rechten <b>di 20 okt<\/b> \(over 14 dagen\) · inschrijving sluit <b>ma 26 okt<\/b> \(over 20 dagen\) · rechten vervallen <b>ma 26 okt<\/b> \(over 20 dagen\)\n   💹 slot recht €0,70 · aandeel €24,86 · uitgifte €20,56 · 10 nieuwe aandelen per 59 rechten · <a href="https:\/\/www.tradingview.com\/news\/u1\/">bron<\/a>\n   ✅ <b>winstgevend<\/b>: via rechten €24,69 per aandeel = <b>0,7% goedkoper<\/b> dan het aandeel, recht 4,0% onder z'n waarde €0,729\n\n/,
   );
   assert.ok(!text.includes("OLDR"), "verlopen rechten");
   assert.match(text, /ma 12 okt<\/b> \(over 6 dagen\) <b>UNI<\/b> \(MIL\) · rechtenhandel begint/);

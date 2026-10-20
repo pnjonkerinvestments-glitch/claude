@@ -52,7 +52,7 @@ Grafiek
   - `insolventie`: faillissement en surseance (Insolvenz, redressement judiciaire, composizione
     negoziata, administrators, ...)
   - `emissie`: aandelenemissies (placing, rights issue, Kapitalerhöhung, augmentation de capital, ...).
-    Over heel Europa vanaf €10 mln, maar niet in Londen (dagelijks tientallen placings van kleine
+    Over heel Europa vanaf €40 mln, maar niet in Londen (dagelijks tientallen placings van kleine
     AIM-fondsen).
   - `claim`: claimemissies, emissies met verhandelbare rechten (rights issue, Bezugsangebot, diritti di
     opzione, droits préférentiels de souscription, företrädesemission, fortrinnsrettsemisjon, ...).
@@ -100,7 +100,7 @@ Alles sinds ma 5 okt, 08:40
 • UNIAXA rechten UNIPOL ASSICURAZIONI SPA (MIL, €23,0 mld) · 🆕 rechtenhandel net begonnen
    rechtenhandel begint ma 12 okt · laatste handelsdag rechten di 20 okt · inschrijving sluit ma 26 okt
    💹 slot recht €0,70 · aandeel €24,86 · uitgifte €20,56 · 10 nieuwe aandelen per 59 rechten · bron
-   ➖ nauwelijks marge: via rechten €24,69 per aandeel = 0,7% goedkoper dan het aandeel, recht 4,0% onder z'n waarde €0,729
+   ✅ winstgevend: via rechten €24,69 per aandeel = 0,7% goedkoper dan het aandeel, recht 4,0% onder z'n waarde €0,729
 
 💰 Speciaal dividend ≥ 25% van de koers
 • A3M Atresmedia: …
@@ -120,7 +120,7 @@ Alles sinds ma 5 okt, 08:40
 | 🧾 Claimemissies en rechtenhandel | **Rechtenkalender**: elke ochtend alle claimrechten op de Europese beurzen (TradingView kent ze als type "right", met de vervaldatum in de omschrijving), gekoppeld aan het bedrijf. 🆕 = de rechtenhandel is net begonnen. Daaronder de data uit het persbericht ("negoziabili dal 12 al 20 ottobre" → *laatste handelsdag rechten*) en **de rekensom**: slotprint van het recht en van het aandeel, uitgifteprijs en verhouding, en of meedoen via de rechten goedkoper is dan het aandeel kopen (zie *Claimrechten doorrekenen*). Plus nieuws over claimemissies (filter `claim`) |
 | 💰 Speciaal dividend ≥ 25% | Aangekondigd dividend uit de TradingView-screener (alle Europese aandelen, in eigen munt, gedeeld door de koers), plus speciaal-dividendnieuws: het bedrag uit het bericht naast de koers. Kleiner dan 25% wordt weggelaten |
 | 🤝 Overnames | Biedingen vanaf €250 mln in heel Europa, ook in Londen (Rule 2.7, possible offer, scheme of arrangement), met de eerstvolgende deadline uit de agenda |
-| 💶 Emissies | Placings, ABB's en kapitaalverhogingen vanaf €10 mln in heel Europa, **behalve Londen**. Een claimemissie staat bij de claimemissies |
+| 💶 Emissies | Placings, ABB's en kapitaalverhogingen vanaf €40 mln in heel Europa, **behalve Londen**. Een claimemissie staat bij de claimemissies |
 | 🆕 Nieuw op de beurs / 🔁 Dubbele noteringen | Alle noteringen op de Europese beurzen vergelijken met gisteren, alleen vanaf **€1 mld** marktwaarde |
 | 📅 Beursgangen en noteringen op komst | IPO-kalender van TradingView (status "pending", vanaf €100 mln) en IPO- en noteringsnieuws |
 | ⛔ Handelsstops · 📣 Ad-hoc · 💊 FDA/EMA/studies · ✂️ Spin-offs en splits · 📊 Indexwijzigingen · ⚠️ Insolventie | Woordfilters op de nieuwsstromen. Ad-hoc alleen sinds het slot van gisteren (17:30) |
@@ -143,7 +143,7 @@ Dan:
 
 - waarde van één recht = (koers aandeel − uitgifteprijs) × nieuwe aandelen per recht;
 - via rechten betaal je per nieuw aandeel: uitgifteprijs + koers recht × rechten per nieuw aandeel;
-- ✅ *winstgevend* als dat minstens 1% onder de koers van het aandeel ligt, ➖ bij 0–1%, ❌ als het
+- ✅ *winstgevend* als dat minstens 0,5% onder de koers van het aandeel ligt, ➖ bij 0–0,5%, ❌ als het
   aandeel kopen goedkoper is. Alles vóór kosten; de nieuwe aandelen komen pas na de inschrijving, dus
   wie het verschil wil vastzetten verkoopt het aandeel short.
 
@@ -154,11 +154,11 @@ erbij. Vindt de bot iets niet, dan staat er ❔ en kun je het zelf invullen: `/r
 
 **Rechtenwacht.** Tijdens de beurs (09:00–17:30; het eerste half uur elke minuut, daarna om de vijf
 minuten) rekent de bot dezelfde som met de laatprijs van het recht en de biedprijs van het aandeel.
-Is meedoen minstens 2% goedkoper dan het aandeel, dan komt er meteen een melding in het onderwerp
+Is meedoen minstens 0,5% goedkoper dan het aandeel, dan komt er meteen een melding in het onderwerp
 Emissies, met een waarschuwing op de laatste handelsdag van de rechten. Opnieuw alleen als het
 voordeel nog een procentpunt groter wordt. Zoals bij Unipol op 20 oktober 2026: de rechten openden op
 €0,51 bij een aandeel van €24,26, dus via de rechten €23,57 per aandeel, 2,8% goedkoper (het recht
-noteerde 19% onder zijn waarde). Drempel aanpassen: `/rechtenalarm 3`, uitzetten: `/rechtenalarm 0`.
+noteerde 19% onder zijn waarde). Drempel aanpassen: `/rechtenalarm 1`, uitzetten: `/rechtenalarm 0`.
 
 **Agenda.** Van berichten over overnames, claimemissies (en emissies, om te zien of het om een
 claimemissie gaat), FDA, noteringen, IPO's, splitsingen, indexwijzigingen en speciaal dividend leest
@@ -186,7 +186,7 @@ minimale marktwaarde:
 
 | Filter | Vanaf |
 | --- | --- |
-| `emissie`, `claim` | €10 mln |
+| `emissie`, `claim` | €40 mln |
 | `ipo` | €100 mln |
 | `overname` | €250 mln |
 | `notering` (ook de blokken nieuwe en dubbele noteringen) | €1 mld |
@@ -283,7 +283,7 @@ onderwerp, dan komt hij in elk van die onderwerpen.
 | `/agendaweg 12` | agendapunt weghalen |
 | `/rechten` | lopende claimemissies met slotkoersen, uitgifteprijs, verhouding en of meedoen loont |
 | `/rechten UNIAXA 20,56 10/59` | zelf uitgifteprijs en verhouding invullen (10 nieuwe aandelen per 59 rechten); `/rechten UNIAXA weg` laat de bot opnieuw zoeken (eigenaar) |
-| `/rechtenalarm 2` | melding tijdens de beurs als meedoen via de rechten 2% goedkoper is dan het aandeel; 0 = uit (eigenaar) |
+| `/rechtenalarm 0,5` | melding tijdens de beurs als meedoen via de rechten 0,5% goedkoper is dan het aandeel; 0 = uit (eigenaar) |
 | `/direct overname aan` / `uit` | filter ook direct melden, of alleen in het ochtendoverzicht (eigenaar) |
 | `/hier ochtend` | ochtendoverzicht naar dit onderwerp (eigenaar) |
 

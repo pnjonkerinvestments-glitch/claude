@@ -74,7 +74,9 @@ const TERMS_PER_RUN = 3;
 const TERMS_MAX_AGE_DAYS = 120;
 /** Melding als meedoen via de rechten zoveel goedkoper is dan het aandeel (/rechtenalarm). */
 export const RIGHTS_ALERT_KEY = "rights_alert_pct";
-const DEFAULT_RIGHTS_ALERT = 0.02;
+const DEFAULT_RIGHTS_ALERT = 0.005;
+/** Vanaf zoveel voordeel heet meedoen via de rechten winstgevend. */
+const WINNING = 0.005;
 /** Wat er vandaag al gemeld is: {date, edges: {symbool: voordeel}}. */
 const RIGHTS_ALERTED_KEY = "rights_alerted";
 /** Laatste ronde van de rechtenwacht, voor /status en controle. */
@@ -723,7 +725,7 @@ function formatCount(value: number): string {
 export function verdict(value: RightsValue, currency: string | undefined): string {
   const via = `via rechten ${quotePrice(value.viaRights, currency)} per aandeel`;
   const under = value.discount !== null && value.discount > 0 ? `, recht ${pct1(value.discount)} onder z'n waarde ${quotePrice(value.value, currency)}` : "";
-  if (value.edge >= 0.01) return `✅ <b>winstgevend</b>: ${via} = <b>${pct1(value.edge)} goedkoper</b> dan het aandeel${under}`;
+  if (value.edge >= WINNING) return `✅ <b>winstgevend</b>: ${via} = <b>${pct1(value.edge)} goedkoper</b> dan het aandeel${under}`;
   if (value.edge >= 0) return `➖ nauwelijks marge: ${via} = ${pct1(value.edge)} goedkoper dan het aandeel${under}`;
   return `❌ niet winstgevend: ${via} = ${pct1(value.edge)} duurder dan het aandeel; het aandeel kopen is goedkoper`;
 }
@@ -756,7 +758,7 @@ export function rightsCalcLines(line: RightsLine, terms: RightsTerms | undefined
   return lines;
 }
 
-/** Hoeveel voordeel (0,02 = 2%) een melding waard is; 0 = uit. */
+/** Hoeveel voordeel (0,005 = 0,5%) een melding waard is; 0 = uit. */
 export async function rightsAlertThreshold(store: Store): Promise<number> {
   const raw = await store.getSetting(RIGHTS_ALERT_KEY);
   const value = raw === null ? NaN : Number(raw);
