@@ -17,8 +17,10 @@ import {
 } from "../src/screener.ts";
 import type { UniverseEntry } from "../src/store.ts";
 import { listingsPayload, parseListings } from "../src/listings.ts";
-import { dividendPayload, earningsPayload, gapPayload, ipoPayload, parseDividends, parseGaps } from "../src/morning.ts";
+import { dividendPayload, ipoPayload, parseDividends } from "../src/morning.ts";
 import { scanner } from "../src/tradingview.ts";
+import { fetchGrowthOslo } from "../src/growth.ts";
+import { RIGHTS_EXCHANGES, searchRights } from "../src/rights.ts";
 
 const symbols = process.argv.slice(2).length ? process.argv.slice(2) : ["XETR:1INN"];
 const langs = ["de", "en"];
@@ -139,7 +141,6 @@ if (sample) {
 // ---- ochtendoverzicht: alle screener-vragen moeten werken
 {
   const today = Math.floor(Date.now() / 86400_000) * 86400;
-  const range = { min: config.capMinEur, max: config.capMaxEur };
   const checks: Array<[string, unknown, (rows: Array<{ s: string; d: unknown[] }>) => string]> = [
     ["noteringen (primair)", listingsPayload(config, "primary", 0), (rows) => `${parseListings(rows, true).filter((l) => l.isin).length} met ISIN`],
     ["noteringen (overig)", listingsPayload(config, "other", 0), (rows) => `${rows.length} rijen`],
@@ -148,10 +149,8 @@ if (sample) {
       dividendPayload(config, today),
       (rows) => `${rows.length} aangekondigd, ≥25%: ${parseDividends(rows, config).map((d) => `${d.symbol} ${Math.round((d.amount / d.close) * 100)}%`).join(", ") || "geen"}`,
     ],
-    ["cijfers", earningsPayload(config, range, "earnings_release_next_date", today, today + 7 * 86400), (rows) => `${rows.length} deze week`],
     ["IPO-kalender", ipoPayload(config, "pending", today), (rows) => rows.map((r) => r.s).join(", ") || "niets gepland"],
     ["IPO's afgelopen week", ipoPayload(config, "recent", today), (rows) => rows.map((r) => r.s).join(", ") || "geen"],
-    ["vroege koersen", gapPayload(config, config.capMinEur), (rows) => `${rows.length} ruw, ${parseGaps(rows).length} na filter`],
   ];
   console.log("\n== ochtendoverzicht");
   for (const [label, payload, describe] of checks) {
@@ -167,6 +166,27 @@ if (sample) {
       problems++;
     }
   }
+}
+
+// ---- Euronext Growth Oslo en de rechtenkalender
+try {
+  const growth = await fetchGrowthOslo(fetch);
+  console.log(`\n== Euronext Growth Oslo: ${growth.symbols.length} aandelen, bijv. ${growth.symbols.slice(0, 5).join(", ")}`);
+} catch (error) {
+  console.log(`!! Euronext Growth Oslo: ${(error as Error).message}`);
+  problems++;
+}
+{
+  const all = [];
+  for (const exchange of RIGHTS_EXCHANGES) {
+    try {
+      all.push(...(await searchRights(fetch, exchange)));
+    } catch (error) {
+      console.log(`!! rechten ${exchange}: ${(error as Error).message}`);
+      problems++;
+    }
+  }
+  console.log(`== claimrechten: ${all.length}`, all.slice(0, 8).map((r) => `${r.symbol} ${r.company} ${r.expiry || "?"}`).join(" | "));
 }
 
 if (problems) {

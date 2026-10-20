@@ -3,11 +3,10 @@
 // budget (Workers Free: 50 verzoeken per aanroep) en doet per minuut één stap:
 //
 // - vanaf 07:00: alle Europese noteringen langs (nieuwe beursgangen en dubbele noteringen),
-//   aangekondigd dividend t.o.v. de koers, cijfers van vandaag, de IPO-kalender en koersen voor
-//   speciaal-dividendnieuws;
-// - vlak voor het overzicht: vroege koersen bij Lang & Schwarz en Tradegate;
-// - de hele dag door: persberichten van overnames, FDA, noteringen enz. lezen en de datums
-//   (deadline van het bod, PDUFA-datum, eerste handelsdag) in de agenda zetten.
+//   aangekondigd dividend t.o.v. de koers, de IPO-kalender en koersen voor speciaal-dividendnieuws;
+// - de hele dag door: persberichten van overnames, claimemissies, FDA, noteringen enz. lezen en
+//   de datums (deadline van het bod, laatste handelsdag van de rechten, PDUFA-datum, eerste
+//   handelsdag) in de agenda zetten.
 //
 // Om 08:40 volgt het overzicht met de agenda van de komende dagen bovenaan.
 
@@ -28,7 +27,13 @@ import { LISTINGS_DONE_KEY, LISTINGS_JOB_KEY, MAIN_EXCHANGES, newListings, realL
 import { capRange, countryName, formatCap } from "./screener.ts";
 import type { AgendaItem, EventRecord, Store } from "./store.ts";
 import { escapeHtml } from "./telegram.ts";
-import { bigEnough, minCaps, parseValuation, readExtra } from "./size.ts";
+import { RETIRED_FILTERS } from "./config.ts";
+import { growthSymbols, isGrowthOslo, refreshGrowthOslo } from "./growth.ts";
+import type { RightsLine } from "./rights.ts";
+import { RIGHTS_EXCHANGES, RIGHTS_SEEN_KEY, companyKey, searchRights } from "./rights.ts";
+import { DEFAULT_FILTERS } from "./config.ts";
+import { excludedExchange, groupFilters, matchFilters } from "./screener.ts";
+import { bigEnough, lookupCaps, minCaps, parseValuation, readExtra } from "./size.ts";
 import type { Fetch } from "./tradingview.ts";
 import { fetchStory, fields, scanner } from "./tradingview.ts";
 
@@ -41,11 +46,9 @@ export const SENT_DATE_KEY = "ochtend_datum";
 export const OFF_KEY = "ochtend_uit";
 
 /** Filters waarvan de bot het hele bericht leest, op zoek naar datums voor de agenda. */
-export const DATED_FILTERS = ["overname", "fda", "notering", "ipo", "splitsing", "index", "dividend"];
+export const DATED_FILTERS = ["overname", "claim", "fda", "notering", "ipo", "splitsing", "index", "dividend", "emissie"];
 /** Zo vroeg beginnen de voorbereidende stappen (minuten vóór het overzicht). */
 const PREP_MINUTES = 100;
-/** De vroege koersen pas vlak voor het overzicht ophalen (Tradegate loopt 15 minuten achter). */
-const GAP_MINUTES = 12;
 /** Tot zo lang na de geplande tijd wordt een gemist overzicht nog verstuurd. */
 const LATE_MINUTES = 120;
 /** Berichten lezen per run (rekentijd: Workers Free geeft 10 ms per aanroep). */
@@ -67,16 +70,6 @@ export interface DividendRow {
   payDate?: string;
 }
 
-export interface EarningsRow {
-  symbol: string;
-  name: string;
-  country: string;
-  /** -1 voorbeurs, 1 nabeurs, 0 onbekend. */
-  time: number;
-  /** Al gepubliceerd (vandaag)? */
-  done: boolean;
-}
-
 export interface IpoRow {
   symbol: string;
   name: string;
@@ -87,19 +80,6 @@ export interface IpoRow {
   date: string;
   priceUsd?: number;
   capUsd?: number;
-}
-
-export interface GapRow {
-  /** Ticker van de hoofdnotering als die bekend is, anders die van L&S of Tradegate. */
-  symbol: string;
-  name: string;
-  isin: string;
-  exchange: string;
-  country: string;
-  close: number;
-  currency: string;
-  change: number;
-  volume: number;
 }
 
 export interface Price {
@@ -124,10 +104,10 @@ export interface DayState {
   done: string[];
   errors: string[];
   dividends?: DividendRow[];
-  earnings?: EarningsRow[];
   ipos?: IpoRow[];
-  gaps?: GapRow[];
   prices?: Record<string, Price>;
+  /** Lopende claimrechten (rechtenkalender). */
+  rights?: RightsLine[];
   /** Marktwaarde en IPO-datum van de nieuwe noteringen van vandaag. */
   listings?: Record<string, ListingInfo>;
 }
@@ -223,24 +203,6 @@ export function parseDividends(rows: Array<{ s: string; d: unknown[] }>, config:
   return result.sort((a, b) => b.amount / b.close - a.amount / a.close);
 }
 
-const EARNINGS_COLUMNS = ["description", "country", "earnings_release_next_time", "earnings_release_time"] as const;
-
-export function earningsPayload(config: Config, range: { min: number; max: number }, field: string, from: number, to: number): unknown {
-  return {
-    filter: [
-      ...PRIMARY_STOCKS,
-      { left: "market_cap_basic", operation: "in_range", right: [range.min, range.max] },
-      { left: field, operation: "in_range", right: [from, to] },
-    ],
-    options: { lang: "en" },
-    markets: config.screenMarkets,
-    columns: EARNINGS_COLUMNS,
-    sort: { sortBy: "market_cap_basic", sortOrder: "desc" },
-    range: [0, 300],
-    price_conversion: { to_currency: "eur" },
-  };
-}
-
 const IPO_COLUMNS = [
   "description", "exchange", "country", "ipo_offer_status", "ipo_offer_date", "ipo_offer_price_usd", "ipo_market_cap_usd",
 ] as const;
@@ -264,60 +226,6 @@ export function ipoPayload(config: Config, which: "pending" | "recent", todaySta
   };
 }
 
-const GAP_COLUMNS = ["description", "exchange", "country", "close", "currency", "change", "volume", "isin"] as const;
-
-export function gapPayload(config: Config, capMin: number): unknown {
-  return {
-    filter: [
-      { left: "exchange", operation: "in_range", right: ["LS", "TRADEGATE"] },
-      { left: "type", operation: "equal", right: "stock" },
-      { left: "country", operation: "in_range", right: config.screenCountries },
-      { left: "market_cap_basic", operation: "greater", right: capMin },
-      { left: "volume", operation: "greater", right: 0 },
-      { left: "change", operation: "not_in_range", right: [-config.gapPercent, config.gapPercent] },
-    ],
-    options: { lang: "en" },
-    markets: config.screenMarkets,
-    columns: GAP_COLUMNS,
-    sort: { sortBy: "volume", sortOrder: "desc" },
-    range: [0, 200],
-    price_conversion: { to_currency: "eur" },
-  };
-}
-
-/** Minimale omzet (in euro) voor een vroege koers; daaronder zegt een beweging niets. */
-const MIN_TURNOVER_EUR = 2500;
-
-/**
- * Eén regel per bedrijf (ISIN), de beurs met het meeste volume, grootste bewegingen eerst.
- * Bij L&S staan ook koersen zonder echte handel (−99% naar €0,00); die vallen af.
- */
-export function parseGaps(rows: Array<{ s: string; d: unknown[] }>): GapRow[] {
-  const byIsin = new Map<string, GapRow>();
-  for (const row of rows) {
-    const f = fields(GAP_COLUMNS, row);
-    const change = num(f.change);
-    const close = num(f.close);
-    const volume = num(f.volume) ?? 0;
-    if (change === null || !close || close < 0.01 || Math.abs(change) >= 90 || close * volume < MIN_TURNOVER_EUR) continue;
-    const gap: GapRow = {
-      symbol: row.s,
-      name: text(f.description),
-      isin: text(f.isin),
-      exchange: text(f.exchange),
-      country: text(f.country),
-      close,
-      currency: text(f.currency),
-      change,
-      volume,
-    };
-    const key = text(f.isin) || row.s;
-    const existing = byIsin.get(key);
-    if (!existing || gap.volume > existing.volume) byIsin.set(key, gap);
-  }
-  return [...byIsin.values()].sort((a, b) => Math.abs(b.change) - Math.abs(a.change)).slice(0, 15);
-}
-
 interface Step {
   name: string;
   /** Vanaf zoveel minuten vóór het overzicht. */
@@ -332,7 +240,8 @@ const STEPS: Step[] = [
     async run({ store, config, fetcher, now }, state, today) {
       const start = toUnix(today, 0, config.timeZone);
       const { rows } = await scanner(fetcher, dividendPayload(config, start));
-      state.dividends = parseDividends(rows, config);
+      const growth = await growthSymbols(store);
+      state.dividends = parseDividends(rows, config).filter((d) => !growth.has(d.symbol));
       await store.addAgenda(
         state.dividends
           .filter((d) => d.exDate)
@@ -351,35 +260,6 @@ const STEPS: Step[] = [
     },
   },
   {
-    name: "cijfers",
-    from: PREP_MINUTES,
-    async run({ store, config, fetcher }, state, today) {
-      const start = toUnix(today, 0, config.timeZone);
-      const end = toUnix(addDays(today, 1), 0, config.timeZone) - 1;
-      const range = await capRange(store, config);
-      const countries = new Set(config.screenCountries);
-      const rows = new Map<string, EarningsRow>();
-      for (const [field, done] of [
-        ["earnings_release_next_date", false],
-        ["earnings_release_date", true],
-      ] as const) {
-        const result = await scanner(fetcher, earningsPayload(config, range, field, start, end));
-        for (const row of result.rows) {
-          const f = fields(EARNINGS_COLUMNS, row);
-          if (!countries.has(text(f.country))) continue;
-          rows.set(row.s, {
-            symbol: row.s,
-            name: text(f.description),
-            country: text(f.country),
-            time: num(done ? f.earnings_release_time : f.earnings_release_next_time) ?? 0,
-            done,
-          });
-        }
-      }
-      state.earnings = [...rows.values()];
-    },
-  },
-  {
     name: "ipo",
     from: PREP_MINUTES,
     async run({ store, config, fetcher, now }, state, today) {
@@ -389,7 +269,10 @@ const STEPS: Step[] = [
         ...(await scanner(fetcher, ipoPayload(config, "recent", start))).rows,
       ];
       // Alleen de hoofdbeurzen: op Frankfurt en dergelijke staan ook "pending" regels van bestaande aandelen.
-      const unique = new Map(rows.filter((row) => MAIN_EXCHANGES.includes(row.s.split(":")[0])).map((row) => [row.s, row]));
+      const growth = await growthSymbols(store);
+      const unique = new Map(
+        rows.filter((row) => MAIN_EXCHANGES.includes(row.s.split(":")[0]) && !growth.has(row.s)).map((row) => [row.s, row]),
+      );
       state.ipos = [...unique.values()].map((row) => {
         const f = fields(IPO_COLUMNS, row);
         return {
@@ -413,6 +296,60 @@ const STEPS: Step[] = [
             label: `IPO, eerste handelsdag (${i.exchange})`,
             symbol: i.symbol,
             name: i.name,
+            title: "",
+            url: "",
+          })),
+        now,
+      );
+    },
+  },
+  {
+    // Rechtenkalender: alle claimrechten op de Europese beurzen, gekoppeld aan hun bedrijf.
+    name: "rechten",
+    from: PREP_MINUTES,
+    async run({ store, fetcher, now }, state, today) {
+      const lines: RightsLine[] = [];
+      for (const exchange of RIGHTS_EXCHANGES) {
+        try {
+          lines.push(...(await searchRights(fetcher, exchange)));
+        } catch (error) {
+          state.errors.push(error instanceof Error ? error.message : String(error));
+        }
+      }
+      // Dezelfde lijn kan bij meer dan één beurs opduiken; verlopen rechten tellen niet meer.
+      const unique = new Map(lines.filter((l) => !l.expiry || l.expiry >= today).map((l) => [l.symbol, l]));
+      const seenRaw = await store.getSetting(RIGHTS_SEEN_KEY);
+      const seen: Record<string, string> = seenRaw ? (JSON.parse(seenRaw) as Record<string, string>) : {};
+      const companies = new Map(
+        (await store.primaryListings([...new Set([...unique.values()].map((l) => l.exchange))])).map((l) => [companyKey(l.name), l]),
+      );
+      const growth = await growthSymbols(store);
+      const current: RightsLine[] = [];
+      for (const line of unique.values()) {
+        const company = companies.get(companyKey(line.company));
+        if (company && (growth.has(company.symbol) || growth.has(company.isin))) continue;
+        // Zonder vervaldatum alleen zolang de lijn nieuw is (sommige lijnen blijven na afloop staan).
+        // De allereerste keer is niets nieuw: dan bestonden de lijnen al.
+        const firstSeen = seen[line.symbol] ?? (seenRaw ? today : "2000-01-01");
+        if (!line.expiry && daysBetween(firstSeen, today) > 21) continue;
+        current.push({ ...line, companySymbol: company?.symbol, firstSeen });
+      }
+      const caps = await lookupCaps(fetcher, current.flatMap((l) => (l.companySymbol ? [l.companySymbol] : [])));
+      const min = await minCaps(store);
+      state.rights = current
+        .map((l) => ({ ...l, capEur: l.companySymbol ? caps.get(l.companySymbol) : undefined }))
+        .filter((l) => bigEnough("claim", l.capEur, min));
+      await store.setSetting(RIGHTS_SEEN_KEY, JSON.stringify(Object.fromEntries(current.map((l) => [l.symbol, l.firstSeen!]))));
+      await store.addAgenda(
+        state.rights
+          .filter((l) => l.expiry)
+          .map((l) => ({
+            key: `rights:${l.symbol}:${l.expiry}`,
+            date: l.expiry,
+            kind: "claim",
+            label: `claimrechten ${ticker(l.symbol)} vervallen (einde inschrijving)`,
+            symbol: l.companySymbol ?? l.symbol,
+            name: l.company,
             title: "",
             url: "",
           })),
@@ -459,23 +396,6 @@ const STEPS: Step[] = [
       }
     },
   },
-  {
-    name: "koersen",
-    from: GAP_MINUTES,
-    async run({ store, config, fetcher }, state) {
-      const range = await capRange(store, config);
-      const { rows } = await scanner(fetcher, gapPayload(config, range.min));
-      const gaps = parseGaps(rows);
-      // L&S noteert onder het WKN ("A2JNDN"); de ticker van de hoofdnotering zegt meer.
-      const primaries = new Map(
-        (await store.listingsByIsin(gaps.map((g) => g.isin))).filter((l) => l.primary).map((l) => [l.isin, l]),
-      );
-      state.gaps = gaps.map((g) => {
-        const primary = primaries.get(g.isin);
-        return primary ? { ...g, symbol: primary.symbol, name: primary.name || g.name } : g;
-      });
-    },
-  },
 ];
 
 /** Persberichten lezen: datums naar de agenda, dividendbedragen bij het bericht. */
@@ -488,6 +408,7 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
   const items: AgendaItem[] = [];
   const extra: Record<string, string> = {};
   const caps = await minCaps(store);
+  const promoted: EventRecord[] = [];
   for (const id of ids) {
     const events = byId.get(id)!;
     const event = events[0];
@@ -511,12 +432,22 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
       if (amount) Object.assign(next, amount);
     }
     if (JSON.stringify(next) !== JSON.stringify(base)) extra[id] = JSON.stringify(next);
+    // Een emissie waarvan het bericht over verhandelbare rechten gaat, is een claimemissie
+    // ("Unipol, prezzo aumento capitale fissato": de rechten staan pas in de tekst).
+    if (!events.some((e) => e.filter === "claim") && events.some((e) => e.filter === "emissie") && matchFilters(full, CLAIM_WORDS).length) {
+      promoted.push({ ...event, filter: "claim", extra: extra[id] ?? event.extra });
+      events.push({ ...event, filter: "claim" });
+    }
     // Blijkt het bedrijf te klein (waardering in het bericht), dan ook geen agendapunt.
     if (!events.some((e) => bigEnough(e.filter, next.capEur, caps))) continue;
     const reference = event.published ? localTime(event.published, config.timeZone).date : today;
     // Het filter dat het meest over de datum zegt (een overname gaat voor een notering).
     const kind = DATED_FILTERS.find((f) => events.some((e) => e.filter === f)) ?? event.filter;
+    // Bij een gewone emissie (placing, ABB) zijn de datums afwikkeling en notering: geen agenda.
+    if (kind === "emissie") continue;
     for (const found of datesForAgenda(full, reference, today)) {
+      // Een losse datum zonder duidelijk soort ("datum uit bericht") is in de agenda alleen ruis.
+      if (found.label === "datum uit bericht") continue;
       items.push({
         key: `${kind}:${event.symbol || fold(event.title).slice(0, 40)}:${found.date}:${found.label}`,
         date: found.date,
@@ -529,6 +460,7 @@ export async function checkStories(deps: MorningDeps, today: string, limit = STO
       });
     }
   }
+  await store.recordEvents(promoted, now);
   await store.addAgenda(items, now);
   await store.markEventsChecked(ids, extra);
   return ids.length;
@@ -574,10 +506,17 @@ export async function runMorningStep(deps: MorningDeps, send: (html: string) => 
     return result;
   }
 
+  // Lijst van Euronext Growth Oslo: elke dag één keer.
+  try {
+    if (await refreshGrowthOslo(store, deps.fetcher, today)) result.step = "growth-oslo";
+  } catch (error) {
+    result.errors.push(`Euronext Growth Oslo: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
   // Noteringen: elke dag één ronde, vanaf de voorbereidingstijd (of meteen bij een nieuwe installatie).
   const listingsDone = await store.getSetting(LISTINGS_DONE_KEY);
   const sweeping = !!(await store.getSetting(LISTINGS_JOB_KEY));
-  if (sweeping || (listingsDone !== today && (untilDigest <= PREP_MINUTES || !listingsDone))) {
+  if (!result.step && (sweeping || (listingsDone !== today && (untilDigest <= PREP_MINUTES || !listingsDone)))) {
     try {
       if (await sweepListings(store, config, deps.fetcher, now, today)) result.step = "noteringen";
     } catch (error) {
@@ -723,27 +662,21 @@ function newsLines(events: EventRecord[], suffix?: (event: EventRecord) => strin
   });
 }
 
+/** Nieuwsblokken onder de vaste blokken, in deze volgorde. Claim, emissie en overname hebben een eigen blok. */
 export const NEWS_SECTIONS: Array<[string, string]> = [
-  ["overname", "🤝 <b>Overnames, squeeze-outs en delistings</b>"],
   ["handelsstop", "⛔ <b>Handelsstops</b>"],
   ["adhoc", "📣 <b>Ad-hoc meldingen sinds het slot</b>"],
   ["fda", "💊 <b>FDA, EMA en studies</b>"],
   ["splitsing", "✂️ <b>Spin-offs en splits</b>"],
   ["index", "📊 <b>Indexwijzigingen</b>"],
-  ["ipo", "🚀 <b>Beursgangen in het nieuws</b>"],
-  ["notering", "🔁 <b>Noteringen in het nieuws</b>"],
-  ["emissie", "💶 <b>Emissies</b>"],
   ["insolventie", "⚠️ <b>Insolventie</b>"],
 ];
-
-const BUY = /(?<![a-z])(kauf|erwerb|buy|buys|bought|purchase|purchases|raises stake|achat|acquisto|compra|kop|kjop|kob|osto)(?![a-z])/;
-/** Geen echte aankoop: opties uitoefenen, toekenningen, aandelenplannen. */
-const NOT_A_BUY = /(option|optionen|ausgeubt|exercise|award|grant|vesting|ltip|aktienplan|share plan|zuteilung|bezugsrecht)/;
-const isBuy = (title: string) => {
-  const t = fold(title);
-  return BUY.test(t) && !SELL.test(t) && !NOT_A_BUY.test(t);
-};
-const SELL = /(?<![a-z])(verkauf|verausserung|sell|sells|sold|sale|disposal|vente|cessione|venta|salg|myynti)(?![a-z])/;
+/** Filters met een eigen blok of die in het overzicht niet (meer) meedoen. */
+const OWN_BLOCK = new Set(["dividend", "claim", "emissie", "overname", "ipo", "notering", ...RETIRED_FILTERS]);
+/** Woorden van een claimemissie, om een gewone emissie na het lezen van het bericht op te waarderen. */
+const CLAIM_WORDS = groupFilters(DEFAULT_FILTERS.claim.map((word) => ({ filter: "claim", word })));
+/** Soorten agendapunten die bij een claimemissie horen. */
+const RIGHTS_LABELS = /rechten|inschrijving|ex-claim/;
 
 function listingLine(listing: NewListing, capEur?: number): string {
   const size = capEur ? `, ${formatCap(capEur)}` : "";
@@ -763,21 +696,49 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   const today = localTime(now, tz).date;
   const since = await windowStart(store, now);
   const caps = await minCaps(store);
-  // Te kleine bedrijven (minimale marktwaarde per filter, /minimum) vallen af.
-  const events = (await store.eventsSince(since)).filter((e) => bigEnough(e.filter, readExtra(e.extra).capEur, caps));
+  const growth = await growthSymbols(store);
+  // Te kleine bedrijven (/minimum), Euronext Growth Oslo en emissies in Londen vallen af.
+  const events = (await store.eventsSince(since)).filter(
+    (e) =>
+      !RETIRED_FILTERS.includes(e.filter) &&
+      bigEnough(e.filter, readExtra(e.extra).capEur, caps) &&
+      !isGrowthOslo(e.title, e.symbol ? [e.symbol] : [], growth) &&
+      !excludedExchange(e.filter, e.symbol ? [e.symbol] : [], e.title),
+  );
   const byFilter = new Map<string, EventRecord[]>();
   for (const event of events) byFilter.set(event.filter, [...(byFilter.get(event.filter) ?? []), event]);
   const blocks: string[][] = [];
+  const when = (date: string) => `<b>${escapeHtml(formatDay(date, today))}</b> (${relativeDay(date, today)})`;
+  const later = await store.listAgenda(today, addDays(today, 400));
+  const agendaFor = (symbol: string, test: (item: AgendaItem) => boolean) =>
+    symbol ? later.filter((item) => item.symbol === symbol && test(item)) : [];
 
   // Agenda: wat er de komende dagen gebeurt.
-  const agenda = await store.listAgenda(today, addDays(today, config.agendaDays));
+  const agenda = later.filter((item) => daysBetween(today, item.date) <= config.agendaDays);
   const agendaLines = agenda.map((item) => {
-    const when = `<b>${escapeHtml(formatDay(item.date, today))}</b> (${relativeDay(item.date, today)})`;
     const subject = item.symbol || item.name ? who(item.symbol, item.name) : "";
     const about = item.title && item.url ? ` · ${link(item.title, item.url)}` : item.title ? ` · ${escapeHtml(item.title)}` : "";
-    return `• ${when} ${subject}${subject ? " · " : ""}${escapeHtml(item.label)}${about}`;
+    return `• ${when(item.date)} ${subject}${subject ? " · " : ""}${escapeHtml(item.label)}${about}`;
   });
   blocks.push(section(`⏰ <b>Agenda komende ${config.agendaDays} dagen</b>`, agendaLines, 20));
+
+  // Claimemissies: lopende rechtenlijnen met hun data, en nieuws over claimemissies.
+  const claimLines: string[] = [];
+  const withRights = new Set<string>();
+  for (const r of [...(state.rights ?? [])].sort((a, b) => (a.expiry || "9").localeCompare(b.expiry || "9"))) {
+    if (r.companySymbol) withRights.add(r.companySymbol);
+    const fresh = r.firstSeen && r.firstSeen >= localTime(since, tz).date ? " · 🆕 <b>rechtenhandel net begonnen</b>" : "";
+    const size = r.capEur ? `, ${formatCap(r.capEur)}` : "";
+    const dates = agendaFor(r.companySymbol ?? "", (item) => RIGHTS_LABELS.test(item.label) && !item.key.startsWith("rights:"))
+      .map((item) => `${escapeHtml(item.label)} ${when(item.date)}`);
+    if (r.expiry) dates.push(`rechten vervallen ${when(r.expiry)}`);
+    claimLines.push(
+      `• <b>${escapeHtml(ticker(r.symbol))}</b> rechten ${escapeHtml(r.company)} (${escapeHtml(r.exchange)}${size})${fresh}` +
+        (dates.length ? `\n   ${dates.join(" · ")}` : ""),
+    );
+  }
+  claimLines.push(...newsLines((byFilter.get("claim") ?? []).filter((e) => !withRights.has(e.symbol))));
+  blocks.push(section("🧾 <b>Claimemissies en rechtenhandel</b>", claimLines));
 
   // Speciaal dividend: uit de screener en uit het nieuws.
   const dividendLines: string[] = [];
@@ -814,13 +775,24 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   if (smaller) dividendLines.push(`<i>${smaller} speciaal dividend${smaller === 1 ? "" : "en"} onder ${percent(config.dividendRatio)} weggelaten</i>`);
   blocks.push(section(`💰 <b>Speciaal dividend ≥ ${percent(config.dividendRatio)} van de koers</b>`, dividendLines));
 
-  // Nieuwe noteringen en de IPO-kalender.
-  // Alleen echte noteringen met een bekende marktwaarde boven het minimum (ipo en notering, /minimum).
+  // Overnames, met de eerstvolgende deadline (PUSU, einde aanmeldtermijn, vergadering, ...).
+  const deadline = (event: EventRecord) => {
+    const next = agendaFor(event.symbol, (item) => item.kind === "overname")[0];
+    return next ? `\n   ⏰ ${escapeHtml(next.label)}: ${when(next.date)}` : "";
+  };
+  blocks.push(section("🤝 <b>Overnames, squeeze-outs en delistings</b>", newsLines(byFilter.get("overname") ?? [], deadline)));
+
+  // Emissies (placings, ABB's), zonder wat al bij de claimemissies staat.
+  const claimIds = new Set((byFilter.get("claim") ?? []).map((e) => e.id));
+  const emissions = (byFilter.get("emissie") ?? []).filter((e) => !claimIds.has(e.id) && !withRights.has(e.symbol));
+  blocks.push(section("💶 <b>Emissies</b>", newsLines(emissions)));
+
+  // Nieuwe noteringen (vanaf het minimum voor noteringen, standaard €1 mld) en de IPO-kalender.
   const info = state.listings ?? {};
   const fresh = (await newListings(store, since)).filter((l) => {
     const known = info[l.symbol];
-    if (!realListing(l) || known?.capEur === undefined) return false;
-    if (!bigEnough(l.kind === "ipo" ? "ipo" : "notering", known.capEur, caps)) return false;
+    if (!realListing(l) || known?.capEur === undefined || growth.has(l.symbol) || growth.has(l.isin)) return false;
+    if (!bigEnough("notering", known.capEur, caps)) return false;
     return !(l.kind === "ipo" && known.ipoDate && daysBetween(known.ipoDate, today) > IPO_MAX_AGE_DAYS);
   });
   const line = (l: NewListing) => listingLine(l, info[l.symbol]?.capEur);
@@ -828,73 +800,25 @@ export async function composeDigest(deps: MorningDeps, state: DayState): Promise
   blocks.push(section("🔁 <b>Nieuwe en dubbele noteringen</b>", fresh.filter((l) => l.kind !== "ipo").map(line)));
   const ipoLines = (state.ipos ?? [])
     .filter((i) => i.status !== "closed" || (i.date && i.date >= today))
+    .filter((i) => !growth.has(i.symbol))
     .filter((i) => i.capUsd === undefined || bigEnough("ipo", i.capUsd * EUR_PER_USD, caps))
     .map((i) => {
       const date = i.date ? `${escapeHtml(formatDay(i.date, today))}` : "datum nog niet bekend";
       const size = i.capUsd ? ` · marktwaarde ±$${Math.round(i.capUsd / 1e6)} mln` : "";
       return `• <b>${escapeHtml(ticker(i.symbol))}</b> ${escapeHtml(i.name)} (${escapeHtml(i.exchange)}) · ${date}${size}`;
     });
-  blocks.push(section("📅 <b>Beursgangen op komst</b>", ipoLines));
+  ipoLines.push(...newsLines([...(byFilter.get("ipo") ?? []), ...(byFilter.get("notering") ?? [])]));
+  blocks.push(section("📅 <b>Beursgangen en noteringen op komst</b>", ipoLines));
 
-  // Nieuws per filter. Bij overnames de deadline uit de agenda erbij.
-  const deadlines = new Map<string, AgendaItem>();
-  for (const item of await store.listAgenda(today, addDays(today, 400))) {
-    if (item.kind === "overname" && item.symbol && !deadlines.has(item.symbol)) deadlines.set(item.symbol, item);
-  }
+  // De overige nieuwsblokken.
   const closeYesterday = toUnix(previousWorkday(today), 17 * 60 + 30, tz);
-  const known = new Set(["dividend", "insider", ...NEWS_SECTIONS.map(([f]) => f)]);
+  const known = new Set([...OWN_BLOCK, ...NEWS_SECTIONS.map(([f]) => f)]);
   const extra = [...byFilter.keys()].filter((f) => !known.has(f)).map((f): [string, string] => [f, `🔎 <b>Filter ${escapeHtml(f)}</b>`]);
   for (const [filter, title] of [...NEWS_SECTIONS, ...extra]) {
     let list = byFilter.get(filter) ?? [];
     if (filter === "adhoc") list = list.filter((e) => !e.published || e.published >= closeYesterday);
-    const suffix =
-      filter === "overname"
-        ? (event: EventRecord) => {
-            const deadline = deadlines.get(event.symbol);
-            return deadline ? `\n   ⏰ ${escapeHtml(deadline.label)}: <b>${escapeHtml(formatDay(deadline.date, today))}</b> (${relativeDay(deadline.date, today)})` : "";
-          }
-        : undefined;
-    blocks.push(section(title, newsLines(list, suffix)));
+    blocks.push(section(title, newsLines(list)));
   }
-
-  // Insiders: per aandeel, met clusters van aankopen in de afgelopen twee weken.
-  const insiders = byFilter.get("insider") ?? [];
-  if (insiders.length) {
-    const symbols = [...new Set(insiders.map((e) => e.symbol).filter(Boolean))];
-    const history = await store.eventsForSymbols("insider", symbols, now - 14 * 86400);
-    const lines = new Map<string, string>();
-    const sorted = [...insiders].sort((a, b) => Number(isBuy(b.title)) - Number(isBuy(a.title)));
-    for (const event of sorted) {
-      const key = event.symbol || event.id;
-      if (lines.has(key)) continue;
-      const own = insiders.filter((e) => (e.symbol || e.id) === key);
-      const buys = own.filter((e) => isBuy(e.title)).length;
-      const sells = own.filter((e) => SELL.test(fold(e.title))).length;
-      const recentBuys = new Set(
-        history.filter((e) => e.symbol === event.symbol && isBuy(e.title)).map((e) => e.id),
-      ).size;
-      const what = [buys ? `${buys}× aankoop` : "", sells ? `${sells}× verkoop` : ""].filter(Boolean).join(", ") || `${own.length}× transactie`;
-      const cluster = recentBuys >= 2 ? ` · 🟢 <b>cluster: ${recentBuys} aankopen in 14 dagen</b>` : "";
-      lines.set(key, `• ${who(event.symbol, event.name)}: ${what}${cluster} · ${link(event.title, event.url)}`);
-    }
-    blocks.push(section("👔 <b>Insiders (directors' dealings)</b>", [...lines.values()]));
-  }
-
-  // Vroege koersen en cijfers.
-  blocks.push(
-    section(
-      `📈 <b>Vroege koersen (L&amp;S, Tradegate) t.o.v. gisteravond, ≥ ${config.gapPercent}%</b>`,
-      (state.gaps ?? []).map(
-        (g) =>
-          `• ${who(g.symbol, g.name)}: <b>${g.change > 0 ? "+" : ""}${g.change.toFixed(1).replace(".", ",")}%</b> naar ${escapeHtml(money(g.close, g.currency))} (${escapeHtml(g.exchange === "LS" ? "L&S" : "Tradegate")})`,
-      ),
-    ),
-  );
-  const earnings = (state.earnings ?? []).map((e) => {
-    const when = e.done ? " · al gepubliceerd" : e.time < 0 ? " · voorbeurs" : e.time > 0 ? " · nabeurs" : "";
-    return `• ${who(e.symbol, e.name)}${when}`;
-  });
-  blocks.push(section("🗓️ <b>Cijfers vandaag</b>", earnings, 25));
 
   if (state.errors.length) blocks.push(["⚠️ <i>Niet gelukt: " + escapeHtml(state.errors.join("; ")).slice(0, 400) + "</i>"]);
 

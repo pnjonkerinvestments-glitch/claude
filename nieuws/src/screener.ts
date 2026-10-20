@@ -4,7 +4,8 @@
 // handvol nieuwsstromen per land en taal; zo passen duizenden aandelen in één minuut.
 
 import type { Config, Feed } from "./config.ts";
-import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, PATTERNS } from "./config.ts";
+import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, EXCLUDE, EXCLUDED_EXCHANGES, PATTERNS } from "./config.ts";
+import { growthSymbols, isGrowthOslo } from "./growth.ts";
 import type { EventRecord, Store, UniverseEntry } from "./store.ts";
 import { escapeHtml, links, meta } from "./telegram.ts";
 import { bigEnough, lookupCaps, minCaps, parseValuation } from "./size.ts";
@@ -195,6 +196,7 @@ export function matchFilters(title: string, filters: Map<string, string[]>): Hit
   const haystack = normalize(title);
   const hits: Hit[] = [];
   for (const [filter, words] of filters) {
+    if (EXCLUDE[filter]?.some((word) => haystack.includes(normalize(word).trimEnd()))) continue;
     for (const word of words) {
       const full = normalize(word);
       const core = full.trim();
@@ -383,6 +385,11 @@ export async function findMatches(
     .filter((c) => c.hits.length);
   if (!candidates.length) return { scanned: items.length, matches: [] };
 
+  // Euronext Growth Oslo telt nergens mee.
+  const growth = await growthSymbols(deps.store);
+  for (const candidate of candidates) {
+    if (isGrowthOslo(candidate.item.title, candidate.item.symbols, growth)) candidate.hits = [];
+  }
   const europe = await europeFilters(deps.store);
   const symbols = [...new Set(candidates.flatMap((c) => c.item.symbols))];
   const universe = new Map((await deps.store.lookupUniverse(symbols)).map((e) => [e.symbol, e]));
@@ -394,11 +401,39 @@ export async function findMatches(
       continue;
     }
     // Buiten de selectie telt alleen een filter dat over heel Europa werkt (de nieuwsstromen zelf
-    // zijn al beperkt tot de gekozen landen).
-    const wide = candidate.hits.filter((h) => europe.has(h.filter));
+    // zijn al beperkt tot de gekozen landen), en alleen voor een aandeel op een Europese beurs
+    // ("IPO of Mynt" op de beurs van Manila hoort er niet bij). Een overname zonder aandeel is
+    // niet op grootte te beoordelen en valt af.
+    if (candidate.item.symbols.length && !candidate.item.symbols.some(isEuropean)) continue;
+    const wide = candidate.hits.filter((h) => europe.has(h.filter) && (h.filter !== "overname" || candidate.item.symbols.length));
     if (wide.length) matches.push({ item: candidate.item, hits: wide });
   }
-  return { scanned: items.length, matches: await applyMinCaps(deps, matches, errors) };
+  return { scanned: items.length, matches: await applyMinCaps(deps, matches.filter(notExcludedExchange), errors) };
+}
+
+/** Europese beurzen (ook de Duitse regionale beurzen en handelsplatformen). */
+const EUROPEAN_EXCHANGES = new Set([
+  "LSE", "AQUIS", "XETR", "FWB", "DUS", "MUN", "HAM", "HAN", "BER", "SWB", "GETTEX", "TRADEGATE", "LS", "LSX", "SIX",
+  "BX", "EURONEXT", "MIL", "MILSEDEX", "EUROTLX", "BME", "OMXSTO", "OMXCOP", "OMXHEX", "OMXICE", "OSL", "NGM", "VIE",
+  "LUXSE", "LSIN", "WSE", "ATHEX", "BVB", "SPOTLIGHT",
+]);
+
+export function isEuropean(symbol: string): boolean {
+  return EUROPEAN_EXCHANGES.has(symbol.split(":")[0]);
+}
+
+/** Haalt treffers weg van een filter dat deze beurs niet wil (emissies in Londen). */
+export function excludedExchange(filter: string, symbols: string[], title: string): boolean {
+  const excluded = EXCLUDED_EXCHANGES[filter];
+  if (!excluded) return false;
+  if (!symbols.length) return excluded.includes("LSE") && /^REG\s*-/.test(title);
+  return excluded.includes(symbols[0].split(":")[0]);
+}
+
+function notExcludedExchange(match: Match): boolean {
+  const symbols = match.entry ? [match.entry.symbol] : match.item.symbols;
+  match.hits = match.hits.filter((h) => !excludedExchange(h.filter, symbols, match.item.title));
+  return match.hits.length > 0;
 }
 
 /**

@@ -9,11 +9,11 @@
 // rekentijd, 50 uitgaande verzoeken en 50 databasevragen. Zo kan geen van beide de volglijst
 // laten vastlopen.
 
-import { ALERT_THREAD_KEY, AlertSender, WATCHLIST, alertChat } from "./alerts.ts";
+import { ALERT_THREAD_KEY, AlertSender, WATCHLIST, alertChat, loadRoutes, saveRoutes } from "./alerts.ts";
 import { LAST_MORNING_KEY, LAST_RUN_KEY, LAST_SCREEN_KEY, processUpdates } from "./bot.ts";
 import { checkNews } from "./check.ts";
 import type { Env } from "./config.ts";
-import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, DEFAULT_FILTERS, loadConfig } from "./config.ts";
+import { DEFAULT_DIGEST_ONLY, DEFAULT_EUROPE_FILTERS, DEFAULT_FILTERS, RETIRED_FILTERS, loadConfig } from "./config.ts";
 import { DIGEST_ONLY_KEY, EUROPE_FILTERS_KEY, checkScreener, refreshUniverse } from "./screener.ts";
 import { DIGEST, runMorningStep } from "./morning.ts";
 import type { Store } from "./store.ts";
@@ -23,6 +23,8 @@ import { Telegram } from "./telegram.ts";
 const SEEDED_KEY = "seeded";
 /** Oude sleutel: alleen "dividend" werd toen aangemaakt. */
 const LEGACY_FILTERS_SEEDED_KEY = "filters_seeded";
+/** Eenmalige omzettingen van een bestaande installatie die al gedaan zijn (JSON-lijst). */
+const MIGRATIONS_KEY = "migrations";
 /** Welke standaardfilters al eens zijn aangemaakt (JSON-lijst met namen). */
 const FILTERS_SEEDED_KEY = "filters_seeded_list";
 const LOCK_KEY = "lock";
@@ -32,7 +34,36 @@ const MORNING_LOCK_KEY = "morning_lock";
 /** Langer dan een normale run, korter dan het cron-interval plus wat marge. */
 const LOCK_SECONDS = 55;
 
+/**
+ * Oktober 2026, "minder rommel": insiders weg, en emissies, claimemissies en overnames over heel
+ * Europa (Unipol en grote Britse biedingen vallen ver buiten de small caps).
+ */
+async function migrate(store: Store): Promise<void> {
+  const raw = await store.getSetting(MIGRATIONS_KEY);
+  const done = new Set<string>(raw ? (JSON.parse(raw) as string[]) : []);
+  if (done.has("2026-10-minder-rommel")) return;
+  for (const filter of RETIRED_FILTERS) await store.removeFilter(filter);
+  const routes = await loadRoutes(store);
+  for (const filter of RETIRED_FILTERS) delete routes[`filter:${filter}`];
+  await saveRoutes(store, routes);
+  for (const [key, add, remove] of [
+    [EUROPE_FILTERS_KEY, ["emissie", "claim", "overname"], RETIRED_FILTERS],
+    [DIGEST_ONLY_KEY, [], RETIRED_FILTERS],
+  ] as const) {
+    const stored = await store.getSetting(key);
+    if (!stored) continue;
+    const list = new Set(JSON.parse(stored) as string[]);
+    for (const filter of add) list.add(filter);
+    for (const filter of remove) list.delete(filter);
+    await store.setSetting(key, JSON.stringify([...list]));
+  }
+  done.add("2026-10-minder-rommel");
+  await store.setSetting(MIGRATIONS_KEY, JSON.stringify([...done]));
+}
+
 export async function seed(store: Store, env: Env): Promise<void> {
+  // Een nieuwe installatie heeft niets om te migreren; de standaard geldt dan al.
+  if (await store.getSetting(SEEDED_KEY)) await migrate(store);
   if (!(await store.getSetting(SEEDED_KEY))) {
     for (const entry of loadConfig(env).seedWatchlist) await store.addWatch(entry);
     await store.setSetting(SEEDED_KEY, "1");

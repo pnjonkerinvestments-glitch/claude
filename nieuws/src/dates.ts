@@ -138,6 +138,10 @@ const DAY_MONTH = new RegExp(
   "g",
 );
 const MONTH_DAY = new RegExp(`\\b(${MONTH_ALT})(\\.)?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?!\\.\\d|:\\d)(?:,?\\s+(20\\d\\d))?`, "g");
+const RANGE = new RegExp(
+  `\\b(?:dal|vom|von|from|du|del|fra|fran|between|tra)\\s+(\\d{1,2})\\.?\\s+(?:al|bis|to|au|and|till|til|e|-|–)\\s+(?:il\\s+)?(\\d{1,2})\\.?\\s+(?:de\\s+)?(${MONTH_ALT})(?:\\.)?(?:,?\\s+(20\\d\\d))?\\b`,
+  "g",
+);
 /** Langer zoeken naar datums kost te veel rekentijd (Workers Free: 10 ms); de datums staan vooraan. */
 const MAX_TEXT = 3000;
 
@@ -198,6 +202,12 @@ export function findDates(text: string, reference: string): FoundDate[] {
     if (!month) continue;
     add(m.index, m[4] ? valid(+m[4], month, +m[3]) : guessYear(month, +m[3], reference), m[0].length);
   }
+  // "dal 12 al 26 ottobre", "vom 13. bis 22. Oktober": de eerste dag heeft geen eigen maand.
+  for (const m of folded.matchAll(RANGE)) {
+    const month = monthNumber(m[3], false, !!m[4], false);
+    if (!month) continue;
+    add(m.index + m[0].indexOf(m[1]), m[4] ? valid(+m[4], month, +m[1]) : guessYear(month, +m[1], reference), m[1].length);
+  }
   return [...found.values()].sort((a, b) => a.index - b.index);
 }
 
@@ -205,14 +215,45 @@ export function findDates(text: string, reference: string): FoundDate[] {
  * Soorten datums, op volgorde van voorrang. Het label komt in de agenda; de woorden zoeken we in
  * de 140 tekens vóór de datum (de dichtstbijzijnde wint).
  */
-const KINDS: Array<{ label: string; words: string[] }> = [
+const KINDS: Array<{ label: string; words: string[]; start?: string }> = [
   { label: "PDUFA-datum", words: ["pdufa", "target action date", "action date"] },
+  // Londen: binnen 28 dagen na een "possible offer" moet de bieder een vast bod doen of afzien.
+  { label: "PUSU-deadline (bod of afzien)", words: ["pusu deadline", "pusu", "put up or shut up deadline", "put up or shut up", "rule 2.6"] },
+  {
+    label: "laatste handelsdag rechten",
+    start: "rechtenhandel begint",
+    words: [
+      "negoziabil", "negoziazione dei diritti", "rights trading", "trading in the rights", "trading of the rights",
+      "trading in subscription rights", "trading in the subscription rights", "trading of subscription rights",
+      "rights will be traded", "subscription rights will be traded", "bezugsrechtshandel", "handel der bezugsrechte",
+      "handel mit bezugsrechten", "handel med teckningsratter", "handel med uniratter", "handel i tegningsretter",
+      "tegningsrettene", "handel med tegningsretter", "cotation des droits", "negociation des droits",
+      "negociacion de los derechos", "negociacao dos direitos",
+    ],
+  },
+  {
+    label: "inschrijving sluit",
+    start: "inschrijving begint",
+    words: [
+      "subscription period", "zeichnungsfrist", "bookbuilding", "periode de souscription", "periodo di sottoscrizione",
+      "teckningsperiod", "tegningsperiode", "tegningsperioden", "esercitabil", "periodo di opzione", "bezugsfrist",
+      "periodo de suscripcion", "exercise period", "exercisable", "merkintaaika",
+    ],
+  },
+  {
+    label: "ex-claim (rechten los van het aandeel)",
+    words: [
+      "ex-rights", "ex rights", "ex-bezugsrecht", "stacco del diritto", "stacco dei diritti", "detachement du droit",
+      "detachement des droits", "x-claim", "ex-claim", "ex-dato",
+    ],
+  },
   {
     label: "einde aanmeldtermijn",
     words: [
       "acceptance period", "offer period", "offer will close", "offer closes", "offer expires", "annahmefrist",
       "angebotsfrist", "weitere annahmefrist", "periode d'offre", "periodo di adesione", "periodo de aceptacion",
-      "acceptance level", "pusu", "put up or shut up", "deadline", "expire", "expires", "frist",
+      "acceptance level", "first closing date", "final closing date", "closing date", "unconditional date",
+      "level of acceptances", "deadline", "expire", "expires", "frist",
     ],
   },
   {
@@ -228,16 +269,13 @@ const KINDS: Array<{ label: string; words: string[] }> = [
   {
     label: "laatste handelsdag / delisting",
     words: [
-      "last day of trading", "last trading day", "letzter handelstag", "delisting", "dernier jour de cotation",
-      "retrait obligatoire", "squeeze-out", "squeeze out", "revoca", "cancellation of admission", "exclusion",
+      "last day of trading", "last trading day", "last day of dealings", "last day of dealing", "letzter handelstag",
+      "delisting", "delisted", "dernier jour de cotation", "retrait obligatoire", "squeeze-out", "squeeze out", "revoca",
+      "cancellation of admission", "cancellation of listing", "cancellation of the listing", "exclusion",
     ],
   },
   { label: "ex-dividend", words: ["ex-dividend", "ex dividend", "ex-date", "ex date", "ex-tag", "ex-dividende", "detachement", "stacco", "ex-dag"] },
   { label: "betaaldatum dividend", words: ["payment", "payable on", "paid on", "zahltag", "auszahlung", "mise en paiement", "pagamento", "betalningsdag"] },
-  {
-    label: "inschrijving sluit",
-    words: ["subscription period", "zeichnungsfrist", "bookbuilding", "periode de souscription", "periodo di sottoscrizione", "teckningsperiod"],
-  },
   {
     label: "vergadering",
     words: [
@@ -248,10 +286,16 @@ const KINDS: Array<{ label: string; words: string[] }> = [
   },
   {
     label: "ingangsdatum",
-    words: ["effective", "with effect from", "mit wirkung", "wirksam", "a compter du", "a partir du", "con efficacia", "con efecto"],
+    words: [
+      "effective date", "scheme effective", "effective", "with effect from", "mit wirkung", "wirksam", "a compter du",
+      "a partir du", "con efficacia", "con efecto",
+    ],
   },
   { label: "besluit of resultaten", words: ["decision", "ruling", "readout", "topline", "results", "ergebnisse", "resultats", "risultati"] },
 ];
+
+/** Het begin van een periode ("dal 12 ottobre", "vom 13. Oktober", "from 13 October"). */
+const FROM = /(?:^|[\s(])(?:from|dal|dall'|vom|von|du|del|desde el|desde|fra|fran|between|tra)\s+$/;
 
 /** Een periode "van X tot Y": de tweede datum is het einde. */
 const UNTIL = /(?:(?:^|[\s(])(?:to|until|till|through|bis(?: zum)?|au|jusqu'au|a|al|fino al|hasta el|ate|tot|t\/m)\s+|\s[-–]\s*)$/;
@@ -268,11 +312,15 @@ function wordPattern(word: string): string {
  */
 const KIND_PATTERNS = KINDS.map((kind) => new RegExp(`(?<![a-z0-9])(?:${kind.words.map(wordPattern).join("|")})`, "g"));
 
-/** Laatste (of eerste) plek in de tekst waar een woord van deze soort staat, of -1. */
+/**
+ * Laatste plek (het einde van het woord) of eerste plek (het begin) in de tekst waar een woord van
+ * deze soort staat, of -1. Met het einde wint "PUSU deadline" van "deadline": beide eindigen op
+ * dezelfde plek, en dan gaat de specifiekere soort (hoger in de lijst) voor.
+ */
 function kindIndex(text: string, rank: number, last: boolean): number {
   let found = -1;
   for (const m of text.matchAll(KIND_PATTERNS[rank])) {
-    found = m.index;
+    found = last ? m.index + m[0].length : m.index;
     if (!last) break;
   }
   return found;
@@ -303,8 +351,10 @@ export function datesForAgenda(text: string, reference: string, today: string, h
     }
     const period = UNTIL.test(found.before.slice(-12));
     const chosen = best as { label: string; at: number; rank: number } | null;
+    const startLabel = chosen ? KINDS[chosen.rank].start : undefined;
     let label = chosen?.label ?? (period ? "einde periode" : "datum uit bericht");
-    if (period && chosen && !/einde|sluit|laatste/.test(label)) label = `${label} (einde)`;
+    if (startLabel && !period && FROM.test(found.before.slice(-14))) label = startLabel;
+    if (period && chosen && !/einde|sluit|laatste|deadline/.test(label)) label = `${label} (einde)`;
     // De dagtekening van het bericht zelf is geen agendapunt.
     if (!chosen && found.date === reference && !period) continue;
     // Een periode zonder trefwoord ("van 8 tot 21 oktober") is nog altijd duidelijker dan een losse datum.
