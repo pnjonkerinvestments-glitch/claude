@@ -165,7 +165,8 @@ def refresh_cftc(store: Store, cfg: dict, today: date) -> None:
         assets = [a for a in c["assets"] if a["dataset"] == dataset]
         if not assets:
             continue
-        first = not all(store.has(f"cot:{a['key']}:net") for a in assets)
+        groups = cftc.DATASET_COHORTS[dataset]
+        first = not all(store.has(f"cot:{a['key']}:g:{g}") for a in assets for g in groups)
         since = c["history_start"] if first else (today - timedelta(weeks=6)).isoformat()
         rows = cftc.fetch(url, dataset, [a["code"] for a in assets], since)
         parsed = cftc.parse_rows(rows, {a["code"]: a["cohort"] for a in assets})
@@ -173,6 +174,9 @@ def refresh_cftc(store: Store, cfg: dict, today: date) -> None:
             by_date = parsed.get(a["code"], {})
             store.upsert(f"cot:{a['key']}:net", {d: v["net"] for d, v in by_date.items()})
             store.upsert(f"cot:{a['key']}:oi", {d: v["oi"] for d, v in by_date.items()})
+            for g in groups:
+                store.upsert(f"cot:{a['key']}:g:{g}",
+                             {d: v["groups"][g] for d, v in by_date.items() if g in v["groups"]})
             if not by_date and not store.has(f"cot:{a['key']}:net"):
                 missing.append(f"{a['label']} ({a['code']})")
     if missing:

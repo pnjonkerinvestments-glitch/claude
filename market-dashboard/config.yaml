@@ -255,6 +255,7 @@ cftc:
     tff:    "https://publicreporting.cftc.gov/resource/gpe5-46if.json"
     disagg: "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
   history_start: "2006-01-01"
+  index_view: [spx, ndx, rut, dow]   # the "Index positioning" section, in this order
   assets:
     - {key: spx,      label: "S&P 500",      group: "Equity indices", dataset: tff,    code: "13874A", cohort: am, price: "^GSPC"}
     - {key: ndx,      label: "Nasdaq-100",   group: "Equity indices", dataset: tff,    code: "209742", cohort: am, price: "^NDX"}

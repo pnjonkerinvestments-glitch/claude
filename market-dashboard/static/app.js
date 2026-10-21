@@ -63,6 +63,14 @@ function tvLink(symbol, text = "↗") {
 function setMeta(id, block) {
   const root = document.getElementById(id);
   $(".updated", root).textContent = block?.updated_at ? `updated ${block.updated_at}` : "not updated yet";
+  if (block?.intro) {
+    let intro = $(":scope > .intro", root);
+    if (!intro) {
+      intro = el("p", "intro");
+      $(".section-head", root).after(intro);
+    }
+    intro.textContent = block.intro;
+  }
   const w = $(".warnings", root);
   w.replaceChildren(...(block?.warnings || []).map((m) => el("div", "warn-msg", m)));
   if (block?.error) w.append(el("div", "warn-msg", `This section could not be built: ${block.error}`));
@@ -220,6 +228,36 @@ function syncHover(groupId, index) {
   }
 }
 
+function explainBox(summary, text) {
+  const d = el("details", "explain");
+  d.append(el("summary", "", summary));
+  if (typeof text === "string") d.append(el("p", "", text));
+  else d.append(text);
+  return d;
+}
+
+// Column titles get a tooltip, and a "Columns explained" box goes under the table.
+function explainColumns(table) {
+  const cols = DATA?.columns || {};
+  const seen = [];
+  $$("thead th", table).forEach((th) => {
+    const key = th.textContent.replace(/[▾▴]/g, "").trim();
+    const text = cols[key] || Object.entries(cols).find(([k]) => k.toLowerCase() === key.toLowerCase())?.[1];
+    if (text) { th.title = text; seen.push([key, text]); }
+  });
+  const wrap = table.closest(".table-wrap") || table;
+  let box = wrap.nextElementSibling;
+  if (!box || !box.matches("details.explain.columns")) {
+    box = el("details", "explain columns");
+    box.append(el("summary", "", "Columns explained"));
+    wrap.after(box);
+  }
+  const dl = el("dl");
+  for (const [k, t] of seen) dl.append(el("dt", "", k), el("dd", "", t));
+  box.querySelector("dl")?.remove();
+  box.append(dl);
+}
+
 function chartCard(spec, opts = {}) {
   const card = el("article", "chart-card");
   card.id = `card-${spec.id}`;
@@ -232,8 +270,10 @@ function chartCard(spec, opts = {}) {
   }
   card.append(head);
   if (spec.subtitle) card.append(el("p", "chart-sub", spec.subtitle));
+  const help = spec.explain ? explainBox("What does this show?", spec.explain) : null;
   if (!spec.available || !window.Chart) {
     card.append(el("div", "na", !window.Chart ? "Charts need cdn.jsdelivr.net (Chart.js)." : "No data yet."));
+    if (help) card.append(help);
     return card;
   }
   const colors = seriesColors(spec);
@@ -329,6 +369,7 @@ function chartCard(spec, opts = {}) {
       groups.get(groupId).push(chart);
     });
   });
+  if (help) card.append(help);
   return card;
 }
 
@@ -384,6 +425,7 @@ function buildTable(table, columns, rows, opts = {}) {
       tbody.append(row);
     }
     table.replaceChildren(thead, tbody);
+    explainColumns(table);
   }
   draw();
 }
@@ -447,7 +489,10 @@ function renderSummary(b) {
     const card = el("button", `ind ${ind.color}`);
     card.type = "button";
     card.append(el("div", "name", ind.label), el("div", "val", ind.value),
-                el("div", "state", STATE_TEXT[ind.color]), el("div", "why", ind.reason));
+                el("div", "state", STATE_TEXT[ind.color]), el("div", "why"));
+    const why = $(".why", card);
+    if (ind.meaning) why.append(el("span", "meaning", ind.meaning));
+    why.append(el("span", "", ind.reason));
     card.addEventListener("click", () => card.classList.toggle("open"));
     return card;
   }));
@@ -455,6 +500,7 @@ function renderSummary(b) {
     const tile = el(t.tv ? "a" : "div", "tile");
     if (t.tv) { tile.href = TV_CHART + encodeURIComponent(t.tv); tile.target = "_blank"; tile.rel = "noopener"; }
     tile.append(el("div", "t-label", t.label), el("div", "t-value", t.value));
+    if (t.about) tile.title = t.about;
     if (t.change_label) {
       const suffix = t.change_label.includes("%") ? "%" : t.change_label.includes("bp") ? " bp" : "";
       const nd = t.change_label.includes("bp") ? 0 : 1;
@@ -464,6 +510,17 @@ function renderSummary(b) {
     }
     return tile;
   }));
+  const tilesBox = $("#summary .tiles");
+  const dl = el("dl");
+  for (const t of b.tiles) if (t.about) dl.append(el("dt", "", t.label), el("dd", "", t.about));
+  const tilesHelp = explainBox("What are these numbers?", dl);
+  tilesHelp.style.gridColumn = "1 / -1";
+  tilesBox.append(tilesHelp);
+  const verdictBox = $("#summary .verdict");
+  verdictBox.append(explainBox("How is this verdict made?",
+    "Each tile below is green (+1), orange (0) or red (−1) against fixed thresholds in config.yaml. " +
+    "The score is the sum divided by the number of tiles with data. Risk-on means most signals are healthy, " +
+    "risk-off means most point to stress. Hover or tap a tile to see what it measures and why it has its colour."));
   const list = $("#summary .signals");
   list.replaceChildren(...(b.signals.length ? b.signals.map((s) => {
     const li = el("li", `lvl-${s.level}`);
@@ -584,6 +641,7 @@ function renderPositioning(b) {
     body.append(tr);
   }
   table.replaceChildren(head, body);
+  explainColumns(table);
   const key = selectedCot || b.default_key;
   if (key === b.default_key && b.chart) {
     selectedCot = key;
@@ -629,6 +687,7 @@ function renderRates(b) {
     body.append(tr);
   }
   table.replaceChildren(head, body);
+  explainColumns(table);
   renderCharts($("#rates .charts"), b.charts);
 }
 
@@ -640,8 +699,296 @@ function renderAssets(id, benchName) {
   };
 }
 
+
+// ---------- index positioning (COT) ----------
+const IC_COLORS = { am: "--series-1", lf: "--series-2", dealer: "--series-3" };
+const IC_WINDOW_TEXT = { pct_all: "of all history", pct_5y: "of the last 5 years", pct_1y: "of the last year" };
+const IC = Object.assign({ idx: "spx", range: 5, group: null, window: "pct_all", ma: true, log: false },
+  (() => { try { return JSON.parse(localStorage.getItem("indexcot") || "{}"); } catch (e) { return {}; } })());
+function saveIC() { try { localStorage.setItem("indexcot", JSON.stringify(IC)); } catch (e) { /* ignore */ } }
+const toTs = (iso) => Date.parse(iso + "T00:00:00Z");
+function labelClass(p) {
+  if (!isNum(p)) return "";
+  return p >= 90 ? "xl" : p >= 70 ? "l" : p <= 10 ? "xs" : p <= 30 ? "s" : "";
+}
+function labelText(p) {
+  if (!isNum(p)) return "No data";
+  return p >= 90 ? "Extremely long" : p >= 70 ? "Longer than usual" : p > 30 ? "Normal"
+    : p > 10 ? "Shorter than usual" : "Extremely short";
+}
+function nearestIndex(xs, x) {
+  let lo = 0, hi = xs.length - 1;
+  if (hi < 0) return -1;
+  while (lo < hi) { const mid = (lo + hi) >> 1; if (xs[mid] < x) lo = mid + 1; else hi = mid; }
+  if (lo > 0 && Math.abs(xs[lo - 1] - x) <= Math.abs(xs[lo] - x)) lo -= 1;
+  return lo;
+}
+let icHoverX = null;
+const icCrosshair = {
+  id: "icCrosshair",
+  afterDatasetsDraw(chart) {
+    if (icHoverX == null || !chart.chartArea) return;
+    const x = chart.scales.x.getPixelForValue(icHoverX);
+    if (x < chart.chartArea.left || x > chart.chartArea.right) return;
+    const { ctx, chartArea: a } = chart;
+    ctx.save(); ctx.strokeStyle = css("--muted"); ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke(); ctx.restore();
+  },
+};
+
+function renderIndexCot(b) {
+  if (!setMeta("indexcot", b)) return;
+  const root = $("#indexcot");
+  const idxBox = $('[data-ic="idx"]', root);
+  idxBox.replaceChildren(...b.indices.map((ix) => {
+    const btn = el("button", "", ix.label);
+    btn.type = "button";
+    btn.dataset.v = ix.key;
+    btn.addEventListener("click", () => { IC.idx = ix.key; IC.group = null; saveIC(); drawIndexCot(); });
+    return btn;
+  }));
+  $(".ic-howto", root).textContent = b.howto;
+  const any = b.indices.find((ix) => ix.cot);
+  $(".ic-groups-help", root).replaceChildren(...Object.values(any?.cot.groups || {}).map((g) => {
+    const li = el("li");
+    li.append(el("strong", "", `${g.name}: `), document.createTextNode(g.about));
+    return li;
+  }));
+  drawIndexCot();
+}
+
+function drawIndexCot() {
+  const b = DATA?.indexcot;
+  if (!b || b.error) return;
+  const root = $("#indexcot");
+  const ix = b.indices.find((i) => i.key === IC.idx) || b.indices[0];
+  IC.idx = ix.key;
+  const groups = ix.cot?.groups || {};
+  const gkey = groups[IC.group] ? IC.group : ix.default_group;
+  const win = IC.window;
+  $$('[data-ic="idx"] button', root).forEach((x) => x.classList.toggle("active", x.dataset.v === ix.key));
+  $$('[data-ic="range"] button', root).forEach((x) => x.classList.toggle("active", +x.dataset.v === IC.range));
+  $$('[data-ic="window"] button', root).forEach((x) => x.classList.toggle("active", x.dataset.v === win));
+  $("#ic-ma").checked = IC.ma;
+  $("#ic-log").checked = IC.log;
+  const tv = $(".ic-tv", root);
+  tv.href = TV_CHART + encodeURIComponent(ix.tv);
+  $(".ic-title", root).textContent = `${ix.label} and who is positioned how`;
+
+  // Headline and one card per trader group.
+  const head = $(".ic-headline", root);
+  if (!ix.cot) {
+    head.textContent = `${ix.label}: no COT data yet.`;
+    $(".ic-groups", root).replaceChildren();
+  } else {
+    const main = groups[gkey];
+    const p = main.stats[win];
+    head.replaceChildren();
+    head.append(el("strong", "", `${ix.label}: `), document.createTextNode(`${main.name.toLowerCase()} are `),
+                el("span", `lbl ${labelClass(p)}`, labelText(p).toLowerCase()),
+                document.createTextNode(isNum(p) ? ` (${ordinal(p)} percentile ${IC_WINDOW_TEXT[win]}). ` : ". "));
+    const others = Object.entries(groups).filter(([k]) => k !== gkey)
+      .map(([, g]) => `${g.name}: ${labelText(g.stats[win]).toLowerCase()}${isNum(g.stats[win]) ? ` (${ordinal(g.stats[win])})` : ""}`);
+    head.append(el("span", "muted", `${others.join(" · ")}. Positions as of Tuesday ${main.stats.date}.`));
+    $(".ic-groups", root).replaceChildren(...Object.entries(groups).map(([k, g]) => {
+      const st = g.stats;
+      const card = el("button", `gcard ${k === gkey ? "active" : ""}`);
+      card.type = "button";
+      card.style.setProperty("--c", css(IC_COLORS[k]));
+      const top = el("div", "g-top");
+      top.append(el("span", "g-name", g.name), el("span", `lbl ${labelClass(st[win])}`, labelText(st[win])));
+      const stats = el("div", "g-stats");
+      const cell = (label, value) => { const d = el("div"); d.append(el("b", "", value), el("span", "", label)); return d; };
+      stats.append(cell("net contracts", FORMATS.num0(st.net)), cell("change 1 week", signed(st.change, 0)),
+                   cell("change 4 weeks", signed(st.change_4w, 0)), cell("% of open interest", `${st.net_oi_pct.toFixed(1)}%`),
+                   cell("percentile, all", isNum(st.pct_all) ? ordinal(st.pct_all) : "–"),
+                   cell("5Y / 1Y", `${isNum(st.pct_5y) ? ordinal(st.pct_5y) : "–"} / ${isNum(st.pct_1y) ? ordinal(st.pct_1y) : "–"}`));
+      card.append(top, stats, el("div", "g-about", g.about));
+      card.title = "Show this group's percentile in the chart";
+      card.addEventListener("click", () => { IC.group = k; saveIC(); drawIndexCot(); });
+      return card;
+    }));
+  }
+  drawIndexCotCharts(ix, gkey, win);
+}
+
+function drawIndexCotCharts(ix, gkey, win) {
+  if (!window.Chart) return;
+  const root = $("#indexcot");
+  const px = ix.price;
+  const pxX = px.dates.map(toTs);
+  const end = pxX[pxX.length - 1];
+  const start = IC.range >= 99 ? Math.min(pxX[0], ix.cot ? toTs(ix.cot.dates[0]) : Infinity)
+    : end - IC.range * 365.25 * 864e5;
+  const pts = (xs, ys) => xs.map((x, i) => ({ x, y: ys[i] })).filter((p) => p.x >= start && p.y != null);
+  // Weekly COT series: break the line where reports are missing for more than 8 weeks.
+  const gaps = [];
+  const cotPts = (xs, ys) => {
+    const out = [];
+    for (const p of pts(xs, ys)) {
+      const prev = out[out.length - 1];
+      if (prev && p.x - prev.x > 56 * 864e5) {
+        out.push({ x: prev.x + 864e5, y: null });
+        gaps.push([prev.x, p.x]);
+      }
+      out.push(p);
+    }
+    return out;
+  };
+  const ink = css("--price");
+  const datasetsPrice = [{ label: ix.label, data: pts(pxX, px.close), borderColor: ink, borderWidth: 1.5 }];
+  if (IC.ma) {
+    datasetsPrice.push({ label: "50-day avg", data: pts(pxX, px.ma50), borderColor: css("--muted"), borderWidth: 1.2, borderDash: [4, 3] },
+                       { label: "200-day avg", data: pts(pxX, px.ma200), borderColor: css("--series-4"), borderWidth: 1.4 });
+  }
+  const cot = ix.cot;
+  const cotX = cot ? cot.dates.map(toTs) : [];
+  const groups = cot?.groups || {};
+  const datasetsNet = Object.entries(groups).map(([k, g]) => ({
+    label: g.name, data: cotPts(cotX, g.net), borderColor: css(IC_COLORS[k]), spanGaps: false,
+    borderWidth: k === gkey ? 2.2 : 1.2, borderDash: k === gkey ? [] : [4, 3],
+  }));
+  const sel = groups[gkey];
+  const datasetsPct = sel ? [{ label: `${sel.name} percentile`, data: cotPts(cotX, sel[win]), spanGaps: false,
+                               borderColor: css(IC_COLORS[gkey]), borderWidth: 1.8 }] : [];
+  $(".ic-pct-label", root).textContent = sel
+    ? `${sel.name}: positioning percentile ${IC_WINDOW_TEXT[win]} (0 = most short, 100 = most long; shaded = extreme)`
+    : "";
+
+  const legend = $(".ic-legend", root);
+  legend.replaceChildren(...[...datasetsPrice, ...datasetsNet].map((d) => {
+    const item = el("span", "", d.label);
+    item.style.setProperty("--c", d.borderColor);
+    return item;
+  }));
+  const gap = gaps.sort((a, b) => (b[1] - b[0]) - (a[1] - a[0]))[0];
+  if (gap) {
+    const y = (t) => new Date(t).getUTCFullYear();
+    legend.append(el("em", "muted", `No COT data ${y(gap[0])}–${y(gap[1])} (the contract traded on another exchange).`));
+  }
+
+  const span = (end - start) / 864e5;
+  // Ticks on round dates: years for long ranges, quarters or months for short ones.
+  const dateTicks = () => {
+    const out = [];
+    const d0 = new Date(start);
+    if (span > 730) {
+      const step = span > 3650 ? 2 : 1;
+      for (let y = d0.getUTCFullYear() + 1; ; y += step) {
+        const t = Date.UTC(y, 0, 1);
+        if (t > end) break;
+        out.push({ value: t });
+      }
+    } else {
+      const step = span > 400 ? 3 : 1;
+      let y = d0.getUTCFullYear(), m = d0.getUTCMonth() + 1;
+      for (;;) {
+        if (m > 11) { y += Math.floor(m / 12); m %= 12; }
+        const t = Date.UTC(y, m, 1);
+        if (t > end) break;
+        if (m % step === 0) out.push({ value: t });
+        m += 1;
+      }
+    }
+    return out;
+  };
+  const fmtDate = (v) => { const d = new Date(v); return span > 730 ? `${d.getUTCFullYear()}` : `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCFullYear()).slice(2)}`; };
+  const readout = $(".ic-readout", root);
+  const describe = (x) => {
+    const pi = nearestIndex(pxX, x);
+    const ci = nearestIndex(cotX, x);
+    const parts = [`${new Date(pxX[pi]).toISOString().slice(0, 10)}: ${ix.label} ${fmtNum(px.close[pi])}`];
+    if (ci >= 0) {
+      for (const [k, g] of Object.entries(groups)) parts.push(`${g.name} ${signed(g.net[ci], 0)}`);
+      if (sel && isNum(sel[win][ci])) parts.push(`${sel.name} percentile ${Math.round(sel[win][ci])}`);
+      parts.push(`(COT week of ${cot.dates[ci]})`);
+    }
+    return parts.join(" · ");
+  };
+  readout.textContent = describe(end);
+
+  const make = (id, datasets, extra) => {
+    charts.get(id)?.destroy();
+    const last = id === "ic-pct";
+    const chart = new Chart(document.getElementById(id), {
+      type: "line",
+      data: { datasets: datasets.map((d) => ({ pointRadius: 0, tension: 0, spanGaps: true, ...d })) },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false, parsing: true,
+        interaction: { mode: "nearest", axis: "x", intersect: false },
+        plugins: { legend: { display: false }, tooltip: { enabled: false }, ...extra.plugins },
+        scales: {
+          x: { type: "linear", min: start, max: end, display: last, grid: { display: false },
+               afterBuildTicks: (axis) => { axis.ticks = dateTicks(); },
+               border: { color: css("--axis") },
+               ticks: { color: css("--muted"), maxTicksLimit: 8, maxRotation: 0, callback: fmtDate } },
+          y: { position: "right", grid: { color: css("--grid") }, border: { display: false },
+               ticks: { color: css("--muted"), maxTicksLimit: 5, callback: extra.yfmt || ((v) => fmtNum(v)) },
+               afterFit: (scale) => { scale.width = 78; },   // same width in every panel keeps dates aligned
+               ...extra.y },
+        },
+        onHover: (evt, active, c) => {
+          const x = c.scales.x.getValueForPixel(evt.x);
+          icHoverX = x >= start && x <= end ? x : null;
+          readout.textContent = describe(icHoverX ?? end);
+          for (const cid of ["ic-price", "ic-net", "ic-pct"]) charts.get(cid)?.draw();
+        },
+      },
+      plugins: [icCrosshair],
+    });
+    chart.canvas.onmouseleave = () => {
+      icHoverX = null;
+      readout.textContent = describe(end);
+      for (const cid of ["ic-price", "ic-net", "ic-pct"]) charts.get(cid)?.draw();
+    };
+    charts.set(id, chart);
+  };
+  make("ic-price", datasetsPrice, { y: IC.log ? { type: "logarithmic" } : {} });
+  make("ic-net", datasetsNet, { plugins: { guides: { hlines: [[0]] } }, yfmt: (v) => FORMATS.num0(v) });
+  make("ic-pct", datasetsPct, { y: { min: 0, max: 100 }, yfmt: (v) => `${v}`,
+                                plugins: { guides: { bands: [[0, 10, "low"], [90, 100, "high"]], hlines: [[50]] } } });
+}
+
+$$('#indexcot [data-ic="range"] button').forEach((btn) => btn.addEventListener("click", () => {
+  IC.range = +btn.dataset.v; saveIC(); drawIndexCot();
+}));
+$$('#indexcot [data-ic="window"] button').forEach((btn) => btn.addEventListener("click", () => {
+  IC.window = btn.dataset.v; saveIC(); drawIndexCot();
+}));
+$("#ic-ma").addEventListener("change", (e) => { IC.ma = e.target.checked; saveIC(); drawIndexCot(); });
+$("#ic-log").addEventListener("change", (e) => { IC.log = e.target.checked; saveIC(); drawIndexCot(); });
+
+// ---------- foldable sections ----------
+const FOLDABLE = ["stocks", "appetite", "volatility", "positioning", "rates", "dollar", "commodities", "crypto", "asia"];
+const folded = (() => {
+  try { const v = JSON.parse(localStorage.getItem("folded")); if (Array.isArray(v)) return new Set(v); } catch (e) { /* default */ }
+  return new Set(FOLDABLE);
+})();
+function setFolded(id, fold) {
+  const sec = document.getElementById(id);
+  sec.classList.toggle("collapsed", fold);
+  const btn = $(".section-toggle", sec);
+  btn.textContent = fold ? "Show" : "Hide";
+  btn.setAttribute("aria-expanded", String(!fold));
+  if (fold) folded.add(id); else folded.delete(id);
+  try { localStorage.setItem("folded", JSON.stringify([...folded])); } catch (e) { /* ignore */ }
+  if (!fold) for (const c of charts.values()) if (sec.contains(c.canvas)) c.resize();
+}
+for (const id of FOLDABLE) {
+  const sec = document.getElementById(id);
+  const btn = el("button", "section-toggle");
+  btn.type = "button";
+  btn.addEventListener("click", () => setFolded(id, !sec.classList.contains("collapsed")));
+  $(".section-head h2", sec).after(btn);
+  setFolded(id, folded.has(id));
+}
+$$(".nav a").forEach((a) => a.addEventListener("click", () => {
+  const id = a.getAttribute("href").slice(1);
+  if (FOLDABLE.includes(id)) setFolded(id, false);
+}));
+
 const RENDERERS = {
-  summary: renderSummary, today: renderToday, stocks: renderStocks,
+  summary: renderSummary, indexcot: renderIndexCot, today: renderToday, stocks: renderStocks,
   appetite: renderChartsOnly("appetite"), volatility: renderChartsOnly("volatility"),
   positioning: renderPositioning, rates: renderRates,
   dollar: renderAssets("dollar", "SPY"), commodities: renderAssets("commodities", "SPY"),

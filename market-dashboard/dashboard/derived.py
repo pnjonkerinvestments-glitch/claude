@@ -94,6 +94,28 @@ def expanding_percentile(values: pd.Series, min_periods: int = 52) -> pd.Series:
     return pd.Series(out, index=values.index)
 
 
+def rolling_percentile(values: pd.Series, window: int, min_periods: int | None = None) -> pd.Series:
+    """Each point's percentile within the trailing `window` observations (including itself)."""
+    min_periods = min_periods or max(2, window // 4)
+    return values.rolling(window, min_periods=min_periods).apply(
+        lambda w: 100.0 * (w[~np.isnan(w)] <= w[-1]).mean(), raw=True)
+
+
+def positioning_label(pct: float | None) -> str:
+    """Words for a positioning percentile, relative to the group's own history."""
+    if pct is None or np.isnan(pct):
+        return "No data"
+    if pct >= 90:
+        return "Extremely long"
+    if pct >= 70:
+        return "Longer than usual"
+    if pct > 30:
+        return "Normal"
+    if pct > 10:
+        return "Shorter than usual"
+    return "Extremely short"
+
+
 def cot_percentiles(net: pd.Series, oi: pd.Series) -> dict:
     """Latest COT net position as percentile: net/OI over all history, 5 years and 1 year,
     and the raw net contracts over all history."""

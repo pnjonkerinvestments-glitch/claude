@@ -17,8 +17,8 @@
     <div class="topbar-inner">
       <a class="brand" href="#summary">Market Overview</a>
       <nav class="nav" aria-label="Sections">
-        <a href="#summary">Summary</a><a href="#today">Today</a><a href="#stocks">Stocks</a>
-        <a href="#appetite">Risk appetite</a><a href="#volatility">Volatility</a><a href="#positioning">Positioning</a>
+        <a href="#summary">Summary</a><a href="#indexcot">Index positioning</a><a href="#today">Today</a><a href="#stocks">Stocks</a>
+        <a href="#appetite">Risk appetite</a><a href="#volatility">Volatility</a><a href="#positioning">All COT</a>
         <a href="#rates">Rates</a><a href="#dollar">Dollar</a><a href="#commodities">Commodities</a>
         <a href="#crypto">Crypto</a><a href="#asia">Asia</a>
       </nav>
@@ -43,8 +43,49 @@
         <div class="tiles"></div>
         <div class="signals-box">
           <h3>Signals</h3>
+          <p class="hint">Anything at an extreme right now, most important first. Red dot = strong extreme, orange = worth watching. Extremes are where turning points tend to happen; they are not buy or sell signals by themselves.</p>
           <ul class="signals"></ul>
         </div>
+      </div>
+    </section>
+
+    <section id="indexcot" class="section">
+      <div class="section-head"><h2>Index positioning (COT)</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="ic-controls">
+        <div class="seg" role="group" aria-label="Index" data-ic="idx"></div>
+        <div class="seg" role="group" aria-label="Period" data-ic="range">
+          <button type="button" data-v="1">1Y</button><button type="button" data-v="3">3Y</button>
+          <button type="button" data-v="5">5Y</button><button type="button" data-v="10">10Y</button>
+          <button type="button" data-v="99">Max</button>
+        </div>
+        <label class="check"><input type="checkbox" id="ic-ma"> 50/200-day avg</label>
+        <label class="check"><input type="checkbox" id="ic-log"> Log scale</label>
+      </div>
+      <div class="ic-headline"></div>
+      <div class="ic-groups"></div>
+      <div class="chart-card ic-chart">
+        <div class="chart-head">
+          <h4 class="ic-title"></h4>
+          <div class="seg small" role="group" aria-label="Percentile window" data-ic="window">
+            <button type="button" data-v="pct_all">vs all history</button>
+            <button type="button" data-v="pct_5y">vs 5 years</button>
+            <button type="button" data-v="pct_1y">vs 1 year</button>
+          </div>
+          <a class="tv ic-tv" target="_blank" rel="noopener">Open in TradingView ↗</a>
+        </div>
+        <div class="ic-readout"></div>
+        <div class="legend-row ic-legend"></div>
+        <div class="panel" style="height: 300px"><canvas id="ic-price"></canvas></div>
+        <div class="panel-label">Net position per trader group (contracts; above 0 = net long)</div>
+        <div class="panel" style="height: 170px"><canvas id="ic-net"></canvas></div>
+        <div class="panel-label ic-pct-label"></div>
+        <div class="panel" style="height: 150px"><canvas id="ic-pct"></canvas></div>
+        <details class="explain">
+          <summary>How to read this</summary>
+          <p class="ic-howto"></p>
+          <ul class="ic-groups-help"></ul>
+        </details>
       </div>
     </section>
 
@@ -54,6 +95,7 @@
       <div class="today-grid">
         <div class="card">
           <h3>Expected move today</h3>
+          <p class="hint">The range the options market prices for today: index level × (VIX ÷ 100) ÷ √252. About two out of three days end inside it.</p>
           <div class="expected"></div>
           <h3>Economic calendar <span class="muted">US &amp; euro area, high importance</span></h3>
           <div id="calendar" class="widget calendar"></div>
@@ -76,6 +118,7 @@
       <div class="charts"></div>
       <div class="card">
         <h3>Leaders and laggards <span class="muted">1-month return relative to SPY, 3-month as dot</span></h3>
+        <p class="hint">Bars show how much each sector or theme beat (blue, right) or lagged (orange, left) the S&amp;P 500 over the last month; the dot shows the same over 3 months. A group with bar and dot on the same side has a lasting trend.</p>
         <div class="leaders"></div>
       </div>
       <div class="card">
@@ -108,7 +151,7 @@
         <div class="card">
           <h3>COT percentiles <span class="muted cot-date"></span></h3>
           <div class="table-wrap"><table class="cot-table"></table></div>
-          <p class="legend"><span class="pill low">≤ 10</span> crowded short &nbsp; <span class="pill high">≥ 90</span> crowded long. Net position as share of open interest; click a row for its chart.</p>
+          <p class="legend"><span class="pill low">≤ 10</span> crowded short &nbsp; <span class="pill high">≥ 90</span> crowded long. Net position as share of open interest; click a row for its chart. Cohort: AM = asset managers, LF = leveraged funds (hedge funds), MM = managed money (commodity speculators).</p>
         </div>
         <div class="cot-chart"></div>
       </div>

@@ -98,3 +98,15 @@ def test_performance_relative_and_ma():
     p = derived.performance(close, bench)
     assert p["m1"] == pytest.approx(p["rel_m1"])
     assert p["vs50"] > 0 and p["vs200"] > 0 and p["rsi"] == pytest.approx(100)
+
+
+def test_rolling_percentile_window():
+    s = pd.Series([5.0, 1, 2, 3, 4], index=_days(5))
+    pct = derived.rolling_percentile(s, 3, min_periods=1)
+    assert list(pct) == [100, 50, 2 / 3 * 100, 100, 100]
+
+
+@pytest.mark.parametrize("pct,label", [(95, "Extremely long"), (75, "Longer than usual"), (50, "Normal"),
+                                       (20, "Shorter than usual"), (5, "Extremely short"), (None, "No data")])
+def test_positioning_label(pct, label):
+    assert derived.positioning_label(pct) == label

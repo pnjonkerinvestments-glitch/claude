@@ -9,8 +9,9 @@ COHORT_FIELDS = {
     "am": ("asset_mgr_positions_long", "asset_mgr_positions_short"),
     "lf": ("lev_money_positions_long", "lev_money_positions_short"),
     "mm": ("m_money_positions_long_all", "m_money_positions_short_all"),
+    "dealer": ("dealer_positions_long_all", "dealer_positions_short_all"),
 }
-DATASET_COHORTS = {"tff": ("am", "lf"), "disagg": ("mm",)}
+DATASET_COHORTS = {"tff": ("am", "lf", "dealer"), "disagg": ("mm",)}
 
 
 def fields_for(dataset: str) -> list[str]:
@@ -21,23 +22,29 @@ def fields_for(dataset: str) -> list[str]:
 
 
 def parse_rows(rows: list[dict], cohorts: dict[str, str]) -> dict[str, dict[str, dict]]:
-    """-> {contract code: {iso date: {"net": cohort long - short, "oi": open interest}}}
+    """-> {contract code: {iso date: {"net": main cohort long - short, "oi": open interest,
+    "groups": {cohort: net} for every cohort in the row}}}
 
-    `cohorts` maps contract code to the cohort used for that contract (am, lf or mm).
+    `cohorts` maps contract code to the main cohort for that contract (am, lf, mm or dealer).
     """
     out: dict[str, dict[str, dict]] = {}
     for r in rows:
         code = r.get("cftc_contract_market_code", "").strip()
         if code not in cohorts:
             continue
-        long_f, short_f = COHORT_FIELDS[cohorts[code]]
+        groups = {}
+        for cohort, (long_f, short_f) in COHORT_FIELDS.items():
+            try:
+                groups[cohort] = float(r[long_f]) - float(r[short_f])
+            except (KeyError, TypeError, ValueError):
+                continue
         try:
             day = r["report_date_as_yyyy_mm_dd"][:10]
-            net = float(r[long_f]) - float(r[short_f])
             oi = float(r["open_interest_all"])
+            net = groups[cohorts[code]]
         except (KeyError, TypeError, ValueError):
             continue
-        out.setdefault(code, {})[day] = {"net": net, "oi": oi}
+        out.setdefault(code, {})[day] = {"net": net, "oi": oi, "groups": groups}
     return out
 
 

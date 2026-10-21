@@ -50,6 +50,11 @@ def store(cfg):
     weeks = [d for d in days if date.fromisoformat(d).weekday() == 1]
     s.upsert("cot:vix:net", {d: -1000.0 * i for i, d in enumerate(weeks)})
     s.upsert("cot:vix:oi", {d: 100000.0 for d in weeks})
+    s.upsert("cot:spx:oi", {d: 1000000.0 for d in weeks})
+    s.upsert("cot:spx:net", {d: 1000.0 * i for i, d in enumerate(weeks)})
+    s.upsert("cot:spx:g:am", {d: 1000.0 * i for i, d in enumerate(weeks)})
+    s.upsert("cot:spx:g:lf", {d: -1000.0 * i for i, d in enumerate(weeks)})
+    s.upsert("cot:spx:g:dealer", {d: 0.0 for d in weeks})
     return s
 
 
@@ -78,7 +83,9 @@ def test_positioning_and_cot_chart(store, cfg):
     vix = next(r for r in pos["rows"] if r["key"] == "vix")
     weeks = len(store.series("cot:vix:net"))
     assert vix["pct_all"] == pytest.approx(100 / weeks)      # steadily falling: latest is the low
-    assert vix["cohort_short"] == "AM" and pos["default_key"] == "vix"
+    assert vix["cohort_short"] == "AM"
+    extremity = {r["key"]: min(r["pct_all"], 100 - r["pct_all"]) for r in pos["rows"] if r.get("pct_all") is not None}
+    assert extremity[pos["default_key"]] == min(extremity.values())   # most extreme row is shown first
     chart = pos["chart"]
     assert chart["available"] and len(chart["panels"]) == 2
 
@@ -108,3 +115,27 @@ def test_every_section_builds_and_api_serves(store, cfg):
             assert "error" not in data[name], (name, data[name].get("error"))
         assert client.get("/api/cot/vix").json()["available"]
         assert client.get("/api/cot/nope").status_code == 404
+
+
+def test_index_positioning_section(store, cfg):
+    sec = blocks.indexcot_section(store, cfg)
+    spx = next(i for i in sec["indices"] if i["key"] == "spx")
+    groups = spx["cot"]["groups"]
+    assert groups["am"]["stats"]["label"] == "Extremely long"
+    assert groups["lf"]["stats"]["label"] == "Extremely short"
+    assert len(groups["am"]["pct_all"]) == len(spx["cot"]["dates"])
+    assert spx["price"]["dates"] and len(spx["price"]["ma50"]) == len(spx["price"]["close"])
+    assert spx["default_group"] == "am" and "Commitments of Traders" in sec["howto"]
+    assert not next(i for i in sec["indices"] if i["key"] == "ndx")["available"]
+
+
+def test_everything_has_an_explanation(store, cfg):
+    data = blocks.dashboard(store, cfg)
+    for name in blocks.BUILDERS:
+        sec = data[name]
+        assert sec.get("intro"), name
+        for c in sec.get("charts", []):
+            assert c.get("explain"), c["id"]
+    for ind in data["summary"]["indicators"]:
+        assert ind["meaning"], ind["key"]
+    assert all(t["about"] for t in data["summary"]["tiles"])

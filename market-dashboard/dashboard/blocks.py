@@ -8,12 +8,13 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from . import calc, derived, frames
+from . import calc, derived, explain, frames
 from .calc import GREEN, NODATA, ORANGE, RED, Indicator
 from .db import Store
 
 SECTION_SOURCES = {
     "summary": ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "cftc"),
+    "indexcot": ("cftc", "prices"),
     "today": ("prices", "cboe_vix"),
     "stocks": ("prices", "components", "breadth"),
     "appetite": ("prices",),
@@ -59,7 +60,7 @@ def section_meta(store: Store, cfg: dict, section: str) -> dict:
             warnings.append(f"{SOURCE_NAMES[src]}: refresh failed {_fmt_time(st['last_attempt'], tz)} "
                             f"({st['last_error']}); {fallback}.")
     return {"updated_at": _fmt_time(max(successes), tz) if successes else None,
-            "warnings": warnings}
+            "warnings": warnings, "intro": explain.SECTIONS.get(section)}
 
 
 def _num(x) -> float | None:
@@ -113,7 +114,8 @@ def chart(cid: str, title: str, panels: list[dict], subtitle: str | None = None,
                 continue
             index = idx if index is None else index.union(idx)
     if index is None or len(index) == 0:
-        return {"id": cid, "title": title, "available": False, "subtitle": subtitle, "tv": tv}
+        return {"id": cid, "title": title, "available": False, "subtitle": subtitle, "tv": tv,
+                "explain": explain.chart_text(cid)}
     out_panels = []
     for p in panels:
         out_series = []
@@ -123,7 +125,7 @@ def chart(cid: str, title: str, panels: list[dict], subtitle: str | None = None,
                                "values": [_num(v) for v in vals]})
         out_panels.append({**p, "series": out_series})
     return {"id": cid, "title": title, "subtitle": subtitle, "tv": tv, "note": note,
-            "available": True, "dates": [d.date().isoformat() for d in index],
+            "explain": explain.chart_text(cid), "available": True, "dates": [d.date().isoformat() for d in index],
             "panels": out_panels}
 
 
@@ -321,13 +323,28 @@ def regime(store: Store, cfg: dict) -> dict:
     vc = cfg["regime"]["verdict"]
     verdict = calc.regime_verdict([i.color for i in indicators], vc["risk_on_min_pct"],
                                   vc["risk_off_max_pct"])
-    return {"indicators": [i.__dict__ for i in indicators], "verdict": verdict.__dict__}
+    return {"indicators": [i.__dict__ | {"meaning": explain.indicator_text(i.key)} for i in indicators],
+            "verdict": verdict.__dict__}
+
+
+TILE_ABOUT = {
+    "S&P 500": "Last close and change over the past week.",
+    "Nasdaq-100": "The 100 largest non-financial Nasdaq stocks; last close and 1-week change.",
+    "STOXX 600": "600 large European companies; last close and 1-week change.",
+    "Dollar index": "The dollar against six major currencies (mostly the euro). Up = stronger dollar.",
+    "Gold": "Gold futures price in dollars per ounce.",
+    "Bitcoin": "Bitcoin in dollars.",
+    "US 10Y": "10-year US Treasury yield; change over the week in basis points (0.01%).",
+    "VIX": "Expected 30-day volatility of the S&P 500 ('fear index'); change in points over the week.",
+    "S&P members > 50d": "Share of S&P 500 stocks above their own 50-day average: short-term breadth.",
+    "S&P days without −1% day": "Trading days since the S&P 500 last fell 1% or more in one day.",
+}
 
 
 def _tile(label, value, change=None, change_label=None, colored=True) -> dict:
     """colored=False for changes that are neither good nor bad (yields, VIX)."""
     return {"label": label, "value": value, "change": _num(change), "change_label": change_label,
-            "colored": colored}
+            "colored": colored, "about": TILE_ABOUT.get(label)}
 
 
 def key_tiles(store: Store, cfg: dict) -> list[dict]:
@@ -770,8 +787,62 @@ def asia_section(store: Store, cfg: dict) -> dict:
             "charts": charts}
 
 
+# --- section: index positioning (COT for the big US stock index futures) ---------------
+
+def _list(s: pd.Series, nd: int | None = None) -> list:
+    return [None if v is None or (isinstance(v, float) and math.isnan(v)) else
+            (round(float(v), nd) if nd is not None else float(v)) for v in s.values]
+
+
+def index_cot(store: Store, cfg: dict, asset: dict) -> dict:
+    """Daily index price plus weekly net positions and percentiles of every trader group."""
+    price = frames.price(store, asset["price"]).dropna()
+    price = price[price.index >= cfg["cftc"]["history_start"]]
+    ma50, ma200 = price.rolling(50).mean(), price.rolling(200).mean()
+    if not price.empty:
+        # Daily for the last 3 years, weekly before that: same picture, a third of the data.
+        cut = price.index[-1] - pd.DateOffset(years=3)
+        price = pd.concat([_weekly(price[price.index < cut]), price[price.index >= cut]])
+    oi = frames.series(store, f"cot:{asset['key']}:oi").dropna()
+    out = {"key": asset["key"], "label": asset["label"], "default_group": asset["cohort"],
+           "tv": next((i["tv"] for i in cfg["prices"]["indices"].values() if i["ticker"] == asset["price"]),
+                      asset["price"].replace("^", "")),
+           "price": {"dates": [d.date().isoformat() for d in price.index], "close": _list(price, 1),
+                     "ma50": _list(ma50.reindex(price.index, method="ffill"), 1),
+                     "ma200": _list(ma200.reindex(price.index, method="ffill"), 1)},
+           "available": not oi.empty}
+    if oi.empty:
+        return out
+    groups = {}
+    for g in ("am", "lf", "dealer"):
+        net = frames.series(store, f"cot:{asset['key']}:g:{g}").reindex(oi.index)
+        if net.dropna().empty:
+            continue
+        ratio = net / oi.replace(0, np.nan)
+        stats = {k: _num(v) if not isinstance(v, str) else v
+                 for k, v in derived.cot_percentiles(net.dropna(), oi).items()}
+        stats["change_4w"] = _num(net.iloc[-1] - net.iloc[-5]) if len(net) > 4 else None
+        stats["label"] = derived.positioning_label(stats.get("pct_all"))
+        name, about = explain.GROUPS[g]
+        groups[g] = {"name": name, "about": about, "stats": stats,
+                     "net": _list(net, 0),
+                     "pct_all": _list(derived.expanding_percentile(ratio), 0),
+                     "pct_5y": _list(derived.rolling_percentile(ratio, 260), 0),
+                     "pct_1y": _list(derived.rolling_percentile(ratio, 52), 0)}
+    out["cot"] = {"dates": [d.date().isoformat() for d in oi.index], "oi": _list(oi, 0), "groups": groups}
+    return out
+
+
+def indexcot_section(store: Store, cfg: dict) -> dict:
+    by_key = {a["key"]: a for a in cfg["cftc"]["assets"]}
+    indices = [index_cot(store, cfg, by_key[k]) for k in cfg["cftc"]["index_view"]]
+    dates = [i["cot"]["dates"][-1] for i in indices if i.get("cot")]
+    return {**section_meta(store, cfg, "indexcot"), "indices": indices,
+            "report_date": max(dates) if dates else None, "howto": explain.INDEX_COT_HOWTO}
+
+
 BUILDERS = {
-    "summary": summary_section, "today": today_section, "stocks": stocks_section,
+    "summary": summary_section, "indexcot": indexcot_section, "today": today_section, "stocks": stocks_section,
     "appetite": appetite_section, "volatility": volatility_section,
     "positioning": positioning_section, "rates": rates_section, "dollar": dollar_section,
     "commodities": commodities_section, "crypto": crypto_section, "asia": asia_section,
@@ -780,10 +851,14 @@ BUILDERS = {
 
 def dashboard(store: Store, cfg: dict) -> dict:
     """All sections; one failing section never takes down the others."""
-    out = {"generated_at": datetime.now(cfg["tz"]).strftime("%a %d %b %H:%M")}
+    out = {"generated_at": datetime.now(cfg["tz"]).strftime("%a %d %b %H:%M"),
+           "columns": explain.COLUMNS}
     for name, build in BUILDERS.items():
         try:
             out[name] = build(store, cfg)
+            for c in out[name].get("charts", []) + [out[name].get("chart") or {}]:
+                if c.get("id") and not c.get("explain"):
+                    c["explain"] = explain.chart_text(c["id"])
         except Exception as exc:
             out[name] = {"error": f"{type(exc).__name__}: {exc}", "warnings": [], "updated_at": None}
     return out

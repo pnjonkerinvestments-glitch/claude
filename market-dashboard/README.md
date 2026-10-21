@@ -8,6 +8,7 @@ crypto and Asia. It is not for trading or scanning. Our trading system already d
 
 | Section | Contents |
 |---|---|
+| Index positioning (COT) | Pick S&P 500, Nasdaq-100, Russell 2000 or Dow and a period (1Y–Max). The index chart (optional 50/200-day averages, log scale) with below it the net positions of asset managers, leveraged funds and dealers, and the chosen group's percentile against all history, 5 years or 1 year. Cards and a headline say in words how long or short each group is |
 | Where we stand | Regime verdict (transparent tally of 11 indicators), key numbers, and a **Signals** list of current extremes (RSI, COT, breadth, streaks, VIX curve, MOVE, crypto compression) |
 | Today | Expected move for the S&P 500, economic calendar, heatmap (S&P 500 / STOXX 600) |
 | Stocks & breadth | S&P 500 with % of members beating the index (2M); McClellan summation index (from all 503 members); % above 50d/200d for S&P 500 and Europe; equal-weight vs cap-weight since 2003; days without a 1% decline; QQQ and SMH with RSI; leaders/laggards vs SPY; sortable sector & theme table (US and STOXX 600 sectors) |
@@ -19,6 +20,11 @@ crypto and Asia. It is not for trading or scanning. Our trading system already d
 | Commodities | Gold, silver, gold miners, copper, WTI, gasoline, natural gas, with COT charts |
 | Crypto | BTC and ETH with volatility-compression model, ETH/BTC, Bitcoin COT |
 | Asia | KOSPI, Nikkei, EWY, FXI; Korea vs US semiconductors |
+
+Every section starts with a one-line explanation, every chart has a **What does this show?**
+box, table columns are explained under each table, and the summary tiles explain themselves on
+hover. The detail sections (from Stocks down) start folded; **Show/Hide** next to the title opens
+them and the page remembers your choice.
 
 Every chart has an **Open in TradingView ↗** link that opens the symbol in your own
 TradingView account (with your paid real-time data). Light and dark layout: the toggle at the
