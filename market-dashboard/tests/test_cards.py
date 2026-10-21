@@ -127,3 +127,18 @@ def test_scanner_rows_and_payload():
                                             "markets": ["sweden"]})
     assert payload["price_conversion"] == {"to_currency": "usd"}
     assert {"left": "change", "operation": "egreater", "right": 10} in payload["filter"]
+
+
+def test_occ_csv_sums_all_roots_account_types_and_exchanges():
+    from dashboard.sources import occ
+    text = ("quantity,underlying,symbol,actype,porc,exchange,actdate\n"
+            "100,SPY,SPY,C,P,CBOE,10/19/2026,\n50,SPY,SPY,M,P,AMEX,10/19/2026,\n"
+            "7,SPY,2SPY,F,P,CBOE,10/19/2026,\n30,SPY,SPY,C,C,CBOE,10/19/2026,\n5,SPY,SPY,C,C,ISE,10/20/2026,\n")
+    assert occ.parse(text) == {"2026-10-19": {"calls": 30, "puts": 157}, "2026-10-20": {"calls": 5, "puts": 0}}
+
+
+def test_volume_stats_rank_and_average():
+    s = pd.Series([10.0] * 50 + [30.0, 20.0], index=days(52))
+    st = cards.volume_stats(s)
+    assert st["rank"] == 2 and st["count"] == 52 and st["high"] == 30
+    assert st["vs50"] == pytest.approx(20 / ((49 * 10 + 30) / 50))

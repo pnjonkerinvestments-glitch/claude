@@ -384,6 +384,14 @@ cftc:
     - {key: ether,    label: "Ether",        group: "Crypto",         dataset: tff,    code: "146021", cohort: lf, price: "ETH-USD"}
 
 # ---------------------------------------------------------------------------
+# OCC cleared option volume (puts and calls per ETF)
+# ---------------------------------------------------------------------------
+occ:
+  url: "https://marketdata.theocc.com/volume-query"
+  symbols: [SPY, QQQ, IWM]
+  history_months: 25          # first run: monthly reports for about two years
+
+# ---------------------------------------------------------------------------
 # Activity: unusual volume, 200-day taps, record volume, European small-cap movers
 # ---------------------------------------------------------------------------
 activity:

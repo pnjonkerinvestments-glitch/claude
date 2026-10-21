@@ -11,16 +11,16 @@ import pandas as pd
 
 from . import activity, derived, frames
 from .db import Store
-from .sources import cboe, cftc, earnings, fred, options, prices, sec
+from .sources import cboe, cftc, earnings, fred, occ, options, prices, sec
 from .sources.http import client
 
 log = logging.getLogger("dashboard.refresh")
 _lock = threading.Lock()
 
-DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "earnings",
+DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "occ", "fred", "earnings",
                  "unusual", "taps", "record_volume", "eu_smallcaps")
 WEEKLY_SOURCES = ("cftc",)
-MORNING_SOURCES = ("earnings", "etf_pc")
+MORNING_SOURCES = ("earnings", "etf_pc", "occ")
 INTRADAY_SOURCES = ("intraday_bars", "unusual", "taps", "eu_smallcaps")
 RECORD_SOURCES = ("volume_records", "record_volume")
 ALL_SOURCES = tuple(dict.fromkeys(DAILY_SOURCES + WEEKLY_SOURCES + MORNING_SOURCES + INTRADAY_SOURCES
@@ -206,6 +206,29 @@ def refresh_etf_put_call(store: Store, cfg: dict) -> None:
                 store.upsert(f"pc:etf:{ticker}:oi", {day: pc["oi"]})
 
 
+def refresh_occ(store: Store, cfg: dict, today: date) -> None:
+    """Daily cleared put and call volume per ETF from OCC's monthly reports: the running month
+    (and the previous one, for late corrections); about two years on the first run."""
+    o = cfg["occ"]
+    errors = []
+    with client(timeout=60) as http:
+        for sym in o["symbols"]:
+            months = 2 if store.has(f"occ:{sym}:puts") else o["history_months"]
+            for back in range(months):
+                first = (pd.Timestamp(today).to_period("M") - back).to_timestamp()
+                end = min((first + pd.offsets.MonthEnd(0)).date(), today)
+                try:
+                    days = occ.fetch(o["url"], sym, end, "M", http)
+                except Exception as exc:  # keep the other months and symbols
+                    errors.append(f"{sym} {first:%Y-%m}: {exc}")
+                    continue
+                for side in ("puts", "calls"):
+                    store.upsert(f"occ:{sym}:{side}", {d: v[side] for d, v in days.items()})
+    latest = max(store.dates(f"occ:{o['symbols'][0]}:puts"), default=None)
+    if errors or latest is None:
+        raise RuntimeError("; ".join(errors[:3]) or "no OCC data")
+
+
 def refresh_fred(store: Store, cfg: dict, today: date) -> None:
     """FRED API with the key from .env; without a key, FRED's public CSV download."""
     f = cfg["fred"]
@@ -290,6 +313,7 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
         "cboe_vix": lambda today: refresh_cboe_vix(store, cfg),
         "cboe_pc": lambda today: refresh_cboe_pc(store, cfg, today),
         "fred": lambda today: refresh_fred(store, cfg, today),
+        "occ": lambda today: refresh_occ(store, cfg, today),
         "cftc": lambda today: refresh_cftc(store, cfg, today),
         "earnings": lambda today: refresh_earnings(store, cfg, today),
         "etf_pc": lambda today: refresh_etf_put_call(store, cfg),

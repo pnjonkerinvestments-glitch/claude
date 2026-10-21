@@ -962,9 +962,51 @@ function drawShortShare(s) {
   void price; void avg;
 }
 
+const OCC = Object.assign({ sym: "SPY", side: "puts" }, store.get("occ", {}));
+function drawOcc(o) {
+  const card = $("#card-occ");
+  const syms = Object.keys(o.symbols);
+  const box = $(".chart", card);
+  if (!syms.length) { $(".card-sub", card).textContent = "No OCC data yet."; box.replaceChildren(el("div", "na", "No data yet.")); return; }
+  if (!o.symbols[OCC.sym]) OCC.sym = syms[0];
+  const sel = $("[data-occ-sym]", card);
+  fillSelect(sel, syms.map((x) => [x, x]), OCC.sym);
+  sel.onchange = () => { OCC.sym = sel.value; store.set("occ", OCC); drawOcc(o); };
+  segActive($("[data-occ-side]", card), OCC.side);
+  onSeg($("[data-occ-side]", card), (v) => { OCC.side = v; store.set("occ", OCC); drawOcc(o); });
+  const d = o.symbols[OCC.sym];
+  const st = d.stats[OCC.side];
+  const word = OCC.side === "puts" ? "put" : "call";
+  $(".occ-title", card).textContent = `${OCC.sym} ${word} volume`;
+  $(".card-sub", card).textContent = `Daily options contracts cleared at OCC, both sides of each trade counted · last 2 years · ` +
+    `bars green on up days, red on down days · dashed line marks the 2-year high`;
+  const stat = (label, value) => { const x = el("div", "stat"); x.append(el("div", "label", label), el("div", "big", value)); return x; };
+  $(".stats", card).replaceChildren(stat(`Latest session (${niceDate(st.date, false)})`, fmtVol(st.latest)),
+    stat("Rank in 2 years", `${ordinal(st.rank)} highest of ${st.count}`),
+    stat("vs 50-day average", isNum(st.vs50) ? `${st.vs50.toFixed(2)}x` : "–"));
+  $(".chart-note", card).textContent = `Top: ${OCC.sym} price. Bottom: ${word} contracts per day; 2-year high ` +
+    `${fmtVol(st.high)} on ${niceDate(st.high_date)}. ${o.about}`;
+  const chart = makeChart(box);
+  addLine(chart, pts(d.dates, d.price), { color: cssVar("--price"), width: 1.2, title: OCC.sym, fmt: "num" });
+  const vals = d[OCC.side];
+  const bars = addBars(chart, d.dates.map((t, i) => isNum(vals[i]) ? { time: t, value: vals[i],
+    color: d.up[i] ? cssVar("--pos") : cssVar("--neg") } : { time: t }), { pane: 1, title: "", fmt: "num", lastValue: false });
+  hline(bars, st.high, { color: cssVar("--neg") });
+  paneHeights(chart, [1, 1.4]);
+  chart.timeScale().fitContent();
+  tooltip(chart, box, (param, iso) => {
+    const i = d.dates.indexOf(iso);
+    if (i < 0) return null;
+    return `<div class="t-date">${niceDate(iso)}</div>${OCC.sym} ${fmtNum(d.price[i])}<br>` +
+      `${sw(d.up[i] ? cssVar("--pos") : cssVar("--neg"))}Puts <b>${fmtVol(d.puts[i])}</b> · calls ${fmtVol(d.calls[i])}<br>` +
+      `<span class="muted">put/call ${isNum(d.puts[i]) && d.calls[i] ? (d.puts[i] / d.calls[i]).toFixed(2) : "–"}</span>`;
+  });
+}
+
 function renderFlows(b) {
   if (!setMeta("flows", b)) return;
   drawPutCall(b);
+  if (b.occ) drawOcc(b.occ);
   drawShortShare(b.short_share);
 }
 

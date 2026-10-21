@@ -357,3 +357,32 @@ def charts_meta(cfg: dict) -> dict:
     names = {t: name_of(cfg, t) for t in tickers}
     return {"price": p["price_charts"], "streak": p["streak_indices"], "names": names,
             "tv": {t: tv_symbol(cfg, t) for t in tickers}}
+
+
+# --- flows: OCC put and call volume ---------------------------------------------------------
+
+def volume_stats(s: pd.Series) -> dict:
+    """Latest session vs the window: rank (1 = biggest), multiple of the 50-day average, high."""
+    s = s.dropna()
+    last = s.iloc[-1]
+    prior = s.iloc[-51:-1]
+    return {"latest": _num(last), "date": s.index[-1].date().isoformat(),
+            "rank": int((s > last).sum()) + 1, "count": int(len(s)),
+            "vs50": _num(last / prior.mean()) if len(prior) and prior.mean() else None,
+            "high": _num(s.max()), "high_date": s.idxmax().date().isoformat()}
+
+
+def occ_card(store: Store, cfg: dict, sessions: int = 504) -> dict:
+    out = {}
+    for sym in cfg["occ"]["symbols"]:
+        puts = frames.series(store, f"occ:{sym}:puts").dropna()
+        calls = frames.series(store, f"occ:{sym}:calls").dropna()
+        if puts.empty:
+            continue
+        idx = puts.index[-sessions:]
+        close = frames.price(store, sym).dropna()
+        up = close.diff().reindex(idx) >= 0
+        out[sym] = {"dates": _dates(idx), "puts": _list(puts.reindex(idx), 0), "calls": _list(calls.reindex(idx), 0),
+                    "price": _list(close.reindex(idx), 2), "up": [bool(x) for x in up.fillna(True)],
+                    "stats": {"puts": volume_stats(puts.reindex(idx)), "calls": volume_stats(calls.reindex(idx))}}
+    return {"symbols": out, "about": explain.CARDS["occ"]}

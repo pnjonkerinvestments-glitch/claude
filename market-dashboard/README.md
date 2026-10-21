@@ -16,7 +16,7 @@ number and a compact chart.
 | Earnings & European peers | Next results of the US companies in our own peer list (`dashboard/universe/eu_peers.yaml`), with the release time in Amsterdam time (to the minute where SEC filings allow), when European peers can first trade on it, correlation with each peer and how the peer moved after the previous report. Filter: today / next 7 days / all |
 | Activity | **Unusual volume** (US stocks ≥ $25B and ETFs ≥ $1B at 2x their 10-day volume, refreshed every 30 minutes in the US session); **200-day SMA taps** (S&P 500 members, ETFs and futures whose range touched the 200-day average); **Record volume** (≥ 90% of the biggest day ever); **European small-cap movers** (up 10%+, under $1B). Each with a running log of the last 10 sessions |
 | Performance | US ETF table (sectors, styles, themes, bonds, commodities) and country/region ETFs and STOXX 600 sectors: day, week, 1M, 3M, YTD, 1Y with shading by size, sortable; TradingView heatmap (S&P 500 / STOXX 600) |
-| Options & flows | Put/call ratio per index with a period choice; short (inverse) ETF share of SPY/QQQ/IWM family dollar volume since 2021 with price, 10-day average and percentile |
+| Options & flows | Put/call ratio per index with a period choice; SPY/QQQ/IWM put or call volume cleared at OCC (2 years, rank, vs 50-day average, bars coloured by up/down day); short (inverse) ETF share of SPY/QQQ/IWM family dollar volume since 2021 with price, 10-day average and percentile |
 | Charts | Days without a 1% decline (or gain) for the S&P 500, Nasdaq-100, Dow, Russell 2000, Euro Stoxx 50, DAX and AEX, with the index on a log scale and labels on long streaks; price charts with daily/weekly candles, 50/200-day averages and an optional breadth panel |
 | Seasonality | Average, median or % of years up per calendar month over 10/15/20 years: NQ, ES, DAX, Euro Stoxx 50, gold, silver, crude, ZN, ZB, dollar, EUR/USD, bitcoin |
 | More charts (folded) | Stocks & breadth, risk appetite, volatility, rates & credit, dollar, commodities, crypto, Asia: the multi-panel charts of the earlier version |
@@ -177,6 +177,9 @@ markets are under `tradingview:`.
   (rebuilt every Saturday; the first five trading days after a listing do not count).
 - **European small caps** come from TradingView's stock screener (`scanner.tradingview.com`,
   the same source as the news alerts). Market cap and traded value are converted to dollars.
+- **OCC option volume** comes from `marketdata.theocc.com` (volume query, monthly reports):
+  contracts per day summed over all exchanges, account types and option roots, so both sides
+  of each trade count. OCC publishes the previous session in the morning.
 - **Short ETF share:** inverse ETFs' share of the family's dollar volume (close × shares):
   SPY, IVV, VOO, SSO, UPRO, SPXL vs SH, SDS, SPXU, SPXS; QQQ, QQQM, QLD, TQQQ vs PSQ, QID,
   SQQQ; IWM, VTWO, UWM, TNA vs RWM, TWM, TZA. Families are under `prices.short_etf_families`.
@@ -214,4 +217,5 @@ The widgets need these hosts in the browser: `s3.tradingview.com`,
 `www.tradingview-widget.com`, `widgetdata.tradingview.com`, `pushstream.tradingview.com`,
 `scanner.tradingview.com`, `chartevents-reuters.tradingview.com` and
 `widget-sheriff.tradingview-widget.com`. The charts (Lightweight Charts) load from `cdn.jsdelivr.net`. The backend needs
-`scanner.tradingview.com` for the European small-cap list.
+`scanner.tradingview.com` for the European small-cap list and `marketdata.theocc.com` for the
+OCC option volume.

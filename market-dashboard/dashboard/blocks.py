@@ -17,7 +17,7 @@ SECTION_SOURCES = {
     "overview": ("prices", "components", "breadth", "cboe_vix", "fred"),
     "activity": ("unusual", "taps", "record_volume", "eu_smallcaps"),
     "performance": ("prices",),
-    "flows": ("prices", "cboe_pc", "etf_pc"),
+    "flows": ("prices", "cboe_pc", "etf_pc", "occ"),
     "seasonality": ("prices",),
     "summary": ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "cftc"),
     "earnings": ("earnings", "prices"),
@@ -42,6 +42,7 @@ SOURCE_NAMES = {
     "fred": "FRED",
     "cftc": "CFTC (COT)",
     "etf_pc": "Yahoo Finance (ETF option chains)",
+    "occ": "OCC (cleared option volume)",
     "earnings": "Yahoo Finance (earnings calendar)",
     "unusual": "Yahoo Finance (screener)",
     "taps": "200-day taps calculation",
@@ -975,9 +976,10 @@ BUILDERS = {
 
 
 def flows_section(store: Store, cfg: dict) -> dict:
-    from .cards import short_share_card
+    from .cards import occ_card, short_share_card
     return {**section_meta(store, cfg, "flows"), "put_call": put_call_series(store, cfg),
-            "put_call_explain": explain.chart_text("putcall"), "short_share": short_share_card(store, cfg)}
+            "put_call_explain": explain.chart_text("putcall"), "short_share": short_share_card(store, cfg),
+            "occ": occ_card(store, cfg)}
 
 
 def _register_cards():

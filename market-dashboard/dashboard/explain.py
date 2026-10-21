@@ -9,8 +9,8 @@ SECTIONS = {
                 "200-day average, record volume and big moves in European small caps.",
     "performance": "How sectors, themes, countries and European sectors did over the day, week, month, "
                    "quarter, year to date and year.",
-    "flows": "Option hedging and bets on a fall: put/call ratios per index and the share of inverse "
-             "(short) ETFs in trading volume.",
+    "flows": "Option hedging and bets on a fall: put/call ratios per index, put and call volume cleared at "
+             "OCC, and the share of inverse (short) ETFs in trading volume.",
     "seasonality": "How each market did on average in each calendar month over the last 10, 15 or 20 years.",
     "summary": "The overall picture in one place: a traffic-light tally of trend, breadth, volatility, "
                "sentiment and credit, the key numbers of the week, and a list of anything at an extreme.",
@@ -208,6 +208,9 @@ CARDS = {
     "short_share": "Inverse (short) ETFs' share of the fund family's daily dollar volume (close × shares). "
                    "A rising share means more traders are buying downside protection or betting on a fall. "
                    "High readings tend to come near lows.",
+    "occ": "Daily option contracts cleared at OCC (the Options Clearing Corporation) on the ETF, summed over "
+           "all exchanges, account types and option roots, so both sides of each trade count. A put-volume "
+           "spike shows a rush for protection; it tends to come near short-term lows, especially on a down day.",
     "seasonality": "Return in each calendar month, completed months only, from Yahoo monthly closes. "
                    "Futures (NQ, ES, ZN, ZB, gold, silver, crude) use the continuous front-month contract, "
                    "which is not back-adjusted, so a month with a contract roll includes the roll gap. "
