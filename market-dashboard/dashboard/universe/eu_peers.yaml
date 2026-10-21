@@ -1,15 +1,15 @@
 # European peers of US companies, for the Earnings section.
 # Key = US ticker, value = list of European Yahoo tickers. Add or change freely and restart.
 # Names of the European tickers are under eu_names (the page uses them as labels).
+# Only `peers` is shown; set earnings.use_extra_peers: true in config.yaml to add `extra_peers`.
 
 peers:
-  # --- from our own list ---------------------------------------------------------------
+  # --- our own list ----------------------------------------------------------------------
   ETN:  [SU.PA]
   GEHC: [SHL.DE]
   LLY:  [NOVO-B.CO]
   EL:   [OR.PA]
   UA:   [ADS.DE]
-  UAA:  [ADS.DE]
   SPGI: [LSEG.L]
   VRT:  [SU.PA, LR.PA]
   TMUS: [DTE.DE]
@@ -31,8 +31,11 @@ peers:
   TEVA: [MEDCL.PA]
   IBM:  [SAP.DE, CAP.PA, WKL.AS, REN.AS]
   ACN:  [CAP.PA]
+  MSCI: []
+  DTE:  []       # DTE Energy (US); no European peer in our list
 
-  # --- added: obvious sector peers (check and adjust) -----------------------------------
+extra_peers:
+  # --- suggested additions: obvious sector peers (not shown unless enabled) --------------
   MCO:  [LSEG.L]
   MSFT: [SAP.DE]
   ORCL: [SAP.DE]

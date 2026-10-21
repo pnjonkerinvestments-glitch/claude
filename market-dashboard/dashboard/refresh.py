@@ -11,7 +11,7 @@ import pandas as pd
 
 from . import derived, frames
 from .db import Store
-from .sources import cboe, cftc, earnings, fred, prices
+from .sources import cboe, cftc, earnings, fred, options, prices
 from .sources.http import client
 
 log = logging.getLogger("dashboard.refresh")
@@ -36,7 +36,7 @@ def price_tickers(cfg: dict) -> list[str]:
     tickers += [a["price"] for a in cfg["cftc"]["assets"] if a.get("price")]
     tickers += cfg["signals"]["rsi_watch"]
     tickers += ["^VIX", "^VIX9D", "^VIX3M"]
-    peers, _ = frames.eu_peers()
+    peers, _ = frames.eu_peers(cfg["earnings"]["use_extra_peers"])
     tickers += list(peers) + [eu for lst in peers.values() for eu in lst]
     return list(dict.fromkeys(tickers))
 
@@ -122,7 +122,7 @@ def refresh_cboe_vix(store: Store, cfg: dict) -> None:
 
 def refresh_cboe_pc(store: Store, cfg: dict, today: date) -> None:
     c = cfg["cboe"]
-    stored = store.dates("pc:equity")
+    stored = store.dates("pc:spx")   # the newest series: a missing one triggers a full backfill
     start = (max(date.fromisoformat(max(stored)) + timedelta(days=1),
                  today - timedelta(days=14)) if stored
              else today - timedelta(days=c["put_call_history_days"]))
@@ -139,6 +139,42 @@ def refresh_cboe_pc(store: Store, cfg: dict, today: date) -> None:
     latest = max(store.dates("pc:equity"), default=None)
     if latest is None or (today - date.fromisoformat(latest)).days > 6:
         raise RuntimeError(f"no recent put/call data (latest: {latest or 'none'})")
+    refresh_etf_put_call(store, cfg)
+
+
+def last_completed_session(now_ny: pd.Timestamp) -> pd.Timestamp | None:
+    """The US session whose full option volume Yahoo shows at `now_ny` (None during trading)."""
+    today = now_ny.normalize()
+    minutes = now_ny.hour * 60 + now_ny.minute
+    if now_ny.weekday() >= 5:                      # weekend: Friday
+        return today - pd.offsets.Week(weekday=4)
+    if minutes >= 16 * 60:                         # after the close: today
+        return today
+    if minutes < 9 * 60 + 30:                      # before the open: previous trading day
+        return today - pd.offsets.BDay(1)
+    return None
+
+
+def refresh_etf_put_call(store: Store, cfg: dict) -> None:
+    """QQQ/IWM/SPY option put/call from Yahoo, one snapshot per run.
+
+    Yahoo's option volume covers the last completed session: after the US close that is today,
+    before the open the previous trading day. During the session the volume is partial, so
+    nothing is recorded then. The history starts on the first run.
+    """
+    session = last_completed_session(pd.Timestamp.now(tz="America/New_York").tz_localize(None))
+    if session is None:
+        return
+    day = session.date().isoformat()
+    for ticker in cfg["cboe"]["etf_put_call"]:
+        try:
+            pc = options.etf_put_call(ticker)
+        except Exception as exc:  # one ETF failing should not stop the others
+            log.warning("option chain %s failed: %s", ticker, exc)
+            continue
+        if pc:
+            store.upsert(f"pc:etf:{ticker}:vol", {day: pc["vol"]})
+            store.upsert(f"pc:etf:{ticker}:oi", {day: pc["oi"]})
 
 
 def refresh_fred(store: Store, cfg: dict, today: date) -> None:
@@ -186,17 +222,26 @@ def refresh_cftc(store: Store, cfg: dict, today: date) -> None:
 
 
 def refresh_earnings(store: Store, cfg: dict, today: date) -> None:
-    """Upcoming earnings of US companies above the market-cap floor."""
+    """Next report of every US company in the peer list (above the market-cap floor)."""
     e = cfg["earnings"]
-    universe = earnings.fetch_us_universe(e["min_market_cap"])
-    if len(universe) < 500:
-        raise RuntimeError(f"US company list looks incomplete ({len(universe)} companies)")
-    end = today + timedelta(days=e["days_ahead"])
-    df = earnings.fetch_calendar(today.isoformat(), end.isoformat(), e["min_market_cap"])
-    rows = earnings.parse_calendar(df, universe, e["min_market_cap"])
+    peers, _ = frames.eu_peers(e["use_extra_peers"])
+    now = pd.Timestamp.now(tz="UTC")
+    rows, errors = [], []
+    for ticker in peers:
+        try:
+            cap = earnings.market_cap(ticker)
+            if cap is not None and cap < e["min_market_cap"]:
+                continue
+            report = earnings.next_report(ticker, now)
+            if report:
+                rows.append({**report, "market_cap": cap})
+        except Exception as exc:  # keep going; report what failed
+            errors.append(f"{ticker}: {exc}")
     if not rows:
-        raise RuntimeError("earnings calendar came back empty")
+        raise RuntimeError("no upcoming reports found" + (f" ({'; '.join(errors[:3])})" if errors else ""))
     store.put_json("earnings", {"fetched": today.isoformat(), "rows": rows})
+    if errors:
+        log.warning("earnings lookups failed: %s", "; ".join(errors))
 
 
 def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:

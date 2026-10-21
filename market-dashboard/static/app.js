@@ -373,11 +373,18 @@ function chartCard(spec, opts = {}) {
   return card;
 }
 
-function renderCharts(container, specs) {
+function renderCharts(container, specs, opts = {}) {
   for (const [id, c] of charts) {
     if (!document.getElementById(id) || container.contains(c.canvas)) { c.destroy(); charts.delete(id); }
   }
-  container.replaceChildren(...(specs || []).filter(Boolean).map((s) => chartCard(s)));
+  container.replaceChildren(...(specs || []).filter(Boolean).map((s) => chartCard(s, opts)));
+}
+
+// The all-markets COT chart matches the table's height, so both are in view together.
+function cotChartHeight() {
+  const table = $("#positioning .cot-table");
+  const h = table ? table.getBoundingClientRect().height : 0;
+  return Math.max(320, Math.min(640, h - 120));
 }
 
 function sparkline(canvas, values) {
@@ -479,52 +486,90 @@ function assetColumns(rows, benchName) {
 }
 
 // ---------- sections ----------
+const THEME_ORDER = ["Trend", "Breadth", "Volatility", "Sentiment", "Credit", "Rates"];
+const STATE_WORD = { green: "healthy", orange: "neutral", red: "stress", nodata: "no data" };
+
 function renderSummary(b) {
   if (!setMeta("summary", b)) return;
   const v = b.verdict;
-  $("#summary .verdict").replaceChildren(
-    el("span", `label ${v.label.toLowerCase().replace(/\s+/g, "-")}`, v.label),
-    el("span", "expl", v.explanation));
-  $("#summary .indicators").replaceChildren(...b.indicators.map((ind) => {
-    const card = el("button", `ind ${ind.color}`);
-    card.type = "button";
-    card.append(el("div", "name", ind.label), el("div", "val", ind.value),
-                el("div", "state", STATE_TEXT[ind.color]), el("div", "why"));
-    const why = $(".why", card);
-    if (ind.meaning) why.append(el("span", "meaning", ind.meaning));
-    why.append(el("span", "", ind.reason));
-    card.addEventListener("click", () => card.classList.toggle("open"));
-    return card;
+  const inds = b.indicators;
+  const cls = v.label.toLowerCase().replace(/\s+/g, "-");
+  const pct = isNum(v.pct) ? v.pct : 0;
+
+  // Verdict card: label, gauge, counts, and what drives it.
+  const card = $("#summary .sum-verdict");
+  const gauge = el("div", "gauge-wrap");
+  const bar = el("div", "gauge");
+  const zones = el("div", "zones");
+  const onAt = b.verdict_thresholds?.on ?? 33, offAt = b.verdict_thresholds?.off ?? -33;
+  zones.style.gridTemplateColumns = `${(offAt + 100) / 2}fr ${(onAt - offAt) / 2}fr ${(100 - onAt) / 2}fr`;
+  zones.append(el("div", "z off"), el("div", "z mid"), el("div", "z on"));
+  bar.append(zones);
+  const marker = el("div", "marker");
+  marker.style.left = `${(pct + 100) / 2}%`;
+  marker.title = `score ${signed(pct, 0, "%")}`;
+  bar.append(marker);
+  const scale = el("div", "gauge-scale");
+  scale.append(el("span", "", "risk-off"), el("span", "", "neutral"), el("span", "", "risk-on"));
+  gauge.append(bar, scale);
+  const counts = el("div", "counts");
+  counts.append(el("span", "g", `${v.counts.green} healthy`), el("span", "o", `${v.counts.orange} neutral`),
+                el("span", "r", `${v.counts.red} stress`));
+  const drivers = el("div", "drivers");
+  const up = inds.filter((i) => i.color === "green").map((i) => i.label.replace(/^Trend |^Breadth /, ""));
+  const down = inds.filter((i) => i.color === "red").map((i) => `${i.label} (${i.value})`);
+  if (down.length) { const d = el("div", "d-down"); d.append(el("b", "", "Pulling down: "), document.createTextNode(down.join(", "))); drivers.append(d); }
+  if (up.length) { const d = el("div", "d-up"); d.append(el("b", "", "Supporting: "), document.createTextNode(up.join(", "))); drivers.append(d); }
+  const sentence = v.label === "Risk-on" ? "Most signals are healthy: conditions favour taking risk."
+    : v.label === "Risk-off" ? "Most signals show stress: conditions favour caution."
+    : v.label === "Neutral" ? "A mixed picture: no clear tilt towards risk-on or risk-off." : "Not enough data yet.";
+  const strip = el("div", "strip");
+  card.replaceChildren(el("div", `v-label ${cls}`, v.label), el("div", "v-sub", sentence), gauge, counts, drivers,
+    el("h3", "strip-title", "Key numbers this week"), strip,
+    explainBox("How is this verdict made?",
+      `Each of the ${v.counted} indicators is healthy (+1), neutral (0) or stress (−1) against fixed thresholds in ` +
+      `config.yaml. Score = sum ÷ number of indicators = ${signed(pct, 0, "%")}. Risk-on from ${signed(onAt, 0, "%")}, ` +
+      `risk-off from ${signed(offAt, 0, "%")}. ${v.explanation}`));
+
+  // Indicators grouped by theme.
+  const themes = $("#summary .themes");
+  themes.replaceChildren(...THEME_ORDER.filter((t) => inds.some((i) => i.group === t)).map((t) => {
+    const box = el("div", "theme");
+    box.append(el("h4", "", t));
+    for (const ind of inds.filter((i) => i.group === t)) {
+      const row = el("button", `irow ${ind.color}`);
+      row.type = "button";
+      row.append(el("span", "dot"), el("span", "", ind.label.replace(/^(Trend|Breadth) /, "")),
+                 el("span", "iv", ind.value), el("span", "is", STATE_WORD[ind.color]));
+      const why = el("span", "why");
+      if (ind.meaning) why.append(el("span", "meaning", ind.meaning));
+      why.append(el("span", "", ind.reason));
+      row.append(why);
+      row.addEventListener("click", () => row.classList.toggle("open"));
+      box.append(row);
+    }
+    return box;
   }));
-  $("#summary .tiles").replaceChildren(...b.tiles.map((t) => {
+
+  // Key numbers.
+  strip.replaceChildren(...b.tiles.map((t) => {
     const tile = el(t.tv ? "a" : "div", "tile");
     if (t.tv) { tile.href = TV_CHART + encodeURIComponent(t.tv); tile.target = "_blank"; tile.rel = "noopener"; }
-    tile.append(el("div", "t-label", t.label), el("div", "t-value", t.value));
     if (t.about) tile.title = t.about;
+    tile.append(el("div", "t-label", t.label), el("div", "t-value", t.value));
     if (t.change_label) {
       const suffix = t.change_label.includes("%") ? "%" : t.change_label.includes("bp") ? " bp" : "";
       const nd = t.change_label.includes("bp") ? 0 : 1;
       const tone = t.colored ? (t.change > 0 ? "pos" : t.change < 0 ? "neg" : "") : "";
-      tile.append(el("div", `t-change ${tone}`,
-                     `${signed(t.change, nd, suffix)} ${t.change_label.replace(/ ?(%|bp|pts)/, "")}`));
+      tile.append(el("div", `t-change ${tone}`, `${signed(t.change, nd, suffix)} ${t.change_label.replace(/ ?(%|bp|pts)/, "")}`));
     }
     return tile;
   }));
-  const tilesBox = $("#summary .tiles");
-  const dl = el("dl");
-  for (const t of b.tiles) if (t.about) dl.append(el("dt", "", t.label), el("dd", "", t.about));
-  const tilesHelp = explainBox("What are these numbers?", dl);
-  tilesHelp.style.gridColumn = "1 / -1";
-  tilesBox.append(tilesHelp);
-  const verdictBox = $("#summary .verdict");
-  verdictBox.append(explainBox("How is this verdict made?",
-    "Each tile below is green (+1), orange (0) or red (−1) against fixed thresholds in config.yaml. " +
-    "The score is the sum divided by the number of tiles with data. Risk-on means most signals are healthy, " +
-    "risk-off means most point to stress. Hover or tap a tile to see what it measures and why it has its colour."));
+
   const list = $("#summary .signals");
-  list.replaceChildren(...(b.signals.length ? b.signals.map((s) => {
-    const li = el("li", `lvl-${s.level}`);
-    li.append(el("span", "area", s.area), el("span", "", s.text));
+  list.replaceChildren(...(b.signals.length ? b.signals.map((sg) => {
+    const li = el("li", `lvl-${sg.level}`);
+    li.append(el("span", "area", sg.area), el("span", "", sg.text));
     return li;
   }) : [el("li", "empty", "No extremes right now.")]));
 }
@@ -594,7 +639,7 @@ async function showCot(key) {
   const box = $("#positioning .cot-chart");
   try {
     const spec = await (await fetch(`/api/cot/${key}`)).json();
-    renderCharts(box, [spec]);
+    renderCharts(box, [spec], { height: cotChartHeight() });
   } catch (err) {
     box.replaceChildren(el("div", "warn-msg", `Could not load the chart: ${err}`));
   }
@@ -646,7 +691,7 @@ function renderPositioning(b) {
   if (key === b.default_key && b.chart) {
     selectedCot = key;
     $$("#positioning .cot-table tr[data-key]").forEach((r) => r.classList.toggle("selected", r.dataset.key === key));
-    renderCharts($("#positioning .cot-chart"), [b.chart]);
+    renderCharts($("#positioning .cot-chart"), [b.chart], { height: cotChartHeight() });
   } else if (key) {
     showCot(key);
   }
@@ -701,7 +746,7 @@ function renderAssets(id, benchName) {
 
 
 // ---------- index positioning (COT) ----------
-const IC_COLORS = { am: "--series-1", lf: "--series-2", dealer: "--series-3" };
+const IC_COLORS = { am: "--series-1", lf: "--series-2", dealer: "--series-3", mm: "--series-2", pm: "--series-1", swap: "--series-3" };
 const IC_WINDOW_TEXT = { pct_all: "of all history", pct_5y: "of the last 5 years", pct_1y: "of the last year" };
 const IC = Object.assign({ idx: "spx", range: 5, group: null, window: "pct_all", ma: true, log: false },
   (() => { try { return JSON.parse(localStorage.getItem("indexcot") || "{}"); } catch (e) { return {}; } })());
@@ -739,17 +784,19 @@ const icCrosshair = {
 function renderIndexCot(b) {
   if (!setMeta("indexcot", b)) return;
   const root = $("#indexcot");
-  const idxBox = $('[data-ic="idx"]', root);
-  idxBox.replaceChildren(...b.indices.map((ix) => {
-    const btn = el("button", "", ix.label);
-    btn.type = "button";
-    btn.dataset.v = ix.key;
-    btn.addEventListener("click", () => { IC.idx = ix.key; IC.group = null; saveIC(); drawIndexCot(); });
-    return btn;
-  }));
+  $$('[data-ic="idx"]', root).forEach((box) => box.replaceChildren(
+    ...b.indices.filter((ix) => ix.kind === box.dataset.kind).map((ix) => {
+      const btn = el("button", "", ix.label);
+      btn.type = "button";
+      btn.dataset.v = ix.key;
+      btn.addEventListener("click", () => { IC.idx = ix.key; IC.group = null; saveIC(); drawIndexCot(); });
+      return btn;
+    })));
   $(".ic-howto", root).textContent = b.howto;
   const any = b.indices.find((ix) => ix.cot);
-  $(".ic-groups-help", root).replaceChildren(...Object.values(any?.cot.groups || {}).map((g) => {
+  const allGroups = {};
+  for (const ix of b.indices) Object.assign(allGroups, ix.cot?.groups || {});
+  $(".ic-groups-help", root).replaceChildren(...Object.values(allGroups).map((g) => {
     const li = el("li");
     li.append(el("strong", "", `${g.name}: `), document.createTextNode(g.about));
     return li;
@@ -773,7 +820,7 @@ function drawIndexCot() {
   $("#ic-log").checked = IC.log;
   const tv = $(".ic-tv", root);
   tv.href = TV_CHART + encodeURIComponent(ix.tv);
-  $(".ic-title", root).textContent = `${ix.label} and who is positioned how`;
+  $(".ic-title", root).textContent = `${ix.label}: price and positioning`;
 
   // Headline and one card per trader group.
   const head = $(".ic-headline", root);
@@ -799,10 +846,13 @@ function drawIndexCot() {
       top.append(el("span", "g-name", g.name), el("span", `lbl ${labelClass(st[win])}`, labelText(st[win])));
       const stats = el("div", "g-stats");
       const cell = (label, value) => { const d = el("div"); d.append(el("b", "", value), el("span", "", label)); return d; };
-      stats.append(cell("net contracts", FORMATS.num0(st.net)), cell("change 1 week", signed(st.change, 0)),
-                   cell("change 4 weeks", signed(st.change_4w, 0)), cell("% of open interest", `${st.net_oi_pct.toFixed(1)}%`),
-                   cell("percentile, all", isNum(st.pct_all) ? ordinal(st.pct_all) : "–"),
-                   cell("5Y / 1Y", `${isNum(st.pct_5y) ? ordinal(st.pct_5y) : "–"} / ${isNum(st.pct_1y) ? ordinal(st.pct_1y) : "–"}`));
+      stats.append(cell("net", FORMATS.num0(st.net)), cell("1W chg", signed(st.change, 0)),
+                   cell("4W chg", signed(st.change_4w, 0)), cell("% of OI", `${st.net_oi_pct.toFixed(1)}%`),
+                   cell("pctl all", isNum(st.pct_all) ? ordinal(st.pct_all) : "–"),
+                   cell("5Y/1Y", `${isNum(st.pct_5y) ? ordinal(st.pct_5y) : "–"}/${isNum(st.pct_1y) ? ordinal(st.pct_1y) : "–"}`));
+      [...stats.children].forEach((c, i) => { c.title = ["Net position: long minus short contracts",
+        "Change since last week", "Change over 4 weeks", "Net position as share of open interest",
+        "Percentile against all history", "Percentile against the last 5 years / last year"][i]; });
       card.append(top, stats, el("div", "g-about", g.about));
       card.title = "Show this group's percentile in the chart";
       card.addEventListener("click", () => { IC.group = k; saveIC(); drawIndexCot(); });
@@ -959,7 +1009,7 @@ $("#ic-ma").addEventListener("change", (e) => { IC.ma = e.target.checked; saveIC
 $("#ic-log").addEventListener("change", (e) => { IC.log = e.target.checked; saveIC(); drawIndexCot(); });
 
 // ---------- foldable sections ----------
-const FOLDABLE = ["stocks", "appetite", "volatility", "positioning", "rates", "dollar", "commodities", "crypto", "asia"];
+const FOLDABLE = ["stocks", "appetite", "volatility", "rates", "dollar", "commodities", "crypto", "asia"];
 const folded = (() => {
   try { const v = JSON.parse(localStorage.getItem("folded")); if (Array.isArray(v)) return new Set(v); } catch (e) { /* default */ }
   return new Set(FOLDABLE);
@@ -988,91 +1038,40 @@ $$(".nav a").forEach((a) => a.addEventListener("click", () => {
 }));
 
 // ---------- earnings & European peers ----------
-const ER = Object.assign({ range: 7, peersOnly: true, cap: 1.5, q: "" },
-  (() => { try { return JSON.parse(localStorage.getItem("earnings") || "{}"); } catch (e) { return {}; } })());
-function saveER() { try { localStorage.setItem("earnings", JSON.stringify({ ...ER, q: "" })); } catch (e) { /* ignore */ } }
-function isoDay(offset) {
-  const d = new Date();
-  d.setDate(d.getDate() + offset);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
-
 function renderEarnings(b) {
   if (!setMeta("earnings", b)) return;
   const root = $("#earnings");
   if (!$(".er-hint", root)) {
     $(".card", root).prepend(el("p", "hint er-hint",
-      "Each European peer shows its 1-week return and Corr: the correlation of weekly returns with the US company " +
-      "over the last year (−1 to +1; above ~0.5 = they usually move together). Peers come from " +
-      "dashboard/universe/eu_peers.yaml; add your own pairs there."));
+      "Release times are Amsterdam time. When Yahoo has no exact time yet, the company's usual release time " +
+      "from its last reports is used (≈, rounded to the hour). Corr = correlation of weekly returns with the US " +
+      "company over the last year; last time = how the stock moved on the day it could first react to the previous report."));
   }
-  drawEarnings();
-}
-
-function drawEarnings() {
-  const b = DATA?.earnings;
-  if (!b || b.error) return;
-  const root = $("#earnings");
-  $$('[data-er="range"] button', root).forEach((x) => x.classList.toggle("active", +x.dataset.v === ER.range));
-  $("#er-peers").checked = ER.peersOnly;
-  $("#er-cap").value = String(ER.cap);
-  const from = ER.range === 1 ? isoDay(1) : isoDay(0);
-  const to = ER.range <= 1 ? from : isoDay(ER.range);
-  const q = ER.q.trim().toLowerCase();
-  const rows = b.rows.filter((r) => r.date >= from && r.date <= to
-    && (!ER.peersOnly || r.peers.length)
-    && r.market_cap >= ER.cap * 1e9
-    && (!q || r.symbol.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)
-        || r.peers.some((p) => p.name.toLowerCase().includes(q) || p.ticker.toLowerCase().includes(q))));
-  $(".er-count", root).textContent = `${rows.length} of ${b.rows.length} reports`;
-
   const table = $(".earnings-table", root);
   const head = el("thead");
   const htr = el("tr");
-  [["When"], ["Company"], ["Market cap", true], ["EPS est.", true], ["1W", true], ["EU peers"], ["EU reacts"]]
+  [["Release (Amsterdam)"], ["Company"], ["EU peers"], ["Corr", true], ["Last time", true], ["EU can trade"], ["US stock"], ["EPS est.", true]]
     .forEach(([t, num]) => htr.append(el("th", num ? "num" : "", t)));
   head.append(htr);
   const body = el("tbody");
   let day = null;
-  for (const r of rows) {
-    if (r.day !== day) {
-      day = r.day;
+  for (const r of b.rows) {
+    if (r.date !== day) {
+      day = r.date;
       const g = el("tr", "group");
-      const td = el("td", "", day);
-      td.colSpan = 7;
+      const when = r.days_until === 0 ? "today" : r.days_until === 1 ? "tomorrow" : `in ${r.days_until} days`;
+      const td = el("td", "", `${r.day} · ${when}`);
+      td.colSpan = 8;
       g.append(td);
       body.append(g);
     }
-    const tr = el("tr");
-    const when = el("td");
-    when.append(el("span", "timing", r.timing), el("div", "muted", r.timing_text));
-    const co = el("td", "co");
-    co.append(el("b", "", r.symbol), tvLink(r.tv), el("span", "nm", r.name));
-    const eps = el("td", "num eps", isNum(r.eps_estimate) ? r.eps_estimate.toFixed(2) : "–");
-    if (isNum(r.eps_reported)) {
-      const sur = isNum(r.surprise_pct) ? ` (${signed(r.surprise_pct, 1, "%")})` : "";
-      eps.append(el("small", isNum(r.surprise_pct) ? (r.surprise_pct >= 0 ? "pos" : "neg") : "", `reported ${r.eps_reported.toFixed(2)}${sur}`));
-    }
-    const peers = el("td");
-    if (!r.peers.length) peers.append(el("span", "muted", "–"));
-    for (const p of r.peers) {
-      const line = el("div", "peer");
-      const pn = el("span", "pn", p.name);
-      pn.append(el("small", "", p.ticker), tvLink(p.tv));
-      const corr = el("span", `corr ${isNum(p.corr) && p.corr >= 0.5 ? "hi" : ""}`,
-                      isNum(p.corr) ? `corr ${p.corr.toFixed(2)}` : "corr –");
-      corr.title = "Correlation of weekly returns over the last year";
-      line.append(pn, el("span", `${isNum(p.w1) ? (p.w1 >= 0 ? "pos" : "neg") : "muted"}`, `1W ${signed(p.w1, 1, "%")}`), corr);
-      peers.append(line);
-    }
-    tr.append(when, co, el("td", "num", `$${fmtNum(r.market_cap / 1e9)} bn`), eps, changeCell(r.w1), peers,
-              el("td", "", r.reaction.text));
-    body.append(tr);
+    const n = Math.max(1, r.peers.length);
+    r.peers.length ? r.peers.forEach((p, i) => body.append(earningsRow(r, p, i, n))) : body.append(earningsRow(r, null, 0, 1));
   }
-  if (!rows.length) {
+  if (!b.rows.length) {
     const tr = el("tr");
-    const td = el("td", "muted", "No reports match these filters.");
-    td.colSpan = 7;
+    const td = el("td", "muted", "No upcoming reports for the companies in eu_peers.yaml.");
+    td.colSpan = 8;
     tr.append(td);
     body.append(tr);
   }
@@ -1080,16 +1079,103 @@ function drawEarnings() {
   explainColumns(table);
 }
 
-$$('#earnings [data-er="range"] button').forEach((btn) => btn.addEventListener("click", () => {
-  ER.range = +btn.dataset.v; saveER(); drawEarnings();
+// One line per peer; the company cells span all its peer lines.
+function earningsRow(r, p, i, n) {
+  const tr = el("tr", i === n - 1 ? "" : "sub");
+  const span = (td) => { td.rowSpan = n; return td; };
+  if (i === 0) {
+    const rel = el("td", "rel");
+    rel.append(el("b", "", r.release_ams ? `${r.basis.startsWith("time from") ? "" : "≈ "}${r.release_ams}` : "time n/a"),
+               el("span", "timing", r.session === "AMC" ? "after US close" : r.session === "BMO" ? "before US open" : "during session"));
+    rel.title = `${r.basis}${r.release_ny ? `; ${r.release_ny} New York time` : ""}`;
+    const co = el("td", "co");
+    co.append(el("b", "", r.symbol), tvLink(r.tv),
+              el("span", "nm", r.market_cap ? `$${fmtNum(r.market_cap / 1e9)} bn` : ""));
+    tr.append(span(rel), span(co));
+  }
+  if (p) {
+    const pn = el("td", "pn");
+    pn.append(el("span", "", p.name), el("small", "muted", ` ${p.ticker}`), tvLink(p.tv));
+    const corr = el("td", `num corr ${isNum(p.corr) && p.corr >= 0.5 ? "hi" : ""}`, isNum(p.corr) ? p.corr.toFixed(2) : "–");
+    const last = changeCell(p.last_move, 1, "%");
+    if (r.last) last.title = `Previous report ${r.last.date}: ${r.symbol} ${signed(r.last.us_move, 1, "%")}, ${p.name} ${signed(p.last_move, 1, "%")}`;
+    tr.append(pn, corr, last);
+  } else {
+    tr.append(el("td", "muted", "no EU peer in our list"), el("td", "num", "–"), el("td", "num", "–"));
+  }
+  if (i === 0) {
+    const us = el("td");
+    us.append(el("span", "", r.us_reacts));
+    if (r.last && isNum(r.last.us_move)) us.append(el("small", `muted`, ` · last time ${signed(r.last.us_move, 1, "%")}`));
+    tr.append(span(el("td", "eu", r.eu_reacts.text)), span(us),
+              span(el("td", "num", isNum(r.eps_estimate) ? r.eps_estimate.toFixed(2) : "–")));
+  }
+  return tr;
+}
+
+// ---------- put/call per index ----------
+const PC = Object.assign({ series: "spx", months: 6 },
+  (() => { try { return JSON.parse(localStorage.getItem("putcall") || "{}"); } catch (e) { return {}; } })());
+function savePC() { try { localStorage.setItem("putcall", JSON.stringify(PC)); } catch (e) { /* ignore */ } }
+function rollingMean(values, n) {
+  const out = [];
+  let sum = 0, count = 0;
+  for (let i = 0; i < values.length; i++) {
+    sum += values[i] ?? 0; count += values[i] == null ? 0 : 1;
+    if (i >= n) { sum -= values[i - n] ?? 0; count -= values[i - n] == null ? 0 : 1; }
+    out.push(i >= n - 1 && count === n ? sum / n : null);
+  }
+  return out;
+}
+
+function drawPutCall() {
+  const list = DATA?.volatility?.put_call;
+  if (!list) return;
+  const root = $("#volatility .pc-card");
+  const box = $(".pc-series", root);
+  box.replaceChildren(...list.map((p) => {
+    const btn = el("button", p.key === PC.series ? "active" : "", p.label);
+    btn.type = "button";
+    btn.addEventListener("click", () => { PC.series = p.key; savePC(); drawPutCall(); });
+    return btn;
+  }));
+  $$('[data-pc="range"] button', root).forEach((x) => x.classList.toggle("active", +x.dataset.v === PC.months));
+  const p = list.find((x) => x.key === PC.series) || list[0];
+  const sub = $(".pc-sub", root);
+  if (!p.available) {
+    sub.textContent = `${p.label}: no data yet. Source: ${p.source}; the history starts with the first evening refresh.`;
+    renderCharts($(".pc-chart", root), [{ id: "putcall", title: "", available: false }]);
+    return;
+  }
+  const ma5 = rollingMean(p.values, 5), ma10 = rollingMean(p.values, 10);
+  const cut = new Date(); cut.setMonth(cut.getMonth() - PC.months);
+  const from = cut.toISOString().slice(0, 10);
+  const start = Math.max(0, p.dates.findIndex((d) => d >= from));
+  const win = ma5.slice(start).filter(isNum);
+  const last5 = ma5[ma5.length - 1];
+  const pctile = isNum(last5) && win.length ? Math.round(100 * win.filter((x) => x <= last5).length / win.length) : null;
+  sub.textContent = `${p.label} · source ${p.source}, data since ${p.since}. Latest ${p.values[p.values.length - 1].toFixed(2)}` +
+    (isNum(last5) ? `, 5-day average ${last5.toFixed(2)}${pctile != null ? ` (${ordinal(pctile)} percentile of the period shown)` : ""}.` : ".") +
+    (p.dates.length < 30 ? " Only a few days of history so far; it grows with every evening refresh." : "");
+  const spec = {
+    id: "putcall", title: "", available: true, dates: p.dates.slice(start),
+    explain: null,
+    panels: [{ height: 1, fmt: "num2", hlines: [[1]], bands: [], series: [
+      { label: "Put/call", role: "ref", kind: "line", values: p.values.slice(start) },
+      { label: "5-day avg", role: "ind", kind: "line", values: ma5.slice(start) },
+      { label: "10-day avg", role: "ind", kind: "line", values: ma10.slice(start) },
+    ] }],
+  };
+  renderCharts($(".pc-chart", root), [spec], { height: 260 });
+}
+$$('#volatility [data-pc="range"] button').forEach((btn) => btn.addEventListener("click", () => {
+  PC.months = +btn.dataset.v; savePC(); drawPutCall();
 }));
-$("#er-peers").addEventListener("change", (e) => { ER.peersOnly = e.target.checked; saveER(); drawEarnings(); });
-$("#er-cap").addEventListener("change", (e) => { ER.cap = +e.target.value; saveER(); drawEarnings(); });
-$("#er-search").addEventListener("input", (e) => { ER.q = e.target.value; drawEarnings(); });
 
 const RENDERERS = {
   summary: renderSummary, indexcot: renderIndexCot, earnings: renderEarnings, today: renderToday, stocks: renderStocks,
-  appetite: renderChartsOnly("appetite"), volatility: renderChartsOnly("volatility"),
+  appetite: renderChartsOnly("appetite"),
+  volatility: (b) => { renderChartsOnly("volatility")(b); drawPutCall(); },
   positioning: renderPositioning, rates: renderRates,
   dollar: renderAssets("dollar", "SPY"), commodities: renderAssets("commodities", "SPY"),
   crypto: renderAssets("crypto", "SPY"), asia: renderAssets("asia", "SPY"),

@@ -11,6 +11,7 @@ import pandas as pd
 from . import calc, derived, explain, frames
 from .calc import GREEN, NODATA, ORANGE, RED, Indicator
 from .db import Store
+from .sources import cftc as cftc_sources
 
 SECTION_SOURCES = {
     "summary": ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "cftc"),
@@ -371,10 +372,6 @@ def key_tiles(store: Store, cfg: dict) -> list[dict]:
     if not a50.empty:
         tiles.append(_tile("S&P members > 50d", f"{a50.iloc[-1]:.0f}%",
                            a50.iloc[-1] - a50.iloc[-6] if len(a50) > 5 else None, "1w pts"))
-    spx = frames.price(store, "^GSPC")
-    if len(spx) > 2:
-        streak = derived.decline_streak(spx)
-        tiles.append(_tile("S&P days without −1% day", f"{int(streak.iloc[-1])}"))
     return tiles
 
 
@@ -459,7 +456,9 @@ def signals(store: Store, cfg: dict) -> list[dict]:
 
 
 def summary_section(store: Store, cfg: dict) -> dict:
+    vc = cfg["regime"]["verdict"]
     return {**section_meta(store, cfg, "summary"), **regime(store, cfg),
+            "verdict_thresholds": {"on": vc["risk_on_min_pct"], "off": vc["risk_off_max_pct"]},
             "tiles": key_tiles(store, cfg), "signals": signals(store, cfg)}
 
 
@@ -530,14 +529,6 @@ def stocks_section(store: Store, cfg: dict) -> dict:
                    series_spec("40-week avg", _weekly(ratio).rolling(40).mean(), "ma")]),
         ], subtitle=f"Weekly since {ratio.index[0].year}. Latest at the {ordinal(p)} percentile of that history.",
               tv="AMEX:RSP/AMEX:SPY"))
-    if not spx.empty:
-        streak = derived.decline_streak(spx)
-        streak = streak[streak.index >= "2000-01-01"]
-        charts.append(chart("streak", "S&P 500: trading days without a 1% decline", [
-            panel([series_spec("S&P 500", _weekly(spx[spx.index >= "2000-01-01"]), "price")], height=0.45),
-            panel([series_spec("Days without −1%", streak.resample("W-FRI").max(), "ind", "bar")],
-                  hlines=[(cfg["signals"]["streak_alert_days"], "")], height=0.55, fmt="num0"),
-        ], subtitle=f"Current streak: {int(streak.iloc[-1])} days. Weekly maximum shown.", tv="SP:SPX"))
     charts.append(price_with_rsi(store, "QQQ", "QQQ", "QQQ"))
     charts.append(price_with_rsi(store, "SMH", "SMH (semiconductors)", "SMH"))
 
@@ -595,17 +586,6 @@ def volatility_section(store: Store, cfg: dict) -> dict:
             panel([series_spec("MOVE", _tail(move, 730), "ind"),
                    series_spec("50d", _tail(move.rolling(50).mean(), 730), "ma")]),
         ], subtitle=f"Latest {move.iloc[-1]:.0f}, {ordinal(p)} percentile of 3 years.", tv="TVC:MOVE"))
-    days = int(cfg["cboe"]["chart_days"] * 365 / 252)
-    for kind, title in (("equity", "Equity put/call ratio"), ("index", "Index put/call ratio")):
-        pc = frames.series(store, f"pc:{kind}").dropna()
-        if pc.empty:
-            continue
-        p = derived.percentile_of_last(pc.rolling(5).mean().dropna().iloc[-252:])
-        charts.append(chart(f"pc-{kind}", title, [
-            panel([series_spec("P/C", _tail(pc, days), "ref"),
-                   series_spec("5-day avg", _tail(pc.rolling(5).mean(), days), "ind"),
-                   series_spec("10-day avg", _tail(pc.rolling(10).mean(), days), "ind")], fmt="num2"),
-        ], subtitle=f"5-day average at the {ordinal(p)} percentile of the last year. High = heavy hedging."))
     ndx = frames.price(store, "^NDX")
     if not ndx.empty:
         wk = derived.weekly_returns(ndx[ndx.index >= "2015-01-01"])
@@ -615,7 +595,29 @@ def volatility_section(store: Store, cfg: dict) -> dict:
                   hlines=[(cfg["signals"]["weekly_drop_pct"], "")], height=0.5, fmt="pct1"),
         ], subtitle=f"Weeks down 5% or more cluster near lows. This week: {_signed(wk.iloc[-1], 1)}%.",
               tv="NASDAQ:NDX"))
-    return {**section_meta(store, cfg, "volatility"), "charts": charts}
+    return {**section_meta(store, cfg, "volatility"), "charts": charts, "put_call": put_call_series(store, cfg)}
+
+
+PUT_CALL = [
+    ("spx", "pc:spx", "S&P 500 index options (SPX + SPXW)", "CBOE"),
+    ("qqq", "pc:etf:QQQ:vol", "Nasdaq-100 (QQQ options)", "Yahoo option chains"),
+    ("iwm", "pc:etf:IWM:vol", "Russell 2000 (IWM options)", "Yahoo option chains"),
+    ("spy", "pc:etf:SPY:vol", "S&P 500 ETF (SPY options)", "Yahoo option chains"),
+    ("equity", "pc:equity", "Single stocks (CBOE equity)", "CBOE"),
+    ("index", "pc:index", "All index options (CBOE)", "CBOE"),
+    ("vix", "pc:vix", "VIX options", "CBOE"),
+]
+
+
+def put_call_series(store: Store, cfg: dict) -> list[dict]:
+    """Daily put/call ratios per index, full stored history (the page picks the period)."""
+    out = []
+    for key, skey, label, source in PUT_CALL:
+        s = frames.series(store, skey).dropna()
+        out.append({"key": key, "label": label, "source": source, "available": not s.empty,
+                    "dates": [d.date().isoformat() for d in s.index], "values": _list(s, 3),
+                    "since": s.index[0].date().isoformat() if not s.empty else None})
+    return out
 
 
 # --- section: positioning --------------------------------------------------------------
@@ -719,9 +721,8 @@ def dollar_section(store: Store, cfg: dict) -> dict:
 def commodities_section(store: Store, cfg: dict) -> dict:
     items = cfg["prices"]["commodities"]
     return {**section_meta(store, cfg, "commodities"),
-            "rows": perf_rows(store, items, None, _cot_extra(store, cfg)),
-            "charts": [cot_chart(store, cfg, "gold"), cot_chart(store, cfg, "wti"),
-                       cot_chart(store, cfg, "copper"), weekly_with_ma(store, "GDX", "Gold miners (GDX)", "GDX", 40, 3)]}
+            "rows": perf_rows(store, items, None),
+            "charts": [weekly_with_ma(store, i["ticker"], i["name"], i["tv"], 40, 3) for i in items[:4]]}
 
 
 def crypto_section(store: Store, cfg: dict) -> dict:
@@ -807,8 +808,9 @@ def index_cot(store: Store, cfg: dict, asset: dict) -> dict:
         price = pd.concat([_weekly(price[price.index < cut]), price[price.index >= cut]])
     oi = frames.series(store, f"cot:{asset['key']}:oi").dropna()
     out = {"key": asset["key"], "label": asset["label"], "default_group": asset["cohort"],
-           "tv": next((i["tv"] for i in cfg["prices"]["indices"].values() if i["ticker"] == asset["price"]),
-                      asset["price"].replace("^", "")),
+           "group": asset["group"],
+           "tv": next((i["tv"] for i in [*cfg["prices"]["indices"].values(), *cfg["prices"]["commodities"]]
+                       if i["ticker"] == asset["price"]), asset["price"].replace("^", "")),
            "price": {"dates": [d.date().isoformat() for d in price.index], "close": _list(price, 1),
                      "ma50": _list(ma50.reindex(price.index, method="ffill"), 1),
                      "ma200": _list(ma200.reindex(price.index, method="ffill"), 1)},
@@ -816,7 +818,7 @@ def index_cot(store: Store, cfg: dict, asset: dict) -> dict:
     if oi.empty:
         return out
     groups = {}
-    for g in ("am", "lf", "dealer"):
+    for g in cftc_sources.DATASET_COHORTS[asset["dataset"]]:
         net = frames.series(store, f"cot:{asset['key']}:g:{g}").reindex(oi.index)
         if net.dropna().empty:
             continue
@@ -837,7 +839,8 @@ def index_cot(store: Store, cfg: dict, asset: dict) -> dict:
 
 def indexcot_section(store: Store, cfg: dict) -> dict:
     by_key = {a["key"]: a for a in cfg["cftc"]["assets"]}
-    indices = [index_cot(store, cfg, by_key[k]) for k in cfg["cftc"]["index_view"]]
+    view = cfg["cftc"]["index_view"]
+    indices = [index_cot(store, cfg, by_key[k]) | {"kind": kind} for kind, keys in view.items() for k in keys]
     dates = [i["cot"]["dates"][-1] for i in indices if i.get("cot")]
     return {**section_meta(store, cfg, "indexcot"), "indices": indices,
             "report_date": max(dates) if dates else None, "howto": explain.INDEX_COT_HOWTO}
@@ -867,52 +870,87 @@ def weekly_correlation(a: pd.Series, b: pd.Series, weeks: int) -> float | None:
     return _num(joined.iloc[:, 0].corr(joined.iloc[:, 1]))
 
 
-def eu_reaction(time_utc: str, timing: str) -> dict:
-    """When European peers can first trade on the news (Amsterdam time).
+EU_CLOSE = (17, 30)   # Xetra/Euronext close, Amsterdam time
 
-    Before the US open (BMO) the release lands around 12:00-14:30 Amsterdam time, while
-    Europe is still trading. After the US close (AMC) Europe reacts at the next open.
-    """
-    us_day = pd.Timestamp(time_utc).tz_convert("America/New_York").normalize().tz_localize(None)
-    if timing in ("BMO", "TAS"):
-        return {"date": us_day.date().isoformat(), "text": "same day, afternoon"}
-    if timing == "AMC":
-        nxt = us_day + pd.offsets.BDay(1)
-        return {"date": nxt.date().isoformat(), "text": f"{nxt.strftime('%a')} at the open"}
-    return {"date": us_day.date().isoformat(), "text": "time not announced"}
+
+def eu_reaction(release_ams: pd.Timestamp | None, session: str, date_ny: str) -> dict:
+    """First moment European peers can trade on the news (Amsterdam time)."""
+    if release_ams is None:
+        day = pd.Timestamp(date_ny)
+        if session == "AMC":
+            nxt = day + pd.offsets.BDay(1)
+            return {"date": nxt.date().isoformat(), "text": f"{nxt.strftime('%a')} 09:00 (next open)"}
+        return {"date": date_ny, "text": "same day (time unknown)"}
+    local = release_ams.tz_localize(None)
+    if local.weekday() < 5 and (local.hour, local.minute) < EU_CLOSE:
+        start = max(local, local.normalize() + pd.Timedelta(hours=9))
+        return {"date": local.date().isoformat(), "text": f"same day from {start:%H:%M}"}
+    nxt = local.normalize() + pd.offsets.BDay(1)
+    return {"date": nxt.date().isoformat(), "text": f"{nxt:%a} 09:00 (next open)"}
+
+
+def us_reaction(release_ams: pd.Timestamp | None, session: str) -> str:
+    """When the US stock itself can trade on the news: pre-market or after-hours, then the open."""
+    if session == "AMC":
+        return "after-hours, then next open 15:30"
+    return "pre-market, open 15:30"
+
+
+def day_move(close: pd.Series, day: str) -> float | None:
+    """Close-to-close change on `day` (None when that day is missing)."""
+    close = close.dropna()
+    ts = pd.Timestamp(day)
+    if ts not in close.index:
+        return None
+    pos = close.index.get_loc(ts)
+    return _num(100 * (close.iloc[pos] / close.iloc[pos - 1] - 1)) if pos > 0 else None
 
 
 def earnings_section(store: Store, cfg: dict) -> dict:
     e = cfg["earnings"]
-    data = store.get_json("earnings", {"rows": []})
-    peers, names = frames.eu_peers()
-    today = datetime.now(cfg["tz"]).date().isoformat()
     tz = cfg["tz"]
+    data = store.get_json("earnings", {"rows": []})
+    peers, names = frames.eu_peers(e["use_extra_peers"])
+    now = pd.Timestamp.now(tz=tz)
     rows = []
     for r in data["rows"]:
-        when = pd.Timestamp(r["time_utc"]).tz_convert(tz)
-        if when.date().isoformat() < today:
+        release = pd.Timestamp(r["release_utc"]).tz_convert(tz) if r.get("release_utc") else None
+        if (release or pd.Timestamp(r["date_ny"]).tz_localize(tz)) < now.normalize():
             continue
+        day = release.date().isoformat() if release is not None else r["date_ny"]
         us_px = frames.price(store, r["symbol"])
-        row = {**r, "date": when.date().isoformat(), "day": when.strftime("%a %d %b"),
-               "timing_text": {"BMO": "before US open", "AMC": "after US close (22:00)",
-                               "TAS": "during US session"}.get(r["timing"], "time not set"),
-               "reaction": eu_reaction(r["time_utc"], r["timing"]),
-               "tv": r["symbol"], "w1": None, "peers": []}
-        if len(us_px) > 6:
-            row["w1"] = _num(100 * (us_px.iloc[-1] / us_px.iloc[-6] - 1))
+        last = None
+        if r.get("past_utc"):
+            prev = pd.Timestamp(r["past_utc"][0]).tz_convert(tz)
+            prev_session = earnings_session(prev)
+            eu_day = eu_reaction(prev, prev_session, prev.date().isoformat())["date"]
+            us_day = (prev.date().isoformat() if prev_session != "AMC"
+                      else (prev.tz_localize(None).normalize() + pd.offsets.BDay(1)).date().isoformat())
+            last = {"date": prev.date().isoformat(), "us_move": day_move(us_px, us_day), "eu_day": eu_day}
+        row = {"symbol": r["symbol"], "tv": r["symbol"], "market_cap": r.get("market_cap"),
+               "eps_estimate": r.get("eps_estimate"), "session": r["session"], "basis": r["basis"],
+               "date": day, "day": pd.Timestamp(day).strftime("%a %d %b"),
+               "days_until": (pd.Timestamp(day).date() - now.date()).days,
+               "release_ams": release.strftime("%H:%M") if release is not None else None,
+               "release_ny": release.tz_convert("America/New_York").strftime("%H:%M") if release is not None else None,
+               "eu_reacts": eu_reaction(release, r["session"], r["date_ny"]),
+               "us_reacts": us_reaction(release, r["session"]), "last": last, "peers": []}
         for t in peers.get(r["symbol"], []):
             eu_px = frames.price(store, t)
-            peer = {"ticker": t, "name": names.get(t, t), "tv": eu_tv_symbol(t), "w1": None, "corr": None}
-            if len(eu_px) > 6:
-                peer["w1"] = _num(100 * (eu_px.iloc[-1] / eu_px.iloc[-6] - 1))
-                if len(us_px) > 6:
-                    peer["corr"] = weekly_correlation(us_px, eu_px, e["correlation_weeks"])
+            peer = {"ticker": t, "name": names.get(t, t), "tv": eu_tv_symbol(t),
+                    "corr": weekly_correlation(us_px, eu_px, e["correlation_weeks"])
+                    if len(us_px) > 6 and len(eu_px) > 6 else None,
+                    "last_move": day_move(eu_px, last["eu_day"]) if last else None}
             row["peers"].append(peer)
         rows.append(row)
-    return {**section_meta(store, cfg, "earnings"), "rows": rows,
-            "min_cap_bn": e["min_market_cap"] / 1e9, "peer_count": len(peers),
-            "fetched": data.get("fetched")}
+    rows.sort(key=lambda x: (x["date"], x["release_ams"] or "99"))
+    return {**section_meta(store, cfg, "earnings"), "rows": rows, "fetched": data.get("fetched")}
+
+
+def earnings_session(t: pd.Timestamp) -> str:
+    ny = t.tz_convert("America/New_York")
+    minutes = ny.hour * 60 + ny.minute
+    return "BMO" if minutes < 570 else "AMC" if minutes >= 960 else "DMH"
 
 
 BUILDERS = {

@@ -194,7 +194,6 @@ prices:
   # Risk-appetite ratios
   ratios:
     HYG_IEF:     {numerator: HYG,    denominator: IEF,    name: "HYG / IEF (credit vs Treasuries)"}
-    COPPER_GOLD: {numerator: "HG=F", denominator: "GC=F", name: "Copper / gold"}
     RSP_SPY:     {numerator: RSP,    denominator: SPY,    name: "RSP / SPY (equal vs cap weight)"}
     SMH_SPY:     {numerator: SMH,    denominator: SPY,    name: "SMH / SPY (semis vs market)"}
     XLY_XLP:     {numerator: XLY,    denominator: XLP,    name: "XLY / XLP (discretionary vs staples)"}
@@ -229,7 +228,8 @@ cboe:
   index_history_url: "https://cdn.cboe.com/api/global/us_indices/daily_prices/{symbol}_History.csv"
   vix_symbols: [VIX9D, VIX, VIX3M]
   put_call_url: "https://cdn.cboe.com/data/us/options/market_statistics/daily/{date}_daily_options"
-  put_call_history_days: 380   # calendar days fetched on first start
+  put_call_history_days: 1100  # calendar days fetched on first start (3 years)
+  etf_put_call: [SPY, QQQ, IWM]   # Yahoo option chains; history builds up from the first evening run
   chart_days: 126              # about 6 months
 
 fred:
@@ -255,7 +255,9 @@ cftc:
     tff:    "https://publicreporting.cftc.gov/resource/gpe5-46if.json"
     disagg: "https://publicreporting.cftc.gov/resource/72hh-3qpy.json"
   history_start: "2006-01-01"
-  index_view: [spx, ndx, rut, dow]   # the "Index positioning" section, in this order
+  index_view:                        # the positioning chart at the top, in this order
+    indices: [spx, ndx, rut, dow]
+    commodities: [gold, silver, copper, wti, gasoline, natgas]
   assets:
     - {key: spx,      label: "S&P 500",      group: "Equity indices", dataset: tff,    code: "13874A", cohort: am, price: "^GSPC"}
     - {key: ndx,      label: "Nasdaq-100",   group: "Equity indices", dataset: tff,    code: "209742", cohort: am, price: "^NDX"}
@@ -285,8 +287,8 @@ cftc:
 # ---------------------------------------------------------------------------
 earnings:
   min_market_cap: 1500000000  # USD (1.5 billion)
-  days_ahead: 21              # calendar days fetched from today
   correlation_weeks: 52       # weekly returns, so different closing times do not matter
+  use_extra_peers: false      # true = also show the suggested pairs under extra_peers
   # Peer list: dashboard/universe/eu_peers.yaml
 
 # ---------------------------------------------------------------------------

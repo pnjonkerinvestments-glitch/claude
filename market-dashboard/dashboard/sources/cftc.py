@@ -10,8 +10,10 @@ COHORT_FIELDS = {
     "lf": ("lev_money_positions_long", "lev_money_positions_short"),
     "mm": ("m_money_positions_long_all", "m_money_positions_short_all"),
     "dealer": ("dealer_positions_long_all", "dealer_positions_short_all"),
+    "pm": ("prod_merc_positions_long", "prod_merc_positions_short"),
+    "swap": ("swap_positions_long_all", "swap__positions_short_all"),   # sic: CFTC field name
 }
-DATASET_COHORTS = {"tff": ("am", "lf", "dealer"), "disagg": ("mm",)}
+DATASET_COHORTS = {"tff": ("am", "lf", "dealer"), "disagg": ("mm", "pm", "swap")}
 
 
 def fields_for(dataset: str) -> list[str]:

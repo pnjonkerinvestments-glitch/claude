@@ -6,13 +6,12 @@ from __future__ import annotations
 SECTIONS = {
     "summary": "The overall picture in one place: a traffic-light tally of trend, breadth, volatility, "
                "sentiment and credit, the key numbers of the week, and a list of anything at an extreme.",
-    "indexcot": "Who is long or short the big US stock index futures, and how unusual that is compared "
-                "with history. Extremes in positioning often mark turning points, because a crowded "
+    "indexcot": "Who is long or short the big US stock index futures and the main commodities, and how "
+                "unusual that is compared with history. Extremes in positioning often mark turning points, because a crowded "
                 "trade has few buyers (or sellers) left.",
-    "earnings": "Upcoming results of US companies worth at least $1.5 billion, with their European "
-                "peers. A US report often moves its European counterparts too: before the US open "
-                "(BMO) Europe reacts the same afternoon, after the US close (AMC) at the next "
-                "European open.",
+    "earnings": "Next results of the US companies in our peer list, with the release time in Amsterdam "
+                "time and when their European peers can first trade on it. A release before 17:30 can be "
+                "traded in Europe the same day; after the US close, at the next European open (09:00).",
     "today": "What the options market expects for today's S&P 500 range, the important economic releases, "
              "and a heatmap of today's moves.",
     "stocks": "How many stocks take part in the move. A rally carried by a handful of large stocks is "
@@ -78,9 +77,10 @@ CHARTS = {
                 "divided by VIX3M. Above 1 (shaded) = backwardation: short-term fear exceeds long-term.",
     "move": "The MOVE index is the 'VIX of bonds': expected volatility of US Treasury yields. High = "
             "turbulent rates, which often spills over into stocks.",
-    "pc-equity": "Puts per call on individual US stocks, with 5- and 10-day averages. Spikes mean fear "
-                 "and hedging; near extremes this is often contrarian bullish.",
-    "pc-index": "Puts per call on index options (mostly used by institutions to hedge portfolios).",
+    "putcall": "Puts traded per call, per index, with 5- and 10-day averages. High = heavy hedging and "
+               "fear, which near extremes is often contrarian bullish; low = complacency. Index options "
+               "normally sit above 1 because institutions buy index puts as insurance; compare a series "
+               "with its own history, not with the others.",
     "ndx-weekly": "Every bar is one week's change in the Nasdaq-100. Red bars are weeks down 5% or more; "
                   "most of these happened close to a low.",
     "cot": "Top: price. Bottom: how long or short this trader group is versus all history (percentile of "
@@ -124,7 +124,10 @@ COLUMNS = {
     "5Y": "Percentile of Net/OI against the last 5 years.",
     "1Y": "Percentile of Net/OI against the last year.",
     "Nominal": "Percentile of the raw net contracts (not divided by open interest), all-time.",
-    "When": "Report date and time in Amsterdam time. BMO = before the US open, AMC = after the US close.",
+    "Release (Amsterdam)": "Expected release time in Amsterdam time (≈ = the company's usual time from its last reports). Hover for the source and New York time.",
+    "Last time": "How the European peer moved on the day it could first react to the previous report (close to close).",
+    "EU can trade": "First moment European peers can trade on the release (Xetra/Euronext 09:00–17:30).",
+    "US stock": "When the US stock itself reacts, and how it moved after the previous report.",
     "Market cap": "Company value in billions of dollars.",
     "EPS est.": "Analysts' average earnings-per-share estimate; after the report, the reported EPS and "
                 "the surprise versus the estimate.",
@@ -138,6 +141,11 @@ COLUMNS = {
 }
 
 GROUPS = {
+    "mm": ("Managed money", "Hedge funds and CTAs trading commodities: the speculators. Their extremes are "
+                            "the classic contrarian signal in commodities."),
+    "pm": ("Producers & merchants", "Miners, oil companies, refiners and traders hedging their physical "
+                                    "business. Usually short; they sell into rallies."),
+    "swap": ("Swap dealers", "Banks using futures to hedge commodity swaps and index products sold to clients."),
     "am": ("Asset managers", "Pension funds, insurers, mutual funds. Mostly long-only investors; "
                              "a high percentile means they are fully invested."),
     "lf": ("Leveraged funds", "Hedge funds and CTAs (trend followers). Fast money; often on the other "

@@ -90,12 +90,13 @@ def verify(cfg: dict) -> int:
         return run
 
     def earnings_check():
-        cap = cfg["earnings"]["min_market_cap"]
-        universe = earnings.fetch_us_universe(cap)
-        df = earnings.fetch_calendar(today.isoformat(), (today + timedelta(days=7)).isoformat(), cap)
-        rows = earnings.parse_calendar(df, universe, cap)
-        return len(universe) > 500 and bool(rows), \
-            f"{len(universe)} US companies ≥ ${cap / 1e9:g} bn; {len(rows)} reports in the next 7 days"
+        import pandas as pd
+        from . import frames
+        peers, _ = frames.eu_peers(cfg["earnings"]["use_extra_peers"])
+        now = pd.Timestamp.now(tz="UTC")
+        found = {t: earnings.next_report(t, now) for t in list(peers)[:5]}
+        lines = [f"{t}: {r['date_ny']} ({r['basis']})" if r else f"{t}: none" for t, r in found.items()]
+        return any(found.values()), "\n       " + "\n       ".join(lines)
 
     results.append(_check("Yahoo earnings calendar", earnings_check))
     results.append(_check("Yahoo indices/ETFs", yahoo_check(refresh.price_tickers(cfg))))

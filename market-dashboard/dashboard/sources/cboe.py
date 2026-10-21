@@ -60,6 +60,10 @@ def parse_put_call(payload: dict) -> dict[str, float]:
             out["index"] = value
         elif name.startswith("TOTAL PUT/CALL"):
             out["total"] = value
+        elif name.startswith("SPX + SPXW PUT/CALL"):
+            out["spx"] = value
+        elif name.startswith("CBOE VOLATILITY INDEX (VIX) PUT/CALL"):
+            out["vix"] = value
     return out
 
 

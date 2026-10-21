@@ -8,17 +8,17 @@ crypto and Asia. It is not for trading or scanning. Our trading system already d
 
 | Section | Contents |
 |---|---|
-| Index positioning (COT) | Pick S&P 500, Nasdaq-100, Russell 2000 or Dow and a period (1Y–Max). The index chart (optional 50/200-day averages, log scale) with below it the net positions of asset managers, leveraged funds and dealers, and the chosen group's percentile against all history, 5 years or 1 year. Cards and a headline say in words how long or short each group is |
-| Earnings & European peers | Upcoming results of US companies worth ≥ $1.5 billion (next 3 weeks), before/after the US session, EPS estimate (and result once reported), with their European peers: 1-week return and correlation of weekly returns. Shows when Europe can react (same afternoon for pre-market reports, next open for after-close reports). Filters: period, peers only, minimum market cap, search. Peers are listed in `dashboard/universe/eu_peers.yaml` |
+| Positioning (COT): indices & commodities | Pick S&P 500, Nasdaq-100, Russell 2000, Dow, gold, silver, copper, WTI, gasoline or natural gas and a period (1Y–Max). Commodities show managed money, producers & merchants and swap dealers. The index chart (optional 50/200-day averages, log scale) with below it the net positions of asset managers, leveraged funds and dealers, and the chosen group's percentile against all history, 5 years or 1 year. Cards and a headline say in words how long or short each group is |
+| Earnings & European peers | Next results of the US companies in our own peer list (`dashboard/universe/eu_peers.yaml`), with the expected release time in Amsterdam time, when European peers can first trade on it (same day before 17:30, otherwise next open), correlation with each peer and how the peer moved after the previous report |
 | Where we stand | Regime verdict (transparent tally of 11 indicators), key numbers, and a **Signals** list of current extremes (RSI, COT, breadth, streaks, VIX curve, MOVE, crypto compression) |
 | Today | Expected move for the S&P 500, economic calendar, heatmap (S&P 500 / STOXX 600) |
-| Stocks & breadth | S&P 500 with % of members beating the index (2M); McClellan summation index (from all 503 members); % above 50d/200d for S&P 500 and Europe; equal-weight vs cap-weight since 2003; days without a 1% decline; QQQ and SMH with RSI; leaders/laggards vs SPY; sortable sector & theme table (US and STOXX 600 sectors) |
-| Risk appetite | HYG/IEF, copper/gold, RSP/SPY, SMH/SPY, XLY/XLP with 50-day average |
-| Volatility & sentiment | VIX term structure, MOVE, equity and index put/call, Nasdaq-100 weekly returns |
+| Stocks & breadth | S&P 500 with % of members beating the index (2M); McClellan summation index (from all 503 members); % above 50d/200d for S&P 500 and Europe; equal-weight vs cap-weight since 2003; QQQ and SMH with RSI; leaders/laggards vs SPY; sortable sector & theme table (US and STOXX 600 sectors) |
+| Risk appetite | HYG/IEF, RSP/SPY, SMH/SPY, XLY/XLP with 50-day average |
+| Volatility & sentiment | Put/call ratio per index with a period choice (S&P 500 index options, VIX and CBOE totals from CBOE with 3 years of history; Nasdaq-100 and Russell 2000 through QQQ and IWM options from Yahoo, collected from the first run onwards), VIX term structure, MOVE, Nasdaq-100 weekly returns |
 | Positioning (COT) | Percentile table for 22 futures (equity indices, VIX, rates, FX, metals, energy, crypto) with the right trader group per market; click a row for price + percentile chart |
 | Rates & credit | 2Y/5Y/10Y/30Y, 2s10s, real yield, HY spread with 1D/1W/1M changes; 2Y with MAs; 10Y vs oil with rolling correlation; HY spread; TY futures |
 | Dollar | DXY and EUR/USD weekly with 200-week average, USD and EUR positioning |
-| Commodities | Gold, silver, gold miners, copper, WTI, gasoline, natural gas, with COT charts |
+| Commodities | Gold, silver, gold miners, copper, WTI, gasoline, natural gas: table and weekly charts (their COT is in the positioning chart at the top) |
 | Crypto | BTC and ETH with volatility-compression model, ETH/BTC, Bitcoin COT |
 | Asia | KOSPI, Nikkei, EWY, FXI; Korea vs US semiconductors |
 
@@ -140,12 +140,15 @@ markets are under `tradingview:`.
 
 ## Data notes
 
-- **Earnings:** Yahoo's earnings calendar, limited to companies on NYSE/Nasdaq with a market cap
-  of at least $1.5 billion that report in dollars. The reporting-currency filter removes nearly
-  all foreign ADRs (TSMC, ASML, Novo); a few foreign companies that report in dollars (Shell,
-  Teva, Infosys) remain, as in our own peer list. Yahoo gives no exact time for pre-market
-  reports, so the page shows "before US open" rather than a time. In `eu_peers.yaml`, quote
-  tickers that YAML reads as yes/no, such as `"ON"`; the dashboard refuses to start otherwise.
+- **Earnings:** Yahoo Finance per company. Yahoo's time for an upcoming pre-market report is a
+  placeholder (7:00, 8:00 or 8:30 New York), so the page uses the company's usual release time
+  from its last four reports (shown with ≈; Yahoo rounds past times to the hour). Amsterdam
+  times follow both daylight-saving switches (Europe changes a week before the US).
+  Suggested extra pairs sit under `extra_peers` in the peer file and are off unless
+  `earnings.use_extra_peers: true`. Quote tickers YAML reads as yes/no, such as `"ON"`.
+- **Put/call per index:** CBOE publishes daily index figures only for SPX and VIX. Nasdaq-100
+  options trade elsewhere, so QQQ and IWM (ETF) options from Yahoo stand in; each refresh
+  outside US trading hours stores the last full session, so that history starts at install.
 - **Not included (paid or proprietary):** NAAIM, AAII, BofA Fund Manager Survey, Goldman
   prime-book data, and newsletter models such as a "Core Risk Model" or the Daily Sentiment
   Index. VSTOXX has no free source either, so there is no Euro Stoxx 50 expected move.

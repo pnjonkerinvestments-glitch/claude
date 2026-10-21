@@ -44,11 +44,13 @@ def eu_members(cfg: dict) -> list[str]:
 
 
 @lru_cache(maxsize=None)
-def eu_peers() -> tuple[dict, dict]:
+def eu_peers(include_extra: bool = False) -> tuple[dict, dict]:
     """({US ticker: [EU tickers]}, {EU ticker: name}) from universe/eu_peers.yaml."""
     with open(UNIVERSE_DIR / "eu_peers.yaml", encoding="utf-8") as fh:
         data = yaml.safe_load(fh)
-    peers = data.get("peers", {})
+    peers = {k: v or [] for k, v in (data.get("peers") or {}).items()}
+    if include_extra:
+        peers.update({k: v or [] for k, v in (data.get("extra_peers") or {}).items()})
     bad = [k for k, v in peers.items() if not isinstance(k, str) or not all(isinstance(t, str) for t in v)]
     if bad:  # YAML reads ON, NO, YES etc. as booleans unless quoted
         raise ValueError(f"eu_peers.yaml: quote these tickers: {bad}")
