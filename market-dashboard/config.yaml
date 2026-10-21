@@ -14,6 +14,7 @@ database: data/dashboard.sqlite
 refresh:
   daily_times: ["18:00", "22:30"]   # prices, breadth, ratios, FRED, CBOE
   daily_days: mon-fri
+  morning_time: "08:00"             # earnings release times and QQQ/IWM/SPY put/call of the last session
   cot_time: "22:00"                 # CFTC publishes Friday 15:30 ET
   cot_day: fri
 

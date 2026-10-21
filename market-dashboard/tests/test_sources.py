@@ -43,3 +43,15 @@ def test_cftc_net_positions_per_cohort():
 def test_fred_csv_skips_missing_values():
     text = "observation_date,DGS10\n2026-10-12,\n2026-10-13,5.21\n2026-10-14,.\n"
     assert fred.parse_csv(text) == {"2026-10-13": 5.21}
+
+
+def test_option_chain_ratios_ignore_overnight_open_interest():
+    import pandas as pd
+    from dashboard.sources import options
+    calls = pd.DataFrame({"volume": [100, 50], "openInterest": [1000, 500]})
+    puts = pd.DataFrame({"volume": [120, 30], "openInterest": [2000, 1000]})
+    r = options.chain_ratios([(calls, puts)])
+    assert r == {"vol": 1.0, "oi": 2.0}
+    reset = puts.assign(openInterest=[0, 0])
+    assert options.chain_ratios([(calls.assign(openInterest=[0, 3]), reset)])["oi"] is None
+    assert options.chain_ratios([(calls.assign(volume=[0, 0]), puts)]) is None

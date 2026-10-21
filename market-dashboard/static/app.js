@@ -309,7 +309,8 @@ function chartCard(spec, opts = {}) {
         ? s.values.map((v) => (v != null && v <= p.hlines[0][0] ? css("--bad") : colors[pi][si]))
         : colors[pi][si],
       borderWidth: s.role === "price" ? 1.5 : s.role === "ma" ? 1.2 : s.role === "ref" ? 1 : 1.8,
-      pointRadius: 0,
+      // Short series (a history that has just started) get visible points: one point draws no line.
+      pointRadius: opts.points && s.kind !== "bar" ? 3 : 0,
       pointHoverRadius: s.kind === "bar" ? 0 : 3,
       spanGaps: true,
       tension: 0,
@@ -1038,8 +1039,19 @@ $$(".nav a").forEach((a) => a.addEventListener("click", () => {
 }));
 
 // ---------- earnings & European peers ----------
+let ER_RANGE = (() => { try { return localStorage.getItem("earnings-range") || "all"; } catch (e) { return "all"; } })();
+$$('#earnings [data-er="range"] button').forEach((btn) => btn.addEventListener("click", () => {
+  ER_RANGE = btn.dataset.v;
+  try { localStorage.setItem("earnings-range", ER_RANGE); } catch (e) { /* ignore */ }
+  renderEarnings(DATA.earnings);
+}));
+
 function renderEarnings(b) {
   if (!setMeta("earnings", b)) return;
+  $$('#earnings [data-er="range"] button').forEach((x) => x.classList.toggle("active", x.dataset.v === ER_RANGE));
+  const maxDays = { today: 0, week: 6, all: Infinity }[ER_RANGE];
+  const rows = b.rows.filter((r) => r.days_until <= maxDays);
+  $("#earnings .er-count").textContent = `${rows.length} of ${b.rows.length} companies`;
   const root = $("#earnings");
   if (!$(".er-hint", root)) {
     $(".card", root).prepend(el("p", "hint er-hint",
@@ -1055,7 +1067,7 @@ function renderEarnings(b) {
   head.append(htr);
   const body = el("tbody");
   let day = null;
-  for (const r of b.rows) {
+  for (const r of rows) {
     if (r.date !== day) {
       day = r.date;
       const g = el("tr", "group");
@@ -1068,9 +1080,11 @@ function renderEarnings(b) {
     const n = Math.max(1, r.peers.length);
     r.peers.length ? r.peers.forEach((p, i) => body.append(earningsRow(r, p, i, n))) : body.append(earningsRow(r, null, 0, 1));
   }
-  if (!b.rows.length) {
+  if (!rows.length) {
     const tr = el("tr");
-    const td = el("td", "muted", "No upcoming reports for the companies in eu_peers.yaml.");
+    const td = el("td", "muted", ER_RANGE === "today" ? "None of our companies report today."
+      : ER_RANGE === "week" ? "None of our companies report in the next 7 days."
+      : "No upcoming reports for the companies in eu_peers.yaml.");
     td.colSpan = 8;
     tr.append(td);
     body.append(tr);
@@ -1156,17 +1170,20 @@ function drawPutCall() {
   const pctile = isNum(last5) && win.length ? Math.round(100 * win.filter((x) => x <= last5).length / win.length) : null;
   sub.textContent = `${p.label} · source ${p.source}, data since ${p.since}. Latest ${p.values[p.values.length - 1].toFixed(2)}` +
     (isNum(last5) ? `, 5-day average ${last5.toFixed(2)}${pctile != null ? ` (${ordinal(pctile)} percentile of the period shown)` : ""}.` : ".") +
-    (p.dates.length < 30 ? " Only a few days of history so far; it grows with every evening refresh." : "");
+    (isNum(p.oi_latest) ? ` Open-interest put/call (all open positions): ${p.oi_latest.toFixed(2)}.` : "") +
+    (p.dates.length < 30 ? ` Only ${p.dates.length} trading day${p.dates.length === 1 ? "" : "s"} collected so far: ` +
+      "Yahoo has no history for ETF option volume, so it builds up with every refresh (08:00 and 22:30). " +
+      "The 5- and 10-day averages appear after 5 and 10 days." : "");
   const spec = {
     id: "putcall", title: "", available: true, dates: p.dates.slice(start),
-    explain: null,
+    explain: DATA.volatility.put_call_explain,
     panels: [{ height: 1, fmt: "num2", hlines: [[1]], bands: [], series: [
       { label: "Put/call", role: "ref", kind: "line", values: p.values.slice(start) },
       { label: "5-day avg", role: "ind", kind: "line", values: ma5.slice(start) },
       { label: "10-day avg", role: "ind", kind: "line", values: ma10.slice(start) },
     ] }],
   };
-  renderCharts($(".pc-chart", root), [spec], { height: 260 });
+  renderCharts($(".pc-chart", root), [spec], { height: 260, points: spec.dates.length <= 40 });
 }
 $$('#volatility [data-pc="range"] button').forEach((btn) => btn.addEventListener("click", () => {
   PC.months = +btn.dataset.v; savePC(); drawPutCall();

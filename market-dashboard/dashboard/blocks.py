@@ -20,7 +20,7 @@ SECTION_SOURCES = {
     "today": ("prices", "cboe_vix"),
     "stocks": ("prices", "components", "breadth"),
     "appetite": ("prices",),
-    "volatility": ("prices", "cboe_vix", "cboe_pc"),
+    "volatility": ("prices", "cboe_vix", "cboe_pc", "etf_pc"),
     "positioning": ("cftc", "prices"),
     "rates": ("fred", "prices"),
     "dollar": ("prices", "cftc"),
@@ -36,6 +36,7 @@ SOURCE_NAMES = {
     "cboe_pc": "CBOE (put/call ratios)",
     "fred": "FRED",
     "cftc": "CFTC (COT)",
+    "etf_pc": "Yahoo Finance (ETF option chains)",
     "earnings": "Yahoo Finance (earnings calendar)",
 }
 COHORT_NAMES = {"am": "Asset managers", "lf": "Leveraged funds", "mm": "Managed money"}
@@ -595,7 +596,8 @@ def volatility_section(store: Store, cfg: dict) -> dict:
                   hlines=[(cfg["signals"]["weekly_drop_pct"], "")], height=0.5, fmt="pct1"),
         ], subtitle=f"Weeks down 5% or more cluster near lows. This week: {_signed(wk.iloc[-1], 1)}%.",
               tv="NASDAQ:NDX"))
-    return {**section_meta(store, cfg, "volatility"), "charts": charts, "put_call": put_call_series(store, cfg)}
+    return {**section_meta(store, cfg, "volatility"), "charts": charts, "put_call": put_call_series(store, cfg),
+            "put_call_explain": explain.chart_text("putcall")}
 
 
 PUT_CALL = [
@@ -614,9 +616,11 @@ def put_call_series(store: Store, cfg: dict) -> list[dict]:
     out = []
     for key, skey, label, source in PUT_CALL:
         s = frames.series(store, skey).dropna()
+        oi = frames.series(store, skey.replace(":vol", ":oi")).dropna() if skey.endswith(":vol") else None
         out.append({"key": key, "label": label, "source": source, "available": not s.empty,
                     "dates": [d.date().isoformat() for d in s.index], "values": _list(s, 3),
-                    "since": s.index[0].date().isoformat() if not s.empty else None})
+                    "since": s.index[0].date().isoformat() if not s.empty else None,
+                    "oi_latest": _num(oi.iloc[-1]) if oi is not None and not oi.empty else None})
     return out
 
 

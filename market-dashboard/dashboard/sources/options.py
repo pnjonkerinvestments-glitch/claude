@@ -2,19 +2,36 @@
 
 from __future__ import annotations
 
+import pandas as pd
 import yfinance as yf
 
 
-def etf_put_call(ticker: str) -> dict[str, float] | None:
-    """Put/call of the last session's volume and of open interest, summed over all expiries."""
+def chain_ratios(chains: list[tuple[pd.DataFrame, pd.DataFrame]]) -> dict | None:
+    """Put/call of volume and of open interest over (calls, puts) tables of all expiries.
+
+    Yahoo resets open interest to 0 overnight, so the open-interest ratio is only given when
+    at least half the contracts carry a value.
+    """
+    cv = pv = coi = poi = 0.0
+    contracts = with_oi = 0
+    for calls, puts in chains:
+        cv += calls["volume"].fillna(0).sum()
+        pv += puts["volume"].fillna(0).sum()
+        coi += calls["openInterest"].fillna(0).sum()
+        poi += puts["openInterest"].fillna(0).sum()
+        for side in (calls, puts):
+            contracts += len(side)
+            with_oi += int((side["openInterest"].fillna(0) > 0).sum())
+    if not cv:
+        return None
+    oi_ok = contracts and with_oi / contracts >= 0.5 and coi and poi
+    return {"vol": pv / cv, "oi": poi / coi if oi_ok else None}
+
+
+def etf_put_call(ticker: str) -> dict | None:
     tk = yf.Ticker(ticker)
-    totals = {"cv": 0.0, "pv": 0.0, "coi": 0.0, "poi": 0.0}
+    chains = []
     for expiry in tk.options:
         chain = tk.option_chain(expiry)
-        totals["cv"] += chain.calls["volume"].fillna(0).sum()
-        totals["pv"] += chain.puts["volume"].fillna(0).sum()
-        totals["coi"] += chain.calls["openInterest"].fillna(0).sum()
-        totals["poi"] += chain.puts["openInterest"].fillna(0).sum()
-    if not totals["cv"] or not totals["coi"]:
-        return None
-    return {"vol": totals["pv"] / totals["cv"], "oi": totals["poi"] / totals["coi"]}
+        chains.append((chain.calls, chain.puts))
+    return chain_ratios(chains)

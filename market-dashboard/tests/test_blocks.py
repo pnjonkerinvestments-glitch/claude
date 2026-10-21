@@ -139,3 +139,13 @@ def test_everything_has_an_explanation(store, cfg):
     for ind in data["summary"]["indicators"]:
         assert ind["meaning"], ind["key"]
     assert all(t["about"] for t in data["summary"]["tiles"])
+
+
+def test_scheduler_has_morning_earnings_job(store, cfg):
+    from dashboard.server import build_scheduler
+    sched = build_scheduler(store, cfg)
+    jobs = {j.id: j for j in sched.get_jobs()}
+    assert {"daily-18:00", "daily-22:30", "morning", "cot"} <= set(jobs)
+    trigger = str(jobs["morning"].trigger)
+    assert "hour='8'" in trigger and "minute='0'" in trigger and "mon-fri" in trigger
+    assert "earnings" in jobs["morning"].args[2]

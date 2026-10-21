@@ -30,6 +30,11 @@ def build_scheduler(store: Store, cfg: dict) -> BackgroundScheduler:
                                                        minute=minute, timezone=cfg["tz"]),
                       args=(store, cfg, refresh.DAILY_SOURCES), id=f"daily-{t}",
                       misfire_grace_time=3600, coalesce=True)
+    hour, minute = r["morning_time"].split(":")
+    sched.add_job(refresh.run_sources, CronTrigger(day_of_week=r["daily_days"], hour=hour,
+                                                   minute=minute, timezone=cfg["tz"]),
+                  args=(store, cfg, refresh.MORNING_SOURCES), id="morning",
+                  misfire_grace_time=3600, coalesce=True)
     hour, minute = r["cot_time"].split(":")
     sched.add_job(refresh.run_sources, CronTrigger(day_of_week=r["cot_day"], hour=hour,
                                                    minute=minute, timezone=cfg["tz"]),
@@ -61,7 +66,7 @@ def create_app(cfg: dict | None = None, start_jobs: bool = True) -> FastAPI:
     def data_version() -> tuple:
         """Changes whenever any source is refreshed (or fails), so the cache stays current."""
         return tuple(store.status(src)["last_attempt"]
-                     for src in refresh.DAILY_SOURCES + refresh.WEEKLY_SOURCES)
+                     for src in refresh.DAILY_SOURCES + refresh.WEEKLY_SOURCES + refresh.MORNING_SOURCES)
 
     @app.get("/api/dashboard")
     def dashboard_data():

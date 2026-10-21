@@ -104,7 +104,7 @@ Run the tests: `.venv/bin/python -m pytest tests`.
 | What | When (Europe/Amsterdam) |
 |---|---|
 | Prices, trend, breadth, ratios, FRED, CBOE | Mon–Fri at 18:00 (after the European close) and 22:30 (after the US close) |
-| Earnings calendar | With the daily refreshes (18:00 and 22:30) |
+| Earnings release times, QQQ/IWM/SPY put/call | Mon–Fri 08:00, plus with the 18:00 and 22:30 refreshes |
 | COT | Friday 22:00 (CFTC publishes Friday 15:30 New York time) |
 | Everything | At every start |
 
@@ -148,7 +148,9 @@ markets are under `tradingview:`.
   `earnings.use_extra_peers: true`. Quote tickers YAML reads as yes/no, such as `"ON"`.
 - **Put/call per index:** CBOE publishes daily index figures only for SPX and VIX. Nasdaq-100
   options trade elsewhere, so QQQ and IWM (ETF) options from Yahoo stand in; each refresh
-  outside US trading hours stores the last full session, so that history starts at install.
+  outside US trading hours stores the last full session, so that history starts at install
+  (points are drawn until there are enough days for a line). Yahoo resets open interest to 0
+  overnight, so the open-interest ratio is only stored when it is filled in (evening run).
 - **Not included (paid or proprietary):** NAAIM, AAII, BofA Fund Manager Survey, Goldman
   prime-book data, and newsletter models such as a "Core Risk Model" or the Daily Sentiment
   Index. VSTOXX has no free source either, so there is no Euro Stoxx 50 expected move.

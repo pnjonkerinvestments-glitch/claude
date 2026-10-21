@@ -80,7 +80,8 @@ CHARTS = {
     "putcall": "Puts traded per call, per index, with 5- and 10-day averages. High = heavy hedging and "
                "fear, which near extremes is often contrarian bullish; low = complacency. Index options "
                "normally sit above 1 because institutions buy index puts as insurance; compare a series "
-               "with its own history, not with the others.",
+               "with its own history, not with the others. For the ETFs the open-interest ratio (all "
+               "open positions, not just today's trades) is shown too: a slower, positioning-type gauge.",
     "ndx-weekly": "Every bar is one week's change in the Nasdaq-100. Red bars are weeks down 5% or more; "
                   "most of these happened close to a low.",
     "cot": "Top: price. Bottom: how long or short this trader group is versus all history (percentile of "

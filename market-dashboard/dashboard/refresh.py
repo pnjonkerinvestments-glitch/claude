@@ -19,6 +19,7 @@ _lock = threading.Lock()
 
 DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "earnings")
 WEEKLY_SOURCES = ("cftc",)
+MORNING_SOURCES = ("earnings", "etf_pc")
 
 
 def price_tickers(cfg: dict) -> list[str]:
@@ -174,7 +175,8 @@ def refresh_etf_put_call(store: Store, cfg: dict) -> None:
             continue
         if pc:
             store.upsert(f"pc:etf:{ticker}:vol", {day: pc["vol"]})
-            store.upsert(f"pc:etf:{ticker}:oi", {day: pc["oi"]})
+            if pc["oi"] is not None:
+                store.upsert(f"pc:etf:{ticker}:oi", {day: pc["oi"]})
 
 
 def refresh_fred(store: Store, cfg: dict, today: date) -> None:
@@ -255,6 +257,7 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
         "fred": lambda today: refresh_fred(store, cfg, today),
         "cftc": lambda today: refresh_cftc(store, cfg, today),
         "earnings": lambda today: refresh_earnings(store, cfg, today),
+        "etf_pc": lambda today: refresh_etf_put_call(store, cfg),
     }
     with _lock:
         for name in sources:
