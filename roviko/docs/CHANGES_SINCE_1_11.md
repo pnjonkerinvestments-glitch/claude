@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.45.0 (op de testversie, nog niet live)
+## 1.45.0 (live sinds 21 oktober 2026, PR #45)
 
 **Beveiliging en privacy nagelopen** (geheimen in de repo en de geschiedenis, toegang per endpoint, injectie, XSS, sessies, headers, pakketten, app-instellingen, privacyverklaring). Gerepareerd:
 - **Inloggen met Google kon een vooraf aangemaakt account overnemen** (iemand maakt een account met jouw adres; jij logt later met Google in en belandt in zijn account, terwijl zijn wachtwoord bleef werken). Nu: is dat account nooit bevestigd, dan vervalt het oude wachtwoord en eindigen alle andere sessies (`server/api.ts`, Google-callback).
