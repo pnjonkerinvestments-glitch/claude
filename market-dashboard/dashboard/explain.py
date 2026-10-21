@@ -4,6 +4,14 @@ from __future__ import annotations
 
 # One line per section: what you learn there.
 SECTIONS = {
+    "overview": "Markets, sentiment, breadth, volatility, credit and sectors at a glance.",
+    "activity": "Where the trading is unusual today: volume far above normal, stocks testing their "
+                "200-day average, record volume and big moves in European small caps.",
+    "performance": "How sectors, themes, countries and European sectors did over the day, week, month, "
+                   "quarter, year to date and year.",
+    "flows": "Option hedging and bets on a fall: put/call ratios per index and the share of inverse "
+             "(short) ETFs in trading volume.",
+    "seasonality": "How each market did on average in each calendar month over the last 10, 15 or 20 years.",
     "summary": "The overall picture in one place: a traffic-light tally of trend, breadth, volatility, "
                "sentiment and credit, the key numbers of the week, and a list of anything at an extreme.",
     "indexcot": "Who is long or short the big US stock index futures and the main commodities, and how "
@@ -154,6 +162,8 @@ GROUPS = {
                               "to be squeezed."),
     "dealer": ("Dealers", "Banks and market makers. They mostly take the other side of client trades, so "
                           "their position mirrors what clients want."),
+    "other": ("Other reportables", "Large traders that fit none of the other groups, such as corporate "
+                                   "treasuries, smaller funds and family offices."),
 }
 
 INDEX_COT_HOWTO = (
@@ -176,3 +186,54 @@ def indicator_text(key: str) -> str | None:
     if key in INDICATORS:
         return INDICATORS[key]
     return INDICATORS.get(key.split("_", 1)[0])
+
+# --- overview cards and the newer sections -------------------------------------------------
+
+CARDS = {
+    "markets": "Indexes, rates, dollar and commodities · day, week (5 sessions) and year-to-date change; "
+               "the 10-year yield in basis points",
+    "fear_greed": "0 = extreme fear, 100 = extreme greed. Average of five market signals, each scored "
+                  "against its own past year: 0 means the most fearful reading of the year, 100 the most "
+                  "greedy. Below 25 = extreme fear, 25–45 fear, 45–55 neutral, 55–75 greed, above 75 "
+                  "extreme greed. Contrarian at the extremes.",
+    "breadth": "Share of index members above their 20-, 50- and 200-day moving averages. Above 80% on the "
+               "20-day is short-term stretched, below 20% washed out. A falling 200-day line while the "
+               "index rises means fewer stocks carry the rally.",
+    "vix": "Expected S&P 500 volatility over 30 days, from option prices. Below 20 is calm, above 30 is "
+           "stress. Spikes tend to mark short-term lows.",
+    "hyg": "The largest high-yield (junk) bond ETF. Credit usually turns before stocks: HYG falling below "
+           "its 50- and 200-day averages while stocks hold up is an early warning.",
+    "sectors": "S&P 500 sector ETFs (SPDR), change over the chosen period. Defensives (staples, "
+               "utilities, health care) leading means investors are cautious.",
+    "short_share": "Inverse (short) ETFs' share of the fund family's daily dollar volume (close × shares). "
+                   "A rising share means more traders are buying downside protection or betting on a fall. "
+                   "High readings tend to come near lows.",
+    "seasonality": "Return in each calendar month, completed months only, from Yahoo monthly closes. "
+                   "Futures (NQ, ES, ZN, ZB, gold, silver, crude) use the continuous front-month contract, "
+                   "which is not back-adjusted, so a month with a contract roll includes the roll gap. "
+                   "The outlined column is the current month. Hover a cell for details.",
+}
+
+FEAR_GREED = {
+    "momentum": ("Momentum", "S&P 500 relative to its 125-day average."),
+    "volatility": ("Volatility", "VIX relative to its 50-day average; a high VIX scores as fear."),
+    "breadth": ("Breadth", "% of S&P 500 members above their 50-day average."),
+    "safe_haven": ("Safe-haven demand", "20-day return of stocks (SPY) minus long Treasuries (TLT); "
+                                        "bonds beating stocks scores as fear."),
+    "junk": ("Junk-bond demand", "High-yield credit spread (ICE BofA, FRED); a wider spread scores as fear."),
+}
+
+ACTIVITY = {
+    "unusual": "Today's volume against the 10-day average, for US-listed stocks with a market cap of "
+               "$25B or more and ETFs with $1B or more in assets (Yahoo screener, refreshed every half "
+               "hour during the US session). During the session the day is incomplete: check after the "
+               "close for the full day.",
+    "taps": "Stocks (S&P 500), ETFs (both performance tables) and futures whose price range in the latest "
+            "session touched the 200-day moving average: low at or below it and high at or above it. "
+            "'Taps (10d)' counts the sessions in the last ten that touched it.",
+    "record_volume": "Stocks and ETFs whose volume in the latest session reached 90% or more of their biggest "
+                     "day ever (whole Yahoo history; the first five trading days after a listing do not "
+                     "count). Records are rebuilt every Saturday.",
+    "eu_smallcaps": "European stocks up 10% or more today with a market cap under $1B and more than $100K "
+                    "traded, primary listings only (TradingView screener).",
+}

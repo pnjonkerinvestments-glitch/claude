@@ -36,7 +36,8 @@ def test_cftc_net_positions_per_cohort():
     parsed = cftc.parse_rows(rows, {"13874A": "am", "088691": "mm"})
     assert parsed["13874A"]["2026-10-13"]["net"] == 700
     assert parsed["13874A"]["2026-10-13"]["groups"] == {"am": 700, "lf": -250}
-    assert parsed["088691"]["2026-10-13"] == {"net": 110000, "oi": 500000, "groups": {"mm": 110000}}
+    assert parsed["088691"]["2026-10-13"] == {"net": 110000, "oi": 500000, "groups": {"mm": 110000},
+                                              "longs": {"mm": 150000}, "shorts": {"mm": 40000}}
     assert cftc.parse_rows(rows, {"13874A": "lf"})["13874A"]["2026-10-13"]["net"] == -250
 
 

@@ -1,14 +1,23 @@
 "use strict";
+// Market overview page: renders /api/dashboard into cards; detail charts load on demand.
 
 const TV_EMBED = "https://s3.tradingview.com/external-embedding/";
 const TV_CHART = "https://www.tradingview.com/chart/?symbol=";
-const STATE_TEXT = { green: "+ green", orange: "~ orange", red: "− red", nodata: "no data" };
 let DATA = null;
 let WIDGETS = null;
-let heatmapMarket = "us";
-let perfMarket = "us";
-const charts = new Map();          // canvas id -> Chart instance
-const groups = new Map();          // chart card id -> [Chart, ...] for synced hover
+const DETAIL_CACHE = new Map();
+
+// Where the data comes from. The static snapshot replaces these three functions.
+const API = {
+  dashboard: async () => (await fetch("/api/dashboard")).json(),
+  widgets: async () => (await fetch("/api/widgets")).json(),
+  detail: async (kind, key) => (await fetch(`/api/detail/${kind}/${encodeURIComponent(key)}`)).json(),
+};
+async function detail(kind, key) {
+  const id = `${kind}:${key}`;
+  if (!DETAIL_CACHE.has(id)) DETAIL_CACHE.set(id, API.detail(kind, key));
+  try { return await DETAIL_CACHE.get(id); } catch (err) { DETAIL_CACHE.delete(id); throw err; }
+}
 
 // ---------- helpers ----------
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -19,33 +28,37 @@ function el(tag, cls, text) {
   if (text !== undefined && text !== null) e.textContent = text;
   return e;
 }
-const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const isNum = (x) => typeof x === "number" && Number.isFinite(x);
-
-function fmtNum(x) {
+function fmtNum(x, nd = null) {
   if (!isNum(x)) return "–";
-  if (x === 0) return "0";
   const a = Math.abs(x);
-  const nd = a >= 1000 ? 0 : a >= 100 ? 1 : a >= 1 ? 2 : 4;
-  return x.toLocaleString("en-US", { minimumFractionDigits: nd, maximumFractionDigits: nd });
+  const d = nd ?? (a >= 1000 ? 2 : a >= 100 ? 2 : a >= 1 ? 2 : 4);
+  return x.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
-const FORMATS = {
-  num: fmtNum,
-  num0: (x) => isNum(x) ? x.toLocaleString("en-US", { maximumFractionDigits: 0 }) : "–",
-  num2: (x) => isNum(x) ? x.toFixed(2) : "–",
-  pct0: (x) => isNum(x) ? `${x.toFixed(0)}%` : "–",
-  pct1: (x) => isNum(x) ? `${x.toFixed(1)}%` : "–",
-  pct2: (x) => isNum(x) ? `${x.toFixed(2)}%` : "–",
-  sig: (x) => isNum(x) ? Number(x.toPrecision(4)).toString() : "–",
-};
-function signed(x, nd = 1, suffix = "") {
+function fmtBig(x) {
   if (!isNum(x)) return "–";
-  const s = x > 0 ? "+" : x < 0 ? "−" : "±";
+  const a = Math.abs(x);
+  if (a >= 1e12) return `$${(x / 1e12).toFixed(1)}T`;
+  if (a >= 1e9) return `$${(x / 1e9).toFixed(0)}B`;
+  if (a >= 1e6) return `$${(x / 1e6).toFixed(0)}M`;
+  if (a >= 1e3) return `$${(x / 1e3).toFixed(0)}K`;
+  return `$${x.toFixed(0)}`;
+}
+function fmtVol(x) {
+  if (!isNum(x)) return "–";
+  if (x >= 1e9) return `${(x / 1e9).toFixed(2)}B`;
+  if (x >= 1e6) return `${(x / 1e6).toFixed(1)}M`;
+  if (x >= 1e3) return `${(x / 1e3).toFixed(0)}K`;
+  return x.toFixed(0);
+}
+function signed(x, nd = 2, suffix = "%") {
+  if (!isNum(x)) return "–";
+  const s = x > 0 ? "+" : x < 0 ? "−" : "";
   return `${s}${Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: nd, maximumFractionDigits: nd })}${suffix}`;
 }
-function changeCell(x, nd = 1, suffix = "%", colored = true) {
-  const tone = colored && isNum(x) ? (x > 0 ? "pos" : x < 0 ? "neg" : "") : "";
-  return el("td", `num ${tone}`, signed(x, nd, suffix));
+const tone = (x) => (isNum(x) ? (x > 0 ? "pos" : x < 0 ? "neg" : "") : "");
+function chg(x, nd = 2, suffix = "%", colored = true) {
+  return el("td", `num ${colored ? tone(x) : ""}`, signed(x, nd, suffix));
 }
 function ordinal(n) {
   n = Math.round(n);
@@ -60,35 +73,125 @@ function tvLink(symbol, text = "↗") {
   a.title = `Open ${symbol} in TradingView`;
   return a;
 }
+function td(cls, text) { return el("td", cls, text); }
+function explainBox(summary, text) {
+  const d = el("details", "explain");
+  d.append(el("summary", "", summary));
+  if (typeof text === "string") d.append(el("p", "", text)); else d.append(text);
+  return d;
+}
 function setMeta(id, block) {
   const root = document.getElementById(id);
-  $(".updated", root).textContent = block?.updated_at ? `updated ${block.updated_at}` : "not updated yet";
-  if (block?.intro) {
+  const upd = $(":scope > .section-head .updated", root);
+  if (upd) upd.textContent = block?.updated_at ? `updated ${block.updated_at}` : "";
+  if (block?.intro && $(":scope > .section-head", root)) {
     let intro = $(":scope > .intro", root);
-    if (!intro) {
-      intro = el("p", "intro");
-      $(".section-head", root).after(intro);
-    }
+    if (!intro) { intro = el("p", "intro"); $(":scope > .section-head", root).after(intro); }
     intro.textContent = block.intro;
   }
-  const w = $(".warnings", root);
-  w.replaceChildren(...(block?.warnings || []).map((m) => el("div", "warn-msg", m)));
-  if (block?.error) w.append(el("div", "warn-msg", `This section could not be built: ${block.error}`));
+  const w = $(":scope > .warnings", root);
+  if (w) {
+    w.replaceChildren(...(block?.warnings || []).map((m) => el("div", "warn-msg", m)));
+    if (block?.error) w.append(el("div", "warn-msg", `This section could not be built: ${block.error}`));
+  }
   return block && !block.error;
+}
+const store = {
+  get(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback; } catch (e) { return fallback; } },
+  set(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage blocked */ } },
+};
+function segActive(seg, value) { $$("button", seg).forEach((b) => b.classList.toggle("active", b.dataset.v === String(value))); }
+function onSeg(seg, fn) { $$("button", seg).forEach((b) => b.addEventListener("click", () => fn(b.dataset.v))); }
+function fillSelect(sel, options, value) {
+  sel.replaceChildren(...options.map(([v, label, group]) => {
+    const o = el("option", "", label); o.value = v; if (group) o.dataset.group = group; return o;
+  }));
+  // optgroups when the options carry a group
+  if (options.some((o) => o[2])) {
+    const groups = new Map();
+    for (const o of [...sel.options]) {
+      const g = o.dataset.group;
+      if (!groups.has(g)) { const og = document.createElement("optgroup"); og.label = g; groups.set(g, og); }
+      groups.get(g).append(o);
+    }
+    sel.replaceChildren(...groups.values());
+  }
+  sel.value = value;
+}
+
+/** Sortable table. columns: [{key, label, num, cell(row), title, sort}] */
+function buildTable(table, columns, rows, opts = {}) {
+  let sortKey = opts.sortKey ?? null;
+  let asc = opts.asc ?? false;
+  let showAll = false;
+  function draw() {
+    const thead = el("thead");
+    const tr = el("tr");
+    for (const c of columns) {
+      const th = el("th", `${c.num ? "num " : ""}${c.sort !== false ? "sortable" : ""}`, c.label);
+      if (c.title) th.title = c.title;
+      if (c.key === sortKey) th.classList.add("sorted", ...(asc ? ["asc"] : []));
+      if (c.sort !== false) th.addEventListener("click", () => { asc = sortKey === c.key ? !asc : !!c.ascFirst; sortKey = c.key; draw(); });
+      tr.append(th);
+    }
+    thead.append(tr);
+    const sorted = sortKey ? [...rows].sort((a, b) => {
+      const va = a[sortKey], vb = b[sortKey];
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      return (typeof va === "string" ? va.localeCompare(vb) : va - vb) * (asc ? 1 : -1);
+    }) : rows;
+    const shown = opts.limit && !showAll ? sorted.slice(0, opts.limit) : sorted;
+    const tbody = el("tbody");
+    for (const r of shown) {
+      const row = el("tr");
+      if (opts.onRow) opts.onRow(row, r);
+      for (const c of columns) row.append(c.cell(r));
+      tbody.append(row);
+    }
+    if (!rows.length) {
+      const er = el("tr", "empty-row");
+      const cell = td("", opts.empty || "Nothing to show.");
+      cell.colSpan = columns.length;
+      er.append(cell);
+      tbody.append(er);
+    }
+    table.replaceChildren(thead, tbody);
+    if (opts.heat) shade(table, columns, shown);
+    const wrap = table.closest(".table-wrap");
+    let more = wrap?.nextElementSibling?.matches?.(".show-all") ? wrap.nextElementSibling : null;
+    if (opts.limit && rows.length > opts.limit) {
+      if (!more) { more = el("button", "show-all"); more.type = "button"; wrap.after(more); }
+      more.textContent = showAll ? "Show fewer" : `Show all ${rows.length}`;
+      more.onclick = () => { showAll = !showAll; draw(); };
+    } else if (more) more.remove();
+  }
+  draw();
+}
+/** Green/red background scaled to the size of the move within each column. */
+function shade(table, columns, rows) {
+  columns.forEach((c, ci) => {
+    if (!c.heat) return;
+    const vals = rows.map((r) => r[c.key]).filter(isNum);
+    const max = Math.max(1e-9, ...vals.map(Math.abs));
+    $$("tbody tr", table).forEach((tr, ri) => {
+      const v = rows[ri]?.[c.key];
+      if (!isNum(v)) return;
+      const a = 0.06 + 0.30 * Math.min(1, Math.abs(v) / max);
+      tr.children[ci].style.background = `rgba(${cssVar(v >= 0 ? "--pos-bg" : "--neg-bg")}, ${a.toFixed(3)})`;
+    });
+  });
 }
 
 // ---------- theme ----------
 function currentTheme() {
-  const set = document.documentElement.dataset.theme;
-  if (set) return set;
-  return matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return document.documentElement.dataset.theme || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
 }
-function markThemeButtons() {
-  $$("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === currentTheme()));
-}
+function markThemeButtons() { $$("[data-theme-set]").forEach((b) => b.classList.toggle("active", b.dataset.themeSet === currentTheme())); }
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
-  try { localStorage.setItem("theme", theme); } catch (e) { /* storage blocked: keep for this visit */ }
+  store.set("theme-v", theme);
+  try { localStorage.setItem("theme", theme); } catch (e) { /* ignore */ }
   markThemeButtons();
   renderAll();
   initWidgets();
@@ -99,6 +202,7 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
 });
 
 // ---------- TradingView widgets ----------
+let heatmapMarket = store.get("heatmap", "us");
 function embed(target, script, config) {
   const box = document.getElementById(target);
   if (!box) return;
@@ -114,19 +218,19 @@ function embed(target, script, config) {
   box.replaceChildren(container);
 }
 function renderHeatmap() {
+  if (!WIDGETS) return;
   embed("heatmap", "embed-widget-stock-heatmap.js", {
-    dataSource: WIDGETS.heatmap[heatmapMarket], exchanges: [], grouping: "sector",
-    blockSize: "market_cap_basic", blockColor: "change", locale: "en", colorTheme: currentTheme(),
-    hasTopBar: false, isDataSetEnabled: false, isZoomEnabled: true, hasSymbolTooltip: true,
-    isMonoSize: false, width: "100%", height: "100%",
+    dataSource: WIDGETS.heatmap[heatmapMarket], exchanges: [], grouping: "sector", blockSize: "market_cap_basic",
+    blockColor: "change", locale: "en", colorTheme: currentTheme(), hasTopBar: false, isDataSetEnabled: false,
+    isZoomEnabled: true, hasSymbolTooltip: true, isMonoSize: false, width: "100%", height: "100%",
   });
   $$("[data-heatmap]").forEach((b) => b.classList.toggle("active", b.dataset.heatmap === heatmapMarket));
 }
 function initWidgets() {
   if (!WIDGETS) return;
   embed("ticker-tape", "embed-widget-ticker-tape.js", {
-    symbols: WIDGETS.ticker_tape, showSymbolLogo: false, isTransparent: true,
-    displayMode: "adaptive", colorTheme: currentTheme(), locale: "en",
+    symbols: WIDGETS.ticker_tape, showSymbolLogo: false, isTransparent: true, displayMode: "adaptive",
+    colorTheme: currentTheme(), locale: "en",
   });
   embed("calendar", "embed-widget-events.js", {
     colorTheme: currentTheme(), isTransparent: true, width: "100%", height: "100%", locale: "en",
@@ -135,439 +239,241 @@ function initWidgets() {
   renderHeatmap();
 }
 $$("[data-heatmap]").forEach((b) => b.addEventListener("click", () => {
-  heatmapMarket = b.dataset.heatmap;
-  renderHeatmap();
+  heatmapMarket = b.dataset.heatmap; store.set("heatmap", heatmapMarket); renderHeatmap();
 }));
 
-// ---------- charts ----------
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-function dateTick(iso, spanDays) {
-  const [y, m, d] = iso.split("-");
-  return spanDays > 400 ? `${MONTHS[+m - 1]} ${y.slice(2)}` : `${+d} ${MONTHS[+m - 1]}`;
-}
-function withAlpha(color, alpha) {
-  if (color.startsWith("#") && color.length === 7) {
-    const n = parseInt(color.slice(1), 16);
-    return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
-  }
-  return color;
+// ---------- status line ----------
+function renderStatus() {
+  const last = DATA.overview?.markets?.rows?.find((r) => r.label === "SPX")?.date;
+  const line = $(".status-line");
+  line.replaceChildren();
+  line.append(el("b", "", `Data as of ${DATA.generated_at}`), document.createTextNode(" (Amsterdam time)"));
+  if (last) line.append(document.createTextNode(` · US daily data as of ${niceDate(last)}`));
+  line.append(document.createTextNode(" · daily refresh 18:00 and 22:30, activity lists every 30 minutes during the US session"));
 }
 
-// Draws shaded bands and reference lines behind the data.
-const guidesPlugin = {
-  id: "guides",
-  beforeDatasetsDraw(chart, args, opts) {
-    const { ctx, chartArea: a, scales: { y } } = chart;
-    if (!a || !y) return;
-    ctx.save();
-    for (const [lo, hi, kind] of opts.bands || []) {
-      const top = y.getPixelForValue(Math.min(hi, y.max));
-      const bottom = y.getPixelForValue(Math.max(lo, y.min));
-      if (bottom <= top) continue;
-      ctx.fillStyle = kind === "low" ? css("--good-bg") : css("--bad-bg");
-      ctx.fillRect(a.left, top, a.right - a.left, bottom - top);
-    }
-    ctx.strokeStyle = css("--axis");
-    ctx.setLineDash([4, 4]);
-    ctx.lineWidth = 1;
-    for (const [v] of opts.hlines || []) {
-      if (v < y.min || v > y.max) continue;
-      const py = y.getPixelForValue(v);
-      ctx.beginPath(); ctx.moveTo(a.left, py); ctx.lineTo(a.right, py); ctx.stroke();
-    }
-    ctx.restore();
-  },
-};
-// Vertical crosshair at the hovered date.
-const crosshairPlugin = {
-  id: "crosshair",
-  afterDatasetsDraw(chart) {
-    const idx = chart.$hoverIndex;
-    if (idx == null || !chart.chartArea) return;
-    const x = chart.scales.x.getPixelForValue(idx);
-    const { ctx, chartArea: a } = chart;
-    ctx.save();
-    ctx.strokeStyle = css("--muted");
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke();
-    ctx.restore();
-  },
-};
-if (window.Chart) {
-  Chart.register(guidesPlugin, crosshairPlugin);
-  Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
-  Chart.defaults.font.size = 11;
-}
-
-function seriesColors(spec) {
-  const slots = [css("--series-1"), css("--series-2"), css("--series-3"), css("--series-4")];
-  let ind = 0;
-  let ma = 0;
-  const maSlots = [css("--series-1"), css("--series-2"), css("--series-3"), css("--series-4")];
-  return spec.panels.map((p) => p.series.map((s) => {
-    if (s.role === "price") return css("--price");
-    if (s.role === "ref") return css("--muted");
-    if (s.role === "ma") return withAlpha(maSlots[(ma++) % maSlots.length], 0.75);
-    return slots[(ind++) % slots.length];
-  }));
-}
-
-function syncHover(groupId, index) {
-  for (const c of groups.get(groupId) || []) {
-    c.$hoverIndex = index;
-    if (index == null) {
-      c.setActiveElements([]);
-      c.tooltip.setActiveElements([], { x: 0, y: 0 });
-    } else {
-      const active = c.data.datasets.map((d, i) => ({ datasetIndex: i, index }))
-        .filter((a) => c.data.datasets[a.datasetIndex].data[index] != null);
-      c.setActiveElements(active);
-      c.tooltip.setActiveElements(active, { x: c.scales.x.getPixelForValue(index), y: c.chartArea.top });
-    }
-    c.draw();
-  }
-}
-
-function explainBox(summary, text) {
-  const d = el("details", "explain");
-  d.append(el("summary", "", summary));
-  if (typeof text === "string") d.append(el("p", "", text));
-  else d.append(text);
-  return d;
-}
-
-// Column titles get a tooltip, and a "Columns explained" box goes under the table.
-function explainColumns(table) {
-  const cols = DATA?.columns || {};
-  const seen = [];
-  $$("thead th", table).forEach((th) => {
-    const key = th.textContent.replace(/[▾▴]/g, "").trim();
-    const text = cols[key] || Object.entries(cols).find(([k]) => k.toLowerCase() === key.toLowerCase())?.[1];
-    if (text) { th.title = text; seen.push([key, text]); }
-  });
-  const wrap = table.closest(".table-wrap") || table;
-  let box = wrap.nextElementSibling;
-  if (!box || !box.matches("details.explain.columns")) {
-    box = el("details", "explain columns");
-    box.append(el("summary", "", "Columns explained"));
-    wrap.after(box);
-  }
-  const dl = el("dl");
-  for (const [k, t] of seen) dl.append(el("dt", "", k), el("dd", "", t));
-  box.querySelector("dl")?.remove();
-  box.append(dl);
-}
-
-function chartCard(spec, opts = {}) {
-  const card = el("article", "chart-card");
-  card.id = `card-${spec.id}`;
-  const head = el("div", "chart-head");
-  head.append(el("h4", "", spec.title));
-  if (spec.tv) {
-    const a = tvLink(spec.tv, "Open in TradingView ↗");
-    a.className = "tv";
-    head.append(a);
-  }
-  card.append(head);
-  if (spec.subtitle) card.append(el("p", "chart-sub", spec.subtitle));
-  const help = spec.explain ? explainBox("What does this show?", spec.explain) : null;
-  if (!spec.available || !window.Chart) {
-    card.append(el("div", "na", !window.Chart ? "Charts need cdn.jsdelivr.net (Chart.js)." : "No data yet."));
-    if (help) card.append(help);
-    return card;
-  }
-  const colors = seriesColors(spec);
-  const legend = el("div", "legend-row");
-  spec.panels.forEach((p, pi) => p.series.forEach((s, si) => {
-    const item = el("span", "", s.label);
-    item.style.setProperty("--c", colors[pi][si]);
-    legend.append(item);
-  }));
-  card.append(legend);
-
-  const base = opts.height || 300;
-  const n = spec.dates.length;
-  const span = n > 1 ? (new Date(spec.dates[n - 1]) - new Date(spec.dates[0])) / 864e5 : 0;
-  const groupId = card.id;
-  groups.set(groupId, []);
-  spec.panels.forEach((p, pi) => {
-    const last = pi === spec.panels.length - 1;
-    const wrap = el("div", "panel");
-    wrap.style.height = `${Math.max(70, Math.round(base * p.height)) + (last ? 22 : 0)}px`;
-    const canvas = el("canvas");
-    canvas.id = `${spec.id}-p${pi}`;
-    wrap.append(canvas);
-    card.append(wrap);
-    const fmt = FORMATS[p.fmt] || FORMATS.num;
-    const datasets = p.series.map((s, si) => ({
-      label: s.label,
-      data: s.values,
-      type: s.kind === "bar" ? "bar" : "line",
-      borderColor: colors[pi][si],
-      // Bars beyond a negative reference line (e.g. weeks down 5%+) are drawn in red.
-      backgroundColor: s.kind === "bar" && (p.hlines[0]?.[0] ?? 0) < 0
-        ? s.values.map((v) => (v != null && v <= p.hlines[0][0] ? css("--bad") : colors[pi][si]))
-        : colors[pi][si],
-      borderWidth: s.role === "price" ? 1.5 : s.role === "ma" ? 1.2 : s.role === "ref" ? 1 : 1.8,
-      // Short series (a history that has just started) get visible points: one point draws no line.
-      pointRadius: opts.points && s.kind !== "bar" ? 3 : 0,
-      pointHoverRadius: s.kind === "bar" ? 0 : 3,
-      spanGaps: true,
-      tension: 0,
-      barPercentage: 1,
-      categoryPercentage: 1,
-    }));
-    queueMicrotask(() => {
-      const chart = new Chart(canvas, {
-        type: "line",
-        data: { labels: spec.dates, datasets },
-        options: {
-          responsive: true, maintainAspectRatio: false, animation: false, normalized: true,
-          interaction: { mode: "index", intersect: false },
-          layout: { padding: { left: 0, right: 4 } },
-          plugins: {
-            legend: { display: false },
-            guides: { bands: p.bands, hlines: p.hlines },
-            tooltip: {
-              enabled: last,
-              backgroundColor: css("--surface"), titleColor: css("--ink"), bodyColor: css("--ink-2"),
-              borderColor: css("--border"), borderWidth: 1, padding: 8, boxPadding: 4,
-              callbacks: {
-                label: (c) => `${c.dataset.label}: ${fmt(c.parsed.y)}`,
-                beforeBody: (items) => {
-                  // Values from the other panels of this card, so one tooltip covers all.
-                  const idx = items[0]?.dataIndex;
-                  return spec.panels.flatMap((op, opi) => opi === pi ? [] : op.series.map((s) =>
-                    `${s.label}: ${(FORMATS[op.fmt] || FORMATS.num)(s.values[idx])}`));
-                },
-              },
-            },
-          },
-          scales: {
-            x: {
-              display: last,
-              grid: { display: false },
-              border: { color: css("--axis") },
-              ticks: { color: css("--muted"), maxRotation: 0, autoSkip: true, maxTicksLimit: 7,
-                       callback: (v) => dateTick(spec.dates[v], span) },
-            },
-            y: {
-              position: "right",
-              grid: { color: css("--grid") },
-              border: { display: false },
-              ticks: { color: css("--muted"), maxTicksLimit: p.height < 0.5 ? 4 : 6, callback: (v) => fmt(v) },
-            },
-          },
-          onHover: (evt, active, c) => {
-            const idx = c.scales.x.getValueForPixel(evt.x);
-            syncHover(groupId, idx >= 0 && idx < n ? idx : null);
-          },
-        },
-      });
-      chart.canvas.addEventListener("mouseleave", () => syncHover(groupId, null));
-      charts.get(canvas.id)?.destroy();
-      charts.set(canvas.id, chart);
-      groups.get(groupId).push(chart);
-    });
-  });
-  if (help) card.append(help);
-  return card;
-}
-
-function renderCharts(container, specs, opts = {}) {
-  for (const [id, c] of charts) {
-    if (!document.getElementById(id) || container.contains(c.canvas)) { c.destroy(); charts.delete(id); }
-  }
-  container.replaceChildren(...(specs || []).filter(Boolean).map((s) => chartCard(s, opts)));
-}
-
-// The all-markets COT chart matches the table's height, so both are in view together.
-function cotChartHeight() {
-  const table = $("#positioning .cot-table");
-  const h = table ? table.getBoundingClientRect().height : 0;
-  return Math.max(320, Math.min(640, h - 120));
-}
-
-function sparkline(canvas, values) {
-  if (!window.Chart) return;
-  charts.get(canvas.id)?.destroy();
-  charts.set(canvas.id, new Chart(canvas, {
-    type: "line",
-    data: { labels: values.map((_, i) => i), datasets: [{ data: values, borderColor: css("--series-1"),
-            borderWidth: 1.5, pointRadius: 0, spanGaps: true, tension: 0 }] },
-    options: { responsive: true, maintainAspectRatio: false, animation: false, events: [],
-               plugins: { legend: { display: false }, tooltip: { enabled: false } },
-               scales: { x: { display: false }, y: { display: false } } },
-  }));
-}
-
-// ---------- sortable tables ----------
-function buildTable(table, columns, rows, opts = {}) {
-  let sortKey = opts.sortKey || null;
-  let asc = opts.asc || false;
-  function draw() {
-    const thead = el("thead");
+// =============================================================================================
+// Overview cards
+// =============================================================================================
+function renderMarkets(m) {
+  const card = $("#card-markets");
+  $(".card-sub", card).textContent = m.about;
+  const table = $("table", card);
+  const head = el("thead");
+  const htr = el("tr");
+  for (const [t, num] of [["Symbol"], ["Last", 1], ["Day", 1], ["Week", 1], ["YTD", 1]]) htr.append(el("th", num ? "num" : "", t));
+  head.append(htr);
+  const body = el("tbody");
+  for (const r of m.rows) {
     const tr = el("tr");
-    for (const c of columns) {
-      const th = el("th", `${c.num ? "num " : ""}${c.sort !== false ? "sortable" : ""}`, c.label);
-      if (c.title) th.title = c.title;
-      if (c.key === sortKey) th.classList.add("sorted", ...(asc ? ["asc"] : []));
-      if (c.sort !== false) th.addEventListener("click", () => {
-        asc = sortKey === c.key ? !asc : false;
-        sortKey = c.key;
-        draw();
-      });
-      tr.append(th);
-    }
-    thead.append(tr);
-    const sorted = sortKey ? [...rows].sort((a, b) => {
-      const va = a[sortKey], vb = b[sortKey];
-      if (va == null) return 1;
-      if (vb == null) return -1;
-      return (typeof va === "string" ? va.localeCompare(vb) : va - vb) * (asc ? 1 : -1);
-    }) : rows;
-    const tbody = el("tbody");
-    for (const r of sorted) {
-      const row = el("tr");
-      for (const c of columns) row.append(c.cell(r));
-      tbody.append(row);
-    }
-    table.replaceChildren(thead, tbody);
-    explainColumns(table);
+    const name = td("");
+    name.append(document.createTextNode(r.label), tvLink(r.tv));
+    tr.append(name);
+    if (!r.available) { tr.append(td("num", "–"), td("num", "–"), td("num", "–"), td("num", "–")); body.append(tr); continue; }
+    const bp = r.unit === "bp";
+    tr.append(td("num", bp ? `${r.last.toFixed(2)}%` : fmtNum(r.last)),
+              chg(r.d1, bp ? 1 : 2, bp ? " bp" : "%", !bp), chg(r.w1, bp ? 1 : 2, bp ? " bp" : "%", !bp),
+              chg(r.ytd, bp ? 0 : 2, bp ? " bp" : "%", !bp));
+    tr.title = `as of ${r.date}`;
+    body.append(tr);
   }
-  draw();
+  table.replaceChildren(head, body);
 }
 
-const nameCell = (r) => {
-  const td = el("td");
-  td.append(el("span", "", r.name));
-  td.append(el("span", "muted", ` ${r.ticker.replace("^", "")}`));
-  if (r.tv) td.append(tvLink(r.tv));
-  return td;
-};
-const pctCol = (key, label, title) => ({ key, label, num: true, title, cell: (r) => changeCell(r[key]) });
-const rsiCell = (r) => {
-  const td = el("td", "num", isNum(r.rsi) ? r.rsi.toFixed(0) : "–");
-  if (isNum(r.rsi) && r.rsi <= 30) td.append(el("span", "pill low", "OS"));
-  if (isNum(r.rsi) && r.rsi >= 70) td.append(el("span", "pill high", "OB"));
-  return td;
-};
-function percentilePill(p) {
-  const td = el("td", "num");
-  if (!isNum(p)) { td.textContent = "–"; return td; }
-  const s = el("span", `pill ${p <= 10 ? "low" : p >= 90 ? "high" : ""}`, p.toFixed(0));
-  td.append(s);
-  return td;
+function renderFearGreed(fg) {
+  const card = $("#card-fg");
+  $(".card-sub", card).textContent = "0 = extreme fear, 100 = extreme greed · average of five market signals, each scored against the past year";
+  const body = $(".body", card);
+  if (!fg.available) { body.replaceChildren(el("div", "na", "Not enough data yet.")); return; }
+  const top = el("div", "big-row");
+  top.append(el("span", "big", fg.score.toFixed(0)), el("span", "fg-label", fg.label));
+  const bar = el("div", "fg-bar");
+  const fill = el("div", "fill");
+  fill.style.width = `${fg.score}%`;
+  bar.append(fill);
+  const scale = el("div", "fg-scale");
+  scale.append(el("span", "", "Extreme fear"), el("span", "", "Neutral"), el("span", "", "Extreme greed"));
+  const parts = el("div", "fg-parts");
+  for (const p of fg.parts) {
+    const name = el("span", "", p.name);
+    name.title = p.about;
+    const track = el("div", "track");
+    const f = el("div");
+    f.style.width = `${p.score ?? 0}%`;
+    track.append(f);
+    parts.append(name, track, el("span", "v", isNum(p.score) ? p.score.toFixed(0) : "–"));
+  }
+  const chartBox = el("div", "chart h160");
+  body.replaceChildren(top, bar, scale, parts, chartBox,
+    explainBox("How is this made?", fg.about + " " + fg.parts.map((p) => `${p.name}: ${p.about}`).join(" ")));
+  const chart = makeChart(chartBox, { interactive: false, rightOffset: 1 });
+  const s = addLine(chart, pts(fg.history.dates, fg.history.values), { title: "Score", fmt: "int" });
+  s.priceScale().applyOptions({ autoScale: false });
+  s.applyOptions({ autoscaleInfoProvider: () => ({ priceRange: { minValue: 0, maxValue: 100 } }) });
+  hline(s, 75); hline(s, 25);
+  chart.timeScale().fitContent();
 }
 
-function assetColumns(rows, benchName) {
-  const cols = [
-    { key: "name", label: "Asset", cell: nameCell },
-    { key: "last", label: "Last", num: true, cell: (r) => el("td", "num", fmtNum(r.last)) },
-    pctCol("w1", "1W"), pctCol("m1", "1M"), pctCol("m3", "3M"),
-  ];
-  if (rows.some((r) => isNum(r.rel_m1))) {
-    cols.push(pctCol("rel_m1", `Rel 1M`, `1-month return minus ${benchName}`),
-              pctCol("rel_m3", `Rel 3M`, `3-month return minus ${benchName}`));
+let breadthRegion = store.get("breadth-region", "US");
+function renderBreadth(b) {
+  const card = $("#card-breadth");
+  const regions = Object.keys(b.regions);
+  const body = $(".body", card);
+  if (!regions.length) { body.replaceChildren(el("div", "na", "Breadth not calculated yet.")); return; }
+  if (!b.regions[breadthRegion]) breadthRegion = regions[0];
+  const sel = $("select", card);
+  fillSelect(sel, regions.map((r) => [r, r === "US" ? "S&P 500" : "Europe"]), breadthRegion);
+  sel.onchange = () => { breadthRegion = sel.value; store.set("breadth-region", breadthRegion); renderBreadth(b); };
+  const r = b.regions[breadthRegion];
+  $(".card-sub", card).textContent = `Share of ${r.label} members above their moving averages · last 12 months`;
+  const stats = el("div", "stats three");
+  for (const d of ["20", "50", "200"]) {
+    const s = el("div", "stat");
+    s.append(el("div", "label", `Above ${d}-day`), el("div", "big", `${r.latest[d].toFixed(1)}%`));
+    stats.append(s);
   }
-  cols.push(pctCol("vs50", "vs 50d", "Distance from the 50-day average"),
-            pctCol("vs200", "vs 200d", "Distance from the 200-day average"),
-            { key: "rsi", label: "RSI", num: true, cell: rsiCell });
-  if (rows.some((r) => isNum(r.cot_pct))) {
-    cols.push({ key: "cot_pct", label: "COT %ile", num: true, title: "Net/OI percentile since 2006",
-                cell: (r) => percentilePill(r.cot_pct) });
+  const chartBox = el("div", "chart h200");
+  body.replaceChildren(stats, chartBox, explainBox("What does this show?", b.about));
+  const chart = makeChart(chartBox);
+  const colors = { 20: cssVar("--blue"), 50: cssVar("--orange"), 200: cssVar("--green") };
+  let first = null;
+  for (const d of ["20", "200", "50"]) {
+    const s = addLine(chart, pts(r.dates, r.series[d]), { color: colors[d], width: d === "20" ? 1.5 : 2, title: `${d}d`, fmt: "pct0" });
+    s.applyOptions({ autoscaleInfoProvider: () => ({ priceRange: { minValue: 0, maxValue: 100 } }) });
+    if (!first) { first = s; hline(s, 80); hline(s, 20); }
   }
-  if (rows.some((r) => isNum(r.rv_pct))) {
-    cols.push({ key: "rv_pct", label: "Vol %ile", num: true, title: "90-day realized volatility percentile",
-                cell: (r) => el("td", "num", isNum(r.rv_pct) ? r.rv_pct.toFixed(0) : "–") },
-              { key: "compression", label: "Compression", sort: false,
-                cell: (r) => el("td", "", r.compression == null ? "–" : r.compression ? "yes" : "no") });
-  }
-  return cols;
+  chart.timeScale().fitContent();
 }
 
-// ---------- sections ----------
-const THEME_ORDER = ["Trend", "Breadth", "Volatility", "Sentiment", "Credit", "Rates"];
+function renderVix(v) {
+  const card = $("#card-vix");
+  $(".card-sub", card).textContent = "CBOE volatility index · last 12 months, with 20 and 30 marked";
+  const body = $(".body", card);
+  if (!v.available) { body.replaceChildren(el("div", "na", "No VIX data yet.")); return; }
+  const top = el("div", "big-row");
+  top.append(el("span", "big", v.last.toFixed(2)), el("span", "muted", `latest daily close · ${ordinal(v.pct1y)} percentile of the year`));
+  const chartBox = el("div", "chart h240");
+  body.replaceChildren(top, chartBox, explainBox("What does this show?", v.about));
+  const chart = makeChart(chartBox);
+  const s = addLine(chart, pts(v.dates, v.values), { title: "VIX", fmt: "num", width: 1.5 });
+  for (const l of v.lines) hline(s, l);
+  chart.timeScale().fitContent();
+}
+
+let hygFreq = store.get("hyg-freq", "daily");
+function candleChart(box, c, freq, o = {}) {
+  const chart = makeChart(box, { reset: () => o.reset?.(chart) });
+  const data = c[freq];
+  const candles = addCandles(chart, ohlcPts(data), {
+    upColor: o.blueRed ? cssVar("--blue") : undefined, upLine: o.blueRed ? cssVar("--blue") : undefined,
+    downColor: o.blueRed ? cssVar("--neg") : undefined, title: o.title || "", fmt: "num" });
+  const maColors = [cssVar("--orange"), cssVar("--green")];
+  Object.entries(data.ma).forEach(([label, values], i) => addLine(chart, pts(data.dates, values), {
+    color: maColors[i], width: 1.5, title: label, marker: false }));
+  const n = o.visible?.[freq] ?? (freq === "daily" ? 180 : 156);
+  const reset = () => showLast(chart, n);
+  box._reset = reset;
+  reset();
+  tooltip(chart, box, (param, iso) => {
+    const bar = param.seriesData.get(candles);
+    if (!bar) return null;
+    return `<div class="t-date">${freq === "weekly" ? "Week of " : ""}${niceDate(iso)}</div>` +
+      `O ${fmtNum(bar.open)} H ${fmtNum(bar.high)} L ${fmtNum(bar.low)} <b>C ${fmtNum(bar.close)}</b>`;
+  });
+  return { chart, candles };
+}
+function renderHyg(h) {
+  const card = $("#card-hyg");
+  $(".card-sub", card).textContent = "iShares High Yield Corporate Bond ETF, US-listed · candles with 50- and 200-day (10- and 40-week) moving averages";
+  const body = $(".body", card);
+  segActive($("[data-hyg]", card), hygFreq);
+  onSeg($("[data-hyg]", card), (v) => { hygFreq = v; store.set("hyg-freq", v); renderHyg(h); });
+  if (!h.available) { body.replaceChildren(el("div", "na", "No HYG data yet.")); return; }
+  const top = el("div", "big-row");
+  top.append(el("span", "big", fmtNum(h.last)), el("span", "muted", `latest daily close · ${niceDate(h.date)}`));
+  const chartBox = el("div", "chart h240");
+  body.replaceChildren(top, chartBox, explainBox("What does this show?", h.about));
+  candleChart(chartBox, h, hygFreq, { visible: { daily: 120, weekly: 104 } });
+}
+
+let sectorPeriod = store.get("sector-period", "w1");
+function renderSectors(s) {
+  const card = $("#card-sectors");
+  const names = { d1: "today", w1: "over the past week", m1: "over the past month", ytd: "this year" };
+  $(".card-sub", card).textContent = `S&P 500 sector ETFs (SPDR) · change ${names[sectorPeriod]}`;
+  segActive($("[data-sector]", card), sectorPeriod);
+  onSeg($("[data-sector]", card), (v) => { sectorPeriod = v; store.set("sector-period", v); renderSectors(s); });
+  const rows = [...s.rows].filter((r) => isNum(r[sectorPeriod])).sort((a, b) => b[sectorPeriod] - a[sectorPeriod]);
+  // 0 sits where the largest loss and the largest gain both fit, with room for the labels.
+  const negMax = Math.max(0, ...rows.map((r) => -r[sectorPeriod])), posMax = Math.max(0, ...rows.map((r) => r[sectorPeriod]));
+  const room = 20, usable = 100 - (negMax > 0 ? room : 0) - (posMax > 0 ? room : 0);
+  const total = Math.max(0.01, negMax + posMax);
+  const zero = (negMax > 0 ? room : 0) + usable * negMax / total;
+  const box = $(".bars", card);
+  box.replaceChildren(...rows.flatMap((r) => {
+    const v = r[sectorPeriod];
+    const lbl = el("div", "lbl");
+    lbl.append(el("b", "", r.ticker), document.createTextNode(r.name));
+    const track = el("div", "track");
+    const z = el("div", "zero"); z.style.left = `${zero}%`;
+    const bar = el("div", `bar ${v >= 0 ? "up" : "down"}`);
+    const w = usable * Math.abs(v) / total;
+    bar.style.left = `${v >= 0 ? zero : zero - w}%`;
+    bar.style.width = `${Math.max(w, 0.5)}%`;
+    const val = el("div", "val", signed(v, 2));
+    if (v >= 0) val.style.left = `calc(${zero + w}% + 4px)`; else val.style.right = `calc(${100 - zero + w}% + 4px)`;
+    track.append(z, bar, val);
+    return [lbl, track];
+  }));
+  if (!$(":scope > details", card)) card.append(explainBox("What does this show?", s.about));
+}
+
 const STATE_WORD = { green: "healthy", orange: "neutral", red: "stress", nodata: "no data" };
-
-function renderSummary(b) {
-  if (!setMeta("summary", b)) return;
+const THEME_ORDER = ["Trend", "Breadth", "Volatility", "Sentiment", "Credit", "Rates"];
+function renderRegime(b) {
+  const card = $("#card-regime");
+  $(".updated", card).textContent = b?.updated_at ? `updated ${b.updated_at}` : "";
+  const body = $(".body", card);
+  if (!b || b.error) { body.replaceChildren(el("div", "warn-msg", b?.error || "No data")); return; }
   const v = b.verdict;
-  const inds = b.indicators;
-  const cls = v.label.toLowerCase().replace(/\s+/g, "-");
   const pct = isNum(v.pct) ? v.pct : 0;
-
-  // Verdict card: label, gauge, counts, and what drives it.
-  const card = $("#summary .sum-verdict");
-  const gauge = el("div", "gauge-wrap");
-  const bar = el("div", "gauge");
-  const zones = el("div", "zones");
+  const head = el("div", "verdict");
+  head.append(el("span", `big ${v.label.toLowerCase().replace(/\s+/g, "-")}`, v.label),
+    el("span", "muted", v.label === "Risk-on" ? "Most signals are healthy: conditions favour taking risk."
+      : v.label === "Risk-off" ? "Most signals show stress: conditions favour caution."
+      : v.label === "Neutral" ? "A mixed picture: no clear tilt towards risk-on or risk-off." : "Not enough data yet."));
   const onAt = b.verdict_thresholds?.on ?? 33, offAt = b.verdict_thresholds?.off ?? -33;
-  zones.style.gridTemplateColumns = `${(offAt + 100) / 2}fr ${(onAt - offAt) / 2}fr ${(100 - onAt) / 2}fr`;
-  zones.append(el("div", "z off"), el("div", "z mid"), el("div", "z on"));
-  bar.append(zones);
+  const gw = el("div", "gauge-wrap");
+  const gauge = el("div", "gauge");
+  gauge.style.gridTemplateColumns = `${(offAt + 100) / 2}fr ${(onAt - offAt) / 2}fr ${(100 - onAt) / 2}fr`;
+  gauge.append(el("div", "z off"), el("div", "z mid"), el("div", "z on"));
   const marker = el("div", "marker");
   marker.style.left = `${(pct + 100) / 2}%`;
-  marker.title = `score ${signed(pct, 0, "%")}`;
-  bar.append(marker);
+  marker.title = `score ${signed(pct, 0)}`;
   const scale = el("div", "gauge-scale");
-  scale.append(el("span", "", "risk-off"), el("span", "", "neutral"), el("span", "", "risk-on"));
-  gauge.append(bar, scale);
+  scale.append(el("span", "", "risk-off"), el("span", "", `score ${signed(pct, 0)}`), el("span", "", "risk-on"));
+  gw.append(gauge, marker, scale);
   const counts = el("div", "counts");
-  counts.append(el("span", "g", `${v.counts.green} healthy`), el("span", "o", `${v.counts.orange} neutral`),
-                el("span", "r", `${v.counts.red} stress`));
-  const drivers = el("div", "drivers");
-  const up = inds.filter((i) => i.color === "green").map((i) => i.label.replace(/^Trend |^Breadth /, ""));
-  const down = inds.filter((i) => i.color === "red").map((i) => `${i.label} (${i.value})`);
-  if (down.length) { const d = el("div", "d-down"); d.append(el("b", "", "Pulling down: "), document.createTextNode(down.join(", "))); drivers.append(d); }
-  if (up.length) { const d = el("div", "d-up"); d.append(el("b", "", "Supporting: "), document.createTextNode(up.join(", "))); drivers.append(d); }
-  const sentence = v.label === "Risk-on" ? "Most signals are healthy: conditions favour taking risk."
-    : v.label === "Risk-off" ? "Most signals show stress: conditions favour caution."
-    : v.label === "Neutral" ? "A mixed picture: no clear tilt towards risk-on or risk-off." : "Not enough data yet.";
-  const strip = el("div", "strip");
-  card.replaceChildren(el("div", `v-label ${cls}`, v.label), el("div", "v-sub", sentence), gauge, counts, drivers,
-    el("h3", "strip-title", "Key numbers this week"), strip,
+  counts.append(el("span", "g", `${v.counts.green} healthy`), el("span", "o", `${v.counts.orange} neutral`), el("span", "r", `${v.counts.red} stress`));
+  const grid = el("div", "ind-grid");
+  const inds = [...b.indicators].sort((a, c) => THEME_ORDER.indexOf(a.group) - THEME_ORDER.indexOf(c.group));
+  for (const ind of inds) {
+    const row = el("button", `irow ${ind.color}`);
+    row.type = "button";
+    row.append(el("span", "dot"), el("span", "", ind.label), el("span", "iv", ind.value));
+    const why = el("span", "why");
+    if (ind.meaning) why.append(el("span", "meaning", ind.meaning));
+    why.append(el("span", "", `${STATE_WORD[ind.color]}: ${ind.reason}`));
+    row.append(why);
+    row.addEventListener("click", () => row.classList.toggle("open"));
+    grid.append(row);
+  }
+  body.replaceChildren(head, gw, counts, grid,
     explainBox("How is this verdict made?",
       `Each of the ${v.counted} indicators is healthy (+1), neutral (0) or stress (−1) against fixed thresholds in ` +
-      `config.yaml. Score = sum ÷ number of indicators = ${signed(pct, 0, "%")}. Risk-on from ${signed(onAt, 0, "%")}, ` +
-      `risk-off from ${signed(offAt, 0, "%")}. ${v.explanation}`));
-
-  // Indicators grouped by theme.
-  const themes = $("#summary .themes");
-  themes.replaceChildren(...THEME_ORDER.filter((t) => inds.some((i) => i.group === t)).map((t) => {
-    const box = el("div", "theme");
-    box.append(el("h4", "", t));
-    for (const ind of inds.filter((i) => i.group === t)) {
-      const row = el("button", `irow ${ind.color}`);
-      row.type = "button";
-      row.append(el("span", "dot"), el("span", "", ind.label.replace(/^(Trend|Breadth) /, "")),
-                 el("span", "iv", ind.value), el("span", "is", STATE_WORD[ind.color]));
-      const why = el("span", "why");
-      if (ind.meaning) why.append(el("span", "meaning", ind.meaning));
-      why.append(el("span", "", ind.reason));
-      row.append(why);
-      row.addEventListener("click", () => row.classList.toggle("open"));
-      box.append(row);
-    }
-    return box;
-  }));
-
-  // Key numbers.
-  strip.replaceChildren(...b.tiles.map((t) => {
-    const tile = el(t.tv ? "a" : "div", "tile");
-    if (t.tv) { tile.href = TV_CHART + encodeURIComponent(t.tv); tile.target = "_blank"; tile.rel = "noopener"; }
-    if (t.about) tile.title = t.about;
-    tile.append(el("div", "t-label", t.label), el("div", "t-value", t.value));
-    if (t.change_label) {
-      const suffix = t.change_label.includes("%") ? "%" : t.change_label.includes("bp") ? " bp" : "";
-      const nd = t.change_label.includes("bp") ? 0 : 1;
-      const tone = t.colored ? (t.change > 0 ? "pos" : t.change < 0 ? "neg" : "") : "";
-      tile.append(el("div", `t-change ${tone}`, `${signed(t.change, nd, suffix)} ${t.change_label.replace(/ ?(%|bp|pts)/, "")}`));
-    }
-    return tile;
-  }));
-
-  const list = $("#summary .signals");
+      `config.yaml. Score = sum ÷ number of indicators = ${signed(pct, 0)}. Risk-on from ${signed(onAt, 0)}, ` +
+      `risk-off from ${signed(offAt, 0)}. Click an indicator for its reading. ${v.explanation}`));
+  const list = $("#card-signals .signals");
   list.replaceChildren(...(b.signals.length ? b.signals.map((sg) => {
     const li = el("li", `lvl-${sg.level}`);
     li.append(el("span", "area", sg.area), el("span", "", sg.text));
@@ -576,445 +482,744 @@ function renderSummary(b) {
 }
 
 function renderToday(b) {
-  if (!setMeta("today", b)) return;
-  $("#today .expected").replaceChildren(...(b.expected_moves.length ? b.expected_moves.map((m) => {
-    const box = el("div", "em");
-    box.append(
-      el("div", "big", `${m.name}: ± ${fmtNum(m.points)} pts (± ${m.pct.toFixed(2)}%)`),
-      el("div", "sub", `Range ${fmtNum(m.low)} – ${fmtNum(m.high)}. Close ${fmtNum(m.price)} (${m.price_date}) × ` +
-                       `${m.vol_name} ${m.vol.toFixed(2)} (${m.vol_date}) / 100 / √252`));
-    return box;
-  }) : [el("div", "muted", "No data yet.")]));
+  const box = $("#card-today .expected");
+  if (!b || b.error) { box.replaceChildren(); return; }
+  box.replaceChildren(...(b.expected_moves.length ? b.expected_moves.map((m) => {
+    const d = el("div", "em");
+    const top = el("div", "big-row");
+    top.append(el("span", "big", `± ${fmtNum(m.points, 0)} pts`), el("span", "muted", `${m.name} expected move today (± ${m.pct.toFixed(2)}%)`));
+    d.append(top, el("p", "chart-note", `Range ${fmtNum(m.low, 0)} – ${fmtNum(m.high, 0)}: close ${fmtNum(m.price)} (${m.price_date}) × ` +
+      `${m.vol_name} ${m.vol.toFixed(2)} ÷ 100 ÷ √252. About two out of three days end inside it.`));
+    return d;
+  }) : [el("div", "na", "No data yet.")]));
 }
 
-function renderLeaders(rows) {
-  const box = $("#stocks .leaders");
-  const max = Math.max(1, ...rows.flatMap((r) => [Math.abs(r.rel_m1 || 0), Math.abs(r.rel_m3 || 0)]));
-  box.replaceChildren(...rows.map((r) => {
-    const row = el("div", "lead-row");
-    row.append(el("span", "", r.name));
-    const track = el("div", "bar-track");
-    track.append(el("div", "zero"));
-    const bar = el("div", `bar ${r.rel_m1 >= 0 ? "pos-bar" : "neg-bar"}`);
-    const w = 50 * Math.abs(r.rel_m1) / max;
-    bar.style.left = r.rel_m1 >= 0 ? "50%" : `${50 - w}%`;
-    bar.style.width = `${w}%`;
-    track.append(bar);
-    if (isNum(r.rel_m3)) {
-      const dot = el("div", "dot");
-      dot.style.left = `${50 + 50 * r.rel_m3 / max}%`;
-      dot.title = `3M relative: ${signed(r.rel_m3, 1, "%")}`;
-      track.append(dot);
-    }
-    row.title = `${r.name}: 1M ${signed(r.rel_m1, 1, "%")}, 3M ${signed(r.rel_m3, 1, "%")} vs SPY`;
-    row.append(track, el("span", `v ${r.rel_m1 >= 0 ? "pos" : "neg"}`, signed(r.rel_m1, 1, "%")));
-    return row;
-  }));
+function renderOverview(o) {
+  setMeta("overview", o);
+  if (!o || o.error) return;
+  renderMarkets(o.markets);
+  renderFearGreed(o.fear_greed);
+  renderBreadth(o.breadth);
+  renderVix(o.vix);
+  renderHyg(o.hyg);
+  renderSectors(o.sectors);
 }
 
-function renderPerfTable() {
-  const b = DATA?.stocks;
-  if (!b || b.error) return;
-  const rows = b.tables[perfMarket];
-  buildTable($("#stocks .perf-table"), assetColumns(rows, perfMarket === "us" ? "SPY" : "STOXX 600"), rows,
-             { sortKey: "w1" });
-  $$("[data-perf]").forEach((x) => x.classList.toggle("active", x.dataset.perf === perfMarket));
-}
-$$("[data-perf]").forEach((b) => b.addEventListener("click", () => { perfMarket = b.dataset.perf; renderPerfTable(); }));
+// =============================================================================================
+// Positioning (COT)
+// =============================================================================================
+const COT = Object.assign({ key: null, group: null, years: 3, show: { price: true } }, store.get("cot-v2", {}));
+const GROUP_COLORS = { am: "--green", lf: "--blue", dealer: "--gold", other: "--purple", mm: "--blue", pm: "--green", swap: "--gold" };
+function saveCot() { store.set("cot-v2", COT); }
 
-function renderStocks(b) {
-  if (!setMeta("stocks", b)) return;
-  renderCharts($("#stocks .charts"), b.charts);
-  renderLeaders(b.leaders);
-  renderPerfTable();
-}
-
-function renderChartsOnly(id) {
-  return (b) => { if (setMeta(id, b)) renderCharts($(`#${id} .charts`), b.charts); };
-}
-
-let selectedCot = null;
-async function showCot(key) {
-  selectedCot = key;
-  $$("#positioning .cot-table tr[data-key]").forEach((r) => r.classList.toggle("selected", r.dataset.key === key));
-  const box = $("#positioning .cot-chart");
-  try {
-    const spec = await (await fetch(`/api/cot/${key}`)).json();
-    renderCharts(box, [spec], { height: cotChartHeight() });
-  } catch (err) {
-    box.replaceChildren(el("div", "warn-msg", `Could not load the chart: ${err}`));
+/** Percentile of each value within the trailing `win` values (all values up to it when win = 0). */
+function rollingPct(values, win, minPeriods) {
+  const out = new Array(values.length).fill(null);
+  for (let i = 0; i < values.length; i++) {
+    const v = values[i];
+    if (v == null) continue;
+    const start = win ? Math.max(0, i - win + 1) : 0;
+    let n = 0, le = 0;
+    for (let j = start; j <= i; j++) { const w = values[j]; if (w == null) continue; n++; if (w <= v) le++; }
+    if (n >= minPeriods) out[i] = 100 * le / n;
   }
+  return out;
 }
 
 function renderPositioning(b) {
   if (!setMeta("positioning", b)) return;
-  $("#positioning .cot-date").textContent = b.report_date
-    ? `positions as of Tuesday ${new Date(b.report_date + "T12:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}`
-    : "";
+  $("#cot-date").textContent = b.report_date ? `positions as of Tuesday ${niceDate(b.report_date)}` : "";
+  if (!COT.key || !b.rows.some((r) => r.key === COT.key)) COT.key = "spx";
+  const sel = $("#cot-asset");
+  fillSelect(sel, b.rows.map((r) => [r.key, r.label, r.group]), COT.key);
+  sel.onchange = () => { COT.key = sel.value; COT.group = null; saveCot(); drawCot(); };
+  onSeg($("#cot-window"), (v) => { COT.years = +v; saveCot(); drawCot(); });
+  $("#cot-howto").textContent = DATA.positioning?.howto || "";
+  renderCotTable(b);
+  drawCot();
+}
+
+function renderCotTable(b) {
   const table = $("#positioning .cot-table");
   const head = el("thead");
   const htr = el("tr");
-  [["Asset"], ["Cohort"], ["Net", true], ["1W chg", true], ["Net/OI", true], ["All-time", true, "Percentile since the start of the data"],
-   ["5Y", true], ["1Y", true], ["Nominal", true, "Percentile of net contracts, all-time"]]
-    .forEach(([t, num, title]) => { const th = el("th", num ? "num" : "", t); if (title) th.title = title; htr.append(th); });
+  for (const [t, num, title] of [["Market"], ["Group"], ["Net/OI", 1, "Net position as % of open interest"],
+    ["All", 1, "Percentile since the start of the data"], ["5Y", 1], ["1Y", 1]]) {
+    const th = el("th", num ? "num" : "", t); if (title) th.title = title; htr.append(th);
+  }
   head.append(htr);
   const body = el("tbody");
   let group = null;
+  const pill = (p) => { const c = td("num"); if (!isNum(p)) { c.textContent = "–"; return c; }
+    c.append(el("span", `pill ${p <= 10 ? "low" : p >= 90 ? "high" : ""}`, p.toFixed(0))); return c; };
   for (const r of b.rows) {
     if (r.group !== group) {
       group = r.group;
-      const g = el("tr", "group");
-      const td = el("td", "", group);
-      td.colSpan = 9;
-      g.append(td);
-      body.append(g);
+      const g = el("tr", "group"); const c = td("", group); c.colSpan = 6; g.append(c); body.append(g);
     }
-    const tr = el("tr");
+    const tr = el("tr", `clickable ${r.key === COT.key ? "selected" : ""}`);
     tr.dataset.key = r.key;
     tr.tabIndex = 0;
-    tr.append(el("td", "", r.label), el("td", "muted", r.cohort_short));
-    if (!r.available) {
-      for (let i = 0; i < 7; i++) tr.append(el("td", "num", "–"));
-    } else {
-      tr.append(el("td", "num", FORMATS.num0(r.net)), changeCell(r.change, 0, ""),
-                el("td", "num", `${r.net_oi_pct.toFixed(1)}%`),
-                percentilePill(r.pct_all), percentilePill(r.pct_5y), percentilePill(r.pct_1y),
-                percentilePill(r.pct_nominal));
-      tr.title = `${r.cohort}, data since ${r.since}`;
-    }
-    tr.addEventListener("click", () => showCot(r.key));
-    tr.addEventListener("keydown", (e) => { if (e.key === "Enter") showCot(r.key); });
+    tr.append(td("", r.label), td("muted", r.cohort_short));
+    if (!r.available) tr.append(td("num", "–"), td("num", "–"), td("num", "–"), td("num", "–"));
+    else tr.append(td("num", `${r.net_oi_pct.toFixed(1)}%`), pill(r.pct_all), pill(r.pct_5y), pill(r.pct_1y));
+    const pick = () => { COT.key = r.key; COT.group = null; saveCot(); $("#cot-asset").value = r.key; drawCot();
+      $("#cot-card").scrollIntoView({ block: "nearest", behavior: "smooth" }); };
+    tr.addEventListener("click", pick);
+    tr.addEventListener("keydown", (e) => { if (e.key === "Enter") pick(); });
     body.append(tr);
   }
   table.replaceChildren(head, body);
-  explainColumns(table);
-  const key = selectedCot || b.default_key;
-  if (key === b.default_key && b.chart) {
-    selectedCot = key;
-    $$("#positioning .cot-table tr[data-key]").forEach((r) => r.classList.toggle("selected", r.dataset.key === key));
-    renderCharts($("#positioning .cot-chart"), [b.chart], { height: cotChartHeight() });
-  } else if (key) {
-    showCot(key);
-  }
 }
 
-function renderRates(b) {
-  if (!setMeta("rates", b)) return;
-  const table = $("#rates .rates-table");
+async function drawCot() {
+  const key = COT.key;
+  $$("#positioning .cot-table tr[data-key]").forEach((r) => r.classList.toggle("selected", r.dataset.key === key));
+  segActive($("#cot-window"), COT.years);
+  const box = $("#cot-chart");
+  let d;
+  try { d = await detail("cot", key); } catch (err) { box.replaceChildren(el("div", "warn-msg", `Could not load ${key}: ${err}`)); return; }
+  if (key !== COT.key) return;
+  if (!d.available) { box.replaceChildren(el("div", "na", "No COT data yet.")); return; }
+  const g = d.groups[COT.group] ? COT.group : d.default_group in d.groups ? d.default_group : d.order[0];
+  const gsel = $("#cot-group");
+  fillSelect(gsel, d.order.map((k) => [k, d.groups[k].name]), g);
+  gsel.onchange = () => { COT.group = gsel.value; saveCot(); drawCot(); };
+  const G = d.groups[g];
+  const row = DATA.positioning.rows.find((r) => r.key === key);
+  const tvSym = DATA.positioning.tv?.[key];
+  const tv = $("#cot-tv");
+  tv.style.visibility = tvSym ? "visible" : "hidden";
+  if (tvSym) tv.href = TV_CHART + encodeURIComponent(tvSym);
+
+  const winWeeks = COT.years ? COT.years * 52 : 0;
+  const pct = rollingPct(G.net, winWeeks, winWeeks ? Math.min(52, winWeeks / 2) : 52);
+  const n = d.dates.length;
+  const fromIdx = winWeeks ? Math.max(0, n - winWeeks) : 0;
+  const inWin = G.net.slice(fromIdx).filter(isNum);
+  const maxLong = Math.max(...inWin), maxShort = Math.min(...inWin);
+  const last = G.net[n - 1], lastPct = pct[n - 1];
+  const winText = COT.years ? `${COT.years} year${COT.years > 1 ? "s" : ""}` : `since ${d.dates[0].slice(0, 4)}`;
+
+  // stats
+  const stats = $("#cot-stats");
+  const stat = (label, value, extra) => { const s = el("div", "stat"); s.append(el("div", "label", label), el("div", "big", value)); if (extra) s.append(extra); return s; };
+  const meter = el("div", "pct-meter"); const mk = el("span"); mk.style.left = `${lastPct ?? 50}%`; meter.append(mk);
+  const pctStat = stat(`Percentile (${winText})`, isNum(lastPct) ? lastPct.toFixed(0) : "–", meter);
+  if (isNum(lastPct)) $(".big", pctStat).classList.add(lastPct <= 10 ? "pos" : lastPct >= 90 ? "neg" : "x");
+  stats.replaceChildren(pctStat, stat(`${G.name} net now`, signed(last, 1)),
+    stat("Max net long in window", signed(maxLong, 1)), stat("Max net short in window", signed(maxShort, 1)));
+
+  // legend toggles
+  const color = (k) => cssVar(GROUP_COLORS[k] || "--blue");
+  const items = [[`long`, `${G.name} longs`, color(g)], [`short`, `${G.name} shorts`, cssVar("--neg")],
+    ...d.order.filter((k) => k !== g).map((k) => [`net:${k}`, `${d.groups[k].name} net`, color(k)]),
+    ...(d.price ? [["price", "Price", cssVar("--price")]] : [])];
+  const legend = $("#cot-legend");
+  legend.replaceChildren(...items.map(([id, label, c]) => {
+    const btn = el("button", "", label);
+    btn.type = "button";
+    btn.style.setProperty("--c", c);
+    btn.setAttribute("aria-pressed", String(!!COT.show[id]));
+    btn.addEventListener("click", () => { COT.show[id] = !COT.show[id]; saveCot(); drawCot(); });
+    return btn;
+  }));
+
+  // chart: pane 0 = net bars (+ optional lines and candles), pane 1 = percentile
+  const chart = makeChart(box);
+  const bars = addBars(chart, d.dates.map((t, i) => isNum(G.net[i]) ? { time: t, value: G.net[i],
+    color: G.net[i] < 0 ? cssVar("--pink") : cssVar("--sky") } : { time: t }), { title: `${G.name} net`, fmt: "pct1" });
+  hline(bars, maxLong, { style: LINE.dotted, color: cssVar("--ink-2") });
+  hline(bars, maxShort, { style: LINE.dotted, color: cssVar("--ink-2") });
+  const extra = [];
+  if (COT.show.long) extra.push([addLine(chart, pts(d.dates, G.long), { color: color(g), width: 1.5, title: "longs", fmt: "pct1", lastValue: false }), `${G.name} longs`]);
+  if (COT.show.short) extra.push([addLine(chart, pts(d.dates, G.short.map((v) => isNum(v) ? -v : null)), { color: cssVar("--neg"), width: 1.5, title: "shorts", fmt: "pct1", lastValue: false }), `${G.name} shorts (as negative)`]);
+  for (const k of d.order) if (k !== g && COT.show[`net:${k}`]) {
+    extra.push([addLine(chart, pts(d.dates, d.groups[k].net), { color: color(k), width: 1.5, fmt: "pct1", lastValue: false }), `${d.groups[k].name} net`]);
+  }
+  let candles = null;
+  if (d.price && COT.show.price) {
+    candles = addCandles(chart, ohlcPts(d.price), { scale: "px", lastValue: false, fmt: "num" });
+    chart.priceScale("px").applyOptions({ scaleMargins: { top: 0.06, bottom: 0.06 } });
+    const lp = d.price.close[d.price.close.length - 1];
+    candles.attachPrimitive(new Labels([{ time: d.price.dates[d.price.dates.length - 1], value: lp,
+      text: `Price ${fmtNum(lp, lp > 100 ? 0 : 2)}`, color: cssVar("--ink"), align: "right", dy: -8 }], { bold: true }));
+  }
+  const pctSeries = addLine(chart, pts(d.dates, pct), { pane: 1, color: cssVar("--blue"), width: 1.5, title: "Pctl", fmt: "int" });
+  pctSeries.applyOptions({ autoscaleInfoProvider: () => ({ priceRange: { minValue: 0, maxValue: 100 } }) });
+  pctSeries.attachPrimitive(new Bands([{ from: 90, to: 100, color: cssVar("--band-high") }, { from: 0, to: 10, color: cssVar("--band-low") }]));
+  hline(pctSeries, 50, { style: LINE.dotted });
+  paneHeights(chart, [3.2, 1]);
+  const reset = () => showYears(chart, d.dates[n - 1], COT.years || 0);
+  box._reset = reset;
+  reset();
+  tooltip(chart, box, (param, iso) => {
+    const i = d.dates.indexOf(iso);
+    if (i < 0) return null;
+    let html = `<div class="t-date">Week of ${niceDate(iso)}</div>`;
+    html += `${sw(G.net[i] < 0 ? cssVar("--pink") : cssVar("--sky"))}${esc(G.name)} net <b>${signed(G.net[i], 1)}</b><br>`;
+    html += `Percentile (${winText}) <b>${isNum(pct[i]) ? pct[i].toFixed(0) : "–"}</b><br>`;
+    for (const [s, label] of extra) { const v = param.seriesData.get(s); if (v) html += `${sw(s.options().color)}${esc(label)} ${signed(v.value, 1)}<br>`; }
+    const c = candles && param.seriesData.get(candles);
+    if (c) html += `${sw(cssVar("--price"))}Price (week) O ${fmtNum(c.open, 0)} H ${fmtNum(c.high, 0)} L ${fmtNum(c.low, 0)} C ${fmtNum(c.close, 0)}`;
+    html += `<div class="muted">Open interest ${fmtVol(d.oi[i])} contracts</div>`;
+    return html;
+  });
+  $("#cot-note").textContent = `Top: ${G.name.toLowerCase()} net position as % of open interest (bars; pink = net short), the market's weekly ` +
+    `price (candles, own scale) and dotted lines at the window's biggest net long and net short. Bottom: the percentile through time, ` +
+    `judged only against the ${COT.years ? `previous ${winText}` : "weeks up to then"}; above 90 = crowded long, below 10 = crowded short. ` +
+    `Scroll or pinch to zoom, drag to move, double-click to reset. % of open interest swings around quarterly contract rolls, ` +
+    `when open interest briefly doubles.${row ? ` Report of ${niceDate(row.date)}.` : ""}`;
+  $("#cot-groups-help").replaceChildren(...d.order.map((k) => {
+    const li = el("li"); li.append(el("b", "", `${d.groups[k].name}: `), document.createTextNode(d.groups[k].about)); return li;
+  }));
+}
+
+// =============================================================================================
+// Earnings
+// =============================================================================================
+let erRange = store.get("earnings-range", "week");
+function renderEarnings(b) {
+  if (!setMeta("earnings", b)) return;
+  const root = $("#earnings");
+  segActive($("[data-er]", root), erRange);
+  onSeg($("[data-er]", root), (v) => { erRange = v; store.set("earnings-range", v); renderEarnings(b); });
+  const maxDays = { today: 0, week: 6, all: Infinity }[erRange];
+  const rows = b.rows.filter((r) => r.days_until <= maxDays);
+  $(".er-count", root).textContent = `${rows.length} of ${b.rows.length} companies`;
+  const table = $(".earnings-table", root);
   const head = el("thead");
   const htr = el("tr");
-  [["Series"], ["Value", true], ["1D", true], ["1W", true], ["1M", true], ["3Y %ile", true], ["3 months"]]
-    .forEach(([t, num]) => htr.append(el("th", num ? "num" : "", t)));
+  for (const [t, num] of [["Release (Amsterdam)"], ["Company"], ["EU peers"], ["Corr", 1], ["Last time", 1], ["EU can trade"], ["US stock"], ["EPS est.", 1]]) {
+    htr.append(el("th", num ? "num" : "", t));
+  }
   head.append(htr);
   const body = el("tbody");
+  let day = null;
+  for (const r of rows) {
+    if (r.date !== day) {
+      day = r.date;
+      const g = el("tr", "group");
+      const when = r.days_until === 0 ? "today" : r.days_until === 1 ? "tomorrow" : `in ${r.days_until} days`;
+      const c = td("", `${r.day} · ${when}`); c.colSpan = 8; g.append(c); body.append(g);
+    }
+    const n = Math.max(1, r.peers.length);
+    if (r.peers.length) r.peers.forEach((p, i) => body.append(earningsRow(r, p, i, n)));
+    else body.append(earningsRow(r, null, 0, 1));
+  }
+  if (!rows.length) {
+    const tr = el("tr", "empty-row");
+    const c = td("", erRange === "today" ? "None of our companies report today." : erRange === "week"
+      ? "None of our companies report in the next 7 days." : "No upcoming reports for the companies in eu_peers.yaml.");
+    c.colSpan = 8; tr.append(c); body.append(tr);
+  }
+  table.replaceChildren(head, body);
+}
+function earningsRow(r, p, i, n) {
+  const tr = el("tr", i === n - 1 ? "" : "sub");
+  const span = (c) => { c.rowSpan = n; return c; };
+  if (i === 0) {
+    const rel = td("rel");
+    const exact = r.basis.startsWith("time from") || r.basis.includes("to the minute");
+    rel.append(el("b", "", r.release_ams ? `${exact ? "" : "≈ "}${r.release_ams}` : "time n/a"),
+               el("span", "timing", r.session === "AMC" ? "after US close" : r.session === "BMO" ? "before US open" : "during session"));
+    rel.title = `${r.basis}${r.release_ny ? `; ${r.release_ny} New York time` : ""}`;
+    const co = td("co");
+    co.append(el("b", "", r.symbol), tvLink(r.tv), el("span", "nm", r.market_cap ? `$${fmtNum(r.market_cap / 1e9, 0)} bn` : ""));
+    tr.append(span(rel), span(co));
+  }
+  if (p) {
+    const pn = td("pn");
+    pn.append(el("span", "", p.name), el("small", "muted", ` ${p.ticker}`), tvLink(p.tv));
+    const corr = td(`num corr ${isNum(p.corr) && p.corr >= 0.5 ? "hi" : ""}`, isNum(p.corr) ? p.corr.toFixed(2) : "–");
+    const last = chg(p.last_move, 1);
+    if (r.last) last.title = `Previous report ${r.last.date}: ${r.symbol} ${signed(r.last.us_move, 1)}, ${p.name} ${signed(p.last_move, 1)}`;
+    tr.append(pn, corr, last);
+  } else {
+    tr.append(td("muted", "no EU peer in our list"), td("num", "–"), td("num", "–"));
+  }
+  if (i === 0) {
+    const us = td("");
+    us.append(el("span", "", r.us_reacts));
+    if (r.last && isNum(r.last.us_move)) us.append(el("small", "muted", ` · last time ${signed(r.last.us_move, 1)}`));
+    tr.append(span(td("eu", r.eu_reacts.text)), span(us), span(td("num", isNum(r.eps_estimate) ? r.eps_estimate.toFixed(2) : "–")));
+  }
+  return tr;
+}
+
+// =============================================================================================
+// Activity
+// =============================================================================================
+const KIND_LABEL = { stock: "Stock", etf: "ETF", Stock: "Stock", ETF: "ETF", Futures: "Futures" };
+function whenText(doc) {
+  if (!doc?.available) return "";
+  const upd = doc.updated ? new Date(doc.updated) : null;
+  const t = upd ? upd.toLocaleString("en-GB", { weekday: "short", hour: "2-digit", minute: "2-digit", timeZone: "Europe/Amsterdam" }) : "";
+  return `session ${niceDate(doc.session)}${t ? ` · updated ${t}` : ""}`;
+}
+function logBlock(card, log, columns, opts = {}) {
+  const det = $("details.log", card);
+  if (!log || !log.rows.length) {
+    $("summary .muted", det).textContent = "· nothing logged yet";
+    $("table", det).replaceChildren();
+    return;
+  }
+  $("summary .muted", det).textContent = `· ${log.rows.length} names over ${log.sessions.length} session${log.sessions.length === 1 ? "" : "s"}`;
+  const cols = [...columns, { key: "seen", label: "Sessions", num: true, cell: (r) => td("num", String(r.sessions.length)) },
+    { key: "lastSeen", label: "Last seen", cell: (r) => td("", niceDate(r.sessions[r.sessions.length - 1], false)) }];
+  const rows = log.rows.map((r) => ({ ...r, seen: r.sessions.length, lastSeen: r.sessions[r.sessions.length - 1] }));
+  buildTable($("table", det), cols, rows, { sortKey: "lastSeen", ...opts });
+}
+const symCol = { key: "symbol", label: "Ticker", cell: (r) => { const c = td("sym"); c.append(document.createTextNode(r.ticker || r.symbol.replace("^", "")), tvLink(r.tv || r.symbol.replace("^", "").replace("=F", "1!"))); return c; } };
+const nameCol = { key: "name", label: "Name", cell: (r) => { const c = td("name", r.name); c.title = r.name; return c; } };
+
+function renderActivity(b) {
+  if (!setMeta("activity", b)) return;
+  const a = b.about;
+  // unusual volume
+  const u = $("#act-unusual");
+  $(".card-sub", u).textContent = a.unusual;
+  $(".act-when", u).textContent = whenText(b.unusual);
+  const uCols = (kind) => [symCol, nameCol,
+    { key: "rel", label: "Rel vol", num: true, title: "Volume today ÷ 10-day average volume", cell: (r) => td("num", `${r.rel.toFixed(1)}x`) },
+    { key: "day", label: "Day", num: true, cell: (r) => chg(r.day) },
+    { key: "last", label: "Last", num: true, cell: (r) => td("num", fmtNum(r.last)) },
+    { key: "size", label: kind === "stock" ? "Mkt cap" : "Assets", num: true, cell: (r) => td("num", fmtBig(r.size)) }];
+  for (const kind of ["stock", "etf"]) {
+    const rows = b.unusual.available ? b.unusual[kind === "stock" ? "stocks" : "etfs"] : [];
+    buildTable($(`table[data-kind="${kind}"]`, u), uCols(kind), rows, { sortKey: "rel",
+      empty: b.unusual.available ? "No names at 2x their usual volume yet." : "Not fetched yet." });
+  }
+  logBlock(u, b.unusual.log, [symCol, nameCol, { key: "kind", label: "Type", cell: (r) => td("", KIND_LABEL[r.kind] || r.kind) },
+    { key: "best", label: "Best rel vol", num: true, cell: (r) => td("num", isNum(r.best) ? `${r.best.toFixed(1)}x` : "–") }]);
+
+  // 200-day taps
+  const tapCols = [symCol, nameCol, { key: "kind", label: "Type", cell: (r) => td("", r.kind) },
+    { key: "taps10", label: "Taps (10d)", num: true, title: "Sessions in the last ten whose range touched the 200-day average", cell: (r) => td("num", String(r.taps10)) },
+    { key: "last", label: "Last", num: true, cell: (r) => td("num", fmtNum(r.last)) },
+    { key: "vs200", label: "vs 200-day", num: true, cell: (r) => chg(r.vs200) }];
+  filteredActivity("#act-taps", b.taps, a.taps, tapCols, "taps-filter", { sortKey: null, empty: "No 200-day taps this session." },
+    [symCol, nameCol, { key: "kind", label: "Type", cell: (r) => td("", r.kind) }, { key: "vs200", label: "vs 200-day (last)", num: true, cell: (r) => chg(r.vs200) }]);
+
+  // record volume
+  const recCols = [symCol, nameCol, { key: "kind", label: "Type", cell: (r) => td("", r.kind) },
+    { key: "pct", label: "% of record", num: true, cell: (r) => td("num", `${r.pct.toFixed(0)}%`) },
+    { key: "volume", label: "Volume", num: true, cell: (r) => td("num", fmtVol(r.volume)) },
+    { key: "record_date", label: "Record day", cell: (r) => td("", r.record_date ? niceDate(r.record_date) : "–") },
+    { key: "last", label: "Last", num: true, cell: (r) => td("num", fmtNum(r.last)) }];
+  filteredActivity("#act-records", b.record_volume, a.record_volume, recCols, "rec-filter", { sortKey: "pct", empty: "No record-volume names this session." },
+    [symCol, nameCol, { key: "kind", label: "Type", cell: (r) => td("", r.kind) }, { key: "best", label: "Best % of record", num: true, cell: (r) => td("num", isNum(r.best) ? `${r.best.toFixed(0)}%` : "–") }]);
+
+  // European small caps
+  const sc = $("#act-smallcaps");
+  $(".card-sub", sc).textContent = a.eu_smallcaps;
+  $(".act-when", sc).textContent = whenText(b.eu_smallcaps);
+  const scCols = [{ key: "ticker", label: "Ticker", cell: (r) => { const c = td("sym"); c.append(document.createTextNode(r.ticker), tvLink(r.symbol)); return c; } },
+    nameCol, { key: "country", label: "Country", cell: (r) => td("", r.country) },
+    { key: "day", label: "Day", num: true, cell: (r) => chg(r.day, 1) },
+    { key: "last", label: "Last", num: true, cell: (r) => td("num", `${fmtNum(r.last, r.last < 10 ? 3 : 2)} ${r.currency}`) },
+    { key: "market_cap", label: "Mkt cap", num: true, cell: (r) => td("num", fmtBig(r.market_cap)) },
+    { key: "traded", label: "Traded", num: true, cell: (r) => td("num", fmtBig(r.traded)) }];
+  const scWarn = (b.warnings || []).find((w) => w.startsWith("TradingView"));
+  buildTable($("table.main", sc), scCols, b.eu_smallcaps.available ? b.eu_smallcaps.rows : [], { sortKey: "day",
+    empty: b.eu_smallcaps.available ? "No European small caps up 10% or more today." :
+      "Not available yet: this list needs access to scanner.tradingview.com (TradingView's screener)." });
+  logBlock(sc, b.eu_smallcaps.log, [scCols[0], nameCol, scCols[2], { key: "best", label: "Best day", num: true, cell: (r) => chg(r.best, 1) }]);
+  void scWarn;
+}
+function filteredActivity(sel, doc, about, cols, key, opts, logCols) {
+  const card = $(sel);
+  $(".card-sub", card).textContent = about;
+  $(".act-when", card).textContent = whenText(doc);
+  let f = store.get(key, "all");
+  const seg = $("[data-filter]", card);
+  const draw = () => {
+    segActive(seg, f);
+    const rows = doc.available ? doc.rows.filter((r) => f === "all" || r.kind === f) : [];
+    buildTable($("table.main", card), cols, rows, { ...opts, empty: doc.available ? opts.empty : "Not calculated yet." });
+  };
+  onSeg(seg, (v) => { f = v; store.set(key, v); draw(); });
+  draw();
+  logBlock(card, doc.log, logCols);
+}
+
+// =============================================================================================
+// Performance tables
+// =============================================================================================
+function perfColumns(withTv = true) {
+  const pc = (key, label) => ({ key, label, num: true, heat: true, cell: (r) => chg(r[key]) });
+  return [
+    { key: "ticker", label: "ETF", cell: (r) => { const c = td("sym"); c.append(document.createTextNode(r.ticker.replace("^", "")), ...(withTv ? [tvLink(r.tv)] : [])); return c; } },
+    { key: "name", label: "Name", cell: (r) => td("name", r.name) },
+    { key: "last", label: "Last", num: true, cell: (r) => td("num", fmtNum(r.last)) },
+    pc("d1", "Day"), pc("w1", "Week"), pc("m1", "1M"), pc("m3", "3M"), pc("ytd", "YTD"), pc("y1", "1Y"),
+    { key: "vs200", label: "vs 200d", num: true, title: "Distance from the 200-day average", cell: (r) => chg(r.vs200) },
+  ];
+}
+function renderPerformance(b) {
+  if (!setMeta("performance", b)) return;
+  const sortKey = store.get("perf-sort", "w1");
+  buildTable($("#perf-us table"), perfColumns(), b.us.filter((r) => r.available), { sortKey, heat: true, limit: 12 });
+  buildTable($("#perf-country table"), perfColumns(), b.country.filter((r) => r.available), { sortKey, heat: true, limit: 12 });
+  buildTable($("#perf-eu table"), perfColumns(), b.eu.filter((r) => r.available), { sortKey, heat: true, limit: 12 });
+}
+
+// =============================================================================================
+// Options & flows
+// =============================================================================================
+const PC = Object.assign({ series: "spx", months: 6 }, store.get("putcall", {}));
+function rollingMean(values, n) {
+  const out = [];
+  let sum = 0, count = 0;
+  for (let i = 0; i < values.length; i++) {
+    sum += values[i] ?? 0; count += values[i] == null ? 0 : 1;
+    if (i >= n) { sum -= values[i - n] ?? 0; count -= values[i - n] == null ? 0 : 1; }
+    out.push(i >= n - 1 && count === n ? sum / n : null);
+  }
+  return out;
+}
+function drawPutCall(b) {
+  const card = $("#card-pc");
+  const list = b.put_call;
+  const sel = $("[data-pc-series]", card);
+  fillSelect(sel, list.map((p) => [p.key, p.label]), PC.series);
+  sel.onchange = () => { PC.series = sel.value; store.set("putcall", PC); drawPutCall(b); };
+  segActive($("[data-pc-range]", card), PC.months);
+  onSeg($("[data-pc-range]", card), (v) => { PC.months = +v; store.set("putcall", PC); drawPutCall(b); });
+  $(".pc-explain", card).textContent = b.put_call_explain || "";
+  const p = list.find((x) => x.key === PC.series) || list[0];
+  const box = $(".chart", card);
+  const stats = $(".stats", card);
+  if (!p.available) {
+    $(".card-sub", card).textContent = `${p.label}: no data yet. Source: ${p.source}; the history starts with the first evening refresh.`;
+    stats.replaceChildren(); box.replaceChildren(el("div", "na", "No data yet.")); return;
+  }
+  const ma5 = rollingMean(p.values, 5), ma10 = rollingMean(p.values, 10);
+  const cut = new Date(); cut.setMonth(cut.getMonth() - PC.months);
+  const from = cut.toISOString().slice(0, 10);
+  const win = ma5.filter((v, i) => isNum(v) && p.dates[i] >= from);
+  const last5 = ma5[ma5.length - 1];
+  const pctile = isNum(last5) && win.length ? 100 * win.filter((x) => x <= last5).length / win.length : null;
+  $(".card-sub", card).textContent = `${p.label} · source ${p.source}, data since ${niceDate(p.since)}` +
+    (p.dates.length < 30 ? ` · only ${p.dates.length} trading day${p.dates.length === 1 ? "" : "s"} so far: Yahoo has no history for ETF option volume, so it builds up with every refresh` : "");
+  const stat = (label, value) => { const s = el("div", "stat"); s.append(el("div", "label", label), el("div", "big", value)); return s; };
+  stats.replaceChildren(stat(`Latest (${niceDate(p.dates[p.dates.length - 1], false)})`, p.values[p.values.length - 1].toFixed(2)),
+    stat("5-day average", isNum(last5) ? last5.toFixed(2) : "–"),
+    stat("Percentile in period", isNum(pctile) ? ordinal(pctile) : "–"),
+    ...(isNum(p.oi_latest) ? [stat("Open-interest put/call", p.oi_latest.toFixed(2))] : []));
+  const chart = makeChart(box);
+  const few = p.dates.length <= 40;
+  const raw = addLine(chart, pts(p.dates, p.values), { color: cssVar("--axis"), width: 1, title: "", fmt: "num2", points: few, lastValue: false });
+  addLine(chart, pts(p.dates, ma5), { color: cssVar("--blue"), width: 2, title: "5d", fmt: "num2" });
+  addLine(chart, pts(p.dates, ma10), { color: cssVar("--orange"), width: 1.5, title: "10d", fmt: "num2" });
+  hline(raw, 1);
+  const reset = () => { chart.timeScale().setVisibleRange({ from: from < p.dates[0] ? p.dates[0] : from, to: p.dates[p.dates.length - 1] }); };
+  box._reset = reset;
+  try { reset(); } catch (e) { chart.timeScale().fitContent(); }
+  tooltip(chart, box, (param, iso) => {
+    const i = p.dates.indexOf(iso);
+    if (i < 0) return null;
+    return `<div class="t-date">${niceDate(iso)}</div>Put/call <b>${fmtNum(p.values[i])}</b><br>` +
+      `${sw(cssVar("--blue"))}5-day ${isNum(ma5[i]) ? ma5[i].toFixed(2) : "–"}<br>${sw(cssVar("--orange"))}10-day ${isNum(ma10[i]) ? ma10[i].toFixed(2) : "–"}`;
+  });
+}
+
+let family = store.get("short-family", "SPY");
+function drawShortShare(s) {
+  const card = $("#card-short");
+  const fams = Object.keys(s.families);
+  const box = $(".chart", card);
+  if (!fams.length) { box.replaceChildren(el("div", "na", "No data yet.")); return; }
+  if (!s.families[family]) family = fams[0];
+  const seg = $("[data-fam]", card);
+  seg.replaceChildren(...fams.map((f) => { const b = el("button", "", f); b.type = "button"; b.dataset.v = f; return b; }));
+  segActive(seg, family);
+  onSeg(seg, (v) => { family = v; store.set("short-family", v); drawShortShare(s); });
+  const f = s.families[family];
+  $(".fam-name", card).textContent = family;
+  $(".card-sub", card).textContent = `Inverse ETFs' share of the family's daily dollar volume (close × shares), since ${s.since.slice(0, 4)}. ` +
+    `A rising share means more traders are buying downside protection or betting on a fall.`;
+  const stat = (label, value) => { const x = el("div", "stat"); x.append(el("div", "label", label), el("div", "big", value)); return x; };
+  $(".stats", card).replaceChildren(stat("10-day average", `${f.avg_latest.toFixed(1)}%`),
+    stat(`Latest session (${niceDate(f.date, false)})`, `${f.latest.toFixed(1)}%`),
+    stat(`Percentile since ${s.since.slice(0, 4)}`, isNum(f.pct) ? ordinal(f.pct) : "–"));
+  $(".chart-note", card).textContent = `Family: ${f.long.join(", ")} (long) and ${f.short.join(", ")} (inverse). ` +
+    `Top: ${family} price. Bottom: short-ETF share, grey daily, red 10-day average; dashed: high since ${s.since.slice(0, 4)} ` +
+    `(${f.high.toFixed(1)}% on ${niceDate(f.high_date)}). High readings tend to come near lows.`;
+  const chart = makeChart(box);
+  const price = addLine(chart, pts(f.dates, f.price), { color: cssVar("--price"), width: 1.2, title: `${family}`, fmt: "num" });
+  const daily = addBars(chart, pts(f.dates, f.share), { pane: 1, color: cssVar("--axis"), title: "", fmt: "pct1", lastValue: false });
+  const avg = addLine(chart, pts(f.dates, f.avg10), { pane: 1, color: cssVar("--neg"), width: 1.5, title: "10d", fmt: "pct1" });
+  hline(daily, f.high, { color: cssVar("--neg") });
+  paneHeights(chart, [1.2, 1]);
+  chart.timeScale().fitContent();
+  tooltip(chart, box, (param, iso) => {
+    const i = f.dates.indexOf(iso);
+    if (i < 0) return null;
+    return `<div class="t-date">${niceDate(iso)}</div>${family} ${fmtNum(f.price[i])}<br>Short share <b>${fmtNum(f.share[i], 1)}%</b><br>` +
+      `${sw(cssVar("--neg"))}10-day ${isNum(f.avg10[i]) ? f.avg10[i].toFixed(1) + "%" : "–"}`;
+  });
+  void price; void avg;
+}
+
+function renderFlows(b) {
+  if (!setMeta("flows", b)) return;
+  drawPutCall(b);
+  drawShortShare(b.short_share);
+}
+
+// =============================================================================================
+// Charts: streaks and price charts
+// =============================================================================================
+const ST = Object.assign({ ticker: "^GSPC", dir: "decline", years: 0 }, store.get("streak", {}));
+async function drawStreak() {
+  const card = $("#card-streak");
+  const sel = $("[data-st-index]", card);
+  const keys = DATA.charts_meta?.streak || [];
+  if (!keys.includes(ST.ticker)) ST.ticker = keys[0];
+  fillSelect(sel, keys.map((k) => [k, DATA.charts_meta.names[k] || k]), ST.ticker);
+  sel.onchange = () => { ST.ticker = sel.value; store.set("streak", ST); drawStreak(); };
+  segActive($("[data-st-dir]", card), ST.dir);
+  segActive($("[data-st-range]", card), ST.years);
+  const box = $(".chart", card);
+  let d;
+  try { d = await detail("streak", ST.ticker); } catch (err) { box.replaceChildren(el("div", "warn-msg", String(err))); return; }
+  if (!d.available) { box.replaceChildren(el("div", "na", "No data yet.")); return; }
+  const s = d[ST.dir];
+  const word = ST.dir === "decline" ? "decline" : "gain";
+  $(".st-title", card).textContent = `${d.name} days without a 1% ${word}`;
+  $(".st-current", card).textContent = String(s.current);
+  $(".st-sub", card).textContent = `last 1% ${ST.dir === "decline" ? "drop" : "rise"} ${s.last_hit ? `${niceDate(s.last_hit)} (${signed(s.last_move, 2)})` : "–"} · ` +
+    `${s.at_least} streaks at least as long since ${d.first} · record ${s.record} days (${niceDate(s.record_date)})`;
+  const chart = makeChart(box, { left: true });
+  const price = addLine(chart, pts(d.dates, d.close), { scale: "left", color: cssVar("--price"), width: 1.2, title: "", fmt: "num0", lastValue: true });
+  chart.priceScale("left").applyOptions({ mode: 1, scaleMargins: { top: 0.06, bottom: 0.04 } });
+  const area = addArea(chart, pts(d.dates, s.streak), { color: cssVar("--blue"), top: cssVar("--sky"), bottom: "rgba(0,0,0,0)", width: 1, fmt: "int", title: "days" });
+  area.priceScale().applyOptions({ scaleMargins: { top: 0.08, bottom: 0 } });
+  area.attachPrimitive(new Bands([{ from: 30, to: 50, color: cssVar("--band-mid") }]));
+  const labels = new Labels([], { noOverlap: true });
+  area.attachPrimitive(labels);
+  const peaks = s.peaks.dates.map((t, i) => ({ time: t, value: s.peaks.values[i] }));
+  const updateLabels = () => {
+    const r = chart.timeScale().getVisibleRange();
+    if (!r) return;
+    const from = isoOf(r.from), to = isoOf(r.to);
+    const vis = peaks.filter((p) => p.time >= from && p.time <= to).sort((a, b) => b.value - a.value).slice(0, 36);
+    labels.labels = vis.map((p) => ({ ...p, text: String(p.value) })).sort((a, b) => (a.time < b.time ? -1 : 1));
+    area.applyOptions({});
+  };
+  chart.timeScale().subscribeVisibleTimeRangeChange(updateLabels);
+  const reset = () => showYears(chart, d.dates[d.dates.length - 1], ST.years, d.dates[0]);
+  box._reset = reset;
+  reset();
+  updateLabels();
+  tooltip(chart, box, (param, iso) => {
+    const v = param.seriesData.get(area), c = param.seriesData.get(price);
+    if (!v) return null;
+    return `<div class="t-date">${niceDate(iso)}</div>${sw(cssVar("--blue"))}${v.value} days without a 1% ${word}<br>${d.name} ${c ? fmtNum(c.value) : "–"}`;
+  });
+}
+onSeg($("#card-streak [data-st-dir]"), (v) => { ST.dir = v; store.set("streak", ST); drawStreak(); });
+onSeg($("#card-streak [data-st-range]"), (v) => { ST.years = +v; store.set("streak", ST); drawStreak(); });
+
+const PR = Object.assign({ ticker: "^GSPC", freq: "daily", breadth: "" }, store.get("price-chart", {}));
+async function drawPrice() {
+  const card = $("#card-price");
+  const keys = DATA.charts_meta?.price || [];
+  if (!keys.includes(PR.ticker)) PR.ticker = keys[0];
+  const sel = $("[data-pr-ticker]", card);
+  fillSelect(sel, keys.map((k) => [k, DATA.charts_meta.names[k] || k]), PR.ticker);
+  sel.onchange = () => { PR.ticker = sel.value; store.set("price-chart", PR); drawPrice(); };
+  segActive($("[data-pr-freq]", card), PR.freq);
+  const bsel = $("[data-pr-breadth]", card);
+  bsel.value = PR.breadth;
+  bsel.onchange = () => { PR.breadth = bsel.value; store.set("price-chart", PR); drawPrice(); };
+  const box = $(".chart", card);
+  let c;
+  try { c = await detail("price", PR.ticker); } catch (err) { box.replaceChildren(el("div", "warn-msg", String(err))); return; }
+  if (!c.available) { box.replaceChildren(el("div", "na", "No data yet.")); return; }
+  const tvSym = DATA.charts_meta.tv?.[PR.ticker];
+  const tv = $(".pr-tv", card);
+  tv.style.visibility = tvSym ? "visible" : "hidden";
+  if (tvSym) tv.href = TV_CHART + encodeURIComponent(tvSym);
+  $(".pr-sub", card).textContent = `${c.name} · ${PR.freq} candles with ${PR.freq === "daily" ? "50- and 200-day" : "10- and 40-week"} moving averages` +
+    (PR.breadth && c.breadth[PR.breadth] ? ` · lower panel: ${c.breadth[PR.breadth].label} (${c.breadth_region})` : "");
+  $(".pr-last", card).textContent = fmtNum(c.last);
+  $(".pr-when", card).textContent = `latest daily close · ${niceDate(c.date)}`;
+  const { chart } = candleChart(box, c, PR.freq, { blueRed: true, visible: { daily: 180, weekly: 156 } });
+  const br = PR.breadth && c.breadth[PR.breadth];
+  if (br) {
+    const s = addLine(chart, pts(br.dates, br.values), { pane: 1, color: cssVar("--blue"), width: 1.5, title: br.label.replace("% ", "%").slice(0, 18), fmt: PR.breadth === "summation" ? "num0" : "pct0" });
+    if (PR.breadth !== "summation") { hline(s, 50, { style: LINE.dotted }); s.applyOptions({ autoscaleInfoProvider: () => ({ priceRange: { minValue: 0, maxValue: 100 } }) }); }
+    else hline(s, 0, { style: LINE.dotted });
+    paneHeights(chart, [3, 1]);
+  }
+}
+onSeg($("#card-price [data-pr-freq]"), (v) => { PR.freq = v; store.set("price-chart", PR); drawPrice(); });
+
+// =============================================================================================
+// Seasonality
+// =============================================================================================
+const SE = Object.assign({ years: 15, stat: "avg" }, store.get("seasonality", {}));
+function renderSeasonality(b) {
+  if (!setMeta("seasonality", b)) return;
+  const root = $("#seasonality");
+  $(".card-sub", root).textContent = b.about;
+  segActive($("[data-se-years]", root), SE.years);
+  segActive($("[data-se-stat]", root), SE.stat);
+  onSeg($("[data-se-years]", root), (v) => { SE.years = +v; store.set("seasonality", SE); renderSeasonality(b); });
+  onSeg($("[data-se-stat]", root), (v) => { SE.stat = v; store.set("seasonality", SE); renderSeasonality(b); });
+  const table = $("table.season", root);
+  const head = el("thead");
+  const htr = el("tr");
+  htr.append(el("th", "", ""));
+  MON.forEach((m, i) => htr.append(el("th", i + 1 === b.month ? "now" : "", m)));
+  head.append(htr);
+  const body = el("tbody");
+  const all = b.rows.flatMap((r) => Object.values(r.windows[SE.years]).map((c) => c[SE.stat])).filter(isNum);
+  // Colour scale: the 90th percentile of all cells, so one volatile market (bitcoin) does not wash out the rest.
+  const absSorted = all.map(Math.abs).sort((x, y) => x - y);
+  const scale = SE.stat === "up" ? 50 : Math.max(0.5, absSorted[Math.floor(absSorted.length * 0.9)] || 1);
   for (const r of b.rows) {
     const tr = el("tr");
-    const name = el("td", "", r.name);
-    if (r.tv) name.append(tvLink(r.tv));
+    const name = td("", r.label);
+    name.title = `monthly data since ${r.first}`;
     tr.append(name);
-    if (!r.available) {
-      tr.append(el("td", "num", "–"), el("td", "num", "–"), el("td", "num", "–"), el("td", "num", "–"),
-                el("td", "num", "–"), el("td", "muted", "no data"));
-    } else {
-      const unit = r.id === "T10Y2Y" ? " pp" : "%";
-      const val = el("td", "num", `${r.value.toFixed(2)}${unit}`);
-      val.title = `as of ${r.date}`;
-      const sparkTd = el("td");
-      const wrap = el("div", "spark");
-      const canvas = el("canvas");
-      canvas.id = `spark-${r.id}`;
-      wrap.append(canvas);
-      sparkTd.append(wrap);
-      tr.append(val, changeCell(r.d1, 0, " bp", false), changeCell(r.w1, 0, " bp", false),
-                changeCell(r.m1, 0, " bp", false),
-                el("td", "num", isNum(r.pct3y) ? ordinal(r.pct3y) : "–"), sparkTd);
-      queueMicrotask(() => sparkline(canvas, r.spark));
+    for (let m = 1; m <= 12; m++) {
+      const c = r.windows[SE.years][m];
+      const v = c?.[SE.stat];
+      const cell = td(`cell ${m === b.month ? "now" : ""}`, !isNum(v) ? "–" : SE.stat === "up" ? `${v.toFixed(0)}%` : signed(v, 1, ""));
+      if (isNum(v)) {
+        const x = SE.stat === "up" ? (v - 50) / 50 : v / scale;
+        cell.style.background = `rgba(${cssVar(x >= 0 ? "--pos-bg" : "--neg-bg")}, ${(0.05 + 0.40 * Math.min(1, Math.abs(x))).toFixed(3)})`;
+        cell.title = `${r.label}, ${MON[m - 1]} over ${c.n} years: average ${signed(c.avg, 2)}, median ${signed(c.median, 2)}, ` +
+          `up in ${c.up.toFixed(0)}% of years, best ${signed(c.best, 1)}, worst ${signed(c.worst, 1)}`;
+      }
+      tr.append(cell);
     }
     body.append(tr);
   }
   table.replaceChildren(head, body);
-  explainColumns(table);
-  renderCharts($("#rates .charts"), b.charts);
 }
 
-function renderAssets(id, benchName) {
+// =============================================================================================
+// More charts: generic multi-panel specs from the server
+// =============================================================================================
+function seriesColor(role, idx) {
+  if (role === "price") return cssVar("--price");
+  if (role === "ref") return cssVar("--muted");
+  const pal = ["--blue", "--orange", "--green", "--purple", "--gold"];
+  return cssVar(pal[idx % pal.length]);
+}
+function specCard(spec) {
+  const card = el("article", "card");
+  const head = el("div", "card-head");
+  head.append(el("h3", "", spec.title));
+  if (spec.tv) { const a = tvLink(spec.tv, "Open in TradingView ↗"); a.className = "tv"; a.style.marginLeft = "auto"; head.append(a); }
+  card.append(head);
+  if (spec.subtitle) card.append(el("p", "card-sub", spec.subtitle));
+  if (!spec.available) { card.append(el("div", "na", "No data yet.")); return card; }
+  const legend = el("div", "legend static");
+  const colors = [];
+  let ind = 0, ma = 0;
+  spec.panels.forEach((p) => colors.push(p.series.map((s) => s.role === "ma" ? seriesColor("ind", 1 + (ma++)) : seriesColor(s.role, s.role === "ind" ? ind++ : 0))));
+  spec.panels.forEach((p, pi) => p.series.forEach((s, si) => { const x = el("span", "", s.label); x.style.setProperty("--c", colors[pi][si]); legend.append(x); }));
+  const box = el("div", `chart ${spec.panels.length > 2 ? "h440" : spec.panels.length > 1 ? "h360" : "h300"}`);
+  card.append(legend, box);
+  if (spec.explain) card.append(explainBox("What does this show?", spec.explain));
+  queueMicrotask(() => {
+    const chart = makeChart(box);
+    const all = [];
+    spec.panels.forEach((p, pi) => {
+      let first = null;
+      p.series.forEach((s, si) => {
+        const data = pts(spec.dates, s.values);
+        let series;
+        if (s.kind === "bar") {
+          const lim = p.hlines[0]?.[0];
+          series = addBars(chart, data.map((x) => ({ ...x, color: isNum(lim) && lim < 0 && x.value <= lim ? cssVar("--neg") : colors[pi][si] })),
+            { pane: pi, fmt: p.fmt, title: "" });
+        } else {
+          series = addLine(chart, data, { pane: pi, color: colors[pi][si], width: s.role === "ma" ? 1.2 : s.role === "price" ? 1.5 : 1.8,
+            fmt: p.fmt, title: "", lastValue: s.role !== "ma" });
+        }
+        all.push([series, s.label, colors[pi][si], p.fmt]);
+        if (!first) first = series;
+      });
+      for (const [v] of p.hlines || []) hline(first, v);
+      if (p.bands?.length) first.attachPrimitive(new Bands(p.bands.map(([lo, hi, kind]) => ({ from: lo, to: hi, color: cssVar(kind === "low" ? "--band-low" : "--band-high") }))));
+    });
+    if (spec.panels.length > 1) paneHeights(chart, spec.panels.map((p) => p.height));
+    chart.timeScale().fitContent();
+    tooltip(chart, box, (param, iso) => {
+      let html = `<div class="t-date">${niceDate(iso)}</div>`;
+      let any = false;
+      for (const [s, label, c, fmt] of all) {
+        const v = param.seriesData.get(s);
+        if (!v || !isNum(v.value)) continue;
+        any = true;
+        html += `${sw(c)}${esc(label)} <b>${(FMT[fmt] || FMT.num)(v.value)}</b><br>`;
+      }
+      return any ? html : null;
+    });
+  });
+  return card;
+}
+function renderSpecs(container, specs) { container.replaceChildren(...(specs || []).filter(Boolean).map(specCard)); }
+
+function sparkSvg(values) {
+  const v = values.filter(isNum);
+  if (v.length < 2) return el("span");
+  const min = Math.min(...v), max = Math.max(...v), w = 110, h = 26;
+  const pts2 = values.map((x, i) => isNum(x) ? `${(i / (values.length - 1) * w).toFixed(1)},${(h - 2 - (x - min) / (max - min || 1) * (h - 4)).toFixed(1)}` : null).filter(Boolean);
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("width", w); svg.setAttribute("height", h); svg.setAttribute("viewBox", `0 0 ${w} ${h}`);
+  const pl = document.createElementNS(ns, "polyline");
+  pl.setAttribute("points", pts2.join(" ")); pl.setAttribute("fill", "none"); pl.setAttribute("stroke", cssVar("--blue")); pl.setAttribute("stroke-width", "1.5");
+  svg.append(pl);
+  return svg;
+}
+function renderRates(b) {
+  if (!setMeta("rates", b)) return;
+  const cols = [
+    { key: "name", label: "Series", cell: (r) => { const c = td(""); c.append(document.createTextNode(r.name)); if (r.tv) c.append(tvLink(r.tv)); return c; } },
+    { key: "value", label: "Value", num: true, cell: (r) => td("num", isNum(r.value) ? `${r.value.toFixed(2)}${r.id === "T10Y2Y" ? " pp" : "%"}` : "–") },
+    { key: "d1", label: "1D", num: true, cell: (r) => chg(r.d1, 0, " bp", false) },
+    { key: "w1", label: "1W", num: true, cell: (r) => chg(r.w1, 0, " bp", false) },
+    { key: "m1", label: "1M", num: true, cell: (r) => chg(r.m1, 0, " bp", false) },
+    { key: "pct3y", label: "3Y %ile", num: true, cell: (r) => td("num", isNum(r.pct3y) ? ordinal(r.pct3y) : "–") },
+    { key: "spark", label: "3 months", sort: false, cell: (r) => { const c = td(""); if (r.spark) c.append(sparkSvg(r.spark)); return c; } },
+  ];
+  buildTable($("#rates .rates-table"), cols, b.rows);
+  renderSpecs($("#rates .charts"), b.charts);
+}
+function assetColumns(rows) {
+  const pc = (key, label) => ({ key, label, num: true, cell: (r) => chg(r[key], 1) });
+  const cols = [
+    { key: "name", label: "Asset", cell: (r) => { const c = td(""); c.append(document.createTextNode(r.name), el("span", "muted", ` ${r.ticker.replace("^", "")}`)); if (r.tv) c.append(tvLink(r.tv)); return c; } },
+    { key: "last", label: "Last", num: true, cell: (r) => td("num", fmtNum(r.last)) },
+    pc("w1", "1W"), pc("m1", "1M"), pc("m3", "3M"), pc("vs50", "vs 50d"), pc("vs200", "vs 200d"),
+    { key: "rsi", label: "RSI", num: true, cell: (r) => td("num", isNum(r.rsi) ? r.rsi.toFixed(0) : "–") },
+  ];
+  if (rows.some((r) => isNum(r.cot_pct))) cols.push({ key: "cot_pct", label: "COT %ile", num: true, cell: (r) => td("num", isNum(r.cot_pct) ? r.cot_pct.toFixed(0) : "–") });
+  if (rows.some((r) => isNum(r.rv_pct))) cols.push({ key: "rv_pct", label: "Vol %ile", num: true, cell: (r) => td("num", isNum(r.rv_pct) ? r.rv_pct.toFixed(0) : "–") },
+    { key: "compression", label: "Compression", sort: false, cell: (r) => td("", r.compression == null ? "–" : r.compression ? "yes" : "no") });
+  return cols;
+}
+function renderAssets(id) {
   return (b) => {
     if (!setMeta(id, b)) return;
-    buildTable($(`#${id} .asset-table`), assetColumns(b.rows, benchName), b.rows);
-    renderCharts($(`#${id} .charts`), b.charts);
+    buildTable($(`#${id} .asset-table`), assetColumns(b.rows), b.rows);
+    renderSpecs($(`#${id} .charts`), b.charts);
   };
 }
+function renderChartsOnly(id) { return (b) => { if (setMeta(id, b)) renderSpecs($(`#${id} .charts`), b.charts); }; }
 
-
-// ---------- index positioning (COT) ----------
-const IC_COLORS = { am: "--series-1", lf: "--series-2", dealer: "--series-3", mm: "--series-2", pm: "--series-1", swap: "--series-3" };
-const IC_WINDOW_TEXT = { pct_all: "of all history", pct_5y: "of the last 5 years", pct_1y: "of the last year" };
-const IC = Object.assign({ idx: "spx", range: 5, group: null, window: "pct_all", ma: true, log: false },
-  (() => { try { return JSON.parse(localStorage.getItem("indexcot") || "{}"); } catch (e) { return {}; } })());
-function saveIC() { try { localStorage.setItem("indexcot", JSON.stringify(IC)); } catch (e) { /* ignore */ } }
-const toTs = (iso) => Date.parse(iso + "T00:00:00Z");
-function labelClass(p) {
-  if (!isNum(p)) return "";
-  return p >= 90 ? "xl" : p >= 70 ? "l" : p <= 10 ? "xs" : p <= 30 ? "s" : "";
-}
-function labelText(p) {
-  if (!isNum(p)) return "No data";
-  return p >= 90 ? "Extremely long" : p >= 70 ? "Longer than usual" : p > 30 ? "Normal"
-    : p > 10 ? "Shorter than usual" : "Extremely short";
-}
-function nearestIndex(xs, x) {
-  let lo = 0, hi = xs.length - 1;
-  if (hi < 0) return -1;
-  while (lo < hi) { const mid = (lo + hi) >> 1; if (xs[mid] < x) lo = mid + 1; else hi = mid; }
-  if (lo > 0 && Math.abs(xs[lo - 1] - x) <= Math.abs(xs[lo] - x)) lo -= 1;
-  return lo;
-}
-let icHoverX = null;
-const icCrosshair = {
-  id: "icCrosshair",
-  afterDatasetsDraw(chart) {
-    if (icHoverX == null || !chart.chartArea) return;
-    const x = chart.scales.x.getPixelForValue(icHoverX);
-    if (x < chart.chartArea.left || x > chart.chartArea.right) return;
-    const { ctx, chartArea: a } = chart;
-    ctx.save(); ctx.strokeStyle = css("--muted"); ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke(); ctx.restore();
-  },
-};
-
-function renderIndexCot(b) {
-  if (!setMeta("indexcot", b)) return;
-  const root = $("#indexcot");
-  $$('[data-ic="idx"]', root).forEach((box) => box.replaceChildren(
-    ...b.indices.filter((ix) => ix.kind === box.dataset.kind).map((ix) => {
-      const btn = el("button", "", ix.label);
-      btn.type = "button";
-      btn.dataset.v = ix.key;
-      btn.addEventListener("click", () => { IC.idx = ix.key; IC.group = null; saveIC(); drawIndexCot(); });
-      return btn;
-    })));
-  $(".ic-howto", root).textContent = b.howto;
-  const any = b.indices.find((ix) => ix.cot);
-  const allGroups = {};
-  for (const ix of b.indices) Object.assign(allGroups, ix.cot?.groups || {});
-  $(".ic-groups-help", root).replaceChildren(...Object.values(allGroups).map((g) => {
-    const li = el("li");
-    li.append(el("strong", "", `${g.name}: `), document.createTextNode(g.about));
-    return li;
-  }));
-  drawIndexCot();
-}
-
-function drawIndexCot() {
-  const b = DATA?.indexcot;
-  if (!b || b.error) return;
-  const root = $("#indexcot");
-  const ix = b.indices.find((i) => i.key === IC.idx) || b.indices[0];
-  IC.idx = ix.key;
-  const groups = ix.cot?.groups || {};
-  const gkey = groups[IC.group] ? IC.group : ix.default_group;
-  const win = IC.window;
-  $$('[data-ic="idx"] button', root).forEach((x) => x.classList.toggle("active", x.dataset.v === ix.key));
-  $$('[data-ic="range"] button', root).forEach((x) => x.classList.toggle("active", +x.dataset.v === IC.range));
-  $$('[data-ic="window"] button', root).forEach((x) => x.classList.toggle("active", x.dataset.v === win));
-  $("#ic-ma").checked = IC.ma;
-  $("#ic-log").checked = IC.log;
-  const tv = $(".ic-tv", root);
-  tv.href = TV_CHART + encodeURIComponent(ix.tv);
-  $(".ic-title", root).textContent = `${ix.label}: price and positioning`;
-
-  // Headline and one card per trader group.
-  const head = $(".ic-headline", root);
-  if (!ix.cot) {
-    head.textContent = `${ix.label}: no COT data yet.`;
-    $(".ic-groups", root).replaceChildren();
-  } else {
-    const main = groups[gkey];
-    const p = main.stats[win];
-    head.replaceChildren();
-    head.append(el("strong", "", `${ix.label}: `), document.createTextNode(`${main.name.toLowerCase()} are `),
-                el("span", `lbl ${labelClass(p)}`, labelText(p).toLowerCase()),
-                document.createTextNode(isNum(p) ? ` (${ordinal(p)} percentile ${IC_WINDOW_TEXT[win]}). ` : ". "));
-    const others = Object.entries(groups).filter(([k]) => k !== gkey)
-      .map(([, g]) => `${g.name}: ${labelText(g.stats[win]).toLowerCase()}${isNum(g.stats[win]) ? ` (${ordinal(g.stats[win])})` : ""}`);
-    head.append(el("span", "muted", `${others.join(" · ")}. Positions as of Tuesday ${main.stats.date}.`));
-    $(".ic-groups", root).replaceChildren(...Object.entries(groups).map(([k, g]) => {
-      const st = g.stats;
-      const card = el("button", `gcard ${k === gkey ? "active" : ""}`);
-      card.type = "button";
-      card.style.setProperty("--c", css(IC_COLORS[k]));
-      const top = el("div", "g-top");
-      top.append(el("span", "g-name", g.name), el("span", `lbl ${labelClass(st[win])}`, labelText(st[win])));
-      const stats = el("div", "g-stats");
-      const cell = (label, value) => { const d = el("div"); d.append(el("b", "", value), el("span", "", label)); return d; };
-      stats.append(cell("net", FORMATS.num0(st.net)), cell("1W chg", signed(st.change, 0)),
-                   cell("4W chg", signed(st.change_4w, 0)), cell("% of OI", `${st.net_oi_pct.toFixed(1)}%`),
-                   cell("pctl all", isNum(st.pct_all) ? ordinal(st.pct_all) : "–"),
-                   cell("5Y/1Y", `${isNum(st.pct_5y) ? ordinal(st.pct_5y) : "–"}/${isNum(st.pct_1y) ? ordinal(st.pct_1y) : "–"}`));
-      [...stats.children].forEach((c, i) => { c.title = ["Net position: long minus short contracts",
-        "Change since last week", "Change over 4 weeks", "Net position as share of open interest",
-        "Percentile against all history", "Percentile against the last 5 years / last year"][i]; });
-      card.append(top, stats, el("div", "g-about", g.about));
-      card.title = "Show this group's percentile in the chart";
-      card.addEventListener("click", () => { IC.group = k; saveIC(); drawIndexCot(); });
-      return card;
-    }));
-  }
-  drawIndexCotCharts(ix, gkey, win);
-}
-
-function drawIndexCotCharts(ix, gkey, win) {
-  if (!window.Chart) return;
-  const root = $("#indexcot");
-  const px = ix.price;
-  const pxX = px.dates.map(toTs);
-  const end = pxX[pxX.length - 1];
-  const start = IC.range >= 99 ? Math.min(pxX[0], ix.cot ? toTs(ix.cot.dates[0]) : Infinity)
-    : end - IC.range * 365.25 * 864e5;
-  const pts = (xs, ys) => xs.map((x, i) => ({ x, y: ys[i] })).filter((p) => p.x >= start && p.y != null);
-  // Weekly COT series: break the line where reports are missing for more than 8 weeks.
-  const gaps = [];
-  const cotPts = (xs, ys) => {
-    const out = [];
-    for (const p of pts(xs, ys)) {
-      const prev = out[out.length - 1];
-      if (prev && p.x - prev.x > 56 * 864e5) {
-        out.push({ x: prev.x + 864e5, y: null });
-        gaps.push([prev.x, p.x]);
-      }
-      out.push(p);
-    }
-    return out;
-  };
-  const ink = css("--price");
-  const datasetsPrice = [{ label: ix.label, data: pts(pxX, px.close), borderColor: ink, borderWidth: 1.5 }];
-  if (IC.ma) {
-    datasetsPrice.push({ label: "50-day avg", data: pts(pxX, px.ma50), borderColor: css("--muted"), borderWidth: 1.2, borderDash: [4, 3] },
-                       { label: "200-day avg", data: pts(pxX, px.ma200), borderColor: css("--series-4"), borderWidth: 1.4 });
-  }
-  const cot = ix.cot;
-  const cotX = cot ? cot.dates.map(toTs) : [];
-  const groups = cot?.groups || {};
-  const datasetsNet = Object.entries(groups).map(([k, g]) => ({
-    label: g.name, data: cotPts(cotX, g.net), borderColor: css(IC_COLORS[k]), spanGaps: false,
-    borderWidth: k === gkey ? 2.2 : 1.2, borderDash: k === gkey ? [] : [4, 3],
-  }));
-  const sel = groups[gkey];
-  const datasetsPct = sel ? [{ label: `${sel.name} percentile`, data: cotPts(cotX, sel[win]), spanGaps: false,
-                               borderColor: css(IC_COLORS[gkey]), borderWidth: 1.8 }] : [];
-  $(".ic-pct-label", root).textContent = sel
-    ? `${sel.name}: positioning percentile ${IC_WINDOW_TEXT[win]} (0 = most short, 100 = most long; shaded = extreme)`
-    : "";
-
-  const legend = $(".ic-legend", root);
-  legend.replaceChildren(...[...datasetsPrice, ...datasetsNet].map((d) => {
-    const item = el("span", "", d.label);
-    item.style.setProperty("--c", d.borderColor);
-    return item;
-  }));
-  const gap = gaps.sort((a, b) => (b[1] - b[0]) - (a[1] - a[0]))[0];
-  if (gap) {
-    const y = (t) => new Date(t).getUTCFullYear();
-    legend.append(el("em", "muted", `No COT data ${y(gap[0])}–${y(gap[1])} (the contract traded on another exchange).`));
-  }
-
-  const span = (end - start) / 864e5;
-  // Ticks on round dates: years for long ranges, quarters or months for short ones.
-  const dateTicks = () => {
-    const out = [];
-    const d0 = new Date(start);
-    if (span > 730) {
-      const step = span > 3650 ? 2 : 1;
-      for (let y = d0.getUTCFullYear() + 1; ; y += step) {
-        const t = Date.UTC(y, 0, 1);
-        if (t > end) break;
-        out.push({ value: t });
-      }
-    } else {
-      const step = span > 400 ? 3 : 1;
-      let y = d0.getUTCFullYear(), m = d0.getUTCMonth() + 1;
-      for (;;) {
-        if (m > 11) { y += Math.floor(m / 12); m %= 12; }
-        const t = Date.UTC(y, m, 1);
-        if (t > end) break;
-        if (m % step === 0) out.push({ value: t });
-        m += 1;
-      }
-    }
-    return out;
-  };
-  const fmtDate = (v) => { const d = new Date(v); return span > 730 ? `${d.getUTCFullYear()}` : `${MONTHS[d.getUTCMonth()]} ${String(d.getUTCFullYear()).slice(2)}`; };
-  const readout = $(".ic-readout", root);
-  const describe = (x) => {
-    const pi = nearestIndex(pxX, x);
-    const ci = nearestIndex(cotX, x);
-    const parts = [`${new Date(pxX[pi]).toISOString().slice(0, 10)}: ${ix.label} ${fmtNum(px.close[pi])}`];
-    if (ci >= 0) {
-      for (const [k, g] of Object.entries(groups)) parts.push(`${g.name} ${signed(g.net[ci], 0)}`);
-      if (sel && isNum(sel[win][ci])) parts.push(`${sel.name} percentile ${Math.round(sel[win][ci])}`);
-      parts.push(`(COT week of ${cot.dates[ci]})`);
-    }
-    return parts.join(" · ");
-  };
-  readout.textContent = describe(end);
-
-  const make = (id, datasets, extra) => {
-    charts.get(id)?.destroy();
-    const last = id === "ic-pct";
-    const chart = new Chart(document.getElementById(id), {
-      type: "line",
-      data: { datasets: datasets.map((d) => ({ pointRadius: 0, tension: 0, spanGaps: true, ...d })) },
-      options: {
-        responsive: true, maintainAspectRatio: false, animation: false, parsing: true,
-        interaction: { mode: "nearest", axis: "x", intersect: false },
-        plugins: { legend: { display: false }, tooltip: { enabled: false }, ...extra.plugins },
-        scales: {
-          x: { type: "linear", min: start, max: end, display: last, grid: { display: false },
-               afterBuildTicks: (axis) => { axis.ticks = dateTicks(); },
-               border: { color: css("--axis") },
-               ticks: { color: css("--muted"), maxTicksLimit: 8, maxRotation: 0, callback: fmtDate } },
-          y: { position: "right", grid: { color: css("--grid") }, border: { display: false },
-               ticks: { color: css("--muted"), maxTicksLimit: 5, callback: extra.yfmt || ((v) => fmtNum(v)) },
-               afterFit: (scale) => { scale.width = 78; },   // same width in every panel keeps dates aligned
-               ...extra.y },
-        },
-        onHover: (evt, active, c) => {
-          const x = c.scales.x.getValueForPixel(evt.x);
-          icHoverX = x >= start && x <= end ? x : null;
-          readout.textContent = describe(icHoverX ?? end);
-          for (const cid of ["ic-price", "ic-net", "ic-pct"]) charts.get(cid)?.draw();
-        },
-      },
-      plugins: [icCrosshair],
-    });
-    chart.canvas.onmouseleave = () => {
-      icHoverX = null;
-      readout.textContent = describe(end);
-      for (const cid of ["ic-price", "ic-net", "ic-pct"]) charts.get(cid)?.draw();
-    };
-    charts.set(id, chart);
-  };
-  make("ic-price", datasetsPrice, { y: IC.log ? { type: "logarithmic" } : {} });
-  make("ic-net", datasetsNet, { plugins: { guides: { hlines: [[0]] } }, yfmt: (v) => FORMATS.num0(v) });
-  make("ic-pct", datasetsPct, { y: { min: 0, max: 100 }, yfmt: (v) => `${v}`,
-                                plugins: { guides: { bands: [[0, 10, "low"], [90, 100, "high"]], hlines: [[50]] } } });
-}
-
-$$('#indexcot [data-ic="range"] button').forEach((btn) => btn.addEventListener("click", () => {
-  IC.range = +btn.dataset.v; saveIC(); drawIndexCot();
-}));
-$$('#indexcot [data-ic="window"] button').forEach((btn) => btn.addEventListener("click", () => {
-  IC.window = btn.dataset.v; saveIC(); drawIndexCot();
-}));
-$("#ic-ma").addEventListener("change", (e) => { IC.ma = e.target.checked; saveIC(); drawIndexCot(); });
-$("#ic-log").addEventListener("change", (e) => { IC.log = e.target.checked; saveIC(); drawIndexCot(); });
-
-// ---------- foldable sections ----------
-const FOLDABLE = ["stocks", "appetite", "volatility", "rates", "dollar", "commodities", "crypto", "asia"];
-const folded = (() => {
-  try { const v = JSON.parse(localStorage.getItem("folded")); if (Array.isArray(v)) return new Set(v); } catch (e) { /* default */ }
-  return new Set(FOLDABLE);
-})();
+// folding of the detail sections
+const FOLDABLE = $$("section.fold").map((s) => s.id);
+const folded = new Set(store.get("folded-v2", FOLDABLE));
+const rendered = new Set();
 function setFolded(id, fold) {
   const sec = document.getElementById(id);
   sec.classList.toggle("collapsed", fold);
@@ -1022,8 +1227,8 @@ function setFolded(id, fold) {
   btn.textContent = fold ? "Show" : "Hide";
   btn.setAttribute("aria-expanded", String(!fold));
   if (fold) folded.add(id); else folded.delete(id);
-  try { localStorage.setItem("folded", JSON.stringify([...folded])); } catch (e) { /* ignore */ }
-  if (!fold) for (const c of charts.values()) if (sec.contains(c.canvas)) c.resize();
+  store.set("folded-v2", [...folded]);
+  if (!fold && DATA && !rendered.has(id)) renderSection(id);
 }
 for (const id of FOLDABLE) {
   const sec = document.getElementById(id);
@@ -1038,187 +1243,51 @@ $$(".nav a").forEach((a) => a.addEventListener("click", () => {
   if (FOLDABLE.includes(id)) setFolded(id, false);
 }));
 
-// ---------- earnings & European peers ----------
-let ER_RANGE = (() => { try { return localStorage.getItem("earnings-range") || "all"; } catch (e) { return "all"; } })();
-$$('#earnings [data-er="range"] button').forEach((btn) => btn.addEventListener("click", () => {
-  ER_RANGE = btn.dataset.v;
-  try { localStorage.setItem("earnings-range", ER_RANGE); } catch (e) { /* ignore */ }
-  renderEarnings(DATA.earnings);
-}));
-
-function renderEarnings(b) {
-  if (!setMeta("earnings", b)) return;
-  $$('#earnings [data-er="range"] button').forEach((x) => x.classList.toggle("active", x.dataset.v === ER_RANGE));
-  const maxDays = { today: 0, week: 6, all: Infinity }[ER_RANGE];
-  const rows = b.rows.filter((r) => r.days_until <= maxDays);
-  $("#earnings .er-count").textContent = `${rows.length} of ${b.rows.length} companies`;
-  const root = $("#earnings");
-  if (!$(".er-hint", root)) {
-    $(".card", root).prepend(el("p", "hint er-hint",
-      "Release times are Amsterdam time. When Yahoo has no exact time yet, the company's usual release time " +
-      "from its last reports is used (≈, rounded to the hour). Corr = correlation of weekly returns with the US " +
-      "company over the last year; last time = how the stock moved on the day it could first react to the previous report."));
-  }
-  const table = $(".earnings-table", root);
-  const head = el("thead");
-  const htr = el("tr");
-  [["Release (Amsterdam)"], ["Company"], ["EU peers"], ["Corr", true], ["Last time", true], ["EU can trade"], ["US stock"], ["EPS est.", true]]
-    .forEach(([t, num]) => htr.append(el("th", num ? "num" : "", t)));
-  head.append(htr);
-  const body = el("tbody");
-  let day = null;
-  for (const r of rows) {
-    if (r.date !== day) {
-      day = r.date;
-      const g = el("tr", "group");
-      const when = r.days_until === 0 ? "today" : r.days_until === 1 ? "tomorrow" : `in ${r.days_until} days`;
-      const td = el("td", "", `${r.day} · ${when}`);
-      td.colSpan = 8;
-      g.append(td);
-      body.append(g);
-    }
-    const n = Math.max(1, r.peers.length);
-    r.peers.length ? r.peers.forEach((p, i) => body.append(earningsRow(r, p, i, n))) : body.append(earningsRow(r, null, 0, 1));
-  }
-  if (!rows.length) {
-    const tr = el("tr");
-    const td = el("td", "muted", ER_RANGE === "today" ? "None of our companies report today."
-      : ER_RANGE === "week" ? "None of our companies report in the next 7 days."
-      : "No upcoming reports for the companies in eu_peers.yaml.");
-    td.colSpan = 8;
-    tr.append(td);
-    body.append(tr);
-  }
-  table.replaceChildren(head, body);
-  explainColumns(table);
-}
-
-// One line per peer; the company cells span all its peer lines.
-function earningsRow(r, p, i, n) {
-  const tr = el("tr", i === n - 1 ? "" : "sub");
-  const span = (td) => { td.rowSpan = n; return td; };
-  if (i === 0) {
-    const rel = el("td", "rel");
-    rel.append(el("b", "", r.release_ams ? `${r.basis.startsWith("time from") || r.basis.includes("to the minute") ? "" : "≈ "}${r.release_ams}` : "time n/a"),
-               el("span", "timing", r.session === "AMC" ? "after US close" : r.session === "BMO" ? "before US open" : "during session"));
-    rel.title = `${r.basis}${r.release_ny ? `; ${r.release_ny} New York time` : ""}`;
-    const co = el("td", "co");
-    co.append(el("b", "", r.symbol), tvLink(r.tv),
-              el("span", "nm", r.market_cap ? `$${fmtNum(r.market_cap / 1e9)} bn` : ""));
-    tr.append(span(rel), span(co));
-  }
-  if (p) {
-    const pn = el("td", "pn");
-    pn.append(el("span", "", p.name), el("small", "muted", ` ${p.ticker}`), tvLink(p.tv));
-    const corr = el("td", `num corr ${isNum(p.corr) && p.corr >= 0.5 ? "hi" : ""}`, isNum(p.corr) ? p.corr.toFixed(2) : "–");
-    const last = changeCell(p.last_move, 1, "%");
-    if (r.last) last.title = `Previous report ${r.last.date}: ${r.symbol} ${signed(r.last.us_move, 1, "%")}, ${p.name} ${signed(p.last_move, 1, "%")}`;
-    tr.append(pn, corr, last);
-  } else {
-    tr.append(el("td", "muted", "no EU peer in our list"), el("td", "num", "–"), el("td", "num", "–"));
-  }
-  if (i === 0) {
-    const us = el("td");
-    us.append(el("span", "", r.us_reacts));
-    if (r.last && isNum(r.last.us_move)) us.append(el("small", `muted`, ` · last time ${signed(r.last.us_move, 1, "%")}`));
-    tr.append(span(el("td", "eu", r.eu_reacts.text)), span(us),
-              span(el("td", "num", isNum(r.eps_estimate) ? r.eps_estimate.toFixed(2) : "–")));
-  }
-  return tr;
-}
-
-// ---------- put/call per index ----------
-const PC = Object.assign({ series: "spx", months: 6 },
-  (() => { try { return JSON.parse(localStorage.getItem("putcall") || "{}"); } catch (e) { return {}; } })());
-function savePC() { try { localStorage.setItem("putcall", JSON.stringify(PC)); } catch (e) { /* ignore */ } }
-function rollingMean(values, n) {
-  const out = [];
-  let sum = 0, count = 0;
-  for (let i = 0; i < values.length; i++) {
-    sum += values[i] ?? 0; count += values[i] == null ? 0 : 1;
-    if (i >= n) { sum -= values[i - n] ?? 0; count -= values[i - n] == null ? 0 : 1; }
-    out.push(i >= n - 1 && count === n ? sum / n : null);
-  }
-  return out;
-}
-
-function drawPutCall() {
-  const list = DATA?.volatility?.put_call;
-  if (!list) return;
-  const root = $("#volatility .pc-card");
-  const box = $(".pc-series", root);
-  box.replaceChildren(...list.map((p) => {
-    const btn = el("button", p.key === PC.series ? "active" : "", p.label);
-    btn.type = "button";
-    btn.addEventListener("click", () => { PC.series = p.key; savePC(); drawPutCall(); });
-    return btn;
-  }));
-  $$('[data-pc="range"] button', root).forEach((x) => x.classList.toggle("active", +x.dataset.v === PC.months));
-  const p = list.find((x) => x.key === PC.series) || list[0];
-  const sub = $(".pc-sub", root);
-  if (!p.available) {
-    sub.textContent = `${p.label}: no data yet. Source: ${p.source}; the history starts with the first evening refresh.`;
-    renderCharts($(".pc-chart", root), [{ id: "putcall", title: "", available: false }]);
-    return;
-  }
-  const ma5 = rollingMean(p.values, 5), ma10 = rollingMean(p.values, 10);
-  const cut = new Date(); cut.setMonth(cut.getMonth() - PC.months);
-  const from = cut.toISOString().slice(0, 10);
-  const start = Math.max(0, p.dates.findIndex((d) => d >= from));
-  const win = ma5.slice(start).filter(isNum);
-  const last5 = ma5[ma5.length - 1];
-  const pctile = isNum(last5) && win.length ? Math.round(100 * win.filter((x) => x <= last5).length / win.length) : null;
-  sub.textContent = `${p.label} · source ${p.source}, data since ${p.since}. Latest ${p.values[p.values.length - 1].toFixed(2)}` +
-    (isNum(last5) ? `, 5-day average ${last5.toFixed(2)}${pctile != null ? ` (${ordinal(pctile)} percentile of the period shown)` : ""}.` : ".") +
-    (isNum(p.oi_latest) ? ` Open-interest put/call (all open positions): ${p.oi_latest.toFixed(2)}.` : "") +
-    (p.dates.length < 30 ? ` Only ${p.dates.length} trading day${p.dates.length === 1 ? "" : "s"} collected so far: ` +
-      "Yahoo has no history for ETF option volume, so it builds up with every refresh (08:00 and 22:30). " +
-      "The 5- and 10-day averages appear after 5 and 10 days." : "");
-  const spec = {
-    id: "putcall", title: "", available: true, dates: p.dates.slice(start),
-    explain: DATA.volatility.put_call_explain,
-    panels: [{ height: 1, fmt: "num2", hlines: [[1]], bands: [], series: [
-      { label: "Put/call", role: "ref", kind: "line", values: p.values.slice(start) },
-      { label: "5-day avg", role: "ind", kind: "line", values: ma5.slice(start) },
-      { label: "10-day avg", role: "ind", kind: "line", values: ma10.slice(start) },
-    ] }],
-  };
-  renderCharts($(".pc-chart", root), [spec], { height: 260, points: spec.dates.length <= 40 });
-}
-$$('#volatility [data-pc="range"] button').forEach((btn) => btn.addEventListener("click", () => {
-  PC.months = +btn.dataset.v; savePC(); drawPutCall();
-}));
-
+// =============================================================================================
 const RENDERERS = {
-  summary: renderSummary, indexcot: renderIndexCot, earnings: renderEarnings, today: renderToday, stocks: renderStocks,
+  overview: renderOverview,
+  summary: renderRegime,
+  today: renderToday,
+  positioning: renderPositioning,
+  earnings: renderEarnings,
+  activity: renderActivity,
+  performance: renderPerformance,
+  flows: renderFlows,
+  charts: () => { drawStreak(); drawPrice(); },
+  seasonality: renderSeasonality,
+  stocks: renderChartsOnly("stocks"),
   appetite: renderChartsOnly("appetite"),
-  volatility: (b) => { renderChartsOnly("volatility")(b); drawPutCall(); },
-  positioning: renderPositioning, rates: renderRates,
-  dollar: renderAssets("dollar", "SPY"), commodities: renderAssets("commodities", "SPY"),
-  crypto: renderAssets("crypto", "SPY"), asia: renderAssets("asia", "SPY"),
+  volatility: renderChartsOnly("volatility"),
+  rates: renderRates,
+  dollar: renderAssets("dollar"), commodities: renderAssets("commodities"),
+  crypto: renderAssets("crypto"), asia: renderAssets("asia"),
 };
-
+function renderSection(name) {
+  if (FOLDABLE.includes(name) && folded.has(name)) return;   // drawn when opened
+  rendered.add(name);
+  try { RENDERERS[name](DATA[name]); } catch (err) { console.error(`render ${name} failed`, err); }
+}
 function renderAll() {
   if (!DATA) return;
-  for (const [name, render] of Object.entries(RENDERERS)) {
-    try { render(DATA[name]); } catch (err) { console.error(`render ${name} failed`, err); }
-  }
-  $(".generated").textContent = DATA.generated_at ? `data ${DATA.generated_at}` : "";
+  rendered.clear();
+  renderStatus();
+  for (const name of Object.keys(RENDERERS)) renderSection(name);
 }
 
 async function load() {
-  try {
-    DATA = await (await fetch("/api/dashboard")).json();
-  } catch (err) {
-    console.error("dashboard fetch failed", err);
+  try { DATA = await API.dashboard(); } catch (err) {
+    $(".status-line").replaceChildren(el("span", "warn-msg", `Could not load the dashboard data: ${err}`));
     return;
   }
+  DETAIL_CACHE.clear();
   renderAll();
 }
-
 async function start() {
   markThemeButtons();
-  try { WIDGETS = await (await fetch("/api/widgets")).json(); initWidgets(); } catch (err) { console.error(err); }
+  if (!window.LightweightCharts) {
+    $(".status-line").replaceChildren(el("span", "warn-msg", "Charts need cdn.jsdelivr.net (TradingView Lightweight Charts)."));
+  }
+  try { WIDGETS = await API.widgets(); initWidgets(); } catch (err) { console.error(err); }
   await load();
   setInterval(load, 10 * 60 * 1000);
 }

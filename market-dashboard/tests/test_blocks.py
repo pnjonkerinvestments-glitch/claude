@@ -86,8 +86,16 @@ def test_positioning_and_cot_chart(store, cfg):
     assert vix["cohort_short"] == "AM"
     extremity = {r["key"]: min(r["pct_all"], 100 - r["pct_all"]) for r in pos["rows"] if r.get("pct_all") is not None}
     assert extremity[pos["default_key"]] == min(extremity.values())   # most extreme row is shown first
-    chart = pos["chart"]
-    assert chart["available"] and len(chart["panels"]) == 2
+    assert pos["tv"]["spx"] == "CME_MINI:ES1!" and "Commitments of Traders" in pos["howto"]
+
+
+def test_cot_detail(store, cfg):
+    from dashboard import cards
+    d = cards.cot_detail(store, cfg, "spx")
+    assert d["available"] and d["order"][0] == "am"
+    n = len(d["dates"])
+    for g in d["groups"].values():
+        assert len(g["net"]) == len(g["long"]) == len(g["short"]) == n
 
 
 def test_chart_aligns_series():
@@ -113,8 +121,10 @@ def test_every_section_builds_and_api_serves(store, cfg):
         data = client.get("/api/dashboard").json()
         for name in blocks.BUILDERS:
             assert "error" not in data[name], (name, data[name].get("error"))
-        assert client.get("/api/cot/vix").json()["available"]
-        assert client.get("/api/cot/nope").status_code == 404
+        assert client.get("/api/detail/cot/vix").json()["available"]
+        assert client.get("/api/detail/cot/nope").status_code == 404
+        assert client.get("/api/detail/streak/^GSPC").status_code == 200
+        assert client.get("/api/detail/price/^GSPC").status_code == 200
 
 
 def test_index_positioning_section(store, cfg):
@@ -145,7 +155,8 @@ def test_scheduler_has_morning_earnings_job(store, cfg):
     from dashboard.server import build_scheduler
     sched = build_scheduler(store, cfg)
     jobs = {j.id: j for j in sched.get_jobs()}
-    assert {"daily-18:00", "daily-22:30", "morning", "cot"} <= set(jobs)
+    assert {"daily-18:00", "daily-22:30", "morning", "cot", "intraday", "records"} <= set(jobs)
+    assert "minute='*/30'" in str(jobs["intraday"].trigger) and "sat" in str(jobs["records"].trigger)
     trigger = str(jobs["morning"].trigger)
     assert "hour='8'" in trigger and "minute='0'" in trigger and "mon-fri" in trigger
     assert "earnings" in jobs["morning"].args[2]

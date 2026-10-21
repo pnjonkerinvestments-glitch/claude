@@ -6,30 +6,25 @@ crypto and Asia. It is not for trading or scanning. Our trading system already d
 
 ## What is on the page
 
+A grid of cards, in the style of a market monitor: a title, one line on what it shows, a big
+number and a compact chart.
+
 | Section | Contents |
 |---|---|
-| Positioning (COT): indices & commodities | Pick S&P 500, Nasdaq-100, Russell 2000, Dow, gold, silver, copper, WTI, gasoline or natural gas and a period (1Y–Max). Commodities show managed money, producers & merchants and swap dealers. The index chart (optional 50/200-day averages, log scale) with below it the net positions of asset managers, leveraged funds and dealers, and the chosen group's percentile against all history, 5 years or 1 year. Cards and a headline say in words how long or short each group is |
-| Earnings & European peers | Next results of the US companies in our own peer list (`dashboard/universe/eu_peers.yaml`), with the expected release time in Amsterdam time, when European peers can first trade on it (same day before 17:30, otherwise next open), correlation with each peer and how the peer moved after the previous report |
-| Where we stand | Regime verdict (transparent tally of 11 indicators), key numbers, and a **Signals** list of current extremes (RSI, COT, breadth, streaks, VIX curve, MOVE, crypto compression) |
-| Today | Expected move for the S&P 500, economic calendar, heatmap (S&P 500 / STOXX 600) |
-| Stocks & breadth | S&P 500 with % of members beating the index (2M); McClellan summation index (from all 503 members); % above 50d/200d for S&P 500 and Europe; equal-weight vs cap-weight since 2003; QQQ and SMH with RSI; leaders/laggards vs SPY; sortable sector & theme table (US and STOXX 600 sectors) |
-| Risk appetite | HYG/IEF, RSP/SPY, SMH/SPY, XLY/XLP with 50-day average |
-| Volatility & sentiment | Put/call ratio per index with a period choice (S&P 500 index options, VIX and CBOE totals from CBOE with 3 years of history; Nasdaq-100 and Russell 2000 through QQQ and IWM options from Yahoo, collected from the first run onwards), VIX term structure, MOVE, Nasdaq-100 weekly returns |
-| Positioning (COT) | Percentile table for 22 futures (equity indices, VIX, rates, FX, metals, energy, crypto) with the right trader group per market; click a row for price + percentile chart |
-| Rates & credit | 2Y/5Y/10Y/30Y, 2s10s, real yield, HY spread with 1D/1W/1M changes; 2Y with MAs; 10Y vs oil with rolling correlation; HY spread; TY futures |
-| Dollar | DXY and EUR/USD weekly with 200-week average, USD and EUR positioning |
-| Commodities | Gold, silver, gold miners, copper, WTI, gasoline, natural gas: table and weekly charts (their COT is in the positioning chart at the top) |
-| Crypto | BTC and ETH with volatility-compression model, ETH/BTC, Bitcoin COT |
-| Asia | KOSPI, Nikkei, EWY, FXI; Korea vs US semiconductors |
+| Overview | **Markets** (indexes, VIX, dollar, 10Y yield, gold, crude, bitcoin: last, day, week, YTD); **Fear & greed** composite (five signals scored against their past year, with history); **Breadth** (% of S&P 500 or European members above their 20/50/200-day average, 12 months); **VIX** (12 months, 20 and 30 marked); **Where we stand** (regime tally of 11 indicators); **HYG** daily/weekly candles with moving averages; **Sector performance** (SPDR sectors, 1D/1W/1M/YTD); **Signals** (current extremes); **Today** (expected S&P 500 move, economic calendar) |
+| Positioning (COT) | One chart per market (22 futures: equity indices, VIX, rates, FX, metals, energy, crypto): a trader group's net position as % of open interest (bars), the weekly price (candles), dotted lines at the window's extremes, and below it the percentile through time against the last 1/3/5/10 years or all history. Toggle the group's longs and shorts and the other groups' net. Next to it a table of every market with its percentiles; click a row to chart it |
+| Earnings & European peers | Next results of the US companies in our own peer list (`dashboard/universe/eu_peers.yaml`), with the release time in Amsterdam time (to the minute where SEC filings allow), when European peers can first trade on it, correlation with each peer and how the peer moved after the previous report. Filter: today / next 7 days / all |
+| Activity | **Unusual volume** (US stocks ≥ $25B and ETFs ≥ $1B at 2x their 10-day volume, refreshed every 30 minutes in the US session); **200-day SMA taps** (S&P 500 members, ETFs and futures whose range touched the 200-day average); **Record volume** (≥ 90% of the biggest day ever); **European small-cap movers** (up 10%+, under $1B). Each with a running log of the last 10 sessions |
+| Performance | US ETF table (sectors, styles, themes, bonds, commodities) and country/region ETFs and STOXX 600 sectors: day, week, 1M, 3M, YTD, 1Y with shading by size, sortable; TradingView heatmap (S&P 500 / STOXX 600) |
+| Options & flows | Put/call ratio per index with a period choice; short (inverse) ETF share of SPY/QQQ/IWM family dollar volume since 2021 with price, 10-day average and percentile |
+| Charts | Days without a 1% decline (or gain) for the S&P 500, Nasdaq-100, Dow, Russell 2000, Euro Stoxx 50, DAX and AEX, with the index on a log scale and labels on long streaks; price charts with daily/weekly candles, 50/200-day averages and an optional breadth panel |
+| Seasonality | Average, median or % of years up per calendar month over 10/15/20 years: NQ, ES, DAX, Euro Stoxx 50, gold, silver, crude, ZN, ZB, dollar, EUR/USD, bitcoin |
+| More charts (folded) | Stocks & breadth, risk appetite, volatility, rates & credit, dollar, commodities, crypto, Asia: the multi-panel charts of the earlier version |
 
-Every section starts with a one-line explanation, every chart has a **What does this show?**
-box, table columns are explained under each table, and the summary tiles explain themselves on
-hover. The detail sections (from Stocks down) start folded; **Show/Hide** next to the title opens
-them and the page remembers your choice.
-
-Every chart has an **Open in TradingView ↗** link that opens the symbol in your own
-TradingView account (with your paid real-time data). Light and dark layout: the toggle at the
-top right (follows the system setting until you choose).
+Every card and chart explains itself ("What does this show?"). All charts zoom with the mouse
+wheel or a pinch, move by dragging, and reset with a double-click. **Open in TradingView ↗**
+opens the symbol in your own TradingView account (with your paid real-time data). Light and
+dark layout: the toggle at the top right (follows the system setting until you choose).
 
 How the main indicators are calculated:
 
@@ -46,10 +41,12 @@ How the main indicators are calculated:
 
 - Backend: Python 3.12 + FastAPI. Fetches data, caches it in SQLite (`data/dashboard.sqlite`)
   and serves the page.
-- Frontend: one HTML/CSS/JS page, no build step, Chart.js from a CDN.
+- Frontend: one HTML/CSS/JS page, no build step. Charts: TradingView Lightweight Charts
+  (open source, Apache 2.0) from jsdelivr; fonts Inter and Source Serif from Google Fonts.
 - Live quotes, sector heatmap and economic calendar: free TradingView widgets.
-- Other data: FRED, CFTC (COT), CBOE (VIX indices, put/call ratios), SEC EDGAR (8-K times)
-  and Yahoo Finance via yfinance (daily closes, including all S&P 500 members for breadth).
+- Other data: FRED, CFTC (COT), CBOE (VIX indices, put/call ratios), SEC EDGAR (8-K times),
+  Yahoo Finance via yfinance (daily bars with volume, including all S&P 500 members; the
+  screener for unusual volume) and TradingView's stock screener (European small caps).
 - All times are Europe/Amsterdam.
 
 ## Installation
@@ -105,6 +102,8 @@ Run the tests: `.venv/bin/python -m pytest tests`.
 |---|---|
 | Prices, trend, breadth, ratios, FRED, CBOE | Mon–Fri at 18:00 (after the European close) and 22:30 (after the US close) |
 | Earnings release times, QQQ/IWM/SPY put/call | Mon–Fri 08:00, plus with the 18:00 and 22:30 refreshes |
+| Unusual volume, 200-day taps, European small caps | Mon–Fri every 30 minutes from 15:45 to 22:15, plus with the daily refreshes |
+| Record volume | With the daily refreshes; the all-time records themselves Saturday 10:00 |
 | COT | Friday 22:00 (CFTC publishes Friday 15:30 New York time) |
 | Everything | At every start |
 
@@ -166,7 +165,23 @@ markets are under `tradingview:`.
   taken from Yahoo (`^VIX`, `^VIX9D`, `^VIX3M`), which carries the same index closes.
 - **Put/call ratios** come from CBOE's daily market statistics, published the next
   morning. The latest value is therefore always the previous US session.
-- **COT** shows positions as of Tuesday, published the following Friday.
+- **COT** shows positions as of Tuesday, published the following Friday. The weekly candles in
+  the COT chart are aligned to the report's Tuesday.
+- **Fear & greed** is our own composite, not CNN's index: momentum (S&P 500 vs its 125-day
+  average), volatility (VIX vs its 50-day average), breadth (% above the 50-day), safe-haven
+  demand (SPY minus TLT over 20 days) and junk-bond demand (high-yield spread), each as its
+  percentile of the past 252 sessions; the score is their average.
+- **Unusual volume** uses Yahoo's screener: today's volume ÷ Yahoo's 10-day average volume.
+  During the session the day is incomplete. Preferred shares are left out.
+- **Record volume** compares the latest session with the biggest day in Yahoo's full history
+  (rebuilt every Saturday; the first five trading days after a listing do not count).
+- **European small caps** come from TradingView's stock screener (`scanner.tradingview.com`,
+  the same source as the news alerts). Market cap and traded value are converted to dollars.
+- **Short ETF share:** inverse ETFs' share of the family's dollar volume (close × shares):
+  SPY, IVV, VOO, SSO, UPRO, SPXL vs SH, SDS, SPXU, SPXS; QQQ, QQQM, QLD, TQQQ vs PSQ, QID,
+  SQQQ; IWM, VTWO, UWM, TNA vs RWM, TWM, TZA. Families are under `prices.short_etf_families`.
+- **Seasonality:** completed calendar months from Yahoo monthly closes. Futures use the
+  continuous front-month contract (not back-adjusted), so a roll month includes the roll gap.
 
 ## TradingView widgets: what is delayed
 
@@ -198,4 +213,5 @@ The heatmap data sets come from TradingView's widget code: `SPX500` for the S&P 
 The widgets need these hosts in the browser: `s3.tradingview.com`,
 `www.tradingview-widget.com`, `widgetdata.tradingview.com`, `pushstream.tradingview.com`,
 `scanner.tradingview.com`, `chartevents-reuters.tradingview.com` and
-`widget-sheriff.tradingview-widget.com`. Chart.js loads from `cdn.jsdelivr.net`.
+`widget-sheriff.tradingview-widget.com`. The charts (Lightweight Charts) load from `cdn.jsdelivr.net`. The backend needs
+`scanner.tradingview.com` for the European small-cap list.

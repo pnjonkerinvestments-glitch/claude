@@ -9,7 +9,7 @@ from datetime import date, datetime, timedelta
 
 import pandas as pd
 
-from . import derived, frames
+from . import activity, derived, frames
 from .db import Store
 from .sources import cboe, cftc, earnings, fred, options, prices, sec
 from .sources.http import client
@@ -17,16 +17,21 @@ from .sources.http import client
 log = logging.getLogger("dashboard.refresh")
 _lock = threading.Lock()
 
-DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "earnings")
+DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "earnings",
+                 "unusual", "taps", "record_volume", "eu_smallcaps")
 WEEKLY_SOURCES = ("cftc",)
 MORNING_SOURCES = ("earnings", "etf_pc")
+INTRADAY_SOURCES = ("intraday_bars", "unusual", "taps", "eu_smallcaps")
+RECORD_SOURCES = ("volume_records", "record_volume")
+ALL_SOURCES = tuple(dict.fromkeys(DAILY_SOURCES + WEEKLY_SOURCES + MORNING_SOURCES + INTRADAY_SOURCES
+                                  + RECORD_SOURCES))
 
 
 def price_tickers(cfg: dict) -> list[str]:
     """Every non-member ticker the page uses."""
     p = cfg["prices"]
     tickers = [i["ticker"] for i in p["indices"].values()]
-    for table in ("us_etfs", "eu_etfs"):
+    for table in ("us_etfs", "eu_etfs", "country_etfs"):
         tickers.append(p[table]["benchmark"])
         tickers += [item[0] for item in p[table]["items"]]
     for group in ("commodities", "crypto", "asia", "dollar", "rates_futures"):
@@ -36,33 +41,54 @@ def price_tickers(cfg: dict) -> list[str]:
         tickers += [r["numerator"], r["denominator"]]
     tickers += [a["price"] for a in cfg["cftc"]["assets"] if a.get("price")]
     tickers += cfg["signals"]["rsi_watch"]
+    tickers += [m["ticker"] for m in p["markets"]] + p["price_charts"] + p["streak_indices"]
+    tickers += [t for t, _ in p["seasonality"]] + [t for t, _ in p["tap_futures"]]
+    tickers += short_etf_tickers(cfg)
     tickers += ["^VIX", "^VIX9D", "^VIX3M"]
     peers, _ = frames.eu_peers(cfg["earnings"]["use_extra_peers"])
     tickers += list(peers) + [eu for lst in peers.values() for eu in lst]
     return list(dict.fromkeys(tickers))
 
 
+def short_etf_tickers(cfg: dict) -> list[str]:
+    fam = cfg["prices"]["short_etf_families"]
+    return [t for k, f in fam.items() if k != "since" for t in f["long"] + f["short"]]
+
+
 def long_history_tickers(cfg: dict) -> set[str]:
     """Tickers fetched with their full history (multi-year and COT charts)."""
-    return set(cfg["prices"]["long_history"]) | {
-        a["price"] for a in cfg["cftc"]["assets"] if a.get("price")}
+    return (set(cfg["prices"]["long_history"]) | set(short_etf_tickers(cfg))
+            | {a["price"] for a in cfg["cftc"]["assets"] if a.get("price")}
+            | {t for t, _ in cfg["prices"]["seasonality"]} | set(cfg["prices"]["streak_indices"]))
 
 
 def component_tickers(cfg: dict) -> list[str]:
     return list(dict.fromkeys([t for t, _, _ in frames.sp500_members()] + frames.eu_members(cfg)))
 
 
+OHLCV_KEYS = {"open": "op", "high": "hi", "low": "lo", "close": "px", "volume": "vo"}
+
+
+def store_ohlcv(store: Store, ticker: str, df: pd.DataFrame) -> None:
+    for field, points in prices.frame_points(df).items():
+        store.upsert(f"{OHLCV_KEYS[field]}:{ticker}", points)
+
+
 def _store_prices(store: Store, cfg: dict, tickers: list[str]) -> list[str]:
-    """Download closes (full history on first run) and return the tickers without data."""
+    """Download daily bars (full history on first run) and return the tickers without data.
+
+    A ticker counts as new until it has highs stored too, so tickers cached before candles were
+    added get their full history once more.
+    """
     p = cfg["prices"]
     long = long_history_tickers(cfg)
-    new = [t for t in tickers if not store.has(f"px:{t}")]
+    new = [t for t in tickers if not store.has(f"hi:{t}")]
     known = [t for t in tickers if t not in new]
-    data = prices.download_closes([t for t in new if t in long], p["long_history_period"])
-    data.update(prices.download_closes([t for t in new if t not in long], p["history_period"]))
-    data.update(prices.download_closes(known, p["update_period"]))
-    for t, points in data.items():
-        store.upsert(f"px:{t}", points)
+    data = prices.download_ohlcv([t for t in new if t in long], p["long_history_period"])
+    data.update(prices.download_ohlcv([t for t in new if t not in long], p["history_period"]))
+    data.update(prices.download_ohlcv(known, p["update_period"]))
+    for t, df in data.items():
+        store_ohlcv(store, t, df)
     return [t for t in tickers if t not in data]
 
 
@@ -98,6 +124,7 @@ def refresh_breadth(store: Store, cfg: dict) -> None:
     for name, fr in (("US", us), ("EU", eu)):
         if fr.empty:
             continue
+        _store_series(store, f"drv:breadth:{name}:above20", derived.pct_above_ma(fr, 20).iloc[-keep:])
         _store_series(store, f"drv:breadth:{name}:above50", derived.pct_above_ma(fr, 50).iloc[-keep:])
         _store_series(store, f"drv:breadth:{name}:above200", derived.pct_above_ma(fr, 200).iloc[-keep:])
     _store_series(store, "drv:breadth:US:outperform",
@@ -215,8 +242,9 @@ def refresh_cftc(store: Store, cfg: dict, today: date) -> None:
             store.upsert(f"cot:{a['key']}:net", {d: v["net"] for d, v in by_date.items()})
             store.upsert(f"cot:{a['key']}:oi", {d: v["oi"] for d, v in by_date.items()})
             for g in groups:
-                store.upsert(f"cot:{a['key']}:g:{g}",
-                             {d: v["groups"][g] for d, v in by_date.items() if g in v["groups"]})
+                for prefix, part in (("g", "groups"), ("gl", "longs"), ("gs", "shorts")):
+                    store.upsert(f"cot:{a['key']}:{prefix}:{g}",
+                                 {d: v[part][g] for d, v in by_date.items() if g in v[part]})
             if not by_date and not store.has(f"cot:{a['key']}:net"):
                 missing.append(f"{a['label']} ({a['code']})")
     if missing:
@@ -265,6 +293,12 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
         "cftc": lambda today: refresh_cftc(store, cfg, today),
         "earnings": lambda today: refresh_earnings(store, cfg, today),
         "etf_pc": lambda today: refresh_etf_put_call(store, cfg),
+        "intraday_bars": lambda today: activity.refresh_intraday_bars(store, cfg),
+        "unusual": lambda today: activity.refresh_unusual(store, cfg),
+        "taps": lambda today: activity.refresh_taps(store, cfg),
+        "volume_records": lambda today: activity.refresh_volume_records(store, cfg),
+        "record_volume": lambda today: activity.refresh_record_volume(store, cfg),
+        "eu_smallcaps": lambda today: activity.refresh_eu_smallcaps(store, cfg),
     }
     with _lock:
         for name in sources:
@@ -276,6 +310,18 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
             except Exception as exc:
                 log.warning("refresh of %s failed: %s", name, exc)
                 store.record(name, datetime.now(cfg["tz"]), f"{type(exc).__name__}: {exc}")
+
+
+def in_window(now: datetime, start: str, end: str) -> bool:
+    hm = now.strftime("%H:%M")
+    return now.weekday() < 5 and start <= hm <= end
+
+
+def run_intraday(store: Store, cfg: dict) -> None:
+    """Unusual volume, 200-day taps and European movers during the US session."""
+    a = cfg["activity"]
+    if in_window(datetime.now(cfg["tz"]), a["session_start"], a["session_end"]):
+        run_sources(store, cfg, INTRADAY_SOURCES)
 
 
 def run_all(store: Store, cfg: dict) -> None:

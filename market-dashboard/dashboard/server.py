@@ -13,7 +13,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import blocks, refresh
+from . import blocks, cards, refresh
 from .config import ROOT, load_config
 from .db import Store
 
@@ -35,6 +35,13 @@ def build_scheduler(store: Store, cfg: dict) -> BackgroundScheduler:
                                                    minute=minute, timezone=cfg["tz"]),
                   args=(store, cfg, refresh.MORNING_SOURCES), id="morning",
                   misfire_grace_time=3600, coalesce=True)
+    a = cfg["activity"]
+    sched.add_job(refresh.run_intraday, CronTrigger(day_of_week="mon-fri", hour="*",
+                                                    minute=f"*/{a['every_minutes']}", timezone=cfg["tz"]),
+                  args=(store, cfg), id="intraday", misfire_grace_time=600, coalesce=True)
+    sched.add_job(refresh.run_sources, CronTrigger(day_of_week="sat", hour=10, minute=0, timezone=cfg["tz"]),
+                  args=(store, cfg, refresh.RECORD_SOURCES), id="records",
+                  misfire_grace_time=6 * 3600, coalesce=True)
     hour, minute = r["cot_time"].split(":")
     sched.add_job(refresh.run_sources, CronTrigger(day_of_week=r["cot_day"], hour=hour,
                                                    minute=minute, timezone=cfg["tz"]),
@@ -65,8 +72,7 @@ def create_app(cfg: dict | None = None, start_jobs: bool = True) -> FastAPI:
 
     def data_version() -> tuple:
         """Changes whenever any source is refreshed (or fails), so the cache stays current."""
-        return tuple(store.status(src)["last_attempt"]
-                     for src in refresh.DAILY_SOURCES + refresh.WEEKLY_SOURCES + refresh.MORNING_SOURCES)
+        return tuple(store.status(src)["last_attempt"] for src in refresh.ALL_SOURCES)
 
     @app.get("/api/dashboard")
     def dashboard_data():
@@ -75,11 +81,16 @@ def create_app(cfg: dict | None = None, start_jobs: bool = True) -> FastAPI:
             cache.update(version=version, data=blocks.dashboard(store, cfg))
         return cache["data"]
 
-    @app.get("/api/cot/{key}")
-    def cot_chart(key: str):
-        if key not in {a["key"] for a in cfg["cftc"]["assets"]}:
-            raise HTTPException(404, "unknown COT asset")
-        return blocks.cot_chart(store, cfg, key)
+    @app.get("/api/detail/{kind}/{key}")
+    def detail(kind: str, key: str):
+        if key not in cards.detail_keys(cfg).get(kind, []):
+            raise HTTPException(404, "unknown chart")
+        version = data_version()
+        cached = cache.get(("detail", kind, key))
+        if not cached or cached[0] != version:
+            cached = (version, cards.DETAILS[kind](store, cfg, key))
+            cache[("detail", kind, key)] = cached
+        return cached[1]
 
     @app.get("/api/widgets")
     def widget_config():

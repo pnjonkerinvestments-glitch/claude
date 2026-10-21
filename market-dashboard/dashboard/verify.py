@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from . import refresh
-from .sources import cboe, cftc, earnings, fred, prices, sec
+from .sources import cboe, cftc, earnings, fred, prices, screener, sec
 from .sources.http import client
 
 
@@ -101,6 +101,19 @@ def verify(cfg: dict) -> int:
         return any(found.values()), "\n       " + "\n       ".join(lines)
 
     results.append(_check("Yahoo earnings calendar", earnings_check))
+
+    def screener_check():
+        u = cfg["activity"]["unusual_volume"]
+        stocks = screener.big_stocks(u["stock_min_market_cap"], u["exchanges"])
+        etfs = screener.big_etfs(u["etf_min_assets"])
+        return bool(stocks) and bool(etfs), f"{len(stocks)} stocks, {len(etfs)} ETFs above the size floors"
+
+    def scanner_check():
+        rows = screener.eu_smallcap_movers(cfg["activity"]["eu_smallcaps"])
+        return True, f"{len(rows)} European small caps up {cfg['activity']['eu_smallcaps']['min_change_pct']}%+ today"
+
+    results.append(_check("Yahoo screener (unusual volume)", screener_check))
+    results.append(_check("TradingView screener (European small caps)", scanner_check))
     results.append(_check("Yahoo indices/ETFs", yahoo_check(refresh.price_tickers(cfg))))
     results.append(_check("Yahoo index members", yahoo_check(refresh.component_tickers(cfg))))
 

@@ -164,9 +164,11 @@ def performance(close: pd.Series, bench: pd.Series | None = None) -> dict:
     position vs the 50- and 200-day average and RSI."""
     close = close.dropna()
     out: dict = {"last": float(close.iloc[-1]), "date": close.index[-1].date().isoformat()}
-    for label, days in (("w1", 5), ("m1", 21), ("m3", 63)):
+    for label, days in (("d1", 1), ("w1", 5), ("m1", 21), ("m3", 63), ("y1", 252)):
         out[label] = (float(100 * (close.iloc[-1] / close.iloc[-1 - days] - 1))
                       if len(close) > days else None)
+    prior = close[close.index.year < close.index[-1].year]
+    out["ytd"] = float(100 * (close.iloc[-1] / prior.iloc[-1] - 1)) if not prior.empty else None
     if bench is not None:
         bench = bench.dropna()
         for label, days in (("rel_m1", 21), ("rel_m3", 63)):
@@ -181,3 +183,127 @@ def performance(close: pd.Series, bench: pd.Series | None = None) -> dict:
     r = rsi(close).iloc[-1] if len(close) > 15 else np.nan
     out["rsi"] = None if np.isnan(r) else float(r)
     return out
+
+
+# --- cards on the overview grid -----------------------------------------------------
+
+def trailing_percentile(values: pd.Series, window: int = 252, min_periods: int = 60) -> pd.Series:
+    """Percentile of each value within the trailing `window` observations (no look-ahead)."""
+    return values.rolling(window, min_periods=min_periods).apply(
+        lambda w: 100.0 * (w[~np.isnan(w)] <= w[-1]).mean(), raw=True)
+
+
+FEAR_GREED_PARTS = ("momentum", "volatility", "breadth", "safe_haven", "junk")
+
+
+def fear_greed(spx: pd.Series, vix: pd.Series, above50: pd.Series, stocks: pd.Series,
+               bonds: pd.Series, hy_oas: pd.Series, window: int = 252) -> pd.DataFrame:
+    """Five market signals, each scored 0-100 as its percentile over the past year (0 = most
+    fearful reading of the year), and their average.
+
+    momentum   S&P 500 vs its 125-day average
+    volatility VIX vs its 50-day average (inverted: high VIX = fear)
+    breadth    % of S&P 500 members above their 50-day average
+    safe_haven 20-day return of stocks minus bonds (bonds beating stocks = fear)
+    junk       high-yield spread (inverted: wider spread = fear)
+    """
+    idx = spx.dropna().index
+    on = lambda s: s.dropna().reindex(idx, method="ffill")
+    vix, above50, stocks, bonds, hy_oas = map(on, (vix, above50, stocks, bonds, hy_oas))
+    raw = {
+        "momentum": spx / spx.rolling(125).mean() - 1,
+        "volatility": vix / vix.rolling(50).mean(),
+        "breadth": above50,
+        "safe_haven": stocks.pct_change(20) - bonds.pct_change(20),
+        "junk": hy_oas,
+    }
+    out = pd.DataFrame({k: trailing_percentile(v.reindex(idx), window) for k, v in raw.items()})
+    out["volatility"] = 100 - out["volatility"]
+    out["junk"] = 100 - out["junk"]
+    out["score"] = out[list(FEAR_GREED_PARTS)].mean(axis=1, skipna=False)
+    return out
+
+
+def fear_greed_label(score: float | None) -> str:
+    if score is None or np.isnan(score):
+        return "No data"
+    for limit, name in ((25, "Extreme fear"), (45, "Fear"), (55, "Neutral"), (75, "Greed")):
+        if score < limit:
+            return name
+    return "Extreme greed"
+
+
+def move_streak(close: pd.Series, threshold_pct: float = 1.0, direction: str = "decline") -> pd.Series:
+    """Trading days since the last daily close-to-close move of `threshold_pct` percent or more
+    (down for 'decline', up for 'gain')."""
+    change = close.pct_change() * 100
+    hit = (change <= -threshold_pct) if direction == "decline" else (change >= threshold_pct)
+    return decline_streak_from_hits(hit.to_numpy(), close.index)
+
+
+def decline_streak_from_hits(hit, index) -> pd.Series:
+    out, run = [], 0
+    for h in hit:
+        run = 0 if h else run + 1
+        out.append(run)
+    return pd.Series(out, index=index)
+
+
+def streak_peaks(streak: pd.Series, min_length: int = 1) -> pd.Series:
+    """Length of every streak at its last day (the day before it was broken, or the latest day
+    for a streak still running)."""
+    s = streak.dropna()
+    ends = s[(s.shift(-1) == 0) | (np.arange(len(s)) == len(s) - 1)]
+    return ends[ends >= min_length]
+
+
+def monthly_returns(close: pd.Series, today: pd.Timestamp | None = None) -> pd.Series:
+    """% return of every completed calendar month (the running month is left out)."""
+    close = close.dropna()
+    if close.empty:
+        return close
+    today = today or close.index[-1]
+    month_end = close.resample("ME").last()
+    ret = month_end.pct_change().dropna() * 100
+    return ret[ret.index < today.to_period("M").to_timestamp()]
+
+
+def seasonality(returns: pd.Series, years: int, today: pd.Timestamp) -> dict:
+    """Average, median and % of years up for each calendar month over the last `years` years
+    of completed months. -> {month 1-12: {avg, median, up, n}}"""
+    start = today.to_period("M").to_timestamp() - pd.DateOffset(years=years)
+    r = returns[returns.index >= start]
+    out = {}
+    for m in range(1, 13):
+        v = r[r.index.month == m]
+        out[m] = {"avg": float(v.mean()) if len(v) else None,
+                  "median": float(v.median()) if len(v) else None,
+                  "up": float(100 * (v > 0).mean()) if len(v) else None, "n": int(len(v)),
+                  "best": float(v.max()) if len(v) else None, "worst": float(v.min()) if len(v) else None}
+    return out
+
+
+def short_share(closes: pd.DataFrame, volumes: pd.DataFrame, short: list[str]) -> pd.Series:
+    """Inverse ETFs' % share of a fund family's daily dollar volume (close x shares)."""
+    dollars = (closes * volumes).dropna(how="all")
+    total = dollars.sum(axis=1, min_count=1)
+    shorts = dollars[[c for c in short if c in dollars]].sum(axis=1, min_count=1)
+    return (100 * shorts / total.replace(0, np.nan)).dropna()
+
+
+def sma_tap(bars: pd.DataFrame, days: int = 200, tolerance_pct: float = 0.0) -> pd.Series:
+    """Per session: did the bar's range include the `days`-day average of closes?"""
+    ma = bars["close"].rolling(days, min_periods=days).mean()
+    lo = ma * (1 - tolerance_pct / 100)
+    hi = ma * (1 + tolerance_pct / 100)
+    return ((bars["low"] <= hi) & (bars["high"] >= lo)).where(ma.notna(), False)
+
+
+def record_volume(volume: pd.Series, ignore_first: int = 5) -> tuple[float, str] | None:
+    """Biggest daily volume before the latest session, after the first days of trading.
+    -> (volume, iso date)"""
+    v = volume.dropna().iloc[ignore_first:-1]
+    v = v[v > 0]
+    if v.empty:
+        return None
+    return float(v.max()), v.idxmax().date().isoformat()

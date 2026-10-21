@@ -89,10 +89,13 @@ prices:
   history_period: 2y        # first start; enough for 200-day averages and 1-year charts
   long_history_period: max  # for the tickers in long_history (multi-year charts)
   update_period: 1mo
-  long_history: ["^GSPC", "^NDX", RSP, SPY, "DX-Y.NYB", "EURUSD=X", "GC=F", "^VIX", "^MOVE", "BTC-USD", "ETH-USD"]
+  long_history: ["^GSPC", "^NDX", "^RUT", "^DJI", "^STOXX50E", "^STOXX", "^GDAXI", "^AEX", RSP, SPY,
+                 HYG, "DX-Y.NYB", "EURUSD=X", "GC=F", "SI=F", "CL=F", "ZN=F", "ZB=F", "NQ=F", "ES=F",
+                 "^VIX", "^MOVE", "BTC-USD", "ETH-USD"]
 
   indices:
     SPX:   {ticker: "^GSPC",     name: "S&P 500",       tv: "SP:SPX"}
+    DJI:   {ticker: "^DJI",      name: "Dow Jones",     tv: "TVC:DJI"}
     NDX:   {ticker: "^NDX",      name: "Nasdaq-100",    tv: "NASDAQ:NDX"}
     RUT:   {ticker: "^RUT",      name: "Russell 2000",  tv: "TVC:RUT"}
     SX5E:  {ticker: "^STOXX50E", name: "Euro Stoxx 50", tv: "TVC:SX5E"}
@@ -136,10 +139,45 @@ prices:
       - [URA, "Uranium"]
       - [COPX, "Copper miners"]
       - [GDX, "Gold miners"]
-      - [EFA, "Developed ex-US"]
-      - [EWZ, "Brazil"]
-      - [FXI, "China large-cap"]
+      - [MTUM, "Momentum"]
+      - [VUG, "Growth"]
+      - [HDV, "High dividend"]
+      - [TLT, "Long Treasuries"]
+      - [IEF, "7-10Y Treasuries"]
+      - [HYG, "High yield"]
+      - [LQD, "IG corporates"]
+      - [GLD, "Gold"]
+      - [SLV, "Silver"]
+      - [USO, "Oil"]
+      - [IBIT, "Bitcoin (spot)"]
+
+  # Country and region ETFs (US-listed), second performance table.
+  country_etfs:
+    benchmark: SPY
+    items:
+      - [VGK, "Europe"]
+      - [EZU, "Eurozone"]
+      - [EWG, "Germany"]
+      - [EWQ, "France"]
+      - [EWN, "Netherlands"]
+      - [EWU, "United Kingdom"]
+      - [EWL, "Switzerland"]
+      - [EWI, "Italy"]
+      - [EWP, "Spain"]
+      - [EWD, "Sweden"]
+      - [EPOL, "Poland"]
+      - [EWJ, "Japan"]
       - [EWY, "South Korea"]
+      - [EWT, "Taiwan"]
+      - [FXI, "China large-cap"]
+      - [MCHI, "China"]
+      - [INDA, "India"]
+      - [EWA, "Australia"]
+      - [EWC, "Canada"]
+      - [EWW, "Mexico"]
+      - [EWZ, "Brazil"]
+      - [EFA, "Developed ex-US"]
+      - [EEM, "Emerging markets"]
 
   # STOXX Europe 600 sector ETFs (iShares, Xetra). Benchmark: STOXX 600.
   eu_etfs:
@@ -191,6 +229,68 @@ prices:
     - {ticker: "ZN=F", name: "10Y T-Note futures (TY)", tv: "CBOT:ZN1!"}
   volatility:
     move: "^MOVE"
+
+  # Markets card at the top. unit: pct (price change in %) or bp (yield change in basis points).
+  markets:
+    - {ticker: "^GSPC",     label: SPX,    tv: "SP:SPX"}
+    - {ticker: "^NDX",      label: NDX,    tv: "NASDAQ:NDX"}
+    - {ticker: "^DJI",      label: DJI,    tv: "TVC:DJI"}
+    - {ticker: "^RUT",      label: RUT,    tv: "TVC:RUT"}
+    - {ticker: "^STOXX",    label: SXXP,   tv: "TVC:SXXP"}
+    - {ticker: "^GDAXI",    label: DAX,    tv: "XETR:DAX"}
+    - {ticker: "^AEX",      label: AEX,    tv: "EURONEXT:AEX"}
+    - {ticker: "^VIX",      label: VIX,    tv: "CBOE:VIX"}
+    - {ticker: "DX-Y.NYB",  label: DXY,    tv: "TVC:DXY"}
+    - {ticker: "EURUSD=X",  label: EURUSD, tv: "FX:EURUSD"}
+    - {ticker: "^TNX",      label: US10Y,  tv: "TVC:US10Y", unit: bp}
+    - {ticker: "GC=F",      label: GOLD,   tv: "COMEX:GC1!"}
+    - {ticker: "CL=F",      label: "CL1!", tv: "NYMEX:CL1!"}
+    - {ticker: "BTC-USD",   label: BTC,    tv: "BITSTAMP:BTCUSD"}
+
+  # Price-chart picker (daily/weekly candles). Indices first, then ETFs.
+  price_charts: ["^GSPC", "^NDX", "^DJI", "^RUT", "^STOXX", "^STOXX50E", "^GDAXI", "^AEX",
+                 SPY, QQQ, IWM, RSP, SMH, HYG, TLT, GLD]
+
+  # Streak chart: days without a 1% decline (or gain) per index.
+  streak_indices: ["^GSPC", "^NDX", "^DJI", "^RUT", "^STOXX50E", "^GDAXI", "^AEX"]
+
+  # Seasonality table: monthly returns from Yahoo monthly closes.
+  seasonality:
+    - ["NQ=F", "NQ (Nasdaq-100 fut.)"]
+    - ["ES=F", "ES (S&P 500 fut.)"]
+    - ["^GDAXI", "DAX"]
+    - ["^STOXX50E", "Euro Stoxx 50"]
+    - ["GC=F", "Gold"]
+    - ["SI=F", "Silver"]
+    - ["CL=F", "WTI crude"]
+    - ["ZN=F", "10Y note (ZN)"]
+    - ["ZB=F", "30Y bond (ZB)"]
+    - ["DX-Y.NYB", "Dollar (DXY)"]
+    - ["EURUSD=X", "EUR/USD"]
+    - ["BTC-USD", "Bitcoin"]
+
+  # Inverse ETFs' share of each fund family's dollar volume.
+  short_etf_families:
+    since: "2021-01-01"
+    SPY: {long: [SPY, IVV, VOO, SSO, UPRO, SPXL], short: [SH, SDS, SPXU, SPXS]}
+    QQQ: {long: [QQQ, QQQM, QLD, TQQQ], short: [PSQ, QID, SQQQ]}
+    IWM: {long: [IWM, VTWO, UWM, TNA], short: [RWM, TWM, TZA]}
+
+  # Futures checked for 200-day taps (with the S&P 500 members and the ETF tables).
+  tap_futures:
+    - ["ES=F", "S&P 500 E-mini"]
+    - ["NQ=F", "Nasdaq-100 E-mini"]
+    - ["RTY=F", "Russell 2000 E-mini"]
+    - ["YM=F", "Dow E-mini"]
+    - ["GC=F", "Gold"]
+    - ["SI=F", "Silver"]
+    - ["HG=F", "Copper"]
+    - ["CL=F", "WTI crude"]
+    - ["NG=F", "Natural gas"]
+    - ["ZN=F", "10Y note"]
+    - ["ZB=F", "30Y bond"]
+    - ["6E=F", "Euro FX"]
+    - ["6J=F", "Yen"]
 
   # Risk-appetite ratios
   ratios:
@@ -282,6 +382,34 @@ cftc:
     - {key: natgas,   label: "Natural gas",  group: "Energy",         dataset: disagg, code: "023651", cohort: mm, price: "NG=F"}
     - {key: bitcoin,  label: "Bitcoin",      group: "Crypto",         dataset: tff,    code: "133741", cohort: lf, price: "BTC-USD"}
     - {key: ether,    label: "Ether",        group: "Crypto",         dataset: tff,    code: "146021", cohort: lf, price: "ETH-USD"}
+
+# ---------------------------------------------------------------------------
+# Activity: unusual volume, 200-day taps, record volume, European small-cap movers
+# ---------------------------------------------------------------------------
+activity:
+  # Intraday refreshes of the unusual-volume and small-cap lists (Amsterdam time, Mon-Fri).
+  session_start: "15:45"
+  session_end: "22:15"
+  every_minutes: 30
+  unusual_volume:
+    min_rel_volume: 2.0               # today's volume vs the 10-day average
+    stock_min_market_cap: 25000000000 # USD 25 billion
+    etf_min_assets: 1000000000        # USD 1 billion
+    exchanges: [NMS, NYQ, ASE, NGM, NCM, PCX, BTS]   # US exchanges (no OTC)
+    max_rows: 60
+  taps:
+    tolerance_pct: 0.0                # low <= 200-day average <= high (+/- this margin)
+  record_volume:
+    min_pct_of_record: 90             # volume at or above this % of the biggest day ever
+    ignore_first_days: 5              # first trading days after a listing do not count
+  log_sessions: 10                    # running log length
+  eu_smallcaps:
+    url: "https://scanner.tradingview.com/global/scan?label-product=screener-stock"
+    min_change_pct: 10
+    max_market_cap_usd: 1000000000
+    min_traded_usd: 100000
+    markets: [austria, belgium, denmark, france, germany, italy, spain, sweden, norway,
+              switzerland, portugal, netherlands, finland]
 
 # ---------------------------------------------------------------------------
 # Earnings: upcoming US reports with their European peers

@@ -14,6 +14,11 @@ from .db import Store
 from .sources import cftc as cftc_sources
 
 SECTION_SOURCES = {
+    "overview": ("prices", "components", "breadth", "cboe_vix", "fred"),
+    "activity": ("unusual", "taps", "record_volume", "eu_smallcaps"),
+    "performance": ("prices",),
+    "flows": ("prices", "cboe_pc", "etf_pc"),
+    "seasonality": ("prices",),
     "summary": ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "cftc"),
     "earnings": ("earnings", "prices"),
     "indexcot": ("cftc", "prices"),
@@ -38,6 +43,10 @@ SOURCE_NAMES = {
     "cftc": "CFTC (COT)",
     "etf_pc": "Yahoo Finance (ETF option chains)",
     "earnings": "Yahoo Finance (earnings calendar)",
+    "unusual": "Yahoo Finance (screener)",
+    "taps": "200-day taps calculation",
+    "record_volume": "Record volume calculation",
+    "eu_smallcaps": "TradingView (stock screener)",
 }
 COHORT_NAMES = {"am": "Asset managers", "lf": "Leveraged funds", "mm": "Managed money"}
 
@@ -631,10 +640,10 @@ def positioning_section(store: Store, cfg: dict) -> dict:
     dates = [r["date"] for r in rows if r.get("date")]
     default = min((r for r in rows if r.get("pct_all") is not None),
                   key=lambda r: min(r["pct_all"], 100 - r["pct_all"]), default=None)
-    return {**section_meta(store, cfg, "positioning"), "rows": rows,
+    from .cards import COT_TV
+    return {**section_meta(store, cfg, "positioning"), "rows": rows, "tv": COT_TV, "howto": explain.INDEX_COT_HOWTO,
             "report_date": max(dates) if dates else None,
-            "default_key": default["key"] if default else None,
-            "chart": cot_chart(store, cfg, default["key"]) if default else None}
+            "default_key": default["key"] if default else None}
 
 
 # --- section: rates & credit -----------------------------------------------------------
@@ -958,17 +967,32 @@ def earnings_session(t: pd.Timestamp) -> str:
 
 
 BUILDERS = {
-    "summary": summary_section, "indexcot": indexcot_section, "earnings": earnings_section, "today": today_section, "stocks": stocks_section,
+    "summary": summary_section, "earnings": earnings_section, "today": today_section, "stocks": stocks_section,
     "appetite": appetite_section, "volatility": volatility_section,
     "positioning": positioning_section, "rates": rates_section, "dollar": dollar_section,
     "commodities": commodities_section, "crypto": crypto_section, "asia": asia_section,
 }
 
 
+def flows_section(store: Store, cfg: dict) -> dict:
+    from .cards import short_share_card
+    return {**section_meta(store, cfg, "flows"), "put_call": put_call_series(store, cfg),
+            "put_call_explain": explain.chart_text("putcall"), "short_share": short_share_card(store, cfg)}
+
+
+def _register_cards():
+    from . import cards
+    BUILDERS.update({"overview": cards.overview_section, "activity": cards.activity_section,
+                     "performance": cards.performance_section, "flows": flows_section,
+                     "seasonality": cards.seasonality_section})
+
+
 def dashboard(store: Store, cfg: dict) -> dict:
     """All sections; one failing section never takes down the others."""
+    _register_cards()
+    from .cards import charts_meta
     out = {"generated_at": datetime.now(cfg["tz"]).strftime("%a %d %b %H:%M"),
-           "columns": explain.COLUMNS}
+           "columns": explain.COLUMNS, "charts_meta": charts_meta(cfg)}
     for name, build in BUILDERS.items():
         try:
             out[name] = build(store, cfg)
