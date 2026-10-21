@@ -251,9 +251,6 @@ prices:
   price_charts: ["^GSPC", "^NDX", "^DJI", "^RUT", "^STOXX", "^STOXX50E", "^GDAXI", "^AEX",
                  SPY, QQQ, IWM, RSP, SMH, HYG, TLT, GLD]
 
-  # Streak chart: days without a 1% decline (or gain) per index.
-  streak_indices: ["^GSPC", "^NDX", "^DJI", "^RUT", "^STOXX50E", "^GDAXI", "^AEX"]
-
   # Seasonality table: monthly returns from Yahoo monthly closes.
   seasonality:
     - ["NQ=F", "NQ (Nasdaq-100 fut.)"]
@@ -295,7 +292,6 @@ prices:
   # Risk-appetite ratios
   ratios:
     HYG_IEF:     {numerator: HYG,    denominator: IEF,    name: "HYG / IEF (credit vs Treasuries)"}
-    RSP_SPY:     {numerator: RSP,    denominator: SPY,    name: "RSP / SPY (equal vs cap weight)"}
     SMH_SPY:     {numerator: SMH,    denominator: SPY,    name: "SMH / SPY (semis vs market)"}
     XLY_XLP:     {numerator: XLY,    denominator: XLP,    name: "XLY / XLP (discretionary vs staples)"}
   ratio_ma_days: 50
@@ -330,7 +326,6 @@ cboe:
   vix_symbols: [VIX9D, VIX, VIX3M]
   put_call_url: "https://cdn.cboe.com/data/us/options/market_statistics/daily/{date}_daily_options"
   put_call_history_days: 1100  # calendar days fetched on first start (3 years)
-  etf_put_call: [SPY, QQQ, IWM]   # Yahoo option chains; history builds up from the first evening run
   chart_days: 126              # about 6 months
 
 fred:

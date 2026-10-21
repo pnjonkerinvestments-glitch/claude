@@ -13,17 +13,12 @@ SECTIONS = {
              "OCC, and the share of inverse (short) ETFs in trading volume.",
     "seasonality": "How each market did on average in each calendar month over the last 10, 15 or 20 years.",
     "summary": "The overall picture in one place: a traffic-light tally of trend, breadth, volatility, "
-               "sentiment and credit, the key numbers of the week, and a list of anything at an extreme.",
-    "indexcot": "Who is long or short the big US stock index futures and the main commodities, and how "
-                "unusual that is compared with history. Extremes in positioning often mark turning points, because a crowded "
-                "trade has few buyers (or sellers) left.",
+               "sentiment and credit, and a list of anything at an extreme.",
     "earnings": "Next results of the US companies in our peer list, with the release time in Amsterdam "
                 "time and when their European peers can first trade on it. A release before 17:30 can be "
                 "traded in Europe the same day; after the US close, at the next European open (09:00).",
     "today": "What the options market expects for today's S&P 500 range, the important economic releases, "
              "and a heatmap of today's moves.",
-    "stocks": "How many stocks take part in the move. A rally carried by a handful of large stocks is "
-              "more fragile than one where most stocks rise.",
     "appetite": "Ratios between riskier and safer assets. When the riskier side outperforms, investors "
                 "are willing to take risk.",
     "volatility": "How nervous the market is: implied volatility, hedging with put options, and sharp "
@@ -58,26 +53,10 @@ INDICATORS = {
 
 # Charts, keyed by chart id or its prefix (the part before the first "-").
 CHARTS = {
-    "outperform": "Top: the S&P 500. Bottom: the share of S&P 500 stocks that did better than the index "
-                  "over the last ~2 months. Low values mean a narrow market led by a few giants; turns "
-                  "up from very low levels often start a broader rally.",
-    "summation": "Built from how many S&P 500 stocks rise versus fall each day (advance/decline). The "
-                 "summation index adds up the McClellan oscillator: rising = breadth improving, falling = "
-                 "fewer stocks participate. Turns from deep lows often mark bottoms.",
-    "above-ma": "Share of stocks above their 50-day (short-term) and 200-day (long-term) average, for the "
-                "US and Europe. Above ~70% is strong, below ~30% is washed out.",
     "rsp-spy": "Equal-weight S&P 500 (every stock the same weight) divided by the normal cap-weighted "
                "index. Falling = the biggest companies outperform the average stock (concentration).",
-    "streak": "Number of trading days since the S&P 500 last fell 1% or more in a day. Long streaks show "
-              "calm; when a long streak ends, volatility often returns for a while.",
-    "rsi": "Top: price with 50- and 200-day average. Bottom: RSI(14), a 0-100 momentum gauge. Below 30 = "
-           "oversold (selling stretched), above 70 = overbought.",
     "ratio-HYG_IEF": "High-yield bonds (HYG) versus Treasuries (IEF). Rising = investors prefer credit "
                      "risk: risk-on. Falling = flight to safety.",
-    "ratio-COPPER_GOLD": "Copper (growth metal) versus gold (safe haven). Rising = growth optimism; it "
-                         "often moves with bond yields.",
-    "ratio-RSP_SPY": "Equal-weight versus cap-weight S&P 500. Rising = the average stock leads: healthy, "
-                     "broad market.",
     "ratio-SMH_SPY": "Semiconductors versus the S&P 500. Rising = the AI/chip trade leads.",
     "ratio-XLY_XLP": "Consumer discretionary versus consumer staples. Rising = investors bet on spending "
                      "and growth; falling = defensive.",
@@ -92,9 +71,6 @@ CHARTS = {
                "open positions, not just today's trades) is shown too: a slower, positioning-type gauge.",
     "ndx-weekly": "Every bar is one week's change in the Nasdaq-100. Red bars are weeks down 5% or more; "
                   "most of these happened close to a low.",
-    "cot": "Top: price. Bottom: how long or short this trader group is versus all history (percentile of "
-           "net position divided by open interest). Green zone = crowded short (contrarian bullish), red "
-           "zone = crowded long (contrarian bearish).",
     "us2y": "The 2-year Treasury yield follows expected Fed policy. Below its averages = the market prices "
             "in rate cuts.",
     "oil-10y": "10-year yield, crude oil and their 60-day correlation. A high positive correlation means "

@@ -233,30 +233,6 @@ def fear_greed_label(score: float | None) -> str:
     return "Extreme greed"
 
 
-def move_streak(close: pd.Series, threshold_pct: float = 1.0, direction: str = "decline") -> pd.Series:
-    """Trading days since the last daily close-to-close move of `threshold_pct` percent or more
-    (down for 'decline', up for 'gain')."""
-    change = close.pct_change() * 100
-    hit = (change <= -threshold_pct) if direction == "decline" else (change >= threshold_pct)
-    return decline_streak_from_hits(hit.to_numpy(), close.index)
-
-
-def decline_streak_from_hits(hit, index) -> pd.Series:
-    out, run = [], 0
-    for h in hit:
-        run = 0 if h else run + 1
-        out.append(run)
-    return pd.Series(out, index=index)
-
-
-def streak_peaks(streak: pd.Series, min_length: int = 1) -> pd.Series:
-    """Length of every streak at its last day (the day before it was broken, or the latest day
-    for a streak still running)."""
-    s = streak.dropna()
-    ends = s[(s.shift(-1) == 0) | (np.arange(len(s)) == len(s) - 1)]
-    return ends[ends >= min_length]
-
-
 def monthly_returns(close: pd.Series, today: pd.Timestamp | None = None) -> pd.Series:
     """% return of every completed calendar month (the running month is left out)."""
     close = close.dropna()

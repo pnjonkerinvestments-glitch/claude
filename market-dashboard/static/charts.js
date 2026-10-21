@@ -6,11 +6,6 @@ const LC = window.LightweightCharts;
 const LINE = { solid: 0, dotted: 1, dashed: 2, largeDashed: 3, sparse: 4 };
 const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-function rgbaVar(name, alpha) {
-  const v = cssVar(name);
-  return v.includes(",") && !v.startsWith("rgba") ? `rgba(${v}, ${alpha})` : v;
-}
-
 function isoOf(t) {
   if (typeof t === "string") return t;
   if (typeof t === "number") return new Date(t * 1000).toISOString().slice(0, 10);
@@ -122,15 +117,6 @@ function addBars(chart, data, o = {}) {
     color: o.color || cssVar("--sky"), priceScaleId: o.scale || "right", title: o.title || "",
     lastValueVisible: o.lastValue ?? true, priceLineVisible: false, base: o.base ?? 0,
     priceFormat: priceFormat(o.fmt || "num"),
-  }, o.pane || 0);
-  s.setData(data);
-  return s;
-}
-function addArea(chart, data, o = {}) {
-  const s = chart.addSeries(LC.AreaSeries, {
-    lineColor: o.color || cssVar("--blue"), topColor: o.top || rgbaVar("--sky", 1), bottomColor: o.bottom || "rgba(0,0,0,0)",
-    lineWidth: o.width ?? 1, priceScaleId: o.scale || "right", title: o.title || "", lastValueVisible: o.lastValue ?? true,
-    priceLineVisible: false, priceFormat: priceFormat(o.fmt || "num"), crosshairMarkerVisible: false,
   }, o.pane || 0);
   s.setData(data);
   return s;

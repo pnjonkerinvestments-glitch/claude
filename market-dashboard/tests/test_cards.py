@@ -29,16 +29,6 @@ def test_fear_greed_label(score, label):
     assert derived.fear_greed_label(score) == label
 
 
-def test_move_streak_and_peaks():
-    close = pd.Series([100, 101, 102, 100.5, 101, 102, 103, 101.5, 102], index=days(9), dtype=float)
-    down = derived.move_streak(close, 1.0, "decline")
-    assert list(down) == [1, 2, 3, 0, 1, 2, 3, 0, 1]
-    peaks = derived.streak_peaks(down)
-    assert list(peaks) == [3, 3, 1]                 # two finished streaks and the running one
-    up = derived.move_streak(close, 1.0, "gain")
-    assert up.iloc[1] == 0                          # +1.0% counts as a 1% gain
-
-
 def test_monthly_returns_leave_out_the_running_month():
     idx = pd.bdate_range("2025-01-01", "2025-04-15")
     close = pd.Series(np.arange(len(idx), dtype=float) + 100, index=idx)
@@ -142,3 +132,13 @@ def test_volume_stats_rank_and_average():
     st = cards.volume_stats(s)
     assert st["rank"] == 2 and st["count"] == 52 and st["high"] == 30
     assert st["vs50"] == pytest.approx(20 / ((49 * 10 + 30) / 50))
+
+
+def test_etf_put_call_comes_from_occ(tmp_path):
+    from dashboard import blocks
+    from dashboard.db import Store
+    store = Store(str(tmp_path / "t.sqlite"))
+    store.upsert("occ:QQQ:puts", {"2026-10-19": 300.0, "2026-10-20": 100.0})
+    store.upsert("occ:QQQ:calls", {"2026-10-19": 200.0, "2026-10-20": 0.0})
+    qqq = next(p for p in blocks.put_call_series(store, {}) if p["key"] == "qqq")
+    assert qqq["source"] == "OCC" and qqq["dates"] == ["2026-10-19"] and qqq["values"] == [1.5]

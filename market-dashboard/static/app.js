@@ -1011,59 +1011,8 @@ function renderFlows(b) {
 }
 
 // =============================================================================================
-// Charts: streaks and price charts
+// Price charts
 // =============================================================================================
-const ST = Object.assign({ ticker: "^GSPC", dir: "decline", years: 0 }, store.get("streak", {}));
-async function drawStreak() {
-  const card = $("#card-streak");
-  const sel = $("[data-st-index]", card);
-  const keys = DATA.charts_meta?.streak || [];
-  if (!keys.includes(ST.ticker)) ST.ticker = keys[0];
-  fillSelect(sel, keys.map((k) => [k, DATA.charts_meta.names[k] || k]), ST.ticker);
-  sel.onchange = () => { ST.ticker = sel.value; store.set("streak", ST); drawStreak(); };
-  segActive($("[data-st-dir]", card), ST.dir);
-  segActive($("[data-st-range]", card), ST.years);
-  const box = $(".chart", card);
-  let d;
-  try { d = await detail("streak", ST.ticker); } catch (err) { box.replaceChildren(el("div", "warn-msg", String(err))); return; }
-  if (!d.available) { box.replaceChildren(el("div", "na", "No data yet.")); return; }
-  const s = d[ST.dir];
-  const word = ST.dir === "decline" ? "decline" : "gain";
-  $(".st-title", card).textContent = `${d.name} days without a 1% ${word}`;
-  $(".st-current", card).textContent = String(s.current);
-  $(".st-sub", card).textContent = `last 1% ${ST.dir === "decline" ? "drop" : "rise"} ${s.last_hit ? `${niceDate(s.last_hit)} (${signed(s.last_move, 2)})` : "–"} · ` +
-    `${s.at_least} streaks at least as long since ${d.first} · record ${s.record} days (${niceDate(s.record_date)})`;
-  const chart = makeChart(box, { left: true });
-  const price = addLine(chart, pts(d.dates, d.close), { scale: "left", color: cssVar("--price"), width: 1.2, title: "", fmt: "num0", lastValue: true });
-  chart.priceScale("left").applyOptions({ mode: 1, scaleMargins: { top: 0.06, bottom: 0.04 } });
-  const area = addArea(chart, pts(d.dates, s.streak), { color: cssVar("--blue"), top: cssVar("--sky"), bottom: "rgba(0,0,0,0)", width: 1, fmt: "int", title: "days" });
-  area.priceScale().applyOptions({ scaleMargins: { top: 0.08, bottom: 0 } });
-  area.attachPrimitive(new Bands([{ from: 30, to: 50, color: cssVar("--band-mid") }]));
-  const labels = new Labels([], { noOverlap: true });
-  area.attachPrimitive(labels);
-  const peaks = s.peaks.dates.map((t, i) => ({ time: t, value: s.peaks.values[i] }));
-  const updateLabels = () => {
-    const r = chart.timeScale().getVisibleRange();
-    if (!r) return;
-    const from = isoOf(r.from), to = isoOf(r.to);
-    const vis = peaks.filter((p) => p.time >= from && p.time <= to).sort((a, b) => b.value - a.value).slice(0, 36);
-    labels.labels = vis.map((p) => ({ ...p, text: String(p.value) })).sort((a, b) => (a.time < b.time ? -1 : 1));
-    area.applyOptions({});
-  };
-  chart.timeScale().subscribeVisibleTimeRangeChange(updateLabels);
-  const reset = () => showYears(chart, d.dates[d.dates.length - 1], ST.years, d.dates[0]);
-  box._reset = reset;
-  reset();
-  updateLabels();
-  tooltip(chart, box, (param, iso) => {
-    const v = param.seriesData.get(area), c = param.seriesData.get(price);
-    if (!v) return null;
-    return `<div class="t-date">${niceDate(iso)}</div>${sw(cssVar("--blue"))}${v.value} days without a 1% ${word}<br>${d.name} ${c ? fmtNum(c.value) : "–"}`;
-  });
-}
-onSeg($("#card-streak [data-st-dir]"), (v) => { ST.dir = v; store.set("streak", ST); drawStreak(); });
-onSeg($("#card-streak [data-st-range]"), (v) => { ST.years = +v; store.set("streak", ST); drawStreak(); });
-
 const PR = Object.assign({ ticker: "^GSPC", freq: "daily", breadth: "" }, store.get("price-chart", {}));
 async function drawPrice() {
   const card = $("#card-price");
@@ -1295,9 +1244,8 @@ const RENDERERS = {
   activity: renderActivity,
   performance: renderPerformance,
   flows: renderFlows,
-  charts: () => { drawStreak(); drawPrice(); },
+  charts: () => drawPrice(),
   seasonality: renderSeasonality,
-  stocks: renderChartsOnly("stocks"),
   appetite: renderChartsOnly("appetite"),
   volatility: renderChartsOnly("volatility"),
   rates: renderRates,

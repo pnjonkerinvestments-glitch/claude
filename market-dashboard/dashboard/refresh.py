@@ -11,7 +11,7 @@ import pandas as pd
 
 from . import activity, derived, frames
 from .db import Store
-from .sources import cboe, cftc, earnings, fred, occ, options, prices, sec
+from .sources import cboe, cftc, earnings, fred, occ, prices, sec
 from .sources.http import client
 
 log = logging.getLogger("dashboard.refresh")
@@ -20,7 +20,7 @@ _lock = threading.Lock()
 DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "occ", "fred", "earnings",
                  "unusual", "taps", "record_volume", "eu_smallcaps")
 WEEKLY_SOURCES = ("cftc",)
-MORNING_SOURCES = ("earnings", "etf_pc", "occ")
+MORNING_SOURCES = ("earnings", "occ")
 INTRADAY_SOURCES = ("intraday_bars", "unusual", "taps", "eu_smallcaps")
 RECORD_SOURCES = ("volume_records", "record_volume")
 ALL_SOURCES = tuple(dict.fromkeys(DAILY_SOURCES + WEEKLY_SOURCES + MORNING_SOURCES + INTRADAY_SOURCES
@@ -41,7 +41,7 @@ def price_tickers(cfg: dict) -> list[str]:
         tickers += [r["numerator"], r["denominator"]]
     tickers += [a["price"] for a in cfg["cftc"]["assets"] if a.get("price")]
     tickers += cfg["signals"]["rsi_watch"]
-    tickers += [m["ticker"] for m in p["markets"]] + p["price_charts"] + p["streak_indices"]
+    tickers += [m["ticker"] for m in p["markets"]] + p["price_charts"]
     tickers += [t for t, _ in p["seasonality"]] + [t for t, _ in p["tap_futures"]]
     tickers += short_etf_tickers(cfg)
     tickers += ["^VIX", "^VIX9D", "^VIX3M"]
@@ -59,7 +59,7 @@ def long_history_tickers(cfg: dict) -> set[str]:
     """Tickers fetched with their full history (multi-year and COT charts)."""
     return (set(cfg["prices"]["long_history"]) | set(short_etf_tickers(cfg))
             | {a["price"] for a in cfg["cftc"]["assets"] if a.get("price")}
-            | {t for t, _ in cfg["prices"]["seasonality"]} | set(cfg["prices"]["streak_indices"]))
+            | {t for t, _ in cfg["prices"]["seasonality"]})
 
 
 def component_tickers(cfg: dict) -> list[str]:
@@ -167,43 +167,6 @@ def refresh_cboe_pc(store: Store, cfg: dict, today: date) -> None:
     latest = max(store.dates("pc:equity"), default=None)
     if latest is None or (today - date.fromisoformat(latest)).days > 6:
         raise RuntimeError(f"no recent put/call data (latest: {latest or 'none'})")
-    refresh_etf_put_call(store, cfg)
-
-
-def last_completed_session(now_ny: pd.Timestamp) -> pd.Timestamp | None:
-    """The US session whose full option volume Yahoo shows at `now_ny` (None during trading)."""
-    today = now_ny.normalize()
-    minutes = now_ny.hour * 60 + now_ny.minute
-    if now_ny.weekday() >= 5:                      # weekend: Friday
-        return today - pd.offsets.Week(weekday=4)
-    if minutes >= 16 * 60:                         # after the close: today
-        return today
-    if minutes < 9 * 60 + 30:                      # before the open: previous trading day
-        return today - pd.offsets.BDay(1)
-    return None
-
-
-def refresh_etf_put_call(store: Store, cfg: dict) -> None:
-    """QQQ/IWM/SPY option put/call from Yahoo, one snapshot per run.
-
-    Yahoo's option volume covers the last completed session: after the US close that is today,
-    before the open the previous trading day. During the session the volume is partial, so
-    nothing is recorded then. The history starts on the first run.
-    """
-    session = last_completed_session(pd.Timestamp.now(tz="America/New_York").tz_localize(None))
-    if session is None:
-        return
-    day = session.date().isoformat()
-    for ticker in cfg["cboe"]["etf_put_call"]:
-        try:
-            pc = options.etf_put_call(ticker)
-        except Exception as exc:  # one ETF failing should not stop the others
-            log.warning("option chain %s failed: %s", ticker, exc)
-            continue
-        if pc:
-            store.upsert(f"pc:etf:{ticker}:vol", {day: pc["vol"]})
-            if pc["oi"] is not None:
-                store.upsert(f"pc:etf:{ticker}:oi", {day: pc["oi"]})
 
 
 def refresh_occ(store: Store, cfg: dict, today: date) -> None:
@@ -316,7 +279,6 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
         "occ": lambda today: refresh_occ(store, cfg, today),
         "cftc": lambda today: refresh_cftc(store, cfg, today),
         "earnings": lambda today: refresh_earnings(store, cfg, today),
-        "etf_pc": lambda today: refresh_etf_put_call(store, cfg),
         "intraday_bars": lambda today: activity.refresh_intraday_bars(store, cfg),
         "unusual": lambda today: activity.refresh_unusual(store, cfg),
         "taps": lambda today: activity.refresh_taps(store, cfg),

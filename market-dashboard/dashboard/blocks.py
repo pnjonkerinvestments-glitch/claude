@@ -5,27 +5,23 @@ from __future__ import annotations
 import math
 from datetime import datetime
 
-import numpy as np
 import pandas as pd
 
 from . import calc, derived, explain, frames
-from .calc import GREEN, NODATA, ORANGE, RED, Indicator
+from .calc import NODATA, Indicator
 from .db import Store
-from .sources import cftc as cftc_sources
 
 SECTION_SOURCES = {
     "overview": ("prices", "components", "breadth", "cboe_vix", "fred"),
     "activity": ("unusual", "taps", "record_volume", "eu_smallcaps"),
     "performance": ("prices",),
-    "flows": ("prices", "cboe_pc", "etf_pc", "occ"),
+    "flows": ("prices", "cboe_pc", "occ"),
     "seasonality": ("prices",),
     "summary": ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "cftc"),
     "earnings": ("earnings", "prices"),
-    "indexcot": ("cftc", "prices"),
     "today": ("prices", "cboe_vix"),
-    "stocks": ("prices", "components", "breadth"),
     "appetite": ("prices",),
-    "volatility": ("prices", "cboe_vix", "cboe_pc", "etf_pc"),
+    "volatility": ("prices", "cboe_vix"),
     "positioning": ("cftc", "prices"),
     "rates": ("fred", "prices"),
     "dollar": ("prices", "cftc"),
@@ -41,7 +37,6 @@ SOURCE_NAMES = {
     "cboe_pc": "CBOE (put/call ratios)",
     "fred": "FRED",
     "cftc": "CFTC (COT)",
-    "etf_pc": "Yahoo Finance (ETF option chains)",
     "occ": "OCC (cleared option volume)",
     "earnings": "Yahoo Finance (earnings calendar)",
     "unusual": "Yahoo Finance (screener)",
@@ -183,29 +178,7 @@ def cot_summary(store: Store, asset: dict) -> dict:
     return row
 
 
-def cot_chart(store: Store, cfg: dict, key: str, years: int = 10) -> dict:
-    asset = next(a for a in cfg["cftc"]["assets"] if a["key"] == key)
-    net, oi = cot_frame(store, key)
-    if net.empty:
-        return {"id": f"cot-{key}", "title": asset["label"], "available": False}
-    ratio = net / oi.replace(0, np.nan)
-    pct = derived.expanding_percentile(ratio)
-    start = pct.index[-1] - pd.DateOffset(years=years)
-    panels = []
-    if asset.get("price"):
-        px = _weekly(frames.price(store, asset["price"]))
-        panels.append(panel([series_spec(asset["label"], px[px.index >= start], "price")], height=0.6))
-    panels.append(panel([series_spec("Net/OI percentile (since " + ratio.index[0].strftime("%Y") + ")",
-                                     pct[pct.index >= start], "ind")],
-                        hlines=[(10, "10"), (90, "90")], height=0.4, fmt="pct0",
-                        bands=[(0, 10, "low"), (90, 100, "high")]))
-    return chart(f"cot-{key}", f"{asset['label']}: price and COT positioning", panels,
-                 subtitle=f"{COHORT_NAMES[asset['cohort']]}, net position as share of open interest, "
-                          f"percentile of all data up to each week",
-                 tv=None)
-
-
-# --- section: summary (regime tally, key tiles, signals) ------------------------------
+# --- section: summary (regime tally and signals) ---------------------------------------
 
 def _trend(store, cfg, key) -> Indicator:
     rc = cfg["regime"]["trend"]
@@ -341,51 +314,6 @@ def regime(store: Store, cfg: dict) -> dict:
             "verdict": verdict.__dict__}
 
 
-TILE_ABOUT = {
-    "S&P 500": "Last close and change over the past week.",
-    "Nasdaq-100": "The 100 largest non-financial Nasdaq stocks; last close and 1-week change.",
-    "STOXX 600": "600 large European companies; last close and 1-week change.",
-    "Dollar index": "The dollar against six major currencies (mostly the euro). Up = stronger dollar.",
-    "Gold": "Gold futures price in dollars per ounce.",
-    "Bitcoin": "Bitcoin in dollars.",
-    "US 10Y": "10-year US Treasury yield; change over the week in basis points (0.01%).",
-    "VIX": "Expected 30-day volatility of the S&P 500 ('fear index'); change in points over the week.",
-    "S&P members > 50d": "Share of S&P 500 stocks above their own 50-day average: short-term breadth.",
-    "S&P days without −1% day": "Trading days since the S&P 500 last fell 1% or more in one day.",
-}
-
-
-def _tile(label, value, change=None, change_label=None, colored=True) -> dict:
-    """colored=False for changes that are neither good nor bad (yields, VIX)."""
-    return {"label": label, "value": value, "change": _num(change), "change_label": change_label,
-            "colored": colored, "about": TILE_ABOUT.get(label)}
-
-
-def key_tiles(store: Store, cfg: dict) -> list[dict]:
-    tiles = []
-    for ticker, label, tv in (("^GSPC", "S&P 500", "SP:SPX"), ("^NDX", "Nasdaq-100", "NASDAQ:NDX"),
-                              ("^STOXX", "STOXX 600", "TVC:SXXP"), ("DX-Y.NYB", "Dollar index", "TVC:DXY"),
-                              ("GC=F", "Gold", "COMEX:GC1!"), ("BTC-USD", "Bitcoin", "BITSTAMP:BTCUSD")):
-        close = frames.price(store, ticker)
-        if close.empty:
-            continue
-        perf = derived.performance(close)
-        tiles.append(_tile(label, f"{perf['last']:,.2f}", perf["w1"], "1w %") | {"tv": tv})
-    ten = frames.series(store, "fred:DGS10").dropna()
-    if len(ten) > 5:
-        tiles.append(_tile("US 10Y", f"{ten.iloc[-1]:.2f}%", (ten.iloc[-1] - ten.iloc[-6]) * 100,
-                           "1w bp", colored=False) | {"tv": "TVC:US10Y"})
-    vix = frames.series(store, "cboe:VIX").dropna()
-    if len(vix) > 5:
-        tiles.append(_tile("VIX", f"{vix.iloc[-1]:.2f}", vix.iloc[-1] - vix.iloc[-6], "1w pts", colored=False)
-                     | {"tv": "CBOE:VIX"})
-    a50 = frames.series(store, "drv:breadth:US:above50").dropna()
-    if not a50.empty:
-        tiles.append(_tile("S&P members > 50d", f"{a50.iloc[-1]:.0f}%",
-                           a50.iloc[-1] - a50.iloc[-6] if len(a50) > 5 else None, "1w pts"))
-    return tiles
-
-
 def signals(store: Store, cfg: dict) -> list[dict]:
     """Plain-language list of the extremes worth a look, most severe first."""
     sc = cfg["signals"]
@@ -470,7 +398,7 @@ def summary_section(store: Store, cfg: dict) -> dict:
     vc = cfg["regime"]["verdict"]
     return {**section_meta(store, cfg, "summary"), **regime(store, cfg),
             "verdict_thresholds": {"on": vc["risk_on_min_pct"], "off": vc["risk_off_max_pct"]},
-            "tiles": key_tiles(store, cfg), "signals": signals(store, cfg)}
+            "signals": signals(store, cfg)}
 
 
 # --- section: today -------------------------------------------------------------------
@@ -488,78 +416,22 @@ def today_section(store: Store, cfg: dict) -> dict:
     return {**section_meta(store, cfg, "today"), "expected_moves": moves}
 
 
-# --- section: stocks & breadth --------------------------------------------------------
-
-def price_with_rsi(store: Store, ticker: str, name: str, tv: str, days: int = 730) -> dict:
-    close = frames.price(store, ticker)
-    if close.empty:
-        return {"id": f"rsi-{ticker}", "title": name, "available": False}
-    r = derived.rsi(close)
-    return chart(f"rsi-{ticker}", f"{name}: price and RSI(14)", [
-        panel([series_spec(name, _tail(close, days), "price"),
-               series_spec("50d", _tail(close.rolling(50).mean(), days), "ma"),
-               series_spec("200d", _tail(close.rolling(200).mean(), days), "ma")], height=0.65),
-        panel([series_spec("RSI(14)", _tail(r, days), "ind")], hlines=[(30, "30"), (70, "70")],
-              height=0.35, fmt="num0", bands=[(0, 30, "low"), (70, 100, "high")]),
-    ], tv=tv)
-
-
-def stocks_section(store: Store, cfg: dict) -> dict:
-    b = cfg["breadth"]
-    spx = frames.price(store, "^GSPC")
-    days = int(b["chart_days"] * 365 / 252)
-    outperform = frames.series(store, "drv:breadth:US:outperform")
-    summation = frames.series(store, "drv:breadth:US:summation")
-    charts = [
-        chart("outperform", "S&P 500 and % of members beating the index (2 months)", [
-            panel([series_spec("S&P 500", _tail(spx, days), "price")], height=0.6),
-            panel([series_spec("% outperforming", outperform, "ind")],
-                  hlines=[(cfg["signals"]["breadth_outperform_low"], ""),
-                          (cfg["signals"]["breadth_outperform_high"], "")], height=0.4, fmt="pct0"),
-        ], subtitle="Share of S&P 500 members whose 42-day return beats the index. Low = narrow market.",
-              tv="SP:SPX"),
-        chart("summation", "S&P 500 and McClellan summation index", [
-            panel([series_spec("S&P 500", _tail(spx, days), "price")], height=0.6),
-            panel([series_spec("Summation", summation, "ind")], hlines=[(0, "")], height=0.4),
-        ], subtitle="Cumulative ratio-adjusted McClellan oscillator of the S&P 500 members' "
-                    "advances and declines. Rising = broadening participation.", tv="SP:SPX"),
-        chart("above-ma", "Members above their 50- and 200-day average", [
-            panel([series_spec("S&P 500 > 50d", frames.series(store, "drv:breadth:US:above50"), "ind"),
-                   series_spec("S&P 500 > 200d", frames.series(store, "drv:breadth:US:above200"), "ind"),
-                   series_spec("Europe > 50d", frames.series(store, "drv:breadth:EU:above50"), "ind"),
-                   series_spec("Europe > 200d", frames.series(store, "drv:breadth:EU:above200"), "ind")],
-                  hlines=[(50, "")], fmt="pct0"),
-        ], subtitle="Europe = Euro Stoxx 50, DAX and AEX members combined."),
-    ]
-    rsp, spy = frames.price(store, "RSP"), frames.price(store, "SPY")
-    if not rsp.empty and not spy.empty:
-        ratio = (rsp / spy).dropna()
-        p = derived.percentile_of_last(ratio)
-        charts.append(chart("rsp-spy", "Equal-weight vs cap-weight S&P 500 (RSP/SPY)", [
-            panel([series_spec("RSP/SPY", _weekly(ratio), "ind"),
-                   series_spec("40-week avg", _weekly(ratio).rolling(40).mean(), "ma")]),
-        ], subtitle=f"Weekly since {ratio.index[0].year}. Latest at the {ordinal(p)} percentile of that history.",
-              tv="AMEX:RSP/AMEX:SPY"))
-    charts.append(price_with_rsi(store, "QQQ", "QQQ", "QQQ"))
-    charts.append(price_with_rsi(store, "SMH", "SMH (semiconductors)", "SMH"))
-
-    us = cfg["prices"]["us_etfs"]
-    eu = cfg["prices"]["eu_etfs"]
-    us_rows = perf_rows(store, us["items"], us["benchmark"])
-    eu_rows = perf_rows(store, eu["items"], eu["benchmark"])
-    leaders = sorted([r for r in us_rows if r.get("rel_m1") is not None and r["ticker"] != "SPY"],
-                     key=lambda r: r["rel_m1"], reverse=True)
-    return {**section_meta(store, cfg, "stocks"), "charts": charts,
-            "tables": {"us": us_rows, "eu": eu_rows},
-            "leaders": [{"name": r["name"], "ticker": r["ticker"], "rel_m1": r["rel_m1"],
-                         "rel_m3": r.get("rel_m3")} for r in leaders]}
-
-
 # --- section: risk appetite ratios -----------------------------------------------------
 
 def appetite_section(store: Store, cfg: dict) -> dict:
     p = cfg["prices"]
     charts = []
+    rsp, spy = frames.price(store, "RSP"), frames.price(store, "SPY")
+    if not rsp.empty and not spy.empty:
+        # Equal- vs cap-weight over the long run (weekly since 2003). Breadth itself is on the
+        # overview card and in the breadth panel of the price charts.
+        ratio = (rsp / spy).dropna()
+        pct = derived.percentile_of_last(ratio)
+        charts.append(chart("rsp-spy", "Equal-weight vs cap-weight S&P 500 (RSP/SPY)", [
+            panel([series_spec("RSP/SPY", _weekly(ratio), "ind"),
+                   series_spec("40-week avg", _weekly(ratio).rolling(40).mean(), "ma")]),
+        ], subtitle=f"Weekly since {ratio.index[0].year}. Latest at the {ordinal(pct)} percentile of that history.",
+              tv="AMEX:RSP/AMEX:SPY"))
     for key, r in p["ratios"].items():
         num, den = frames.price(store, r["numerator"]), frames.price(store, r["denominator"])
         ratio = (num / den).dropna()
@@ -612,9 +484,9 @@ def volatility_section(store: Store, cfg: dict) -> dict:
 
 PUT_CALL = [
     ("spx", "pc:spx", "S&P 500 index options (SPX + SPXW)", "CBOE"),
-    ("qqq", "pc:etf:QQQ:vol", "Nasdaq-100 (QQQ options)", "Yahoo option chains"),
-    ("iwm", "pc:etf:IWM:vol", "Russell 2000 (IWM options)", "Yahoo option chains"),
-    ("spy", "pc:etf:SPY:vol", "S&P 500 ETF (SPY options)", "Yahoo option chains"),
+    ("qqq", "occ:QQQ", "Nasdaq-100 (QQQ options)", "OCC"),
+    ("iwm", "occ:IWM", "Russell 2000 (IWM options)", "OCC"),
+    ("spy", "occ:SPY", "S&P 500 ETF (SPY options)", "OCC"),
     ("equity", "pc:equity", "Single stocks (CBOE equity)", "CBOE"),
     ("index", "pc:index", "All index options (CBOE)", "CBOE"),
     ("vix", "pc:vix", "VIX options", "CBOE"),
@@ -625,12 +497,14 @@ def put_call_series(store: Store, cfg: dict) -> list[dict]:
     """Daily put/call ratios per index, full stored history (the page picks the period)."""
     out = []
     for key, skey, label, source in PUT_CALL:
-        s = frames.series(store, skey).dropna()
-        oi = frames.series(store, skey.replace(":vol", ":oi")).dropna() if skey.endswith(":vol") else None
+        if skey.startswith("occ:"):   # cleared puts / calls per ETF
+            calls = frames.series(store, f"{skey}:calls")
+            s = (frames.series(store, f"{skey}:puts") / calls.where(calls > 0)).dropna()
+        else:
+            s = frames.series(store, skey).dropna()
         out.append({"key": key, "label": label, "source": source, "available": not s.empty,
                     "dates": [d.date().isoformat() for d in s.index], "values": _list(s, 3),
-                    "since": s.index[0].date().isoformat() if not s.empty else None,
-                    "oi_latest": _num(oi.iloc[-1]) if oi is not None and not oi.empty else None})
+                    "since": s.index[0].date().isoformat() if not s.empty else None})
     return out
 
 
@@ -728,8 +602,7 @@ def dollar_section(store: Store, cfg: dict) -> dict:
     items = cfg["prices"]["dollar"]
     return {**section_meta(store, cfg, "dollar"),
             "rows": perf_rows(store, items, None, _cot_extra(store, cfg)),
-            "charts": [weekly_with_ma(store, i["ticker"], i["name"], i["tv"]) for i in items[:2]]
-            + [cot_chart(store, cfg, "usd"), cot_chart(store, cfg, "eur")]}
+            "charts": [weekly_with_ma(store, i["ticker"], i["name"], i["tv"]) for i in items[:2]]}
 
 
 def commodities_section(store: Store, cfg: dict) -> dict:
@@ -776,7 +649,6 @@ def crypto_section(store: Store, cfg: dict) -> dict:
             panel([series_spec("ETH/BTC", _tail(ratio, 730), "ind"),
                    series_spec("50d", _tail(ratio.rolling(50).mean(), 730), "ma")], fmt="sig"),
         ], tv="BINANCE:ETHBTC"))
-    charts.append(cot_chart(store, cfg, "bitcoin", years=8))
     return {**section_meta(store, cfg, "crypto"), "rows": perf_rows(store, items, "SPY", extra),
             "charts": charts}
 
@@ -804,60 +676,11 @@ def asia_section(store: Store, cfg: dict) -> dict:
             "charts": charts}
 
 
-# --- section: index positioning (COT for the big US stock index futures) ---------------
+# --- shared list helper -----------------------------------------------------------------
 
 def _list(s: pd.Series, nd: int | None = None) -> list:
     return [None if v is None or (isinstance(v, float) and math.isnan(v)) else
             (round(float(v), nd) if nd is not None else float(v)) for v in s.values]
-
-
-def index_cot(store: Store, cfg: dict, asset: dict) -> dict:
-    """Daily index price plus weekly net positions and percentiles of every trader group."""
-    price = frames.price(store, asset["price"]).dropna()
-    price = price[price.index >= cfg["cftc"]["history_start"]]
-    ma50, ma200 = price.rolling(50).mean(), price.rolling(200).mean()
-    if not price.empty:
-        # Daily for the last 3 years, weekly before that: same picture, a third of the data.
-        cut = price.index[-1] - pd.DateOffset(years=3)
-        price = pd.concat([_weekly(price[price.index < cut]), price[price.index >= cut]])
-    oi = frames.series(store, f"cot:{asset['key']}:oi").dropna()
-    out = {"key": asset["key"], "label": asset["label"], "default_group": asset["cohort"],
-           "group": asset["group"],
-           "tv": next((i["tv"] for i in [*cfg["prices"]["indices"].values(), *cfg["prices"]["commodities"]]
-                       if i["ticker"] == asset["price"]), asset["price"].replace("^", "")),
-           "price": {"dates": [d.date().isoformat() for d in price.index], "close": _list(price, 1),
-                     "ma50": _list(ma50.reindex(price.index, method="ffill"), 1),
-                     "ma200": _list(ma200.reindex(price.index, method="ffill"), 1)},
-           "available": not oi.empty}
-    if oi.empty:
-        return out
-    groups = {}
-    for g in cftc_sources.DATASET_COHORTS[asset["dataset"]]:
-        net = frames.series(store, f"cot:{asset['key']}:g:{g}").reindex(oi.index)
-        if net.dropna().empty:
-            continue
-        ratio = net / oi.replace(0, np.nan)
-        stats = {k: _num(v) if not isinstance(v, str) else v
-                 for k, v in derived.cot_percentiles(net.dropna(), oi).items()}
-        stats["change_4w"] = _num(net.iloc[-1] - net.iloc[-5]) if len(net) > 4 else None
-        stats["label"] = derived.positioning_label(stats.get("pct_all"))
-        name, about = explain.GROUPS[g]
-        groups[g] = {"name": name, "about": about, "stats": stats,
-                     "net": _list(net, 0),
-                     "pct_all": _list(derived.expanding_percentile(ratio), 0),
-                     "pct_5y": _list(derived.rolling_percentile(ratio, 260), 0),
-                     "pct_1y": _list(derived.rolling_percentile(ratio, 52), 0)}
-    out["cot"] = {"dates": [d.date().isoformat() for d in oi.index], "oi": _list(oi, 0), "groups": groups}
-    return out
-
-
-def indexcot_section(store: Store, cfg: dict) -> dict:
-    by_key = {a["key"]: a for a in cfg["cftc"]["assets"]}
-    view = cfg["cftc"]["index_view"]
-    indices = [index_cot(store, cfg, by_key[k]) | {"kind": kind} for kind, keys in view.items() for k in keys]
-    dates = [i["cot"]["dates"][-1] for i in indices if i.get("cot")]
-    return {**section_meta(store, cfg, "indexcot"), "indices": indices,
-            "report_date": max(dates) if dates else None, "howto": explain.INDEX_COT_HOWTO}
 
 
 # --- section: upcoming US earnings with European peers --------------------------------
@@ -968,7 +791,7 @@ def earnings_session(t: pd.Timestamp) -> str:
 
 
 BUILDERS = {
-    "summary": summary_section, "earnings": earnings_section, "today": today_section, "stocks": stocks_section,
+    "summary": summary_section, "earnings": earnings_section, "today": today_section,
     "appetite": appetite_section, "volatility": volatility_section,
     "positioning": positioning_section, "rates": rates_section, "dollar": dollar_section,
     "commodities": commodities_section, "crypto": crypto_section, "asia": asia_section,

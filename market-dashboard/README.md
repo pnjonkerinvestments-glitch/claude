@@ -17,9 +17,9 @@ number and a compact chart.
 | Activity | **Unusual volume** (US stocks ≥ $25B and ETFs ≥ $1B at 2x their 10-day volume, refreshed every 30 minutes in the US session); **200-day SMA taps** (S&P 500 members, ETFs and futures whose range touched the 200-day average); **Record volume** (≥ 90% of the biggest day ever); **European small-cap movers** (up 10%+, under $1B). Each with a running log of the last 10 sessions |
 | Performance | US ETF table (sectors, styles, themes, bonds, commodities) and country/region ETFs and STOXX 600 sectors: day, week, 1M, 3M, YTD, 1Y with shading by size, sortable; TradingView heatmap (S&P 500 / STOXX 600) |
 | Options & flows | Put/call ratio per index with a period choice; SPY/QQQ/IWM put or call volume cleared at OCC (2 years, rank, vs 50-day average, bars coloured by up/down day); short (inverse) ETF share of SPY/QQQ/IWM family dollar volume since 2021 with price, 10-day average and percentile |
-| Charts | Days without a 1% decline (or gain) for the S&P 500, Nasdaq-100, Dow, Russell 2000, Euro Stoxx 50, DAX and AEX, with the index on a log scale and labels on long streaks; price charts with daily/weekly candles, 50/200-day averages and an optional breadth panel |
+| Price charts | Daily/weekly candles with 50/200-day (10/40-week) averages for the main indexes and ETFs, with an optional breadth panel (% above 20/50/200-day, % beating the index, McClellan summation)
 | Seasonality | Average, median or % of years up per calendar month over 10/15/20 years: NQ, ES, DAX, Euro Stoxx 50, gold, silver, crude, ZN, ZB, dollar, EUR/USD, bitcoin |
-| More charts (folded) | Stocks & breadth, risk appetite, volatility, rates & credit, dollar, commodities, crypto, Asia: the multi-panel charts of the earlier version |
+| More charts (folded) | Risk appetite: equal- vs cap-weight S&P 500 since 2003, HYG/IEF, SMH/SPY, XLY/XLP; volatility (VIX term structure, MOVE, Nasdaq-100 weekly returns); rates & credit; dollar; commodities; crypto; Asia |
 
 Every card and chart explains itself ("What does this show?"). All charts zoom with the mouse
 wheel or a pinch, move by dragging, and reset with a double-click. **Open in TradingView ↗**
@@ -101,7 +101,7 @@ Run the tests: `.venv/bin/python -m pytest tests`.
 | What | When (Europe/Amsterdam) |
 |---|---|
 | Prices, trend, breadth, ratios, FRED, CBOE | Mon–Fri at 18:00 (after the European close) and 22:30 (after the US close) |
-| Earnings release times, QQQ/IWM/SPY put/call | Mon–Fri 08:00, plus with the 18:00 and 22:30 refreshes |
+| Earnings release times, OCC option volume | Mon–Fri 08:00, plus with the 18:00 and 22:30 refreshes |
 | Unusual volume, 200-day taps, European small caps | Mon–Fri every 30 minutes from 15:45 to 22:15, plus with the daily refreshes |
 | Record volume | With the daily refreshes; the all-time records themselves Saturday 10:00 |
 | COT | Friday 22:00 (CFTC publishes Friday 15:30 New York time) |
@@ -153,10 +153,8 @@ markets are under `tradingview:`.
   Suggested extra pairs sit under `extra_peers` in the peer file and are off unless
   `earnings.use_extra_peers: true`. Quote tickers YAML reads as yes/no, such as `"ON"`.
 - **Put/call per index:** CBOE publishes daily index figures only for SPX and VIX. Nasdaq-100
-  options trade elsewhere, so QQQ and IWM (ETF) options from Yahoo stand in; each refresh
-  outside US trading hours stores the last full session, so that history starts at install
-  (points are drawn until there are enough days for a line). Yahoo resets open interest to 0
-  overnight, so the open-interest ratio is only stored when it is filled in (evening run).
+  options trade elsewhere, so SPY, QQQ and IWM (ETF) options stand in: puts ÷ calls cleared at
+  OCC per day, two years of history.
 - **Not included (paid or proprietary):** NAAIM, AAII, BofA Fund Manager Survey, Goldman
   prime-book data, and newsletter models such as a "Core Risk Model" or the Daily Sentiment
   Index. VSTOXX has no free source either, so there is no Euro Stoxx 50 expected move.

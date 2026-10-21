@@ -1,5 +1,5 @@
 """JSON for the overview cards, activity lists, performance tables, flows and seasonality, plus
-the detail views the page loads on demand (COT, price charts, streaks)."""
+the detail views the page loads on demand (COT and price charts)."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ import pandas as pd
 
 from . import derived, explain, frames
 from .activity import bars
-from .blocks import _list, _num, _weekly, perf_rows, section_meta
+from .blocks import _list, _num, perf_rows, section_meta
 from .db import Store
 from .sources import cftc as cftc_sources
 
@@ -304,35 +304,12 @@ def price_detail(store: Store, cfg: dict, ticker: str) -> dict:
     return c
 
 
-def streak_detail(store: Store, cfg: dict, ticker: str) -> dict:
-    close = frames.price(store, ticker).dropna()
-    if close.empty:
-        return {"available": False, "ticker": ticker}
-    out = {"available": True, "ticker": ticker, "name": name_of(cfg, ticker),
-           "dates": _dates(close.index), "close": _list(close, 2), "first": close.index[0].year}
-    change = close.pct_change() * 100
-    for direction in ("decline", "gain"):
-        streak = derived.move_streak(close, 1.0, direction)
-        peaks = derived.streak_peaks(streak, 1)
-        current = int(streak.iloc[-1])
-        hits = change[change <= -1] if direction == "decline" else change[change >= 1]
-        out[direction] = {
-            "streak": [int(v) for v in streak.values], "current": current,
-            "peaks": {"dates": _dates(peaks.index), "values": [int(v) for v in peaks.values]},
-            "record": int(streak.max()), "record_date": streak.idxmax().date().isoformat(),
-            "at_least": int((peaks >= max(current, 1)).sum()),
-            "last_hit": hits.index[-1].date().isoformat() if not hits.empty else None,
-            "last_move": _num(hits.iloc[-1]) if not hits.empty else None}
-    return out
-
-
-DETAILS = {"cot": cot_detail, "price": price_detail, "streak": streak_detail}
+DETAILS = {"cot": cot_detail, "price": price_detail}
 
 
 def detail_keys(cfg: dict) -> dict[str, list[str]]:
     """Every key the page can ask for, for the static snapshot."""
-    return {"cot": [a["key"] for a in cfg["cftc"]["assets"]], "price": cfg["prices"]["price_charts"],
-            "streak": cfg["prices"]["streak_indices"]}
+    return {"cot": [a["key"] for a in cfg["cftc"]["assets"]], "price": cfg["prices"]["price_charts"]}
 
 
 COT_TV = {"spx": "CME_MINI:ES1!", "ndx": "CME_MINI:NQ1!", "dow": "CBOT_MINI:YM1!", "rut": "CME_MINI:RTY1!",
@@ -353,9 +330,9 @@ def tv_symbol(cfg: dict, ticker: str) -> str:
 
 def charts_meta(cfg: dict) -> dict:
     p = cfg["prices"]
-    tickers = list(dict.fromkeys(p["price_charts"] + p["streak_indices"]))
+    tickers = p["price_charts"]
     names = {t: name_of(cfg, t) for t in tickers}
-    return {"price": p["price_charts"], "streak": p["streak_indices"], "names": names,
+    return {"price": p["price_charts"], "names": names,
             "tv": {t: tv_symbol(cfg, t) for t in tickers}}
 
 

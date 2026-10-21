@@ -21,7 +21,7 @@
       <nav class="nav" aria-label="Sections">
         <a href="#overview">Overview</a><a href="#positioning">Positioning</a><a href="#earnings">Earnings</a>
         <a href="#activity">Activity</a><a href="#performance">Performance</a><a href="#flows">Options &amp; flows</a>
-        <a href="#charts">Charts</a><a href="#seasonality">Seasonality</a><a href="#stocks">More charts</a>
+        <a href="#charts">Price charts</a><a href="#seasonality">Seasonality</a><a href="#appetite">More charts</a>
       </nav>
       <div class="topbar-right">
         <div class="seg" role="group" aria-label="Theme">
@@ -243,21 +243,9 @@
 
     <!-- ===================== charts ===================== -->
     <section id="charts" class="section">
-      <div class="section-head"><h2>Charts</h2><span class="updated"></span></div>
-      <article class="card" id="card-streak">
-        <div class="card-head"><h3><span class="st-title">S&amp;P 500 days without a 1% decline</span></h3>
-          <div class="controls"><select data-st-index aria-label="Index"></select>
-            <div class="seg" data-st-dir><button type="button" data-v="decline">1% decline</button><button type="button" data-v="gain">1% gain</button></div>
-            <div class="seg" data-st-range><button type="button" data-v="1">1Y</button><button type="button" data-v="5">5Y</button>
-              <button type="button" data-v="10">10Y</button><button type="button" data-v="0">All</button></div></div></div>
-        <div class="big-row"><span class="big st-current"></span><span class="muted">trading days</span></div>
-        <p class="card-sub st-sub"></p>
-        <div class="chart h360"></div>
-        <p class="chart-note">Blue: trading days since the last close-to-close move of 1% or more (right axis) · line: the index, log scale (left axis) · shaded band 30–50 days · red labels mark long streaks · scroll or pinch to zoom, drag to move, double-click to reset · today's bar is still forming during the session.</p>
-      </article>
+      <div class="section-head"><h2>Price charts</h2><span class="updated"></span></div>
       <article class="card" id="card-price">
-        <div class="card-head"><h3>Price charts</h3></div>
-        <p class="card-sub pr-sub"></p>
+        <p class="card-sub pr-sub" style="margin:0"></p>
         <div class="controls"><select data-pr-ticker aria-label="Market"></select>
           <div class="seg" data-pr-freq><button type="button" data-v="daily">Daily</button><button type="button" data-v="weekly">Weekly</button></div>
           <select data-pr-breadth aria-label="Breadth">
@@ -284,11 +272,6 @@
     </section>
 
     <!-- ===================== more charts (folded) ===================== -->
-    <section id="stocks" class="section fold">
-      <div class="section-head"><h2>Stocks &amp; breadth</h2><span class="updated"></span></div>
-      <div class="warnings"></div>
-      <div class="grid two charts"></div>
-    </section>
     <section id="appetite" class="section fold">
       <div class="section-head"><h2>Risk appetite</h2><span class="updated"></span></div>
       <div class="warnings"></div>

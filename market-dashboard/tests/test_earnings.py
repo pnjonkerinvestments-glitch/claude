@@ -3,7 +3,6 @@ import pandas as pd
 import pytest
 
 from dashboard import blocks, frames
-from dashboard.refresh import last_completed_session
 from dashboard.sources import earnings
 
 NY = "America/New_York"
@@ -80,17 +79,6 @@ def test_weekly_correlation():
                                        ("NOVO-B.CO", "OMXCOP:NOVO_B"), ("BATS.L", "LSE:BATS")])
 def test_eu_tv_symbol(ticker, tv):
     assert blocks.eu_tv_symbol(ticker) == tv
-
-
-@pytest.mark.parametrize("now,session", [
-    ("2026-10-24 12:00", "2026-10-23"),   # Saturday -> Friday
-    ("2026-10-26 05:00", "2026-10-23"),   # Monday before the open -> Friday
-    ("2026-10-21 17:00", "2026-10-21"),   # after the close -> today
-    ("2026-10-21 12:00", None),           # during the session: volume incomplete
-])
-def test_last_completed_session(now, session):
-    got = last_completed_session(pd.Timestamp(now))
-    assert (got.date().isoformat() if got is not None else None) == session
 
 
 def test_peer_file_is_consistent():

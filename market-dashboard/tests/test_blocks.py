@@ -123,20 +123,8 @@ def test_every_section_builds_and_api_serves(store, cfg):
             assert "error" not in data[name], (name, data[name].get("error"))
         assert client.get("/api/detail/cot/vix").json()["available"]
         assert client.get("/api/detail/cot/nope").status_code == 404
-        assert client.get("/api/detail/streak/^GSPC").status_code == 200
+        assert client.get("/api/detail/streak/^GSPC").status_code == 404
         assert client.get("/api/detail/price/^GSPC").status_code == 200
-
-
-def test_index_positioning_section(store, cfg):
-    sec = blocks.indexcot_section(store, cfg)
-    spx = next(i for i in sec["indices"] if i["key"] == "spx")
-    groups = spx["cot"]["groups"]
-    assert groups["am"]["stats"]["label"] == "Extremely long"
-    assert groups["lf"]["stats"]["label"] == "Extremely short"
-    assert len(groups["am"]["pct_all"]) == len(spx["cot"]["dates"])
-    assert spx["price"]["dates"] and len(spx["price"]["ma50"]) == len(spx["price"]["close"])
-    assert spx["default_group"] == "am" and "Commitments of Traders" in sec["howto"]
-    assert not next(i for i in sec["indices"] if i["key"] == "ndx")["available"]
 
 
 def test_everything_has_an_explanation(store, cfg):
@@ -148,7 +136,6 @@ def test_everything_has_an_explanation(store, cfg):
             assert c.get("explain"), c["id"]
     for ind in data["summary"]["indicators"]:
         assert ind["meaning"], ind["key"]
-    assert all(t["about"] for t in data["summary"]["tiles"])
 
 
 def test_scheduler_has_morning_earnings_job(store, cfg):
