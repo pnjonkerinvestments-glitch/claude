@@ -55,3 +55,10 @@ def eu_peers(include_extra: bool = False) -> tuple[dict, dict]:
     if bad:  # YAML reads ON, NO, YES etc. as booleans unless quoted
         raise ValueError(f"eu_peers.yaml: quote these tickers: {bad}")
     return peers, data.get("eu_names", {})
+
+
+@lru_cache(maxsize=None)
+def sec_ciks() -> dict[str, int]:
+    """US ticker -> SEC CIK from universe/eu_peers.yaml."""
+    with open(UNIVERSE_DIR / "eu_peers.yaml", encoding="utf-8") as fh:
+        return {str(k): int(v) for k, v in (yaml.safe_load(fh).get("sec_cik") or {}).items()}

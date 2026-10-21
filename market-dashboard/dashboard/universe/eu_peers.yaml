@@ -195,3 +195,35 @@ eu_names:
   EQT.ST: EQT
   KER.PA: Kering
   MC.PA: LVMH
+
+# SEC company numbers (CIK) of the US companies, used to pin release times to the minute from
+# their 8-K results filings. Checked against data.sec.gov, Oct 2026. Infosys files no 8-Ks.
+sec_cik:
+  ETN: 1551182
+  GEHC: 1932393
+  LLY: 59478
+  EL: 1001250
+  UA: 1336917
+  SPGI: 64040
+  VRT: 1674101
+  TMUS: 1283699
+  WMT: 104169
+  MSCI: 1408198
+  DHR: 313616
+  GE: 40545
+  PM: 1413329
+  GEV: 1996810
+  BA: 12927
+  T: 732717
+  GLW: 24741
+  DOW: 1751788
+  INFY: 1067491
+  TMO: 97745
+  TRU: 1552033
+  UPS: 1090727
+  HLT: 1585689
+  GM: 1467858
+  TEVA: 818686
+  DTE: 936340
+  IBM: 51143
+  ACN: 1467373

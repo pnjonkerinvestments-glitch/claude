@@ -18,6 +18,7 @@ def load_config(path: Path | None = None) -> dict:
     with open(path, encoding="utf-8") as fh:
         cfg = yaml.safe_load(fh)
     cfg["fred_api_key"] = os.environ.get("FRED_API_KEY", "").strip()
+    cfg["sec_contact"] = os.environ.get("SEC_CONTACT", "").strip()
     server = cfg.setdefault("server", {})
     server["host"] = os.environ.get("DASHBOARD_HOST", server.get("host", "127.0.0.1"))
     server["port"] = int(os.environ.get("DASHBOARD_PORT", server.get("port", 8050)))

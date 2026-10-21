@@ -11,7 +11,7 @@ import pandas as pd
 
 from . import derived, frames
 from .db import Store
-from .sources import cboe, cftc, earnings, fred, options, prices
+from .sources import cboe, cftc, earnings, fred, options, prices, sec
 from .sources.http import client
 
 log = logging.getLogger("dashboard.refresh")
@@ -228,13 +228,20 @@ def refresh_earnings(store: Store, cfg: dict, today: date) -> None:
     e = cfg["earnings"]
     peers, _ = frames.eu_peers(e["use_extra_peers"])
     now = pd.Timestamp.now(tz="UTC")
+    ciks = frames.sec_ciks()
     rows, errors = [], []
     for ticker in peers:
         try:
             cap = earnings.market_cap(ticker)
             if cap is not None and cap < e["min_market_cap"]:
                 continue
-            report = earnings.next_report(ticker, now)
+            filings = None
+            if ticker in ciks:
+                try:
+                    filings = sec.results_filings(ciks[ticker], cfg.get("sec_contact", ""))
+                except Exception as exc:  # SEC down: fall back to the hour-level estimate
+                    errors.append(f"{ticker} SEC: {exc}")
+            report = earnings.next_report(ticker, now, filings)
             if report:
                 rows.append({**report, "market_cap": cap})
         except Exception as exc:  # keep going; report what failed

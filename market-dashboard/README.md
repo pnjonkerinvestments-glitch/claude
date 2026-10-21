@@ -48,8 +48,8 @@ How the main indicators are calculated:
   and serves the page.
 - Frontend: one HTML/CSS/JS page, no build step, Chart.js from a CDN.
 - Live quotes, sector heatmap and economic calendar: free TradingView widgets.
-- Other data: FRED, CFTC (COT), CBOE (VIX indices, put/call ratios) and Yahoo Finance via
-  yfinance (daily closes, including all S&P 500 members for breadth).
+- Other data: FRED, CFTC (COT), CBOE (VIX indices, put/call ratios), SEC EDGAR (8-K times)
+  and Yahoo Finance via yfinance (daily closes, including all S&P 500 members for breadth).
 - All times are Europe/Amsterdam.
 
 ## Installation
@@ -144,6 +144,13 @@ markets are under `tradingview:`.
   placeholder (7:00, 8:00 or 8:30 New York), so the page uses the company's usual release time
   from its last four reports (shown with ≈; Yahoo rounds past times to the hour). Amsterdam
   times follow both daylight-saving switches (Europe changes a week before the US).
+  The 08:00 refresh then pins the minute from SEC EDGAR (`data.sec.gov`, free, no key): the
+  acceptance time of each past 8-K with item 2.02 (results) that falls in the same hour as the
+  Yahoo time. When three of the last four agree within 15 minutes, the median is shown without
+  ≈ (e.g. Boeing 07:30, UPS 06:05 New York). Companies that file their 8-K hours after the
+  press release (IBM, AT&T and others) keep the hour estimate. CIKs are under `sec_cik` in the
+  peer file; `SEC_CONTACT` in `.env` is optional (the SEC asks automated tools to identify
+  themselves).
   Suggested extra pairs sit under `extra_peers` in the peer file and are off unless
   `earnings.use_extra_peers: true`. Quote tickers YAML reads as yes/no, such as `"ON"`.
 - **Put/call per index:** CBOE publishes daily index figures only for SPX and VIX. Nasdaq-100

@@ -1099,7 +1099,7 @@ function earningsRow(r, p, i, n) {
   const span = (td) => { td.rowSpan = n; return td; };
   if (i === 0) {
     const rel = el("td", "rel");
-    rel.append(el("b", "", r.release_ams ? `${r.basis.startsWith("time from") ? "" : "≈ "}${r.release_ams}` : "time n/a"),
+    rel.append(el("b", "", r.release_ams ? `${r.basis.startsWith("time from") || r.basis.includes("to the minute") ? "" : "≈ "}${r.release_ams}` : "time n/a"),
                el("span", "timing", r.session === "AMC" ? "after US close" : r.session === "BMO" ? "before US open" : "during session"));
     rel.title = `${r.basis}${r.release_ny ? `; ${r.release_ny} New York time` : ""}`;
     const co = el("td", "co");

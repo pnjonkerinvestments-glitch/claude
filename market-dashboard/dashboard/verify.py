@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from . import refresh
-from .sources import cboe, cftc, earnings, fred, prices
+from .sources import cboe, cftc, earnings, fred, prices, sec
 from .sources.http import client
 
 
@@ -94,7 +94,9 @@ def verify(cfg: dict) -> int:
         from . import frames
         peers, _ = frames.eu_peers(cfg["earnings"]["use_extra_peers"])
         now = pd.Timestamp.now(tz="UTC")
-        found = {t: earnings.next_report(t, now) for t in list(peers)[:5]}
+        ciks = frames.sec_ciks()
+        found = {t: earnings.next_report(t, now, sec.results_filings(ciks[t], cfg.get("sec_contact", "")))
+                 for t in list(peers)[:5]}
         lines = [f"{t}: {r['date_ny']} ({r['basis']})" if r else f"{t}: none" for t, r in found.items()]
         return any(found.values()), "\n       " + "\n       ".join(lines)
 

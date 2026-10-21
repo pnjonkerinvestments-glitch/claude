@@ -8,6 +8,8 @@ from collections import Counter
 import pandas as pd
 import yfinance as yf
 
+from . import sec
+
 NY = "America/New_York"
 
 
@@ -32,7 +34,8 @@ def is_placeholder(t: pd.Timestamp) -> bool:
     return (t.hour, t.minute) in PLACEHOLDERS
 
 
-def expected_release(upcoming: pd.Timestamp, past: list[pd.Timestamp]) -> tuple[pd.Timestamp | None, str]:
+def expected_release(upcoming: pd.Timestamp, past: list[pd.Timestamp],
+                     exact: list[pd.Timestamp] | None = None) -> tuple[pd.Timestamp | None, str]:
     """Best estimate of the release moment (New York time) and where it comes from.
 
     Companies keep the same release slot quarter after quarter, and Yahoo's time for an
@@ -43,6 +46,11 @@ def expected_release(upcoming: pd.Timestamp, past: list[pd.Timestamp]) -> tuple[
     upcoming = upcoming.tz_convert(NY)
     recent = [p.tz_convert(NY) for p in past[:4]]
     at = lambda hour, minute: upcoming.replace(hour=hour, minute=minute)
+    # Minute-exact times from SEC filings win when at least 3 recent reports agree within 15 minutes.
+    minutes = sorted(t.tz_convert(NY).hour * 60 + t.tz_convert(NY).minute for t in (exact or [])[:4])
+    if len(minutes) >= 3 and minutes[-1] - minutes[0] <= 15:
+        mid = minutes[len(minutes) // 2]
+        return at(mid // 60, mid % 60), f"usual time to the minute (SEC filings, {len(minutes)} of last 4)"
     if recent:
         (hour, minute), count = Counter((p.hour, p.minute) for p in recent).most_common(1)[0]
         if count >= 3:
@@ -54,7 +62,7 @@ def expected_release(upcoming: pd.Timestamp, past: list[pd.Timestamp]) -> tuple[
     return None, "time not known yet"
 
 
-def next_report(ticker: str, now: pd.Timestamp) -> dict | None:
+def next_report(ticker: str, now: pd.Timestamp, filings: list[pd.Timestamp] | None = None) -> dict | None:
     """Upcoming report of `ticker`: date, expected release time, EPS estimate, past report times."""
     df = yf.Ticker(ticker).get_earnings_dates(limit=12)
     if df is None or df.empty:
@@ -66,7 +74,8 @@ def next_report(ticker: str, now: pd.Timestamp) -> dict | None:
     if upcoming.empty:
         return None
     when = upcoming.index[0]
-    release, basis = expected_release(when, past)
+    exact = sec.pin_to_minutes(past[:4], filings) if filings else []
+    release, basis = expected_release(when, past, exact)
     return {"symbol": ticker, "date_ny": when.tz_convert(NY).date().isoformat(),
             "release_utc": release.tz_convert("UTC").isoformat() if release is not None else None,
             "session": session(release if release is not None else when.tz_convert(NY)),

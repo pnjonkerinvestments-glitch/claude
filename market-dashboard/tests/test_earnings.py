@@ -101,3 +101,32 @@ def test_peer_file_is_consistent():
     assert "ON" in every and "MSFT" in every
     missing = {t for lst in every.values() for t in lst if t not in names}
     assert not missing, f"add names for {missing}"
+
+
+def utc(s):
+    return pd.Timestamp(s, tz="UTC")
+
+
+def test_sec_filing_pins_release_to_the_minute():
+    from dashboard.sources import sec
+    past = [ny("2026-07-22 07:00"), ny("2026-04-22 07:00")]
+    filings = [utc("2026-07-22 11:02:31"), utc("2026-04-22 11:32:00"),   # 07:02 and 07:32 New York
+               utc("2026-04-22 01:55:00")]                               # evening before: ignored
+    assert [t.strftime("%H:%M") for t in sec.pin_to_minutes(past, filings)] == ["07:00", "07:30"]
+    assert sec.pin_to_minutes([ny("2026-07-22 16:00")], [utc("2026-07-23 00:10")]) == []   # 4 h late
+
+
+def test_minute_times_win_when_they_agree():
+    past = [ny("2026-07-22 07:00")] * 4
+    exact = [ny("2026-07-22 07:30"), ny("2026-04-22 07:30"), ny("2026-01-28 07:35"), ny("2025-10-22 07:30")]
+    t, basis = earnings.expected_release(ny("2026-10-27 08:00"), past, exact)
+    assert t.strftime("%H:%M") == "07:30" and "to the minute" in basis
+    scattered = [ny("2026-07-22 07:00"), ny("2026-04-22 07:40"), ny("2026-01-28 07:20")]
+    t, basis = earnings.expected_release(ny("2026-10-27 08:00"), past, scattered)
+    assert t.strftime("%H:%M") == "07:00" and "to the minute" not in basis   # too far apart
+
+
+def test_every_listed_company_has_a_cik():
+    own, _ = frames.eu_peers()
+    ciks = frames.sec_ciks()
+    assert set(own) <= set(ciks), set(own) - set(ciks)
