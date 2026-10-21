@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import date, timedelta
 
 from . import refresh
-from .sources import cboe, cftc, fred, prices
+from .sources import cboe, cftc, earnings, fred, prices
 from .sources.http import client
 
 
@@ -89,6 +89,15 @@ def verify(cfg: dict) -> int:
             return not hard, detail
         return run
 
+    def earnings_check():
+        cap = cfg["earnings"]["min_market_cap"]
+        universe = earnings.fetch_us_universe(cap)
+        df = earnings.fetch_calendar(today.isoformat(), (today + timedelta(days=7)).isoformat(), cap)
+        rows = earnings.parse_calendar(df, universe, cap)
+        return len(universe) > 500 and bool(rows), \
+            f"{len(universe)} US companies ≥ ${cap / 1e9:g} bn; {len(rows)} reports in the next 7 days"
+
+    results.append(_check("Yahoo earnings calendar", earnings_check))
     results.append(_check("Yahoo indices/ETFs", yahoo_check(refresh.price_tickers(cfg))))
     results.append(_check("Yahoo index members", yahoo_check(refresh.component_tickers(cfg))))
 

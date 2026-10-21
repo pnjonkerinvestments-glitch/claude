@@ -7,6 +7,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
+import yaml
 
 from .db import Store
 
@@ -40,3 +41,15 @@ def sp500_members() -> tuple[tuple[str, str, str], ...]:
 
 def eu_members(cfg: dict) -> list[str]:
     return list(dict.fromkeys(t for members in cfg["breadth_components"].values() for t in members))
+
+
+@lru_cache(maxsize=None)
+def eu_peers() -> tuple[dict, dict]:
+    """({US ticker: [EU tickers]}, {EU ticker: name}) from universe/eu_peers.yaml."""
+    with open(UNIVERSE_DIR / "eu_peers.yaml", encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+    peers = data.get("peers", {})
+    bad = [k for k, v in peers.items() if not isinstance(k, str) or not all(isinstance(t, str) for t in v)]
+    if bad:  # YAML reads ON, NO, YES etc. as booleans unless quoted
+        raise ValueError(f"eu_peers.yaml: quote these tickers: {bad}")
+    return peers, data.get("eu_names", {})

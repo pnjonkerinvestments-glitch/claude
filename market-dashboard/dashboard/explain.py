@@ -9,6 +9,10 @@ SECTIONS = {
     "indexcot": "Who is long or short the big US stock index futures, and how unusual that is compared "
                 "with history. Extremes in positioning often mark turning points, because a crowded "
                 "trade has few buyers (or sellers) left.",
+    "earnings": "Upcoming results of US companies worth at least $1.5 billion, with their European "
+                "peers. A US report often moves its European counterparts too: before the US open "
+                "(BMO) Europe reacts the same afternoon, after the US close (AMC) at the next "
+                "European open.",
     "today": "What the options market expects for today's S&P 500 range, the important economic releases, "
              "and a heatmap of today's moves.",
     "stocks": "How many stocks take part in the move. A rally carried by a handful of large stocks is "
@@ -120,6 +124,15 @@ COLUMNS = {
     "5Y": "Percentile of Net/OI against the last 5 years.",
     "1Y": "Percentile of Net/OI against the last year.",
     "Nominal": "Percentile of the raw net contracts (not divided by open interest), all-time.",
+    "When": "Report date and time in Amsterdam time. BMO = before the US open, AMC = after the US close.",
+    "Market cap": "Company value in billions of dollars.",
+    "EPS est.": "Analysts' average earnings-per-share estimate; after the report, the reported EPS and "
+                "the surprise versus the estimate.",
+    "EU peers": "European companies in the same business (from eu_peers.yaml) with their 1-week "
+                "return and correlation with the US company.",
+    "Corr": "Correlation of weekly returns over the last year, from −1 to +1. Above ~0.5 = the two "
+            "usually move together, so the US report is likely to move the peer.",
+    "EU reacts": "When European peers can first trade on the news.",
     "3Y %ile": "Where today's level sits within the last 3 years (100 = highest).",
     "1D": "Change since the previous day, in basis points (0.01 percentage point).",
 }

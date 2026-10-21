@@ -14,6 +14,7 @@ from .db import Store
 
 SECTION_SOURCES = {
     "summary": ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "cftc"),
+    "earnings": ("earnings", "prices"),
     "indexcot": ("cftc", "prices"),
     "today": ("prices", "cboe_vix"),
     "stocks": ("prices", "components", "breadth"),
@@ -34,6 +35,7 @@ SOURCE_NAMES = {
     "cboe_pc": "CBOE (put/call ratios)",
     "fred": "FRED",
     "cftc": "CFTC (COT)",
+    "earnings": "Yahoo Finance (earnings calendar)",
 }
 COHORT_NAMES = {"am": "Asset managers", "lf": "Leveraged funds", "mm": "Managed money"}
 
@@ -841,8 +843,80 @@ def indexcot_section(store: Store, cfg: dict) -> dict:
             "report_date": max(dates) if dates else None, "howto": explain.INDEX_COT_HOWTO}
 
 
+# --- section: upcoming US earnings with European peers --------------------------------
+
+EU_EXCHANGES = {".PA": "EURONEXT", ".AS": "EURONEXT", ".BR": "EURONEXT", ".DE": "XETR", ".L": "LSE",
+                ".MI": "MIL", ".MC": "BME", ".SW": "SIX", ".CO": "OMXCOP", ".ST": "OMXSTO",
+                ".HE": "OMXHEX", ".OL": "OSL"}
+
+
+def eu_tv_symbol(ticker: str) -> str:
+    for suffix, exchange in EU_EXCHANGES.items():
+        if ticker.endswith(suffix):
+            return f"{exchange}:{ticker[: -len(suffix)].replace('-', '_')}"
+    return ticker
+
+
+def weekly_correlation(a: pd.Series, b: pd.Series, weeks: int) -> float | None:
+    """Correlation of weekly returns. Weekly, because Europe closes hours before the US:
+    daily returns would mix up which day a move belongs to."""
+    joined = pd.concat([_weekly(a).pct_change(), _weekly(b).pct_change()], axis=1, join="inner").dropna()
+    joined = joined.iloc[-weeks:]
+    if len(joined) < weeks // 2:
+        return None
+    return _num(joined.iloc[:, 0].corr(joined.iloc[:, 1]))
+
+
+def eu_reaction(time_utc: str, timing: str) -> dict:
+    """When European peers can first trade on the news (Amsterdam time).
+
+    Before the US open (BMO) the release lands around 12:00-14:30 Amsterdam time, while
+    Europe is still trading. After the US close (AMC) Europe reacts at the next open.
+    """
+    us_day = pd.Timestamp(time_utc).tz_convert("America/New_York").normalize().tz_localize(None)
+    if timing in ("BMO", "TAS"):
+        return {"date": us_day.date().isoformat(), "text": "same day, afternoon"}
+    if timing == "AMC":
+        nxt = us_day + pd.offsets.BDay(1)
+        return {"date": nxt.date().isoformat(), "text": f"{nxt.strftime('%a')} at the open"}
+    return {"date": us_day.date().isoformat(), "text": "time not announced"}
+
+
+def earnings_section(store: Store, cfg: dict) -> dict:
+    e = cfg["earnings"]
+    data = store.get_json("earnings", {"rows": []})
+    peers, names = frames.eu_peers()
+    today = datetime.now(cfg["tz"]).date().isoformat()
+    tz = cfg["tz"]
+    rows = []
+    for r in data["rows"]:
+        when = pd.Timestamp(r["time_utc"]).tz_convert(tz)
+        if when.date().isoformat() < today:
+            continue
+        us_px = frames.price(store, r["symbol"])
+        row = {**r, "date": when.date().isoformat(), "day": when.strftime("%a %d %b"),
+               "timing_text": {"BMO": "before US open", "AMC": "after US close (22:00)",
+                               "TAS": "during US session"}.get(r["timing"], "time not set"),
+               "reaction": eu_reaction(r["time_utc"], r["timing"]),
+               "tv": r["symbol"], "w1": None, "peers": []}
+        if len(us_px) > 6:
+            row["w1"] = _num(100 * (us_px.iloc[-1] / us_px.iloc[-6] - 1))
+        for t in peers.get(r["symbol"], []):
+            eu_px = frames.price(store, t)
+            peer = {"ticker": t, "name": names.get(t, t), "tv": eu_tv_symbol(t), "w1": None, "corr": None}
+            if len(eu_px) > 6:
+                peer["w1"] = _num(100 * (eu_px.iloc[-1] / eu_px.iloc[-6] - 1))
+                if len(us_px) > 6:
+                    peer["corr"] = weekly_correlation(us_px, eu_px, e["correlation_weeks"])
+            row["peers"].append(peer)
+        rows.append(row)
+    return {**section_meta(store, cfg, "earnings"), "rows": rows,
+            "min_cap_bn": e["min_market_cap"] / 1e9, "peer_count": len(peers),
+            "fetched": data.get("fetched")}
+
+
 BUILDERS = {
-    "summary": summary_section, "indexcot": indexcot_section, "today": today_section, "stocks": stocks_section,
+    "summary": summary_section, "indexcot": indexcot_section, "earnings": earnings_section, "today": today_section, "stocks": stocks_section,
     "appetite": appetite_section, "volatility": volatility_section,
     "positioning": positioning_section, "rates": rates_section, "dollar": dollar_section,
     "commodities": commodities_section, "crypto": crypto_section, "asia": asia_section,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 from datetime import datetime
@@ -13,6 +14,10 @@ CREATE TABLE IF NOT EXISTS series (
     date  TEXT NOT NULL,
     value REAL NOT NULL,
     PRIMARY KEY (key, date)
+);
+CREATE TABLE IF NOT EXISTS blobs (
+    key     TEXT PRIMARY KEY,
+    json    TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS fetch_status (
     source       TEXT PRIMARY KEY,
@@ -55,6 +60,17 @@ class Store:
         with self._lock:
             return self._conn.execute(
                 "SELECT 1 FROM series WHERE key = ? LIMIT 1", (key,)).fetchone() is not None
+
+    def put_json(self, key: str, value) -> None:
+        """Store a whole document (e.g. the earnings calendar) under one key."""
+        with self._lock, self._conn:
+            self._conn.execute("INSERT OR REPLACE INTO blobs (key, json) VALUES (?, ?)",
+                               (key, json.dumps(value)))
+
+    def get_json(self, key: str, default=None):
+        with self._lock:
+            row = self._conn.execute("SELECT json FROM blobs WHERE key = ?", (key,)).fetchone()
+        return json.loads(row[0]) if row else default
 
     def record(self, source: str, when: datetime, error: str | None = None) -> None:
         stamp = when.isoformat(timespec="seconds")

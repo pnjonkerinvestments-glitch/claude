@@ -11,13 +11,13 @@ import pandas as pd
 
 from . import derived, frames
 from .db import Store
-from .sources import cboe, cftc, fred, prices
+from .sources import cboe, cftc, earnings, fred, prices
 from .sources.http import client
 
 log = logging.getLogger("dashboard.refresh")
 _lock = threading.Lock()
 
-DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred")
+DAILY_SOURCES = ("prices", "components", "breadth", "cboe_vix", "cboe_pc", "fred", "earnings")
 WEEKLY_SOURCES = ("cftc",)
 
 
@@ -36,6 +36,8 @@ def price_tickers(cfg: dict) -> list[str]:
     tickers += [a["price"] for a in cfg["cftc"]["assets"] if a.get("price")]
     tickers += cfg["signals"]["rsi_watch"]
     tickers += ["^VIX", "^VIX9D", "^VIX3M"]
+    peers, _ = frames.eu_peers()
+    tickers += list(peers) + [eu for lst in peers.values() for eu in lst]
     return list(dict.fromkeys(tickers))
 
 
@@ -183,6 +185,20 @@ def refresh_cftc(store: Store, cfg: dict, today: date) -> None:
         raise RuntimeError(f"no COT rows for {', '.join(missing)}")
 
 
+def refresh_earnings(store: Store, cfg: dict, today: date) -> None:
+    """Upcoming earnings of US companies above the market-cap floor."""
+    e = cfg["earnings"]
+    universe = earnings.fetch_us_universe(e["min_market_cap"])
+    if len(universe) < 500:
+        raise RuntimeError(f"US company list looks incomplete ({len(universe)} companies)")
+    end = today + timedelta(days=e["days_ahead"])
+    df = earnings.fetch_calendar(today.isoformat(), end.isoformat(), e["min_market_cap"])
+    rows = earnings.parse_calendar(df, universe, e["min_market_cap"])
+    if not rows:
+        raise RuntimeError("earnings calendar came back empty")
+    store.put_json("earnings", {"fetched": today.isoformat(), "rows": rows})
+
+
 def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
     """Fetch the given sources one by one; record success or failure for each."""
     jobs = {
@@ -193,6 +209,7 @@ def run_sources(store: Store, cfg: dict, sources: tuple[str, ...]) -> None:
         "cboe_pc": lambda today: refresh_cboe_pc(store, cfg, today),
         "fred": lambda today: refresh_fred(store, cfg, today),
         "cftc": lambda today: refresh_cftc(store, cfg, today),
+        "earnings": lambda today: refresh_earnings(store, cfg, today),
     }
     with _lock:
         for name in sources:

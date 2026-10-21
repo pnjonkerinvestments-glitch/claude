@@ -17,7 +17,7 @@
     <div class="topbar-inner">
       <a class="brand" href="#summary">Market Overview</a>
       <nav class="nav" aria-label="Sections">
-        <a href="#summary">Summary</a><a href="#indexcot">Index positioning</a><a href="#today">Today</a><a href="#stocks">Stocks</a>
+        <a href="#summary">Summary</a><a href="#indexcot">Index positioning</a><a href="#earnings">Earnings</a><a href="#today">Today</a><a href="#stocks">Stocks</a>
         <a href="#appetite">Risk appetite</a><a href="#volatility">Volatility</a><a href="#positioning">All COT</a>
         <a href="#rates">Rates</a><a href="#dollar">Dollar</a><a href="#commodities">Commodities</a>
         <a href="#crypto">Crypto</a><a href="#asia">Asia</a>
@@ -86,6 +86,29 @@
           <p class="ic-howto"></p>
           <ul class="ic-groups-help"></ul>
         </details>
+      </div>
+    </section>
+
+    <section id="earnings" class="section">
+      <div class="section-head"><h2>Earnings &amp; European peers</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="ic-controls">
+        <div class="seg" role="group" aria-label="Period" data-er="range">
+          <button type="button" data-v="0">Today</button><button type="button" data-v="1">Tomorrow</button>
+          <button type="button" data-v="7">Next 7 days</button><button type="button" data-v="21">Next 3 weeks</button>
+        </div>
+        <label class="check"><input type="checkbox" id="er-peers" checked> Only with EU peers</label>
+        <label class="check">Min. market cap
+          <select id="er-cap">
+            <option value="1.5">$1.5 bn</option><option value="10">$10 bn</option>
+            <option value="50">$50 bn</option><option value="200">$200 bn</option>
+          </select>
+        </label>
+        <input type="search" id="er-search" placeholder="Search ticker or company" aria-label="Search ticker or company">
+        <span class="muted er-count"></span>
+      </div>
+      <div class="card">
+        <div class="table-wrap"><table class="earnings-table"></table></div>
       </div>
     </section>
 

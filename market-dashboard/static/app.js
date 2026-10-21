@@ -987,8 +987,108 @@ $$(".nav a").forEach((a) => a.addEventListener("click", () => {
   if (FOLDABLE.includes(id)) setFolded(id, false);
 }));
 
+// ---------- earnings & European peers ----------
+const ER = Object.assign({ range: 7, peersOnly: true, cap: 1.5, q: "" },
+  (() => { try { return JSON.parse(localStorage.getItem("earnings") || "{}"); } catch (e) { return {}; } })());
+function saveER() { try { localStorage.setItem("earnings", JSON.stringify({ ...ER, q: "" })); } catch (e) { /* ignore */ } }
+function isoDay(offset) {
+  const d = new Date();
+  d.setDate(d.getDate() + offset);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function renderEarnings(b) {
+  if (!setMeta("earnings", b)) return;
+  const root = $("#earnings");
+  if (!$(".er-hint", root)) {
+    $(".card", root).prepend(el("p", "hint er-hint",
+      "Each European peer shows its 1-week return and Corr: the correlation of weekly returns with the US company " +
+      "over the last year (−1 to +1; above ~0.5 = they usually move together). Peers come from " +
+      "dashboard/universe/eu_peers.yaml; add your own pairs there."));
+  }
+  drawEarnings();
+}
+
+function drawEarnings() {
+  const b = DATA?.earnings;
+  if (!b || b.error) return;
+  const root = $("#earnings");
+  $$('[data-er="range"] button', root).forEach((x) => x.classList.toggle("active", +x.dataset.v === ER.range));
+  $("#er-peers").checked = ER.peersOnly;
+  $("#er-cap").value = String(ER.cap);
+  const from = ER.range === 1 ? isoDay(1) : isoDay(0);
+  const to = ER.range <= 1 ? from : isoDay(ER.range);
+  const q = ER.q.trim().toLowerCase();
+  const rows = b.rows.filter((r) => r.date >= from && r.date <= to
+    && (!ER.peersOnly || r.peers.length)
+    && r.market_cap >= ER.cap * 1e9
+    && (!q || r.symbol.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)
+        || r.peers.some((p) => p.name.toLowerCase().includes(q) || p.ticker.toLowerCase().includes(q))));
+  $(".er-count", root).textContent = `${rows.length} of ${b.rows.length} reports`;
+
+  const table = $(".earnings-table", root);
+  const head = el("thead");
+  const htr = el("tr");
+  [["When"], ["Company"], ["Market cap", true], ["EPS est.", true], ["1W", true], ["EU peers"], ["EU reacts"]]
+    .forEach(([t, num]) => htr.append(el("th", num ? "num" : "", t)));
+  head.append(htr);
+  const body = el("tbody");
+  let day = null;
+  for (const r of rows) {
+    if (r.day !== day) {
+      day = r.day;
+      const g = el("tr", "group");
+      const td = el("td", "", day);
+      td.colSpan = 7;
+      g.append(td);
+      body.append(g);
+    }
+    const tr = el("tr");
+    const when = el("td");
+    when.append(el("span", "timing", r.timing), el("div", "muted", r.timing_text));
+    const co = el("td", "co");
+    co.append(el("b", "", r.symbol), tvLink(r.tv), el("span", "nm", r.name));
+    const eps = el("td", "num eps", isNum(r.eps_estimate) ? r.eps_estimate.toFixed(2) : "–");
+    if (isNum(r.eps_reported)) {
+      const sur = isNum(r.surprise_pct) ? ` (${signed(r.surprise_pct, 1, "%")})` : "";
+      eps.append(el("small", isNum(r.surprise_pct) ? (r.surprise_pct >= 0 ? "pos" : "neg") : "", `reported ${r.eps_reported.toFixed(2)}${sur}`));
+    }
+    const peers = el("td");
+    if (!r.peers.length) peers.append(el("span", "muted", "–"));
+    for (const p of r.peers) {
+      const line = el("div", "peer");
+      const pn = el("span", "pn", p.name);
+      pn.append(el("small", "", p.ticker), tvLink(p.tv));
+      const corr = el("span", `corr ${isNum(p.corr) && p.corr >= 0.5 ? "hi" : ""}`,
+                      isNum(p.corr) ? `corr ${p.corr.toFixed(2)}` : "corr –");
+      corr.title = "Correlation of weekly returns over the last year";
+      line.append(pn, el("span", `${isNum(p.w1) ? (p.w1 >= 0 ? "pos" : "neg") : "muted"}`, `1W ${signed(p.w1, 1, "%")}`), corr);
+      peers.append(line);
+    }
+    tr.append(when, co, el("td", "num", `$${fmtNum(r.market_cap / 1e9)} bn`), eps, changeCell(r.w1), peers,
+              el("td", "", r.reaction.text));
+    body.append(tr);
+  }
+  if (!rows.length) {
+    const tr = el("tr");
+    const td = el("td", "muted", "No reports match these filters.");
+    td.colSpan = 7;
+    tr.append(td);
+    body.append(tr);
+  }
+  table.replaceChildren(head, body);
+  explainColumns(table);
+}
+
+$$('#earnings [data-er="range"] button').forEach((btn) => btn.addEventListener("click", () => {
+  ER.range = +btn.dataset.v; saveER(); drawEarnings();
+}));
+$("#er-peers").addEventListener("change", (e) => { ER.peersOnly = e.target.checked; saveER(); drawEarnings(); });
+$("#er-cap").addEventListener("change", (e) => { ER.cap = +e.target.value; saveER(); drawEarnings(); });
+$("#er-search").addEventListener("input", (e) => { ER.q = e.target.value; drawEarnings(); });
+
 const RENDERERS = {
-  summary: renderSummary, indexcot: renderIndexCot, today: renderToday, stocks: renderStocks,
+  summary: renderSummary, indexcot: renderIndexCot, earnings: renderEarnings, today: renderToday, stocks: renderStocks,
   appetite: renderChartsOnly("appetite"), volatility: renderChartsOnly("volatility"),
   positioning: renderPositioning, rates: renderRates,
   dollar: renderAssets("dollar", "SPY"), commodities: renderAssets("commodities", "SPY"),

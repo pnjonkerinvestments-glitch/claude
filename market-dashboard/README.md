@@ -9,6 +9,7 @@ crypto and Asia. It is not for trading or scanning. Our trading system already d
 | Section | Contents |
 |---|---|
 | Index positioning (COT) | Pick S&P 500, Nasdaq-100, Russell 2000 or Dow and a period (1Y–Max). The index chart (optional 50/200-day averages, log scale) with below it the net positions of asset managers, leveraged funds and dealers, and the chosen group's percentile against all history, 5 years or 1 year. Cards and a headline say in words how long or short each group is |
+| Earnings & European peers | Upcoming results of US companies worth ≥ $1.5 billion (next 3 weeks), before/after the US session, EPS estimate (and result once reported), with their European peers: 1-week return and correlation of weekly returns. Shows when Europe can react (same afternoon for pre-market reports, next open for after-close reports). Filters: period, peers only, minimum market cap, search. Peers are listed in `dashboard/universe/eu_peers.yaml` |
 | Where we stand | Regime verdict (transparent tally of 11 indicators), key numbers, and a **Signals** list of current extremes (RSI, COT, breadth, streaks, VIX curve, MOVE, crypto compression) |
 | Today | Expected move for the S&P 500, economic calendar, heatmap (S&P 500 / STOXX 600) |
 | Stocks & breadth | S&P 500 with % of members beating the index (2M); McClellan summation index (from all 503 members); % above 50d/200d for S&P 500 and Europe; equal-weight vs cap-weight since 2003; days without a 1% decline; QQQ and SMH with RSI; leaders/laggards vs SPY; sortable sector & theme table (US and STOXX 600 sectors) |
@@ -103,6 +104,7 @@ Run the tests: `.venv/bin/python -m pytest tests`.
 | What | When (Europe/Amsterdam) |
 |---|---|
 | Prices, trend, breadth, ratios, FRED, CBOE | Mon–Fri at 18:00 (after the European close) and 22:30 (after the US close) |
+| Earnings calendar | With the daily refreshes (18:00 and 22:30) |
 | COT | Friday 22:00 (CFTC publishes Friday 15:30 New York time) |
 | Everything | At every start |
 
@@ -138,6 +140,12 @@ markets are under `tradingview:`.
 
 ## Data notes
 
+- **Earnings:** Yahoo's earnings calendar, limited to companies on NYSE/Nasdaq with a market cap
+  of at least $1.5 billion that report in dollars. The reporting-currency filter removes nearly
+  all foreign ADRs (TSMC, ASML, Novo); a few foreign companies that report in dollars (Shell,
+  Teva, Infosys) remain, as in our own peer list. Yahoo gives no exact time for pre-market
+  reports, so the page shows "before US open" rather than a time. In `eu_peers.yaml`, quote
+  tickers that YAML reads as yes/no, such as `"ON"`; the dashboard refuses to start otherwise.
 - **Not included (paid or proprietary):** NAAIM, AAII, BofA Fund Manager Survey, Goldman
   prime-book data, and newsletter models such as a "Core Risk Model" or the Daily Sentiment
   Index. VSTOXX has no free source either, so there is no Euro Stoxx 50 expected move.
