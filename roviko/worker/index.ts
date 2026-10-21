@@ -26,8 +26,31 @@ interface ExecutionContext {
 // dangerouslyAllowSVG: true in next.config.js and uncomment below:
 // const imageConfig: ImageConfig = { dangerouslyAllowSVG: true };
 
+/** 1.45: security headers on every page and API answer (static files get the same from public/_headers).
+ *  The CSP only limits framing, plugins and <base>; scripts and styles stay as they are, so nothing breaks. */
+const SECURITY_HEADERS: Record<string, string> = {
+  'Strict-Transport-Security': 'max-age=31536000',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
+  'Content-Security-Policy': "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+};
+function secure(res: Response): Response {
+  // A WebSocket upgrade (multiplayer) must be passed on untouched.
+  if (res.status === 101 || (res as any).webSocket) return res;
+  const out = new Response(res.body, res);
+  for (const [k, v] of Object.entries(SECURITY_HEADERS)) if (!out.headers.has(k)) out.headers.set(k, v);
+  return out;
+}
+
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return secure(await route(request, env, ctx));
+  },
+};
+
+async function route(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const url = new URL(request.url);
 
     if (url.pathname === "/sitemap.xml") {
@@ -48,7 +71,6 @@ const worker = {
     }
 
     return handler.fetch(request, env, ctx);
-  },
-};
+}
 
 export default worker;

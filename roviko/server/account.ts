@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { one, run, batch } from './db';
-import { AppError, digest, hashPassword, limit, passwordSchema } from './auth';
+import { AppError, cookieValue, digest, hashPassword, limit, passwordSchema } from './auth';
 import type { Env, User } from './types';
 import { welcomeMail, mailLocale } from './welcome-mail';
 
@@ -109,9 +109,18 @@ export async function changePassword(req: Request, env: Env, user: User, body: u
   const full = await one(env, 'SELECT password FROM users WHERE id=?', user.id);
   if (full?.password) {
     const [salt, expected] = String(full.password).split(':');
-    if (await hashPassword(v.current, salt) !== expected) throw new AppError('INVALID_CREDENTIALS', 401);
+    // Constant-time compare (1.45), like the login.
+    const actual = await hashPassword(v.current, salt);
+    let diff = actual.length ^ (expected ?? '').length;
+    for (let i = 0; i < actual.length; i++) diff |= actual.charCodeAt(i) ^ ((expected ?? '').charCodeAt(i) || 0);
+    if (diff) throw new AppError('INVALID_CREDENTIALS', 401);
   }
   const salt = crypto.randomUUID();
-  await run(env, 'UPDATE users SET password=? WHERE id=?', salt + ':' + await hashPassword(v.password, salt), user.id);
+  // 1.45: a new password signs out every other device (this one stays signed in), as a reset already did.
+  const raw = cookieValue(req), keep = raw ? await digest(raw) : '';
+  await batch(env, [
+    { sql: 'UPDATE users SET password=? WHERE id=?', args: [salt + ':' + await hashPassword(v.password, salt), user.id] },
+    { sql: 'DELETE FROM auth_sessions WHERE user_id=? AND token<>?', args: [user.id, keep] },
+  ]);
   return { ok: true };
 }

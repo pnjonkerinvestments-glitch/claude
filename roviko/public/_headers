@@ -14,3 +14,12 @@
   Cache-Control: public, max-age=2592000, stale-while-revalidate=604800
 /data/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# 1.45: security headers for every static file too.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'self'; object-src 'none'

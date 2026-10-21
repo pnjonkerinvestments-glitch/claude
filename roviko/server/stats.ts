@@ -77,5 +77,6 @@ export async function leaderboard(env: Env, period: string, category: string) {
     if (category === 'daily') return [];
     const cutoff = period === 'daily' ? new Date(new Date().toISOString().slice(0, 10)).getTime() : period === 'weekly' ? Date.now() - 7 * 86400000 : 0;
     const field = category === 'wins' ? 'SUM(r.win)' : category === 'score' ? 'SUM(r.score)' : 'SUM(r.xp)';
-    return rows(env, `SELECT u.id,u.name,u.avatar,${field} score,COUNT(*) games FROM game_results r JOIN users u ON u.id=r.user_id WHERE r.multiplayer=1 AND r.created_at>=? AND u.blocked=0 AND r.risk<3 GROUP BY u.id ORDER BY score DESC LIMIT 50`, cutoff);
+    // 1.45: players who are not discoverable appear as "Explorer", as in the daily rankings and leagues.
+    return rows(env, `SELECT u.id,CASE WHEN u.discoverable=1 THEN u.name ELSE 'Explorer' END name,u.avatar,${field} score,COUNT(*) games FROM game_results r JOIN users u ON u.id=r.user_id WHERE r.multiplayer=1 AND r.created_at>=? AND u.blocked=0 AND r.risk<3 GROUP BY u.id ORDER BY score DESC LIMIT 50`, cutoff);
 }
