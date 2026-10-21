@@ -146,7 +146,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             const { community, latest } = shared;
             // A cookie that no longer opens a session: say so, so a player with an account knows to sign in again.
             const sessionExpired = !found && !!cookieValue(req);
-            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), ...(sessionExpired ? { sessionExpired: true } : {}), isAdmin: !!env.ADMIN_USER_IDS?.split(',').includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
+            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), ...(sessionExpired ? { sessionExpired: true } : {}), isAdmin: !!env.ADMIN_USER_IDS?.split(',').map(v => v.trim()).includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
             const input = await body(req), signup = path[1] === 'signup';
@@ -188,16 +188,23 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             }
             if (method === 'DELETE') {
                 const activeRooms = await rows(env, 'SELECT code,state,version FROM multiplayer_rooms WHERE instr(state,?)>0', user.id);
-                for (const row of activeRooms) {
-                    const r = JSON.parse(row.state);
-                    r.players = r.players.filter((p: any) => p.id !== user.id);
-                    delete r.answers[user.id];
-                    if (r.host === user.id)
-                        r.host = r.players[0]?.id ?? '';
-                    await run(env, 'UPDATE multiplayer_rooms SET state=?,version=version+1 WHERE code=? AND version=?', JSON.stringify(r), row.code, row.version);
+                // 1.45: retried when the room changed meanwhile, and the kicked list is cleaned too, so no name or id stays behind.
+                for (const first of activeRooms) {
+                    let row: any = first;
+                    for (let attempt = 0; attempt < 4 && row; attempt++) {
+                        const r = JSON.parse(row.state);
+                        r.players = (r.players ?? []).filter((p: any) => p.id !== user.id);
+                        if (r.answers) delete r.answers[user.id];
+                        if (Array.isArray(r.kicked)) r.kicked = r.kicked.filter((id: any) => id !== user.id && id?.id !== user.id);
+                        if (r.host === user.id)
+                            r.host = r.players[0]?.id ?? '';
+                        const done = await run(env, 'UPDATE multiplayer_rooms SET state=?,version=version+1 WHERE code=? AND version=?', JSON.stringify(r), row.code, row.version);
+                        if (done.meta.changes) break;
+                        row = await one(env, 'SELECT code,state,version FROM multiplayer_rooms WHERE code=?', row.code);
+                    }
                 }
                 await run(env, 'DELETE FROM question_reports WHERE user_id=?', user.id);
-                await run(env, 'DELETE FROM player_reports WHERE reported_id=?', user.id);
+                await run(env, 'DELETE FROM player_reports WHERE reported_id=? OR reporter_id=?', user.id, user.id);
                 await run(env, 'DELETE FROM learn_progress WHERE user_id=?', user.id);
                 await run(env, 'DELETE FROM streak_repairs WHERE user_id=?', user.id);
                 await run(env, 'DELETE FROM users WHERE id=?', user.id);
@@ -211,7 +218,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if(path[0]==='league' && method==='GET') return json(await leagueStanding(env,user,new Date().toISOString().slice(0,10)));
         if(path[0]==='competition' && method==='GET') return json(await competitionSummary(env,user,url.searchParams.get('date')??new Date().toISOString().slice(0,10),url.searchParams.get('mode')??undefined));
         if (path[0] === 'export') {
-            const data = { dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), leagues:await rows(env,'SELECT week,tier,group_no,joined_at FROM league_members WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
+            const data = { // 1.45: everything stored about the account (GDPR art. 15 and 20).
+                learnProgress: await rows(env, 'SELECT data,updated_at FROM learn_progress WHERE user_id=?', user.id), streakRepairs: await rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', user.id), reviews: await rows(env, 'SELECT * FROM learning_reviews WHERE user_id=?', user.id), conceptPerformance: await rows(env, 'SELECT * FROM concept_performance WHERE user_id=?', user.id), blocks: await rows(env, 'SELECT blocked_id,created_at FROM player_blocks WHERE blocker_id=?', user.id), playerReports: await rows(env, 'SELECT reported_id,reason,created_at FROM player_reports WHERE reporter_id=?', user.id), invites: await rows(env, 'SELECT room_code,from_id,to_id,status,created_at FROM room_invites WHERE from_id=? OR to_id=?', user.id, user.id),
+                dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), leagues:await rows(env,'SELECT week,tier,group_no,joined_at FROM league_members WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
             return json(data, 200, { 'Content-Disposition': 'attachment; filename="roviko-account.json"' });
         }
         if (path[0] === 'ranks') {
@@ -472,6 +481,12 @@ async function googleAuth(req: Request, env: Env) {
         u = current;
     }
     if (u.blocked) throw new AppError('ACCOUNT_BLOCKED', 403);
+    // 1.45: an account with this address that was never verified may have been made by someone else (pre-account
+    // takeover). Google proves who owns the address now: the old password stops working and every other session ends.
+    if (u.id !== current.id && !u.email_verified) await batch(env, [
+        { sql: 'UPDATE users SET password=NULL WHERE id=?', args: [u.id] },
+        { sql: 'DELETE FROM auth_sessions WHERE user_id=?', args: [u.id] },
+    ]);
     // Google has checked this address, so it counts as verified.
     await run(env, 'UPDATE users SET email_verified=1 WHERE id=? AND email=?', u.id, profile.email.toLowerCase());
     await mergeProgress(env, current, u.id);

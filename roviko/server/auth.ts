@@ -62,6 +62,8 @@ export async function auth(req: Request, env: Env, body: any, signup: boolean) {
         await run(env, 'UPDATE users SET email=?,password=?,name=?,avatar=?,guest=0,name_changed_at=? WHERE id=?', v.email, salt + ':' + await hashPassword(v.password, salt), v.name ?? user!.name, v.avatar ?? user!.avatar ?? 0, v.name ? Date.now() : null, user!.id);
         return { cookie: await newSession(req, env, user!.id), user: safeUser(await one(env, 'SELECT * FROM users WHERE id=?', user!.id)) };
     }
+    // 1.45: a second limit per address, so guessing one account's password from many IPs is slow too.
+    await limit(env, 'login:' + v.email, 30, 3600000);
     const u = await one(env, 'SELECT * FROM users WHERE email=?', v.email);
     const [salt, expected] = (u?.password ?? 'dummy:').split(':');
     const actual = await hashPassword(v.password, salt);

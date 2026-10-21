@@ -596,6 +596,25 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.45.0 (op de testversie, nog niet live)
+
+**Beveiliging en privacy nagelopen** (geheimen in de repo en de geschiedenis, toegang per endpoint, injectie, XSS, sessies, headers, pakketten, app-instellingen, privacyverklaring). Gerepareerd:
+- **Inloggen met Google kon een vooraf aangemaakt account overnemen** (iemand maakt een account met jouw adres; jij logt later met Google in en belandt in zijn account, terwijl zijn wachtwoord bleef werken). Nu: is dat account nooit bevestigd, dan vervalt het oude wachtwoord en eindigen alle andere sessies (`server/api.ts`, Google-callback).
+- **Wachtwoord wijzigen logt andere apparaten uit** (dit apparaat blijft ingelogd), met een vergelijking in constante tijd (`server/account.ts`).
+- **Extra inloglimiet per e-mailadres** (30 per uur), naast die per IP (`server/auth.ts`).
+- **Multiplayer-ranglijst** toont spelers die niet vindbaar willen zijn als "Explorer", net als de dagranglijst en de liga (`server/stats.ts`).
+- **Account verwijderen** haalt je ook uit lopende kamers als die net veranderden (tot vier pogingen) en uit de lijst weggestuurde spelers; meldingen die je zelf deed worden ook verwijderd.
+- **Gegevens downloaden** bevat nu alles: Leren, reeksherstel, herhalingen, prestaties per land, blokkades, je meldingen en uitnodigingen.
+- **Beveiligingskoppen** op elke pagina, API-antwoord en vast bestand: HSTS (zonder subdomeinen), nosniff, X-Frame-Options DENY, Referrer-Policy, Permissions-Policy en een CSP die inbedden, plugins en `<base>` blokkeert (`worker/index.ts`, `public/_headers`). Scripts en stijlen zijn niet beperkt, zodat niets breekt.
+- **Pakketten**: `npm audit fix` en Next.js 16.2.6 → 16.4.2; `npm audit --omit=dev` meldt 0 lekken. De gemelde Next-lekken (server actions, middleware, Turbopack) raakten Roviko niet direct.
+- **Privacyverklaring**: sessies duren 60 dagen na je laatste bezoek (stond 30), Resend (e-mail) genoemd als verwerker naast Cloudflare, doorgifte buiten de EU (Data Privacy Framework of standaardcontractbepalingen), de grondslagen, en een leeftijdsregel (vanaf 13; onder 16 eerst een ouder vragen). Datum 21 oktober 2026.
+
+In orde bevonden: geen geheimen in de repo of geschiedenis; elke spelsessie, kamer, uitnodiging en vriendschap controleert de eigenaar; geen e-mails, wachtwoorden of tokens naar andere spelers; alle SQL met parameters; wachtwoorden met PBKDF2 en zout; sessietokens gehasht, cookie HttpOnly/Secure/SameSite=Lax; herstellinks eenmalig en met vervaltijd; Origin-controle op alle wijzigingen en de WebSocket; geen CORS; geen gebruikers-HTML; metingen alleen met toestemming en zonder trackers (dus geen cookiebanner nodig); app alleen https, geen gemengde inhoud, alleen internet-toestemming.
+
+Nog open (geen directe risico's): `android:allowBackup="true"` in de Android-app (bij de volgende app-build op false), wachtwoord-hashing op 100.000 rondes (het maximum van Workers; OWASP adviseert meer), aanmelden laat zien dat een e-mailadres al bestaat.
+
+**Getest:** `npm test` 211 geslaagd, 1 overgeslagen (nieuw: wachtwoord wijzigen logt het andere apparaat uit, houdt dit apparaat ingelogd en het oude wachtwoord werkt niet meer; aangepast: Clue Trail-test accepteert een erfgoedweetje als derde hint). `tsc` en build schoon. Niet getest: inloggen met Google (geen testaccount), de koppen op live.
+
 ## 1.44.0 (live sinds 20 oktober 2026, PR #43)
 
 - **Vormenjacht in multiplayer.** `shape` staat nu in `MODES` (`lib/config.ts`), dus je kiest Vormenjacht in een kamer, alleen of samen met andere spellen, en Rond de Wereld (alle spellen door elkaar) en "Verras me" kunnen ook landvormen geven. Het continent van de week kan ook landvormen vragen. Lopende kamers houden hun vragen.

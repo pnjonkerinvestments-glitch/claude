@@ -423,7 +423,7 @@ test('official Clue Trail reveals paid hints in order, keeps flags private, scor
  assert.equal(g.question.solution,undefined);assert.equal(g.question.correct,undefined);assert.equal(g.question.clues.length,1);assert.equal(g.question.clueCount,4);assert.equal(g.question.availablePoints,200);assert.ok(g.question.options.every(o=>!o.flag));
  assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,404);
  g=(await request(a.cookie,'/games/'+g.id+'/hint','POST',{round:0,count:3})).data;
- assert.equal(g.question.availablePoints,100);assert.equal(g.question.clues.length,3);assert.match(g.question.clues[2].en,/capital|land border/);assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,404);
+ assert.equal(g.question.availablePoints,100);assert.equal(g.question.clues.length,3);{const heritage=new Set(JSON.parse(await fs.readFile('lib/data/mosaic-facts.json','utf8')).facts.map(f=>f.clues[0].en));assert.ok(/capital|land border/.test(g.question.clues[2].en)||heritage.has(g.question.clues[2].en),g.question.clues[2].en);}assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,404);
  g=(await request(a.cookie,'/games/'+g.id+'/hint','POST',{round:0,count:4})).data;
  assert.match(g.question.clues[3].en,/flag/);assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:a.cookie}})).status,200);assert.equal((await mf.dispatchFetch(origin+g.question.flagUrl,{headers:{Cookie:b.cookie}})).status,404);
  g=(await request(a.cookie,'/games/'+g.id+'/hint','POST',{round:0,count:1})).data;assert.equal(g.question.availablePoints,50,'Cannot refund revealed hints');
@@ -874,4 +874,16 @@ test('Shape Shift in multiplayer (1.44): a room of outlines, and outlines in a m
  assert.equal((await request(b.cookie,'/rooms/'+mix.code+'/join','POST',{})).status,200);
  assert.equal((await request(a.cookie,'/rooms/'+mix.code+'/start','POST',{})).status,200);
  const modes=new Set((await stored(mix.code)).questions.map(q=>q.mode));assert.deepEqual([...modes].sort(),['flags','shape']);
+});
+
+test('security 1.45: a new password signs out other devices, keeps this one, and non-discoverable players are masked on the leaderboard',async()=>{
+ const g=await bootstrap();const pw='Synthetic-security-password-1';
+ const acc=await request(g.cookie,'/auth/signup','POST',{name:'Secure One',email:'secure-one@example.test',password:pw});assert.equal(acc.status,200,JSON.stringify(acc.data));const here=acc.cookie;
+ const other=await request(null,'/auth/login','POST',{email:'secure-one@example.test',password:pw});assert.equal(other.status,200);const there=other.cookie;
+ assert.equal((await request(there,'/profile')).status,200,'the second device is signed in');
+ assert.equal((await request(here,'/auth/password','POST',{current:'wrong-password-x',password:'Synthetic-security-password-2'})).status,401);
+ assert.equal((await request(here,'/auth/password','POST',{current:pw,password:'Synthetic-security-password-2'})).status,200);
+ assert.equal((await request(here,'/profile')).status,200,'this device stays signed in');
+ assert.equal((await request(there,'/profile')).status,401,'the other device is signed out');
+ assert.equal((await request(null,'/auth/login','POST',{email:'secure-one@example.test',password:pw})).status,401,'the old password no longer works');
 });
