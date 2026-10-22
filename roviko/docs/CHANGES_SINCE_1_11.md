@@ -596,6 +596,11 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.47.0 (op de testversie, nog niet live)
+
+- **Continenten kiezen in multiplayer.** Onder "Meer instellingen" staan de continenten nu als chips, net als de spellen: alles staat aan, één tik zet een continent uit (bijvoorbeeld zonder Afrika), "Wereld" zet alles weer aan. Nieuw veld `regions` in de instellingen (`lib/game-engine/questions.ts`, `server/api.ts`): vragen komen alleen uit de gekozen continenten; met twee of meer gekozen komen ook de foute antwoorden daaruit. De server maakt het netjes: alle zes = de wereld, één = die regio (zoals vroeger). Gasten in de wachtkamer zien de gekozen continenten als label.
+- Getest: `npm test` 212 geslaagd, 1 overgeslagen (nieuw: een kamer zonder Afrika krijgt 20 vlaggen zonder één Afrikaans land, ook niet als fout antwoord; alle zes wordt de wereld, één wordt die regio, een onbekende regio geeft 400). Lokaal in de kamer: één tik op Afrika geeft "zonder Afrika" (schermafbeelding). Niet getest: een ronde met twee echte toestellen.
+
 ## 1.46.0 (live sinds 22 oktober 2026, PR #46)
 
 - **Continent van de week: startknop viel van het scherm** op Android (gemeld met een schermafbeelding uit de Play Store-app). Het venster had `overflow:hidden`, dus je kon niet naar beneden. Nu (`app/v146.css`): elk venster (`.app-modal`) is nooit hoger dan het scherm en scrolt als het niet past; de startknop van het continent-venster en van het keuzemenu van de klassiekers blijft onderaan vast in beeld; op lagere schermen worden plaatje, titel en knoppen compacter (onder 700 px hoog geen plaatje).

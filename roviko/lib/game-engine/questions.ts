@@ -35,6 +35,8 @@ export type Settings = {
     difficulty: string;
     region: string;
     typed?: boolean;
+    /** 1.47: the continents to play (a room can leave some out, e.g. everything but Africa); empty or missing = all. */
+    regions?: string[];
     /** Survival runs (1.21): questions climb from easy to hard over the run. */
     ramp?: boolean;
     enabledModes?: string[];
@@ -268,7 +270,11 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
     const enabled = shuffle(MODES.filter(m => !settings.enabledModes || settings.enabledModes.includes(m)), rng);
     if (settings.mode === 'mixed' && !enabled.length) throw new Error('Question unavailable');
     // 'Americas' (1.35, the continent of the week) is North and South America together.
-    const regionPool = COUNTRIES.filter(c => inRegion(c.region, settings.region));
+    // 1.47: a room may pick several continents; questions only come from those. With two or more chosen, the wrong
+    // answers come from them too; with one it plays like that single region (wrong answers may come from elsewhere).
+    const inChosen = (c: Country) => !settings.regions?.length || settings.regions.includes(c.region);
+    const regionPool = COUNTRIES.filter(c => inRegion(c.region, settings.region) && inChosen(c));
+    const optionPool = (settings.regions?.length ?? 0) >= 2 ? COUNTRIES.filter(inChosen) : COUNTRIES;
     if (regionPool.length < 4)
         throw new Error('Not enough countries for these settings');
     // Difficulty (1.25 makes the three levels clearly different; medium is unchanged, so daily games stay as they were):
@@ -350,7 +356,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         }
         used.add(id); usedCountries.add(c.id);
         const q: Question = { id, mode, countryId: c.id, prompt: { en: '', nl: '' }, options: [], correct: c.id, answerLabel: { en: c.name, nl: c.nl }, fact: { en: `${c.name} is in ${c.subregion}. ${c.capitals.length ? 'Its capital ' + (c.capitals.length > 1 ? 'cities are ' : 'is ') + c.capitals.join(' / ') + '.' : ''}`, nl: `${c.nl}: ${c.capitals.length ? 'hoofdstad' + (c.capitals.length > 1 ? 'en' : '') + ' ' + c.capitals.map(dutchCapital).join(' / ') + '. ' : ''}${c.area.toLocaleString('nl-NL')} km² oppervlakte.` }, difficulty: tiers.length ? tier : settings.difficulty };
-        const others = COUNTRIES.filter(x => x.id !== c.id && x.capitals.length);
+        const others = optionPool.filter(x => x.id !== c.id && x.capitals.length);
         const nearby = shuffle(others.filter(x => x.region === c.region), rng);
         const far = shuffle(others.filter(x => x.region !== c.region), rng);
         // A survival run starts with wrong options from other continents and ends with neighbours from the same subregion.
@@ -406,7 +412,7 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
                 : tier === 'easy' || tier === 'hard' ? rampOrder(c, pool.filter(x => x.area >= 300 && x.area !== c.area), tier === 'easy' ? .45 : 1, rng) : null;
             if (settings.ramp && !ramped) continue;
             const list = ramped ?? [c, ...shuffle(pool.filter(x => x.id !== c.id && x.area !== c.area), rng).filter((x, i, a) => a.findIndex(y => y.area === x.area) === i).slice(0, 3)];
-            // Since 1.23.1 no country starts in its right place: confirming the list untouched earns nothing (multiplayer gives partial points).
+            // 1.43: a random start (never already sorted); see randomStart.
             q.options = randomStart([...list].sort((a, b) => b.area - a.area), rng).map(nameOption);
             q.correct = [...list].sort((a, b) => b.area - a.area).map(x => x.id);
             q.prompt = { en: 'Put these countries in order. Largest area first.', nl: 'Zet de landen op volgorde. Grootste oppervlakte bovenaan.' };

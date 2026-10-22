@@ -217,3 +217,5 @@ Clue Trail clues (1.43): no fixed opening; clue kinds include part of the world,
 Size Shuffle (1.43) starts in a uniformly random order other than the sorted one.
 
 Shape Shift in multiplayer (1.44): `shape` is one of the classic `MODES`, so rooms can play it alone or mixed with other games, with the room's timer and the usual multiplayer scoring.
+
+Continents in rooms (1.47): a room can play any set of continents (`regions`). Questions only use countries from them; with two or more chosen, wrong answers come from them too. All six is the whole world; one is that region.

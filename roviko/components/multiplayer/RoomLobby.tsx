@@ -55,6 +55,8 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
         {/* Guests cannot change anything: they see the match as a few quiet pills instead of greyed-out controls. */}
         {!isHost && <ul className="lobby-summary">
           <li className="t-pill"><GameIcon mode={String(room.settings.mode ?? 'mixed')} size="sm"/>{t(String(room.settings.mode ?? 'mixed'))}</li>
+          {/* 1.47: the chosen continents, when not the whole world. */}
+          {Array.isArray(room.settings.regions) && room.settings.regions.length ? <li className="t-pill">{(room.settings.regions as string[]).map(r => t(r)).join(' · ')}</li> : room.settings.region && room.settings.region !== 'World' ? <li className="t-pill">{t(String(room.settings.region))}</li> : null}
           <li className="t-pill">{plural(t, 'mpRoundsPill', room.settings.count)}</li>
           <li className="t-pill">{t(room.settings.difficulty === 'mixed' ? 'difficultyMixed' : room.settings.difficulty)}</li>
           <li className="t-pill">{Number(room.settings.timer) ? plural(t, 'mpTimerPill', Number(room.settings.timer)) : t('unlimited')}</li>
