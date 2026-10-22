@@ -596,7 +596,12 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.45.0 (op de testversie, nog niet live)
+## 1.46.0 (op de testversie, nog niet live)
+
+- **Continent van de week: startknop viel van het scherm** op Android (gemeld met een schermafbeelding uit de Play Store-app). Het venster had `overflow:hidden`, dus je kon niet naar beneden. Nu (`app/v146.css`): elk venster (`.app-modal`) is nooit hoger dan het scherm en scrolt als het niet past; de startknop van het continent-venster en van het keuzemenu van de klassiekers blijft onderaan vast in beeld; op lagere schermen worden plaatje, titel en knoppen compacter (onder 700 px hoog geen plaatje).
+- Getest: het continent-venster op 412×780, 412×600, 360×560, 360×480 en 390×844 en het keuzemenu op 360×560 en 412×600: de startknop is overal zichtbaar zonder te scrollen (schermafbeeldingen). `npm test` 211 geslaagd, 1 overgeslagen; build schoon. Niet getest: een echt Android-toestel met grotere letters.
+
+## 1.45.0 (live sinds 21 oktober 2026, PR #45)
 
 **Beveiliging en privacy nagelopen** (geheimen in de repo en de geschiedenis, toegang per endpoint, injectie, XSS, sessies, headers, pakketten, app-instellingen, privacyverklaring). Gerepareerd:
 - **Inloggen met Google kon een vooraf aangemaakt account overnemen** (iemand maakt een account met jouw adres; jij logt later met Google in en belandt in zijn account, terwijl zijn wachtwoord bleef werken). Nu: is dat account nooit bevestigd, dan vervalt het oude wachtwoord en eindigen alle andere sessies (`server/api.ts`, Google-callback).
