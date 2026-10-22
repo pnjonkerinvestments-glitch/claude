@@ -1,0 +1,33 @@
+/* 1.46 · dialogs on phones: never taller than the screen, scroll when needed, the main button always in view.
+   The continent-of-the-week set-up had overflow:hidden, so on Android its start button fell off the screen. */
+.app-modal{max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+.app-modal.continent-setup{overflow-y:auto!important}
+/* The start button sticks to the bottom of the dialog while the choices scroll above it. */
+.continent-setup .cs-go,.app-modal .setup-start{position:sticky;bottom:0;z-index:2;box-shadow:0 -14px 18px 6px var(--t-card,#fff),0 8px 18px rgba(22,59,50,.18)!important}
+.continent-setup .cs-note{position:relative;z-index:1}
+@media (max-height:860px){
+  .continent-setup{gap:9px!important;padding-bottom:14px!important}
+  .continent-setup .cs-art{height:72px}
+  .continent-setup .modal-title{font-size:1.3rem!important}
+  .continent-setup [data-slot=dialog-description]{font-size:.875rem!important;line-height:1.35!important}
+  .continent-setup .segmented-pill button{min-height:38px}
+  .continent-setup .cs-modes>div{gap:6px;margin-top:6px}
+  .continent-setup .cs-modes button{min-height:38px;padding:2px 12px 2px 4px;font-size:.9rem}
+  .continent-setup .cs-modes button .game-icon{width:28px;height:28px}
+  .continent-setup .cs-modes small{margin-top:5px}
+  .continent-setup .cs-go{min-height:50px}
+}
+@media (max-height:700px){
+  .continent-setup .cs-art{display:none}
+  .continent-setup{padding-top:20px!important}
+  .continent-setup .lobby-level-hint{display:none}
+  .continent-setup .modal-title,.continent-setup [data-slot=dialog-description]{padding-right:40px}
+}
+/* The classic games' choices on short screens: no big icon, tighter chips. */
+@media (max-height:760px){
+  .solo-setup-modal .modal-logo{display:none}
+  .solo-setup-modal .modal-title{padding-right:40px}
+  .solo-setup-modal [data-slot=dialog-description]{font-size:.875rem!important;margin-top:2px!important}
+  .solo-setup .setup-chip{min-height:36px;padding:6px 11px;font-size:.88rem}
+  .solo-setup{gap:10px;margin-bottom:12px}
+}
