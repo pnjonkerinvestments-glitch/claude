@@ -147,3 +147,15 @@ def test_scheduler_has_morning_earnings_job(store, cfg):
     trigger = str(jobs["morning"].trigger)
     assert "hour='8'" in trigger and "minute='0'" in trigger and "mon-fri" in trigger
     assert "earnings" in jobs["morning"].args[2]
+
+
+def test_snapshot_is_a_static_page_with_its_data(store, cfg, tmp_path):
+    import json
+    from dashboard import snapshot
+    files = snapshot.build(store, cfg, tmp_path / "snap")
+    assert {"market-overview.html", "dashboard.json", "widgets.json", "detail-cot.json", "detail-price.json"} <= set(files)
+    page = (tmp_path / "snap" / "market-overview.html").read_text()
+    assert 'fetch("dashboard.json")' in page and "fetch(\"/api/" not in page and "/api/detail" not in page
+    assert "lightweight-charts@" in page and "Snapshot of the live dashboard" in page
+    cot = json.loads((tmp_path / "snap" / "detail-cot.json").read_text())
+    assert set(cot) == {a["key"] for a in cfg["cftc"]["assets"]}

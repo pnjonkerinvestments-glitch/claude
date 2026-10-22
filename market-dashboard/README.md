@@ -92,6 +92,13 @@ for the long-term charts, 2 years for ~90 ETFs/indices and ~600 index members (S
 Euro Stoxx 50, DAX, AEX), a year of put/call ratios and COT data since 2006. That takes about
 3–4 minutes; sections fill in as each source finishes. Refresh the page afterwards.
 
+Fetch everything once without starting the server: `.venv/bin/python -m dashboard refresh`.
+
+Write a static copy of the page (for sharing, e.g. as a Claude artifact):
+`.venv/bin/python -m dashboard snapshot OUTDIR`. It writes `market-overview.html` plus its data
+files (`dashboard.json`, `widgets.json`, `detail-cot.json`, `detail-price.json`); the page reads
+them from the same folder. TradingView widgets become links in the copy.
+
 Check that every source answers: `.venv/bin/python -m dashboard verify`.
 
 Run the tests: `.venv/bin/python -m pytest tests`.
