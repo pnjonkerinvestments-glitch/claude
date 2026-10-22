@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.48.0 (op de testversie, nog niet live; bevat ook 1.47.0)
+## 1.48.0 (live sinds 22 oktober 2026 samen met 1.47.0, PR #47)
 
 - **Meer afwisseling in vragen.** Een nieuw solospel en een nieuwe multiplayerronde wegen nu mee welke vragen de spelers de afgelopen 30 dagen al beantwoordden (`server/recent.ts`: maximaal 300 per speler, 400 per kamer, uit de tabel `answers`), en kiezen eerst landen die ze nog niet kregen. Binnen één gemengd spel komt hetzelfde land niet terug in een ander speltype (geen vlag van Frankrijk na de hoofdstad van Frankrijk). Is alles op, dan mag een land weer terugkomen (`lib/game-engine/questions.ts`). Dagspellen, bonustour en overleven blijven voor iedereen gelijk.
 - Getest: `npm test` 213 geslaagd, 1 overgeslagen (nieuw: twee spellen van 10 vlaggen van Europa achter elkaar hebben geen enkel land gemeen; een gemengd spel van 20 heeft 20 verschillende landen).
