@@ -596,7 +596,17 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.46.0 (op de testversie, nog niet live)
+## 1.48.0 (op de testversie, nog niet live; bevat ook 1.47.0)
+
+- **Meer afwisseling in vragen.** Een nieuw solospel en een nieuwe multiplayerronde wegen nu mee welke vragen de spelers de afgelopen 30 dagen al beantwoordden (`server/recent.ts`: maximaal 300 per speler, 400 per kamer, uit de tabel `answers`), en kiezen eerst landen die ze nog niet kregen. Binnen één gemengd spel komt hetzelfde land niet terug in een ander speltype (geen vlag van Frankrijk na de hoofdstad van Frankrijk). Is alles op, dan mag een land weer terugkomen (`lib/game-engine/questions.ts`). Dagspellen, bonustour en overleven blijven voor iedereen gelijk.
+- Getest: `npm test` 213 geslaagd, 1 overgeslagen (nieuw: twee spellen van 10 vlaggen van Europa achter elkaar hebben geen enkel land gemeen; een gemengd spel van 20 heeft 20 verschillende landen).
+
+## 1.47.0 (samen met 1.48.0)
+
+- **Continenten kiezen in multiplayer.** Onder "Meer instellingen" staan de continenten nu als chips, net als de spellen: alles staat aan, één tik zet een continent uit (bijvoorbeeld zonder Afrika), "Wereld" zet alles weer aan. Nieuw veld `regions` in de instellingen (`lib/game-engine/questions.ts`, `server/api.ts`): vragen komen alleen uit de gekozen continenten; met twee of meer gekozen komen ook de foute antwoorden daaruit. De server maakt het netjes: alle zes = de wereld, één = die regio (zoals vroeger). Gasten in de wachtkamer zien de gekozen continenten als label.
+- Getest: `npm test` 212 geslaagd, 1 overgeslagen (nieuw: een kamer zonder Afrika krijgt 20 vlaggen zonder één Afrikaans land, ook niet als fout antwoord; alle zes wordt de wereld, één wordt die regio, een onbekende regio geeft 400). Lokaal in de kamer: één tik op Afrika geeft "zonder Afrika" (schermafbeelding). Niet getest: een ronde met twee echte toestellen.
+
+## 1.46.0 (live sinds 22 oktober 2026, PR #46)
 
 - **Continent van de week: startknop viel van het scherm** op Android (gemeld met een schermafbeelding uit de Play Store-app). Het venster had `overflow:hidden`, dus je kon niet naar beneden. Nu (`app/v146.css`): elk venster (`.app-modal`) is nooit hoger dan het scherm en scrolt als het niet past; de startknop van het continent-venster en van het keuzemenu van de klassiekers blijft onderaan vast in beeld; op lagere schermen worden plaatje, titel en knoppen compacter (onder 700 px hoog geen plaatje).
 - Getest: het continent-venster op 412×780, 412×600, 360×560, 360×480 en 390×844 en het keuzemenu op 360×560 en 412×600: de startknop is overal zichtbaar zonder te scrollen (schermafbeeldingen). `npm test` 211 geslaagd, 1 overgeslagen; build schoon. Niet getest: een echt Android-toestel met grotere letters.

@@ -887,3 +887,31 @@ test('security 1.45: a new password signs out other devices, keeps this one, and
  assert.equal((await request(there,'/profile')).status,401,'the other device is signed out');
  assert.equal((await request(null,'/auth/login','POST',{email:'secure-one@example.test',password:pw})).status,401,'the old password no longer works');
 });
+
+test('rooms choose continents (1.47): questions only from them, wrong answers too with two or more, and tidy settings',async()=>{
+ const a=await bootstrap(),b=await bootstrap();
+ const COUNTRIES=JSON.parse(await fs.readFile('lib/data/countries.json','utf8'));const regionOf=id=>COUNTRIES.find(c=>c.id===id)?.region;
+ const room=(await request(a.cookie,'/rooms','POST',{settings:{...settings,mode:'flags',count:20,regions:['Europe','Asia','South America','North America','Oceania']}})).data;
+ assert.deepEqual(room.settings.regions??(await stored(room.code)).settings.regions,['Europe','Asia','South America','North America','Oceania']);
+ assert.equal((await request(b.cookie,'/rooms/'+room.code+'/join','POST',{})).status,200);
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/start','POST',{})).status,200);
+ const qs=(await stored(room.code)).questions;assert.equal(qs.length,20);
+ for(const q of qs){assert.notEqual(regionOf(q.countryId),'Africa','no African country asked');for(const o of q.options)assert.notEqual(regionOf(o.id),'Africa','no African wrong answer');}
+ const all=(await request(a.cookie,'/rooms','POST',{settings:{...settings,regions:['Europe','Africa','Asia','North America','South America','Oceania']}})).data;
+ const allSettings=(await stored(all.code)).settings;assert.equal(allSettings.regions,undefined);assert.equal(allSettings.region,'World');
+ const one=(await request(a.cookie,'/rooms','POST',{settings:{...settings,regions:['Oceania']}})).data;
+ const oneSettings=(await stored(one.code)).settings;assert.equal(oneSettings.regions,undefined);assert.equal(oneSettings.region,'Oceania');
+ assert.equal((await request(a.cookie,'/rooms','POST',{settings:{...settings,regions:['Atlantis']}})).status,400);
+});
+
+test('variety (1.48): a second game avoids the countries of the first, and a mixed game never repeats a country',async()=>{
+ const a=await bootstrap();const s={...settings,mode:'flags',count:10,region:'Europe',difficulty:'medium'};
+ const play=async()=>{let g=(await request(a.cookie,'/games','POST',{settings:s})).data;const ids=[];
+  while(g.phase!=='finished'){ids.push(g.question.solution.countryId);assert.equal((await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:g.round,answer:g.question.solution.correct})).status,200);g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;}
+  return ids;};
+ const first=await play(),second=await play();
+ assert.equal(new Set(first).size,10);assert.equal(second.filter(id=>first.includes(id)).length,0,'no country of the first game comes back: '+second.join(','));
+ const mixed=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'mixed',count:20,region:'World'}})).data;
+ const stateRow=await db.prepare('SELECT state FROM game_sessions WHERE id=?').bind(mixed.id).first();const qs=JSON.parse(stateRow.state).questions;
+ assert.equal(new Set(qs.map(q=>q.countryId)).size,20,'twenty different countries in one mixed game');
+});
