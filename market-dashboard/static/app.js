@@ -684,9 +684,13 @@ function renderEarnings(b) {
   const root = $("#earnings");
   segActive($("[data-er]", root), erRange);
   onSeg($("[data-er]", root), (v) => { erRange = v; store.set("earnings-range", v); renderEarnings(b); });
+  // Days are counted from today's date in Amsterdam when the page is viewed, not when the data
+  // was built, so a page left open overnight (or the static snapshot) stays right.
+  const now = amsterdamNow();
+  const upcoming = b.rows.map((r) => ({ ...r, days_until: daysBetween(now.date, r.date) })).filter((r) => r.days_until >= 0);
   const maxDays = { today: 0, week: 6, all: Infinity }[erRange];
-  const rows = b.rows.filter((r) => r.days_until <= maxDays);
-  $(".er-count", root).textContent = `${rows.length} of ${b.rows.length} companies`;
+  const rows = upcoming.filter((r) => r.days_until <= maxDays);
+  $(".er-count", root).textContent = `${rows.length} of ${upcoming.length} companies`;
   const table = $(".earnings-table", root);
   const head = el("thead");
   const htr = el("tr");
@@ -703,6 +707,7 @@ function renderEarnings(b) {
       const when = r.days_until === 0 ? "today" : r.days_until === 1 ? "tomorrow" : `in ${r.days_until} days`;
       const c = td("", `${r.day} · ${when}`); c.colSpan = 8; g.append(c); body.append(g);
     }
+    r.released = r.days_until === 0 && r.release_ams && r.release_ams <= now.time;
     const n = Math.max(1, r.peers.length);
     if (r.peers.length) r.peers.forEach((p, i) => body.append(earningsRow(r, p, i, n)));
     else body.append(earningsRow(r, null, 0, 1));
@@ -715,6 +720,14 @@ function renderEarnings(b) {
   }
   table.replaceChildren(head, body);
 }
+/** Today's date (YYYY-MM-DD) and time (HH:MM) in Amsterdam. */
+function amsterdamNow(at = new Date()) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Amsterdam", year: "numeric",
+    month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23" })
+    .formatToParts(at).map((p) => [p.type, p.value]));
+  return { date: `${parts.year}-${parts.month}-${parts.day}`, time: `${parts.hour}:${parts.minute}` };
+}
+const daysBetween = (fromIso, toIso) => Math.round((Date.parse(toIso) - Date.parse(fromIso)) / 864e5);
 function earningsRow(r, p, i, n) {
   const tr = el("tr", i === n - 1 ? "" : "sub");
   const span = (c) => { c.rowSpan = n; return c; };
@@ -722,7 +735,8 @@ function earningsRow(r, p, i, n) {
     const rel = td("rel");
     const exact = r.basis.startsWith("time from") || r.basis.includes("to the minute");
     rel.append(el("b", "", r.release_ams ? `${exact ? "" : "≈ "}${r.release_ams}` : "time n/a"),
-               el("span", "timing", r.session === "AMC" ? "after US close" : r.session === "BMO" ? "before US open" : "during session"));
+               el("span", "timing", r.released ? "out (released today)"
+                 : r.session === "AMC" ? "after US close" : r.session === "BMO" ? "before US open" : "during session"));
     rel.title = `${r.basis}${r.release_ny ? `; ${r.release_ny} New York time` : ""}`;
     const co = td("co");
     co.append(el("b", "", r.symbol), tvLink(r.tv), el("span", "nm", r.market_cap ? `$${fmtNum(r.market_cap / 1e9, 0)} bn` : ""));
