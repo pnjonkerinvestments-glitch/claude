@@ -6,6 +6,7 @@ import { validAnswer } from '../lib/game-engine/validate-answer';
 import { reviewSession, reviewStatements } from './reviews';
 import { dailyContent } from './daily-content';
 import { prepareGeography, enrichMapFeedback, withGeometry } from './geography';
+import { recentQuestionIds } from './recent';
 import { one, rows, run, batch } from './db';
 import { AppError } from './auth';
 import { generateQuestions, publicQuestion, type Settings } from '../lib/game-engine/questions';
@@ -59,7 +60,7 @@ export async function startSolo(env: Env, user: User, settings: Settings, practi
     const weak = practice ? (await rows(env, 'SELECT country_id FROM concept_performance WHERE user_id=? AND correct<attempts ORDER BY (1.0*correct/attempts) LIMIT 20', user.id)).map((x: any) => x.country_id) : [];
     const id = crypto.randomUUID();
     // The daily Size Shuffle: its own generator (five rounds, easy to hard); the same countries for everyone on the date.
-    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: (shuffle ? generateSizeShuffle(seed) : prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled))).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, disabled, weak, focus, disabled), settings.count === 0), settings, datasetVersion: undefined };
+    const content = daily ? await dailyContent(env, daily, kind, seed => ({ questions: (shuffle ? generateSizeShuffle(seed) : prepareGeography(generateQuestions(settings, seed, disabled, [], undefined, disabled))).map(q => ranked ? {...q,id:q.mode+':'+crypto.randomUUID()} : q), settings })) : { questions: prepareGeography(generateQuestions(settings, id, [...disabled, ...await recentQuestionIds(env, [user.id])], weak, focus, disabled), settings.count === 0), settings, datasetVersion: undefined };
     if (content.questions.some((q:any) => disabled.includes(q.id))) throw new AppError('QUESTION_UNAVAILABLE',503);
     const s: Solo = { id, ...(ranked ? {competition:{version:1,mode:trail?'trail':shuffle?'order':shape?'shape':'daily'} as const} : {}), datasetVersion: content.datasetVersion, questions: content.questions, settings: content.settings, round: 0, startAt: Date.now(), startedAt: Date.now(), score: 0, streak: 0, bestStreak: 0, answers: [], phase: 'question', daily, xp: 0, personalBest: 0 };
     const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', id, user.id, kind, daily, JSON.stringify(s), Date.now());

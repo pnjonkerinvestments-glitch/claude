@@ -596,7 +596,12 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.47.0 (op de testversie, nog niet live)
+## 1.48.0 (op de testversie, nog niet live; bevat ook 1.47.0)
+
+- **Meer afwisseling in vragen.** Een nieuw solospel en een nieuwe multiplayerronde wegen nu mee welke vragen de spelers de afgelopen 30 dagen al beantwoordden (`server/recent.ts`: maximaal 300 per speler, 400 per kamer, uit de tabel `answers`), en kiezen eerst landen die ze nog niet kregen. Binnen één gemengd spel komt hetzelfde land niet terug in een ander speltype (geen vlag van Frankrijk na de hoofdstad van Frankrijk). Is alles op, dan mag een land weer terugkomen (`lib/game-engine/questions.ts`). Dagspellen, bonustour en overleven blijven voor iedereen gelijk.
+- Getest: `npm test` 213 geslaagd, 1 overgeslagen (nieuw: twee spellen van 10 vlaggen van Europa achter elkaar hebben geen enkel land gemeen; een gemengd spel van 20 heeft 20 verschillende landen).
+
+## 1.47.0 (samen met 1.48.0)
 
 - **Continenten kiezen in multiplayer.** Onder "Meer instellingen" staan de continenten nu als chips, net als de spellen: alles staat aan, één tik zet een continent uit (bijvoorbeeld zonder Afrika), "Wereld" zet alles weer aan. Nieuw veld `regions` in de instellingen (`lib/game-engine/questions.ts`, `server/api.ts`): vragen komen alleen uit de gekozen continenten; met twee of meer gekozen komen ook de foute antwoorden daaruit. De server maakt het netjes: alle zes = de wereld, één = die regio (zoals vroeger). Gasten in de wachtkamer zien de gekozen continenten als label.
 - Getest: `npm test` 212 geslaagd, 1 overgeslagen (nieuw: een kamer zonder Afrika krijgt 20 vlaggen zonder één Afrikaans land, ook niet als fout antwoord; alle zes wordt de wereld, één wordt die regio, een onbekende regio geeft 400). Lokaal in de kamer: één tik op Afrika geeft "zonder Afrika" (schermafbeelding). Niet getest: een ronde met twee echte toestellen.

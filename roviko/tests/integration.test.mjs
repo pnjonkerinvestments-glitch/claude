@@ -903,3 +903,15 @@ test('rooms choose continents (1.47): questions only from them, wrong answers to
  const oneSettings=(await stored(one.code)).settings;assert.equal(oneSettings.regions,undefined);assert.equal(oneSettings.region,'Oceania');
  assert.equal((await request(a.cookie,'/rooms','POST',{settings:{...settings,regions:['Atlantis']}})).status,400);
 });
+
+test('variety (1.48): a second game avoids the countries of the first, and a mixed game never repeats a country',async()=>{
+ const a=await bootstrap();const s={...settings,mode:'flags',count:10,region:'Europe',difficulty:'medium'};
+ const play=async()=>{let g=(await request(a.cookie,'/games','POST',{settings:s})).data;const ids=[];
+  while(g.phase!=='finished'){ids.push(g.question.solution.countryId);assert.equal((await request(a.cookie,'/games/'+g.id+'/answer','POST',{round:g.round,answer:g.question.solution.correct})).status,200);g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;}
+  return ids;};
+ const first=await play(),second=await play();
+ assert.equal(new Set(first).size,10);assert.equal(second.filter(id=>first.includes(id)).length,0,'no country of the first game comes back: '+second.join(','));
+ const mixed=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'mixed',count:20,region:'World'}})).data;
+ const stateRow=await db.prepare('SELECT state FROM game_sessions WHERE id=?').bind(mixed.id).first();const qs=JSON.parse(stateRow.state).questions;
+ assert.equal(new Set(qs.map(q=>q.countryId)).size,20,'twenty different countries in one mixed game');
+});

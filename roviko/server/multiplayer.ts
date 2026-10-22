@@ -1,6 +1,7 @@
 import { reviewStatement } from './reviews';
 import { measure } from './telemetry';
 import { validAnswer } from '../lib/game-engine/validate-answer';
+import { recentQuestionIds } from './recent';
 import { prepareGeography, enrichMapFeedback } from './geography';
 import { one, rows, run, batch, countingDB } from './db';
 import { AppError, requireUser, checkOrigin, nameSchema } from './auth';
@@ -136,7 +137,9 @@ export function roomView(r: Room, userId: string) { const p = r.players.find(p =
 async function startMatch(env: Env, r: Room) {
     const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
     r.matchId = crypto.randomUUID();
-    r.questions = prepareGeography(generateQuestions(r.settings, r.matchId, [...r.previousQuestions, ...disabled], [], undefined, disabled));
+    // 1.48: also what the players answered lately, so a new match brings countries they have not just seen.
+    const recent = await recentQuestionIds(env, r.players.map(p => p.id), 400);
+    r.questions = prepareGeography(generateQuestions(r.settings, r.matchId, [...r.previousQuestions, ...recent, ...disabled], [], undefined, disabled));
     r.phase = 'countdown';
     r.round = 0;
     r.answers = {};

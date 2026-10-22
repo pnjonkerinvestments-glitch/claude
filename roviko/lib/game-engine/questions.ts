@@ -339,6 +339,12 @@ export function generateQuestions(settings: Settings, seed: string, exclude: str
         if (all) { candidates = candidates.filter(c => !usedCountries.has(c.id)); if (!candidates.length) break; }
         if (!candidates.length)
             throw new Error('Question unavailable');
+        // 1.48: prefer questions not asked lately (exclude carries the player's recent ones) and, within a game, countries
+        // not yet used in another game type (no flag of France right after its capital). Falls back when nothing is left.
+        { const qid = (x: Country) => mode + ':' + seedHash('roviko-v1:' + mode + ':' + x.id).toString(36);
+          const fresh = candidates.filter(x => !used.has(qid(x)) && !usedCountries.has(x.id));
+          const unasked = fresh.length ? fresh : candidates.filter(x => !used.has(qid(x)));
+          if (unasked.length) candidates = unasked; }
         const weighted = focus && i === 0 ? candidates.filter(c => c.id === focus) : !daily && weak.length && rng() < .45 ? candidates.filter(c => weak.includes(c.id)) : [];
         const c = shuffle(weighted.length ? weighted : candidates, rng)[0];
         let id = mode + ':' + seedHash('roviko-v1:' + mode + ':' + c.id).toString(36);
