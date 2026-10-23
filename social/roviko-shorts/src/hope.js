@@ -49,6 +49,7 @@ if (V === 1) {
   const ringD = r => r.map(([lo, la], i) => { const [x, y] = pt(lo, la); return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }).join('') + 'Z';
   for (const iso in GEO) svgEl(g, 'path', { d: GEO[iso].map(p => p.map(ringD).join('')).join(''), fill: '#E4E8E0', stroke: '#F7F5EF', 'stroke-width': 2 });
   const [tx, ty] = pt(4.9, 52.37);
+  var FOCUS = [tx, ty - 60];
   svgEl(s, 'circle', { cx: tx, cy: ty, r: 7, fill: '#333' });
   const lab = el(uiL, { left: tx + 18, top: ty - 14, zIndex: 6, fontFamily: MONO, fontSize: 24, color: '#666' }, 'AMSTERDAM');
   const shadow = el(uiL, { left: tx - 60, top: ty - 12, width: 120, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,.18)', filter: 'blur(4px)', zIndex: 6, transformOrigin: '50% 50%' });
@@ -68,9 +69,10 @@ if (V === 1) {
   const FH = 330, FWd = FH * 7 / 4, fx = 540 - FWd / 2, fy = 640;
   const fl = el(uiL, { left: fx, top: fy, width: FWd, height: FH, zIndex: 6, borderRadius: 16, overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,.18)' }, `<img src="${FLAG_W}mx.svg" style="width:100%;height:100%;display:block">`);
   const cover = el(uiL, { zIndex: 7, background: '#E9E6DE', borderRadius: 12, boxShadow: 'inset 0 0 0 2px rgba(0,0,0,.04)' });
-  const bar = el(uiL, { left: 190, top: fy + FH + 70, width: 700, height: 14, borderRadius: 7, background: '#E4E1D9', zIndex: 6 });
+  const bar = el(uiL, { left: 190, top: fy + FH + 135, width: 700, height: 14, borderRadius: 7, background: '#E4E1D9', zIndex: 6 });
   const fill = el(bar, { left: 0, top: 0, width: 700, height: 14, borderRadius: 7, background: '#333', transformOrigin: '0 50%' });
   const sq = FH * 0.42;   // what is left at 99%
+  var FOCUS = [540, fy + FH / 2]; var KEEP = [bar];
   hook = (t, pct, done = 0) => {
     const q = pct / 100, w = lerp(FWd + 4, sq, q), h = lerp(FH + 4, sq, q);
     const cw = w * (1 - done), ch = h * (1 - done);
@@ -88,6 +90,7 @@ if (V === 1) {
   el(uiL, { left: 516, top: y0 - 84, width: 0, height: 0, zIndex: 8, borderLeft: '24px solid transparent', borderRight: '24px solid transparent', borderTop: `30px solid ${RUST}` });
   // x of the strip so that the boundary between Bhutan and Nepal sits on the marker, minus how far it still has to go
   const finalX = 540 - (stop + 1) * CWID;
+  var FOCUS = [540, y0 + CH / 2];
   hook = (t, remain) => S(row, { transform: `translateX(${(finalX + remain).toFixed(1)}px)` });
   hook.onBhutan = finalX + CWID / 2;
 }
@@ -110,7 +113,7 @@ el(phone, { left: HPW / 2 - 70, top: 30, width: 140, height: 40, borderRadius: 2
 const subEls = SUBS.map(([a, b2]) => el(uiL, { left: 0, top: 300, width: 1080, textAlign: 'center', zIndex: 31, transformOrigin: '50% 50%' },
   `<div style="font-family:Manrope;font-weight:300;font-size:54px;color:${GREY}">${a.replace(/<b>/g, '<b style="font-weight:800;color:' + HINK + '">')}</div><div style="font-family:Manrope;font-weight:500;font-size:66px;line-height:1.12;color:${HINK}">${b2.replace(/<b>/g, '<b style="font-weight:800">')}</div>`));
 // ---------------------------------------------------------------- payoff (v2, v3) and end card
-const payoff = V === 1 ? null : el(uiL, { left: 0, top: 300, width: 1080, textAlign: 'center', zIndex: 31, transformOrigin: '50% 50%' },
+const payoff = V === 1 ? null : el(uiL, { left: 0, top: V === 2 ? 190 : 300, width: 1080, textAlign: 'center', zIndex: 31, transformOrigin: '50% 50%' },
   `<div style="font-family:Manrope;font-weight:300;font-size:54px;color:${GREY}">${V === 2 ? 'By the way:' : 'By the way, it stopped on'}</div><div style="font-family:Manrope;font-weight:800;font-size:96px;color:${HINK}">${V === 2 ? 'It’s Mexico.' : 'Bhutan.'}</div><div style="font-family:Manrope;font-weight:500;font-size:40px;color:${GREY};margin-top:8px">${V === 2 ? 'Italy has no eagle in the middle.' : 'The one with the dragon.'}</div>`);
 const endC = el(uiL, { left: 0, top: 520, width: 1080, textAlign: 'center', zIndex: 32, transformOrigin: '50% 50%' },
   `<div style="display:flex;flex-direction:column;align-items:center;gap:26px">
@@ -145,11 +148,12 @@ function seek(tReal) {
   const out = segB(t, TL.phone - 0.6, TL.phone, E.inCubic);
   if (V === 1) { const frames = Math.round(122 - p * 114); hook(t, frames); cNum.textContent = String(frames).padStart(3, '0'); cNum.style.color = frames <= 10 ? RUST : HINK; }
   if (V === 2) { const pct = Math.floor(p * 99.4); const done = segB(t, TL.payoff + 0.2, TL.payoff + 0.8, E.outCubic); hook(t, Math.min(99, pct), done); cNum.textContent = Math.min(99, pct) + '%'; cNum.style.color = pct >= 95 ? RUST : HINK; }
-  if (V === 3) { const remain = 9000 * Math.pow(1 - p, 1.15) + 3; const nudge = segB(t, TL.payoff - 0.4, TL.payoff + 0.3, E.inOutCubic); hook(t, lerp(remain, 0, 0) + nudge * 150); const frames = Math.round(122 - p * 114); cNum.textContent = String(frames).padStart(3, '0'); cNum.style.color = frames <= 10 ? RUST : HINK; }
+  if (V === 3) { const remain = 6300 * Math.pow(1 - p, 1.15) + 3; const nudge = segB(t, TL.payoff - 0.4, TL.payoff + 0.3, E.inOutCubic); hook(t, lerp(remain, 0, 0) + nudge * 150); const frames = Math.round(122 - p * 114); cNum.textContent = String(frames).padStart(3, '0'); cNum.style.color = frames <= 10 ? RUST : HINK; }
   const showHook = sec < TS.phone || (V !== 1 && sec >= TS.payoff - 0.5 && sec < TS.end);
   const hookAlpha = sec < TS.phone ? 1 - out : segB(t, TL.payoff - 0.5, TL.payoff) * (1 - segB(t, TL.end - 0.4, TL.end));
-  uiL.querySelectorAll(':scope > *').forEach(() => {});
-  [...uiL.children].forEach(e => { if (e.dataset.hook) S(e, { opacity: hookAlpha }); });
+  const zoom = 1 + 0.5 * Math.pow(p, 1.3) + 0.03 * clamp((sec - HOOK_END) / 6);   // the camera keeps creeping in
+  if (typeof KEEP !== 'undefined') KEEP.forEach(e => S(e, { opacity: hookAlpha }));
+  S(scene, { opacity: hookAlpha, transform: `scale(${zoom.toFixed(4)})`, visibility: hookAlpha > 0.01 ? 'visible' : 'hidden' });
   S(counter, { opacity: inHook ? 1 : 1 - segB(t, TL.t1 - 0.3, TL.t1) });
   if (hookQ) S(hookQ, { opacity: inHook ? spB(t, 0, 2.6, 0.7) : 1 - segB(t, TL.t1 - 0.3, TL.t1) });
   lineEls.forEach((e, i) => { const b0 = [TL.t1, TL.t2, TL.t3][i], b1 = [TL.t2, TL.t3, TL.phone][i]; const pin_ = spB(t, b0, 2.4, 0.7), po = segB(t, b1 - 0.35, b1); S(e, { opacity: Math.min(1, pin_) * (1 - po), transform: `translateY(${(1 - Math.min(1, pin_)) * 30 - po * 20}px)`, visibility: pin_ > 0.01 && po < 1 ? 'visible' : 'hidden' }); });
@@ -167,5 +171,7 @@ function seek(tReal) {
   drawMascot(mascot, { mouth: 'grin', cheeks: 0.6, legs: 1, happy: 0, hop: bop(b, 6), arms: [[-112, 66, 22, 10], [118, -86 + Math.sin(t * 9) * 12, -18, 10]], blink: blinkAt(t, [TL.end + 3]) });
 }
 // everything that belongs to the hook fades together
-[...uiL.children].forEach(e => { if (![hud, counter, hookQ, phone, endC, mBox, payoff, ...lineEls, ...subEls].includes(e)) e.dataset.hook = '1'; });
+// the camera: everything that belongs to the hook sits in one layer that slowly pushes in on the point of impact
+const scene = el(uiL, { width: 1080, height: 1920, zIndex: 6, transformOrigin: `${FOCUS[0]}px ${FOCUS[1]}px` });
+[...uiL.children].forEach(e => { if (e !== scene && !(typeof KEEP !== 'undefined' && KEEP.includes(e)) && ![hud, counter, hookQ, phone, endC, mBox, payoff, ...lineEls, ...subEls].includes(e)) scene.appendChild(e); });
 boot(seek, DURATION);
