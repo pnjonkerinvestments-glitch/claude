@@ -87,29 +87,44 @@ const t0 = Date.now();
 let doneSubs = 0, next = 0;
 const browsers = [];
 await Promise.all(Array.from({ length: Math.min(WORKERS, units.length) }, async () => {
-  const browser = await chromium.launch(LAUNCH);   // one browser (and raster process) per worker
-  browsers.push(browser);
-  const { shot } = await openPage(browser);
+  // one browser (and raster process) per worker; if it crashes, a fresh one renders the unit again
+  let browser, shot;
+  const relaunch = async () => {
+    if (browser) await browser.close().catch(() => {});
+    browser = await chromium.launch(LAUNCH);
+    browsers.push(browser);
+    ({ shot } = await openPage(browser));
+  };
+  await relaunch();
   while (next < units.length) {
     const u = units[next++];
-    const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS * u.sub), '-c:v', 'png', '-i', '-',
-      '-vf', `format=gbrp16le,tmix=frames=${u.sub},select='eq(mod(n\\,${u.sub})\\,${u.sub - 1})',setpts=N/(${FPS}*TB),format=gbrp`,
-      '-r', String(FPS), '-c:v', 'ffv1', '-level', '3', u.file], { stdio: ['pipe', 'inherit', 'inherit'] });
-    const closed = new Promise((res, rej) => ff.on('close', code => code ? rej(new Error('ffmpeg ' + code)) : res()));
-    for (let f = u.a; f < u.b; f++) {
-      for (const t of subTimes(f, u.sub)) {
-        const png = await shot(t);
-        if (!ff.stdin.write(png)) await new Promise(r => ff.stdin.once('drain', r));
+    for (let attempt = 0; ; attempt++) {
+      const ff = spawn('ffmpeg', ['-v', 'error', '-y', '-f', 'image2pipe', '-framerate', String(FPS * u.sub), '-c:v', 'png', '-i', '-',
+        '-vf', `format=gbrp16le,tmix=frames=${u.sub},select='eq(mod(n\\,${u.sub})\\,${u.sub - 1})',setpts=N/(${FPS}*TB),format=gbrp`,
+        '-r', String(FPS), '-c:v', 'ffv1', '-level', '3', u.file], { stdio: ['pipe', 'inherit', 'inherit'] });
+      const closed = new Promise((res, rej) => ff.on('close', code => code ? rej(new Error('ffmpeg ' + code)) : res()));
+      try {
+        for (let f = u.a; f < u.b; f++)
+          for (const t of subTimes(f, u.sub)) {
+            const png = await shot(t);
+            if (!ff.stdin.write(png)) await new Promise(r => ff.stdin.once('drain', r));
+          }
+        ff.stdin.end();
+        await closed;
+        break;
+      } catch (e) {
+        ff.kill('SIGKILL'); await closed.catch(() => {});
+        if (attempt >= 3) throw e;
+        console.error(`unit ${u.a}-${u.b - 1} failed (${e.message.split('\n')[0]}), new browser, retry ${attempt + 1}`);
+        await relaunch();
       }
-      doneSubs += u.sub;
     }
-    ff.stdin.end();
-    await closed;
+    doneSubs += (u.b - u.a) * u.sub;
     const el = (Date.now() - t0) / 1000;
     console.log(`unit ${u.a}-${u.b - 1} (${u.sub} sub)  ${(100 * doneSubs / work).toFixed(0)}%  ${el.toFixed(0)}s  eta ${(el / doneSubs * (work - doneSubs)).toFixed(0)}s`);
   }
 }));
-await Promise.all(browsers.map(b => b.close()));
+await Promise.all(browsers.map(b => b.close().catch(() => {})));
 
 // Join the units into one lossless master.
 writeFileSync(join(tmp, 'list.txt'), units.map(u => `file '${u.file}'`).join('\n'));
