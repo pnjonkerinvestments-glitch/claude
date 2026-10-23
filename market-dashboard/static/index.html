@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Overview</title>
+  <link rel="icon" href="data:,">
+  <script>
+    // Apply the saved theme before first paint to avoid a flash.
+    try { const t = localStorage.getItem("theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@5.0.8/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="#overview">Market Overview</a>
+      <nav class="nav" aria-label="Sections">
+        <a href="#overview">Overview</a><a href="#positioning">Positioning</a><a href="#earnings">Earnings</a>
+        <a href="#activity">Activity</a><a href="#performance">Performance</a><a href="#flows">Options &amp; flows</a>
+        <a href="#charts">Price charts</a><a href="#seasonality">Seasonality</a><a href="#appetite">More charts</a>
+      </nav>
+      <div class="topbar-right">
+        <div class="seg" role="group" aria-label="Theme">
+          <button type="button" data-theme-set="light">Light</button>
+          <button type="button" data-theme-set="dark">Dark</button>
+        </div>
+      </div>
+    </div>
+    <div id="ticker-tape" class="ticker"></div>
+  </header>
+
+  <main class="page">
+    <p class="status-line"></p>
+
+    <!-- ===================== overview ===================== -->
+    <section id="overview" class="section">
+      <div class="warnings"></div>
+      <div class="grid">
+        <article class="card" id="card-markets">
+          <div class="card-head"><h3>Markets</h3></div>
+          <p class="card-sub"></p>
+          <div class="table-wrap"><table class="markets"></table></div>
+        </article>
+        <article class="card" id="card-fg">
+          <div class="card-head"><h3>Fear &amp; greed (composite)</h3></div>
+          <p class="card-sub"></p>
+          <div class="body"></div>
+        </article>
+        <article class="card" id="card-breadth">
+          <div class="card-head"><h3>Breadth</h3><div class="controls"><select aria-label="Index"></select></div></div>
+          <p class="card-sub"></p>
+          <div class="body"></div>
+        </article>
+        <article class="card" id="card-vix">
+          <div class="card-head"><h3>VIX</h3></div>
+          <p class="card-sub"></p>
+          <div class="body"></div>
+        </article>
+
+        <article class="card span-2" id="card-regime">
+          <div class="card-head"><h3>Where we stand</h3><span class="muted updated" style="margin-left:auto;font-size:12px"></span></div>
+          <div class="body"></div>
+        </article>
+        <article class="card" id="card-hyg">
+          <div class="card-head"><h3>High-yield bonds (HYG)</h3></div>
+          <p class="card-sub"></p>
+          <div class="controls"><div class="seg" data-hyg>
+            <button type="button" data-v="daily">Daily</button><button type="button" data-v="weekly">Weekly</button></div></div>
+          <div class="body"></div>
+        </article>
+        <article class="card" id="card-sectors">
+          <div class="card-head"><h3>Sector performance</h3>
+            <div class="controls"><div class="seg" data-sector>
+              <button type="button" data-v="d1">1D</button><button type="button" data-v="w1">1W</button>
+              <button type="button" data-v="m1">1M</button><button type="button" data-v="ytd">YTD</button></div></div></div>
+          <p class="card-sub"></p>
+          <div class="bars"></div>
+        </article>
+
+        <article class="card span-2" id="card-signals">
+          <div class="card-head"><h3>Signals <span class="muted" style="font-weight:400;font-size:12.5px">extremes right now</span></h3></div>
+          <ul class="signals"></ul>
+          <p class="chart-note">Red dot = strong extreme, yellow = worth watching. Extremes are where turning points tend to happen; they are not buy or sell signals by themselves.</p>
+        </article>
+        <article class="card span-2" id="card-today">
+          <div class="card-head"><h3>Today</h3></div>
+          <div class="expected"></div>
+          <div class="card-head"><h3 style="font-size:13px">Economic calendar <span class="muted" style="font-weight:400">US &amp; euro area, high importance</span></h3></div>
+          <div id="calendar" class="widget calendar"></div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== positioning ===================== -->
+    <section id="positioning" class="section">
+      <div class="section-head"><h2>Positioning (COT)</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="cot-layout">
+        <article class="card" id="cot-card">
+          <div class="controls">
+            <select id="cot-asset" aria-label="Market"></select>
+            <select id="cot-group" aria-label="Trader group"></select>
+            <div class="seg" id="cot-window" aria-label="Percentile window">
+              <button type="button" data-v="1">1Y</button><button type="button" data-v="3">3Y</button>
+              <button type="button" data-v="5">5Y</button><button type="button" data-v="10">10Y</button>
+              <button type="button" data-v="0">All</button></div>
+            <a class="tv" id="cot-tv" target="_blank" rel="noopener" style="margin-left:auto">Open in TradingView ↗</a>
+          </div>
+          <div class="stats" id="cot-stats"></div>
+          <div class="legend" id="cot-legend"></div>
+          <div class="chart h520" id="cot-chart"></div>
+          <p class="chart-note" id="cot-note"></p>
+          <details class="explain"><summary>How to read this</summary><p id="cot-howto"></p><ul id="cot-groups-help"></ul></details>
+        </article>
+        <article class="card">
+          <div class="card-head"><h3>All markets</h3><span class="muted" id="cot-date" style="font-size:12px;margin-left:auto"></span></div>
+          <p class="card-sub">Net position as share of open interest, as percentile of each window. Click a row to chart it.</p>
+          <div class="table-wrap"><table class="cot-table"></table></div>
+          <p class="chart-note"><span class="pill low">≤ 10</span> crowded short &nbsp; <span class="pill high">≥ 90</span> crowded long. AM = asset managers, LF = leveraged funds, MM = managed money.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===================== earnings ===================== -->
+    <section id="earnings" class="section">
+      <div class="section-head"><h2>Earnings &amp; European peers</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card">
+        <div class="controls">
+          <div class="seg" data-er>
+            <button type="button" data-v="today">Today</button><button type="button" data-v="week">Next 7 days</button>
+            <button type="button" data-v="all">All upcoming</button></div>
+          <span class="muted er-count" style="font-size:12.5px"></span>
+        </div>
+        <p class="card-sub" style="margin:0">Release times are Amsterdam time. "≈" = the company's usual time from its last reports (Yahoo has no exact time yet); without "≈" the time is to the minute. Corr = correlation of weekly returns with the US company over the last year; last time = how the peer moved on the day it could first react to the previous report.</p>
+        <div class="table-wrap"><table class="earnings-table"></table></div>
+      </article>
+    </section>
+
+    <!-- ===================== activity ===================== -->
+    <section id="activity" class="section">
+      <div class="section-head"><h2>Activity</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card" id="act-unusual">
+        <div class="card-head"><h3>Unusual volume · big names</h3><span class="muted act-when" style="font-size:12px;margin-left:auto"></span></div>
+        <p class="card-sub"></p>
+        <div class="act-grid">
+          <div><h4>Stocks</h4><div class="table-wrap scroll"><table data-kind="stock"></table></div></div>
+          <div><h4>ETFs</h4><div class="table-wrap scroll"><table data-kind="etf"></table></div></div>
+        </div>
+        <details class="log"><summary>Running log <span class="muted"></span></summary><div class="table-wrap scroll"><table></table></div></details>
+      </article>
+      <article class="card" id="act-taps">
+        <div class="card-head"><h3>200-day SMA taps</h3><span class="muted act-when" style="font-size:12px;margin-left:auto"></span></div>
+        <p class="card-sub"></p>
+        <div class="controls"><div class="seg" data-filter>
+          <button type="button" data-v="all">All</button><button type="button" data-v="Stock">Stocks</button>
+          <button type="button" data-v="ETF">ETFs</button><button type="button" data-v="Futures">Futures</button></div></div>
+        <div class="table-wrap scroll"><table class="main"></table></div>
+        <details class="log"><summary>Running log <span class="muted"></span></summary><div class="table-wrap scroll"><table></table></div></details>
+      </article>
+      <article class="card" id="act-records">
+        <div class="card-head"><h3>Record volume</h3><span class="muted act-when" style="font-size:12px;margin-left:auto"></span></div>
+        <p class="card-sub"></p>
+        <div class="controls"><div class="seg" data-filter>
+          <button type="button" data-v="all">All</button><button type="button" data-v="Stock">Stocks</button>
+          <button type="button" data-v="ETF">ETFs</button></div></div>
+        <div class="table-wrap scroll"><table class="main"></table></div>
+        <details class="log"><summary>Running log <span class="muted"></span></summary><div class="table-wrap scroll"><table></table></div></details>
+      </article>
+      <article class="card" id="act-smallcaps">
+        <div class="card-head"><h3>European small-cap movers · today</h3><span class="muted act-when" style="font-size:12px;margin-left:auto"></span></div>
+        <p class="card-sub"></p>
+        <div class="table-wrap scroll"><table class="main"></table></div>
+        <details class="log"><summary>Running log <span class="muted"></span></summary><div class="table-wrap scroll"><table></table></div></details>
+      </article>
+    </section>
+
+    <!-- ===================== performance ===================== -->
+    <section id="performance" class="section">
+      <div class="section-head"><h2>Performance</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card" id="perf-us">
+        <div class="card-head"><h3>US ETF performance</h3></div>
+        <p class="card-sub">US sector, style, theme, bond and commodity ETFs · click a column to sort · shading shows the size of the move within each column</p>
+        <div class="table-wrap"><table class="heat"></table></div>
+      </article>
+        <article class="card" id="perf-country">
+          <div class="card-head"><h3>Country &amp; region ETFs</h3></div>
+          <p class="card-sub">US-listed ETFs tracking a single country or region, in dollars</p>
+          <div class="table-wrap"><table class="heat"></table></div>
+        </article>
+        <article class="card" id="perf-eu">
+          <div class="card-head"><h3>Europe: STOXX 600 sectors</h3></div>
+          <p class="card-sub">iShares STOXX Europe 600 sector ETFs (Xetra), in euros</p>
+          <div class="table-wrap"><table class="heat"></table></div>
+        </article>
+      <article class="card">
+        <div class="card-head"><h3>Heatmap</h3><div class="controls"><div class="seg" data-heatmap-seg>
+          <button type="button" data-heatmap="us">S&amp;P 500</button><button type="button" data-heatmap="europe">STOXX 600</button></div></div></div>
+        <div id="heatmap" class="widget heatmap"></div>
+      </article>
+    </section>
+
+    <!-- ===================== flows ===================== -->
+    <section id="flows" class="section">
+      <div class="section-head"><h2>Options &amp; flows</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card" id="card-pc">
+        <div class="card-head"><h3>Put/call ratio per index</h3>
+          <div class="controls"><div class="seg" data-pc-range>
+            <button type="button" data-v="1">1M</button><button type="button" data-v="3">3M</button>
+            <button type="button" data-v="6">6M</button><button type="button" data-v="12">1Y</button>
+            <button type="button" data-v="36">3Y</button></div></div></div>
+        <div class="controls"><select data-pc-series aria-label="Index"></select></div>
+        <p class="card-sub"></p>
+        <div class="stats"></div>
+        <div class="chart h300"></div>
+        <details class="explain"><summary>What does this show?</summary><p class="pc-explain"></p></details>
+      </article>
+      <article class="card" id="card-occ">
+        <div class="card-head"><h3><span class="occ-title">SPY put volume</span></h3>
+          <div class="controls"><select data-occ-sym aria-label="ETF"></select>
+            <div class="seg" data-occ-side><button type="button" data-v="puts">Puts</button><button type="button" data-v="calls">Calls</button></div></div></div>
+        <p class="card-sub"></p>
+        <div class="stats"></div>
+        <div class="chart h440"></div>
+        <p class="chart-note"></p>
+      </article>
+      <article class="card" id="card-short">
+        <div class="card-head"><h3><span class="fam-name">SPY</span> short ETF volume share</h3>
+          <div class="controls"><div class="seg" data-fam></div></div></div>
+        <p class="card-sub"></p>
+        <div class="stats"></div>
+        <div class="chart h440"></div>
+        <p class="chart-note"></p>
+      </article>
+    </section>
+
+    <!-- ===================== charts ===================== -->
+    <section id="charts" class="section">
+      <div class="section-head"><h2>Price charts</h2><span class="updated"></span></div>
+      <article class="card" id="card-price">
+        <p class="card-sub pr-sub" style="margin:0"></p>
+        <div class="controls"><select data-pr-ticker aria-label="Market"></select>
+          <div class="seg" data-pr-freq><button type="button" data-v="daily">Daily</button><button type="button" data-v="weekly">Weekly</button></div>
+          <select data-pr-breadth aria-label="Breadth">
+            <option value="">Breadth: off</option><option value="above20">Breadth: % above 20-day</option>
+            <option value="above50">Breadth: % above 50-day</option><option value="above200">Breadth: % above 200-day</option>
+            <option value="outperform">Breadth: % beating the index</option><option value="summation">Breadth: McClellan summation</option></select>
+          <a class="tv pr-tv" target="_blank" rel="noopener" style="margin-left:auto">Open in TradingView ↗</a></div>
+        <div class="big-row"><span class="big pr-last"></span><span class="muted pr-when"></span></div>
+        <div class="chart h440"></div>
+      </article>
+    </section>
+
+    <!-- ===================== seasonality ===================== -->
+    <section id="seasonality" class="section">
+      <div class="section-head"><h2>Seasonality</h2><span class="updated"></span></div>
+      <article class="card">
+        <p class="card-sub" style="margin:0"></p>
+        <div class="controls">
+          <div class="seg" data-se-years><button type="button" data-v="10">10 years</button><button type="button" data-v="15">15 years</button><button type="button" data-v="20">20 years</button></div>
+          <div class="seg" data-se-stat><button type="button" data-v="avg">Average</button><button type="button" data-v="median">Median</button><button type="button" data-v="up">% of years up</button></div>
+        </div>
+        <div class="table-wrap"><table class="season"></table></div>
+      </article>
+    </section>
+
+    <!-- ===================== more charts (folded) ===================== -->
+    <section id="appetite" class="section fold">
+      <div class="section-head"><h2>Risk appetite</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="grid two charts"></div>
+    </section>
+    <section id="volatility" class="section fold">
+      <div class="section-head"><h2>Volatility</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <div class="grid two charts"></div>
+    </section>
+    <section id="rates" class="section fold">
+      <div class="section-head"><h2>Rates &amp; credit</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card"><div class="table-wrap"><table class="rates-table"></table></div></article>
+      <div class="grid two charts"></div>
+    </section>
+    <section id="dollar" class="section fold">
+      <div class="section-head"><h2>Dollar</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card"><div class="table-wrap"><table class="asset-table"></table></div></article>
+      <div class="grid two charts"></div>
+    </section>
+    <section id="commodities" class="section fold">
+      <div class="section-head"><h2>Commodities</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card"><div class="table-wrap"><table class="asset-table"></table></div></article>
+      <div class="grid two charts"></div>
+    </section>
+    <section id="crypto" class="section fold">
+      <div class="section-head"><h2>Crypto</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card"><div class="table-wrap"><table class="asset-table"></table></div></article>
+      <div class="grid two charts"></div>
+    </section>
+    <section id="asia" class="section fold">
+      <div class="section-head"><h2>Asia</h2><span class="updated"></span></div>
+      <div class="warnings"></div>
+      <article class="card"><div class="table-wrap"><table class="asset-table"></table></div></article>
+      <div class="grid two charts"></div>
+    </section>
+
+    <footer class="footer">
+      Data: Yahoo Finance, CBOE, CFTC, FRED, SEC EDGAR; live quotes, calendar and heatmap by TradingView; charts by
+      TradingView Lightweight Charts. "↗" opens the chart in TradingView (your own account). Not investment advice.
+    </footer>
+  </main>
+
+  <script src="/static/charts.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

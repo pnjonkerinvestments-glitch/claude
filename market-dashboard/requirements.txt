@@ -1,0 +1,9 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+yfinance>=1.0           # screener with ETF queries (unusual volume)
+pandas>=2.2
+httpx>=0.27
+PyYAML>=6.0
+APScheduler>=3.10,<4
+python-dotenv>=1.0
+pytest>=8.0
