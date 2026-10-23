@@ -42,8 +42,12 @@ async function openPage(browser) {
   const cdp = await page.context().newCDPSession(page);
   const shot = async t => {
     await page.evaluate(t => window.seek(t), t);
-    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true });
-    return Buffer.from(data, 'base64');
+    for (let tries = 0; ; tries++) {   // a capture can fail transiently under heavy load: retry a few times
+      try {
+        const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', optimizeForSpeed: true });
+        return Buffer.from(data, 'base64');
+      } catch (e) { if (tries >= 4) throw e; await new Promise(r => setTimeout(r, 500 * (tries + 1))); }
+    }
   };
   return { page, shot };
 }
