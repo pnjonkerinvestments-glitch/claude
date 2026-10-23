@@ -1,0 +1,171 @@
+/*
+  Roviko "you just watched…" videos (the anticipation format): something is about to happen in slow motion and never quite
+  does, then the text breaks the fourth wall and turns the watch time into a reason to play Roviko. hope.html?v=1|2|3
+  1 a map pin that never lands · 2 a flag that loads to 99% (Italy or Mexico?) · 3 a flag roulette that stops between Bhutan and Nepal.
+  After the hook: what Roviko is, on a phone with real app screens (roviko.app 1.34), then the payoff (v2, v3) and an end card.
+  No emoji in picture (only iPhone-style glyphs from lib/ios.js).
+*/
+// @scripts lib/ios.js
+const V = +(Q.get('v') || 1);
+const SONG = { 1: ['mi-gente', 110.002], 2: ['ko-games', 110.992], 3: ['light-it-up-boy', 118.998] }[V];
+const TEMPO = SONG[1], DIL = TEMPO / 130;
+const B = s => s * TEMPO / 60;                  // seconds -> film beats
+setupStage(C.cream);
+S(stage, { background: '#F7F5EF' });
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+const MONO = "'DejaVu Sans Mono', 'Liberation Mono', monospace";
+const HINK = '#111', GREY = '#8A8A86', RUST = '#C0583A';
+// ---------------------------------------------------------------- timeline (seconds)
+const HOOK_END = V === 3 ? 8 : 7;
+const TS = { t1: HOOK_END + 0.25, t2: HOOK_END + 2.15, t3: HOOK_END + 4.05, phone: HOOK_END + 5.95, payoff: HOOK_END + 12.3, end: HOOK_END + (V === 1 ? 12.3 : 14.1) };
+TS.done = TS.end + 3.4;
+const TL = Object.fromEntries(Object.entries(TS).map(([k, v]) => [k, B(v)]));
+const END = Math.ceil(TL.done), DURATION = END * 60 / TEMPO;
+
+// ---------------------------------------------------------------- camera HUD (corner brackets stay; REC and FPS only during the hook)
+const hud = el(uiL, { width: 1080, height: 1920, zIndex: 40 });
+[[40, 140, 0], [1040, 140, 90], [1040, 1700, 180], [40, 1700, 270]].forEach(([x, y, r]) => el(hud, { left: x, top: y, width: 70, height: 70, transformOrigin: '0 0', transform: `rotate(${r}deg)`, borderLeft: '4px solid #333', borderTop: '4px solid #333' }));
+const rec = el(hud, { left: 70, top: 170, fontFamily: MONO, fontSize: 30, color: '#333', whiteSpace: 'pre' }, '');
+const fps = el(hud, { left: 0, top: 170, width: 1010, textAlign: 'right', fontFamily: MONO, fontSize: 30, color: '#333' }, V === 2 ? 'LOADING…' : '100,000 FPS');
+// ---------------------------------------------------------------- the counter under the hook object
+const counter = el(uiL, { left: 0, top: 1170, width: 1080, textAlign: 'center', zIndex: 30 },
+  `<div style="font-family:${MONO};font-size:32px;letter-spacing:.14em;color:#555">${{ 1: 'FRAMES TO LANDING', 2: 'LOADING FLAG', 3: 'FRAMES TO STOP' }[V]}</div><div class="n" style="font-family:Manrope;font-weight:200;font-size:200px;line-height:1.05;color:${HINK}"></div>`);
+const cNum = counter.querySelector('.n');
+// the hook question, small, at the top (v2, v3)
+const hookQ = V === 1 ? null : el(uiL, { left: 0, top: 290, width: 1080, textAlign: 'center', zIndex: 30, fontFamily: 'Manrope', fontWeight: 600, fontSize: 56, color: HINK }, V === 2 ? 'Italy or Mexico?' : 'Where will it stop?');
+
+// ---------------------------------------------------------------- hook objects
+let hook;
+if (V === 1) {
+  // a map pin falling onto Amsterdam in slow motion
+  const BOX = { x: 90, y: 760, w: 900, h: 520 }, lo0 = -11, lo1 = 29, la0 = 42, la1 = 60;
+  const k = Math.min(BOX.w / (lo1 - lo0), BOX.h / (la1 - la0)), ox = BOX.x + (BOX.w - k * (lo1 - lo0)) / 2, oy = BOX.y + (BOX.h - k * (la1 - la0)) / 2;
+  const pt = (lo, la) => [ox + (lo - lo0) * k, oy + (la1 - la) * k];
+  const mapW = el(uiL, { width: 1080, height: 1920, zIndex: 5 }), s = svgEl(mapW, 'svg', { width: 1080, height: 1920 }); s.style.position = 'absolute';
+  const defs = svgEl(s, 'defs'), g0 = svgEl(defs, 'radialGradient', { id: 'fade', cx: '50%', cy: '50%', r: '50%' });
+  svgEl(g0, 'stop', { offset: '55%', 'stop-color': '#fff' }); svgEl(g0, 'stop', { offset: '100%', 'stop-color': '#000' });
+  const m = svgEl(svgEl(defs, 'mask', { id: 'fm' }), 'ellipse', { cx: 540, cy: BOX.y + BOX.h / 2, rx: 470, ry: 300, fill: 'url(#fade)' });
+  const g = svgEl(s, 'g', { mask: 'url(#fm)' });
+  const ringD = r => r.map(([lo, la], i) => { const [x, y] = pt(lo, la); return (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }).join('') + 'Z';
+  for (const iso in GEO) svgEl(g, 'path', { d: GEO[iso].map(p => p.map(ringD).join('')).join(''), fill: '#E4E8E0', stroke: '#F7F5EF', 'stroke-width': 2 });
+  const [tx, ty] = pt(4.9, 52.37);
+  svgEl(s, 'circle', { cx: tx, cy: ty, r: 7, fill: '#333' });
+  const lab = el(uiL, { left: tx + 18, top: ty - 14, zIndex: 6, fontFamily: MONO, fontSize: 24, color: '#666' }, 'AMSTERDAM');
+  const shadow = el(uiL, { left: tx - 60, top: ty - 12, width: 120, height: 24, borderRadius: '50%', background: 'rgba(0,0,0,.18)', filter: 'blur(4px)', zIndex: 6, transformOrigin: '50% 50%' });
+  const pin = el(uiL, { left: tx - 80, top: 0, width: 160, height: 160, zIndex: 10 }, glyph('pin', 160, '#E5484D', 'filter:drop-shadow(0 10px 16px rgba(0,0,0,.25))'));
+  const trail = el(uiL, { left: tx - 3, top: 0, width: 6, height: 0, zIndex: 9, background: 'linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.12))' });
+  const lines = svgEl(el(uiL, { width: 1080, height: 1920, zIndex: 8 }), 'svg', { width: 1080, height: 1920 }); lines.style.position = 'absolute';
+  const sl = [-1, 1].map(sd => svgEl(lines, 'line', { stroke: 'rgba(0,0,0,.07)', 'stroke-width': 2 }));
+  hook = (t, frames) => {
+    const gap = 30 + frames * 3.6;                  // hpx from the pin tip to the target
+    const tipY = ty - gap, top = tipY - 152;
+    S(pin, { top }); S(trail, { top: top - 420, height: 420 });
+    S(shadow, { transform: `scale(${clamp(1.4 - gap / 400, 0.3, 1.2)})`, opacity: clamp(1 - gap / 500, 0.15, 1) });
+    sl.forEach((l, i) => { const sd = i ? 1 : -1; l.setAttribute('x1', tx + sd * 60); l.setAttribute('y1', top - 300); l.setAttribute('x2', tx + sd * 20); l.setAttribute('y2', top + 40); });
+  };
+} else if (V === 2) {
+  // the flag of Mexico, uncovered from the edges inwards; the last 1% hides the eagle in the middle
+  const FH = 330, FWd = FH * 7 / 4, fx = 540 - FWd / 2, fy = 640;
+  const fl = el(uiL, { left: fx, top: fy, width: FWd, height: FH, zIndex: 6, borderRadius: 16, overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,.18)' }, `<img src="${FLAG_W}mx.svg" style="width:100%;height:100%;display:block">`);
+  const cover = el(uiL, { zIndex: 7, background: '#E9E6DE', borderRadius: 12, boxShadow: 'inset 0 0 0 2px rgba(0,0,0,.04)' });
+  const bar = el(uiL, { left: 190, top: fy + FH + 70, width: 700, height: 14, borderRadius: 7, background: '#E4E1D9', zIndex: 6 });
+  const fill = el(bar, { left: 0, top: 0, width: 700, height: 14, borderRadius: 7, background: '#333', transformOrigin: '0 50%' });
+  const sq = FH * 0.42;   // what is left at 99%
+  hook = (t, pct, done = 0) => {
+    const q = pct / 100, w = lerp(FWd + 4, sq, q), h = lerp(FH + 4, sq, q);
+    const cw = w * (1 - done), ch = h * (1 - done);
+    S(cover, { left: 540 - cw / 2, top: fy + FH / 2 - ch / 2, width: cw, height: ch, display: cw > 1 ? '' : 'none' });
+    S(fill, { transform: `scaleX(${q})` });
+  };
+} else {
+  // a flag roulette slowing down under a fixed marker; it stops on the line between Bhutan and Nepal
+  const STRIP = ['jp', 'br', 'ca', 'kr', 'za', 'mx', 'se', 'in', 'gr', 'ar', 'tr', 'ke', 'no', 'pe', 'it', 'vn', 'ie', 'ch', 'eg', 'au', 'fi', 'cu', 'ma', 'bt', 'np', 'pt', 'is'];
+  const CWID = 300, CH = 200, y0 = 760, stop = STRIP.indexOf('bt');
+  const win = el(uiL, { left: 0, top: y0 - 30, width: 1080, height: CH + 60, overflow: 'hidden', zIndex: 6, maskImage: 'linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent)' });
+  const row = el(win, { left: 0, top: 30, width: STRIP.length * CWID, height: CH });
+  STRIP.forEach((c, i) => el(row, { left: i * CWID + 20, top: 0, width: CWID - 40, height: CH, borderRadius: 22, background: '#fff', boxShadow: '0 10px 24px rgba(0,0,0,.10)', display: 'grid', placeItems: 'center' }, flagW(c, 150, 'max-width:240px;object-fit:contain')));
+  el(uiL, { left: 538, top: y0 - 60, width: 4, height: CH + 120, background: RUST, zIndex: 8, borderRadius: 2 });
+  el(uiL, { left: 516, top: y0 - 84, width: 0, height: 0, zIndex: 8, borderLeft: '24px solid transparent', borderRight: '24px solid transparent', borderTop: `30px solid ${RUST}` });
+  // x of the strip so that the boundary between Bhutan and Nepal sits on the marker, minus how far it still has to go
+  const finalX = 540 - (stop + 1) * CWID;
+  hook = (t, remain) => S(row, { transform: `translateX(${(finalX + remain).toFixed(1)}px)` });
+  hook.onBhutan = finalX + CWID / 2;
+}
+// ---------------------------------------------------------------- the fourth-wall lines
+const LINES = {
+  1: [['You just watched a pin drop', 'for <b>7 seconds.</b>'], ['And you’re still here,', 'waiting for it to <b>land.</b>'], ['Imagine those 7 seconds', 'made you <b>smarter.</b>']],
+  2: [['You just watched a flag load', 'for <b>7 seconds.</b>'], ['And you still don’t know', 'if it’s <b>Italy or Mexico.</b>'], ['That itch?', '<b>Roviko</b> scratches it.']],
+  3: [['You just watched flags spin', 'for <b>8 seconds.</b>'], ['And you’re still waiting', 'for it to <b>stop.</b>'], ['Now imagine you could', 'name <b>every single one.</b>']],
+}[V];
+const lineEls = LINES.map(([a, b2]) => el(uiL, { left: 0, top: 1150, width: 1080, textAlign: 'center', zIndex: 31, transformOrigin: '50% 50%' },
+  `<div style="font-family:Manrope;font-weight:300;font-size:56px;color:${GREY}">${a}</div><div style="font-family:Manrope;font-weight:500;font-size:92px;line-height:1.1;color:${HINK};letter-spacing:-.01em">${b2.replace(/<b>/g, '<b style="font-weight:800">')}</div>`));
+// ---------------------------------------------------------------- the phone with real app screens
+const SCREENS = ['detour-q', 'trail', 'duel', 'compare-a', 'rank-reveal', 'passport-badges'];
+const SUBS = [['This is <b>Roviko.</b>', 'Geography in <b>tiny daily games.</b>'], ['6 games.', 'A new trip <b>every day.</b>'], ['Flags, maps,', '<b>capitals and duels.</b>'], ['Keep your streak.', '<b>Beat your friends.</b>']];
+const HPW = 470, HPH = HPW * 2532 / 1170 + 32, hpx = 540 - HPW / 2, hpy = 600;
+const phone = el(uiL, { left: hpx, top: hpy, width: HPW, height: HPH, borderRadius: 66, background: '#111', zIndex: 20, transformOrigin: '50% 30%', boxShadow: '0 40px 80px rgba(0,0,0,.25)' });
+const scr = el(phone, { left: 16, top: 16, width: HPW - 32, height: HPH - 32, borderRadius: 52, overflow: 'hidden', background: '#fff' });
+const shots = SCREENS.map(n => el(scr, { left: 0, top: 0, width: HPW - 32, height: HPH - 32 }, `<img src="screens34/${n}.jpg" style="width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block">`));
+el(phone, { left: HPW / 2 - 70, top: 30, width: 140, height: 40, borderRadius: 20, background: '#000', zIndex: 3 });
+const subEls = SUBS.map(([a, b2]) => el(uiL, { left: 0, top: 300, width: 1080, textAlign: 'center', zIndex: 31, transformOrigin: '50% 50%' },
+  `<div style="font-family:Manrope;font-weight:300;font-size:54px;color:${GREY}">${a.replace(/<b>/g, '<b style="font-weight:800;color:' + HINK + '">')}</div><div style="font-family:Manrope;font-weight:500;font-size:66px;line-height:1.12;color:${HINK}">${b2.replace(/<b>/g, '<b style="font-weight:800">')}</div>`));
+// ---------------------------------------------------------------- payoff (v2, v3) and end card
+const payoff = V === 1 ? null : el(uiL, { left: 0, top: 300, width: 1080, textAlign: 'center', zIndex: 31, transformOrigin: '50% 50%' },
+  `<div style="font-family:Manrope;font-weight:300;font-size:54px;color:${GREY}">${V === 2 ? 'By the way:' : 'By the way, it stopped on'}</div><div style="font-family:Manrope;font-weight:800;font-size:96px;color:${HINK}">${V === 2 ? 'It’s Mexico.' : 'Bhutan.'}</div><div style="font-family:Manrope;font-weight:500;font-size:40px;color:${GREY};margin-top:8px">${V === 2 ? 'Italy has no eagle in the middle.' : 'The one with the dragon.'}</div>`);
+const endC = el(uiL, { left: 0, top: 520, width: 1080, textAlign: 'center', zIndex: 32, transformOrigin: '50% 50%' },
+  `<div style="display:flex;flex-direction:column;align-items:center;gap:26px">
+    <span style="width:230px;height:230px;border-radius:58px;background:#fff;display:grid;place-items:center;box-shadow:0 0 0 1px rgba(0,0,0,.06), 0 24px 50px rgba(0,0,0,.16)"><img src="${ASSETS}roviko-globe.svg" style="width:176px;height:176px"></span>
+    <div style="font-family:Fredoka;font-weight:700;font-size:120px;color:${C.forest};line-height:1">Roviko</div>
+    <div style="font-family:Manrope;font-weight:300;font-size:52px;color:${GREY}">Spend 5 minutes a day</div>
+    <div style="font-family:Manrope;font-weight:800;font-size:76px;color:${HINK};margin-top:-14px">getting smarter.</div>
+    <div style="display:flex;gap:14px;margin-top:16px">${['Free', 'No ads', 'No account'].map(x => `<span style="display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;background:#fff;box-shadow:0 6px 16px rgba(0,0,0,.08);font-family:Manrope;font-weight:800;font-size:30px;color:${HINK}">${glyph('check', 32, IOS.green)}${x}</span>`).join('')}</div>
+    <div style="font-family:Manrope;font-weight:700;font-size:36px;color:${HINK};margin-top:10px">On iPhone and iPad · roviko.app</div></div>`);
+const mBox = el(uiL, { left: 820 - 150, top: 1520 - 150, width: 300, height: 300, zIndex: 33 }), mascot = Mascot(mBox, 300); S(mascot.svg, { left: 0, top: 0 });
+
+// ---------------------------------------------------------------- the hook's progress: fast at first, then crawling (never finishes)
+const prog = t => { const s = Math.min(t, HOOK_END), k = 0.55; return (1 - Math.exp(-k * s)) / (1 - Math.exp(-k * HOOK_END)); };   // 0 -> 1 at the end of the hook, crawling at the end
+// ---------------------------------------------------------------- sound
+ev(0.02, 'whoosh', -10);
+for (let s = 0.4, k = 0; s < HOOK_END; s += 0.9, k++) ev(B(s), 'heartbeat', -6 - Math.min(6, k * 0.4));
+{ let last = -1; for (let s = 0; s < HOOK_END; s += 1 / 60) { const v = V === 2 ? Math.floor(prog(s) * 99) : Math.round(122 - prog(s) * 114); if (v !== last && (last < 0 || Math.abs(v - last) >= 1) && s - (ev.lastTick || -1) > 0.12) { ev(B(s), 'clock', -14, { rate: 1.2 }); ev.lastTick = s; } last = v; } }
+ev(TL.t1, 'boom', -8); ev(TL.t2, 'swish', -14); ev(TL.t3, 'swish', -14);
+ev(TL.phone, 'impactbig', -7); ev(TL.phone + 0.1, 'swish', -10);
+for (let i = 1; i < SCREENS.length; i++) ev(TL.phone + i * B(1.0), 'tap', -12);
+if (V !== 1) { ev(TL.payoff, V === 2 ? 'scratch' : 'kaching', -7); ev(TL.payoff + 0.3, 'correct', -8); }
+ev(TL.end, 'swish', -9); ev(TL.end + 0.3, 'sparkle', -8); ev(TL.end + 1, 'pop', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT, sec = b * 60 / TEMPO;
+  const inHook = sec < TS.t1, p = prog(sec);
+  // HUD
+  const tc = Math.min(sec, HOOK_END), ff = Math.floor((tc % 1) * 60);
+  rec.innerHTML = `<span style="color:${RUST}">${Math.floor(sec * 2) % 2 ? '○' : '●'}</span> REC  00:00:${String(Math.floor(tc)).padStart(2, '0')}:${String(ff).padStart(2, '0')}`;
+  const hudOn = 1 - segB(t, TL.t1 - 0.2, TL.t1 + 0.4); S(rec, { opacity: hudOn }); S(fps, { opacity: hudOn });
+  // hook object, frozen after the hook
+  const out = segB(t, TL.phone - 0.6, TL.phone, E.inCubic);
+  if (V === 1) { const frames = Math.round(122 - p * 114); hook(t, frames); cNum.textContent = String(frames).padStart(3, '0'); cNum.style.color = frames <= 10 ? RUST : HINK; }
+  if (V === 2) { const pct = Math.floor(p * 99.4); const done = segB(t, TL.payoff + 0.2, TL.payoff + 0.8, E.outCubic); hook(t, Math.min(99, pct), done); cNum.textContent = Math.min(99, pct) + '%'; cNum.style.color = pct >= 95 ? RUST : HINK; }
+  if (V === 3) { const remain = 9000 * Math.pow(1 - p, 1.15) + 3; const nudge = segB(t, TL.payoff - 0.4, TL.payoff + 0.3, E.inOutCubic); hook(t, lerp(remain, 0, 0) + nudge * 150); const frames = Math.round(122 - p * 114); cNum.textContent = String(frames).padStart(3, '0'); cNum.style.color = frames <= 10 ? RUST : HINK; }
+  const showHook = sec < TS.phone || (V !== 1 && sec >= TS.payoff - 0.5 && sec < TS.end);
+  const hookAlpha = sec < TS.phone ? 1 - out : segB(t, TL.payoff - 0.5, TL.payoff) * (1 - segB(t, TL.end - 0.4, TL.end));
+  uiL.querySelectorAll(':scope > *').forEach(() => {});
+  [...uiL.children].forEach(e => { if (e.dataset.hook) S(e, { opacity: hookAlpha }); });
+  S(counter, { opacity: inHook ? 1 : 1 - segB(t, TL.t1 - 0.3, TL.t1) });
+  if (hookQ) S(hookQ, { opacity: inHook ? spB(t, 0, 2.6, 0.7) : 1 - segB(t, TL.t1 - 0.3, TL.t1) });
+  lineEls.forEach((e, i) => { const b0 = [TL.t1, TL.t2, TL.t3][i], b1 = [TL.t2, TL.t3, TL.phone][i]; const pin_ = spB(t, b0, 2.4, 0.7), po = segB(t, b1 - 0.35, b1); S(e, { opacity: Math.min(1, pin_) * (1 - po), transform: `translateY(${(1 - Math.min(1, pin_)) * 30 - po * 20}px)`, visibility: pin_ > 0.01 && po < 1 ? 'visible' : 'hidden' }); });
+  // phone
+  const pp = spB(t, TL.phone, 2.2, 0.7), pOut = segB(t, (V === 1 ? TL.end : TL.payoff) - 0.4, V === 1 ? TL.end : TL.payoff, E.inBack);
+  S(phone, { transform: `translateY(${(1 - Math.min(1, pp)) * 500 + pOut * 900}px) scale(${0.9 + 0.1 * Math.min(1, pp)})`, visibility: pp > 0.001 && pOut < 1 ? 'visible' : 'hidden' });
+  const si = clamp(Math.floor((sec - TS.phone) / 1.0), 0, SCREENS.length - 1);
+  shots.forEach((s, i) => S(s, { opacity: i === si ? 1 : i === si - 1 ? 1 - clamp(((sec - TS.phone) - si) / 0.2) : 0 }));
+  const subLen = ((V === 1 ? TS.end : TS.payoff) - TS.phone) / SUBS.length;
+  subEls.forEach((e, i) => { const s0 = TS.phone + i * subLen, s1 = s0 + subLen; const a = clamp((sec - s0) / 0.3) * (1 - clamp((sec - (s1 - 0.25)) / 0.25)); S(e, { opacity: a, transform: `translateY(${(1 - clamp((sec - s0) / 0.3)) * 24}px)`, visibility: a > 0.01 ? 'visible' : 'hidden' }); });
+  if (payoff) { const a = clamp((sec - TS.payoff) / 0.3) * (1 - clamp((sec - (TS.end - 0.3)) / 0.3)); S(payoff, { opacity: a, visibility: a > 0.01 ? 'visible' : 'hidden' }); }
+  const ep = spB(t, TL.end, 2.2, 0.7); S(endC, { transform: `scale(${0.85 + 0.15 * Math.min(1, ep)})`, opacity: Math.min(1, ep), visibility: ep > 0.01 ? 'visible' : 'hidden' });
+  const mp = spB(t, TL.end + 0.5, 2.4, 0.6);
+  S(mBox, { transform: `translateY(${(1 - Math.min(1, mp)) * 300}px)`, visibility: mp > 0.01 ? 'visible' : 'hidden' });
+  drawMascot(mascot, { mouth: 'grin', cheeks: 0.6, legs: 1, happy: 0, hop: bop(b, 6), arms: [[-112, 66, 22, 10], [118, -86 + Math.sin(t * 9) * 12, -18, 10]], blink: blinkAt(t, [TL.end + 3]) });
+}
+// everything that belongs to the hook fades together
+[...uiL.children].forEach(e => { if (![hud, counter, hookQ, phone, endC, mBox, payoff, ...lineEls, ...subEls].includes(e)) e.dataset.hook = '1'; });
+boot(seek, DURATION);

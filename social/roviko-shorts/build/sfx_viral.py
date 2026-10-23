@@ -40,6 +40,7 @@ CUES = {  # name: (mixkit id, title, keep seconds, use)
     'swish': (1490, 'Fast whoosh transition', 0.9, 'a fast transition'),
     'levelup2': (2059, 'Game level completed', 2.4, 'level complete'),
     'slot': (1928, 'Slot machine win', 3.0, 'the score counter'),
+    'heartbeat': (490, 'Human single heart beat', 1.0, 'tension while nothing happens'),
     'giggle': (108, 'Cartoon monkey mocking and giggling', 2.0, 'mocking laugh'),
 }
 

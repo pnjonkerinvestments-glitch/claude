@@ -404,5 +404,12 @@
   "duration_s": 1.968,
   "source": "Mixkit sound effect 108 \"Cartoon monkey mocking and giggling\" (Mixkit Sound Effects Free License)",
   "use": "mocking laugh"
+ },
+ "heartbeat": {
+  "file": "heartbeat.wav",
+  "peak_s": 0.0354,
+  "duration_s": 1.0,
+  "source": "Mixkit sound effect 490 \"Human single heart beat\" (Mixkit Sound Effects Free License)",
+  "use": "tension while nothing happens"
  }
 }
