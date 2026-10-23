@@ -298,5 +298,17 @@
     null
    ]
   ]
+ },
+ "hope-3": {
+  "song": "light-it-up-boy",
+  "end": 51,
+  "fade": 0.9,
+  "pieces": [
+   [
+    27.667035,
+    16,
+    null
+   ]
+  ]
  }
 }
