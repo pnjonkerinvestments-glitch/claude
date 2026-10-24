@@ -13,6 +13,8 @@ const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
 const localBindingConfig = {
   main: "./worker/index.ts",
+  // Local development only: ROVIKO_LOCAL_ADMIN=<user id> npm run dev opens /admin for that player (never used in deploys).
+  ...(process.env.ROVIKO_LOCAL_ADMIN ? { vars: { ADMIN_USER_IDS: process.env.ROVIKO_LOCAL_ADMIN } } : {}),
   compatibility_flags: ["nodejs_compat"],
   d1_databases: d1
     ? [

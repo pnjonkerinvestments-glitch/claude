@@ -915,3 +915,17 @@ test('variety (1.48): a second game avoids the countries of the first, and a mix
  const stateRow=await db.prepare('SELECT state FROM game_sessions WHERE id=?').bind(mixed.id).first();const qs=JSON.parse(stateRow.state).questions;
  assert.equal(new Set(qs.map(q=>q.countryId)).size,20,'twenty different countries in one mixed game');
 });
+
+test('growth dashboard (1.49): owner only, records the device once a day, and counts players, games and time',async()=>{
+ const a=await bootstrap();assert.equal((await request(a.cookie,'/admin/growth')).status,403,'not for players');
+ const ios=await request(a.cookie,'/bootstrap?platform=ios');assert.equal(ios.status,200);await request(a.cookie,'/bootstrap?platform=ios');await request(a.cookie,'/bootstrap?platform=hack');
+ const opens=await db.prepare('SELECT platform FROM app_opens WHERE user_id=?').bind(a.data.user.id).all();assert.deepEqual(opens.results.map(r=>r.platform),['ios'],'one row per day, unknown platforms ignored');
+ let gm=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'flags',count:5}})).data;
+ while(gm.phase!=='finished'){assert.equal((await request(a.cookie,'/games/'+gm.id+'/answer','POST',{round:gm.round,answer:gm.question.solution.correct})).status,200);gm=(await request(a.cookie,'/games/'+gm.id+'/next','POST',{})).data;}
+ const out=await build({stdin:{contents:"export {growthStats} from './server/growth';",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',write:false,loader:{'.json':'json'}});
+ await fs.writeFile('.test-runtime/growth-server.mjs',out.outputFiles[0].text);const {growthStats}=await import('../.test-runtime/growth-server.mjs');
+ const s=await growthStats({DB:db},30);
+ assert.equal(s.series.length,30);const today=s.series.at(-1);assert.ok(today.active>=1&&today.games>=1);assert.ok(s.totals.players>=1);
+ assert.ok(s.platforms.ios>=1,'the iPhone app player is counted');assert.ok(s.topGames.some(x=>x.game==='flags'));
+ assert.ok(!JSON.stringify(s).includes(a.data.user.id),'no player ids in the numbers');
+});

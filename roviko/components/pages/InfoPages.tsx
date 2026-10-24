@@ -25,13 +25,13 @@ const OPERATOR = { name: 'Jonker Studios', project: 'Roviko', at: '', email: 'su
 const WHO = l(OPERATOR.name, OPERATOR.name, OPERATOR.name);
 /** Current hosting. Update this line when the site moves (for example to Cloudflare). */
 const HOSTING = l('Cloudflare', 'Cloudflare', 'Cloudflare');
-export const LEGAL_UPDATED = '2026-10-21';
+export const LEGAL_UPDATED = '2026-10-24';
 
 const PRIVACY: Section[] = [
   { id: 'what-we-keep', title: l('What we keep', 'Wat we bewaren', 'Qué guardamos'), body: [
-    l('Guest play stores a random session identifier, your chosen display name, results and progress. Accounts also store your email and a salted password hash. We never store your readable password.',
-      'Bij gastspel bewaren we een willekeurige sessiecode, je gekozen spelersnaam, spelresultaten en voortgang. Bij een account komen daar je e-mailadres en een gezouten wachtwoordhash bij. We bewaren nooit je leesbare wachtwoord.',
-      'Al jugar como invitado guardamos un identificador de sesión aleatorio, el nombre elegido, los resultados y el progreso. Una cuenta añade tu correo electrónico y un hash de contraseña con sal. Nunca guardamos la contraseña legible.')] },
+    l('Guest play stores a random session identifier, your chosen display name, results and progress. Accounts also store your email and a salted password hash. We never store your readable password. We also note per day whether you play on the website, the iPhone app or the Android app, for counts of how Roviko grows.',
+      'Bij gastspel bewaren we een willekeurige sessiecode, je gekozen spelersnaam, spelresultaten en voortgang. Bij een account komen daar je e-mailadres en een gezouten wachtwoordhash bij. We bewaren nooit je leesbare wachtwoord. Ook noteren we per dag of je speelt via de website, de iPhone-app of de Android-app, om bij te houden hoe Roviko groeit.',
+      'Al jugar como invitado guardamos un identificador de sesión aleatorio, el nombre elegido, los resultados y el progreso. Una cuenta añade tu correo electrónico y un hash de contraseña con sal. Nunca guardamos la contraseña legible. También anotamos cada día si juegas en la web, la app de iPhone o la app de Android, para contar cómo crece Roviko.')] },
   { id: 'storage', title: l('Essential storage and optional measurement', 'Functionele opslag en optionele metingen', 'Almacenamiento necesario y mediciones opcionales'), body: [
     l('An essential cookie keeps your session signed in. Theme, language and sound preferences, and small bits of daily progress (such as the mystery country and crowns), stay in your browser. There are no advertising trackers.',
       'Een functionele cookie houdt je ingelogd. Thema, taal, geluid en kleine stukjes dagvoortgang (zoals het mysterieland en kronen) blijven in je browser. Er zijn geen advertentietrackers.',

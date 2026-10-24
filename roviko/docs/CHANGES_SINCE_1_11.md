@@ -596,6 +596,18 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.49.0 (op de testversie, nog niet live)
+
+**Groeidashboard op `/admin`** (alleen voor de eigenaar, live uit de database bij elk openen, met vernieuwknop): kerncijfers (spelers ooit en met account, vandaag / 7 / 30 dagen gespeeld, nieuwe spelers, speeltijd en per speler per dag, spellen, terugkomers de dag erna en binnen een week, spelers per app, speeltijd ooit), met vergelijking met de periode ervoor; grafieken voor spelers per dag, nieuwe spelers per dag per apparaat (website, iPhone-app, Android-app, vóór de meting), speeltijd per dag en de meest gespeelde spellen; periode 7/30/90 dagen; uitleg bij aanwijzen en een tabelweergave (`components/admin/GrowthDashboard.tsx`, `server/growth.ts`, `lib/growth.ts`, `GET /api/admin/growth`). Alleen opgetelde cijfers, geen namen of e-mails.
+- Een speler telt zodra hij een vraag beantwoordt; speeltijd = tijd tot het antwoord, hooguit 2 minuten per vraag (geschat).
+- **Migratie `0016_app_opens.sql`** (alleen toevoegen): tabel `app_opens` (dag, apparaat, speler; verdwijnt met het account) en een index op `answers(created_at)`. De app geeft bij het openen `?platform=ios|android|web` mee (`appPlatform` in `lib/haptics.ts`). Telt vanaf deze versie; eerdere spelers staan bij "vóór de meting".
+- Downloads uit de winkels zelf zitten er niet in (die staan in App Store Connect en de Play Console; koppelen kan later met API-sleutels van de eigenaar).
+- Privacyverklaring: het apparaattype per dag genoemd; export bevat `appOpens`. Datum 24 oktober 2026.
+- Lokaal ontwikkelen: `ROVIKO_LOCAL_ADMIN=<speler-id> npm run dev` opent `/admin` lokaal (`vite.config.ts`, nooit in deploys).
+- Kleuren gecontroleerd met de dataviz-validator (blauw, oranje, aqua: alle controles geslaagd; contrast-waarschuwing opgevangen met legenda, uitleg en tabel).
+
+**Getest:** `npm test` 215 geslaagd, 1 overgeslagen (nieuw: `tests/growth.test.mjs` voor terugkomers en datums; integratie: alleen de eigenaar, apparaat één keer per dag, onbekende apparaten genegeerd, cijfers tellen spelers, spellen en de iPhone-speler, geen speler-id's in de uitvoer). Lokaal bekeken op computer en telefoon met testgegevens (schermafbeeldingen). Niet getest: het dashboard op live (de migratie draait bij de livegang).
+
 ## 1.48.0 (live sinds 22 oktober 2026 samen met 1.47.0, PR #47)
 
 - **Meer afwisseling in vragen.** Een nieuw solospel en een nieuwe multiplayerronde wegen nu mee welke vragen de spelers de afgelopen 30 dagen al beantwoordden (`server/recent.ts`: maximaal 300 per speler, 400 per kamer, uit de tabel `answers`), en kiezen eerst landen die ze nog niet kregen. Binnen één gemengd spel komt hetzelfde land niet terug in een ander speltype (geen vlag van Frankrijk na de hoofdstad van Frankrijk). Is alles op, dan mag een land weer terugkomen (`lib/game-engine/questions.ts`). Dagspellen, bonustour en overleven blijven voor iedereen gelijk.
