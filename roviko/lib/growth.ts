@@ -4,7 +4,9 @@
  * platform they first opened Roviko on. Output: per-day series and return rates. Dates are UTC "YYYY-MM-DD".
  */
 export type Platform = 'web' | 'ios' | 'android' | 'unknown';
-export type GrowthDay = { date: string; active: number; newPlayers: number; newByPlatform: Record<Platform, number>; games: number; minutes: number };
+export type GrowthDay = { date: string; active: number; accounts: number; newPlayers: number; newAccounts: number; newByPlatform: Record<Platform, number>; games: number; minutes: number; mpMatches: number; mpPlayers: number };
+/** Distinct players over a window (1, 7, 30 or 90 days), split into accounts and guests, overall and in multiplayer. */
+export type GrowthWindow = { players: number; accounts: number; guests: number; mpPlayers: number; mpAccounts: number; mpMatches: number; mpSeats: number };
 
 export const dayKey = (ms: number) => new Date(ms).toISOString().slice(0, 10);
 export const addDays = (date: string, n: number) => dayKey(Date.parse(date + 'T00:00:00Z') + n * 86400000);

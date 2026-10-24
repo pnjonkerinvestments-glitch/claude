@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { RefreshCw, Table2, LineChart } from 'lucide-react';
 import { api } from '@/lib/client';
-import type { GrowthDay, Platform } from '@/lib/growth';
+import type { GrowthDay, GrowthWindow, Platform } from '@/lib/growth';
 
 /**
  * 1.49 · growth dashboard on /admin (owner only). Live numbers from the database each time it opens:
@@ -14,6 +14,7 @@ type Growth = {
   today: string; days: number; series: GrowthDay[];
   totals: { players: number; accounts: number; games: number; hours: number };
   active: { today: number; week: number; month: number };
+  windows: Record<number, GrowthWindow>;
   platforms: { ios: number; android: number; web: number };
   returns: { day2: number | null; day2Cohort: number; week: number | null; weekCohort: number };
   topGames: { game: string; n: number }[];
@@ -22,6 +23,8 @@ const PLATFORMS: { key: Platform; color: string }[] = [
   { key: 'web', color: '#2a78d6' }, { key: 'ios', color: '#eb6834' }, { key: 'android', color: '#1baf7a' }, { key: 'unknown', color: '#b9b6ab' },
 ];
 const BRAND = '#1F806B';
+// Two series (accounts, guests): the first two validated categorical slots.
+const WHO = [{ key: 'accounts', color: '#2a78d6' }, { key: 'guests', color: '#eb6834' }] as const;
 
 export function GrowthDashboard({ t, locale }: { t: (k: string) => string; locale: string }) {
   const [period, setPeriod] = useState(30), [data, setData] = useState<Growth | null>(null), [error, setError] = useState(false), [loading, setLoading] = useState(false), [table, setTable] = useState(false), [at, setAt] = useState(0);
@@ -35,8 +38,9 @@ export function GrowthDashboard({ t, locale }: { t: (k: string) => string; local
     const sum = (list: GrowthDay[], k: 'newPlayers' | 'games' | 'minutes') => list.reduce((s, d) => s + d[k], 0);
     const change = (a: number, b: number) => b > 0 ? (a - b) / b : null;
     const activeDays = cur.reduce((s, d) => s + d.active, 0);
-    return { cur, newNow: sum(cur, 'newPlayers'), newPrev: sum(prev, 'newPlayers'), games: sum(cur, 'games'), gamesPrev: sum(prev, 'games'), minutes: sum(cur, 'minutes'), minutesPrev: sum(prev, 'minutes'), perPlayer: activeDays ? sum(cur, 'minutes') / activeDays : 0, change, full: prev.length === period };
+    return { cur, newAcc: cur.reduce((x, d) => x + d.newAccounts, 0), newNow: sum(cur, 'newPlayers'), newPrev: sum(prev, 'newPlayers'), games: sum(cur, 'games'), gamesPrev: sum(prev, 'games'), minutes: sum(cur, 'minutes'), minutesPrev: sum(prev, 'minutes'), perPlayer: activeDays ? sum(cur, 'minutes') / activeDays : 0, change, full: prev.length === period };
   }, [data, period]);
+  const w = data?.windows?.[period];
   const delta = (a: number, b: number) => { if (!view?.full) return null; const c = view.change(a, b); return c === null ? null : <span className={'gd-delta ' + (c >= 0 ? 'is-up' : 'is-down')}>{c >= 0 ? '▲' : '▼'} {Math.abs(Math.round(c * 100))}% {t('gdVsBefore')}</span>; };
   return <section className="growth-dash" aria-labelledby="gd-title">
     <header className="gd-head">
@@ -51,18 +55,26 @@ export function GrowthDashboard({ t, locale }: { t: (k: string) => string; local
     {data && view && <>
       <div className="gd-tiles">
         <Tile label={t('gdPlayers')} value={n(data.totals.players)} sub={t('gdAccounts').replace('{n}', n(data.totals.accounts))}/>
-        <Tile label={t('gdActiveToday')} value={n(data.active.today)} sub={t('gdActiveWeekMonth').replace('{week}', n(data.active.week)).replace('{month}', n(data.active.month))}/>
-        <Tile label={t('gdNew').replace('{n}', String(period))} value={n(view.newNow)} sub={delta(view.newNow, view.newPrev)}/>
+        {w && <Tile label={t('gdPlayersPeriod').replace('{n}', String(period))} value={n(w.players)} sub={t('gdSplit').replace('{a}', n(w.accounts)).replace('{g}', n(w.guests))}/>}
+        <Tile label={t('gdActiveToday')} value={n(data.active.today)} sub={data.windows?.[1] ? t('gdSplit').replace('{a}', n(data.windows[1].accounts)).replace('{g}', n(data.windows[1].guests)) : undefined}/>
+        <Tile label={t('gdNew').replace('{n}', String(period))} value={n(view.newNow)} sub={<>{t('gdNewAccounts').replace('{n}', n(view.newAcc))} {delta(view.newNow, view.newPrev)}</>}/>
         <Tile label={t('gdTime').replace('{n}', String(period))} value={t('gdHours').replace('{n}', n(Math.round(view.minutes / 60)))} sub={<>{t('gdPerPlayer').replace('{n}', n(Math.round(view.perPlayer)))} {delta(view.minutes, view.minutesPrev)}</>}/>
         <Tile label={t('gdGames').replace('{n}', String(period))} value={n(view.games)} sub={delta(view.games, view.gamesPrev)}/>
         <Tile label={t('gdReturn')} value={pct(data.returns.day2)} sub={t('gdReturnWeek').replace('{pct}', pct(data.returns.week)).replace('{n}', n(data.returns.weekCohort))}/>
         <Tile label={t('gdDevices')} value={n(data.platforms.ios + data.platforms.android)} sub={t('gdDevicesSub').replace('{ios}', n(data.platforms.ios)).replace('{android}', n(data.platforms.android)).replace('{web}', n(data.platforms.web))}/>
-        <Tile label={t('gdAllTime')} value={t('gdHours').replace('{n}', n(data.totals.hours))} sub={t('gdAllGames').replace('{n}', n(data.totals.games))}/>
       </div>
+      {w && <><h3 className="gd-sub">{t('gdMultiplayer')}</h3>
+      <div className="gd-tiles">
+        <Tile label={t('gdMpMatches').replace('{n}', String(period))} value={n(w.mpMatches)}/>
+        <Tile label={t('gdMpPlayers').replace('{n}', String(period))} value={n(w.mpPlayers)} sub={t('gdSplit').replace('{a}', n(w.mpAccounts)).replace('{g}', n(w.mpPlayers - w.mpAccounts))}/>
+        <Tile label={t('gdMpPerMatch')} value={w.mpMatches ? (w.mpSeats / w.mpMatches).toLocaleString(locale, { maximumFractionDigits: 1 }) : '–'}/>
+        <Tile label={t('gdAllTime')} value={t('gdHours').replace('{n}', n(data.totals.hours))} sub={t('gdAllGames').replace('{n}', n(data.totals.games))}/>
+      </div></>}
       {table ? <SeriesTable days={view.cur} t={t} n={n}/> : <div className="gd-charts">
-        <Card title={t('gdChartActive')}><Line days={view.cur} value={d => d.active} t={t} n={n} locale={locale}/></Card>
+        <Card title={t('gdChartActive')} legend={WHO.map(x => ({ color: x.color, label: t('gdWho_' + x.key) }))}><TwoLines days={view.cur} t={t} n={n} locale={locale}/></Card>
         <Card title={t('gdChartNew')} legend={PLATFORMS.map(p => ({ color: p.color, label: t('gdPf_' + p.key) }))}><Stacked days={view.cur} t={t} n={n} locale={locale}/></Card>
         <Card title={t('gdChartTime')}><Bars days={view.cur} value={d => d.minutes} unit={t('gdMin')} t={t} n={n} locale={locale}/></Card>
+        <Card title={t('gdChartMp')}><Bars days={view.cur} value={d => d.mpMatches} unit={t('gdMpUnit')} t={t} n={n} locale={locale} extra={d => <span>{n(d.mpPlayers)} {t('gdPlayersUnit')}</span>}/></Card>
         <Card title={t('gdChartTop').replace('{n}', String(period))}><TopGames rows={data.topGames} t={t} n={n}/></Card>
       </div>}
       <p className="gd-note muted">{t('gdNote')}</p>
@@ -110,9 +122,18 @@ function Line({ days, value, t, n, locale }: { days: GrowthDay[]; value: (d: Gro
       {days.length <= 31 && days.map((d, i) => <circle key={d.date} cx={x(i)} cy={y(value(d))} r="3.2" fill={BRAND} stroke="#fff" strokeWidth="1.5"/>)}</>;
   }}</Frame>;
 }
-function Bars({ days, value, unit, t, n, locale }: { days: GrowthDay[]; value: (d: GrowthDay) => number; unit: string; t: (k: string) => string; n: (v: number) => string; locale: string }) {
+/** Players per day as two lines: with an account and guests (validated blue and orange, legend above). */
+function TwoLines({ days, t, n, locale }: { days: GrowthDay[]; t: (k: string) => string; n: (v: number) => string; locale: string }) {
+  const val = { accounts: (d: GrowthDay) => d.accounts, guests: (d: GrowthDay) => d.active - d.accounts };
+  const max = Math.max(1, ...days.map(d => Math.max(val.accounts(d), val.guests(d))));
+  return <Frame days={days} max={max} locale={locale} tip={d => <span className="gd-tip-rows">{WHO.map(x => <span key={x.key}><i style={{ background: x.color }}/>{t('gdWho_' + x.key)}: {n(val[x.key](d))}</span>)}<span>{t('gdTotal')}: {n(d.active)}</span></span>}>{(x, y) => WHO.map(w => {
+    const pts = days.map((d, i) => `${x(i)},${y(val[w.key](d))}`).join(' ');
+    return <g key={w.key}><polyline points={pts} fill="none" stroke={w.color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"/>{days.length <= 31 && days.map((d, i) => <circle key={d.date} cx={x(i)} cy={y(val[w.key](d))} r="3" fill={w.color} stroke="#fff" strokeWidth="1.5"/>)}</g>;
+  })}</Frame>;
+}
+function Bars({ days, value, unit, t, n, locale, extra }: { days: GrowthDay[]; value: (d: GrowthDay) => number; unit: string; t: (k: string) => string; n: (v: number) => string; locale: string; extra?: (d: GrowthDay) => React.ReactNode }) {
   const max = Math.max(1, ...days.map(value));
-  return <Frame days={days} max={max} locale={locale} tip={d => <span>{n(value(d))} {unit}</span>}>{(x, y, band) => days.map((d, i) => { const w = Math.max(2, band - 2), h = y(0) - y(value(d)); return h > 0 ? <rect key={d.date} x={x(i) - w / 2} y={y(value(d))} width={w} height={h} rx={Math.min(4, w / 2)} fill={BRAND}/> : null; })}</Frame>;
+  return <Frame days={days} max={max} locale={locale} tip={d => <><span>{n(value(d))} {unit}</span>{extra?.(d)}</>}>{(x, y, band) => days.map((d, i) => { const w = Math.max(2, band - 2), h = y(0) - y(value(d)); return h > 0 ? <rect key={d.date} x={x(i) - w / 2} y={y(value(d))} width={w} height={h} rx={Math.min(4, w / 2)} fill={BRAND}/> : null; })}</Frame>;
 }
 function Stacked({ days, t, n, locale }: { days: GrowthDay[]; t: (k: string) => string; n: (v: number) => string; locale: string }) {
   const max = Math.max(1, ...days.map(d => d.newPlayers));
@@ -127,6 +148,6 @@ function TopGames({ rows, t, n }: { rows: { game: string; n: number }[]; t: (k: 
   return rows.length ? <ul className="gd-top">{rows.map(r => <li key={r.game}><span className="gd-top-name">{name(r.game)}</span><span className="gd-top-bar"><i style={{ width: (r.n / max * 100) + '%' }}/></span><b>{n(r.n)}</b></li>)}</ul> : <p className="muted">{t('gdEmpty')}</p>;
 }
 function SeriesTable({ days, t, n }: { days: GrowthDay[]; t: (k: string) => string; n: (v: number) => string }) {
-  return <div className="gd-table-wrap"><table className="gd-table"><thead><tr><th>{t('gdDate')}</th><th>{t('gdChartActive')}</th><th>{t('gdNewShort')}</th><th>{t('gdPf_ios')}</th><th>{t('gdPf_android')}</th><th>{t('gdGamesShort')}</th><th>{t('gdMin')}</th></tr></thead>
-    <tbody>{[...days].reverse().map(d => <tr key={d.date}><td>{d.date}</td><td>{n(d.active)}</td><td>{n(d.newPlayers)}</td><td>{n(d.newByPlatform.ios)}</td><td>{n(d.newByPlatform.android)}</td><td>{n(d.games)}</td><td>{n(d.minutes)}</td></tr>)}</tbody></table></div>;
+  return <div className="gd-table-wrap"><table className="gd-table"><thead><tr><th>{t('gdDate')}</th><th>{t('gdChartActive')}</th><th>{t('gdWho_accounts')}</th><th>{t('gdWho_guests')}</th><th>{t('gdNewShort')}</th><th>{t('gdPf_ios')}</th><th>{t('gdPf_android')}</th><th>{t('gdGamesShort')}</th><th>{t('gdMin')}</th><th>{t('gdMpUnit')}</th></tr></thead>
+    <tbody>{[...days].reverse().map(d => <tr key={d.date}><td>{d.date}</td><td>{n(d.active)}</td><td>{n(d.accounts)}</td><td>{n(d.active - d.accounts)}</td><td>{n(d.newPlayers)}</td><td>{n(d.newByPlatform.ios)}</td><td>{n(d.newByPlatform.android)}</td><td>{n(d.games)}</td><td>{n(d.minutes)}</td><td>{n(d.mpMatches)}</td></tr>)}</tbody></table></div>;
 }

@@ -926,6 +926,8 @@ test('growth dashboard (1.49): owner only, records the device once a day, and co
  await fs.writeFile('.test-runtime/growth-server.mjs',out.outputFiles[0].text);const {growthStats}=await import('../.test-runtime/growth-server.mjs');
  const s=await growthStats({DB:db},30);
  assert.equal(s.series.length,30);const today=s.series.at(-1);assert.ok(today.active>=1&&today.games>=1);assert.ok(s.totals.players>=1);
- assert.ok(s.platforms.ios>=1,'the iPhone app player is counted');assert.ok(s.topGames.some(x=>x.game==='flags'));
+ assert.ok(s.platforms.ios>=1,'the iPhone app player is counted');
+ for(const n of [1,7,30,90]){const w=s.windows[n];assert.equal(w.accounts+w.guests,w.players);assert.ok(w.mpAccounts<=w.mpPlayers);assert.ok(w.mpSeats>=w.mpMatches);}
+ assert.ok(s.windows[1].guests>=1,'guests count as players');assert.ok(s.windows[1].mpMatches>=1&&today.mpMatches>=1,'the multiplayer matches of the earlier tests are counted');assert.ok(today.accounts<=today.active);assert.ok(s.topGames.some(x=>x.game==='flags'));
  assert.ok(!JSON.stringify(s).includes(a.data.user.id),'no player ids in the numbers');
 });
