@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.49.0 (op de testversie, nog niet live)
+## 1.49.0 (live sinds 24 oktober 2026, PR #48)
 
 **Groeidashboard op `/admin`** (alleen voor de eigenaar, live uit de database bij elk openen, met vernieuwknop): kerncijfers (spelers ooit en met account, vandaag / 7 / 30 dagen gespeeld, nieuwe spelers, speeltijd en per speler per dag, spellen, terugkomers de dag erna en binnen een week, spelers per app, speeltijd ooit), met vergelijking met de periode ervoor; grafieken voor spelers per dag, nieuwe spelers per dag per apparaat (website, iPhone-app, Android-app, vóór de meting), speeltijd per dag en de meest gespeelde spellen; periode 7/30/90 dagen; uitleg bij aanwijzen en een tabelweergave (`components/admin/GrowthDashboard.tsx`, `server/growth.ts`, `lib/growth.ts`, `GET /api/admin/growth`). Alleen opgetelde cijfers, geen namen of e-mails.
 - **Gasten en multiplayer apart:** spelers per periode en vandaag uitgesplitst in accounts en gasten, de grafiek "spelers per dag" met twee lijnen (met account, gasten), nieuwe spelers met "x maakten een account", en een blok Multiplayer (potjes, multiplayerspelers met accounts/gasten, spelers per potje) plus een grafiek met potjes per dag. Potjes komen uit `game_results` (één rij per speler per potje; het potje is het deel van het id vóór ":").
