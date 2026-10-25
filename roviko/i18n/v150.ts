@@ -2,7 +2,7 @@
 // 30 seconds, "this month" instead of "all time", the league rule as it really is, the next step after a game and the
 // day-1 funnel on /admin. Spread last in messages.ts.
 const en = {
-  luciaPopTitle: '{name} wants to play a match with you!', luciaPopCopy: '15 questions against the computer, as practice. She asks at most once a day.',
+  luciaPopTitle: '{name} wants to play a match with you!', luciaPopCopy: 'Are you in?',
   reminderStreak: 'Your {n}-day streak is waiting for you 🔥 One game keeps it going.',
   remindOfferCopy: 'Shall Roviko send you a nudge on days you have not played yet?', remindOfferYes: 'Yes, remind me', remindOfferNo: 'No thanks',
   remindOfferOn: 'Done. Only on days you have not played yet, around your own time. You can turn it off in Settings.', remindOfferLater: 'Fine. You can always turn it on in Settings.',
@@ -15,7 +15,7 @@ const en = {
   gdFunnelNote: 'New players of the last 30 complete days: how many finished each daily game of their first day, in that day\'s order.',
 };
 const nl: typeof en = {
-  luciaPopTitle: '{name} wil een potje met je spelen!', luciaPopCopy: '15 vragen tegen de computer, als oefening. Ze vraagt het hooguit één keer per dag.',
+  luciaPopTitle: '{name} wil een potje met je spelen!', luciaPopCopy: 'Doe je mee?',
   reminderStreak: 'Je reeks van {n} dagen wacht op je 🔥 Eén spel houdt hem vast.',
   remindOfferCopy: 'Zal Roviko je een seintje geven op dagen dat je nog niet speelde?', remindOfferYes: 'Ja, herinner me', remindOfferNo: 'Nee, dank je',
   remindOfferOn: 'Gedaan. Alleen op dagen dat je nog niet speelde, rond je eigen tijd. Uitzetten kan in Instellingen.', remindOfferLater: 'Prima. Aanzetten kan altijd in Instellingen.',
@@ -28,7 +28,7 @@ const nl: typeof en = {
   gdFunnelNote: 'Nieuwe spelers van de laatste 30 volle dagen: hoeveel maakten elk dagspel van hun eerste dag af, in de volgorde van die dag.',
 };
 const es: typeof en = {
-  luciaPopTitle: '¡{name} quiere jugar una partida contigo!', luciaPopCopy: '15 preguntas contra el ordenador, como práctica. Te lo pregunta como mucho una vez al día.',
+  luciaPopTitle: '¡{name} quiere jugar una partida contigo!', luciaPopCopy: '¿Te unes?',
   reminderStreak: 'Tu racha de {n} días te espera 🔥 Un juego la mantiene viva.',
   remindOfferCopy: '¿Quieres que Roviko te avise los días que aún no has jugado?', remindOfferYes: 'Sí, avísame', remindOfferNo: 'No, gracias',
   remindOfferOn: 'Listo. Solo los días que aún no has jugado, cerca de tu hora. Puedes desactivarlo en Ajustes.', remindOfferLater: 'Vale. Puedes activarlo cuando quieras en Ajustes.',

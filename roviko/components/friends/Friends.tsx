@@ -144,7 +144,7 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
     <div className="invite-pop-text">
       <small className="invite-pop-kicker">{t('invitePopKicker')}</small>
       <strong id="invite-pop-title" className="name-with-level">{t(invite.bot ? 'luciaPopTitle' : 'invitePopTitle').replace('{name}', invite.name)}{invite.bot ? <span className="level-pill is-bot">{t('computerPill')}</span> : <LevelPill level={invite.level}/>}</strong>
-      {/* 1.50: Lucia's invite says what you get (15 questions against the computer, practice) and that she asks once a day. */}
+      {/* 1.50: Lucia's invite is short (the owner's choice): her name, the Computer pill and "Are you in?"; no room code. */}
       <span id="invite-pop-copy">{invite.bot ? t('luciaPopCopy') : t('invitePopCopy').replace('{code}', invite.code)}</span>
     </div>
     <div className="invite-pop-actions">
