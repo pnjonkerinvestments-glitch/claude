@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.50.0 (op de testversie, nog niet live)
+## 1.50.0 (live sinds 25 oktober 2026, PR #49)
 
 Gebouwd op 1.49.0 na de feedback van de eigenaar ("1.51-opdracht" van een andere assistent) en twee eigen wensen van de eigenaar: Lucia voor iedereen en goede meldingen. De `roviko-1.50.0.patch` uit die opdracht zat niet bij de vraag; deze 1.50.0 is dus een eigen versie op 1.49.0.
 
