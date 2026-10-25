@@ -12,10 +12,11 @@ const uiL = el(stage, { width: W, height: H, zIndex: 20 });
 el(uiL, { left: 64, top: 118, display: 'flex', alignItems: 'center', gap: '14px' },
   `<span style="padding:14px 26px;border-radius:999px;background:${C.forest};color:#fff;font-family:Manrope;font-weight:800;font-size:28px;letter-spacing:.08em">${B.day}</span><span style="padding:14px 26px;border-radius:999px;background:rgba(255,255,255,.92);box-shadow:0 6px 18px rgba(22,59,50,.1);color:${C.forest};font-family:Manrope;font-weight:800;font-size:28px;letter-spacing:.08em">${B.kind}</span>`);
 const head = el(uiL, { left: 64, top: 228, width: 952, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 84, lineHeight: 1.1, color: C.forest, whiteSpace: 'nowrap' }, `<div>${B.l1}</div><div style="color:${C.green}">${B.l2}</div>`);
-const CW = 952, CH = Math.round(CW * 1350 / 1080);
-const card = el(uiL, { left: 64, top: 470, width: CW, height: CH, borderRadius: 46, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 30px 70px rgba(22,59,50,.18)' },
-  `<img src="${B.src}" style="width:100%;height:100%;object-fit:cover;object-position:50% ${B.reel ? 42 : 50}%;display:block">`);
-el(uiL, { left: 0, top: 470 + CH + 50, width: W, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '22px' },
+// carousels: the whole 4:5 slide; reels: the cover from just under its headline (y 560..1694 of 1920)
+const CW = 952, CH = B.reel ? 1000 : Math.round(CW * 1350 / 1080);
+const bcard = el(uiL, { left: 64, top: 470, width: CW, height: CH, borderRadius: 46, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 30px 70px rgba(22,59,50,.18)' },
+  `<img src="${B.src}" style="width:100%;height:100%;object-fit:cover;object-position:50% ${B.reel ? 71 : 50}%;display:block">`);
+el(uiL, { left: 0, top: 470 + CH + (B.reel ? 90 : 50), width: W, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '22px' },
   `<span style="display:inline-flex;align-items:center;gap:14px;padding:22px 40px;border-radius:999px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:600;font-size:48px">${B.reel ? 'Watch and guess' : 'Swipe and guess'}${glyph('arrow', 44, '#fff')}</span>`);
 window.filmReady = (async () => {
   await Promise.all(['600 28px Fredoka', '800 13px Manrope'].map(f => document.fonts.load(f)));

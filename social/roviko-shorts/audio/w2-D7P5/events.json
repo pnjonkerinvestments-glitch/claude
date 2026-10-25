@@ -1,0 +1,97 @@
+[
+ {
+  "t": 0.0109,
+  "beat": 0.02,
+  "sfx": "pop",
+  "gain": -12
+ },
+ {
+  "t": 0.8727,
+  "beat": 1.6,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 4.3635,
+  "beat": 8,
+  "sfx": "pin",
+  "gain": -6
+ },
+ {
+  "t": 4.418,
+  "beat": 8.1,
+  "sfx": "correct",
+  "gain": -6
+ },
+ {
+  "t": 4.5817,
+  "beat": 8.4,
+  "sfx": "crowdcheer",
+  "gain": -12
+ },
+ {
+  "t": 4.7998,
+  "beat": 8.8,
+  "sfx": "trombone",
+  "gain": -10
+ },
+ {
+  "t": 5.7816,
+  "beat": 10.6,
+  "sfx": "pop",
+  "gain": -8
+ },
+ {
+  "t": 1.6363,
+  "beat": 3,
+  "sfx": "mention",
+  "gain": -9
+ },
+ {
+  "t": 1.6363,
+  "beat": 3,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.04
+ },
+ {
+  "t": 2.1817,
+  "beat": 4,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.08
+ },
+ {
+  "t": 2.7272,
+  "beat": 5,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.12
+ },
+ {
+  "t": 3.2726,
+  "beat": 6,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.16
+ },
+ {
+  "t": 3.818,
+  "beat": 7,
+  "sfx": "clock",
+  "gain": -11,
+  "rate": 1.2
+ },
+ {
+  "t": 9.5997,
+  "beat": 17.6,
+  "sfx": "swish",
+  "gain": -10
+ },
+ {
+  "t": 9.7087,
+  "beat": 17.8,
+  "sfx": "mention",
+  "gain": -10
+ }
+]
