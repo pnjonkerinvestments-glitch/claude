@@ -68,6 +68,7 @@ import { A, Avatar, AvatarPicker, Choice, Empty, Loading, Logo, ModeEmoji } from
 import { ContinentCard } from './home/ContinentWeek';
 import { GlobeAvatar } from './ds/GlobeAvatar';
 import { useSmartReminder } from './atelier/NativeReminder';
+import { listenForAppLinks } from '@/lib/app-links';
 const PUBLIC_BOOT = { user: { id: '', name: 'Explorer', avatar: 0, guest: true, discoverable: true, friendCode: '' }, stats: { games: 0, score: 0, xp: 0, level: 1, levelProgress: 0, accuracy: 0, averageTime: 0, wins: 0, dailyStreak: 0, dailyCount: 0, dailyDone: false, bestStreak: 0, achievements: [], recent: [], weak: [], modes: [] }, community: { games: 0, players: 0 }, countryCount: 195, leaders: [], googleEnabled: false, isAdmin: false };
 function GameSettings({ value, onChange, multiplayer = false, disabled = false, hide = [] }: any) { const { t } = useApp(); const set = (k: string, v: any) => onChange({ ...value, [k]: v }); return <div className="settings-grid">{multiplayer && (() => {
   // 1.39: pick as many games as you like. One game is that mode; more games are a mix of just those ("Around the World" = all).
@@ -160,6 +161,8 @@ export default function RovikoApp({ initialPath = '/' }: {
     const toggleMusic = () => { const on = !music; setMusic(on); writePreference('rv_music', on ? 'on' : 'off'); if (on) startMusic(); else stopMusic(); };
     useEffect(() => { if (!music || musicPlaying()) return; const first = () => startMusic(); window.addEventListener('pointerdown', first, { once: true }); return () => window.removeEventListener('pointerdown', first); }, [music]);
     useSmartReminder(t, bootLoaded, !!boot?.stats?.dailyDone, Number(boot?.stats?.dailyStreak ?? 0), () => go('/'));
+    // 1.51: roviko.app links (emails, shared challenges) that open the app land on the right page.
+    useEffect(() => listenForAppLinks(go), [go]);
     // 1.40: in the app the launch screen stays until Roviko has its data (or failed), so there is no empty screen in between.
     useEffect(() => { if (!bootLoaded && !fatal) return; try { (window as any).Capacitor?.Plugins?.SplashScreen?.hide?.({ fadeOutDuration: 250 }); } catch { /* not in the app */ } }, [bootLoaded, fatal]);
     const ctx = { bootLoaded, setLocale, setTheme, toggleSound, music, toggleMusic, share, backToStart, region, setRegion, measurement, setMeasurement: (on: boolean) => { setMeasurement(on); writePreference('rv_metrics',on ? 'on':'off'); document.cookie = 'rv_metrics=' + (on ? 'on':'off') + '; Path=/; SameSite=Lax; Max-Age=31536000' + (location.protocol === 'https:' ? '; Secure':''); }, t, locale, theme, go, boot, refresh, modal, setModal, playMode, start, busy, setBusy, fail, copy, muted, report: setReport };
