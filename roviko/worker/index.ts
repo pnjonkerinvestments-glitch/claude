@@ -1,5 +1,6 @@
 import { handleApi } from '../server/api';
 import { sendReminders } from '../server/reminders';
+import { pruneExpired } from '../server/retention';
 import { appLinks } from '../server/app-links';
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
@@ -55,6 +56,9 @@ const worker = {
   /** 1.51: the Cron Trigger in wrangler.cloudflare.jsonc (17:00 UTC) sends the opt-in reminder mails (server/reminders.ts). */
   async scheduled(_event: unknown, env: Env, ctx: ExecutionContext): Promise<void> {
     ctx.waitUntil(sendReminders(env as any).then(r => console.log('reminders', JSON.stringify(r))).catch(e => console.error('reminders failed', e)));
+    // 1.54: the housekeeping (old guests, expired sessions and rooms) runs here, four times a day at a quiet hour,
+    // instead of with the first visit on every new server instance, where its big deletes held up everyone's requests.
+    if (new Date().getUTCHours() % 6 === 3) ctx.waitUntil(pruneExpired(env as any, Date.now(), true).then(() => console.log('housekeeping done')).catch(e => console.error('housekeeping failed', e)));
   },
 };
 

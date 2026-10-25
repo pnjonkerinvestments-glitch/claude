@@ -728,6 +728,11 @@ test('guests without any game for a year are deleted with their data; accounts a
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM game_sessions WHERE user_id=?').bind(ids[0]).first()).n,0,'their games go too');
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM users WHERE id=?').bind(ids[1]).first()).n,1,'a guest who played recently stays');
  assert.equal((await request(active.cookie,'/bootstrap')).data.user.id,ids[1]);
+ // 1.54: rate-limit counters whose minute is long over go too; current ones stay.
+ await db.prepare('INSERT OR REPLACE INTO rate_limits(key,count,reset_at) VALUES (?,?,?),(?,?,?)').bind('old-counter',1,now-2*3600000,'live-counter',1,now+60000).run();
+ await pruneExpired({DB:db},now,true);
+ assert.equal((await db.prepare("SELECT COUNT(*) n FROM rate_limits WHERE key='old-counter'").first()).n,0);
+ assert.equal((await db.prepare("SELECT COUNT(*) n FROM rate_limits WHERE key='live-counter'").first()).n,1);
 });
 
 test('room sockets count their D1 queries so they can hand over before the per-invocation cap',async()=>{

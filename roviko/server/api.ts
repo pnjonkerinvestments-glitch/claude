@@ -5,7 +5,6 @@ import { SHAPE_FROM } from '../lib/daily-loop';
 import { leagueStanding } from './league';
 import { startRank, rankAction } from './ranks';
 import { startDuel, duelAction } from './duel';
-import { pruneExpired } from './retention';
 import { blockPlayer, unblockPlayer, listBlocks, reportPlayer, blockedBetween } from './moderation';
 import { generateDuel, type DuelBoard } from '../lib/puzzles/duel';
 import { followUp } from './follow-up';
@@ -57,15 +56,6 @@ async function body(req: Request, max = 8192) { if (Number(req.headers.get('Cont
 catch {
     throw new AppError('INVALID_REQUEST');
 } }
-let communityCache: { at: number; value: Promise<{ community: any; latest: any[] }> } | null = null;
-function communityNow(env: Env) {
-    if (!communityCache || Date.now() - communityCache.at > 60000) {
-        const value = Promise.all([one(env, 'SELECT COUNT(*) games,COUNT(DISTINCT user_id) players FROM game_results'), leaderboard(env, 'all', 'wins')]).then(([community, latest]) => ({ community, latest }));
-        communityCache = { at: Date.now(), value };
-        value.catch(() => { communityCache = null; });
-    }
-    return communityCache.value;
-}
 export async function handleApi(req: Request, env: Env, ctx?: {
     waitUntil: (p: Promise<any>) => void;
 }): Promise<Response> {
@@ -142,24 +132,22 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'auth' && path[1] === 'reset' && method === 'POST')
             return json(await resetPassword(req, env, await body(req)));
         if (path[0] === 'bootstrap') {
-            const cleanup = pruneExpired(env).catch(() => { /* housekeeping never blocks a visit */ });
-            if (ctx) ctx.waitUntil(cleanup); else await cleanup;
-            // 1.34: the community numbers and the top players are the same for everyone, so they are kept for a minute
-            // and read at the same time as the player. 1.54: the catalog check (once per server instance) too.
-            const [found, shared, renewed] = await Promise.all([getUser(req, env), communityNow(env), renewSession(req, env), ensureCatalog(env)]);
+            // 1.54: the player, the session renewal and the catalog check (once per server instance) side by side. The
+            // community numbers and top players are gone from here: the app never showed them, and on every fresh server
+            // instance they added up all multiplayer results first, which made some visits take seconds.
+            const [found, renewed] = await Promise.all([getUser(req, env), renewSession(req, env), ensureCatalog(env)]);
             let user = found, cookie = found ? renewed : '';
             if (!user) {
                 const g = await guest(req, env);
                 user = g.user;
                 cookie = g.cookie;
             }
-            const { community, latest } = shared;
             // 1.49: which kind of device this visit is (web, the iPhone app, the Android app), once per player per day.
             const platform = url.searchParams.get('platform');
             if (platform && ['web', 'ios', 'android'].includes(platform)) { const seen = run(env, 'INSERT OR IGNORE INTO app_opens(day,platform,user_id) VALUES (?,?,?)', new Date().toISOString().slice(0, 10), platform, user!.id).catch(() => { /* never blocks a visit */ }); if (ctx) ctx.waitUntil(seen); else await seen; }
             // A cookie that no longer opens a session: say so, so a player with an account knows to sign in again.
             const sessionExpired = !found && !!cookieValue(req);
-            return json({ user: safeUser(user!), stats: await stats(env, user!.id), community, countryCount: COUNTRIES.length, leaders: latest.slice(0, 3), googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), ...(sessionExpired ? { sessionExpired: true } : {}), isAdmin: !!env.ADMIN_USER_IDS?.split(',').map(v => v.trim()).includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
+            return json({ user: safeUser(user!), stats: await stats(env, user!.id), countryCount: COUNTRIES.length, googleEnabled: !!(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), mailEnabled: mailEnabled(env), ...(sessionExpired ? { sessionExpired: true } : {}), isAdmin: !!env.ADMIN_USER_IDS?.split(',').map(v => v.trim()).includes(user!.id) }, 200, cookie ? { 'Set-Cookie': cookie } : {});
         }
         if (path[0] === 'auth' && ['signup', 'login'].includes(path[1])) {
             const input = await body(req), signup = path[1] === 'signup';
