@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Roviko content week 2 (26 Oct - 1 Nov 2026), post 3 of every day: Flag twins, the reel. w2-flag.html?d=1..7</title>
+<!--
+  Roviko content week 2 (26 Oct - 1 Nov 2026), post 3 of every day: Flag twins, the reel. w2-flag.html?d=1..7
+  Two look-alike flags in big white cards under a big headline (the layout of the 10.3K post), "which one is X?", a ring counts
+  down, the answer lands, two magnifiers show the detail that tells them apart, and a fact pays off the watch.
+-->
+<style>
+@font-face { font-family: 'Fredoka'; src: url(../roviko-launch-film/assets/fonts/fredoka-latin-wght-normal.woff2) format('woff2'); font-weight: 300 700; font-display: block; }
+@font-face { font-family: 'Manrope'; src: url(../roviko-launch-film/assets/fonts/manrope-variable.woff2) format('woff2'); font-weight: 200 800; font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow: hidden; background: #F6F3E9; }
+body { -webkit-font-smoothing: antialiased; font-family: Manrope, sans-serif; color: #163B32; }
+#stage { position: absolute; left: 0; top: 0; overflow: hidden; }
+.a { position: absolute; left: 0; top: 0; }
+svg { overflow: visible; }
+</style>
+<script src="../roviko-launch-film/assets/mascot.js"></script>
+<script src="../roviko-carousels/data/geo.js"></script>
+<script src="data/special.js"></script>
+</head>
+<body>
+<div id="stage"></div>
+<script src="lib/core.js"></script>
+<script src="lib/extras.js"></script>
+<script src="lib/trendfilm.js"></script>
+<script src="lib/ios.js"></script>
+<script src="lib/flagratio.js"></script>
+<script src="lib/w2.js"></script>
+<script>
+const D = +(Q.get('d') || 1);
+const DAY = {
+  1: { song: 'games-worldbeat', tempo: 115.993, flags: [['ht', 'Haiti'], ['li', 'Liechtenstein']], answer: 1,
+    hook: ['Same flag until 1936.', 'Which is Liechtenstein?'], win: ['It’s B.', 'Look for the crown'],
+    lens: [[0, .5, .5, 2.4, 'Coat of arms'], [1, .22, .25, 2.4, 'The crown']],
+    fact: 'At the 1936 Olympics, Haiti and Liechtenstein found out their flags were identical. A year later, Liechtenstein added the crown.',
+    cta: ['Did you know this?', 'Comment yes or no'] },
+  2: { song: 'keeping-fit', tempo: 130.001, flags: [['bh', 'Bahrain'], ['qa', 'Qatar']], answer: 1,
+    hook: ['Red, white, zigzag.', 'Which one is Qatar?'], win: ['It’s B.', 'Count the points'],
+    lens: [[0, .3, .5, 1.25, '5 points'], [1, .37, .5, 1.25, '9 points']],
+    fact: 'Qatar: maroon, 9 points, and the longest national flag on Earth (11 by 28). Bahrain: red, 5 points.',
+    cta: ['A or B: what did you pick?', 'No lying'] },
+  3: { song: 'mi-gente', tempo: 110.002, flags: [['ni', 'Nicaragua'], ['hn', 'Honduras']], answer: 1,
+    hook: ['Blue, white, blue.', 'Which is Honduras?'], win: ['It’s B.', 'The one with 5 stars'],
+    lens: [[0, .5, .5, 2.6, 'Coat of arms'], [1, .5, .5, 1.25, '5 stars']],
+    fact: 'The 5 stars stand for the 5 countries of the old Central American federation. Nicaragua’s coat of arms has 5 volcanoes for the same 5.',
+    cta: ['Could you name', 'all 5 countries?'] },
+  4: { song: 'ko-games', tempo: 110.992, flags: [['tr', 'Türkiye'], ['tn', 'Tunisia']], answer: 1,
+    hook: ['Red, crescent, star.', 'Which is Tunisia?'], win: ['It’s B.', 'Look for the white circle'],
+    lens: [[0, .4, .5, 1.6, 'No circle'], [1, .5, .5, 1.6, 'White circle']],
+    fact: 'Tunisia puts its crescent and star inside a white circle. Bonus: the northernmost point of Africa is in Tunisia.',
+    cta: ['Tag someone', 'who would get this wrong'] },
+  5: { song: 'bob', tempo: 119.996, flags: [['sn', 'Senegal'], ['cm', 'Cameroon']], answer: 1,
+    hook: ['Same colours, one star.', 'Which is Cameroon?'], win: ['It’s B.', 'A yellow star on red'],
+    lens: [[0, .5, .5, 2.2, 'Green star on yellow'], [1, .5, .5, 2.2, 'Yellow star on red']],
+    fact: 'Same colours, different order. Cameroon is often called “Africa in miniature”: it has beaches, deserts, mountains and rainforest.',
+    cta: ['A or B?', 'Did you get it first try?'] },
+  6: { song: 'light-it-up-boy', tempo: 118.998, flags: [['lt', 'Lithuania'], ['bo', 'Bolivia']], answer: 0,
+    hook: ['Same three colours.', 'Which is Lithuania?'], win: ['It’s A.', 'Yellow on top'],
+    lens: [[0, .5, .17, 2.2, 'Yellow on top'], [1, .5, .17, 2.2, 'Red on top']],
+    fact: 'Lithuania: yellow, green, red. Bolivia: red, yellow, green. Same colours, different order, on different continents.',
+    cta: ['Which flag twins', 'should we do next?'] },
+  7: { song: 'upbeat-jazz', tempo: 110.004, flags: [['at', 'Austria'], ['lv', 'Latvia']], answer: 1,
+    hook: ['Red, white, red.', 'Which one is Latvia?'], win: ['It’s B.', 'Darker red, thinner white'],
+    lens: [[0, .5, .5, 2, 'Equal stripes'], [1, .5, .5, 2, 'Thin white stripe']],
+    fact: 'Latvia’s red is darker and its white stripe is half as tall (2:1:2). Austria’s three stripes are all the same height.',
+    cta: ['Send this to someone', 'who mixes them up'] },
+}[D];
+const TEMPO = DAY.tempo, DIL = TEMPO / 130;
+const TL = { f: [0.15, 0.45], ask: 1.6, rev: 8, lens: [10.8, 11.6], fact: 13.2, cta: 18 };
+const END = 24, DURATION = END * 60 / TEMPO;
+const brand = brandRow(SERIES.flag, `${W2DAYS[D]} · PICK ONE`);
+// two big cards, like the post
+const FH = 220, CY = [LY.body, LY.body + 330];
+const flags = DAY.flags.map(([code, name], i) => {
+  const y = CY[i], w = FH * FRATIO[code], right = i === DAY.answer;
+  const card = wcard(64, y, 952, 300, 10 + i);
+  const img = el(uiL, { left: 110, top: y + 40, width: w, height: FH, zIndex: 12 + i, transformOrigin: '50% 50%' }, flagW(code, FH));
+  const badge = el(uiL, { left: 110 + w + 44, top: y + 104, zIndex: 13, transformOrigin: '0 50%', whiteSpace: 'pre' }, letter('AB'[i]));
+  const named = el(uiL, { left: 110 + w + 40, top: y + 112, zIndex: 14, transformOrigin: '0 50%', whiteSpace: 'pre' },
+    `<div style="display:flex;align-items:center;gap:14px">${glyph(right ? 'check' : 'xmark', 58, right ? IOS.green : IOS.red)}<span style="font-family:Fredoka;font-weight:600;font-size:${name.length > 9 ? 46 : 56}px;color:${C.forest}">${name}</span></div>`);
+  // when the lenses come in, the name moves onto the flag as a small pill
+  const chip = el(uiL, { left: 124, top: y + 40 + FH - 34, zIndex: 17, transformOrigin: '0 50%', whiteSpace: 'pre' },
+    `<span style="display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:999px;background:rgba(255,255,255,.96);box-shadow:0 6px 16px rgba(22,59,50,.18);font-family:Manrope;font-weight:800;font-size:28px;color:${C.forest}">${glyph(right ? 'check' : 'xmark', 30, right ? IOS.green : IOS.red)}${name}</span>`);
+  return { card, img, badge, named, chip, y, w, code, right };
+});
+// the magnifiers come in on the right half of each card, after the names move down a little
+const lenses = DAY.lens.map(([fi, fx, fy, zoom, label], k) => {
+  const F = flags[fi], lx = Math.max(F.w + 110 + 150, 840), ly = F.y + 150;
+  const e = lensOn(F.code, FH, fx, fy, zoom, Math.min(lx, 900), ly, 112);
+  const lab = el(uiL, { left: Math.min(lx, 900) - 170, top: ly + 96, width: 340, textAlign: 'center', zIndex: 23, transformOrigin: '50% 0%' },
+    `<span style="display:inline-block;padding:8px 20px;border-radius:999px;background:${C.forest};color:#fff;font-family:Manrope;font-weight:800;font-size:26px;white-space:nowrap">${label}</span>`);
+  return { e, lab, b0: TL.lens[k] };
+});
+const ring = ringTimer(900, 1330, 66);
+const askChip = el(uiL, { left: 0, top: 1292, width: 1080, textAlign: 'center', zIndex: 15, transformOrigin: '50% 50%' },
+  `<span style="display:inline-flex;align-items:center;gap:14px;padding:16px 32px;border-radius:999px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:600;font-size:46px">A or B?</span>`);
+const fact = factCard('bulb', ['#FFD60A', '#FF9F0A'], 'DID YOU KNOW', DAY.fact, { x: 360, w: 656, y: 1250 });
+const heads = [[DAY.hook, -9, TL.rev], [DAY.win, TL.rev, TL.cta], [DAY.cta, TL.cta, END + 2]].map(([lines, b0, b1]) => ({ h: Head(lines), b0, b1 }));
+
+// ---- sound
+ev(0.02, 'pop', -12, { rate: 1.1 }); TL.f.forEach((b, i) => ev(b, 'pop', -8, { rate: 1 + 0.1 * i }));
+ev(TL.ask, 'swish', -10); for (let k = 1; k < 6; k++) ev(TL.ask + k + 0.4, 'clock', -11, { rate: 1 + 0.04 * k });
+ev(TL.rev - 1.2, 'drumroll', -11); ev(TL.rev, 'impactbig', -7); ev(TL.rev + 0.05, 'correct', -6); flags.forEach((_, i) => ev(TL.rev + 0.2 + 0.2 * i, 'pop', -10));
+lenses.forEach(L => { ev(L.b0, 'expand', -8); ev(L.b0 + 0.2, 'sparkle', -11); });
+ev(TL.fact, 'pop', -8); ev(TL.fact + 0.1, 'kaching', -12); ev(TL.cta, 'swish', -10); ev(TL.cta + 0.2, 'mention', -10);
+
+function seek(tReal) {
+  const t = clamp(tReal, 0, DURATION) * DIL, b = t / BEAT;
+  HALOS[0].img.style.transform = `rotate(${20 + t * 14}deg)`;
+  brand.set(spB(t, -9, 2.4, 0.6));
+  flags.forEach((F, i) => {
+    popAt(F.card, t, TL.f[i] - 0.1, END + 2, 2.4, 0.6); popAt(F.img, t, TL.f[i], END + 2, 2.4, 0.55);
+    popAt(F.badge, t, TL.f[i] + 0.2, TL.rev - 0.2);
+    popAt(F.named, t, TL.rev + 0.2 + 0.2 * i, TL.lens[0] - 0.5); popAt(F.chip, t, TL.lens[0] - 0.3 + 0.1 * i, END + 2);
+    F.card.style.boxShadow = b >= TL.rev && F.right ? `0 0 0 8px ${IOS.green}, 0 22px 50px rgba(22,59,50,.14)` : '0 1px 2px rgba(22,59,50,.06), 0 22px 50px rgba(22,59,50,.12)';
+    if (b >= TL.rev && !F.right) S(F.img, { opacity: 1 - 0.35 * segB(t, TL.rev, TL.rev + 0.5) }); else S(F.img, { opacity: 1 });
+  });
+  lenses.forEach(L => { popAt(L.e, t, L.b0, END + 2, 2.6, 0.55); popAt(L.lab, t, L.b0 + 0.3, END + 2); });
+  const inAsk = b >= TL.ask && b < TL.rev; if (inAsk) { const q = clamp((b - TL.ask - 0.4) / 6); ring.set(q, Math.max(1, Math.ceil((1 - q) * 3))); }
+  popAt(ring.e, t, TL.ask + 0.4, TL.rev - 0.2); popAt(askChip, t, TL.ask, TL.rev - 0.2);
+  popAt(fact, t, TL.fact, END + 2, 2.4, 0.6);
+  heads.forEach(h => h.h.set(spB(t, h.b0, 1.9, 0.7), segB(t, h.b1 - 0.25, h.b1)));
+  const mood = b < TL.ask ? 'calm' : b < TL.rev ? 'think' : b < TL.rev + 2 ? 'shock' : b < TL.cta ? 'calm' : 'point';
+  rovikoMood(t, b, mood, [3, 11, 19]);
+}
+boot(seek, DURATION);
+</script>
+</body>
+</html>

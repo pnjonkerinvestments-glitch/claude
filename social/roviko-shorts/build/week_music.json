@@ -310,5 +310,65 @@
     null
    ]
   ]
+ },
+ "w2-D1P3": {
+  "song": "games-worldbeat",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "w2-D1P4": {
+  "song": "fun-and-games",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "w2-D1P5": {
+  "song": "games-worldbeat",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "w2-D2P3": {
+  "song": "keeping-fit",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    4,
+    null
+   ]
+  ]
+ },
+ "w2-D2P4": {
+  "song": "bob",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    16,
+    null
+   ]
+  ]
  }
 }
