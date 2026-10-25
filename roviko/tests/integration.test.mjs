@@ -828,8 +828,11 @@ test('Lucia 👽: every account has her as a friend (1.50), she invites 30 s aft
  await request(c2,'/presence','POST',{});const since=async ms=>db.prepare('UPDATE lucia_friends SET online_since=? WHERE user_id=?').bind(Date.now()-ms,u2).run();const prev=async()=>db.prepare("UPDATE lucia_friends SET last_day='2000-01-01' WHERE user_id=?").bind(u2).run();
  await since(31000);const yes=(await request(c2,'/presence','POST',{})).data.invites[0];const code=yes.code;
  const joined=(await request(c2,'/rooms/'+code+'/join','POST',{})).data;await request(c2,'/invites/'+yes.id,'POST',{status:'accepted'});
- assert.equal(joined.host,L,'Lucia hosts');assert.equal(joined.phase,'countdown','the match starts as soon as you join');
- assert.equal(joined.settings.count,15);assert.equal(joined.settings.difficulty,'medium');assert.ok(joined.players.find(p=>p.name==='Lucia 👽'&&p.bot&&p.level==='medium'));
+ assert.equal(joined.host,L,'Lucia hosts');assert.equal(joined.phase,'lobby','1.53: her match waits until you press Ready');assert.equal(joined.nudge,null);
+ await alter(code,r=>{r.players.find(p=>p.id===u2).joinedAt=Date.now()-13000;});const nudged=(await request(c2,'/rooms/'+code)).data;assert.equal(nudged.nudge?.by,L,'Lucia asks whether you are ready after a while');assert.equal(nudged.phase,'lobby');
+ await request(c2,'/rooms/'+code+'/nudge','POST',{}).then(x=>assert.equal(x.status,403,'only the host sends the note'));
+ const go=(await request(c2,'/rooms/'+code+'/ready','POST',{ready:true})).data;assert.equal(go.phase,'countdown','Ready starts her match');
+ assert.equal(go.settings.count,15);assert.equal(go.settings.difficulty,'medium');assert.ok(go.players.find(p=>p.name==='Lucia 👽'&&p.bot&&p.level==='medium'));
  await prev();await since(31000);assert.equal((await request(c2,'/presence','POST',{})).data.invites.length,1,'day 2 after a yes');
  await prev();await since(31000);assert.equal((await request(c2,'/presence','POST',{})).data.invites.length,1,'one unanswered invite is only one no');
  await prev();await since(31000);assert.equal((await request(c2,'/presence','POST',{})).data.invites.length,0,'two unanswered invites in a row count as two noes');
@@ -1024,4 +1027,13 @@ test('reminder by email (1.51): only on by choice with a confirmed address, fewe
   assert.ok(Number((await db.prepare('SELECT sent FROM email_reminder_log WHERE day=?').bind(day(0)).first()).sent)>=2);
   assert.ok(Array.isArray((await request(c,'/export')).data.emailReminder));
  } finally { globalThis.fetch=realFetch; }
+});
+test('host note "Everyone ready?" (1.53): everyone sees it, at most once per 10 seconds, only in the waiting room',async()=>{const a=await bootstrap(),b=await bootstrap();
+ const room=(await request(a.cookie,'/rooms','POST',{settings:{mode:'flags',count:5,timer:15,difficulty:'easy',region:'World'}})).data;const code=room.code;
+ await request(b.cookie,'/rooms/'+code+'/join','POST',{});
+ const first=(await request(a.cookie,'/rooms/'+code+'/nudge','POST',{})).data;assert.ok(first.nudge?.at);assert.equal(first.nudge.by,room.host);
+ const seen=(await request(b.cookie,'/rooms/'+code)).data;assert.equal(seen.nudge?.at,first.nudge.at,'the guest sees it');assert.ok(seen.nudge.name);
+ const again=(await request(a.cookie,'/rooms/'+code+'/nudge','POST',{})).data;assert.equal(again.nudge.at,first.nudge.at,'no second note within 10 seconds');
+ await alter(code,r=>{r.nudge.at-=11000;});const later=(await request(a.cookie,'/rooms/'+code+'/nudge','POST',{})).data;assert.ok(later.nudge.at>first.nudge.at);
+ assert.equal((await request(b.cookie,'/rooms/'+code+'/nudge','POST',{})).status,403,'only the host');
 });

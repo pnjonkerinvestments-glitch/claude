@@ -1,0 +1,11 @@
+/* 1.53: the host's "Everyone ready?" note in the waiting room. */
+.lobby-nudge{display:flex;align-items:center;gap:10px;align-self:center;margin:0 auto 2px;padding:8px 16px 8px 8px;background:var(--t-card);color:var(--t-ink);border:2px solid var(--t-mint);border-radius:999px;box-shadow:var(--t-shadow);position:relative;animation:nudge-in .32s cubic-bezier(.2,1.4,.4,1)}
+.lobby-nudge::after{content:'';position:absolute;left:50%;bottom:-8px;width:12px;height:12px;background:var(--t-card);border-right:2px solid var(--t-mint);border-bottom:2px solid var(--t-mint);transform:translateX(-50%) rotate(45deg)}
+.lobby-nudge>span{display:flex;flex-direction:column;line-height:1.2;text-align:left}
+.lobby-nudge small{font-size:.75rem;color:var(--t-soft)}
+.lobby-nudge strong{font-size:1rem}
+.lobby-actions>.btn.is-nudged{animation:nudge-pulse 1.1s ease-in-out 3}
+.lobby-actions>.lobby-nudge-btn{align-self:center;min-height:44px}
+@keyframes nudge-in{from{opacity:0;transform:translateY(8px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes nudge-pulse{0%,100%{transform:none}50%{transform:scale(1.04);box-shadow:0 0 0 6px color-mix(in srgb,var(--t-mint) 70%,transparent)}}
+@media (prefers-reduced-motion:reduce){.lobby-nudge,.lobby-actions>.btn.is-nudged{animation:none}}
