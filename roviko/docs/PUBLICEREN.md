@@ -140,4 +140,4 @@ gemaakt, gaan dan niet mee.
 
 ## Cron-trigger (sinds 1.51)
 
-`wrangler.cloudflare.jsonc` heeft één cron-trigger: `0 17 * * *` (elke dag 17:00 UTC). Die verstuurt de herinneringsmails die spelers zelf aanzetten (`server/reminders.ts`). Zonder `RESEND_API_KEY` doet hij niets; de preview-workflow haalt de trigger weg, zodat de testlink nooit mailt. Wat er gebeurde staat in de logs van de worker (`reminders {...}`) en als telling op `/admin`. Uitzetten: zet `"crons": []` terug en publiceer opnieuw.
+`wrangler.cloudflare.jsonc` heeft één cron-trigger: `0 * * * *` (elk uur; 1.51 was dat dagelijks 17:00 UTC). Elk uur krijgen de spelers voor wie het dan 17:00 is in hun eigen tijdzone hun herinneringsmail (`server/reminders.ts`). Zonder `RESEND_API_KEY` doet hij niets; de preview-workflow haalt de trigger weg, zodat de testlink nooit mailt. Wat er gebeurde staat in de logs van de worker (`reminders {...}`) en als telling op `/admin`. Uitzetten: zet `"crons": []` terug en publiceer opnieuw.

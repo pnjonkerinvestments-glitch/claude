@@ -1,0 +1,67 @@
+/* ===== 1.52 · games on a laptop: everything in view without scrolling =====
+   On wide, not very tall windows (laptops, a browser window that is not full screen) the question goes on the left
+   and the answers, the explanation and "Next" on the right, so the game is half as tall. lib/fit-game.ts scales the
+   rest down when the window is lower still. Phones keep the one-column layout of app/v142.css. */
+/* The question side adds no box of its own, except in the laptop layout below. */
+.q-side{display:contents}
+
+@media (min-width:900px) and (max-height:1100px){
+  /* During a game the site bar steps aside, as on a phone; the game's own bar has the way out (×). */
+  .topbar.is-game{display:none!important}
+  .game-main{padding-top:12px!important;padding-bottom:12px!important}
+  .game-main .game-header{top:0!important}
+  /* Solo games: flags, capitals, shapes, the map, borders, Clue Trail, Size Shuffle and the Daily Detour. The question side
+     (.q-side) is the left column; the answers, the explanation, the small extras and "Next" stack on the right. */
+  .game-main .solo-game.learning-game{width:min(1080px,calc(100vw - 48px))!important;max-width:none!important}
+  .learning-game .game-body{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;row-gap:0;align-items:start;padding-top:8px!important}
+  .learning-game .game-body>.question-content{display:contents}
+  .learning-game .game-body>*,.learning-game .question-content>*{grid-column:2;min-width:0}
+  .learning-game .question-content>.q-side{grid-column:1;grid-row:1/span 30;display:flex;flex-direction:column;gap:12px;align-self:start}
+  .learning-game .q-side>.q-card{margin:0!important}
+  .learning-game .q-side>.trail-clues{margin:0!important}
+  .learning-game .question-content>.question-help{margin-top:0!important}
+  .learning-game .question-content>.answer-grid,.learning-game .question-content>.order-list{margin-top:0!important}
+  .learning-game .answer-feedback{margin-top:12px!important;padding-block:12px!important}
+  .learning-game .answer-grid:has(>.answer-option:nth-child(4):last-child){display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important}
+  .learning-game .answer-grid>.answer-option{min-height:54px!important;padding:8px 12px!important}
+  .learning-game .answer-grid .option-country{overflow-wrap:normal!important;word-break:normal!important;hyphens:manual!important;line-height:1.2}
+  .learning-game .answer-grid>.answer-option img{width:28px!important;height:auto!important}
+  .learning-game .flag-stage img{max-height:clamp(110px,calc(100vh - 330px),240px);width:auto!important}
+  .learning-game .shape-stage,.learning-game .shape-stage svg{max-height:clamp(150px,calc(100vh - 300px),320px)}
+  .learning-game .question-content>.report-link{margin-top:6px!important;justify-self:center}
+  .learning-game .game-body>.auto-next-wrap{margin-top:4px!important;justify-self:center}
+  .learning-game .auto-next-wrap small{display:none}
+  .learning-game .solo-next-row{margin-top:10px!important}
+  /* Side by Side: the question on the left, the two countries on the right. */
+  .game-main .puzzle-game.puzzle-compare{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);column-gap:24px;width:min(1040px,calc(100vw - 48px))!important;max-width:none!important;align-items:start}
+  .puzzle-compare>*{grid-column:2;min-width:0}
+  .puzzle-compare>.game-header{grid-column:1/-1;width:100%}
+  .puzzle-compare>.comparison-heading{grid-column:1;grid-row:2/span 8;margin:0!important}
+  .puzzle-compare>.comparison-cards{margin-top:0!important}
+  /* Rank Radar: the country on the left, its subjects and the button on the right. */
+  .game-main .rank-board{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);column-gap:24px;width:min(1040px,calc(100vw - 48px))!important;max-width:none!important;align-items:start}
+  .rank-board>*{grid-column:2;min-width:0}
+  .rank-board>.game-header{grid-column:1/-1;width:100%}
+  .rank-board>.game-header .game-header-row,.puzzle-compare>.game-header .game-header-row{width:100%}
+  .rank-board>.game-header .game-progress-bar,.puzzle-compare>.game-header .game-progress-bar{flex:1 1 auto}
+  .rank-board>.rb-hero{grid-column:1;grid-row:2/span 8;margin:0!important}
+  .rank-board .rb-list{margin-top:0!important}
+  .rank-board .rb-actions{position:static!important;margin-top:10px!important}
+  .rank-board .rb-list>li,.rank-board .rb-list button{min-height:0!important}
+  .rank-board .rb-list{display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important;max-width:none!important}
+}
+
+/* 1.52 · the nudge for guests to choose their own name: on a daily result and (compact) on the home screen. */
+.name-prompt{display:grid;grid-template-columns:auto 1fr;align-items:center;gap:6px 14px;box-sizing:border-box;width:100%;margin:14px 0 4px;padding:14px 16px;border-radius:var(--t-radius,20px);background:linear-gradient(135deg,#fff6db,#ffefc2);border:1px solid #f1d58a;box-shadow:0 6px 18px rgba(201,138,18,.12);text-align:left}
+.name-prompt .np-avatar{grid-row:1/span 2;display:grid;place-items:center;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(23,58,46,.1)}
+.name-prompt .np-kicker{display:block;font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:#a66b00}
+.name-prompt strong{display:block;margin-top:2px;font:800 1.0625rem/1.25 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.name-prompt p{margin:4px 0 0;font:600 .875rem/1.4 var(--font-sans);color:var(--t-soft)}
+.name-prompt .np-actions{grid-column:2;display:flex;align-items:center;gap:14px;margin-top:6px}
+.name-prompt .np-go{min-height:42px;padding:0 18px;background:#fff!important}
+.name-prompt .np-later{border:0;background:none;padding:6px;font:700 .875rem var(--font-sans);color:var(--t-soft);cursor:pointer}
+.name-prompt.is-compact{grid-template-columns:auto 1fr auto;max-width:640px;width:calc(100% - 32px);margin:12px auto 4px;padding:10px 12px}
+.name-prompt.is-compact .np-avatar{grid-row:auto}
+.name-prompt.is-compact .np-actions{grid-column:3;margin:0;gap:4px}
+.name-prompt.is-compact .np-later{display:grid;place-items:center;width:36px;height:36px;border-radius:50%}
+@media (max-width:420px){.name-prompt.is-compact{grid-template-columns:auto 1fr}.name-prompt.is-compact .np-actions{grid-column:1/-1;justify-content:space-between}}

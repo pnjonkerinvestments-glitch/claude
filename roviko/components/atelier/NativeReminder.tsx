@@ -56,18 +56,39 @@ export function reminderText(t: (k: string) => string, i: number, at: Date, play
   if (streak >= 2 && i === (playedToday ? 1 : 0)) return t('reminderStreak').replace('{n}', String(streak));
   return t('reminder' + (at.getDay() + 1));
 }
-/** One notification per day for the next 7 days, today only if the player has not played yet. */
+/**
+ * 1.52: when Lucia's challenge comes: 24 hours after this visit, in the daytime on the phone (10:00–19:00 local time,
+ * so wherever the player lives). Earlier in the morning it waits until 10:00; in the evening until 10:00 the next day.
+ */
+export function luciaAt(now = new Date()) {
+  const at = new Date(now.getTime() + 24 * 3600000);
+  if (at.getHours() < 10) at.setHours(10, 0, 0, 0);
+  else if (at.getHours() >= 19) { at.setDate(at.getDate() + 1); at.setHours(10, 0, 0, 0); }
+  return at;
+}
+const LUCIA_ID = 1201;
+const sameDay = (a: Date, b: Date) => a.toDateString() === b.toDateString();
+/**
+ * One notification per day for the next 7 days, today only if the player has not played yet. 1.52: plus one challenge
+ * from Lucia 👽 a day after the last visit (rescheduled on every visit, so it only comes after a day away, once); that
+ * day it takes the place of the usual reminder, unless the streak reminder is due that day (then Lucia waits).
+ */
 export async function scheduleReminders(t: (k: string) => string, playedToday: boolean, now = new Date(), streak = 0) {
   const notifications = plugin();
   if (!notifications || !readOn()) return;
   const minute = reminderMinute(readTimes(), now);
-  const list: unknown[] = [];
+  const lucia = luciaAt(now);
+  const list: { id: number; title: string; body: string; schedule: { at: Date; allowWhileIdle: boolean }; extra?: unknown }[] = [];
+  let luciaDay = true;
   for (let i = 0; i < DAYS; i++) {
     const at = new Date(now); at.setDate(at.getDate() + i); at.setHours(Math.floor(minute / 60), minute % 60, 0, 0);
     if (i === 0 && (playedToday || at.getTime() < now.getTime() + 5 * 60000)) continue;
+    const streakDay = streak >= 2 && i === (playedToday ? 1 : 0);
+    if (sameDay(at, lucia)) { if (streakDay) luciaDay = false; else continue; }
     list.push({ id: 1101 + i, title: 'Roviko', body: reminderText(t, i, at, playedToday, streak), schedule: { at, allowWhileIdle: false } });
   }
-  await notifications.cancel({ notifications: [...OLD_IDS, ...NEW_IDS] });
+  if (luciaDay) list.push({ id: LUCIA_ID, title: t('luciaNotifTitle'), body: t(['luciaNotifBody', 'luciaNotif2', 'luciaNotif3'][lucia.getDate() % 3]), schedule: { at: lucia, allowWhileIdle: false }, extra: { lucia: true } });
+  await notifications.cancel({ notifications: [...OLD_IDS, ...NEW_IDS, { id: LUCIA_ID }] });
   if (list.length) await notifications.schedule({ notifications: list });
 }
 /** Keeps the reminders right whenever the app opens or a daily game is played (1.39), with the streak in the text (1.50). */
@@ -82,11 +103,14 @@ export function useSmartReminder(t: (k: string) => string, ready: boolean, playe
     const notifications = plugin();
     if (!open || !isApp() || !notifications?.addListener) return;
     let handle: { remove(): void } | undefined, gone = false;
-    Promise.resolve(notifications.addListener('localNotificationActionPerformed', () => open())).then(h => { if (gone) h.remove(); else handle = h; }).catch(() => {});
+    // Lucia's challenge (1.52) opens a match against her; the other reminders open today's games.
+    Promise.resolve(notifications.addListener('localNotificationActionPerformed', (e: any) => { if (e?.notification?.extra?.lucia) window.location.assign('/?lucia=1'); else open(); })).then(h => { if (gone) h.remove(); else handle = h; }).catch(() => {});
     return () => { gone = true; handle?.remove(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
+/** 1.52: the player's time zone, so the reminder email arrives in their daytime. */
+const timeZone = () => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone; } catch { return undefined; } };
 const ASKS = 'roviko:reminder-asks', MAX_ASKS = 2;
 function readAsks(): { n: number; day: string } { try { const v = JSON.parse(localStorage.getItem(ASKS) ?? '{}'); return { n: Number(v.n) || 0, day: String(v.day ?? '') }; } catch { return { n: MAX_ASKS, day: '' }; } }
 /**
@@ -112,7 +136,7 @@ export function useReminderOffer(date: string, open = true) {
   useEffect(() => { if (show && !shown) { setShown(true); try { localStorage.setItem(ASKS, JSON.stringify({ n: asks.n + 1, day: date })); } catch { /* asked once more, harmless */ } } }, [show]); // eslint-disable-line react-hooks/exhaustive-deps
   return { show, state, kind, accept: async (t: (k: string) => string, playedToday: boolean, streak: number) => {
     if (kind === 'email') {
-      try { await post('/reminders/email', { on: true, locale: app?.locale }); setState('on'); } catch { setState('denied'); }
+      try { await post('/reminders/email', { on: true, locale: app?.locale, tz: timeZone() }); setState('on'); } catch { setState('denied'); }
       return;
     }
     const notifications = plugin();
@@ -138,7 +162,7 @@ export function EmailReminder({ t }: { t: (k: string) => string }) {
   const account = !!user && !user.guest;
   useEffect(() => { if (account && !inApp) api('/reminders/email').then(setState).catch(() => {}); }, [account, inApp]);
   if (inApp || !app?.boot?.mailEnabled) return null;
-  const toggle = async (on: boolean) => { setBusy(true); try { setState(await post('/reminders/email', { on, locale: app.locale })); } catch (e) { app.fail?.(e); } finally { setBusy(false); } };
+  const toggle = async (on: boolean) => { setBusy(true); try { setState(await post('/reminders/email', { on, locale: app.locale, tz: timeZone() })); } catch (e) { app.fail?.(e); } finally { setBusy(false); } };
   return <section className="page-section" aria-labelledby="settings-mail">
     <div className="settings-card">
       <div className="settings-card-row">
@@ -164,7 +188,7 @@ export function NativeReminder({ t }: { t: (k: string) => string }) {
     setBusy(true);
     try {
       if (on) {
-        await notifications.cancel({ notifications: [...OLD_IDS, ...NEW_IDS] });
+        await notifications.cancel({ notifications: [...OLD_IDS, ...NEW_IDS, { id: LUCIA_ID }] });
         writeOn(false); setOn(false);
       } else {
         const permission = await notifications.requestPermissions();

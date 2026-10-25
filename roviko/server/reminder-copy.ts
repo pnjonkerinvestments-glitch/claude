@@ -4,10 +4,11 @@ import type { MailLocale } from './welcome-mail';
  * 1.51 · the words of the reminder mails, in Roviko's voice: playful, short, honest (no fake urgency, no numbers we do
  * not know, never the number of games). Every stage has its own angle and several variants, so a follow-up never
  * reads the same as the last one: the streak (only when it really ends tonight), today's new games, learning
- * something new, a fresh start after a week, and a friendly goodbye after a month.
+ * something new, a fresh start after a week, and a friendly goodbye after a month. Since 1.52 the first day away is
+ * a challenge from Lucia 👽 (the owner's choice); its button starts a match against her.
  * Placeholders: {name} the player's name, {n} the streak in days.
  */
-export type Stage = 'streak' | 'day1' | 'day2' | 'week' | 'month';
+export type Stage = 'streak' | 'lucia' | 'day2' | 'week' | 'month';
 export type Variant = { emoji: string; subject: string; title: string; body: string; button: string };
 type Footer = { why: string; rhythm: string; off: string };
 
@@ -17,10 +18,10 @@ const NL: Record<Stage, Variant[]> = {
     { emoji: '🧳', subject: 'Al {n} dagen op rij. Nog eentje erbij? 🧳', title: 'Je koffer staat nog open!', body: '{n} dagen achter elkaar ben je op reis geweest. Vandaag nog niet. Eén korte stop en je reeks reist gewoon mee naar morgen.', button: 'Snel één spelletje' },
     { emoji: '🌍', subject: 'Psst {name}, je reeks kijkt je aan 👀', title: 'Je reeks mist je al een beetje', body: 'Na {n} dagen is hij best gehecht aan je geraakt. Speel vandaag één dagspel, dan blijft hij staan. Kost je een paar minuten, beloofd.', button: 'Red mijn reeks' },
   ],
-  day1: [
-    { emoji: '🕵️', subject: 'Er wacht een nieuw mysterieland op je 🕵️', title: 'Vandaag staat er iets nieuws klaar', body: 'Nieuwe vlaggen, een nieuw mysterieland en een frisse ranglijst. Roviko heeft de kaart al uitgevouwen. Kom je even kijken?', button: 'Laat zien!' },
-    { emoji: '🗺️', subject: '{name}, de wereld is vandaag weer anders 🗺️', title: 'Nieuwe dag, nieuwe wereldreis', body: 'Elke dag krijgt iedereen dezelfde vragen. Vandaag ook. Benieuwd waar jij uitkomt tussen de andere reizigers?', button: 'Start de reis van vandaag' },
-    { emoji: '🎯', subject: 'Klaar voor een paar minuten wereld? 🎯', title: 'Even je hoofd op reis sturen', body: 'Koffie in de ene hand, de wereld in de andere. De spellen van vandaag zijn kort, en je leert er altijd iets van.', button: 'Speel de spellen van vandaag' },
+  lucia: [
+    { emoji: '👽', subject: 'Lucia 👽 daagt je uit!', title: 'Lucia wil een potje met je spelen', body: 'Lucia, de computervriend van Roviko, staat klaar voor een potje. Ze is goed, maar niet onverslaanbaar. Durf jij?', button: 'Speel tegen Lucia' },
+    { emoji: '🛸', subject: '{name}, Lucia 👽 is geland en zoekt een tegenstander', title: 'Er staat een vliegende schotel op je te wachten', body: 'Lucia heeft haar beste vlaggenkennis meegenomen. Eén snel potje, en daarna wacht je dagreis gewoon op je.', button: 'Daag Lucia uit' },
+    { emoji: '🏆', subject: 'Lucia 👽 denkt dat ze van je wint', title: 'Laat Lucia zien wie de baas is', body: 'Ze heeft de hele dag geoefend. Jij hebt één potje nodig om haar te verrassen. Wie kent de wereld beter?', button: 'Laat maar zien' },
   ],
   day2: [
     { emoji: '💡', subject: 'Wist jij deze al? 💡', title: 'Er ligt nieuwe kennis op je te wachten', body: 'Ergens op de kaart ligt een land dat jij nog niet goed kent. Roviko weet precies welk. Eén rondje en je bent weer een stukje wereld wijzer.', button: 'Leer iets nieuws' },
@@ -40,10 +41,10 @@ const EN: Record<Stage, Variant[]> = {
     { emoji: '🧳', subject: '{n} days in a row. One more? 🧳', title: 'Your suitcase is still open!', body: 'You have travelled {n} days in a row. Not yet today. One quick stop and your streak travels on to tomorrow.', button: 'One quick game' },
     { emoji: '🌍', subject: 'Psst {name}, your streak is looking at you 👀', title: 'Your streak misses you a little', body: 'After {n} days it has grown quite attached to you. Play one daily game today and it stays. A few minutes, promise.', button: 'Save my streak' },
   ],
-  day1: [
-    { emoji: '🕵️', subject: 'A new mystery country is waiting for you 🕵️', title: 'Something new is ready today', body: 'New flags, a new mystery country and a fresh ranking. Roviko has already unfolded the map. Coming to take a look?', button: 'Show me!' },
-    { emoji: '🗺️', subject: '{name}, the world is different again today 🗺️', title: 'New day, new trip around the world', body: 'Every day everyone gets the same questions. Today too. Curious where you land among the other travellers?', button: "Start today's trip" },
-    { emoji: '🎯', subject: 'Ready for a few minutes of world? 🎯', title: 'Send your mind on a trip', body: "Coffee in one hand, the world in the other. Today's games are short, and you always learn something.", button: "Play today's games" },
+  lucia: [
+    { emoji: '👽', subject: 'Lucia 👽 challenges you!', title: 'Lucia wants to play a match with you', body: "Lucia, Roviko's computer friend, is ready for a match. She is good, but not unbeatable. Do you dare?", button: 'Play Lucia' },
+    { emoji: '🛸', subject: '{name}, Lucia 👽 has landed and wants an opponent', title: 'A flying saucer is waiting for you', body: 'Lucia brought her best flag knowledge. One quick match, and your daily trip is still waiting for you afterwards.', button: 'Challenge Lucia' },
+    { emoji: '🏆', subject: 'Lucia 👽 thinks she can beat you', title: 'Show Lucia who is boss', body: 'She has been practising all day. You need one match to surprise her. Who knows the world better?', button: 'Bring it on' },
   ],
   day2: [
     { emoji: '💡', subject: 'Did you know this one? 💡', title: 'New knowledge is waiting for you', body: 'Somewhere on the map there is a country you do not know well yet. Roviko knows exactly which one. One round and you know a little more of the world.', button: 'Learn something new' },
@@ -63,10 +64,10 @@ const ES: Record<Stage, Variant[]> = {
     { emoji: '🧳', subject: '{n} días seguidos. ¿Uno más? 🧳', title: '¡Tu maleta sigue abierta!', body: 'Llevas {n} días seguidos de viaje. Hoy todavía no. Una parada rápida y tu racha sigue viajando hasta mañana.', button: 'Un juego rápido' },
     { emoji: '🌍', subject: 'Psst {name}, tu racha te está mirando 👀', title: 'Tu racha ya te echa un poco de menos', body: 'Después de {n} días te ha cogido cariño. Juega hoy un juego diario y se queda. Unos minutos, prometido.', button: 'Salvar mi racha' },
   ],
-  day1: [
-    { emoji: '🕵️', subject: 'Te espera un nuevo país misterioso 🕵️', title: 'Hoy hay algo nuevo', body: 'Banderas nuevas, un nuevo país misterioso y una clasificación recién empezada. Roviko ya ha desplegado el mapa. ¿Vienes a mirar?', button: '¡Enséñamelo!' },
-    { emoji: '🗺️', subject: '{name}, hoy el mundo vuelve a ser distinto 🗺️', title: 'Nuevo día, nuevo viaje por el mundo', body: 'Cada día todos reciben las mismas preguntas. Hoy también. ¿Te pica la curiosidad de dónde quedas entre los demás viajeros?', button: 'Empezar el viaje de hoy' },
-    { emoji: '🎯', subject: '¿Listo para unos minutos de mundo? 🎯', title: 'Manda tu cabeza de viaje', body: 'El café en una mano, el mundo en la otra. Los juegos de hoy son cortos y siempre aprendes algo.', button: 'Jugar los juegos de hoy' },
+  lucia: [
+    { emoji: '👽', subject: '¡Lucia 👽 te reta!', title: 'Lucia quiere jugar una partida contigo', body: 'Lucia, la amiga ordenador de Roviko, está lista para una partida. Es buena, pero no imbatible. ¿Te atreves?', button: 'Jugar contra Lucia' },
+    { emoji: '🛸', subject: '{name}, Lucia 👽 ha aterrizado y busca rival', title: 'Un platillo volante te está esperando', body: 'Lucia ha traído lo mejor que sabe de banderas. Una partida rápida, y tu viaje diario te sigue esperando después.', button: 'Retar a Lucia' },
+    { emoji: '🏆', subject: 'Lucia 👽 cree que te gana', title: 'Enseña a Lucia quién manda', body: 'Ha estado practicando todo el día. Te basta una partida para sorprenderla. ¿Quién conoce mejor el mundo?', button: 'A por ella' },
   ],
   day2: [
     { emoji: '💡', subject: '¿Sabías esta? 💡', title: 'Te espera algo nuevo que aprender', body: 'En algún lugar del mapa hay un país que aún no conoces bien. Roviko sabe exactamente cuál. Una ronda y sabrás un poco más del mundo.', button: 'Aprender algo nuevo' },

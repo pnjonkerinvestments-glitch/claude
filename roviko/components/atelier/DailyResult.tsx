@@ -16,13 +16,11 @@ import { dailyTitleKey } from './DailyLoop';
 import { GameIcon } from './GameIcon';
 import { nextBonusMode, type BonusMode } from '@/lib/bonus';
 import { useBonusLaunch } from '../home/BonusTour';
+import { NamePrompt, useNamePrompt } from '../home/NamePrompt';
 
 type Standing = { score: number; place?: number; participants: number; below?: number; next?: { name: string; gap: number; place: number } | null };
 type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => string; locale: string; share?: (text: string) => void; boot: { user?: { guest?: boolean; name?: string }; stats: { dailyCount?: number; dailyStreak?: number; dailyDone?: boolean; streakFreezes?: { available?: number; nextIn?: number } } }; fail: (e: unknown) => void; busy?: boolean; setModal?: (m: string) => void };
 
-const SAVE_KEY = 'roviko:save-prompt';
-const readFlag = () => { try { return localStorage.getItem(SAVE_KEY) === 'done'; } catch { return true; } };
-const writeFlag = () => { try { localStorage.setItem(SAVE_KEY, 'done'); } catch { /* shows again next time, that is fine */ } };
 
 /**
  * The result of a daily game: the stage (Roviko, the points with a gold coin), then one white card with your
@@ -72,16 +70,11 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const go = async () => { if (!next || lock.current) return; lock.current = true; setBusy(true); try { await launchDaily(app, next); } catch (e) { fail(e); } finally { lock.current = false; setBusy(false); } };
   // The bonus tour after the day: today's next bonus game, or the bonus tab of all games when none is left.
   const toBonus = () => bonusNext ? bonusLaunch.open(bonusNext) : app.go('/daily#classic');
-  // Once per guest (1.39): not after the very first game, but on the second day of play or once all six are done
-  // today, when there is something real to keep (never before play or mid-game).
-  const [askSave, setAskSave] = useState(false);
-  const playDays = Number((boot.stats as any)?.dailyCount ?? 0);
-  useEffect(() => { if (boot.user?.guest && !readFlag() && (dayDone || playDays >= 2)) setAskSave(true); }, [boot.user?.guest, dayDone, playDays]);
-  const closeSave = () => { writeFlag(); setAskSave(false); };
-  const savePrompt = askSave && <aside className="save-prompt" aria-labelledby="save-prompt-title">
-    <strong id="save-prompt-title">{score > 0 ? t('savePromptPoints').replace('{n}', fmt(score)) : t('savePromptTitle')}</strong><p>{t('savePromptCopy')}</p>
-    <div><button className="btn secondary" onClick={() => { closeSave(); app.setModal?.('signup'); }}>{t('savePromptCta')}<ArrowRight size={17} aria-hidden="true"/></button><button className="btn ghost" onClick={closeSave}>{t('savePromptLater')}</button></div>
-  </aside>;
+  // 1.52: guests are asked to choose their own name (and so a free account) right on the result of a daily game,
+  // the Daily Detour included, instead of only on day 2 (1.39). Never twice a day, at most four times (NamePrompt.tsx).
+  const namePrompt = useNamePrompt(!!boot.user?.guest, date);
+  const savePrompt = namePrompt.show && <NamePrompt name={boot.user?.name ?? ''} avatar={Number((boot.user as any)?.avatar ?? 0)} place={day?.place} t={t}
+    onChoose={() => { namePrompt.later(); app.setModal?.('signup'); }} onLater={namePrompt.later}/>;
   const streakMoment = <StreakMoment open={moment} date={date} streak={streak} week={week} shieldIn={boot.stats.streakFreezes?.nextIn} shields={boot.stats.streakFreezes?.available} t={t} onClose={() => setMoment(false)}/>;
   if (view === 'wait') return <div className="finish-wait" aria-busy="true"><span className="sr-only">{t('loading')}</span></div>;
   if (view === 'day') return <>
@@ -103,13 +96,12 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       {day?.place ? <p className="daily-result-target">{t('resultDayRank').replace('{rank}', fmt(day.place)).replace('{count}', fmt(day.participants))} · {day.next ? t('rankTarget').replace('{n}', fmt(day.next.gap + 1)).replace('{name}', day.next.name).replace('{place}', fmt(day.next.place)) : t('rankLeading')}</p> : null}
     </div>
     {dayDone && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}/>}
+    {savePrompt}
     {next === undefined ? <span className="daily-result-next is-pending" aria-hidden="true"/> : next
       ? <button className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}</span><ArrowRight size={19} aria-hidden="true"/></button>
       : bonusNext
         ? <div className="daily-result-bonus"><p>{t('bonusAfterDaily')}</p><button className="btn primary btn-lg daily-result-next" disabled={!!bonusLaunch.launching || app.busy} onClick={() => bonusLaunch.open(bonusNext)}><GameIcon mode={bonusNext} size="sm"/><span>{bonusLaunch.launching ? t('loading') : t('bonusCta').replace('{game}', t(bonusNext))}</span><ArrowRight size={19} aria-hidden="true"/></button></div>
         : <p className="daily-result-done">{t('loopAllDone')} <ResetCountdown label={t('dayNewIn')} t={t}/></p>}
-    {/* The way on comes first; the once-per-guest save prompt waits quietly under it. */}
-    {savePrompt}
   </section>;
   if (!stage) return <>{card}{streakMoment}</>;
   return <>
