@@ -88,6 +88,10 @@ Lucia is Roviko's computer friend, always shown as "Lucia 👽". Players add her
 
 **Since 1.53 (the owner's choice): close matches and Ready.** Lucia's room starts once every player there pressed Ready (no longer on joining). She taps "Everyone ready?" 12 seconds after a player came in who is not ready, then every 20 seconds while someone is not ready. In every match she plays, she answers after the players have (or 1.5 s before the time runs out), at most 2.5 s after the last player, and picks a right or wrong answer and a moment so that she ends the round just behind the best player (in the first half sometimes just ahead; from two rounds before the end always just behind when possible). Last round: a player who gets it right wins; a player who misses it loses to her by a little in some matches.
 
+**Since 1.54:** a player who was in a multiplayer room that day gets no invite from Lucia that day (not counted as a no).
+
+**Room invites (1.54):** an invite is shown only while the friend who sent it is still in that waiting room and you are not in it; it counts as used once you join the room (also by link or code). Inviting again after you left shows a new one.
+
 **Host note (1.53):** in every waiting room the host can tap "Everyone ready?" while a guest is not ready; every player sees the note for six seconds. At most once per 10 seconds, only in the waiting room.
 
 ## Maps, capitals, ordering and borders

@@ -37,8 +37,9 @@ const view = (s: PuzzleState, version = 0): PuzzleView => {
 };
 export async function puzzleToday(env: Env, user: User, competition = false) {
   const date = new Date().toISOString().slice(0, 10);
-  const sessions = await rows(env, "SELECT id,kind,completed,state FROM game_sessions WHERE user_id=? AND date=?", user.id, date);
-  const recent = await rows(env, 'SELECT date FROM daily_challenge_results WHERE user_id=? AND date>=? ORDER BY date', user.id, new Date(Date.parse(date)-6*86400000).toISOString().slice(0,10));
+  // 1.54: both reads at once.
+  const [sessions, recent] = await Promise.all([rows(env, "SELECT id,kind,completed,state FROM game_sessions WHERE user_id=? AND date=?", user.id, date),
+    rows(env, 'SELECT date FROM daily_challenge_results WHERE user_id=? AND date>=? ORDER BY date', user.id, new Date(Date.parse(date)-6*86400000).toISOString().slice(0,10))]);
   const tomorrow = new Date(Date.parse(date)+86400000).toISOString().slice(0,10);
   return { date, topic: dailyTopic(date), tomorrowTopic: dailyTopic(tomorrow), week: Array.from({length:7},(_,i)=>{const day=new Date(Date.parse(date)-(6-i)*86400000).toISOString().slice(0,10);return {date:day,completed:recent.some((r:any)=>r.date===day)};}), bonus: sessions.filter((s:any)=>s.kind.startsWith('bonus:')).map((s:any)=>{const state=JSON.parse(s.state);return {mode:s.kind.slice(6),completed:!!s.completed,score:state.answers?.filter((a:any)=>a.correct).length??0,total:state.questions?.length??10};}), survival: sessions.filter((s:any)=>s.kind.startsWith('survival:')).map((s:any)=>{const state=JSON.parse(s.state);return {mode:s.kind.slice(9),completed:!!s.completed,score:state.answers?.filter((a:any)=>a.correct).length??0,out:!!state.out};}), sessions: sessions.filter((s:any)=>!s.kind.startsWith('bonus:') && !s.kind.startsWith('survival:') && (competition ? s.kind.endsWith(COMPETITION_SUFFIX) : !s.kind.endsWith(COMPETITION_SUFFIX))).map((s:any)=>{const state=JSON.parse(s.state);return {id:s.id,mode:state.competition?.mode??s.kind.replace('puzzle:',''),completed:!!s.completed,round:state.round,total:state.board?.rounds?.length||state.questions?.length||(state.mode==='duel'?5:4)};}) };
 }

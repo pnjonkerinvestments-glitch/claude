@@ -38,8 +38,9 @@ export function nextTier(tier: number, place: number, size: number, score: numbe
 export async function ensureLeague(env: Env, user: User, date: string): Promise<{ week: string; tier: number; group_no: number; previousTier: number | null } | null> {
   if (user.guest) return null;
   const week = weekStart(date);
-  const existing = await one(env, 'SELECT tier,group_no FROM league_members WHERE week=? AND user_id=?', week, user.id);
-  const previous = await one(env, 'SELECT week,tier,group_no FROM league_members WHERE user_id=? AND week<? ORDER BY week DESC LIMIT 1', user.id, week);
+  // 1.54: both reads at once (one trip to the database instead of two).
+  const [existing, previous] = await Promise.all([one(env, 'SELECT tier,group_no FROM league_members WHERE week=? AND user_id=?', week, user.id),
+    one(env, 'SELECT week,tier,group_no FROM league_members WHERE user_id=? AND week<? ORDER BY week DESC LIMIT 1', user.id, week)]);
   if (existing) return { week, tier: Number(existing.tier), group_no: Number(existing.group_no), previousTier: previous ? Number(previous.tier) : null };
   const points = await one(env, 'SELECT COALESCE(SUM(score),0) score FROM daily_scores WHERE user_id=? AND date>=? AND date<?', user.id, week, addDays(week, 7));
   if (!Number(points?.score)) return null;
