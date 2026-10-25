@@ -4,10 +4,11 @@ import { RovikoIcon } from '../ds/RovikoIcons';
 import { isNativeApp } from '@/lib/haptics';
 import { readPreference, writePreference } from '@/lib/client';
 import { Switch } from '@/components/ui/switch';
+import { toast } from 'sonner';
 import type { Locale } from '@/i18n/messages';
 import { useApp } from '../app/context';
 import { PageHeader, SectionHeader } from '../ds/States';
-import { NativeReminder } from '../atelier/NativeReminder';
+import { EmailReminder, NativeReminder } from '../atelier/NativeReminder';
 
 const LOCALES: [Locale, string][] = [['en', 'English'], ['nl', 'Nederlands'], ['es', 'Español']];
 
@@ -17,6 +18,8 @@ export function SettingsPage() {
   // Vibration only exists in the iOS/Android app; decided after mounting so the server render stays the same.
   const [app, setApp] = useState(false), [haptics, setHaptics] = useState(true);
   useEffect(() => { setApp(isNativeApp()); setHaptics(readPreference('rv_haptics', 'on') === 'on'); }, []);
+  // 1.51: back from the unsubscribe link in a reminder email.
+  useEffect(() => { const r = new URLSearchParams(location.search).get('reminder'); if (r === 'off') toast.success(t('mailReminderOff')); else if (r === 'expired') toast(t('mailReminderExpired')); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const toggleHaptics = (on: boolean) => { setHaptics(on); writePreference('rv_haptics', on ? 'on' : 'off'); };
   return <div className="page settings-page trip-page">
     <PageHeader title={t('settingsTitle')} lead={t('menuSettingsNote')}/>
@@ -39,6 +42,7 @@ export function SettingsPage() {
     </section>
 
     <NativeReminder t={t}/>
+    <EmailReminder t={t}/>
 
     <section className="page-section" aria-labelledby="settings-privacy">
       <SectionHeader id="settings-privacy" title={t('privacy')}/>

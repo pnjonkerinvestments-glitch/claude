@@ -961,3 +961,61 @@ test('growth dashboard (1.49): owner only, records the device once a day, and co
  assert.ok(s.funnel&&s.funnel.modes.length>=5&&s.funnel.steps.every(v=>v<=s.funnel.players)&&s.funnel.all<=s.funnel.players,'the day-1 funnel (1.50)');
  assert.ok(!JSON.stringify(s).includes(a.data.user.id),'no player ids in the numbers');
 });
+
+test('reminder by email (1.51): only on by choice with a confirmed address, fewer and fewer when away, once a day, one-tap unsubscribe',async()=>{
+ const out=await build({stdin:{contents:"export {sendReminders,setReminder,reminderState,reminderMail,reminderStage,REMINDER_DAILY_CAP} from './server/reminders';",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',write:false,loader:{'.json':'json'}});
+ await fs.writeFile('.test-runtime/reminders.mjs',out.outputFiles[0].text);const R=await import('../.test-runtime/reminders.mjs');
+ const g=await bootstrap();const acc=await request(g.cookie,'/auth/signup','POST',{email:'streaky@example.test',password:'Friendly8',name:'Streaky'});const c=acc.cookie;const uid=acc.data.user.id;
+ // Through the API (no mail set up in tests): the state says it is not available, and on is refused.
+ assert.deepEqual((await request(c,'/reminders/email')).data,{available:false,verified:false,on:false});
+ assert.equal((await request(c,'/reminders/email','POST',{on:true})).data.error,'EMAIL_NOT_VERIFIED');
+ const guest=await bootstrap();assert.equal((await request(guest.cookie,'/reminders/email','POST',{on:true})).status,403);
+ // With mail set up (Resend stubbed): a confirmed account turns it on.
+ const env={DB:db,RESEND_API_KEY:'test'};const sent=[];const realFetch=globalThis.fetch;
+ globalThis.fetch=async(u,o)=>{sent.push({u:String(u),b:JSON.parse(o.body)});return new Response('{}',{status:200});};
+ try{
+  const user=()=>db.prepare('SELECT * FROM users WHERE id=?').bind(uid).first();
+  await assert.rejects(R.setReminder(env,await user(),{on:true}),/EMAIL_NOT_VERIFIED/);
+  await db.prepare('UPDATE users SET email_verified=1 WHERE id=?').bind(uid).run();
+  assert.equal((await R.setReminder(env,await user(),{on:true,locale:'nl'})).on,true);
+  const now=Date.now(),day=k=>new Date(now-k*86400000).toISOString().slice(0,10);
+  const play=async k=>{const sid='rem-'+uid+'-'+k+'-'+Math.random();await db.prepare('INSERT INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)').bind(sid,uid,'daily',day(k),'{}',now).run();await db.prepare("INSERT INTO daily_scores(session_id,user_id,date,mode,score,created_at) VALUES (?,?,?,'daily',500,?)").bind(sid,uid,day(k),now).run();};
+  // Never played a daily game: nothing.
+  assert.equal((await R.sendReminders(env,now)).sent,0);
+  // The rhythm: away 1 and 2 days every day, then once at a week, once at a month, then never (until the next game).
+  assert.deepEqual([1,2,3,4,5,6,7,8,14,29,30,31,60].map(d=>R.reminderStage(d,0)),['day1','day2',null,null,null,null,'week',null,null,null,'month',null,null]);
+  assert.equal(R.reminderStage(1,4),'streak');assert.equal(R.reminderStage(2,3),'streak','a shield can keep the streak alive on day 2');assert.equal(R.reminderStage(7,5),'week');
+  // Follow-ups read differently: another stage, or the next day's variant.
+  const m=(stage,seed)=>R.reminderMail('nl',{name:'Pip',streak:3,stage,seed,play:'p',off:'o',origin:'https://roviko.app'});
+  const subjects=new Set(['day1','day2','week','month'].map(s=>m(s,0).subject));assert.equal(subjects.size,4);
+  assert.notEqual(m('streak',0).subject,m('streak',1).subject);assert.notEqual(m('day1',0).subject,m('day1',1).subject);
+  for(const l of ['nl','en','es'])for(const st of ['streak','day1','day2','week','month'])for(let k=0;k<3;k++){const x=R.reminderMail(l,{name:'Pip',streak:3,stage:st,seed:k,play:'p',off:'o',origin:'https://roviko.app'});assert.doesNotMatch(x.subject+x.text,/\{n\}|\{name\}|\bzes\b|\bsix\b|\bseis\b/,l+' '+st);}
+  // Away one day without a streak: the day-1 mail.
+  await play(1);
+  let r1=await R.sendReminders(env,now);assert.equal(r1.sent,1);sent.length=0;await db.prepare("UPDATE email_reminders SET last_sent=NULL WHERE user_id=?").bind(uid).run();
+  // Played the last two days, not today: the streak of 2 is at stake.
+  await play(2);
+  let r=await R.sendReminders(env,now);assert.equal(r.sent,1);assert.equal(sent.length,1);
+  const mail=sent[0].b;assert.deepEqual(mail.to,['streaky@example.test']);assert.match(mail.text,/2 dagen/,'the streak mail names the streak');assert.match(mail.text,/unsubscribe\?token=/);
+  assert.ok(mail.headers['List-Unsubscribe'].includes('/api/reminders/unsubscribe?token='));assert.equal(mail.headers['List-Unsubscribe-Post'],'List-Unsubscribe=One-Click');
+  assert.doesNotMatch(mail.text+mail.html,/\bzes\b|\bsix\b/,'no number of games');
+  // Once a day: a second run sends nothing.
+  assert.equal((await R.sendReminders(env,now)).sent,0);assert.equal(sent.length,1);
+  // Played today: nothing tomorrow-morning style rerun either.
+  await db.prepare("UPDATE email_reminders SET last_sent=NULL WHERE user_id=?").bind(uid).run();await play(0);
+  assert.equal((await R.sendReminders(env,now)).sent,0,'already played today');
+  // The unsubscribe link: one tap turns it off, and works only once.
+  const token=mail.text.match(/token=([0-9a-f-]+)/)[1];
+  const off=await mf.dispatchFetch(origin+'/api/reminders/unsubscribe?token='+token,{redirect:'manual'});assert.equal(off.status,302);assert.match(off.headers.get('Location'),/reminder=off/);
+  assert.equal((await db.prepare('SELECT enabled FROM email_reminders WHERE user_id=?').bind(uid).first()).enabled,0);
+  const again=await mf.dispatchFetch(origin+'/api/reminders/unsubscribe?token='+token,{redirect:'manual'});assert.match(again.headers.get('Location'),/reminder=expired/);
+  // One-click POST from a mail app (no Origin header) works too.
+  await R.setReminder(env,await user(),{on:true});await db.prepare('DELETE FROM daily_scores WHERE user_id=? AND date=?').bind(uid,day(0)).run();await db.prepare("UPDATE email_reminders SET last_sent=NULL WHERE user_id=?").bind(uid).run();
+  await R.sendReminders(env,now);const t2=sent.at(-1).b.text.match(/token=([0-9a-f-]+)/)[1];
+  assert.equal((await mf.dispatchFetch(origin+'/api/reminders/unsubscribe?token='+t2,{method:'POST'})).status,200);
+  assert.equal((await db.prepare('SELECT enabled FROM email_reminders WHERE user_id=?').bind(uid).first()).enabled,0);
+  // Counted per day for /admin, and in the export.
+  assert.ok(Number((await db.prepare('SELECT sent FROM email_reminder_log WHERE day=?').bind(day(0)).first()).sent)>=2);
+  assert.ok(Array.isArray((await request(c,'/export')).data.emailReminder));
+ } finally { globalThis.fetch=realFetch; }
+});

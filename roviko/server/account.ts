@@ -11,12 +11,12 @@ import { welcomeMail, mailLocale } from './welcome-mail';
 const HOUR = 3600000;
 export function mailEnabled(env: Env) { return !!env.RESEND_API_KEY; }
 
-async function sendMail(env: Env, to: string, subject: string, text: string, html?: string) {
+export async function sendMail(env: Env, to: string, subject: string, text: string, html?: string, headers?: Record<string, string>) {
   if (!env.RESEND_API_KEY) throw new AppError('MAIL_UNAVAILABLE', 503);
   const r = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + env.RESEND_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: env.MAIL_FROM ?? 'Roviko <hello@roviko.app>', to: [to], subject, text, ...(html ? { html } : {}) }),
+    body: JSON.stringify({ from: env.MAIL_FROM ?? 'Roviko <hello@roviko.app>', to: [to], subject, text, ...(html ? { html } : {}), ...(headers ? { headers } : {}) }),
   });
   if (!r.ok) throw new AppError('MAIL_FAILED', 502);
 }

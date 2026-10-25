@@ -42,8 +42,8 @@ export function StreakMoment({ open, date, streak, week, shieldIn, shields, t, o
       {offer.show && <div className={'sm-remind is-' + offer.state} aria-live="polite">
         <Bell size={18} aria-hidden="true"/>
         {offer.state === 'ask'
-          ? <><p>{t('remindOfferCopy')}</p><span><button className="btn secondary" onClick={() => offer.accept(t, true, streak)}>{t('remindOfferYes')}</button><button className="text-link" onClick={offer.decline}>{t('remindOfferNo')}</button></span></>
-          : <p>{t(offer.state === 'on' ? 'remindOfferOn' : offer.state === 'denied' ? 'reminderDenied' : 'remindOfferLater')}</p>}
+          ? <><p>{t(offer.kind === 'email' ? 'remindMailCopy' : 'remindOfferCopy')}</p><span><button className="btn secondary" onClick={() => offer.accept(t, true, streak)}>{t('remindOfferYes')}</button><button className="text-link" onClick={offer.decline}>{t('remindOfferNo')}</button></span></>
+          : <p>{t(offer.state === 'on' ? (offer.kind === 'email' ? 'remindMailOn' : 'remindOfferOn') : offer.state === 'denied' ? (offer.kind === 'email' ? 'remindMailFailed' : 'reminderDenied') : 'remindOfferLater')}</p>}
       </div>}
       <button className="btn primary btn-lg" onClick={onClose} autoFocus>{t('smContinue')}<ArrowRight size={18} aria-hidden="true"/></button>
     </DialogContent>

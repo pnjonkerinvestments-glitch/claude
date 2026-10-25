@@ -1,4 +1,6 @@
 import { handleApi } from '../server/api';
+import { sendReminders } from '../server/reminders';
+import { appLinks } from '../server/app-links';
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
@@ -6,6 +8,8 @@ import handler from "vinext/server/app-router-entry";
 interface Env {
   ASSETS: Fetcher;
   DB: D1Database;
+  APPLE_TEAM_ID?: string;
+  ANDROID_CERT_SHA256?: string;
   IMAGES: {
     input(stream: ReadableStream): {
       transform(options: Record<string, unknown>): {
@@ -48,6 +52,10 @@ const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     return secure(await route(request, env, ctx));
   },
+  /** 1.51: the Cron Trigger in wrangler.cloudflare.jsonc (17:00 UTC) sends the opt-in reminder mails (server/reminders.ts). */
+  async scheduled(_event: unknown, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(sendReminders(env as any).then(r => console.log('reminders', JSON.stringify(r))).catch(e => console.error('reminders failed', e)));
+  },
 };
 
 async function route(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -58,6 +66,9 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+paths.map(p=>'<url><loc>https://roviko.app'+p+'</loc></url>').join('')+'</urlset>',{headers:{'Content-Type':'application/xml; charset=utf-8','Cache-Control':'public,max-age=3600'}});
     }
     if (url.pathname.startsWith("/api/")) return handleApi(request, env as any, ctx);
+    // 1.51: universal links (iPhone) and app links (Android), so roviko.app links from emails open in the app.
+    // The ids come from the deploy (GitHub secrets APPLE_TEAM_ID and ANDROID_CERT_SHA256); without them: 404.
+    if (url.pathname === "/.well-known/apple-app-site-association" || url.pathname === "/.well-known/assetlinks.json") return appLinks(url.pathname, env);
 
     if (url.pathname === "/_vinext/image") {
       const allowedWidths = [...DEFAULT_DEVICE_SIZES, ...DEFAULT_IMAGE_SIZES];

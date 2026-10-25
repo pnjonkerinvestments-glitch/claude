@@ -25,7 +25,12 @@ npx wrangler d1 migrations apply roviko-db --remote -c "$config"
 echo "== 4/4 Deployen"
 commit="$(git rev-parse --short HEAD)"
 version="$(node -e "console.log(require('./EXPORT_MANIFEST.json').website_version)" 2>/dev/null || echo onbekend)"
-npx wrangler deploy -c "$config" --message "Roviko ${version} (${commit})"
+# 1.51: the ids for universal links / app links (not secret, but kept out of the public repo as GitHub secrets).
+vars=()
+if [ -n "${APPLE_TEAM_ID:-}" ]; then vars+=(--var "APPLE_TEAM_ID:${APPLE_TEAM_ID}"); fi
+# The fingerprint goes without colons (wrangler reads --var as KEY:VALUE); the worker puts them back.
+if [ -n "${ANDROID_CERT_SHA256:-}" ]; then vars+=(--var "ANDROID_CERT_SHA256:$(printf %s "$ANDROID_CERT_SHA256" | tr -d ': ')"); fi
+npx wrangler deploy -c "$config" --message "Roviko ${version} (${commit})" "${vars[@]}"
 
 echo
 echo "Klaar: https://roviko.app (ook op https://roviko.pnjonkerinvestments.workers.dev)"

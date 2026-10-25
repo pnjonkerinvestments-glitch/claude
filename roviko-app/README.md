@@ -80,3 +80,10 @@ npx cap sync          # config en plugins naar iOS/Android kopiëren
 npx cap open android  # openen in Android Studio
 npx cap open ios      # openen in Xcode (alleen op een Mac)
 ```
+
+## Links openen de app (1.51)
+
+roviko.app-links (herinneringsmails, e-mailbevestiging, gedeelde uitdagingen) openen de app als die op het toestel staat.
+- iOS: `ios/App/App/App.entitlements` (`applinks:roviko.app`). De workflow zet de entitlements in het archief vóór het exporteren. Staat "Associated Domains" niet aan bij de App ID `com.roviko.app` (developer.apple.com → Identifiers), zet die dan eenmalig aan.
+- Android: intent-filter met `autoVerify` in `AndroidManifest.xml`. De website moet de vingerafdruk van de app-ondertekeningssleutel kennen: GitHub-secret `ANDROID_CERT_SHA256` (Play Console → App-integriteit → App-ondertekening → SHA-256).
+- De website serveert `/.well-known/apple-app-site-association` en `/.well-known/assetlinks.json` (`roviko/server/app-links.ts`).

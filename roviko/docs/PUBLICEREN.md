@@ -137,3 +137,7 @@ Zo is het gedaan, met akkoord van de eigenaar:
 verwijderen en de DNS-records van roviko.app terugzetten volgens de schermafdruk die de
 eigenaar vóór de overstap heeft gemaakt. Spelresultaten die intussen op Cloudflare zijn
 gemaakt, gaan dan niet mee.
+
+## Cron-trigger (sinds 1.51)
+
+`wrangler.cloudflare.jsonc` heeft één cron-trigger: `0 17 * * *` (elke dag 17:00 UTC). Die verstuurt de herinneringsmails die spelers zelf aanzetten (`server/reminders.ts`). Zonder `RESEND_API_KEY` doet hij niets; de preview-workflow haalt de trigger weg, zodat de testlink nooit mailt. Wat er gebeurde staat in de logs van de worker (`reminders {...}`) en als telling op `/admin`. Uitzetten: zet `"crons": []` terug en publiceer opnieuw.

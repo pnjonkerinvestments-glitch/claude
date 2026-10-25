@@ -1,3 +1,4 @@
+import { reminderState, setReminder, unsubscribe } from './reminders';
 import { changePassword, mailEnabled, requestReset, resetPassword, sendVerification, sendWelcome, verifyEmail } from './account';
 import { competitionSummary, ledgerMode } from './competition';
 import { SHAPE_FROM } from '../lib/daily-loop';
@@ -69,6 +70,10 @@ export async function handleApi(req: Request, env: Env, ctx?: {
 }): Promise<Response> {
     try {
         const url = new URL(req.url), path = url.pathname.split('/').filter(Boolean).slice(1), method = req.method;
+        // 1.51: the unsubscribe link in a reminder mail. The one-time token is the proof, so it needs no session, and the
+        // one-click POST from a mail app carries no Origin header; that is why it comes before the Origin check.
+        if (path[0] === 'reminders' && path[1] === 'unsubscribe' && (method === 'GET' || method === 'POST'))
+            return await unsubscribe(env, z.string().max(200).parse(url.searchParams.get('token') ?? ''), method);
         if (method !== 'GET')
             checkOrigin(req);
         if (path[0] === 'rooms' && path[2] === 'socket') {
@@ -228,7 +233,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'export') {
             const data = { // 1.45: everything stored about the account (GDPR art. 15 and 20).
                 appOpens: await rows(env, 'SELECT day,platform FROM app_opens WHERE user_id=?', user.id),
-                learnProgress: await rows(env, 'SELECT data,updated_at FROM learn_progress WHERE user_id=?', user.id), streakRepairs: await rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', user.id), reviews: await rows(env, 'SELECT * FROM learning_reviews WHERE user_id=?', user.id), conceptPerformance: await rows(env, 'SELECT * FROM concept_performance WHERE user_id=?', user.id), blocks: await rows(env, 'SELECT blocked_id,created_at FROM player_blocks WHERE blocker_id=?', user.id), playerReports: await rows(env, 'SELECT reported_id,reason,created_at FROM player_reports WHERE reporter_id=?', user.id), invites: await rows(env, 'SELECT room_code,from_id,to_id,status,created_at FROM room_invites WHERE from_id=? OR to_id=?', user.id, user.id), luciaInvites: await rows(env, 'SELECT added_at,last_day,noes,stopped FROM lucia_friends WHERE user_id=?', user.id),
+                learnProgress: await rows(env, 'SELECT data,updated_at FROM learn_progress WHERE user_id=?', user.id), streakRepairs: await rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', user.id), reviews: await rows(env, 'SELECT * FROM learning_reviews WHERE user_id=?', user.id), conceptPerformance: await rows(env, 'SELECT * FROM concept_performance WHERE user_id=?', user.id), blocks: await rows(env, 'SELECT blocked_id,created_at FROM player_blocks WHERE blocker_id=?', user.id), playerReports: await rows(env, 'SELECT reported_id,reason,created_at FROM player_reports WHERE reporter_id=?', user.id), invites: await rows(env, 'SELECT room_code,from_id,to_id,status,created_at FROM room_invites WHERE from_id=? OR to_id=?', user.id, user.id), luciaInvites: await rows(env, 'SELECT added_at,last_day,noes,stopped FROM lucia_friends WHERE user_id=?', user.id), emailReminder: await rows(env, 'SELECT enabled,locale,last_sent,updated_at FROM email_reminders WHERE user_id=?', user.id),
                 dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), leagues:await rows(env,'SELECT week,tier,group_no,joined_at FROM league_members WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
             return json(data, 200, { 'Content-Disposition': 'attachment; filename="roviko-account.json"' });
         }
@@ -427,6 +432,11 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 throw new AppError('REQUEST_EXISTS', 409);
             return json({ ok: true });
         }
+        // 1.51: the daily reminder by email, for website players with a confirmed address.
+        if (path[0] === 'reminders' && path[1] === 'email' && method === 'GET')
+            return json(await reminderState(env, user!));
+        if (path[0] === 'reminders' && path[1] === 'email' && method === 'POST')
+            return json(await setReminder(env, user!, await body(req)));
         if (path[0] === 'admin' && path[1] === 'growth' && method === 'GET') {
             admin(env, user);
             // 1.49: the growth dashboard (owner only): aggregated counts, no names or emails.
