@@ -25,3 +25,12 @@
 .rank-own-total{margin:8px 2px 0;font-size:.875rem}
 
 .gd-funnel b small{font-weight:600;color:var(--t-soft,#5b6660);margin-left:4px}
+
+/* 1.50 (the owner's choice): every secondary button is a soft light-green pill instead of a white pill with a dark
+   outline, like the "On with your day" tile. Same mint as the tile; a step darker on hover and when pressed. On a
+   mint surface (the reminder offer) the button turns white so it stays visible. */
+.btn.secondary,.secondary.btn{background:var(--t-mint)!important;color:var(--t-mint-ink)!important;border:0!important;box-shadow:none!important}
+@media (hover:hover){.btn.secondary:hover:not(:disabled){background:var(--t-mint-2)!important}}
+.btn.secondary:active:not(:disabled){background:var(--t-mint-2)!important}
+.btn.secondary:focus-visible{outline:3px solid var(--t-right)!important;outline-offset:2px}
+.streak-moment .sm-remind .btn.secondary{background:#fff!important}
