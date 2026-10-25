@@ -169,8 +169,8 @@ test('friends and invites show the level next to the name; sign-up stores the ch
  assert.equal(friend.level,2,'3,000 daily points = 300 XP = level 2');
  const choices=(await request(a.cookie,'/friends')).data.friends;assert.ok(choices.every(f=>f.user_id===LUCIA||typeof f.level==='number'));
 });
-test('friend privacy and request authorization',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Friend A',email:'friend-a@example.test',password:'Synthetic-friend-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Friend B',email:'friend-b@example.test',password:'Synthetic-friend-password-B'});const req=await request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode});assert.equal(req.status,200);const requests=(await request(bb.cookie,'/friends')).data.friends;assert.equal(requests.length,1);assert.equal((await request(aa.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,200);assert.equal((await request(aa.cookie,'/friends')).data.friends[0].status,'accepted');});
-test('opposite friend requests are unique and a block cannot be undone by the other player',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Pair A',email:'pair-a@example.test',password:'Synthetic-pair-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Pair B',email:'pair-b@example.test',password:'Synthetic-pair-password-B'});const results=await Promise.all([request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode}),request(bb.cookie,'/friends','POST',{code:aa.data.user.friendCode})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);const list=(await request(aa.cookie,'/friends')).data.friends;assert.equal(list.length,1);assert.equal((await request(aa.cookie,'/friends/'+list[0].id,'POST',{status:'blocked'})).status,200);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'rejected'})).status,403);});
+test('friend privacy and request authorization',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Friend A',email:'friend-a@example.test',password:'Synthetic-friend-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Friend B',email:'friend-b@example.test',password:'Synthetic-friend-password-B'});const req=await request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode});assert.equal(req.status,200);const requests=(await request(bb.cookie,'/friends')).data.friends.filter(f=>!f.user_id.startsWith('cafe1c1a'));assert.equal(requests.length,1);assert.equal((await request(aa.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+requests[0].id,'POST',{status:'accepted'})).status,200);assert.equal((await request(aa.cookie,'/friends')).data.friends.find(f=>f.user_id===bb.data.user.id).status,'accepted');});
+test('opposite friend requests are unique and a block cannot be undone by the other player',async()=>{const a=await bootstrap(),b=await bootstrap();const aa=await request(a.cookie,'/auth/signup','POST',{name:'Pair A',email:'pair-a@example.test',password:'Synthetic-pair-password-A'}),bb=await request(b.cookie,'/auth/signup','POST',{name:'Pair B',email:'pair-b@example.test',password:'Synthetic-pair-password-B'});const results=await Promise.all([request(aa.cookie,'/friends','POST',{code:bb.data.user.friendCode}),request(bb.cookie,'/friends','POST',{code:aa.data.user.friendCode})]);assert.deepEqual(results.map(r=>r.status).sort(),[200,409]);const list=(await request(aa.cookie,'/friends')).data.friends.filter(f=>!f.user_id.startsWith('cafe1c1a'));assert.equal(list.length,1);assert.equal((await request(aa.cookie,'/friends/'+list[0].id,'POST',{status:'blocked'})).status,200);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'accepted'})).status,403);assert.equal((await request(bb.cookie,'/friends/'+list[0].id,'POST',{status:'rejected'})).status,403);});
 test('cross-origin mutation, injection and name validation',async()=>{const a=await bootstrap();const response=await mf.dispatchFetch(origin+'/api/rooms',{method:'POST',headers:{Cookie:a.cookie,Origin:'https://untrusted.test','Content-Type':'application/json'},body:JSON.stringify({settings})});assert.equal(response.status,403);assert.equal((await request(a.cookie,"/rooms/';DROP")).status,400);assert.equal((await request(a.cookie,'/profile','PATCH',{name:'<img src=x>',avatar:0,discoverable:true})).status,400);});
 
 
@@ -431,7 +431,7 @@ test('official Clue Trail reveals paid hints in order, keeps flags private, scor
  g=writes.find(x=>x.status===200).data;assert.equal(g.feedback.points,50);assert.equal(g.feedback.cluesUsed,4);
  g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;g=await finishCompetitionSolo(a,g,(q,round)=>round===1?q.options.find(o=>o.id!==q.correct).id:q.correct);
  assert.equal(g.score,650);assert.equal(g.answers[1].points,0);assert.equal(g.answers[1].cluesUsed,1);
- const standings=(await request(a.cookie,'/competition?mode=trail')).data;assert.equal(standings.game.score,650);assert.equal(standings.today.score,650);assert.equal(standings.total.score,650);assert.equal(standings.game.place,1);
+ const standings=(await request(a.cookie,'/competition?mode=trail')).data;assert.equal(standings.game.score,650);assert.equal(standings.today.score,650);assert.equal(standings.total.score,650);assert.equal(standings.month.score,650,'this month (1.50)');assert.equal(standings.monthStart,standings.date.slice(0,8)+'01');assert.equal(standings.game.place,1);
  for(let i=0;i<2;i++){assert.equal((await request(a.cookie,'/games','POST',create)).data.id,g.id);await request(a.cookie,'/games/'+g.id);}
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE user_id=?').bind(a.data.user.id).first()).n,1);
  const fresh=(await request(b.cookie,'/games','POST',create)).data;assert.equal(fresh.question.id,s.questions[0].id);assert.equal(fresh.question.clues.length,1);
@@ -797,27 +797,56 @@ test('passwords need 8 characters; an account renames at most once per 30 days, 
  assert.equal((await request(cookie,'/profile','PATCH',{name:'Pietje Two',avatar:3,discoverable:false})).data.error,'NAME_LOCKED');
 });
 
-test('Lucia 👽: added by friend code, accepts after a minute, always online, invites her online friends into her own room and joins yours (1.30)',async()=>{
- const g=await bootstrap();const me=await request(g.cookie,'/auth/signup','POST',{email:'lucia-friend@example.test',password:'Friendly8',name:'Lucia Fan'});const cookie=me.cookie??g.cookie;
- assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'not a friend yet: no invite');
- assert.equal((await request(cookie,'/friends','POST',{code:'CAFE1C1A'})).status,200);
- const lucia=(await request(cookie,'/friends')).data.friends.find(f=>f.user_id==='cafe1c1a-0000-4000-8000-000000000001');
- assert.ok(lucia,'Lucia is in the friend list');assert.equal(lucia.status,'pending','she takes a minute');assert.equal(lucia.online,0);
- assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'no invite before she accepted');
- await db.prepare('UPDATE friend_requests SET created_at=? WHERE to_id=?').bind(Date.now()-61000,'cafe1c1a-0000-4000-8000-000000000001').run();
- const accepted=(await request(cookie,'/friends')).data.friends.find(f=>f.user_id==='cafe1c1a-0000-4000-8000-000000000001');lucia.status=accepted.status;lucia.online=accepted.online;
- assert.equal(lucia.status,'accepted','after a minute she accepts');assert.equal(lucia.online,1);assert.equal(lucia.name,'Lucia 👽');
+test('Lucia 👽: every account has her as a friend (1.50), she invites 30 s after you came online, once a day, stops after two noes, and joins your room',async()=>{
+ const L='cafe1c1a-0000-4000-8000-000000000001';
+ const guest=await bootstrap();assert.equal((await request(guest.cookie,'/presence','POST',{})).data.invites.length,0,'guests get nothing');
+ const g=await bootstrap();const me=await request(g.cookie,'/auth/signup','POST',{email:'lucia-friend@example.test',password:'Friendly8',name:'Lucia Fan'});const cookie=me.cookie??g.cookie;const uid=me.data.user.id;
+ const lucia=(await request(cookie,'/friends')).data.friends.find(f=>f.user_id===L);
+ assert.ok(lucia,'Lucia is in the friend list straight away');assert.equal(lucia.status,'accepted');assert.equal(lucia.online,1);assert.equal(lucia.name,'Lucia 👽');
+ assert.equal((await request(cookie,'/friends','POST',{code:'CAFE1C1A'})).status,200,'adding her again is fine');assert.equal((await request(cookie,'/friends')).data.friends.filter(f=>f.user_id===L).length,1,'and she is there once');
+ assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'not in the first 30 seconds');
+ const ago=async ms=>db.prepare('UPDATE lucia_friends SET online_since=? WHERE user_id=?').bind(Date.now()-ms,uid).run();
+ await ago(31000);
  assert.equal((await request(cookie,'/presence','POST',{playing:true})).data.invites.length,0,'never during a game');
- const inbox=(await request(cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].name,'Lucia 👽');
+ const inbox=(await request(cookie,'/presence','POST',{})).data.invites;assert.equal(inbox.length,1);assert.equal(inbox[0].name,'Lucia 👽');assert.equal(inbox[0].bot,true);
  assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,1,'one invite, not a new one every check');
- const code=inbox[0].code;let room=(await request(cookie,'/rooms/'+code)).status;assert.equal(room,403,'not in her room before joining');
- const joined=(await request(cookie,'/rooms/'+code+'/join','POST',{})).data;
- assert.equal(joined.host,'cafe1c1a-0000-4000-8000-000000000001','Lucia hosts');assert.equal(joined.phase,'countdown','the match starts as soon as you join');
- assert.equal(joined.settings.count,15);assert.equal(joined.settings.difficulty,'medium');
- assert.ok(joined.players.find(p=>p.name==='Lucia 👽'&&p.bot&&p.level==='medium'));
+ // Day 1: a no. She does not ask again that day.
+ assert.equal((await request(cookie,'/invites/'+inbox[0].id,'POST',{status:'dismissed'})).status,200);
+ assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'after a no: quiet for the rest of the day');
+ // Day 2: back after a while away, so the 30 seconds start again; then a new invite, and a second no.
+ const yesterday=async()=>db.prepare("UPDATE lucia_friends SET last_day='2000-01-01' WHERE user_id=?").bind(uid).run();
+ await yesterday();await db.prepare('UPDATE user_presence SET last_seen=? WHERE user_id=?').bind(Date.now()-10*60000,uid).run();
+ assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'a new visit waits 30 seconds again');
+ await ago(31000);const day2=(await request(cookie,'/presence','POST',{})).data.invites;assert.equal(day2.length,1,'the next day she asks once more');
+ await request(cookie,'/invites/'+day2[0].id,'POST',{status:'dismissed'});
+ // Day 3: two noes in a row, so she never invites this player again.
+ await yesterday();await ago(31000);assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'two noes: no more invites');
+ assert.equal((await db.prepare('SELECT stopped FROM lucia_friends WHERE user_id=?').bind(uid).first()).stopped,1);
+ await yesterday();await ago(31000);assert.equal((await request(cookie,'/presence','POST',{})).data.invites.length,0,'still nothing on later days');
+ // A yes resets the count: another player says yes on day 1, ignores day 2, and still gets day 3.
+ const h=await bootstrap();const two=await request(h.cookie,'/auth/signup','POST',{email:'lucia-yes@example.test',password:'Friendly8',name:'Lucia Yes'});const c2=two.cookie;const u2=two.data.user.id;
+ await request(c2,'/presence','POST',{});const since=async ms=>db.prepare('UPDATE lucia_friends SET online_since=? WHERE user_id=?').bind(Date.now()-ms,u2).run();const prev=async()=>db.prepare("UPDATE lucia_friends SET last_day='2000-01-01' WHERE user_id=?").bind(u2).run();
+ await since(31000);const yes=(await request(c2,'/presence','POST',{})).data.invites[0];const code=yes.code;
+ const joined=(await request(c2,'/rooms/'+code+'/join','POST',{})).data;await request(c2,'/invites/'+yes.id,'POST',{status:'accepted'});
+ assert.equal(joined.host,L,'Lucia hosts');assert.equal(joined.phase,'countdown','the match starts as soon as you join');
+ assert.equal(joined.settings.count,15);assert.equal(joined.settings.difficulty,'medium');assert.ok(joined.players.find(p=>p.name==='Lucia 👽'&&p.bot&&p.level==='medium'));
+ await prev();await since(31000);assert.equal((await request(c2,'/presence','POST',{})).data.invites.length,1,'day 2 after a yes');
+ await prev();await since(31000);assert.equal((await request(c2,'/presence','POST',{})).data.invites.length,1,'one unanswered invite is only one no');
+ await prev();await since(31000);assert.equal((await request(c2,'/presence','POST',{})).data.invites.length,0,'two unanswered invites in a row count as two noes');
+ // Ending the friendship sticks (she is not added back), and asking her back works and starts her invites over.
+ const f=(await request(c2,'/friends')).data.friends.find(x=>x.user_id===L);assert.equal((await request(c2,'/friends/'+f.id,'POST',{status:'rejected'})).status,200);
+ await request(c2,'/presence','POST',{});assert.equal((await request(c2,'/friends')).data.friends.find(x=>x.user_id===L),undefined,'removed stays removed');
+ assert.equal((await request(c2,'/friends','POST',{name:'lucia'})).status,200,'she can be asked back');
+ assert.equal((await db.prepare('SELECT stopped FROM lucia_friends WHERE user_id=?').bind(u2).first()).stopped,0);
+ // Inviting Lucia into your own room: she joins at once and you stay host.
  const own=(await request(cookie,'/rooms','POST',{settings})).data;
- assert.equal((await request(cookie,'/rooms/'+own.code+'/invite','POST',{friendId:'cafe1c1a-0000-4000-8000-000000000001'})).status,200);
- const mine=(await request(cookie,'/rooms/'+own.code)).data;assert.equal(mine.host,me.data.user.id,'you stay host of your own room');assert.ok(mine.players.some(p=>p.name==='Lucia 👽'&&p.bot),'she joins your room at once');
+ assert.equal((await request(cookie,'/rooms/'+own.code+'/invite','POST',{friendId:L})).status,200);
+ const mine=(await request(cookie,'/rooms/'+own.code)).data;assert.equal(mine.host,uid,'you stay host of your own room');assert.ok(mine.players.some(p=>p.name==='Lucia 👽'&&p.bot),'she joins your room at once');
+ // A player who blocked her never gets her back.
+ const k=await bootstrap();const three=await request(k.cookie,'/auth/signup','POST',{email:'lucia-block@example.test',password:'Friendly8',name:'Lucia Block'});
+ assert.equal((await request(three.cookie,'/players/'+L+'/block','POST',{})).status,200);await db.prepare('DELETE FROM lucia_friends WHERE user_id=?').bind(three.data.user.id).run();
+ await request(three.cookie,'/presence','POST',{});assert.equal((await request(three.cookie,'/friends')).data.friends.find(x=>x.user_id===L),undefined,'blocked: not added');
+ const exp=(await request(c2,'/export')).data;assert.ok(Array.isArray(exp.luciaInvites),'in the export');
 });
 
 test('learn progress (1.38): saved per account, merged per card (newest wins), checked, and deleted with the account',async()=>{
@@ -929,5 +958,6 @@ test('growth dashboard (1.49): owner only, records the device once a day, and co
  assert.ok(s.platforms.ios>=1,'the iPhone app player is counted');
  for(const n of [1,7,30,90]){const w=s.windows[n];assert.equal(w.accounts+w.guests,w.players);assert.ok(w.mpAccounts<=w.mpPlayers);assert.ok(w.mpSeats>=w.mpMatches);}
  assert.ok(s.windows[1].guests>=1,'guests count as players');assert.ok(s.windows[1].mpMatches>=1&&today.mpMatches>=1,'the multiplayer matches of the earlier tests are counted');assert.ok(today.accounts<=today.active);assert.ok(s.topGames.some(x=>x.game==='flags'));
+ assert.ok(s.funnel&&s.funnel.modes.length>=5&&s.funnel.steps.every(v=>v<=s.funnel.players)&&s.funnel.all<=s.funnel.players,'the day-1 funnel (1.50)');
  assert.ok(!JSON.stringify(s).includes(a.data.user.id),'no player ids in the numbers');
 });

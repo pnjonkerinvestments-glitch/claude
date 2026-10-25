@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { RefreshCw, Table2, LineChart } from 'lucide-react';
 import { api } from '@/lib/client';
 import type { GrowthDay, GrowthWindow, Platform } from '@/lib/growth';
+import { dailyTitleKey } from '../atelier/DailyLoop';
 
 /**
  * 1.49 · growth dashboard on /admin (owner only). Live numbers from the database each time it opens:
@@ -18,6 +19,7 @@ type Growth = {
   platforms: { ios: number; android: number; web: number };
   returns: { day2: number | null; day2Cohort: number; week: number | null; weekCohort: number };
   topGames: { game: string; n: number }[];
+  funnel?: { players: number; steps: number[]; all: number; modes: string[] };
 };
 const PLATFORMS: { key: Platform; color: string }[] = [
   { key: 'web', color: '#2a78d6' }, { key: 'ios', color: '#eb6834' }, { key: 'android', color: '#1baf7a' }, { key: 'unknown', color: '#b9b6ab' },
@@ -76,6 +78,7 @@ export function GrowthDashboard({ t, locale }: { t: (k: string) => string; local
         <Card title={t('gdChartTime')}><Bars days={view.cur} value={d => d.minutes} unit={t('gdMin')} t={t} n={n} locale={locale}/></Card>
         <Card title={t('gdChartMp')}><Bars days={view.cur} value={d => d.mpMatches} unit={t('gdMpUnit')} t={t} n={n} locale={locale} extra={d => <span>{n(d.mpPlayers)} {t('gdPlayersUnit')}</span>}/></Card>
         <Card title={t('gdChartTop').replace('{n}', String(period))}><TopGames rows={data.topGames} t={t} n={n}/></Card>
+        {data.funnel && <Card title={t('gdFunnel')}><Funnel funnel={data.funnel} t={t} n={n}/></Card>}
       </div>}
       <p className="gd-note muted">{t('gdNote')}</p>
     </>}
@@ -146,6 +149,12 @@ function TopGames({ rows, t, n }: { rows: { game: string; n: number }[]; t: (k: 
   const max = Math.max(1, ...rows.map(r => r.n));
   const name = (g: string) => { const [a, b] = g.split(' '); const base = t(a === 'daily' && b ? 'gdDailyPrefix' : a === 'bonus' ? 'gdBonusPrefix' : a === 'survival' ? 'gdSurvivalPrefix' : a === 'rank' ? 'rankRadar' : a); return b ? base + ' · ' + t(b) : base; };
   return rows.length ? <ul className="gd-top">{rows.map(r => <li key={r.game}><span className="gd-top-name">{name(r.game)}</span><span className="gd-top-bar"><i style={{ width: (r.n / max * 100) + '%' }}/></span><b>{n(r.n)}</b></li>)}</ul> : <p className="muted">{t('gdEmpty')}</p>;
+}
+/** 1.50: of the new players of the last 30 days, how many finished each daily game of their first day, in the day's order. */
+function Funnel({ funnel, t, n }: { funnel: NonNullable<Growth['funnel']>; t: (k: string) => string; n: (v: number) => string }) {
+  const base = Math.max(1, funnel.players), pct = (v: number) => Math.round(v / base * 100) + '%';
+  const rows = [{ key: 'start', label: t('gdFunnelStart'), v: funnel.players }, ...funnel.modes.map((m, i) => ({ key: m, label: (i + 1) + '. ' + t(dailyTitleKey(m as any)), v: funnel.steps[i] ?? 0 })), { key: 'all', label: t('gdFunnelAll'), v: funnel.all }];
+  return funnel.players ? <><ul className="gd-top gd-funnel">{rows.map(r => <li key={r.key}><span className="gd-top-name">{r.label}</span><span className="gd-top-bar"><i style={{ width: (r.v / base * 100) + '%' }}/></span><b>{n(r.v)} <small>{pct(r.v)}</small></b></li>)}</ul><p className="gd-tile-sub">{t('gdFunnelNote')}</p></> : <p className="muted">{t('gdEmpty')}</p>;
 }
 function SeriesTable({ days, t, n }: { days: GrowthDay[]; t: (k: string) => string; n: (v: number) => string }) {
   return <div className="gd-table-wrap"><table className="gd-table"><thead><tr><th>{t('gdDate')}</th><th>{t('gdChartActive')}</th><th>{t('gdWho_accounts')}</th><th>{t('gdWho_guests')}</th><th>{t('gdNewShort')}</th><th>{t('gdPf_ios')}</th><th>{t('gdPf_android')}</th><th>{t('gdGamesShort')}</th><th>{t('gdMin')}</th><th>{t('gdMpUnit')}</th></tr></thead>

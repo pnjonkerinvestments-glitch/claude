@@ -19,6 +19,8 @@ import { TierBadge, leagueLine } from '../atelier/League';
 import { BonusTour, useBonusLaunch } from './BonusTour';
 import { SurvivalRuns } from './Survival';
 import { WelcomeTour, tourSeen } from './WelcomeTour';
+/** 1.50: "Play now" in the first-start tour goes straight to question 1, so that game's guide (HowToPlay.tsx, same key) does not open by itself; the ? stays. */
+const skipHowTo = (mode: string) => { try { localStorage.setItem('roviko:howto:' + mode, '1'); } catch { /* the guide shows once, harmless */ } };
 import { ContinentCard } from './ContinentWeek';
 import { LearnRow } from '../learn/LearnRow';
 import { StreakRepair, StreakWeek } from './StreakWeek';
@@ -82,9 +84,10 @@ export function HomePage() {
     window.addEventListener('roviko:tour', ask);
     return () => window.removeEventListener('roviko:tour', ask);
   }, []);
-  // iPhone visitors in the browser first get the app screen; the tour follows only if they stay here (1.32: the
-  // full tour on the first visit, ending on a free account for guests, instead of the one welcome card).
-  const appPrompt = useAppPrompt(!!challenge);
+  // 1.32: the full tour on the first visit, ending on a free account for guests. 1.50 (the owner's choice): nothing
+  // stands between a new visitor and question 1, so iPhone visitors in the browser see the app screen only once
+  // their first Daily Detour is done (then the 14 quiet days as before); the Safari banner stays.
+  const appPrompt = useAppPrompt(!!challenge || !ready || detour !== 'done');
   // A friend's challenge already gives the one next step, so the tour waits for a later visit.
   useEffect(() => { if (appPrompt.decided && !appPrompt.open && firstVisit && !challenge && !tourSeen()) setTourOpen(true); }, [firstVisit, challenge, appPrompt.decided, appPrompt.open]);
   const pointsToday = competition?.today.score ?? 0;
@@ -199,7 +202,7 @@ export function HomePage() {
     </aside>
 
     <AppPrompt open={appPrompt.open} onClose={appPrompt.close} t={t}/>
-    <WelcomeTour open={tourOpen} onOpenChange={setTourOpen} guest={!!boot.user.guest} t={t} onStart={() => { if (upNext) open(upNext); }} onSignup={() => app.setModal('signup')} onLogin={() => app.setModal('login')}/>
+    <WelcomeTour open={tourOpen} onOpenChange={setTourOpen} guest={!!boot.user.guest} t={t} onStart={() => { if (upNext) { skipHowTo(upNext); open(upNext); } }} onSignup={() => app.setModal('signup')} onLogin={() => app.setModal('login')}/>
 
     <Dialog open={mysteryOpen} onOpenChange={setMysteryOpen}>
       <DialogContent className="app-modal mystery-modal">

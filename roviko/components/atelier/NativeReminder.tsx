@@ -9,6 +9,7 @@ type Notifications = {
   requestPermissions(): Promise<{ display: string }>;
   schedule(options: unknown): Promise<unknown>;
   cancel(options: unknown): Promise<unknown>;
+  addListener?(event: string, fn: (e: unknown) => void): Promise<{ remove(): void }> | { remove(): void };
 };
 type CapacitorGlobal = { isNativePlatform?: () => boolean; Plugins?: { LocalNotifications?: Notifications } };
 const capacitor = () => (typeof window === 'undefined' ? undefined : (window as unknown as { Capacitor?: CapacitorGlobal }).Capacitor);
@@ -45,8 +46,16 @@ export function reminderMinute(times: number[], now = new Date()) {
   const latest = (resetMinute <= 9 * 60 ? 24 * 60 : resetMinute) - 60;
   return Math.max(9 * 60, Math.min(at, latest, 22 * 60));
 }
+/**
+ * The text of the reminder on day i (1.50): on the one day the streak is really at stake (today if not played yet,
+ * else tomorrow) and the streak is 2 days or more, it names the streak; otherwise the weekday line as before.
+ */
+export function reminderText(t: (k: string) => string, i: number, at: Date, playedToday: boolean, streak: number) {
+  if (streak >= 2 && i === (playedToday ? 1 : 0)) return t('reminderStreak').replace('{n}', String(streak));
+  return t('reminder' + (at.getDay() + 1));
+}
 /** One notification per day for the next 7 days, today only if the player has not played yet. */
-export async function scheduleReminders(t: (k: string) => string, playedToday: boolean, now = new Date()) {
+export async function scheduleReminders(t: (k: string) => string, playedToday: boolean, now = new Date(), streak = 0) {
   const notifications = plugin();
   if (!notifications || !readOn()) return;
   const minute = reminderMinute(readTimes(), now);
@@ -54,22 +63,55 @@ export async function scheduleReminders(t: (k: string) => string, playedToday: b
   for (let i = 0; i < DAYS; i++) {
     const at = new Date(now); at.setDate(at.getDate() + i); at.setHours(Math.floor(minute / 60), minute % 60, 0, 0);
     if (i === 0 && (playedToday || at.getTime() < now.getTime() + 5 * 60000)) continue;
-    list.push({ id: 1101 + i, title: 'Roviko', body: t('reminder' + (at.getDay() + 1)), schedule: { at, allowWhileIdle: false } });
+    list.push({ id: 1101 + i, title: 'Roviko', body: reminderText(t, i, at, playedToday, streak), schedule: { at, allowWhileIdle: false } });
   }
   await notifications.cancel({ notifications: [...OLD_IDS, ...NEW_IDS] });
   if (list.length) await notifications.schedule({ notifications: list });
 }
-/** Keeps the reminders right whenever the app opens or a daily game is played (1.39). */
-export function useSmartReminder(t: (k: string) => string, ready: boolean, playedToday: boolean) {
+/** Keeps the reminders right whenever the app opens or a daily game is played (1.39), with the streak in the text (1.50). */
+export function useSmartReminder(t: (k: string) => string, ready: boolean, playedToday: boolean, streak = 0, open?: () => void) {
   useEffect(() => {
     if (!ready || !isApp()) return;
     if (playedToday) rememberPlayTime();
-    scheduleReminders(t, playedToday).catch(() => {});
-  }, [ready, playedToday]); // eslint-disable-line react-hooks/exhaustive-deps
+    scheduleReminders(t, playedToday, new Date(), streak).catch(() => {});
+  }, [ready, playedToday, streak]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 1.50: a tap on the reminder opens today's games (the home screen), wherever the app was left.
+  useEffect(() => {
+    const notifications = plugin();
+    if (!open || !isApp() || !notifications?.addListener) return;
+    let handle: { remove(): void } | undefined, gone = false;
+    Promise.resolve(notifications.addListener('localNotificationActionPerformed', () => open())).then(h => { if (gone) h.remove(); else handle = h; }).catch(() => {});
+    return () => { gone = true; handle?.remove(); };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+}
+
+const ASKS = 'roviko:reminder-asks', MAX_ASKS = 2;
+function readAsks(): { n: number; day: string } { try { const v = JSON.parse(localStorage.getItem(ASKS) ?? '{}'); return { n: Number(v.n) || 0, day: String(v.day ?? '') }; } catch { return { n: MAX_ASKS, day: '' }; } }
+/**
+ * 1.50: the app offers the reminder at the moment it makes sense, right after a daily game grew the streak, instead
+ * of only in Settings. At most twice, never twice on one day, never once it is on; a no is respected.
+ */
+export function useReminderOffer(date: string, open = true) {
+  const inApp = useSyncExternalStore(subscribe, isApp, () => false);
+  const [asks] = useState(() => typeof window === 'undefined' ? { n: MAX_ASKS, day: '' } : readAsks());
+  const [shown, setShown] = useState(false);
+  const show = shown || (open && inApp && !readOn() && asks.n < MAX_ASKS && asks.day !== date);
+  const [state, setState] = useState<'ask' | 'on' | 'denied' | 'no'>('ask');
+  useEffect(() => { if (show && !shown) { setShown(true); try { localStorage.setItem(ASKS, JSON.stringify({ n: asks.n + 1, day: date })); } catch { /* asked once more, harmless */ } } }, [show]); // eslint-disable-line react-hooks/exhaustive-deps
+  return { show, state, accept: async (t: (k: string) => string, playedToday: boolean, streak: number) => {
+    const notifications = plugin();
+    if (!notifications) return;
+    try {
+      const permission = await notifications.requestPermissions();
+      if (permission.display !== 'granted') { setState('denied'); return; }
+      writeOn(true); setState('on');
+      await scheduleReminders(t, playedToday, new Date(), streak);
+    } catch { setState('denied'); }
+  }, decline: () => setState('no') };
 }
 
 export function NativeReminder({ t }: { t: (k: string) => string }) {
-  const playedToday = !!useApp()?.boot?.stats?.dailyDone;
+  const stats = useApp()?.boot?.stats, playedToday = !!stats?.dailyDone, streak = Number(stats?.dailyStreak ?? 0);
   const inApp = useSyncExternalStore(subscribe, isApp, () => false);
   const [on, setOn] = useState(() => typeof window !== 'undefined' && readOn());
   const [busy, setBusy] = useState(false), [denied, setDenied] = useState(false);
@@ -86,7 +128,7 @@ export function NativeReminder({ t }: { t: (k: string) => string }) {
         const permission = await notifications.requestPermissions();
         if (permission.display !== 'granted') { setDenied(true); return; }
         writeOn(true); setOn(true); setDenied(false);
-        await scheduleReminders(t, playedToday);
+        await scheduleReminders(t, playedToday, new Date(), streak);
       }
     } finally { setBusy(false); }
   }

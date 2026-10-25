@@ -120,6 +120,13 @@
       "when": 1792800000000,
       "tag": "0016_app_opens",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "6",
+      "when": 1792900000000,
+      "tag": "0017_lucia_friends",
+      "breakpoints": true
     }
   ]
 }

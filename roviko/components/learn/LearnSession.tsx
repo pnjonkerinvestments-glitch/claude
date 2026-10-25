@@ -9,6 +9,7 @@ import { GameHeader } from '../game/GameHeader';
 import { useApp } from '../app/context';
 import { Medal } from './LearnPage';
 import { LearnMap, type MapMark } from './LearnMap';
+import { DayNudge } from '../atelier/DayNudge';
 import { similarFor, useCountries, useLearn, type LearnCountry } from './useLearn';
 
 type Kind = 'lesson' | 'exam' | 'review' | 'boss';
@@ -236,6 +237,7 @@ function Result({ goal, plan, firsts, before, byId, today, score, passed, onAgai
         {graded && !passed && <button className="btn primary btn-lg" onClick={onAgain}>{t('learnTryAgain')}<RotateCcw size={18} aria-hidden="true"/></button>}
         <button className={'btn btn-lg ' + (next || toBoss || (graded && !passed) ? 'secondary' : 'primary')} onClick={() => go('/learn')}>{t('learnBackRoute')}</button>
       </div>
+      <DayNudge/>
     </section>
   </div>;
 }

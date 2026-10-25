@@ -1,4 +1,5 @@
 import { handleApi } from '../server/api';
+import { BRAND } from '../lib/config';
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
@@ -70,7 +71,32 @@ async function route(request: Request, env: Env, ctx: ExecutionContext): Promise
       }, allowedWidths);
     }
 
-    return handler.fetch(request, env, ctx);
+    return cachedPage(request, () => handler.fetch(request, env, ctx), ctx);
+}
+
+/**
+ * 1.50: the HTML of a plain page visit is the same for everyone (the player's own data comes from /api afterwards),
+ * so it is kept at the edge for 5 minutes per version, which spares new visitors the render wait. Only a GET for
+ * HTML without a query string (challenge and share links keep their own metadata) and without router headers; a
+ * response that sets a cookie is never kept. The browser still gets "no-store", as before.
+ */
+const PAGE_TTL = 300;
+async function cachedPage(request: Request, render: () => Promise<Response>, ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(request.url);
+    const cache = (globalThis as any).caches?.default as Cache | undefined;
+    const plain = request.method === 'GET' && !url.search && (request.headers.get('Accept') ?? '').includes('text/html')
+        && !['RSC', 'Next-Router-State-Tree', 'Next-Router-Prefetch', 'Next-Url'].some(h => request.headers.has(h));
+    if (!cache || !plain) return render();
+    const key = new Request(url.origin + url.pathname + '?v=' + BRAND.version, { method: 'GET' });
+    const hit = await cache.match(key).catch(() => undefined);
+    if (hit) { const out = new Response(hit.body, hit); out.headers.set('Cache-Control', 'no-store, must-revalidate'); return out; }
+    const res = await render();
+    if (res.status === 200 && !res.headers.has('Set-Cookie') && (res.headers.get('Content-Type') ?? '').includes('text/html')) {
+        const copy = new Response(res.clone().body, res);
+        copy.headers.set('Cache-Control', 'public, max-age=' + PAGE_TTL);
+        ctx.waitUntil(cache.put(key, copy).catch(() => { /* rendered again next time */ }));
+    }
+    return res;
 }
 
 export default worker;

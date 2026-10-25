@@ -17,11 +17,12 @@ import { v141Messages } from './v141';
 import { v142Messages } from './v142';
 import { v143Messages } from './v143';
 import { v149Messages } from './v149';
+import { v150Messages } from './v150';
 import { spanishMessages } from './es';
 import { spanishExtras } from './es-extras';
 export type Locale = 'en' | 'nl' | 'es';
 export const messages = {
-  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es,...v135Messages.es,...v138Messages.es,...v139Messages.es,...v141Messages.es,...v142Messages.es,...v143Messages.es,...v149Messages.es},
+  es: {...spanishMessages,...spanishExtras,...competitionMessages.es,...howtoMessages.es,...questMessages.es,...redesignMessages.es,...v119Messages.es,...v120Messages.es,...v121Messages.es,...v122Messages.es,...v123Messages.es,...tripMessages.es,...v132Messages.es,...v135Messages.es,...v138Messages.es,...v139Messages.es,...v141Messages.es,...v142Messages.es,...v143Messages.es,...v149Messages.es,...v150Messages.es},
   "en": {
     ...rankMessages.en,
     ...howtoMessages.en,
@@ -656,7 +657,8 @@ export const messages = {
     ...v141Messages.en,
     ...v142Messages.en,
     ...v143Messages.en,
-    ...v149Messages.en
+    ...v149Messages.en,
+    ...v150Messages.en
   },
   "nl": {
     ...rankMessages.nl,
@@ -1292,7 +1294,8 @@ export const messages = {
     ...v141Messages.nl,
     ...v142Messages.nl,
     ...v143Messages.nl,
-    ...v149Messages.nl
+    ...v149Messages.nl,
+    ...v150Messages.nl
   }
 };
 export type MessageKey = keyof typeof messages.en;

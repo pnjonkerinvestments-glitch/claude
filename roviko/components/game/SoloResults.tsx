@@ -2,6 +2,7 @@
 import { ArrowRight, Check, RefreshCw, Share2, Sprout, Sparkles } from 'lucide-react';
 import { FinishStage } from '../ds/FinishStage';
 import { GameIcon } from '../atelier/GameIcon';
+import { DayNudge } from '../atelier/DayNudge';
 
 /**
  * The end of a practice game, a bonus game or a survival run, in the same trip style as the daily games:
@@ -24,6 +25,7 @@ export function SoloResults({ result, t, locale, onAgain, onShare, onHome, follo
             trail={answers.map((a: any) => !!a.correct)}/>
         {result.practice && <p className="results-note">{t('practiceSaved')}</p>}
         {followUp}
+        {!daily && <DayNudge/>}
         <div className="results-actions finish-actions">
             {!daily && !survival && !result.bonus && <button className="finish-quiet" onClick={onAgain}><RefreshCw size={16} aria-hidden="true"/>{t('playAgain')}</button>}
             <button className="finish-quiet" onClick={onShare}><Share2 size={16} aria-hidden="true"/>{t('share')}</button>
