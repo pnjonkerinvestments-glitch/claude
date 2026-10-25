@@ -246,7 +246,7 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
         if (row.expires_at < Date.now())
             throw new AppError('ROOM_EXPIRED', 410);
         const r: Room = JSON.parse(row.state);
-        let changed = tick(r, Date.now());
+        let changed = tick(r, Date.now()), joined = false;
         const p = user ? r.players.find(p => p.id === user.id) : null;
         if (user && action === 'join') {
             if (!p) {
@@ -261,6 +261,7 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                 if (r.players.some(x => !x.bot && blocked.has(x.id)))
                     throw new AppError('ROOM_UNAVAILABLE', 409);
                 r.players.push(player(user));
+                joined = true;
             }
             else {
                 p.lastSeen = Date.now();
@@ -438,6 +439,8 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
             r.expiresAt = Date.now() + TTL;
         const updated = await run(env, 'UPDATE multiplayer_rooms SET state=?,version=version+1,updated_at=?,expires_at=? WHERE code=? AND version=?', JSON.stringify(r), r.updatedAt, r.expiresAt, code, row.version);
         if (updated.meta.changes) {
+            // 1.54: an invite into this room has done its job once you are in, so it never pops up again after you leave.
+            if (joined && user) await run(env, "UPDATE room_invites SET status='accepted' WHERE to_id=? AND room_code=? AND status='pending'", user.id, code).catch(() => { /* the room is what matters */ });
             await saveMatch(env, r);
             return { state: r, version: row.version + 1 };
         }
@@ -481,7 +484,10 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
     busy = true; try {
         const { state, version } = await mutateRoom(env, code, null, 'get');
         if (state.kicked?.includes(user.id) && !state.players.some(p => p.id === user.id)) { send({ type: 'error', code: 'KICKED' }); close(); return; }
-        if (state.players.find(p => p.id === user.id)?.connectionToken !== connectionToken) { send({ type: 'error', code: 'DUPLICATE_SESSION' }); close(); return; }
+        // 1.54: a player who left the room is told so (quietly closed), not "open in another window".
+        const me = state.players.find(p => p.id === user.id);
+        if (!me) { send({ type: 'error', code: 'NOT_IN_ROOM' }); close(); return; }
+        if (me.connectionToken !== connectionToken) { send({ type: 'error', code: 'DUPLICATE_SESSION' }); close(); return; }
         if (version !== lastVersion || Date.now() - lastHeartbeat > 8000) {
             // Measure once per phase change, not on every update, to keep the query budget for the game itself.
             if (state.phase !== lastPhase && lastPhase === 'lobby' && state.phase === 'countdown') await measure(req, env, user, 'match_started', state.settings.mode, state.matchId);
@@ -523,7 +529,9 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
             throw new AppError('TOO_MANY_REQUESTS', 429);
         const m = JSON.parse(event.data);
         const snapshot = await one(env, 'SELECT state FROM multiplayer_rooms WHERE code=?', code);
-        if (JSON.parse(snapshot.state).players.find((p:any) => p.id === user.id)?.connectionToken !== connectionToken) throw new AppError('DUPLICATE_SESSION', 409);
+        const mine = JSON.parse(snapshot.state).players.find((p:any) => p.id === user.id);
+        if (!mine) throw new AppError('NOT_IN_ROOM', 403);
+        if (mine.connectionToken !== connectionToken) throw new AppError('DUPLICATE_SESSION', 409);
         if (!['answer', 'ready', 'ping', 'start', 'rematch', 'advance', 'nudge'].includes(m.type))
             throw new AppError('INVALID_ACTION');
         const { state, version } = await mutateRoom(env, code, user, m.type, m);

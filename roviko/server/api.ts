@@ -142,12 +142,11 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'auth' && path[1] === 'reset' && method === 'POST')
             return json(await resetPassword(req, env, await body(req)));
         if (path[0] === 'bootstrap') {
-            await ensureCatalog(env);
             const cleanup = pruneExpired(env).catch(() => { /* housekeeping never blocks a visit */ });
             if (ctx) ctx.waitUntil(cleanup); else await cleanup;
             // 1.34: the community numbers and the top players are the same for everyone, so they are kept for a minute
-            // and read at the same time as the player.
-            const [found, shared, renewed] = await Promise.all([getUser(req, env), communityNow(env), renewSession(req, env)]);
+            // and read at the same time as the player. 1.54: the catalog check (once per server instance) too.
+            const [found, shared, renewed] = await Promise.all([getUser(req, env), communityNow(env), renewSession(req, env), ensureCatalog(env)]);
             let user = found, cookie = found ? renewed : '';
             if (!user) {
                 const g = await guest(req, env);
@@ -169,11 +168,13 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             if (signup) { const welcome = sendWelcome(req, env, result.user.id, (input as any)?.locale).catch(() => ({ ok: false })); if (ctx) ctx.waitUntil(welcome); else await welcome; }
             return json({ user: result.user }, 200, { 'Set-Cookie': result.cookie });
         }
-        const user = await requireUser(req, env);
         // 1.42: the quick invite check is read-only, so it skips the rate-limit write (it runs every few seconds).
-        if (path[0] === 'invites' && path[1] === 'check' && method === 'GET')
+        const quickCheck = path[0] === 'invites' && path[1] === 'check' && method === 'GET', session = cookieValue(req);
+        // 1.54: the session lookup and the rate limit run side by side (one trip to the database instead of two). The
+        // limit counts per session, which for a player is the same as per account.
+        const [user] = await Promise.all([requireUser(req, env), quickCheck || !session ? null : limit(env, 'api:' + session, 240)]);
+        if (quickCheck)
             return json(await inviteCheck(env, user));
-        await limit(env, 'api:' + user.id, 240);
         if (path[0] === 'auth' && path[1] === 'verify' && path[2] === 'send' && method === 'POST')
             return json(await sendVerification(req, env, user));
         if (path[0] === 'auth' && path[1] === 'password' && method === 'POST')

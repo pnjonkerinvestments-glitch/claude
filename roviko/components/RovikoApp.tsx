@@ -19,7 +19,7 @@ import { Toaster, toast } from 'sonner';
 import { APP_STORE_URL, BRAND, DEFAULT_SETTINGS, MODES, QUICK_NEXT_MS, REGIONS } from '@/lib/config';
 import { dayModesFor } from '@/lib/daily-loop';
 import { messages, errorMessage, type Locale } from '@/i18n/messages';
-import { api, post, copyText, formatScore, sound, soundDefault, readPreference, writePreference, metric } from '@/lib/client';
+import { api, post, copyText, formatScore, sound, soundDefault, readPreference, writePreference, metric, earlyBoot, cachedBoot, rememberBoot } from '@/lib/client';
 import { NextDiscovery } from './atelier/NextDiscovery';
 import { DailyResult } from './atelier/DailyResult';
 import { returnDestination, navigationState } from '@/lib/navigation';
@@ -117,8 +117,10 @@ export default function RovikoApp({ initialPath = '/' }: {
     useEffect(() => { if (!sessionGone) return; setSessionGone(false); toast(t('sessionGone'), { duration: 12000, action: { label: t('signIn'), onClick: () => setModal('login') } }); }, [sessionGone, t]);
     const fail = useCallback((e: any) => toast.error(t(errorMessage(e?.message ?? ''))), [t]);
     const refresh = useCallback(() => { if (!bootRequest.current) {
-        bootRequest.current = api('/bootstrap?platform=' + appPlatform()).then(b => { setBoot(b); setSharer(b?.user?.friendCode); setBootLoaded(true); setFatal(''); if (b?.sessionExpired) setSessionGone(true); return b; }).catch((e: any) => { setFatal(e.message); }).finally(() => { bootRequest.current = null; });
+        bootRequest.current = (earlyBoot(appPlatform()) ?? api('/bootstrap?platform=' + appPlatform())).then(b => { setBoot(b); rememberBoot(b); setSharer(b?.user?.friendCode); setBootLoaded(true); setFatal(''); if (b?.sessionExpired) setSessionGone(true); return b; }).catch((e: any) => { setFatal(e.message); }).finally(() => { bootRequest.current = null; });
     } return bootRequest.current; }, []);
+    // 1.54: a returning player sees their own home (name, streak) at once; the daily data loads alongside the fresh check.
+    useEffect(() => { const known = cachedBoot(); if (known) setBoot((b: any) => b === PUBLIC_BOOT ? known : b); }, []);
     useEffect(() => { setPath(window.location.pathname); const savedRegion=readPreference('rv_region','World'); setRegionState(REGIONS.includes(savedRegion) ? savedRegion : 'World'); setMeasurement(readPreference('rv_metrics','off') === 'on'); const savedLocale=readPreference('rv_locale',deviceLocale()); setLocale(savedLocale === 'nl' || savedLocale === 'es' ? savedLocale : 'en'); setMuted(readPreference('rv_sound', soundDefault()) !== 'on'); setMusic(readPreference('rv_music', 'off') === 'on'); refresh(); const pop = () => setPath(window.location.pathname); window.addEventListener('popstate', pop); if ('serviceWorker' in navigator)
         navigator.serviceWorker.register('/sw.js').catch(() => { }); return () => window.removeEventListener('popstate', pop); }, [refresh]);
     // Roviko is always light since 1.32 (no dark mode, also not when the phone is set to dark).
@@ -365,6 +367,7 @@ function RoomScreen({ code }: {
     const channel = useRef<ReturnType<typeof createRoomClient> | null>(null);
     const hadConnectionLoss = useRef(false);
     const answerPending = useRef(false);
+    const leaving = useRef(false);
     const acknowledgement = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
     const preferences = useRef({ fail, muted });
     preferences.current = { fail, muted };
@@ -375,7 +378,7 @@ function RoomScreen({ code }: {
             join: () => post('/rooms/' + code + '/join'),
             open: () => new WebSocket(`${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/rooms/${code}/socket`),
             status: (online, reason) => { setConnected(online); setError(reason); if (reason) { hadConnectionLoss.current = true; metric('room_connection_failed','multiplayer',code); } else if (online && hadConnectionLoss.current) { metric('room_reconnected','multiplayer',code); hadConnectionLoss.current = false; } },
-            rejected: reason => { if (reason !== 'KICKED') preferences.current.fail(new Error(reason)); answerPending.current = false; setPending(false); clearTimeout(acknowledgement.current); },
+            rejected: reason => { if (reason !== 'KICKED' && !leaving.current) preferences.current.fail(new Error(reason)); answerPending.current = false; setPending(false); clearTimeout(acknowledgement.current); },
             state: (data, source) => {
                 data = withSpanish(data);
                 if (data.phase === 'reveal' && latest.current?.phase !== 'reveal')
@@ -403,13 +406,14 @@ function RoomScreen({ code }: {
         }
         acknowledgement.current = setTimeout(() => { setError('ANSWER_UNCONFIRMED'); channel.current?.retry(); }, 6000);
     };
-    const leave = async () => { try {
+    // 1.54: close this room's live connection first, so leaving never flashes a connection error or an old state.
+    const leave = async () => { if (leaving.current) return; leaving.current = true; channel.current?.stop(); try {
         await post('/rooms/' + code + '/leave');
-        go('/multiplayer');
     }
-    catch (e) {
-        fail(e);
-    } };
+    catch (e: any) {
+        // Already out of the room (or it is gone): that is what leaving wanted anyway.
+        if (!['NOT_IN_ROOM', 'ROOM_NOT_FOUND', 'ROOM_EXPIRED'].includes(e?.message)) fail(e);
+    } go('/multiplayer'); };
     if (error && (!room || error === 'KICKED'))
         return <RoomProblem code={error} onRetry={() => channel.current?.retry()}/>;
     if (!room)

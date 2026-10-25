@@ -1,0 +1,2 @@
+// 1.54: starts the first /bootstrap from the page head, before the app code loads; picked up by earlyBoot() in lib/client.ts.
+export const EARLY_BOOT_SCRIPT = "(function(){try{var c=window.Capacitor,p=c&&c.isNativePlatform&&c.isNativePlatform()?c.getPlatform():'web';if(p!=='ios'&&p!=='android')p='web';window.__rvBoot={platform:p,response:fetch('/api/bootstrap?platform='+p,{headers:{'Content-Type':'application/json'},credentials:'same-origin'}).then(function(r){return r.json().then(function(d){return{ok:r.ok,data:d}})})}}catch(e){}})();";

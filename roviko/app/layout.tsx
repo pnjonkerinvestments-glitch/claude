@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { BRAND, APP_STORE_ID } from '@/lib/config';
+import { EARLY_BOOT_SCRIPT } from '@/lib/early-boot';
 import './globals.css';
 import './revamp.css';
 import './atelier.css';
@@ -31,4 +32,4 @@ import './v153.css';
 export const metadata: Metadata = { title: BRAND.name + ' — The world is your playground', description: 'A little curiosity. A whole world of play. Play original geography games, take the daily expedition and challenge friends in live private rooms.', manifest: '/manifest.webmanifest', icons: { icon: '/favicon.png', apple: '/icon-192.png' }, itunes: { appId: APP_STORE_ID }, openGraph: { title: BRAND.name + ' — Hello, world. Let’s play.', description: 'New geography games every day, surprising country rankings and classic quizzes. Play solo or with friends.', type: 'website' } };
 export default function RootLayout({ children }: {
     children: React.ReactNode;
-}) { return <html lang="en" data-theme="light" suppressHydrationWarning><body>{children}</body></html>; }
+}) { return <html lang="en" data-theme="light" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: EARLY_BOOT_SCRIPT }}/></head><body>{children}</body></html>; }

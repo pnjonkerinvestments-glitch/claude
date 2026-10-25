@@ -71,7 +71,7 @@ function PracticeDialog({ app, mode, onClose }: { app: any; mode: 'compare' | 'm
 export function PuzzleDeck({ app, extras = false }: { app: any; dailyPage?: boolean; extras?: boolean }) {
   const { t, locale, boot, go, fail } = app;
   const { data: today, error: loadError, retry } = useToday(boot);
-  const { data: competition } = useCompetition(boot, today?.date, !!today);
+  const { data: competition } = useCompetition(boot, today?.date ?? new Date().toISOString().slice(0, 10)); // 1.54: at once, not after today's games
   const lineup = dayModesFor(today?.date);
   const [launching, setLaunching] = useState(''), lock = useRef(false);
   const [practice, setPractice] = useState<'compare' | 'mosaic' | null>(null), [mysteryOpen, setMysteryOpen] = useState(false);

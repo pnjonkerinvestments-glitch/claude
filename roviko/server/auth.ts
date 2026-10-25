@@ -36,7 +36,7 @@ export async function newSession(req: Request, env: Env, userId: string) { const
 const ADJECTIVES = ['Curious', 'Brave', 'Swift', 'Sunny', 'Clever', 'Bold', 'Calm', 'Lucky', 'Jolly', 'Nimble', 'Witty', 'Merry', 'Keen', 'Bright', 'Gentle', 'Quick'];
 const ANIMALS = ['Fox', 'Owl', 'Otter', 'Panda', 'Koala', 'Falcon', 'Dolphin', 'Lynx', 'Turtle', 'Robin', 'Heron', 'Puffin', 'Badger', 'Gecko', 'Llama', 'Hare'];
 export function guestName() { const r = crypto.getRandomValues(new Uint8Array(3)); return ADJECTIVES[r[0] % ADJECTIVES.length] + ' ' + ANIMALS[r[1] % ANIMALS.length] + ' ' + (10 + r[2] % 90); }
-export async function guest(req: Request, env: Env) { await limit(env, 'guest:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 80); const id = crypto.randomUUID(); const name = guestName(); await run(env, 'INSERT INTO users(id,name,avatar,created_at) VALUES (?,?,?,?)', id, name, 0, Date.now()); return { user: await one(env, 'SELECT * FROM users WHERE id=?', id), cookie: await newSession(req, env, id) }; }
+export async function guest(req: Request, env: Env) { await limit(env, 'guest:' + (req.headers.get('CF-Connecting-IP') ?? 'local'), 80); const id = crypto.randomUUID(); const name = guestName(); const user = await one(env, 'INSERT INTO users(id,name,avatar,created_at) VALUES (?,?,?,?) RETURNING *', id, name, 0, Date.now()); return { user, cookie: await newSession(req, env, id) }; }
 // Names are the only player text others see: allowed characters only, and the EN/NL/ES filter in lib/name-filter.ts.
 export const nameSchema = z.string().trim().min(2).max(24).refine(v => /^[\p{L}\p{N} _.-]+$/u.test(v) && nameAllowed(v), 'NAME_INVALID');
 export const passwordSchema = z.string().min(8).max(128);
