@@ -32,6 +32,8 @@ export type Player = {
     name: string;
     avatar: number;
     ready: boolean;
+    /** When the player came into this room (1.53), so Lucia gives them a moment before she asks whether they are ready. */
+    joinedAt?: number;
     /** Tapped "Run it back" on the results screen. */
     rematch?: boolean;
     lastSeen: number;
@@ -74,6 +76,8 @@ export type Room = {
     quick?: 'open' | 'matched' | 'computer';
     /** Players the host removed from the waiting room (1.25): they cannot join this room again. */
     kicked?: string[];
+    /** The host's last "Everyone ready?" (1.53). */
+    nudge?: { at: number; by: string };
 };
 export type Solo = {
     competition?: import('../lib/daily-scoring').Competition;

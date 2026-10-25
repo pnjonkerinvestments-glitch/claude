@@ -8,7 +8,7 @@ import { AppError, requireUser, checkOrigin, nameSchema } from './auth';
 import { roomCode, random } from '../lib/game-engine/scoring';
 import { nameAllowed } from '../lib/name-filter';
 import { blockedIds } from './moderation';
-import { BOT_LEVELS, BOT_NAMES, MAX_BOTS, botAnswer, botDelay, type BotLevel } from '../lib/game-engine/bots';
+import { BOT_LEVELS, BOT_NAMES, MAX_BOTS, botAnswer, botDelay, luciaAnswer, type BotLevel } from '../lib/game-engine/bots';
 import { LUCIA_ID, LUCIA_NAME, LUCIA_AVATAR, LUCIA_SETTINGS } from '../lib/lucia';
 import { generateQuestions, evaluate, publicQuestion, type Settings, type Question } from '../lib/game-engine/questions';
 import { resultStatement } from './stats';
@@ -25,7 +25,7 @@ const savedMatches = new Set<string>();
 const savingMatches = new Map<string, Promise<void>>();
 /** Names from before the 1.20 filter are shown as "Explorer" if they do not pass it. */
 const shownName = (name: string) => nameAllowed(name) ? name : 'Explorer';
-function player(u: User): Player { return { id: u.id, name: shownName(u.name), avatar: u.avatar, ready: false, lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [] }; }
+function player(u: User): Player { return { id: u.id, name: shownName(u.name), avatar: u.avatar, ready: false, joinedAt: Date.now(), lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [] }; }
 /** A computer player of the chosen level, named so two bots in one room never share a name. */
 function botPlayer(r: Room, level: BotLevel): Player {
     const taken = new Set(r.players.map(p => p.name));
@@ -34,7 +34,7 @@ function botPlayer(r: Room, level: BotLevel): Player {
 }
 /** Lucia as a room player (1.30): a medium computer player that carries her own account id, name and avatar. */
 function luciaPlayer(): Player { return { id: LUCIA_ID, name: LUCIA_NAME, avatar: LUCIA_AVATAR, ready: true, lastSeen: Date.now(), score: 0, streak: 0, bestStreak: 0, correct: 0, results: [], bot: true, level: 'medium' }; }
-/** A room Lucia hosts, for inviting one of her friends: medium, 15 questions; it starts as soon as someone joins. */
+/** A room Lucia hosts, for inviting one of her friends: medium, 15 questions; it starts once everyone there pressed Ready (1.53). */
 export async function createLuciaRoom(env: Env) { for (let i = 0; i < 8; i++) {
     const code = roomCode(), now = Date.now();
     const r: Room = { code, name: LUCIA_NAME, host: LUCIA_ID, settings: { ...LUCIA_SETTINGS } as Settings, players: [luciaPlayer()], phase: 'lobby', questions: [], round: 0, startAt: 0, deadline: 0, revealUntil: 0, matchId: crypto.randomUUID(), answers: {}, previousQuestions: [], createdAt: now, updatedAt: now, expiresAt: now + TTL, events: ['room_created'] };
@@ -53,6 +53,37 @@ export async function createRoom(env: Env, user: User, settings: Settings, quick
             throw e;
     }
 } throw new AppError('ROOM_UNAVAILABLE', 503); }
+/**
+ * Lucia's answer (1.53): she waits until every player here has answered (or the clock nearly runs out), then aims to
+ * end the round just behind the best player, sometimes just ahead. In the last round the player wins when they get it
+ * right; when they miss it, she sometimes takes the match by a whisker. Returns true once she has answered.
+ */
+function luciaTurn(r: Room, lucia: Player, now: number, active: Player[]) {
+    const people = active.filter(p => !p.bot), q = r.questions[r.round];
+    if (!people.length || !q) return false;
+    const timerMs = r.settings.timer * 1000, cutoff = r.deadline ? r.deadline - 1500 : Infinity;
+    if (!people.every(p => r.answers[p.id]) && now < cutoff) return false;
+    const after = people.map(p => { const a = r.answers[p.id], res = a ? evaluate(q, a.value, Math.max(0, a.at - r.startAt), timerMs, p.streak) : null; return { score: p.score + (res?.points ?? 0), correct: !!res?.correct }; });
+    const lead = after.reduce((a, b) => b.score > a.score ? b : a);
+    const rng = random(r.matchId + ':' + r.round + ':' + lucia.id + ':close'), last = r.round + 1 >= r.questions.length;
+    let offset: number, side: -1 | 0 | 1 = 0;
+    // Mostly just behind, in the first half now and then just ahead; from two rounds before the end she stays just behind.
+    if (r.round + 3 >= r.questions.length && !last) { offset = -(60 + 240 * rng()); side = -1; }
+    else if (!last) offset = r.round * 2 < r.questions.length && rng() < 0.25 ? 50 + 200 * rng() : -(50 + 400 * rng());
+    else if (lead.correct || rng() >= 0.45) { offset = -(80 + 320 * rng()); side = -1; }
+    else { offset = 40 + 210 * rng(); side = 1; }
+    // She may still take a moment after the last player (at most 2.5 s, so nobody waits long); her answer shows when it comes.
+    const earliest = r.startAt + 1200, latest = Math.max(earliest, r.deadline ? Math.min(r.deadline - 800, now + 2500) : now);
+    r.answers[lucia.id] = luciaAnswer(q, rng, { startAt: r.startAt, earliest, latest, timerMs, streak: lucia.streak, score: lucia.score, target: lead.score + offset, best: lead.score, side });
+    return true;
+}
+/** Lucia's room starts once every player who is here pressed "Ready" (1.53). */
+function luciaReady(r: Room, now: number) {
+    const people = r.players.filter(p => !p.bot && now - p.lastSeen < 20000);
+    return r.host === LUCIA_ID && r.phase === 'lobby' && people.length > 0 && people.every(p => p.ready);
+}
+/** Lucia taps "Everyone ready?" (1.53) when a player has waited a while without pressing Ready, then every 20 seconds. */
+export const LUCIA_NUDGE_AFTER = 12000, LUCIA_NUDGE_EVERY = 20000, NUDGE_EVERY = 10000;
 export function tick(r: Room, now: number) {
     let changed = false;
     const active = r.players.filter(p => now - p.lastSeen < 45000 || p.bot);
@@ -63,6 +94,11 @@ export function tick(r: Room, now: number) {
         changed = true;
         r.events = ['host_changed'];
     }
+    if (r.host === LUCIA_ID && r.phase === 'lobby' && now - (r.nudge?.at ?? 0) >= LUCIA_NUDGE_EVERY && active.some(p => !p.bot && !p.ready && now - p.lastSeen < 20000 && now - (p.joinedAt ?? now) >= LUCIA_NUDGE_AFTER)) {
+        r.nudge = { at: now, by: LUCIA_ID };
+        r.events = ['nudge'];
+        changed = true;
+    }
     if (r.phase === 'countdown' && now >= r.startAt) {
         r.phase = 'question';
         r.events = ['round_started'];
@@ -70,6 +106,8 @@ export function tick(r: Room, now: number) {
     }
     if (r.phase === 'question') {
         for (const p of r.players.filter(p => p.bot && !r.answers[p.id])) {
+            if (p.id === LUCIA_ID && luciaTurn(r, p, now, active)) { changed = true; continue; }
+            if (p.id === LUCIA_ID && active.some(x => !x.bot)) continue;
             // Each bot's thinking time and answer follow from the match, round and bot, so every tick agrees.
             const rng = random(r.matchId + ':' + r.round + ':' + p.id), level = p.level ?? 'medium';
             const after = botDelay(level, rng, r.settings.timer * 1000);
@@ -132,7 +170,7 @@ function upcomingFlag(r: Room) {
     return next?.flag && next.mode === 'flags' ? '/api/flag/' + encodeURIComponent(next.id) + '?v=3' : undefined;
 }
 export function roomView(r: Room, userId: string) { const p = r.players.find(p => p.id === userId); if (!p)
-    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rematch: !!p.rematch, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id], bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, preloadFlag: upcomingFlag(r), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
+    throw new AppError('NOT_IN_ROOM', 403); const reveal = r.phase === 'reveal' || r.phase === 'finished'; return { code: r.code, name: r.name, host: r.host, settings: r.settings, phase: r.phase, round: r.round, total: r.questions.length, startAt: r.startAt, deadline: r.deadline, revealUntil: r.revealUntil, answersCompleteAt: r.answersCompleteAt, matchId: r.matchId, events: r.events, serverTime: Date.now(), nudge: r.nudge && r.phase === 'lobby' && Date.now() - r.nudge.at < 8000 ? { at: r.nudge.at, by: r.nudge.by, name: r.players.find(x => x.id === r.nudge!.by)?.name ?? '' } : null, players: [...r.players].sort((a, b) => b.score - a.score).map(p => ({ id: p.id, name: p.name, avatar: p.avatar, ready: p.ready, rematch: !!p.rematch, rank: 1 + r.players.filter(x => x.score > p.score).length, connected: Date.now() - p.lastSeen < 20000 || p.bot, score: p.score, streak: p.streak, correct: p.correct, delta: p.delta, previousRank: p.previousRank, answered: !!r.answers[p.id] && r.answers[p.id].at <= Date.now(), bot: !!p.bot, ...(p.level ? { level: p.level } : {}) })), quick: r.quick ?? null, createdAt: r.createdAt, preloadFlag: upcomingFlag(r), question: r.questions[r.round] && ['question','reveal'].includes(r.phase) ? publicQuestion(r.questions[r.round],reveal) : null, feedback: reveal ? p.results[r.round] ?? null : null, results: r.phase === 'finished' ? p.results : undefined, roundAnswers: reveal && r.questions[r.round] ? roundAnswers(r, r.round) : undefined, history: r.phase === 'finished' ? r.questions.map((q, i) => ({ round: i, mode: q.mode, prompt: q.prompt, answerLabel: q.answerLabel, players: roundAnswers(r, i) })) : undefined, answered: !!r.answers[userId], score: p.score }; }
 /** Generate the private questions and start the countdown for everyone in the room. */
 async function startMatch(env: Env, r: Room) {
     const disabled = (await rows(env, 'SELECT question_id FROM disabled_questions')).map((d: any) => d.question_id);
@@ -231,8 +269,6 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
             }
             r.events = ['player_joined'];
             changed = true;
-            // Lucia's room (1.30): she is the host and never presses start, so the match begins as soon as a friend is in.
-            if (r.host === LUCIA_ID && r.phase === 'lobby' && r.players.some(x => !x.bot)) await startMatch(env, r);
         }
         else if (user && action !== 'get') {
             if (!p)
@@ -358,6 +394,16 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     r.events = ['player_left'];
                     changed = true;
                 }
+                else if (action === 'nudge') {
+                    // "Everyone ready?" (1.53): a short note from the host on every screen, at most once per 10 seconds.
+                    if (r.phase !== 'lobby')
+                        throw new AppError('MATCH_IN_PROGRESS', 409);
+                    if (Date.now() - (r.nudge?.at ?? 0) >= NUDGE_EVERY) {
+                        r.nudge = { at: Date.now(), by: user.id };
+                        r.events = ['nudge'];
+                        changed = true;
+                    }
+                }
                 else if (action === 'advance') {
                     if (r.phase !== 'question' || r.settings.timer !== 0)
                         throw new AppError('INVALID_ACTION');
@@ -379,6 +425,8 @@ export async function mutateRoom(env: Env, code: string, user: User | null, acti
                     throw new AppError('INVALID_ACTION');
             }
         }
+        // Lucia never presses start (1.30); since 1.53 her match begins once everyone here pressed Ready.
+        if (luciaReady(r, Date.now())) { await startMatch(env, r); changed = true; }
         // Re-evaluate after the last submitted answer, not only on the next heartbeat.
         changed = tick(r, Date.now()) || changed;
         if (!changed) {
@@ -476,7 +524,7 @@ export async function connectSocket(req: Request, env: Env, ctx?: {
         const m = JSON.parse(event.data);
         const snapshot = await one(env, 'SELECT state FROM multiplayer_rooms WHERE code=?', code);
         if (JSON.parse(snapshot.state).players.find((p:any) => p.id === user.id)?.connectionToken !== connectionToken) throw new AppError('DUPLICATE_SESSION', 409);
-        if (!['answer', 'ready', 'ping', 'start', 'rematch', 'advance'].includes(m.type))
+        if (!['answer', 'ready', 'ping', 'start', 'rematch', 'advance', 'nudge'].includes(m.type))
             throw new AppError('INVALID_ACTION');
         const { state, version } = await mutateRoom(env, code, user, m.type, m);
         lastVersion = version;

@@ -82,9 +82,13 @@ Friends (1.33) are added by username: an account's display name, compared withou
 
 ## Lucia 👽 (1.30)
 
-Lucia is Roviko's computer friend, always shown as "Lucia 👽". Players add her by the username "Lucia" or with friend code CAFE1C1A; nobody else can take her name; since 1.31 she accepts after about a minute, and she is always online. Invited into a room she joins as a medium computer player. She invites her online friends (not in a room or game) into a room she hosts with 15 medium questions that starts when the friend joins. Matches with her count as practice, like every match with a computer player.
+Lucia is Roviko's computer friend, always shown as "Lucia 👽". Players add her by the username "Lucia" or with friend code CAFE1C1A; nobody else can take her name; since 1.31 she accepts after about a minute, and she is always online. Invited into a room she joins as a medium computer player. She invites her online friends (not in a room or game) into a room she hosts with 15 medium questions (since 1.53 it starts when the friend presses Ready). Matches with her count as practice, like every match with a computer player.
 
 **Since 1.50 (the owner's choice):** every account has Lucia as a friend from the start (added on the first friends or presence check; a player who ended the friendship or blocked her is never re-added, and can ask her back by name). She invites at most once per UTC day, 30 seconds after the player came online (online = seen within the last 90 seconds; a new visit starts the 30 seconds again), never during a game or in a room, and never over a friend's invite. An invite without a yes (declined, or still unanswered when the next day's invite is due) counts as a no; after two noes in a row she never invites that player again. A yes resets the count. Kept per account in `lucia_friends` (migration 0017).
+
+**Since 1.53 (the owner's choice): close matches and Ready.** Lucia's room starts once every player there pressed Ready (no longer on joining). She taps "Everyone ready?" 12 seconds after a player came in who is not ready, then every 20 seconds while someone is not ready. In every match she plays, she answers after the players have (or 1.5 s before the time runs out), at most 2.5 s after the last player, and picks a right or wrong answer and a moment so that she ends the round just behind the best player (in the first half sometimes just ahead; from two rounds before the end always just behind when possible). Last round: a player who gets it right wins; a player who misses it loses to her by a little in some matches.
+
+**Host note (1.53):** in every waiting room the host can tap "Everyone ready?" while a guest is not ready; every player sees the note for six seconds. At most once per 10 seconds, only in the waiting room.
 
 ## Maps, capitals, ordering and borders
 

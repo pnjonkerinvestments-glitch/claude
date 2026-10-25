@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowRight, Check, Copy, Crown, LogOut, Pencil, Plus, Settings2, Share2, X } from 'lucide-react';
 import { BRAND } from '@/lib/config';
 import { plural } from '@/lib/plural';
@@ -11,10 +11,12 @@ import { api, post } from '@/lib/client';
 import { useApp } from '../app/context';
 import { LobbyComputer, removeComputer } from './Computer';
 import { PlayerActions } from './PlayerActions';
+import { isLucia } from '@/lib/lucia';
 
 type T = (key: string) => string;
 type Player = { id: string; name: string; avatar: number; bot?: boolean; level?: string; ready?: boolean; connected?: boolean };
-type Room = { host: string; players: Player[]; settings: { count: number; difficulty: string } & Record<string, unknown> };
+type Nudge = { at: number; by: string; name: string };
+type Room = { host: string; players: Player[]; nudge?: Nudge | null; settings: { count: number; difficulty: string } & Record<string, unknown> };
 const MAX = 12, ROUNDS = [5, 10, 15, 20], LEVELS = ['easy', 'medium', 'hard', 'mixed'];
 
 /**
@@ -39,6 +41,13 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
   const bots = room.players.filter(p => p.bot).length, full = room.players.length >= MAX;
   const empty = isHost && !full ? 1 : 0;
   const nameOf = (p: Player) => p.id === me ? t('youLabel') : p.name;
+  const shown = useNudge(room.nudge);
+  // The host's "Everyone ready?" (1.53): only while a guest has not pressed Ready, and not again within 10 seconds.
+  const waiting = room.players.some(p => !p.bot && p.id !== room.host && !p.ready && p.connected !== false);
+  const [sentAt, setSentAt] = useState(0), [, rerender] = useState(0);
+  const cooling = Date.now() - Math.max(sentAt, room.nudge?.at ?? 0) < 10000;
+  useEffect(() => { if (!cooling) return; const id = window.setTimeout(() => rerender(n => n + 1), 10000); return () => window.clearTimeout(id); }, [cooling, sentAt, room.nudge?.at]);
+  const nudge = () => { if (send('nudge')) setSentAt(Date.now()); };
 
   return <div className="room-lobby">
     <section className="lobby-card" aria-labelledby="lobby-title">
@@ -87,9 +96,11 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
       </ul>
 
       <div className="lobby-actions">
+        {shown && <p className="lobby-nudge" role="status"><GlobeAvatar id={room.players.find(p => p.id === shown.by)?.avatar ?? 0} size={30}/><span><small>{t('nudgeFrom').replace('{name}', shown.by === me ? t('youLabel') : shown.name)}</small><strong>{t('nudgeSays')}</strong></span></p>}
         {isHost
           ? <button className="btn primary btn-lg" disabled={!connected || settingsBusy} onClick={() => send('start')}>{t('startGame')}<ArrowRight size={19} aria-hidden="true"/></button>
-          : <><button className={'btn btn-lg ' + (self?.ready ? 'ready-btn' : 'primary')} disabled={!connected} onClick={() => send('ready', { ready: !self?.ready })}><Check size={18} aria-hidden="true"/>{t(self?.ready ? 'notReadyButton' : 'setReady')}</button><p className="muted">{t('waitingHost')}</p></>}
+          : <><button className={'btn btn-lg ' + (self?.ready ? 'ready-btn' : 'primary') + (shown && !self?.ready ? ' is-nudged' : '')} disabled={!connected} onClick={() => send('ready', { ready: !self?.ready })}><Check size={18} aria-hidden="true"/>{t(self?.ready ? 'notReadyButton' : 'setReady')}</button><p className="muted">{t(isLucia(room.host) ? 'luciaWaitsReady' : 'waitingHost')}</p></>}
+        {isHost && waiting && <button className="btn secondary lobby-nudge-btn" disabled={!connected || cooling} onClick={nudge}>{cooling ? t('nudgeSent') : t('nudgeButton')}</button>}
         <div className="lobby-secondary">
           <button className="btn secondary" onClick={shareCode}><Share2 size={17} aria-hidden="true"/>{t('roomShareCode').replace('{code}', code)}</button>
           <button className="btn ghost" onClick={() => copy(code)} aria-label={t('copyCode')}><Copy size={17} aria-hidden="true"/></button>
@@ -104,6 +115,18 @@ export function RoomLobby({ room, code, me, connected, settingsBusy, onSettings,
     </details>
     <p className="lobby-foot"><button className="text-link" onClick={leave}><LogOut size={15} aria-hidden="true"/>{t('leaveRoom')}</button></p>
   </div>;
+}
+
+/** The host's note stays on screen for six seconds after it was sent; a new note shows again. */
+function useNudge(nudge: Nudge | null | undefined) {
+  const [shown, setShown] = useState<Nudge | null>(null);
+  useEffect(() => {
+    if (!nudge) return;
+    setShown(nudge);
+    const id = window.setTimeout(() => setShown(null), 6000);
+    return () => window.clearTimeout(id);
+  }, [nudge?.at]); // eslint-disable-line react-hooks/exhaustive-deps
+  return shown;
 }
 
 /**

@@ -136,3 +136,22 @@ test('trail clues keep a fixed slot each, so the answers never move while clues 
  assert.equal((html.match(/<li class="is-(open|pending)"/g)||[]).length,4);assert.equal((html.match(/class="is-pending"/g)||[]).length,3);
  assert.doesNotMatch(html,/flag-stage/,'the flag is the fourth clue, not a large image that appears later');assert.doesNotMatch(html,/api\/flag/,'no flag before clue four');
 });
+
+test('Lucia keeps it close (1.53): you win when you get the last one right, she sometimes wins by a whisker when you miss it',()=>{
+ const LUCIA='cafe1c1a-0000-4000-8000-000000000001';let games=0,lastRight=0,lastRightWon=0,lastWrong=0,luciaTook=0,gaps=[];
+ for(const skill of [0.45,0.7,0.95])for(let g=0;g<40;g++){
+  const rng=lib.random('sim:'+skill+':'+g),now0=1e6;
+  const r={code:'LUCIA',host:LUCIA,settings:{...settings,mode:'mixed',timer:15,count:15},players:[{id:'me',lastSeen:now0,name:'me',ready:true,score:0,streak:0,bestStreak:0,correct:0,results:[]},{id:LUCIA,bot:true,level:'medium',lastSeen:now0,name:'Lucia',ready:true,score:0,streak:0,bestStreak:0,correct:0,results:[]}],phase:'question',round:0,startAt:now0,deadline:now0+15000,revealUntil:0,matchId:'sim-'+skill+'-'+g,questions:lib.generateQuestions({...settings,mode:'mixed',count:15},'sim:'+skill+':'+g),answers:{},previousQuestions:[],createdAt:now0,updatedAt:now0,expiresAt:now0+1e7,events:[]};
+  let t=now0,right=false;
+  while(r.phase!=='finished'){
+   if(r.phase==='question'&&!r.answers.me){const q=r.questions[r.round];right=rng()<skill;const at=r.startAt+2000+rng()*7000;t=Math.max(t,at);r.players[0].lastSeen=t;r.answers.me={value:right?q.correct:'nope',at};}
+   t+=250;r.players[0].lastSeen=t;lib.tick(r,t);
+  }
+  assert.ok(r.players[1].results.length===15,'Lucia answers every round');
+  const me=r.players[0].score,lu=r.players[1].score;games++;gaps.push(Math.abs(me-lu));
+  if(right){lastRight++;if(me>lu)lastRightWon++;}else{lastWrong++;if(lu>me)luciaTook++;}
+ }
+ assert.ok(lastRightWon/lastRight>=0.95,'you win when your last answer is right: '+lastRightWon+'/'+lastRight);
+ assert.ok(luciaTook>0&&luciaTook<lastWrong,'she takes some of the matches where you miss the last one: '+luciaTook+'/'+lastWrong);
+ gaps.sort((a,b)=>a-b);assert.ok(gaps[Math.floor(gaps.length/2)]<1000,'the median final gap stays under one answer: '+gaps[Math.floor(gaps.length/2)]);
+});
