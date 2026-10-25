@@ -164,6 +164,8 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
     const countryLabel = (o: any) => <span className="option-country">{o.flag && q.mode!=='trail' && (q.mode!=='flags' || feedback) && <img src={o.flag} alt=""/>}<span>{o[locale]}</span></span>;
     const peekMood = feedback ? feedback.correct ? 'cheer' : 'shock' : 'happy';
     return <div className="question-content">
+        {/* 1.52: the question side (card and Clue Trail clues); on a laptop it is the left column (app/v152.css), elsewhere it adds no box. */}
+        <div className="q-side">
         <section className={'q-card' + (feedback ? feedback.correct ? ' is-right' : ' is-wrong' : '')} aria-labelledby={'q-' + q.id}>
             <Peek mood={peekMood} key={peekMood}/>
             <div className="question-heading"><span className="eyebrow q-kicker">{label ?? t(q.mode + 'Hint')}</span><h1 id={'q-' + q.id}>{q.prompt[locale]}</h1>{q.country && <span className="question-country"><img src={q.country.flag} alt=""/>{q.country[locale]}</span>}</div>
@@ -171,6 +173,7 @@ export function Question({ question: q, feedback, locked, onAnswer, t, locale, o
             {q.flag && q.mode !== 'trail' && <div className="flag-stage"><img fetchPriority="high" decoding="async" src={flagSrc} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/></div>}
         </section>
         {q.clues && <section className="trail-clues" aria-label={t('trailClues')}><p>{t(competitive ? 'trailMultiplayerRule' : q.dailyPoints?'competitionTrail':'trailRule')}</p><ol className="clue-slots">{Array.from({ length: clueSlots }, (_, i) => { const clue = q.clues[i], open = !!clue && i < openClues; return <li key={i} className={open ? 'is-open' : 'is-pending'} aria-hidden={open ? undefined : true}><span>{i + 1}</span>{open ? <>{clue[locale]}{i === 3 && q.flag && <img className="clue-flag" src={flagSrc} alt={feedback ? feedback.answerLabel[locale] : t('flags')} draggable="false"/>}</> : <em>{t('trailCluePending')}</em>}</li>; })}</ol>{!competitive && !locked && <button className="btn secondary trail-more" disabled={hintPending||busy||cluesShown >= clueSlots} onClick={async () => { const n = cluesShown + 1; if(!q.dailyPoints)setCluesShown(n); setHintPending(true); try{await onHint?.(n);}finally{setHintPending(false);} }}>{t('trailNextClue')} · {cluesShown}/{q.clueCount??q.clues.length}</button>}{!feedback && q.dailyPoints && <strong className="trail-available">{t('competitionAvailable').replace('{n}',String(q.availablePoints))}</strong>}{feedback && <small>{plural(t, 'trailUsed', feedback.cluesUsed ?? cluesShown)}</small>}</section>}
+        </div>
         {q.mode === 'pinpoint' ? <>
             <Suspense fallback={<div className="map-loading">{t('loading')}</div>}><WorldMap t={t} value={chosen} onChange={setAnswer} onConfirm={submit} onTap={competitive ? undefined : submit} disabled={locked} target={feedback?.correctAnswer} correct={feedback?.correct}/></Suspense>
             {!locked && <><p className="question-help">{t(competitive ? 'mapHint' : 'mapTapHint')}</p>{competitive && <button className="btn primary answer-submit" disabled={!answer || busy} onClick={() => submit(answer)}><Navigation size={17}/>{t('lockAnswer')}</button>}</>}

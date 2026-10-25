@@ -134,6 +134,13 @@
       "when": 1792990000000,
       "tag": "0018_email_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1793000000000,
+      "tag": "0019_reminder_tz",
+      "breakpoints": true
     }
   ]
 }

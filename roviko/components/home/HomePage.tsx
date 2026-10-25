@@ -25,6 +25,7 @@ import { ContinentCard } from './ContinentWeek';
 import { LearnRow } from '../learn/LearnRow';
 import { StreakRepair, StreakWeek } from './StreakWeek';
 import { AppPrompt, useAppPrompt } from './AppPrompt';
+import { NamePrompt, useNamePrompt } from './NamePrompt';
 import { challengeLine, challengeRank, clearChallenge, useChallenge } from './ChallengeBanner';
 import { BONUS_MODES, bonusStateOf, nextBonusMode } from '@/lib/bonus';
 
@@ -90,6 +91,7 @@ export function HomePage() {
   const appPrompt = useAppPrompt(!!challenge || !ready || detour !== 'done');
   // A friend's challenge already gives the one next step, so the tour waits for a later visit.
   useEffect(() => { if (appPrompt.decided && !appPrompt.open && firstVisit && !challenge && !tourSeen()) setTourOpen(true); }, [firstVisit, challenge, appPrompt.decided, appPrompt.open]);
+  const namePrompt = useNamePrompt(!!boot.user.guest, date);
   const pointsToday = competition?.today.score ?? 0;
   const scoreOf = (mode: string) => competition?.scores.find(s => s.mode === mode)?.score;
   const name = (mode: DayMode) => t(dailyTitleKey(mode));
@@ -146,6 +148,10 @@ export function HomePage() {
         : <span className="hr-cell hr-league"><small>{t('leaderboard')}</small><b className="hr-trophy"><RovikoIcon name="trophy" size={22}/></b></span>}
       <ChevronRight size={18} className="hr-go" aria-hidden="true"/>
     </A>}
+
+    {/* 1.52: a guest who has played gets a short nudge to choose their own name (a free account) on the home screen too. */}
+    {ready && !firstVisit && namePrompt.show && (completed > 0 || Number(boot.stats?.dailyCount ?? 0) > 0) && <NamePrompt compact name={boot.user.name} avatar={boot.user.avatar ?? 0} t={t}
+      onChoose={() => { namePrompt.later(); app.setModal('signup'); }} onLater={namePrompt.later}/>}
 
     <div className="th-main">
       {/* 1.35: after the six games the continent of the week comes first, the bonus tour after it. */}
