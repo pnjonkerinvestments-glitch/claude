@@ -962,8 +962,8 @@ test('growth dashboard (1.49): owner only, records the device once a day, and co
  assert.ok(!JSON.stringify(s).includes(a.data.user.id),'no player ids in the numbers');
 });
 
-test('reminder by email (1.51): only on by choice with a confirmed address, only with a streak at stake, once a day, one-tap unsubscribe',async()=>{
- const out=await build({stdin:{contents:"export {sendReminders,setReminder,reminderState,reminderMail,REMINDER_DAILY_CAP} from './server/reminders';",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',write:false,loader:{'.json':'json'}});
+test('reminder by email (1.51): only on by choice with a confirmed address, fewer and fewer when away, once a day, one-tap unsubscribe',async()=>{
+ const out=await build({stdin:{contents:"export {sendReminders,setReminder,reminderState,reminderMail,reminderStage,REMINDER_DAILY_CAP} from './server/reminders';",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',write:false,loader:{'.json':'json'}});
  await fs.writeFile('.test-runtime/reminders.mjs',out.outputFiles[0].text);const R=await import('../.test-runtime/reminders.mjs');
  const g=await bootstrap();const acc=await request(g.cookie,'/auth/signup','POST',{email:'streaky@example.test',password:'Friendly8',name:'Streaky'});const c=acc.cookie;const uid=acc.data.user.id;
  // Through the API (no mail set up in tests): the state says it is not available, and on is refused.
@@ -980,12 +980,23 @@ test('reminder by email (1.51): only on by choice with a confirmed address, only
   assert.equal((await R.setReminder(env,await user(),{on:true,locale:'nl'})).on,true);
   const now=Date.now(),day=k=>new Date(now-k*86400000).toISOString().slice(0,10);
   const play=async k=>{const sid='rem-'+uid+'-'+k+'-'+Math.random();await db.prepare('INSERT INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)').bind(sid,uid,'daily',day(k),'{}',now).run();await db.prepare("INSERT INTO daily_scores(session_id,user_id,date,mode,score,created_at) VALUES (?,?,?,'daily',500,?)").bind(sid,uid,day(k),now).run();};
-  // No streak yet: nothing.
+  // Never played a daily game: nothing.
   assert.equal((await R.sendReminders(env,now)).sent,0);
+  // The rhythm: away 1 and 2 days every day, then once at a week, once at a month, then never (until the next game).
+  assert.deepEqual([1,2,3,4,5,6,7,8,14,29,30,31,60].map(d=>R.reminderStage(d,0)),['day1','day2',null,null,null,null,'week',null,null,null,'month',null,null]);
+  assert.equal(R.reminderStage(1,4),'streak');assert.equal(R.reminderStage(2,3),'streak','a shield can keep the streak alive on day 2');assert.equal(R.reminderStage(7,5),'week');
+  // Follow-ups read differently: another stage, or the next day's variant.
+  const m=(stage,seed)=>R.reminderMail('nl',{name:'Pip',streak:3,stage,seed,play:'p',off:'o',origin:'https://roviko.app'});
+  const subjects=new Set(['day1','day2','week','month'].map(s=>m(s,0).subject));assert.equal(subjects.size,4);
+  assert.notEqual(m('streak',0).subject,m('streak',1).subject);assert.notEqual(m('day1',0).subject,m('day1',1).subject);
+  for(const l of ['nl','en','es'])for(const st of ['streak','day1','day2','week','month'])for(let k=0;k<3;k++){const x=R.reminderMail(l,{name:'Pip',streak:3,stage:st,seed:k,play:'p',off:'o',origin:'https://roviko.app'});assert.doesNotMatch(x.subject+x.text,/\{n\}|\{name\}|\bzes\b|\bsix\b|\bseis\b/,l+' '+st);}
+  // Away one day without a streak: the day-1 mail.
+  await play(1);
+  let r1=await R.sendReminders(env,now);assert.equal(r1.sent,1);sent.length=0;await db.prepare("UPDATE email_reminders SET last_sent=NULL WHERE user_id=?").bind(uid).run();
   // Played the last two days, not today: the streak of 2 is at stake.
-  await play(1);await play(2);
+  await play(2);
   let r=await R.sendReminders(env,now);assert.equal(r.sent,1);assert.equal(sent.length,1);
-  const mail=sent[0].b;assert.deepEqual(mail.to,['streaky@example.test']);assert.match(mail.subject,/reeks van 2 dagen/);assert.match(mail.text,/unsubscribe\?token=/);
+  const mail=sent[0].b;assert.deepEqual(mail.to,['streaky@example.test']);assert.match(mail.text,/2 dagen/,'the streak mail names the streak');assert.match(mail.text,/unsubscribe\?token=/);
   assert.ok(mail.headers['List-Unsubscribe'].includes('/api/reminders/unsubscribe?token='));assert.equal(mail.headers['List-Unsubscribe-Post'],'List-Unsubscribe=One-Click');
   assert.doesNotMatch(mail.text+mail.html,/\bzes\b|\bsix\b/,'no number of games');
   // Once a day: a second run sends nothing.

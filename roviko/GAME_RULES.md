@@ -174,7 +174,7 @@ When a player has country/mode pairs they answered wrongly before, the homepage 
 
 ## Reminder by email (1.51, website, accounts only)
 
-An account with a confirmed email address can turn on a daily reminder by email (Settings, or the offer in the streak moment on the website, asked at most twice). At most one email a day, sent at 17:00 UTC, only when the player has a streak of 2 days or more (shields and repairs count, as in the streak pill) and has not finished a daily game today. Every email has a one-tap unsubscribe link and supports the mail app's unsubscribe button. At most 80 a day in total. Nothing is sent without `RESEND_API_KEY`, and the preview never sends.
+An account with a confirmed email address can turn on a daily reminder by email (Settings, or the offer in the streak moment on the website, asked at most twice). At most one email a day, sent at 17:00 UTC, and fewer the longer the player stays away (days since the last finished daily game): 1 and 2 days away every day, 7 days once, 30 days a last one, then none until the player plays again. Opens are not measured (no tracking pixels). On days 1 and 2 a living streak of 2 days or more (shields and repairs count) gets the streak mail. Each step has its own variants that change per day (`server/reminder-copy.ts`). Every email has a one-tap unsubscribe link and supports the mail app's unsubscribe button. At most 80 a day in total. Nothing is sent without `RESEND_API_KEY`, and the preview never sends.
 
 ## App reminders (1.12)
 
