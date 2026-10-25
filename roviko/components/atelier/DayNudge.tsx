@@ -6,6 +6,7 @@ import { useApp } from '../app/context';
 import { useToday } from '../home/useDay';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { dailyTitleKey } from './DailyLoop';
+import { GameIcon } from './GameIcon';
 
 /**
  * 1.50: after free play, a bonus game, survival or a lesson in Learn, while today's daily games are not all done yet:
@@ -23,6 +24,6 @@ export function DayNudge() {
   const go = async () => { if (busy) return; setBusy(true); try { await launchDaily(app as any, next); } catch (e) { fail(e); } finally { setBusy(false); } };
   return <aside className="day-nudge" aria-label={t('dayNudge')}>
     <p>{t('dayNudge')}</p>
-    <button className="btn secondary" disabled={busy || app.busy} aria-busy={busy} onClick={go}><span>{busy ? t('loading') : t('dayNudgeCta').replace('{game}', t(dailyTitleKey(next)))}</span><ArrowRight size={17} aria-hidden="true"/></button>
+    <button className="day-nudge-go" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm" className="day-nudge-icon"/><span>{busy ? t('loading') : t('dayNudgeCta').replace('{game}', t(dailyTitleKey(next)))}</span><b className="day-nudge-arrow" aria-hidden="true"><ArrowRight size={18} strokeWidth={2.6}/></b></button>
   </aside>;
 }
