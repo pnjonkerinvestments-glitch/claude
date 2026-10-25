@@ -596,6 +596,17 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.51.0 (op de testversie, nog niet live)
+
+- **Herinnering per e-mail voor websitespelers** (met akkoord van de eigenaar, ook op de cron-trigger). Alleen voor accounts met een bevestigd e-mailadres, alleen als de speler hem zelf aanzet: in Instellingen ("Herinnering per e-mail"; gasten zien dat het met een gratis account kan, onbevestigde accounts krijgen eerst "Bevestigen") of in het reeksmoment na een dagspel op de website ("Zal Roviko je een mailtje sturen als je reeks vannacht zou aflopen?", hooguit twee keer gevraagd, net als in de app). **Hooguit één mail per dag**, om 17:00 UTC, en alleen als de speler een reeks van 2 dagen of meer heeft (met schilden en herstel, zoals de reekspil) en vandaag nog geen dagspel afmaakte. Onderwerp "Je reeks van 5 dagen wacht op je 🔥", één knop "Speel nu", in de taal die de speler koos. **Afmelden met één tik** via de link onder elke mail (eenmalige token, alleen de hash bewaard, 60 dagen geldig) en via de afmeldknop van de mail-app (`List-Unsubscribe` met one-click POST). Hooguit 80 mails per dag, onder de gratis grens van Resend (100 per dag), zodat welkomst- en herstelmails ruimte houden (`server/reminders.ts`, `scheduled` in `worker/index.ts`).
+- **Cron-trigger** `0 17 * * *` in `wrangler.cloudflare.jsonc`. De preview-workflow haalt hem weg, zodat de testlink nooit mailt. Zonder `RESEND_API_KEY` doet de taak niets.
+- **Migratie `0018_email_reminders.sql`** (alleen toevoegen): tabel `email_reminders` (aan/uit, taal, laatste verzenddag; verdwijnt met het account, in de export als `emailReminder`) en `email_reminder_log` (alleen een telling per dag). Op `/admin` een tegel "Herinneringsmails": hoeveel spelers hem aan hebben en hoeveel er in 7 dagen verstuurd zijn.
+- Privacyverklaring bijgewerkt (wat we bewaren, via Resend, hooguit één per dag, uitzetten met de link).
+- De welkomstmail noemde nog "zes" spellen; dat aantal is eruit (regel van de eigenaar).
+- Versie 1.51.0, service worker `roviko-shell-v1.51.0`.
+
+**Getest:** `npm test` 218 geslaagd, 1 overgeslagen (nieuw: integratietest met nagebootste Resend: aanzetten alleen met bevestigd adres, gast geweigerd, geen mail zonder reeks, wel bij een reeks van 2 die vandaag afloopt, onderwerp in het Nederlands, afmeldkoppen aanwezig, geen aantal spellen, tweede run dezelfde dag stuurt niets, niet na een gespeeld dagspel, afmeldlink werkt één keer, one-click POST zonder Origin werkt, telling per dag, export). Build: de `scheduled`-handler zit in de gebouwde worker. Lokaal bekeken op 390×844 (met een tijdelijke nep-sleutel, niet in de repo): Instellingen (bevestigen eerst) en het aanbod in het reeksmoment met "Gedaan". Niet getest: een echte mail via Resend en de cron op Cloudflare (pas na publicatie; de eerste run is om 17:00 UTC).
+
 ## 1.50.0 (live sinds 25 oktober 2026, PR #49)
 
 Gebouwd op 1.49.0 na de feedback van de eigenaar ("1.51-opdracht" van een andere assistent) en twee eigen wensen van de eigenaar: Lucia voor iedereen en goede meldingen. De `roviko-1.50.0.patch` uit die opdracht zat niet bij de vraag; deze 1.50.0 is dus een eigen versie op 1.49.0.

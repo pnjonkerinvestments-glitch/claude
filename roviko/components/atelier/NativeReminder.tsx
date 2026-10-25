@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { Bell, BellOff } from 'lucide-react';
+import { Bell, BellOff, Mail } from 'lucide-react';
+import { api, post } from '@/lib/client';
+import { Switch } from '@/components/ui/switch';
 import { useApp } from '../app/context';
 
 // Only rendered inside the Roviko iOS/Android app (Capacitor), where the native bridge exposes
@@ -90,15 +92,29 @@ function readAsks(): { n: number; day: string } { try { const v = JSON.parse(loc
 /**
  * 1.50: the app offers the reminder at the moment it makes sense, right after a daily game grew the streak, instead
  * of only in Settings. At most twice, never twice on one day, never once it is on; a no is respected.
+ * 1.51: on the website the same moment offers the reminder by email, for accounts with a confirmed address (only
+ * when mail is set up and the email reminder is not on yet).
  */
 export function useReminderOffer(date: string, open = true) {
+  const app = useApp();
   const inApp = useSyncExternalStore(subscribe, isApp, () => false);
+  const user = app?.boot?.user;
+  const webOk = !inApp && !!app?.boot?.mailEnabled && !!user && !user.guest && !!user.emailVerified;
   const [asks] = useState(() => typeof window === 'undefined' ? { n: MAX_ASKS, day: '' } : readAsks());
+  const fresh = open && asks.n < MAX_ASKS && asks.day !== date;
+  // On the website, first ask the server whether the email reminder is already on.
+  const [mailOff, setMailOff] = useState<boolean | null>(null);
+  useEffect(() => { if (fresh && webOk && mailOff === null) api('/reminders/email').then(r => setMailOff(!r.on && !!r.available)).catch(() => setMailOff(false)); }, [fresh, webOk]); // eslint-disable-line react-hooks/exhaustive-deps
+  const kind: 'app' | 'email' | null = inApp ? 'app' : webOk ? 'email' : null;
   const [shown, setShown] = useState(false);
-  const show = shown || (open && inApp && !readOn() && asks.n < MAX_ASKS && asks.day !== date);
+  const show = shown || (fresh && (kind === 'app' ? !readOn() : kind === 'email' ? mailOff === true : false));
   const [state, setState] = useState<'ask' | 'on' | 'denied' | 'no'>('ask');
   useEffect(() => { if (show && !shown) { setShown(true); try { localStorage.setItem(ASKS, JSON.stringify({ n: asks.n + 1, day: date })); } catch { /* asked once more, harmless */ } } }, [show]); // eslint-disable-line react-hooks/exhaustive-deps
-  return { show, state, accept: async (t: (k: string) => string, playedToday: boolean, streak: number) => {
+  return { show, state, kind, accept: async (t: (k: string) => string, playedToday: boolean, streak: number) => {
+    if (kind === 'email') {
+      try { await post('/reminders/email', { on: true, locale: app?.locale }); setState('on'); } catch { setState('denied'); }
+      return;
+    }
     const notifications = plugin();
     if (!notifications) return;
     try {
@@ -108,6 +124,32 @@ export function useReminderOffer(date: string, open = true) {
       await scheduleReminders(t, playedToday, new Date(), streak);
     } catch { setState('denied'); }
   }, decline: () => setState('no') };
+}
+
+/**
+ * 1.51: the daily reminder by email in Settings, for website players. Guests see how to get it (a free account),
+ * accounts without a confirmed address are sent to confirm it first; others get the switch.
+ */
+export function EmailReminder({ t }: { t: (k: string) => string }) {
+  const app = useApp();
+  const inApp = useSyncExternalStore(subscribe, isApp, () => false);
+  const user = app?.boot?.user;
+  const [state, setState] = useState<{ available: boolean; verified: boolean; on: boolean } | null>(null), [busy, setBusy] = useState(false);
+  const account = !!user && !user.guest;
+  useEffect(() => { if (account && !inApp) api('/reminders/email').then(setState).catch(() => {}); }, [account, inApp]);
+  if (inApp || !app?.boot?.mailEnabled) return null;
+  const toggle = async (on: boolean) => { setBusy(true); try { setState(await post('/reminders/email', { on, locale: app.locale })); } catch (e) { app.fail?.(e); } finally { setBusy(false); } };
+  return <section className="page-section" aria-labelledby="settings-mail">
+    <div className="settings-card">
+      <div className="settings-card-row">
+        <Mail size={22} className="row-icon" aria-hidden="true"/>
+        <label htmlFor="set-mail-reminder"><strong id="settings-mail">{t('mailReminderTitle')}</strong><small>{!account ? t('mailReminderGuest') : state && !state.verified ? t('mailReminderVerify') : t(state?.on ? 'mailReminderOnCopy' : 'mailReminderCopy')}</small></label>
+        {!account ? <button className="btn secondary btn-sm" onClick={() => app.setModal('signup')}>{t('signUp')}</button>
+          : state && !state.verified ? <button className="btn secondary btn-sm" onClick={() => app.go('/account')}>{t('mailReminderVerifyCta')}</button>
+          : <Switch id="set-mail-reminder" checked={!!state?.on} disabled={busy || !state} onCheckedChange={toggle}/>}
+      </div>
+    </div>
+  </section>;
 }
 
 export function NativeReminder({ t }: { t: (k: string) => string }) {

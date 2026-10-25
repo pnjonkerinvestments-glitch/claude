@@ -69,6 +69,7 @@ jobs:
             c.name='roviko-preview';
             c.d1_databases[0].database_name='roviko-preview-eu';
             c.d1_databases[0].database_id=process.env.PREVIEW_DB_ID;
+            c.triggers={crons:[]};
             if (c.name==='roviko') throw new Error('preview mag nooit als roviko deployen');
             fs.writeFileSync('wrangler.preview.json',JSON.stringify(c,null,2));
           "

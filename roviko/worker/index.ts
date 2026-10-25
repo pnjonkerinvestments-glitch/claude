@@ -1,4 +1,5 @@
 import { handleApi } from '../server/api';
+import { sendReminders } from '../server/reminders';
 /** Cloudflare Worker entry point for the vinext-starter template. */
 import { handleImageOptimization, DEFAULT_DEVICE_SIZES, DEFAULT_IMAGE_SIZES } from "vinext/server/image-optimization";
 import handler from "vinext/server/app-router-entry";
@@ -47,6 +48,10 @@ function secure(res: Response): Response {
 const worker = {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     return secure(await route(request, env, ctx));
+  },
+  /** 1.51: the Cron Trigger in wrangler.cloudflare.jsonc (17:00 UTC) sends the opt-in reminder mails (server/reminders.ts). */
+  async scheduled(_event: unknown, env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(sendReminders(env as any).then(r => console.log('reminders', JSON.stringify(r))).catch(e => console.error('reminders failed', e)));
   },
 };
 

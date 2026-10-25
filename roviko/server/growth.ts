@@ -15,7 +15,7 @@ const ANSWER_CAP_MS = 120_000;
  */
 export async function growthStats(env: Env, days = 90) {
   const today = dayKey(Date.now()), since = Date.parse(addDays(today, -days + 1) + 'T00:00:00Z');
-  const [perDay, firsts, platforms, activity, totals, modes, multiplayer, accounts, mpDays, mpRows, dailyDone] = await Promise.all([
+  const [perDay, firsts, platforms, activity, totals, modes, multiplayer, accounts, mpDays, mpRows, dailyDone, mailOn, mailSent] = await Promise.all([
     // Guests count as players too (1.49): "accounts" are those with an account now, the rest are guests.
     rows(env, `SELECT date(a.created_at/1000,'unixepoch') d, COUNT(DISTINCT a.user_id) active, COUNT(DISTINCT CASE WHEN u.guest=0 THEN a.user_id END) accounts, COUNT(DISTINCT a.session_id) games, SUM(MIN(a.response_time, ${ANSWER_CAP_MS})) ms FROM answers a JOIN users u ON u.id=a.user_id WHERE a.created_at>=? AND a.user_id<>? GROUP BY d`, since, LUCIA_ID),
     rows(env, `SELECT a.user_id, date(MIN(a.created_at)/1000,'unixepoch') d, MIN(u.guest) guest FROM answers a JOIN users u ON u.id=a.user_id WHERE a.user_id<>? GROUP BY a.user_id`, LUCIA_ID),
@@ -30,6 +30,9 @@ export async function growthStats(env: Env, days = 90) {
     rows(env, `SELECT r.user_id, substr(r.id,1,instr(r.id,':')-1) m, date(r.created_at/1000,'unixepoch') d, u.guest FROM game_results r JOIN users u ON u.id=r.user_id WHERE r.multiplayer=1 AND r.created_at>=? AND r.user_id<>?`, Date.parse(addDays(today, -89) + 'T00:00:00Z'), LUCIA_ID),
     // 1.50: finished daily games of the last 31 days, for the day-1 funnel.
     rows(env, `SELECT user_id, date d, ${MODE_SQL()} mode FROM daily_scores WHERE date>=? AND user_id<>?`, addDays(today, -31), LUCIA_ID),
+    // 1.51: the reminder emails, only counts.
+    one(env, 'SELECT COUNT(*) n FROM email_reminders WHERE enabled=1'),
+    one(env, 'SELECT COALESCE(SUM(sent),0) n FROM email_reminder_log WHERE day>=?', addDays(today, -6)),
   ]);
   const platformOf = new Map<string, Platform>(platforms.map((r: any) => [String(r.user_id), (['web', 'ios', 'android'].includes(r.platform) ? r.platform : 'unknown') as Platform]));
   const first = new Map<string, string>(firsts.map((r: any) => [String(r.user_id), String(r.d)]));
@@ -64,6 +67,7 @@ export async function growthStats(env: Env, days = 90) {
     windows,
     platforms: appPlayers,
     returns: returnRates(first, active, today),
+    mail: { on: Number(mailOn?.n ?? 0), week: Number(mailSent?.n ?? 0) },
     funnel: { ...dayOneFunnel(first, new Set<string>(dailyDone.map((r: any) => r.user_id + '|' + r.d + '|' + r.mode)), dayModesFor, today), modes: dayModesFor(addDays(today, -1)) },
     topGames: [...games].map(([game, n]) => ({ game, n })).sort((a, b) => b.n - a.n).slice(0, 10),
   };

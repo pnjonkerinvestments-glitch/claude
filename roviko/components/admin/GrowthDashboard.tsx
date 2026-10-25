@@ -20,6 +20,7 @@ type Growth = {
   returns: { day2: number | null; day2Cohort: number; week: number | null; weekCohort: number };
   topGames: { game: string; n: number }[];
   funnel?: { players: number; steps: number[]; all: number; modes: string[] };
+  mail?: { on: number; week: number };
 };
 const PLATFORMS: { key: Platform; color: string }[] = [
   { key: 'web', color: '#2a78d6' }, { key: 'ios', color: '#eb6834' }, { key: 'android', color: '#1baf7a' }, { key: 'unknown', color: '#b9b6ab' },
@@ -71,6 +72,7 @@ export function GrowthDashboard({ t, locale }: { t: (k: string) => string; local
         <Tile label={t('gdMpPlayers').replace('{n}', String(period))} value={n(w.mpPlayers)} sub={t('gdSplit').replace('{a}', n(w.mpAccounts)).replace('{g}', n(w.mpPlayers - w.mpAccounts))}/>
         <Tile label={t('gdMpPerMatch')} value={w.mpMatches ? (w.mpSeats / w.mpMatches).toLocaleString(locale, { maximumFractionDigits: 1 }) : '–'}/>
         <Tile label={t('gdAllTime')} value={t('gdHours').replace('{n}', n(data.totals.hours))} sub={t('gdAllGames').replace('{n}', n(data.totals.games))}/>
+        {data.mail && <Tile label={t('gdMail')} value={n(data.mail.on)} sub={t('gdMailSub').replace('{on}', n(data.mail.on)).replace('{week}', n(data.mail.week))}/>}
       </div></>}
       {table ? <SeriesTable days={view.cur} t={t} n={n}/> : <div className="gd-charts">
         <Card title={t('gdChartActive')} legend={WHO.map(x => ({ color: x.color, label: t('gdWho_' + x.key) }))}><TwoLines days={view.cur} t={t} n={n} locale={locale}/></Card>
