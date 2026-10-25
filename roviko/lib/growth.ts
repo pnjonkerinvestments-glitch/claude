@@ -28,3 +28,24 @@ export function returnRates(first: Map<string, string>, active: Set<string>, tod
   }
   return { day2: d1n ? d1 / d1n : null, day2Cohort: d1n, week: d7n ? d7 / d7n : null, weekCohort: d7n };
 }
+
+/**
+ * 1.50 · the day-1 funnel: of the players whose first day falls in the last `window` complete days (today does not
+ * count, it is not over yet), how many finished the 1st, 2nd, 3rd … daily game of that day, in the day's own order
+ * (`lineup(date)`, dayModesFor), and how many finished all of them. `done` holds "user|date|mode" for every finished
+ * daily game. Only counts come out, never who.
+ */
+export function dayOneFunnel(first: Map<string, string>, done: Set<string>, lineup: (date: string) => readonly string[], today: string, window = 30) {
+  const from = addDays(today, -window);
+  let players = 0, all = 0;
+  const steps: number[] = [];
+  for (const [user, day] of first) {
+    if (day < from || day >= today) continue;
+    players++;
+    const modes = lineup(day);
+    let count = 0;
+    modes.forEach((mode, i) => { steps[i] = steps[i] ?? 0; if (done.has(user + '|' + day + '|' + mode)) { steps[i]++; count++; } });
+    if (count === modes.length && modes.length) all++;
+  }
+  return { players, steps, all };
+}

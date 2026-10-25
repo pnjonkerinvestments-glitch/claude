@@ -8,7 +8,8 @@ import { Character } from '../ds/Character';
 
 type T = (key: string) => string;
 /** How long a quick match searches before the computer is offered (matches the server). */
-export const QUICK_SEARCH_MS = 3 * 60000;
+// 1.50: 30 seconds (was 3 minutes): with few players online nobody should wait long. Keep equal to server/multiplayer.ts.
+export const QUICK_SEARCH_MS = 30000;
 const clock = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
 /** Easy, medium or hard: how good the computer is, with one line on what that means. */
@@ -51,7 +52,7 @@ export function PlayNow({ t, go, fail }: { t: T; go: (href: string) => void; fai
   </section>;
 }
 
-/** Waiting for a random opponent. After three minutes the computer is offered; waiting on stays possible. */
+/** Waiting for a random opponent. After 30 seconds (1.50) the computer is offered; waiting on stays possible. */
 export function QuickSearch({ room, now, t, code, onCancel, fail }: { room: { createdAt: number }; now: number; t: T; code: string; onCancel: () => void; fail: (e: unknown) => void }) {
   const [level, setLevel] = useState<BotLevel>('medium'), [busy, setBusy] = useState(false), [dismissed, setDismissed] = useState(false);
   const waited = now - room.createdAt, offer = waited >= QUICK_SEARCH_MS && !dismissed;

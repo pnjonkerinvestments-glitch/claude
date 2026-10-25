@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
-import { ArrowRight, Snowflake } from 'lucide-react';
+import { ArrowRight, Bell, Snowflake } from 'lucide-react';
+import { useReminderOffer } from '../atelier/NativeReminder';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { sound } from '@/lib/client';
 import { plural } from '@/lib/plural';
@@ -25,6 +26,8 @@ export function StreakMoment({ open, date, streak, week, shieldIn, shields, t, o
 }) {
   // 1.39: day 3, 7 and 30 are a party: confetti and their own line.
   const party = PARTY_DAYS.includes(streak);
+  // 1.50: in the app, the calm moment to offer the daily reminder (at most twice, see useReminderOffer).
+  const offer = useReminderOffer(date, open);
   useEffect(() => { if (open) { markSeen(date); sound('win'); } }, [open, date]);
   const weekdays = (week ?? []).map(d => new Date(d.date + 'T12:00:00Z').toLocaleDateString(document.documentElement.lang || 'en', { weekday: 'narrow', timeZone: 'UTC' }));
   return <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
@@ -36,6 +39,12 @@ export function StreakMoment({ open, date, streak, week, shieldIn, shields, t, o
       <DialogDescription>{party ? t('smParty_' + streak) : t('smCopy')}</DialogDescription>
       {week && week.length > 0 && <ol className="sm-week" aria-label={t('smWeek')}>{week.map((d, i) => <li key={d.date} className={(d.completed ? 'is-done' : '') + (d.date === date ? ' is-today' : '')} style={{ '--i': i } as React.CSSProperties}><span>{weekdays[i]}</span><i aria-hidden="true">{d.completed ? <FlameMark size={16}/> : null}</i></li>)}</ol>}
       {typeof shieldIn === 'number' && <p className="sm-shield"><Snowflake size={15} aria-hidden="true"/>{(shields ?? 0) >= 2 ? t('smShieldFull') : plural(t, 'smShield', Math.max(1, shieldIn))}</p>}
+      {offer.show && <div className={'sm-remind is-' + offer.state} aria-live="polite">
+        <Bell size={18} aria-hidden="true"/>
+        {offer.state === 'ask'
+          ? <><p>{t('remindOfferCopy')}</p><span><button className="btn secondary" onClick={() => offer.accept(t, true, streak)}>{t('remindOfferYes')}</button><button className="text-link" onClick={offer.decline}>{t('remindOfferNo')}</button></span></>
+          : <p>{t(offer.state === 'on' ? 'remindOfferOn' : offer.state === 'denied' ? 'reminderDenied' : 'remindOfferLater')}</p>}
+      </div>}
       <button className="btn primary btn-lg" onClick={onClose} autoFocus>{t('smContinue')}<ArrowRight size={18} aria-hidden="true"/></button>
     </DialogContent>
   </Dialog>;

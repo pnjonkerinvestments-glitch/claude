@@ -9,7 +9,7 @@ import { SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
  * The same for Shape Shift (1.41): it replaces World Duel from SHAPE_FROM on, stored as 'duel', read back as 'shape'.
  */
 export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode;
-const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' ELSE ${alias}mode END`;
+export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' ELSE ${alias}mode END`;
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';
@@ -51,9 +51,11 @@ export async function competitionSummary(env: Env, user: User, date: string, mod
   const yesterday = new Date(Date.parse(date+'T00:00:00Z')-86400000).toISOString().slice(0,10);
   // Friends ranking: you plus accepted friends, today. Guests have no friends list.
   const friendIds = user.guest ? [] : (await rows(env,"SELECT CASE WHEN from_id=? THEN to_id ELSE from_id END id FROM friend_requests WHERE status='accepted' AND (from_id=? OR to_id=?)",user.id,user.id,user.id)).map((r:any)=>r.id);
-  const [today,total,game,week,friends,scores,bests,bestDay,previous] = await Promise.all([
+  // 1.50: "this month" (the UTC month of the date, fresh every 1st) replaces "all time" as a ranking, so a new player can
+  // reach the top; `total` stays in the answer for your own all-time points and older app versions.
+  const [today,total,game,week,month,friends,scores,bests,bestDay,previous] = await Promise.all([
     ranking(env,user,{date}),ranking(env,user),mode ? ranking(env,user,{date,mode}) : Promise.resolve(null),
-    ranking(env,user,{since:weekStart(date)}),
+    ranking(env,user,{since:weekStart(date)}),ranking(env,user,{since:date.slice(0,8)+'01'}),
     friendIds.length ? ranking(env,user,{date,userIds:[user.id,...friendIds]}) : Promise.resolve(null),
     rows(env,'SELECT '+MODE_SQL()+' mode,score FROM daily_scores WHERE user_id=? AND date=?',user.id,date),
     // Personal bests from earlier days only, so today's own result can beat them.
@@ -62,5 +64,5 @@ export async function competitionSummary(env: Env, user: User, date: string, mod
     one(env,'SELECT COALESCE(SUM(score),0) score,COUNT(*) games FROM daily_scores WHERE user_id=? AND date=?',user.id,yesterday),
   ]);
   const personalBest = Object.fromEntries(bests.map((b:any)=>[b.mode,{best:Number(b.best),plays:Number(b.plays)}]));
-  return {date,today,total,game,week,weekStart:weekStart(date),friends,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0)},maxPerGame:1000,maxPerDay:DAILY_TOTAL_MAX};
+  return {date,today,total,game,week,month,weekStart:weekStart(date),monthStart:date.slice(0,8)+'01',friends,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0)},maxPerGame:1000,maxPerDay:DAILY_TOTAL_MAX};
 }

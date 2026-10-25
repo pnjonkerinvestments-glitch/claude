@@ -1,0 +1,36 @@
+/* 1.50: the reminder offer in the streak moment, the next-daily nudge after a game, own all-time points under
+   "This month", and the day-1 funnel on /admin. Trip tokens from app/trip.css. */
+.streak-moment .sm-remind{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:8px 10px;width:100%;margin:2px 0 12px;padding:12px 14px;border-radius:var(--t-radius-sm,14px);background:var(--t-mint);color:var(--t-mint-ink);text-align:left}
+.streak-moment .sm-remind>svg{margin-top:2px;color:var(--t-forest)}
+.streak-moment .sm-remind p{margin:0;font:700 .875rem/1.4 var(--font-sans);color:var(--t-ink)}
+.streak-moment .sm-remind span{grid-column:1/-1;display:flex;align-items:center;gap:12px}
+.streak-moment .sm-remind span .btn{width:auto;flex:0 0 auto;min-height:40px;padding:0 16px}
+.streak-moment .sm-remind span .text-link{font-weight:700;color:var(--t-soft)}
+.streak-moment .sm-remind.is-on p,.streak-moment .sm-remind.is-no p,.streak-moment .sm-remind.is-denied p{font-weight:600}
+
+.day-nudge{display:grid;gap:10px;box-sizing:border-box;width:100%;min-width:0;margin:14px auto 0;padding:14px;border-radius:var(--t-radius,20px);background:var(--t-card);border:1px solid var(--t-line);box-shadow:var(--t-shadow);text-align:left}
+.day-nudge p{margin:0 4px;font:700 .875rem/1.35 var(--font-sans);color:var(--t-soft)}
+/* A light-green tile, not an outline button: the game's own logo, its name, and a round forest arrow. */
+.day-nudge-go{display:flex;align-items:center;gap:12px;width:100%;min-width:0;min-height:60px;padding:10px 10px 10px 10px;border:0;border-radius:18px;background:var(--t-mint);color:var(--t-mint-ink);font:700 1rem/1.2 var(--font-display,var(--font-sans));text-align:left;cursor:pointer;transition:background .15s ease,transform .15s ease}
+.day-nudge-go:hover{background:var(--t-mint-2)}
+.day-nudge-go:active{transform:scale(.98)}
+.day-nudge-go:focus-visible{outline:3px solid var(--t-right);outline-offset:2px}
+.day-nudge-go:disabled{opacity:.6;cursor:default}
+.day-nudge-go>span{flex:1;min-width:0}
+.day-nudge-go .day-nudge-icon{flex:0 0 40px;width:40px!important;height:40px!important;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 1px 2px rgba(22,59,50,.08)}
+.day-nudge-go .day-nudge-icon svg{width:100%;height:100%}
+.day-nudge-arrow{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:var(--t-forest);color:var(--t-forest-ink)}
+.ln-result .day-nudge{width:100%;margin-top:16px}
+
+.rank-own-total{margin:8px 2px 0;font-size:.875rem}
+
+.gd-funnel b small{font-weight:600;color:var(--t-soft,#5b6660);margin-left:4px}
+
+/* 1.50 (the owner's choice): every secondary button is a soft light-green pill instead of a white pill with a dark
+   outline, like the "On with your day" tile. Same mint as the tile; a step darker on hover and when pressed. On a
+   mint surface (the reminder offer) the button turns white so it stays visible. */
+.btn.secondary,.secondary.btn{background:var(--t-mint)!important;color:var(--t-mint-ink)!important;border:0!important;box-shadow:none!important}
+@media (hover:hover){.btn.secondary:hover:not(:disabled){background:var(--t-mint-2)!important}}
+.btn.secondary:active:not(:disabled){background:var(--t-mint-2)!important}
+.btn.secondary:focus-visible{outline:3px solid var(--t-right)!important;outline-offset:2px}
+.streak-moment .sm-remind .btn.secondary{background:#fff!important}

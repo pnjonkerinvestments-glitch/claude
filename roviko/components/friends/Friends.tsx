@@ -56,6 +56,8 @@ export function usePresence(path: string) {
     beat();
     // Every 15 seconds (was 40) so an invite from a friend shows up while they wait in the room.
     const id = setInterval(beat, 15000);
+    // 1.50: Lucia's daily invite comes 30 seconds after you came online; one extra check right then, so it is on time.
+    const lucia = setTimeout(beat, 31000);
     // 1.42: in between, a cheap read-only check every 3 seconds; a new invite runs the full heartbeat at once.
     let seen = '';
     const check = () => { if (document.visibilityState !== 'visible') return; api('/invites/check').then(r => { const key = r.n + ':' + r.last; if (active && seen && key !== seen && r.n > 0) beat(); seen = key; }).catch(() => {}); };
@@ -63,7 +65,7 @@ export function usePresence(path: string) {
     const quick = setInterval(check, 3000);
     document.addEventListener('visibilitychange', beat);
     window.addEventListener('roviko:presence', beat);
-    return () => { active = false; clearInterval(id); clearInterval(quick); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
+    return () => { active = false; clearInterval(id); clearInterval(quick); clearTimeout(lucia); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
   }, [bootLoaded, boot.user.guest, boot.user.id, room, playing]);
   return { invites: invites.filter(i => i.code !== room), dismiss: (id: string) => setInvites(list => list.filter(i => i.id !== id)) };
 }
@@ -141,8 +143,9 @@ export function InviteInbox({ invites, dismiss }: { invites: Invite[]; dismiss: 
     <span className="invite-pop-avatar"><Avatar id={invite.avatar}/><RovikoIcon name="multiplayer" size={22} className="invite-pop-badge"/></span>
     <div className="invite-pop-text">
       <small className="invite-pop-kicker">{t('invitePopKicker')}</small>
-      <strong id="invite-pop-title" className="name-with-level">{t('invitePopTitle').replace('{name}', invite.name)}{invite.bot ? <span className="level-pill is-bot">{t('computerPill')}</span> : <LevelPill level={invite.level}/>}</strong>
-      <span id="invite-pop-copy">{t('invitePopCopy').replace('{code}', invite.code)}</span>
+      <strong id="invite-pop-title" className="name-with-level">{t(invite.bot ? 'luciaPopTitle' : 'invitePopTitle').replace('{name}', invite.name)}{invite.bot ? <span className="level-pill is-bot">{t('computerPill')}</span> : <LevelPill level={invite.level}/>}</strong>
+      {/* 1.50: Lucia's invite is short (the owner's choice): her name, the Computer pill and "Are you in?"; no room code. */}
+      <span id="invite-pop-copy">{invite.bot ? t('luciaPopCopy') : t('invitePopCopy').replace('{code}', invite.code)}</span>
     </div>
     <div className="invite-pop-actions">
       <button className="invite-pop-no" disabled={!!busy} aria-label={t('invitePopDecline').replace('{name}', invite.name)} onClick={() => answer('dismissed')}><X size={22} strokeWidth={2.8}/></button>

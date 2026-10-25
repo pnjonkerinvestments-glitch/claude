@@ -150,7 +150,8 @@ async function startMatch(env: Env, r: Room) {
     r.events = ['game_started'];
 }
 /** How long a quick match searches before offering a computer opponent. */
-export const QUICK_SEARCH_MS = 3 * 60000;
+// 1.50: 30 seconds (was 3 minutes). Keep equal to components/multiplayer/Computer.tsx.
+export const QUICK_SEARCH_MS = 30000;
 /**
  * Quick match against a random player: join the oldest open search from someone else who is still
  * connected and start at once, or open a new search. A search stays open until someone joins or

@@ -21,12 +21,14 @@ function Place({ place }: { place: number }) {
 
 function DailyRankings() {
   const { t, locale, boot, share } = useApp();
-  const [tab, setTab] = useState<'today' | 'week' | 'friends' | 'total'>('today');
+  const [tab, setTab] = useState<'today' | 'week' | 'friends' | 'month'>('today');
   const { data, error, retry } = useCompetition(boot);
-  const tabs = (['today', 'week', 'friends', 'total'] as const).filter(k => k !== 'friends' || !!data?.friends);
-  const tabLabel: Record<string, string> = { today: 'rankingsToday', week: 'rankingsWeek', friends: 'rankingsFriends', total: 'rankingsAllTime' };
+  // 1.50: "This month" instead of "All time" (the owner's choice): every 1st of the month everyone starts level.
+  const tabs = (['today', 'week', 'friends', 'month'] as const).filter(k => k !== 'friends' || !!data?.friends);
+  // 1.50: short tab names, so four tabs (friends now always, with Lucia) fit one row on a phone.
+  const tabLabel: Record<string, string> = { today: 'rankingsToday', week: 'rankTabWeek', friends: 'rankingsFriends', month: 'rankTabMonth' };
   const n = (v: number) => v.toLocaleString(locale);
-  const standing = data?.[tab];
+  const standing = data?.[tab] ?? (tab === 'month' ? data?.total : undefined);
   return <section className="page-section" aria-labelledby="daily-rankings">
     <div className="rank-head">
       <h2 id="daily-rankings" className="sr-only">{t('rankingsKicker')}</h2>
@@ -46,6 +48,7 @@ function DailyRankings() {
         </div>
         {/* 1.26: share today's place as a challenge ("Pietje: #3 of 230 players worldwide today. Can you beat that?"). */}
         {tab === 'today' && standing.place && standing.score > 0 ? <button className="btn secondary rank-share" onClick={() => { const date = new Date().toISOString().slice(0, 10); rememberStanding('day', date, standing.place ?? undefined, standing.participants, standing.score); share(shareCard({ label: t('dayShareLabel'), date, trail: '', score: n(standing.score) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak: boot.stats?.dailyStreak, url: new URL('/?shared=day', location.origin).toString(), points: standing.score, extras: challengeExtras(t, locale, 'day', date, boot.user?.name) })); }}><Share2 size={17} aria-hidden="true"/>{t('shareChallenge')}</button> : null}
+        {tab === 'month' && data?.total ? <p className="muted rank-own-total">{t('rankingsOwnTotal').replace('{n}', n(data.total.score))}</p> : null}
         {standing.place ? <p className="rank-target">{standing.next ? t('rankTarget').replace('{n}', n(standing.next.gap + 1)).replace('{name}', standing.next.name).replace('{place}', n(standing.next.place)) : t('rankLeading')}</p> : null}
         {standing.leaders.length ? <ol className="leader-list" aria-label={t('rankingsTop')}>
           {standing.leaders.map((p: Leader, i: number) => <li key={i} className={p.me ? 'is-you' : ''}>

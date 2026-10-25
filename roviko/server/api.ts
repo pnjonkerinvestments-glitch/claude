@@ -23,7 +23,7 @@ import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
 import { createRoom, mutateRoom, roomView, connectSocket, quickMatch } from './multiplayer';
 import { growthStats } from './growth';
-import { heartbeat, inviteCheck, inviteFriend, answerInvite, luciaAccepts, ONLINE_WINDOW } from './presence';
+import { heartbeat, inviteCheck, inviteFriend, answerInvite, luciaAccepts, ensureLucia, ONLINE_WINDOW } from './presence';
 import { LUCIA_ID, LUCIA_NAME } from '../lib/lucia';
 import { LUCIA_KEY, NAME_KEY_SQL, nameTaken, searchKey } from './names';
 import { COUNTRIES, type Settings } from '../lib/game-engine/questions';
@@ -228,7 +228,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'export') {
             const data = { // 1.45: everything stored about the account (GDPR art. 15 and 20).
                 appOpens: await rows(env, 'SELECT day,platform FROM app_opens WHERE user_id=?', user.id),
-                learnProgress: await rows(env, 'SELECT data,updated_at FROM learn_progress WHERE user_id=?', user.id), streakRepairs: await rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', user.id), reviews: await rows(env, 'SELECT * FROM learning_reviews WHERE user_id=?', user.id), conceptPerformance: await rows(env, 'SELECT * FROM concept_performance WHERE user_id=?', user.id), blocks: await rows(env, 'SELECT blocked_id,created_at FROM player_blocks WHERE blocker_id=?', user.id), playerReports: await rows(env, 'SELECT reported_id,reason,created_at FROM player_reports WHERE reporter_id=?', user.id), invites: await rows(env, 'SELECT room_code,from_id,to_id,status,created_at FROM room_invites WHERE from_id=? OR to_id=?', user.id, user.id),
+                learnProgress: await rows(env, 'SELECT data,updated_at FROM learn_progress WHERE user_id=?', user.id), streakRepairs: await rows(env, 'SELECT date,created_at FROM streak_repairs WHERE user_id=?', user.id), reviews: await rows(env, 'SELECT * FROM learning_reviews WHERE user_id=?', user.id), conceptPerformance: await rows(env, 'SELECT * FROM concept_performance WHERE user_id=?', user.id), blocks: await rows(env, 'SELECT blocked_id,created_at FROM player_blocks WHERE blocker_id=?', user.id), playerReports: await rows(env, 'SELECT reported_id,reason,created_at FROM player_reports WHERE reporter_id=?', user.id), invites: await rows(env, 'SELECT room_code,from_id,to_id,status,created_at FROM room_invites WHERE from_id=? OR to_id=?', user.id, user.id), luciaInvites: await rows(env, 'SELECT added_at,last_day,noes,stopped FROM lucia_friends WHERE user_id=?', user.id),
                 dailyScores:await rows(env,'SELECT * FROM daily_scores WHERE user_id=?',user.id), leagues:await rows(env,'SELECT week,tier,group_no,joined_at FROM league_members WHERE user_id=?',user.id), profile: safeUser(user), results: await rows(env, 'SELECT * FROM game_results WHERE user_id=?', user.id), answers: await rows(env, 'SELECT * FROM answers WHERE user_id=?', user.id), daily: await rows(env, 'SELECT * FROM daily_challenge_results WHERE user_id=?', user.id), achievements: await rows(env, 'SELECT * FROM user_achievements WHERE user_id=?', user.id), friends: await rows(env, 'SELECT * FROM friend_requests WHERE from_id=? OR to_id=?', user.id, user.id), reports: await rows(env, 'SELECT * FROM question_reports WHERE user_id=?', user.id), exportedAt: new Date().toISOString() };
             return json(data, 200, { 'Content-Disposition': 'attachment; filename="roviko-account.json"' });
         }
@@ -369,7 +369,9 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'friends') {
             if (user.guest)
                 throw new AppError('ACCOUNT_REQUIRED', 403);
-            // Lucia (1.30) is always around: online, never in a room. She accepts a request after a minute (1.31).
+            // Lucia (1.30) is always around: online, never in a room. She accepts a request after a minute (1.31),
+            // and since 1.50 every account has her as a friend from the start.
+            await ensureLucia(env, user.id).catch(() => { /* she is added on the next check */ });
             await luciaAccepts(env, user.id);
             if (method === 'GET') {
                 const friendList = (await rows(env, `SELECT f.*,u.id user_id,u.name,u.avatar,COALESCE((SELECT SUM(score) FROM game_results WHERE user_id=u.id AND multiplayer=1),0) score,CASE WHEN f.status='accepted' AND p.last_seen>? THEN 1 ELSE 0 END online,CASE WHEN f.status='accepted' AND p.last_seen>? THEN p.room_code END room_code FROM friend_requests f JOIN users u ON u.id=CASE WHEN f.from_id=? THEN f.to_id ELSE f.from_id END LEFT JOIN user_presence p ON p.user_id=u.id WHERE (f.from_id=? OR f.to_id=?) AND f.status!='rejected' ORDER BY online DESC,u.name`, Date.now() - ONLINE_WINDOW, Date.now() - ONLINE_WINDOW, user.id, user.id, user.id)).map((f: any) => f.user_id === LUCIA_ID ? { ...f, name: LUCIA_NAME, ...(f.status === 'accepted' ? { online: 1, room_code: null } : {}) } : f);
@@ -407,6 +409,16 @@ export async function handleApi(req: Request, env: Env, ctx?: {
                 { const levels = await levelsFor(env, matches.map((u: any) => u.id));
                 return json({ choices: matches.map((u: any) => ({ code: String(u.id).slice(0, 8).toUpperCase(), name: u.id === LUCIA_ID ? LUCIA_NAME : u.name, avatar: u.avatar, level: u.id === LUCIA_ID ? null : levels[u.id] })) }); }
             const target = matches[0];
+            // 1.50: Lucia comes with every account, so a player who ended that friendship can always ask her back
+            // (she accepts after a minute again), and her daily invite starts over.
+            // Typing "lucia" while she is already your friend is fine, not an error.
+            if (target.id === LUCIA_ID && await one(env, "SELECT id FROM friend_requests WHERE ((from_id=? AND to_id=?) OR (from_id=? AND to_id=?)) AND status='accepted'", user.id, LUCIA_ID, LUCIA_ID, user.id))
+                return json({ ok: true });
+            if (target.id === LUCIA_ID && await one(env, "SELECT id FROM friend_requests WHERE ((from_id=? AND to_id=?) OR (from_id=? AND to_id=?)) AND status='rejected'", user.id, LUCIA_ID, LUCIA_ID, user.id)) {
+                await run(env, "UPDATE friend_requests SET from_id=?,to_id=?,status='pending',created_at=? WHERE ((from_id=? AND to_id=?) OR (from_id=? AND to_id=?)) AND status='rejected'", user.id, LUCIA_ID, Date.now(), user.id, LUCIA_ID, LUCIA_ID, user.id);
+                await run(env, 'UPDATE lucia_friends SET noes=0,stopped=0 WHERE user_id=?', user.id);
+                return json({ ok: true });
+            }
             if (await one(env, 'SELECT id FROM friend_requests WHERE (from_id=? AND to_id=?) OR (to_id=? AND from_id=?)', user.id, target.id, user.id, target.id))
                 throw new AppError('REQUEST_EXISTS', 409);
             const pairId = [user.id, String(target.id)].sort().join(':');

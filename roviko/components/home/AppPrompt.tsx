@@ -30,11 +30,12 @@ function remember() { try { localStorage.setItem(KEY, String(Date.now())); } cat
 const sharedVisit = () => { try { const q = new URLSearchParams(location.search); return q.has('shared') || q.has('challenge') || q.has('u') || q.has('r'); } catch { return false; } };
 export function useAppPrompt(skip = false) {
   const [open, setOpen] = useState(false), [decided, setDecided] = useState(false);
-  useEffect(() => { if (APP_STORE_URL && !skip && !sharedVisit() && !inApp() && iosBrowser() && !quiet()) setOpen(true); setDecided(true); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // 1.50: asked again when `skip` lifts (the first Daily Detour is done), so it can come right after that game.
+  useEffect(() => { if (APP_STORE_URL && !skip && !sharedVisit() && !inApp() && iosBrowser() && !quiet()) setOpen(true); setDecided(true); }, [skip]); // eslint-disable-line react-hooks/exhaustive-deps
   return { open, decided, close: () => { remember(); setOpen(false); } };
 }
 
-/** Straight away on the homepage for iPhone visitors in the browser: the app, or carry on here (trip style: Roviko on mint, three mint perk rows, one black App Store pill). */
+/** For iPhone visitors in the browser, once their first Daily Detour is done (1.50; before that straight away): the app, or carry on here (trip style: Roviko on mint, three mint perk rows, one black App Store pill). */
 export function AppPrompt({ open, onClose, t }: { open: boolean; onClose: () => void; t: (k: string) => string }) {
   return <Dialog open={open} onOpenChange={v => { if (!v) onClose(); }}>
     <DialogContent className="app-modal app-prompt">
