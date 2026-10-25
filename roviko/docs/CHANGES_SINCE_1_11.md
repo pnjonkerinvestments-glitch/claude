@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.53.0 (op de testversie, nog niet live)
+## 1.53.0 (live sinds 25 oktober 2026, PR #52)
 
 - **Lucia 👽 speelt spannend** (wens van de eigenaar). Ze antwoordt pas als alle spelers in de kamer geantwoord hebben (of vlak voor het eind van de tijd), en kiest dan een goed of fout antwoord en een moment (hooguit 2,5 s na de laatste speler) waarmee ze net achter de beste speler eindigt; in de eerste helft van het potje soms net voor. Vanaf twee rondes voor het eind blijft ze net achter. Laatste vraag: heeft de speler die goed, dan wint de speler; heeft hij die fout, dan wint Lucia soms nipt. Bij kaart- en volgordevragen kan ze ook (bijna) niets scoren. Dit geldt overal waar ze meespeelt, ook als ze in een kamer van een speler is uitgenodigd (`luciaAnswer` in `lib/game-engine/bots.ts`, `luciaTurn` in `server/multiplayer.ts`). Gewone computerspelers zijn niet veranderd.
 - **Lucia's kamer start pas na "Ik ben klaar"**: niet meer zodra je binnenkomt. Onder de knop staat "Lucia 👽 begint zodra jij klaar bent." Het potje begint zodra iedereen die er is op klaar heeft gedrukt.
