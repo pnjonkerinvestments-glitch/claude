@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.54.1 (op de testversie, nog niet live)
+## 1.54.1 (live sinds 26 oktober 2026, PR #55)
 
 - **Eindscherm van Rank Radar en Side by Side op een pc stond rechts** (melding van de eigenaar met schermafbeelding): de laptopindeling uit 1.52 (vraag links, antwoorden rechts) gold ook nog als het spel klaar was, waardoor het eindscherm in de rechterkolom viel. Die indeling geldt nu alleen zolang er een vraag op het scherm staat (`app/v152.css`, `:has(>.rb-hero)` en `:has(>.comparison-heading)`).
 - Versie 1.54.1, service worker `roviko-shell-v1.54.1`.
