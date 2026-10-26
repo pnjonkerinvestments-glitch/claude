@@ -1,4 +1,4 @@
-export const BRAND = { name: 'Roviko', version: '1.54.0', tagline: 'The world is your playground.', url: '' };
+export const BRAND = { name: 'Roviko', version: '1.54.1', tagline: 'The world is your playground.', url: '' };
 export const FEATURES = { quickMatch: false, ranked: false, payments: false, chat: false };
 export const GEOGRAPHY_POLICY = { definition: 'UN members plus observer states', excludeSensitiveCapitalQuestions: ['PSE', 'ISR'], puzzleSensitiveCountries: ['RUS', 'UKR', 'ISR', 'PSE'], populationQuestions: false, mapTarget: 'country geometry with a declared 25 km boundary tolerance; legacy sessions retain reference-point rules' };
 // 1.44: Shape Shift (country outlines) is a classic too, so multiplayer and Around the World can use it.
