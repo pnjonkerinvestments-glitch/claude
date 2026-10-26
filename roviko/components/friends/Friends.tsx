@@ -1,5 +1,5 @@
 'use client';
-import React, { useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { sound } from '@/lib/client';
 import { plural } from '@/lib/plural';
 import { ArrowRight, Check, Copy, DoorOpen, Plus, Send, Star, UserPlus, X } from 'lucide-react';
@@ -67,6 +67,10 @@ export function usePresence(path: string) {
     window.addEventListener('roviko:presence', beat);
     return () => { active = false; clearInterval(id); clearInterval(quick); clearTimeout(lucia); document.removeEventListener('visibilitychange', beat); window.removeEventListener('roviko:presence', beat); };
   }, [bootLoaded, boot.user.guest, boot.user.id, room, playing]);
+  // 1.54: leaving a room drops any invite into it that this screen still holds, so it never pops up the moment you
+  // leave; the check that follows asks the server, which only lists a new invite (someone invited you again).
+  const previous = useRef(room);
+  useEffect(() => { const left = previous.current; previous.current = room; if (left && left !== room) setInvites(list => list.filter(i => i.code !== left)); }, [room]);
   return { invites: invites.filter(i => i.code !== room), dismiss: (id: string) => setInvites(list => list.filter(i => i.id !== id)) };
 }
 

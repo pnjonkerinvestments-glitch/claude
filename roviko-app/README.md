@@ -90,5 +90,5 @@ roviko.app-links (herinneringsmails, e-mailbevestiging, gedeelde uitdagingen) op
 
 ## Versies
 
-- iPhone 1.2 (25 oktober 2026): roviko.app-links openen de app. Apple vraagt bij elke nieuwe inzending een hoger versienummer dan de laatst goedgekeurde (1.1); het buildnummer komt uit de workflow.
-- Android 1.1.0, versiecode 63 (25 oktober 2026): dezelfde wijziging. Google Play wil alleen een hogere versiecode (het runnummer van de workflow), het versienummer mocht blijven.
+- iPhone 1.2 (build 66, ingediend bij Apple op 25 oktober 2026; Associated Domains stond al aan): roviko.app-links openen de app. Apple vraagt bij elke nieuwe inzending een hoger versienummer dan de laatst goedgekeurde (1.1); het buildnummer komt uit de workflow.
+- Android 1.1.0, versiecode 63 (ingediend bij Google Play op 25 oktober 2026; secret `ANDROID_CERT_SHA256` staat erin, `/.well-known/assetlinks.json` geeft 200): dezelfde wijziging. Google Play wil alleen een hogere versiecode (het runnummer van de workflow), het versienummer mocht blijven.

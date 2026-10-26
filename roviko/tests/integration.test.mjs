@@ -728,6 +728,11 @@ test('guests without any game for a year are deleted with their data; accounts a
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM game_sessions WHERE user_id=?').bind(ids[0]).first()).n,0,'their games go too');
  assert.equal((await db.prepare('SELECT COUNT(*) n FROM users WHERE id=?').bind(ids[1]).first()).n,1,'a guest who played recently stays');
  assert.equal((await request(active.cookie,'/bootstrap')).data.user.id,ids[1]);
+ // 1.54: rate-limit counters whose minute is long over go too; current ones stay.
+ await db.prepare('INSERT OR REPLACE INTO rate_limits(key,count,reset_at) VALUES (?,?,?),(?,?,?)').bind('old-counter',1,now-2*3600000,'live-counter',1,now+60000).run();
+ await pruneExpired({DB:db},now,true);
+ assert.equal((await db.prepare("SELECT COUNT(*) n FROM rate_limits WHERE key='old-counter'").first()).n,0);
+ assert.equal((await db.prepare("SELECT COUNT(*) n FROM rate_limits WHERE key='live-counter'").first()).n,1);
 });
 
 test('room sockets count their D1 queries so they can hand over before the per-invocation cap',async()=>{
@@ -1036,4 +1041,31 @@ test('host note "Everyone ready?" (1.53): everyone sees it, at most once per 10 
  const again=(await request(a.cookie,'/rooms/'+code+'/nudge','POST',{})).data;assert.equal(again.nudge.at,first.nudge.at,'no second note within 10 seconds');
  await alter(code,r=>{r.nudge.at-=11000;});const later=(await request(a.cookie,'/rooms/'+code+'/nudge','POST',{})).data;assert.ok(later.nudge.at>first.nudge.at);
  assert.equal((await request(b.cookie,'/rooms/'+code+'/nudge','POST',{})).status,403,'only the host');
+});
+test('1.54: an invite disappears once you joined the room or when the one who invited you left, and leaving is quiet',async()=>{
+ const signup=async(n)=>{const g=await bootstrap();return request(g.cookie,'/auth/signup','POST',{name:'Leave '+n,email:'leave-'+n.toLowerCase()+'@example.test',password:'Synthetic-leave-password-'+n});};
+ const a=await signup('A'),b=await signup('B');
+ await request(a.cookie,'/friends','POST',{code:b.data.user.friendCode});const pending=(await request(b.cookie,'/friends')).data.friends.find(f=>f.user_id===a.data.user.id);await request(b.cookie,'/friends/'+pending.id,'POST',{status:'accepted'});
+ const room=(await request(a.cookie,'/rooms','POST',{settings})).data;
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200);
+ assert.equal((await request(b.cookie,'/presence','POST',{})).data.invites.length,1);
+ // B comes in by the room link (not by the invite card) and leaves again: the invite has done its job.
+ assert.equal((await request(b.cookie,'/rooms/'+room.code+'/join','POST',{})).status,200);
+ assert.equal((await request(b.cookie,'/rooms/'+room.code+'/leave','POST',{})).status,200);
+ assert.deepEqual((await request(b.cookie,'/presence','POST',{})).data.invites,[],'no old invite pops up after leaving');
+ // Invited again after leaving: that one shows.
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/invite','POST',{friendId:b.data.user.id})).status,200);
+ assert.equal((await request(b.cookie,'/presence','POST',{})).data.invites.length,1,'a new invite is shown');
+ // The host leaves the waiting room: the invite into that (now empty) room is gone.
+ assert.equal((await request(a.cookie,'/rooms/'+room.code+'/leave','POST',{})).status,200);
+ assert.deepEqual((await request(b.cookie,'/presence','POST',{})).data.invites,[],'no invite into a room the inviter left');
+});
+test('1.54: Lucia does not invite on a day you were in a room',async()=>{
+ const g=await bootstrap(),a=await request(g.cookie,'/auth/signup','POST',{name:'Roomy Player',email:'roomy@example.test',password:'Synthetic-roomy-password-1'});
+ const room=(await request(a.cookie,'/rooms','POST',{settings})).data;
+ await request(a.cookie,'/presence','POST',{room:room.code});
+ await db.prepare('UPDATE lucia_friends SET online_since=? WHERE user_id=?').bind(Date.now()-60000,a.data.user.id).run();
+ assert.deepEqual((await request(a.cookie,'/presence','POST',{})).data.invites,[],'out of the room: no invite from Lucia right away');
+ const state=await db.prepare('SELECT last_day,noes FROM lucia_friends WHERE user_id=?').bind(a.data.user.id).first();
+ assert.equal(state.last_day,new Date().toISOString().slice(0,10));assert.equal(state.noes,0,'not counted as a no');
 });

@@ -31,14 +31,20 @@ export async function heartbeat(env: Env, user: User, roomCode?: string | null, 
       if (!seen?.lucia) await luciaBefriends(env, user.id, now).catch(() => { /* next check */ });
       else if (since !== Number(seen.online_since)) await run(env, 'UPDATE lucia_friends SET online_since=? WHERE user_id=?', since, user.id).catch(() => {});
       await luciaAccepts(env, user.id, now).catch(() => { /* next check */ });
-      if (!room && !playing) await luciaInvites(env, user.id, now, since).catch(() => { /* Lucia waits for the next check */ });
+      // 1.54: a player who is in a room today already plays with others, so Lucia skips her invite for today (she
+      // used to pop up the moment they left the room). It is not a no: her count of noes stays as it was.
+      if (room) await run(env, "UPDATE lucia_friends SET last_day=? WHERE user_id=? AND (last_day IS NULL OR last_day<>?) AND stopped=0", new Date(now).toISOString().slice(0, 10), user.id, new Date(now).toISOString().slice(0, 10)).catch(() => {});
+      else if (!playing) await luciaInvites(env, user.id, now, since).catch(() => { /* Lucia waits for the next check */ });
     })(),
   ]);
   // 1.41: only invites into rooms you can still join (waiting room, not full, not expired), and a friend's invite
-  // always before Lucia's, so her automatic invite never hides a real one.
+  // always before Lucia's, so her automatic invite never hides a real one. 1.54: and only while the one who invited
+  // you is still in that room, and you are not in it already (no invite into a room the host left, or one you just left).
   const [inviteRows, pending] = await Promise.all([rows(env, `SELECT i.id,i.room_code code,i.created_at,u.id from_id,u.name,u.avatar FROM room_invites i JOIN users u ON u.id=i.from_id
     JOIN multiplayer_rooms r ON r.code=i.room_code
     WHERE i.to_id=? AND i.status='pending' AND i.created_at>? AND r.expires_at>? AND json_extract(r.state,'$.phase')='lobby' AND COALESCE(json_array_length(r.state,'$.players'),0)<12
+      AND EXISTS (SELECT 1 FROM json_each(r.state,'$.players') p WHERE json_extract(p.value,'$.id')=i.from_id)
+      AND NOT EXISTS (SELECT 1 FROM json_each(r.state,'$.players') p WHERE json_extract(p.value,'$.id')=i.to_id)
     ORDER BY (i.from_id=?) ASC, i.created_at DESC LIMIT 3`, user.id, now - INVITE_TTL, now, LUCIA_ID),
     // 1.28: friend requests waiting for you, for the red badge on the Multiplayer tab.
     one(env, "SELECT COUNT(*) n FROM friend_requests WHERE to_id=? AND status='pending'", user.id)]);

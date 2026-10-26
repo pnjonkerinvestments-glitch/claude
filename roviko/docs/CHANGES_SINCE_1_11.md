@@ -596,6 +596,30 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.54.0 (op de testversie, nog niet live)
+
+Snelheid en multiplayer-haperingen (vraag van de eigenaar: "de app reageert soms traag, en bij uitnodigen glitcht het als je weer uit de kamer gaat").
+
+**Multiplayer: gevonden en opgelost** (nagespeeld met twee accounts in twee vensters):
+- **Direct na het verlaten van een kamer verscheen er een uitnodiging** (meestal van Lucia: zij wachtte zolang je in een kamer zat en nodigde uit zodra je eruit ging). Nu: wie die dag in een kamer zat, krijgt die dag geen uitnodiging van Lucia; dat telt niet als nee.
+- **Uitnodiging voor een lege kamer**: ging de host weg, dan bleef zijn uitnodiging staan en kwam je bij "ja" alleen in een lege kamer. Nu toont de server een uitnodiging alleen zolang wie uitnodigde nog in die kamer is, en niet als je er zelf al in zit.
+- **Oude uitnodiging na weggaan**: kwam je via de link (niet via de uitnodigingskaart) binnen, dan bleef de uitnodiging openstaan en dook ze op na het weggaan. Nu wordt een uitnodiging afgehandeld zodra je in de kamer bent, en gooit de app bij weggaan meteen de kaart voor die kamer weg. Opnieuw uitnodigen werkt gewoon.
+- **Weggaan**: de live verbinding gaat eerst dicht en daarna pas het verzoek om weg te gaan, zodat er geen foutmelding ("open in een ander venster") meer kan flitsen. Wie niet meer in de kamer zit krijgt `NOT_IN_ROOM` in plaats van `DUPLICATE_SESSION`.
+
+**Sneller** (gemeten op de testversie, telefoonformaat):
+- Het startscherm is compleet na ongeveer 1,5 s in plaats van 2,9 s: de eerste spelerscheck start al vanuit de paginakop, nog voor de app-code geladen is (`lib/early-boot.ts`); de stand van de dag wacht niet meer op de dagspellen; een terugkerende speler ziet meteen zijn eigen startscherm uit de vorige keer (`rv_boot` in de browser, zonder e-mailadres) terwijl de verse gegevens laden.
+- "Volgende vraag" ongeveer 0,5 s in plaats van 1,1 s, antwoord geven ongeveer 0,6 s in plaats van 0,8 s: bij elk verzoek lopen de sessiecheck en de limiet tegelijk (de limiet telt nu per sessie in plaats van per account).
+- Minder databasewerk: de profielgegevens, de ranglijsten (één vraag per ranglijst in plaats van vier, die elk opnieuw alle punten optelden), de weekcompetitie en het dagoverzicht vragen hun gegevens tegelijk op. De ranglijst "altijd" is alleen nog je eigen totaal (meer toonde de app sinds "Maand" niet). Een nieuwe gast kost één stap minder.
+- **Oorzaak van "soms traag" gevonden:** bij elke nieuwe serverinstantie (Cloudflare start die steeds opnieuw, ook na een stille periode) deed het eerste bezoek twee zware dingen voordat het antwoordde: alle multiplayer-uitslagen van iedereen optellen voor community-cijfers die de app nergens toonde (gemeten: één bezoek van 8 s op de testversie), en een opruimronde met grote verwijderacties die de database even blokkeerde voor iedereen. De community-cijfers zijn weg uit de spelerscheck; het opruimen gebeurt nu vier keer per dag op een rustig uur via de bestaande uurtaak (`worker/index.ts`, uur 3, 9, 15 en 21 UTC). Daar ruimt hij ook verlopen limiet-tellers op (werden nooit verwijderd) en metingen ouder dan 90 dagen (gebeurde bij elke meting).
+- Vlaggen, illustraties en lettertypes blijven bewaard bij een nieuwe versie (eigen cache `roviko-media-v1`, op de achtergrond ververst); voorheen werden ze bij elke update opnieuw gedownload.
+- Privacyverklaring bijgewerkt: de kopie van je spelerskaart (zonder e-mailadres) in je browser.
+- Geen migratie.
+- Versie 1.54.0, service worker `roviko-shell-v1.54.0`.
+
+**Gemeten, niet veranderd (voorstel):** de stijlbestanden zijn samen 780 KB (149 KB ingepakt) en blokkeren het eerste beeld; de teksten van alle drie de talen zitten in de app-code (84 KB ingepakt). Opruimen kan nog 100+ KB schelen, maar raakt elk scherm en vraagt een eigen controleronde.
+
+**Getest:** `npm test` 225 geslaagd, 1 overgeslagen (nieuw: verlopen limiet-tellers worden opgeruimd en lopende niet; geen uitnodiging meer na meedoen via de link en weggaan, wel na opnieuw uitnodigen; geen uitnodiging in een kamer die de uitnodiger verliet; geen Lucia-uitnodiging op een dag in een kamer, zonder nee). Ranglijsttests (gelijke scores, top 10, rond jouw plek) ongewijzigd geslaagd. Typecheck en build geslaagd. In de browser: het multiplayer-scenario (uitnodigen, ja, weggaan, opnieuw, host weg) drie keer nagespeeld zonder foutmelding of verkeerde kaart; één bootstrap per bezoek. **Niet getest:** in de iPhone- en Android-app zelf, en op een echte trage telefoon (wel nagebootst met 4× tragere processor).
+
 ## 1.53.0 (live sinds 25 oktober 2026, PR #52)
 
 - **Lucia 👽 speelt spannend** (wens van de eigenaar). Ze antwoordt pas als alle spelers in de kamer geantwoord hebben (of vlak voor het eind van de tijd), en kiest dan een goed of fout antwoord en een moment (hooguit 2,5 s na de laatste speler) waarmee ze net achter de beste speler eindigt; in de eerste helft van het potje soms net voor. Vanaf twee rondes voor het eind blijft ze net achter. Laatste vraag: heeft de speler die goed, dan wint de speler; heeft hij die fout, dan wint Lucia soms nipt. Bij kaart- en volgordevragen kan ze ook (bijna) niets scoren. Dit geldt overal waar ze meespeelt, ook als ze in een kamer van een speler is uitgenodigd (`luciaAnswer` in `lib/game-engine/bots.ts`, `luciaTurn` in `server/multiplayer.ts`). Gewone computerspelers zijn niet veranderd.

@@ -45,9 +45,10 @@ function Highlight({ text, hl }: { text: string; hl: string }) {
 export function HomePage() {
   const app = useApp(), { t, locale, boot, bootLoaded, fail } = app;
   const { data: today, error: todayError, retry } = useToday(boot);
-  const { data: competition } = useCompetition(boot, today?.date, !!today || todayError);
   const [fallbackDate] = useState(() => new Date().toISOString().slice(0, 10));
   const date = today?.date ?? fallbackDate;
+  // 1.54: the standings load at the same time as today's games (with today's UTC date), not after them.
+  const { data: competition } = useCompetition(boot, date);
   const [mysteryOpen, setMysteryOpen] = useState(false), [launching, setLaunching] = useState('');
   const lock = useRef(false);
   const reset = useResetLabel(t);

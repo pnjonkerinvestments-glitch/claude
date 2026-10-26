@@ -43,3 +43,22 @@ export const soundOn = () => readPreference('rv_sound', soundDefault()) === 'on'
 export function sound(type: Effect, streak = 0) { if (soundOn()) effect(type, streak); if (readPreference('rv_haptics', 'on') === 'on') haptic(type); }
 
 export function metric(event: string, mode: string, context = '') { if (readPreference('rv_metrics','off') === 'on') void post('/metrics',{ event,mode,context }).catch(() => {}); }
+
+/**
+ * 1.54: the first /bootstrap is started by a tiny script in the page head (lib/early-boot.ts), before the app code has
+ * even loaded, so on a slow phone the player is known up to a second sooner. Taken once; a different platform than the
+ * app reports (should not happen) or a failed early request falls back to a normal request.
+ */
+export function earlyBoot(platform: string): Promise<any> | null {
+    let early: { platform: string; response: Promise<{ ok: boolean; data: any }> } | undefined;
+    try { early = (window as any).__rvBoot; delete (window as any).__rvBoot; } catch { return null; }
+    if (!early || early.platform !== platform) return null;
+    return early.response.then(r => { if (!r.ok) throw new Error(r.data?.error ?? 'SERVER_UNAVAILABLE'); return withSpanish(r.data); }, () => api('/bootstrap?platform=' + platform));
+}
+/** 1.54: the last known player (without email), shown at once on the next visit while the fresh one loads. */
+export function cachedBoot(): any | null {
+    try { const v = JSON.parse(localStorage.getItem('rv_boot') ?? 'null'); return v && Date.now() - v.at < 7 * 86400000 && v.boot?.user?.id ? v.boot : null; } catch { return null; }
+}
+export function rememberBoot(boot: any) {
+    try { if (!boot?.user?.id) return; const user = { ...boot.user }; delete user.email; localStorage.setItem('rv_boot', JSON.stringify({ at: Date.now(), boot: { ...boot, user } })); } catch { /* storage full or blocked: just slower next time */ }
+}
