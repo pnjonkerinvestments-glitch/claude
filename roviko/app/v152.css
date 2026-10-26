@@ -33,13 +33,14 @@
   .learning-game .auto-next-wrap small{display:none}
   .learning-game .solo-next-row{margin-top:10px!important}
   /* Side by Side: the question on the left, the two countries on the right. */
-  .game-main .puzzle-game.puzzle-compare{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);column-gap:24px;width:min(1040px,calc(100vw - 48px))!important;max-width:none!important;align-items:start}
+  /* 1.54: only while a question is on screen; the finish screen (and anything else) keeps its centred single column. */
+  .game-main .puzzle-game.puzzle-compare:has(>.comparison-heading){display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);column-gap:24px;width:min(1040px,calc(100vw - 48px))!important;max-width:none!important;align-items:start}
   .puzzle-compare>*{grid-column:2;min-width:0}
   .puzzle-compare>.game-header{grid-column:1/-1;width:100%}
   .puzzle-compare>.comparison-heading{grid-column:1;grid-row:2/span 8;margin:0!important}
   .puzzle-compare>.comparison-cards{margin-top:0!important}
   /* Rank Radar: the country on the left, its subjects and the button on the right. */
-  .game-main .rank-board{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);column-gap:24px;width:min(1040px,calc(100vw - 48px))!important;max-width:none!important;align-items:start}
+  .game-main .rank-board:has(>.rb-hero){display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);column-gap:24px;width:min(1040px,calc(100vw - 48px))!important;max-width:none!important;align-items:start}
   .rank-board>*{grid-column:2;min-width:0}
   .rank-board>.game-header{grid-column:1/-1;width:100%}
   .rank-board>.game-header .game-header-row,.puzzle-compare>.game-header .game-header-row{width:100%}
