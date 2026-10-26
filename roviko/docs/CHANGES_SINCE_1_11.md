@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.54.0 (op de testversie, nog niet live)
+## 1.54.0 (live sinds 26 oktober 2026, PR #54)
 
 Snelheid en multiplayer-haperingen (vraag van de eigenaar: "de app reageert soms traag, en bij uitnodigen glitcht het als je weer uit de kamer gaat").
 
