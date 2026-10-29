@@ -1,4 +1,4 @@
-const CACHE='roviko-shell-v1.54.1';
+const CACHE='roviko-shell-v1.55.0';
 // 1.54: flags, illustrations, fonts and shapes keep their own cache across updates (they used to be thrown away and
 // downloaded again with every new version). Shown from the cache at once and refreshed in the background.
 const MEDIA='roviko-media-v1';

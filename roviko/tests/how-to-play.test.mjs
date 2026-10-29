@@ -62,7 +62,8 @@ test('every game has a worked example in English, Dutch and Spanish, shown on th
 test('every scored game shows its own points rule, never the "no points" text', () => {
   const t = key => messages.en[key] ?? key;
   // 1.24: the daily Size Shuffle ('order') took Country Mosaic's place; Mosaic is an extra without points.
-  for (const mode of ['daily', 'rank', 'shape', 'compare', 'order', 'trail']) {
+  // 1.55: Daily Crossroads took the daily Clue Trail's place; Clue Trail is a classic game again.
+  for (const mode of ['daily', 'rank', 'shape', 'compare', 'order', 'crossroads']) {
     const html = renderToStaticMarkup(createElement(HowToPlayPage, { t, locale: 'en', onPlay() {}, initialMode: mode }));
     const panel = html.slice(html.indexOf('role="tabpanel"'));
     assert.ok(!panel.includes(messages.en.scoringExtrasCopy), mode + ' says it gives no points');
@@ -71,6 +72,8 @@ test('every scored game shows its own points rule, never the "no points" text', 
   for (const l of ['en', 'nl', 'es']) assert.match(messages[l].competitionOrder, /50/, 'size shuffle rule ' + l);
   assert.ok(HOW_TO_PLAY_GROUPS.find(g => g.key === 'howToExtras').modes.includes('mosaic'), 'Mosaic is an extra');
   assert.ok(HOW_TO_PLAY_GROUPS.find(g => g.key === 'howToExtras').modes.includes('duel'), '1.41: World Duel is an extra');
+  assert.ok(HOW_TO_PLAY_GROUPS.find(g => g.key === 'howToClassic').modes.includes('trail'), '1.55: Clue Trail is a classic');
+  for (const l of ['en', 'nl', 'es']) assert.match(messages[l].competitionCrossroads, /1[.,]000/, 'crossroads rule ' + l);
   for (const l of ['en', 'nl', 'es']) assert.match(messages[l].competitionShape, /100/, 'shape rule ' + l);
   for (const l of ['en', 'nl', 'es']) assert.ok(messages[l].competitionDuel, 'duel rule ' + l);
 });

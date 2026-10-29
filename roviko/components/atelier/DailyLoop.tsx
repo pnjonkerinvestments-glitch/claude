@@ -8,8 +8,8 @@ import { STREAK_MILESTONES, dayModesFor, completedDailies, dailyStateOf, nextDai
 import { ResetCountdown } from './ResetCountdown';
 import { DailyQuests } from './DailyQuests';
 
-export const DAILY_EMOJI: Record<DayMode, string> = { shape: '🗺️', rank: '🎯', daily: '✈️', duel: '⚔️', compare: '⚖️', mosaic: '🧩', order: '📏', trail:'🧭' };
-export const dailyTitleKey = (mode: DayMode) => mode === 'daily' ? 'dailyTitle' : mode === 'trail' ? 'dailyTrail' : mode === 'rank' ? 'rankRadar' : mode === 'duel' ? 'duel' : mode;
+export const DAILY_EMOJI: Record<DayMode, string> = { shape: '🗺️', rank: '🎯', daily: '✈️', duel: '⚔️', compare: '⚖️', mosaic: '🧩', order: '📏', trail:'🧭', crossroads: '🔳' };
+export const dailyTitleKey = (mode: DayMode) => mode === 'daily' ? 'dailyTitle' : mode === 'trail' ? 'dailyTrail' : mode === 'crossroads' ? 'crossroads' : mode === 'rank' ? 'rankRadar' : mode === 'duel' ? 'duel' : mode;
 
 /** Shown when a daily game is finished: today's streak, what is still open and a direct way on. */
 export function DailyLoop({ app }: { app: any }) {
@@ -26,6 +26,7 @@ export function DailyLoop({ app }: { app: any }) {
     try {
       if (mode === 'daily' || mode === 'trail' || mode === 'order' || mode === 'shape') await start({ ...DEFAULT_SETTINGS, mode: mode === 'daily' ? 'daily' : 'daily-' + mode });
       else if (mode === 'duel') go('/duel');
+      else if (mode === 'crossroads') go('/crossroads');
       else { const game = await post(mode === 'rank' ? '/ranks' : '/puzzles', { mode, daily: true, competition:true }); go((mode === 'rank' ? '/rank/' : '/puzzle/') + game.id); }
     } catch (e) { fail(e); } finally { lock.current = false; setBusy(false); }
   }

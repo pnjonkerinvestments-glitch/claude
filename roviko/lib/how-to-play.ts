@@ -24,10 +24,15 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '👆', text: l('Tap one tile of each kind that belong to the same country, then tap "Check match".', 'Tik op één tegel van elke soort die bij hetzelfde land hoort en tik dan op "Controleer set".', 'Toca una ficha de cada tipo del mismo país y luego «Comprobar grupo».') },
     { icon: '💡', text: l('Find all four countries. A wrong try shows which tiles do not fit, and a hint helps you on.', 'Vind alle vier de landen. Een foute poging laat zien welke tegels niet passen, en een hint helpt je verder.', 'Encuentra los cuatro países. Un intento fallido muestra qué fichas no encajan y una pista te ayuda.') },
   ], tip: l('Start with a flag and name you are sure about. Mosaic is an extra: no points, just practice.', 'Begin met een vlag en naam die je zeker weet. Mosaic is een extra: geen punten, gewoon oefenen.', 'Empieza con una bandera y un nombre que conozcas. Mosaic es un extra: sin puntos, solo práctica.') },
+  crossroads: { emoji: '🧩', steps: [
+    { icon: '🔲', text: l('A grid of 3 × 3 squares. Three categories head the columns, three the rows, for example "In Europe" and "Landlocked".', 'Een raster van 3 × 3 vakjes. Boven de kolommen staan drie categorieën en links nog drie, bijvoorbeeld "In Europa" en "Geen zee".', 'Una cuadrícula de 3 × 3 casillas. Tres categorías encabezan las columnas y tres las filas, por ejemplo «En Europa» y «Sin salida al mar».') },
+    { icon: '⌨️', text: l('Tap a square and type a country that fits both its row and its column. Every country only once.', 'Tik op een vakje en typ een land dat bij de rij én de kolom past. Elk land maar één keer.', 'Toca una casilla y escribe un país que encaje en su fila y su columna. Cada país solo una vez.') },
+    { icon: '🎯', text: l('12 guesses, no timer. A wrong country costs a guess; a typo or a country you already used does not. 100 points per square, plus 100 for a full grid.', '12 pogingen, geen timer. Een fout land kost een poging; een typfout of een land dat je al gebruikte niet. 100 punten per vakje, plus 100 voor een vol raster.', '12 intentos, sin tiempo. Un país equivocado cuesta un intento; una errata o un país ya usado, no. 100 puntos por casilla y 100 más por la cuadrícula completa.') },
+  ], tip: l('Each square shows how many players picked the same country. A rare pick (5% or less) turns purple, but never changes your points.', 'Elk vakje toont hoeveel spelers hetzelfde land kozen. Een zeldzame keuze (5% of minder) wordt paars, maar telt niet mee.', 'Cada casilla muestra cuántos eligieron el mismo país. Una elección rara (5% o menos) se pone morada, pero no cambia tus puntos.') },
   trail: { emoji: '🧭', steps: [
     { icon: '🔎', text: l('Find the mystery country. Clues come one by one, from vague to sharp. The flag always comes last.', 'Zoek het geheime land. De hints komen één voor één, van vaag naar scherp. De vlag komt altijd als laatste.', 'Encuentra el país misterioso. Las pistas llegan una a una, de vagas a claras. La bandera siempre es la última.') },
     { icon: '💡', text: l('Only open the next clue when you need it.', 'Open de volgende hint alleen als je hem nodig hebt.', 'Abre la siguiente pista solo si la necesitas.') },
-    { icon: '👆', text: l('Pick the country. In the daily game: 200, 150, 100 or 50 points after 1, 2, 3 or 4 clues.', 'Kies het land. In het dagspel: 200, 150, 100 of 50 punten na 1, 2, 3 of 4 hints.', 'Elige el país. En el juego diario: 200, 150, 100 o 50 puntos tras 1, 2, 3 o 4 pistas.') },
+    { icon: '👆', text: l('Pick the country. The fewer clues you needed, the more points you earn.', 'Kies het land. Hoe minder hints je nodig had, hoe meer punten.', 'Elige el país. Cuantas menos pistas necesites, más puntos ganas.') },
   ], tip: l('The fewer clues you need, the better you know the world.', 'Hoe minder hints je nodig hebt, hoe beter je de wereld kent.', 'Cuantas menos pistas necesites, mejor conoces el mundo.') },
   duel: { emoji: '⚔️', steps: [
     { icon: '🃏', text: l('You get seven country cards. Each round Roviko plays a country on a subject.', 'Je krijgt zeven landenkaarten. Elke ronde speelt Roviko een land op een onderwerp.', 'Recibes siete cartas de países. Cada ronda Roviko juega un país en un tema.') },
@@ -77,15 +82,16 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
 };
 
 /** Translation key of each game's name. */
-export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', daily: 'dailyTitle', mystery: 'mysteryShort', room: 'howToRoomName' };
+export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', daily: 'dailyTitle', mystery: 'mysteryShort', room: 'howToRoomName', crossroads: 'crossroads' };
 
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
   // 1.24: the daily Size Shuffle took Country Mosaic's place among the daily games; Mosaic is an extra now.
   // 1.41: Shape Shift took World Duel's place (from SHAPE_FROM); the duel is an extra now.
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'trail'] },
+  // 1.55: Daily Crossroads took the daily Clue Trail's place (from CROSSROADS_FROM); Clue Trail is a classic game again.
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'crossroads'] },
   { key: 'howToExtras', note: 'howToExtrasNote', modes: ['duel', 'mosaic', 'mystery'] },
-  { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders'] },
+  { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'trail'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
 ];
 
@@ -109,9 +115,12 @@ export const HOW_TO_EXAMPLES: Record<string, L> = {
   mosaic: l('Find Japan: the name, the white flag with a red circle, its island shape and the matching fact. Select all four, then tap "Check match".',
     'Zoek Japan: de naam, de witte vlag met een rode cirkel, de eilandvorm en het bijpassende weetje. Kies ze alle vier en tik op "Controleer set".',
     'Busca Japón: el nombre, la bandera blanca con un círculo rojo, su silueta de islas y el dato correcto. Elige las cuatro y toca «Comprobar grupo».'),
-  trail: l('Clue 1: Europe. Clue 2: it borders Spain. Guess Portugal now and you earn 150 points; wait for the capital and it is 100.',
-    'Hint 1: Europa. Hint 2: grenst aan Spanje. Raad je nu Portugal, dan krijg je 150 punten; wacht je op de hoofdstad, dan 100.',
-    'Pista 1: Europa. Pista 2: limita con España. Si dices Portugal ahora, ganas 150 puntos; si esperas a la capital, 100.'),
+  crossroads: l('Row "In Europe", column "Landlocked": Liechtenstein, Austria or Hungary fit. Spain does not: it has a coastline. Row "In South America", column "Over 50 million people": only Brazil and Colombia.',
+    'Rij "In Europa", kolom "Geen zee": Liechtenstein, Oostenrijk of Hongarije passen. Spanje niet: dat ligt aan zee. Rij "In Zuid-Amerika", kolom "Meer dan 50 miljoen inwoners": alleen Brazilië en Colombia.',
+    'Fila «En Europa», columna «Sin salida al mar»: valen Liechtenstein, Austria o Hungría. España no: tiene costa. Fila «En América del Sur», columna «Más de 50 millones de habitantes»: solo Brasil y Colombia.'),
+  trail: l('Clue 1: Europe. Clue 2: it borders Spain. Guess Portugal now, before the capital and the flag, and you score more.',
+    'Hint 1: Europa. Hint 2: grenst aan Spanje. Raad je nu Portugal, nog voor de hoofdstad en de vlag, dan scoor je meer.',
+    'Pista 1: Europa. Pista 2: limita con España. Si dices Portugal ahora, antes de la capital y la bandera, sumas más.'),
   duel: l('Roviko plays Canada on coastline, the longest in the world. You will not beat it, so give up your weakest card here and keep your strong ones for later subjects.',
     'Roviko speelt Canada op kustlijn, de langste ter wereld. Die versla je niet, dus offer hier je zwakste kaart en bewaar je sterke kaarten voor later.',
     'Roviko juega Canadá en costa, la más larga del mundo. No la vas a superar, así que sacrifica tu carta más débil y guarda las fuertes para después.'),

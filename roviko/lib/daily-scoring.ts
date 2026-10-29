@@ -5,7 +5,7 @@ export const COMPETITION_SUFFIX = ':competitive-v1';
  * Every game that can give daily points: the Daily Detour plus the daily games. A UTC date has six of them
  * (`dayModesFor` in lib/daily-loop.ts): Country Mosaic before the switch to the daily Size Shuffle ('order', 1.24), Size Shuffle after.
  */
-export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail'] as const;
+export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail', 'crossroads'] as const;
 export type PointMode = typeof DAILY_POINT_MODES[number];
 export type Competition = { version: 1; mode: PointMode };
 export const DAILY_GAME_MAX = 1000;
@@ -40,7 +40,7 @@ export function dailyRoundPoints(mode: PointMode, answer: any, rounds = 5) {
   if (mode === 'duel') return answer.correct ? Math.round(1000 / Math.max(1, rounds)) : 0;
   return 0;
 }
-export function dailyScore(s: { competition?: Competition; answers: any[]; questions?: unknown[]; board?: any; mosaicAid?: Record<string, { wrong: boolean; hints: number }> }) {
+export function dailyScore(s: { competition?: Competition; answers: any[]; questions?: unknown[]; board?: any; mosaicAid?: Record<string, { wrong: boolean; hints: number }>; cells?: (string | null)[] }) {
   const mode = s.competition?.mode;
   if (!mode) return 0;
   let score = 0;
@@ -50,6 +50,8 @@ export function dailyScore(s: { competition?: Competition; answers: any[]; quest
   else if (mode === 'compare') score = Math.round(s.answers.filter(a => a.correct).length / Math.max(1, s.questions?.length ?? 10) * 1000);
   // World Duel: the share of rounds won (five rounds before 1.21, seven since).
   else if (mode === 'duel') score = Math.round(s.answers.filter(a => a.correct).length / Math.max(1, s.board?.rounds?.length ?? 5) * 1000);
+  // Daily Crossroads (1.55): 100 per filled square, plus 100 for the full grid. Rarity never counts.
+  else if (mode === 'crossroads') { const filled = (s.cells ?? []).filter(Boolean).length; score = filled * 100 + (filled === 9 ? 100 : 0); }
   else if (mode === 'mosaic') {
     const solved = new Set(s.answers.filter(a => a.correct).map(a => a.countryId));
     for (const id of solved) { const aid = s.mosaicAid?.[id]; score += aid?.wrong ? 0 : Math.max(0, 250 - (aid?.hints ?? 0) * 125); }

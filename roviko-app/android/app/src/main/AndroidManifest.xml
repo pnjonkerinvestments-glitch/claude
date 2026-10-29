@@ -29,6 +29,7 @@
                 <data android:scheme="https" android:host="roviko.app" />
                 <data android:path="/" />
                 <data android:path="/daily" />
+                <data android:path="/crossroads" />
                 <data android:path="/duel" />
                 <data android:path="/multiplayer" />
                 <data android:path="/leaderboard" />

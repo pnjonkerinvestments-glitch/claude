@@ -9,8 +9,8 @@ import { Celebration, type Stage } from '../ds/Celebration';
 import { useToday } from '../home/useDay';
 import { useQuests } from './DailyQuests';
 
-const ruleKeys:Record<PointMode,string>={shape:'competitionShape',daily:'competitionDaily',trail:'competitionTrail',compare:'competitionCompare',mosaic:'competitionMosaic',order:'competitionOrder',rank:'competitionRankRule',duel:'competitionDuel'};
-const titles:Record<PointMode,string>={shape:'shape',daily:'dailyTitle',trail:'dailyTrail',compare:'compare',mosaic:'mosaic',order:'order',rank:'rankRadar',duel:'duel'};
+const ruleKeys:Record<PointMode,string>={shape:'competitionShape',daily:'competitionDaily',trail:'competitionTrail',crossroads:'competitionCrossroads',compare:'competitionCompare',mosaic:'competitionMosaic',order:'competitionOrder',rank:'competitionRankRule',duel:'competitionDuel'};
+const titles:Record<PointMode,string>={shape:'shape',daily:'dailyTitle',trail:'dailyTrail',crossroads:'crossroads',compare:'compare',mosaic:'mosaic',order:'order',rank:'rankRadar',duel:'duel'};
 /** Numbers follow the page language (1.000 in Dutch and Spanish), which the app keeps on <html lang>. */
 const pageLang=()=>typeof document==='undefined'?undefined:document.documentElement?.lang||undefined;
 export function DailyScoreRule({mode,t,score}:{mode:PointMode;t:(key:string)=>string;score?:number}) {
@@ -49,7 +49,7 @@ export function CompetitionPanel({app,date,mode}:{app:any;date?:string;mode?:Poi
       {!mode&&<div className="competition-stamps">{(dayModesFor(data.date) as readonly PointMode[]).map(m=>{const result=data.scores.find((s:any)=>s.mode===m);return <div key={m} className={result?'is-scored':''}><span>{t(titles[m])}</span><b>{result?fmt(result.score):'—'}<small> / {fmt(1000)}</small></b></div>;})}</div>}
       <details className="competition-standings"><summary>{t('competitionLeaderboard')}</summary><div className="competition-tabs" role="group" aria-label={t('competitionLeaderboard')}><button aria-pressed={tab==='today'} onClick={()=>setTab('today')}>{t('competitionLeaderboard')}</button><button aria-pressed={tab==='total'} onClick={()=>setTab('total')}>{t('competitionTotalLeaders')}</button></div><ol>{standings.leaders.map((p:any,i:number)=><li key={i} className={p.me?'is-me':''}><b>#{p.place}</b><span>{p.me?t('competitionYou'):p.name}</span><strong>{fmt(p.score)}</strong></li>)}</ol>{!standings.leaders.length&&<p>{t('competitionNoRank')}</p>}<p>{t('competitionTies')}</p></details>
     </>}
-    <details className="competition-rules"><summary>{t('competitionRules')}</summary><p>{t('competitionGeneral')}</p>{Object.entries(ruleKeys).map(([m,key])=><p key={m}><strong>{t(titles[m as PointMode])}. </strong>{t(key)}</p>)}<p>{t('competitionTies')}</p></details>
+    <details className="competition-rules"><summary>{t('competitionRules')}</summary><p>{t('competitionGeneral')}</p>{/* 1.55: only the games that give points on this date (it used to list every game that ever did: World Duel, Country Mosaic, Clue Trail). */}{(dayModesFor(data?.date) as readonly PointMode[]).map(m=><p key={m}><strong>{t(titles[m])}. </strong>{t(ruleKeys[m])}</p>)}<p>{t('competitionTies')}</p></details>
     {!!boot.user.guest&&<p className="competition-guest">{t('competitionGuest')}</p>}
   </section>;
 }

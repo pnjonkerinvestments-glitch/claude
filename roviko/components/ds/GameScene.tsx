@@ -8,13 +8,13 @@ import { CharacterArt, type CharacterMood, type CharacterPose } from './Characte
  * Each scene is drawn in a 320 × 240 box around its centre; `shape` widens the canvas for the wide cards
  * and the background decorations simply run further. Decorative only: never used as quiz geography.
  */
-export type SceneMode = 'daily' | 'rank' | 'duel' | 'compare' | 'mosaic' | 'trail' | 'flags' | 'capitals' | 'pinpoint' | 'borders' | 'order' | 'shape' | 'mystery' | 'classic' | 'room';
+export type SceneMode = 'daily' | 'rank' | 'duel' | 'compare' | 'mosaic' | 'trail' | 'crossroads' | 'flags' | 'capitals' | 'pinpoint' | 'borders' | 'order' | 'shape' | 'mystery' | 'classic' | 'room';
 export type SceneShape = 'card' | 'wide' | 'banner';
 const BOX: Record<SceneShape, [number, number]> = { card: [320, 240], wide: [460, 200], banner: [560, 190] };
 
 const C = { forest: '#163B32', green: '#1F806B', mint: '#DDEDE6', gold: '#F6B84B', cream: '#F6F3E9', ocean: '#36B3F5', water: '#BFE4F8', ink: '#06224F', red: '#E5484D', white: '#FFFFFF', land: '#5ED34F' };
 const BG: Record<SceneMode, [string, string]> = {
-  daily: ['#DDEDE6', '#BFE3D3'], rank: ['#F9E4DC', '#F3C9B8'], duel: ['#F4DDE7', '#EBC0D3'], compare: ['#F7E8CE', '#EFD3A2'], mosaic: ['#E3E7F6', '#C9D1EE'], trail: ['#DAEEF1', '#B7DDE4'],
+  daily: ['#DDEDE6', '#BFE3D3'], rank: ['#F9E4DC', '#F3C9B8'], duel: ['#F4DDE7', '#EBC0D3'], compare: ['#F7E8CE', '#EFD3A2'], mosaic: ['#E3E7F6', '#C9D1EE'], trail: ['#DAEEF1', '#B7DDE4'], crossroads: ['#EAE5F9', '#D3C9F2'],
   flags: ['#F9E4DC', '#F3C9B8'], capitals: ['#E3E7F6', '#C9D1EE'], pinpoint: ['#DDEDE6', '#BFE3D3'], borders: ['#F7E8CE', '#EFD3A2'], order: ['#F4DDE7', '#EBC0D3'], shape: ['#DCEDF5', '#B9DCEC'],
   mystery: ['#E7E2F6', '#CFC6EE'], classic: ['#DDEDE6', '#BFE3D3'], room: ['#FBECCB', '#F5D78F'],
 };
@@ -85,6 +85,22 @@ function Scene({ mode }: { mode: SceneMode }) {
       </g>
       <Roviko x={256} y={214} w={116} pose="wave" flip/>
       <Spark x={226} y={40} s={.9}/>
+    </>;
+    // Daily Crossroads (1.55): a white card with the 3×3 grid, category tags on top and left, green squares with flags,
+    // one rare pick in purple and an empty square with a plus; Roviko points at it.
+    case 'crossroads': return <>
+      <Card x={34} y={34} w={196} h={176} r={18} rot={-4}>
+        <Pill x={88} y={46} w={40} h={20} fill={C.mint} color={C.forest} text="🏰" size={11}/><Pill x={134} y={46} w={40} h={20} fill={C.mint} color={C.forest} text="🏔️" size={11}/><Pill x={180} y={46} w={40} h={20} fill={C.mint} color={C.forest} text="👥" size={11}/>
+        <Pill x={42} y={84} w={40} h={20} fill={C.mint} color={C.forest} text="🦁" size={11}/><Pill x={42} y={128} w={40} h={20} fill={C.mint} color={C.forest} text="🏝️" size={11}/><Pill x={42} y={172} w={40} h={20} fill={C.mint} color={C.forest} text="💬" size={11}/>
+        {[0, 1, 2].flatMap(r => [0, 1, 2].map(c => {
+          const x = 88 + c * 46, y = 72 + r * 44, rare = r === 0 && c === 2, empty = r === 2 && c === 1, flags = ['ch', 'be', 'fr', 'td', 'gm', 'ng', 'mt', '', 'cv'];
+          return <g key={r + '-' + c}><rect x={x} y={y} width={40} height={38} rx={9} fill={empty ? '#F2F5F3' : rare ? '#7C5CD6' : C.green}/>
+            {empty ? <path d={`M${x + 20} ${y + 12}v14M${x + 13} ${y + 19}h14`} stroke={C.green} strokeWidth="3" strokeLinecap="round"/> : <Flag code={flags[r * 3 + c]} x={x + 9} y={y + 9} w={22} h={15}/>}
+            {!empty && <rect x={x + 10} y={y + 28} width={20} height={3.2} rx={1.6} fill={C.white} opacity=".7"/>}</g>;
+        }))}
+      </Card>
+      <Spark x={226} y={44} s={1.1} color="#7C5CD6"/><Spark x={30} y={30} s={.8} color={C.gold}/>
+      <Roviko x={266} y={222} w={100} mood="cheer" pose="wave" flip/>
     </>;
     case 'trail': return <>
       <Card x={30} y={46} w={180} h={136} r={10} rot={-7}>
