@@ -283,7 +283,26 @@ const Room: Logo = () => <>
   <MiniGlobe x={20} y={25.4} r={9.2}/>
 </>;
 
+// Daily Crossroads (1.55): a cream 3×3 board, a few squares already filled in green and one rare pick in purple, with
+// Roviko peeking over the top edge and holding on.
+const Crossroads: Logo = () => <>
+  <GroundShadow x={20} y={36.6} rx={14}/>
+  <MiniGlobe x={29.6} y={9.4} r={6.4} mood="cheer" look={-.4}/>
+  <rect x="6.4" y="10.6" width="25.6" height="25.6" rx="4.4" fill="#E9DFC6"/>
+  <rect x="5.4" y="9.4" width="25.6" height="25.6" rx="4.4" fill={RV.paper}/>
+  {[0, 1, 2].flatMap(r => [0, 1, 2].map(c => {
+    const fill = r === 0 && c === 1 ? RV.purple : (r + c) % 2 === 0 && !(r === 2 && c === 2) ? RV.green : '#E8F2EC';
+    return <rect key={r + '-' + c} x={7.8 + c * 7.6} y={11.8 + r * 7.6} width="6.4" height="6.4" rx="1.7" fill={fill}/>;
+  }))}
+  <path d="M9.6 15.2l1.3 1.3 2.4-2.6" fill="none" stroke="#fff" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round"/>
+  <path d="M19.2 13.6l.8 1.7 1.8.2-1.3 1.2.4 1.8-1.7-.9-1.6.9.3-1.8-1.3-1.2 1.8-.2Z" fill="#fff"/>
+  <path d="M25.6 31.4h3.2M27.2 29.8v3.2" stroke={RV.green} strokeWidth="1.2" strokeLinecap="round"/>
+  <Hand x={24.4} y={10.6} angle={20}/>
+  <Sparkle x={4.4} y={6.6} s={.8}/>
+</>;
+
 const LOGOS: Record<string, Logo> = {
+  crossroads: Crossroads,
   rank: Rank, daily: Daily, compare: Compare, mosaic: Mosaic, trail: Trail, 'daily-trail': Trail, duel: Duel,
   mystery: Mystery, capitals: Capitals, flags: Flags, pinpoint: Pinpoint, borders: Borders, order: Order,
   shape: Shape, mixed: Mixed, room: Room,

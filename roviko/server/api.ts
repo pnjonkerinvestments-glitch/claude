@@ -18,6 +18,7 @@ import { seedHash } from '../lib/game-engine/scoring';
 import { AppError, auth, getUser, guest, renewSession, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
 import { one, rows, run, batch } from './db';
 import { levelsFor, stats, leaderboard } from './stats';
+import { startCrossroads, crossroadsAction } from './crossroads';
 import silhouettes from '../lib/data/silhouettes.json';
 import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
@@ -284,6 +285,12 @@ export async function handleApi(req: Request, env: Env, ctx?: {
         if (path[0] === 'survival' && !path[1] && method === 'POST') {
             await limit(env, 'games:' + user.id, 30);
             const b = await body(req), game = await startSurvival(env, user, String(b.mode ?? '')); await measureStart(req, env, user, 'survival-' + game.settings.mode, game.id); return json(game);
+        }
+        // Daily Crossroads (1.55): start or resume today's grid, read it, place a guess.
+        if (path[0] === 'crossroads') {
+            if (method === 'POST' && !path[1]) { await limit(env, 'games:' + user.id, 30); const game = await startCrossroads(env, user); await measureStart(req, env, user, 'crossroads', game.id); return json(game); }
+            if (path[1] && method === 'GET') return json(await crossroadsAction(env, user, path[1], 'get', {}));
+            if (path[1] && path[2] === 'guess' && method === 'POST') return json(await crossroadsAction(env, user, path[1], 'guess', await body(req)));
         }
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {

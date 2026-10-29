@@ -1069,3 +1069,38 @@ test('1.54: Lucia does not invite on a day you were in a room',async()=>{
  const state=await db.prepare('SELECT last_day,noes FROM lucia_friends WHERE user_id=?').bind(a.data.user.id).first();
  assert.equal(state.last_day,new Date().toISOString().slice(0,10));assert.equal(state.noes,0,'not counted as a no');
 });
+test('1.55: Daily Crossroads: one grid a day, unknown or repeated names cost nothing, a wrong country costs a guess, rarity is counted',async()=>{
+ await build({stdin:{contents:"export * from './lib/puzzles/crossroads';export {CROSSROADS_FROM,dailyModesFor} from './lib/daily-loop';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/xr-int.mjs',format:'esm',platform:'node',logLevel:'error'});
+ const x=await import('../.test-runtime/xr-int.mjs');
+ const g=await bootstrap(),a=g.cookie;
+ const game=(await request(a,'/crossroads','POST',{})).data;
+ assert.equal(game.cells.length,9);assert.equal(game.guessesLeft,12);assert.equal(game.rows.length,3);assert.ok(game.rows[0].label.en);
+ assert.equal((await request(a,'/crossroads','POST',{})).data.id,game.id,'one attempt a day: the same game comes back');
+ const other=(await request((await bootstrap()).cookie,'/crossroads','POST',{})).data;
+ assert.deepEqual(other.rows.map(r=>r.id),game.rows.map(r=>r.id),'everyone gets the same grid');
+ const grid={rows:game.rows.map(r=>r.id),cols:game.cols.map(c=>c.id)};
+ const solution=x.solveGrid(grid.rows.flatMap(r=>grid.cols.map(c=>x.answersFor(r,c))));
+ let v=game.version;
+ const guess=async(cell,country)=>request(a,'/crossroads/'+game.id+'/guess','POST',{version:v,cell,country});
+ assert.equal((await guess(0,'Atlantis')).status,400,'unknown name');
+ const wrongId=x.COUNTRIES.find(c=>!x.answersFor(grid.rows[0],grid.cols[0]).includes(c.id)).id;
+ let r=await guess(0,wrongId);assert.equal(r.status,200);assert.equal(r.data.guessesLeft,11,'a wrong country costs a guess');assert.equal(r.data.last.ok,false);assert.ok(r.data.last.reason?.key);v=r.data.version;
+ r=await guess(0,solution[0]);assert.equal(r.data.cells[0].country,solution[0]);assert.equal(r.data.guessesLeft,10);v=r.data.version;
+ assert.equal(r.data.cells[0].share,null,'fewer than 20 players: Early pick');
+ assert.equal((await guess(1,solution[0])).status,409,'a country already in the grid costs nothing');
+ assert.equal((await request(a,'/crossroads/'+game.id)).data.guessesLeft,10);
+ for(let i=1;i<9;i++){r=await guess(i,solution[i]);assert.equal(r.status,200,JSON.stringify(r.data));v=r.data.version;}
+ assert.equal(r.data.phase,'finished');assert.equal(r.data.cells.filter(Boolean).length,9);
+ assert.equal(r.data.wrong,1);assert.equal(r.data.score,975,'one wrong guess: 1,000 minus 25');
+ const ranked=x.dailyModesFor(new Date().toISOString().slice(0,10)).includes('crossroads');
+ const today=new Date().toISOString().slice(0,10);
+ if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,975);
+  assert.equal((await db.prepare('SELECT SUM(picks) n FROM crossroads_picks WHERE date=?').bind(today).first()).n,9,'nine picks counted');}
+ else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before CROSSROADS_FROM it does not score');
+ assert.ok(await db.prepare('SELECT 1 FROM daily_challenge_results WHERE user_id=? AND date=?').bind(g.data.user.id,today).first(),'counts for the streak');
+ assert.equal((await guess(0,solution[0])).status,409,'finished');
+ // Old Clue Trail points stay "trail"; from CROSSROADS_FROM the same slot reads as "crossroads".
+ const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,'x',x.CROSSROADS_FROM,'{}',Date.now()).run();
+ await db.prepare("INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,x.CROSSROADS_FROM,'trail',sess,700,Date.now()).run();
+ const comp=(await request(a,'/competition?date='+x.CROSSROADS_FROM)).data;assert.deepEqual(comp.scores,[{mode:'crossroads',score:700}]);
+});
