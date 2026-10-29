@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.55.0 (op de testversie, nog niet live)
+## 1.55.0 (live sinds 29 oktober 2026, PR #56)
 
 **Daily Crossroads vervangt de dagelijkse Clue Trail** (opdracht van de eigenaar). Clue Trail blijft bestaan als klassiek spel (Spellen, bonus, multiplayer).
 - **Het spel:** een raster van 3 × 3. Boven drie categorieën, links drie; in elk vakje een land dat bij beide past, elk land één keer. 12 pogingen, geen timer, één poging per dag, iedereen hetzelfde raster. Invoer met autocomplete op onze landenlijst in en/nl/es plus korte namen (UK, Czech Republic, DRC, Holland, Türkiye, Ivory Coast, Burma, …; `lib/puzzles/country-names.ts`). Een onbekende naam of een land dat al in het raster staat kost geen poging; een fout land wel, met een korte reden ("Bijna: Spanje heeft zo'n 49 miljoen inwoners.", "Burundi verplaatste zijn hoofdstad in 2019 naar Gitega.", "{land} ligt aan zee.", …). Na een goed antwoord kiest het spel zelf het volgende lege vakje. Klaar bij 9 goed of 0 pogingen; lege vakjes worden grijs met één voorbeeldantwoord.
