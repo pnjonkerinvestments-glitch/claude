@@ -78,3 +78,4 @@
 /* The game's own colour (logo tile, header tone): Crossroads purple, after its rare picks. */
 .tone-crossroads,.game-icon-crossroads{--g:#6a4fc9;--g-soft:#ece6fb;--gi:#6a4fc9;--gi-bg:#efe9ff}
 .xr-game>.finish-actions{display:flex;justify-content:center;margin-top:4px}
+.xr-tricky{display:flex;align-items:center;justify-content:center;gap:6px;margin:-4px 0 12px;padding:7px 12px;border-radius:999px;background:var(--xr-purple-soft);color:var(--xr-purple);font:700 .8125rem/1.3 var(--font-sans);text-align:center}

@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Check, Plus, Share2, Sparkles } from 'lucide-react';
+import { Check, Flame, Plus, Share2, Sparkles } from 'lucide-react';
 import { api, post, sound, formatScore } from '@/lib/client';
 import { plural } from '@/lib/plural';
 import { finishKey, finishMood } from '@/lib/feel-copy';
@@ -21,7 +21,7 @@ type Cell = { country: string; share: number | null; rare: boolean } | null;
 export type CrossroadsView = {
   id: string; mode: 'crossroads'; daily: string; edition: number; version: number; phase: 'playing' | 'finished'; competition: { version: 1; mode: 'crossroads' } | null;
   rows: Category[]; cols: Category[]; cells: Cell[]; guessesLeft: number; guessesTotal: number;
-  last: { cell: number; country: string; ok: boolean; reason?: Reason } | null; score: number; examples: (string | null)[] | null;
+  last: { cell: number; country: string; ok: boolean; reason?: Reason } | null; score: number; wrong?: number; tricky?: boolean; examples: (string | null)[] | null;
 };
 const fill = (text: string, values: Record<string, string | number>) => Object.entries(values).reduce((s, [k, v]) => s.replaceAll('{' + k + '}', String(v)), text);
 const byId = new Map(NAMED_COUNTRIES.map(c => [c.id, c]));
@@ -89,7 +89,7 @@ export function CrossroadsGame({ app }: { app: any }) {
         const next = nextEmpty(g.cells, selected); if (next >= 0) setSelected(next);
       } else {
         sound('incorrect');
-        setNotice({ tone: 'bad', text: g.last?.reason ? reasonText(g.last.reason, selected) : fill(t('xrNoFit'), { country: name(id), row: label(row(selected)), col: label(col(selected)) }) });
+        setNotice({ tone: 'bad', text: (g.last?.reason ? reasonText(g.last.reason, selected) : fill(t('xrNoFit'), { country: name(id), row: label(row(selected)), col: label(col(selected)) })) + ' ' + t('xrPenalty') });
       }
       if (g.phase !== 'finished') window.setTimeout(() => input.current?.focus(), 30);
     } catch (e: any) {
@@ -142,6 +142,7 @@ export function CrossroadsGame({ app }: { app: any }) {
   const resultCard = <section className="xr-result tp-card" aria-labelledby="xr-result-title">
     <h2 id="xr-result-title">{full ? fill(t('xrFull'), { points: formatScore(score) }) : fill(t('xrPartial'), { n: filled, points: formatScore(score) })}</h2>
     <div className="xr-mini" aria-hidden="true">{game.cells.map((c, i) => <i key={i} className={c ? c.rare ? 'is-rare' : 'is-right' : ''}/>)}</div>
+    {(game.wrong ?? 0) > 0 && <p className="muted">{fill(t('xrWrongLine'), { n: game.wrong!, points: game.wrong! * 25 })}</p>}
     {average !== null ? <p>{fill(t('xrAvgRarity'), { n: average })}</p> : <p className="muted">{t('xrNoRarityYet')}</p>}
     {rarest && <p className={rarest.rare ? 'xr-rarest is-rare' : 'xr-rarest'}>{fill(t('xrRarest'), { country: name(rarest.country), n: rarest.share! })}</p>}
     {!game.competition && <button className="btn primary finish-share" onClick={share}><Share2 size={17} aria-hidden="true"/>{t('shareChallenge')}</button>}
@@ -162,6 +163,7 @@ export function CrossroadsGame({ app }: { app: any }) {
       <div className={'xr-stat' + (game.guessesLeft <= 3 && !finished ? ' is-low' : '')}><small>{t('xrGuessesLeft')}</small><strong>{game.guessesLeft}</strong></div>
       <div className="xr-stat"><small>{t('xrPoints')}</small><strong>{fill(t('xrPointsOf'), { n: formatScore(score) })}</strong></div>
     </div>
+    {game.tricky && !finished && <p className="xr-tricky"><Flame size={14} aria-hidden="true"/>{t('xrTricky')}</p>}
     {grid}
     {finished ? <>{resultCard}<div className="finish-actions"><button className="finish-quiet" onClick={exit}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button></div></>
       : <form className="xr-entry" onSubmit={e => { e.preventDefault(); void submit(); }}>

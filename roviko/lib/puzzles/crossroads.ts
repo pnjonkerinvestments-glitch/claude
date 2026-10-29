@@ -29,6 +29,8 @@ export const CROSSROADS_GUESSES = 12;
 export const CROSSROADS_CELLS = 9;
 export const CROSSROADS_POINTS_PER_CELL = 100;
 export const CROSSROADS_FULL_BONUS = 100;
+/** Every wrong guess (a known country that doesn't fit) costs this many points. */
+export const CROSSROADS_WRONG_PENALTY = 25;
 /** Fewer players than this for a square: "Early pick" instead of a percentage. */
 export const CROSSROADS_MIN_PLAYERS = 20;
 /** A pick that at most this share of the players made is a "rare pick". */
@@ -185,6 +187,13 @@ export function gridProblems(grid: { rows: string[]; cols: string[] }): string[]
 
 /** How a day mixes the categories: three, two, one or no continents on an axis, so not every day is "three continents". */
 const SHAPES = [3, 2, 2, 1, 1, 0];
+/** A tricky day (about one in four): fewer continents, more regions, and three to five squares with only 4 to 6 answers.
+ *  Never unfair: every square keeps at least 4 answers and the whole grid stays solvable with nine different countries. */
+const TRICKY_SHAPES = [1, 1, 0];
+const TRICKY_SHARE = 0.25, TIGHT = 6, TIGHT_MIN = 3, TIGHT_MAX = 5;
+export const isTrickyDay = (date: string) => random('roviko:crossroads:tricky:v1:' + date)() < TRICKY_SHARE;
+/** How many squares of a grid have only a few answers (4 to 6). */
+export const tightSquares = (g: { rows: string[]; cols: string[] }) => g.rows.flatMap(r => g.cols.map(c => answersFor(r, c).length)).filter(n => n <= TIGHT).length;
 const KINDS: CategoryKind[] = ['landlocked', 'island', 'capital', 'popOver', 'areaOver', 'areaUnder', 'borders', 'neighbours', 'language'];
 const setKey = (g: { rows: string[]; cols: string[] }) => [...g.rows, ...g.cols].sort().join('|');
 const firstChoice = new Map<string, string>();
@@ -201,17 +210,17 @@ export function crossroadsFor(date: string): { rows: string[]; cols: string[] } 
   return build(date, g => !recent.has(setKey(g)));
 }
 function build(date: string, fresh: (g: { rows: string[]; cols: string[] }) => boolean): { rows: string[]; cols: string[] } {
-  const rng = random('roviko:crossroads:v1:' + date);
+  const rng = random('roviko:crossroads:v1:' + date), tricky = isTrickyDay(date);
   const day = Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000);
   const featured = KINDS[((day % KINDS.length) + KINDS.length) % KINDS.length];
   const pick = <T,>(list: T[]) => list[Math.floor(rng() * list.length)];
   const continents = CATEGORIES.filter(c => c.kind === 'continent'), regions = CATEGORIES.filter(c => c.kind === 'region');
   const ofKind = new Map(KINDS.map(k => [k, CATEGORIES.filter(c => c.kind === k)]));
   for (let attempt = 0; attempt < 3000; attempt++) {
-    const onRows = SHAPES[Math.floor(rng() * SHAPES.length)];
+    const shapes = tricky ? TRICKY_SHAPES : SHAPES, onRows = shapes[Math.floor(rng() * shapes.length)];
     const rows: Category[] = [], cols: Category[] = [], kinds = new Set<CategoryKind>();
     // Mostly continents; now and then one of the four well-known regions.
-    while (rows.length < onRows) { const c = rng() < 0.2 ? pick(regions) : pick(continents);
+    while (rows.length < onRows) { const c = rng() < (tricky ? 0.5 : 0.2) ? pick(regions) : pick(continents);
       const clash = c.kind === 'region' && rows.some(r => r.id === 'continent:' + regionContinent(c.id.slice(7)) || r.kind === 'region');
       if (!rows.includes(c) && !clash) rows.push(c); }
     // Build greedily: a column only joins when it leaves every square with enough answers, so few tries are wasted.
@@ -234,6 +243,8 @@ function build(date: string, fresh: (g: { rows: string[]; cols: string[] }) => b
     }
     if (rows.length < 3 || cols.length < 3) continue;
     const grid = rng() < 0.5 ? { rows: rows.map(c => c.id), cols: cols.map(c => c.id) } : { rows: cols.map(c => c.id), cols: rows.map(c => c.id) };
+    // A tricky day only takes a grid with a few tight squares (after many tries it settles for an ordinary one).
+    if (tricky && attempt < 2500) { const tight = tightSquares(grid); if (tight < TIGHT_MIN || tight > TIGHT_MAX) continue; }
     if (!gridProblems(grid).length && fresh(grid)) return grid;
   }
   throw new Error('NO_CROSSROADS_GRID ' + date);
@@ -270,10 +281,11 @@ function reasonFor(categoryId: string, c: CountryRow): Reason | null {
   }
 }
 
-/** Points: 100 per filled square, plus 100 for the full grid (1,000). Rarity never counts. */
-export function crossroadsPoints(filled: number) {
+/** Points: 100 per filled square, plus 100 for the full grid (1,000), minus 25 for every wrong guess (never below 0).
+ *  Rarity never counts. */
+export function crossroadsPoints(filled: number, wrong = 0) {
   const f = Math.max(0, Math.min(CROSSROADS_CELLS, Math.floor(filled)));
-  return f * CROSSROADS_POINTS_PER_CELL + (f === CROSSROADS_CELLS ? CROSSROADS_FULL_BONUS : 0);
+  return Math.max(0, f * CROSSROADS_POINTS_PER_CELL + (f === CROSSROADS_CELLS ? CROSSROADS_FULL_BONUS : 0) - Math.max(0, Math.floor(wrong)) * CROSSROADS_WRONG_PENALTY);
 }
 /** "31%" for a square, or null ("Early pick") while fewer than 20 players filled it. */
 export function pickShare(picks: number, players: number) {

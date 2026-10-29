@@ -17,8 +17,8 @@ const en = {
   xrExample: 'e.g. {country}', xrOutOfGuesses: 'Out of guesses', xrGridDone: 'Grid complete!', xrSquares: 'squares', xrShareTitle: 'Daily Crossroads #{n}',
   xrShareLine: '{points} pts · rarity {rarity}% · rarest: {country} ({n}%)', xrShareLineShort: '{points} pts', xrPractice: 'Unscored grid',
   xrStatus: '{filled} of 9 squares filled, {left} guesses left', xrCell: 'Square {row} × {col}', xrCellFilled: '{country}, {share}',
-  competitionCrossroads: 'Daily Crossroads: 100 points per filled square and 100 extra for a full grid, so up to 1,000. 12 guesses, no timer. How rare your picks are never changes your points.',
-  xrRuleShort: '100 per square · +100 for a full grid', xrRarityChip: 'average rarity',
+  competitionCrossroads: 'Daily Crossroads: 100 points per filled square and 100 extra for a full grid, so up to 1,000. Every wrong guess costs 25 points. 12 guesses, no timer. How rare your picks are never changes your points.',
+  xrRuleShort: '100 per square · +100 for a full grid · −25 per wrong guess', xrPenalty: '−25 points.', xrWrongLine: '{n} wrong · −{points} points', xrTricky: 'Tricky grid today: some squares have only a few answers.', xrRarityChip: 'average rarity',
 };
 const nl: typeof en = {
   crossroads: 'Daily Crossroads', crossroadsShort: 'Crossroads', crossroadsLine: 'Eén land per vakje',
@@ -38,8 +38,8 @@ const nl: typeof en = {
   xrExample: 'bijv. {country}', xrOutOfGuesses: 'Geen pogingen meer', xrGridDone: 'Raster vol!', xrSquares: 'vakjes', xrShareTitle: 'Daily Crossroads #{n}',
   xrShareLine: '{points} pnt · zeldzaamheid {rarity}% · zeldzaamst: {country} ({n}%)', xrShareLineShort: '{points} pnt', xrPractice: 'Raster zonder punten',
   xrStatus: '{filled} van 9 vakjes gevuld, nog {left} pogingen', xrCell: 'Vakje {row} × {col}', xrCellFilled: '{country}, {share}',
-  competitionCrossroads: 'Daily Crossroads: 100 punten per gevuld vakje en 100 extra voor een vol raster, dus maximaal 1.000. 12 pogingen, geen tijdslimiet. Hoe zeldzaam je keuzes zijn, verandert je punten nooit.',
-  xrRuleShort: '100 per vakje · +100 voor een vol raster', xrRarityChip: 'gemiddelde zeldzaamheid',
+  competitionCrossroads: 'Daily Crossroads: 100 punten per gevuld vakje en 100 extra voor een vol raster, dus maximaal 1.000. Elke foute gok kost 25 punten. 12 pogingen, geen tijdslimiet. Hoe zeldzaam je keuzes zijn, verandert je punten nooit.',
+  xrRuleShort: '100 per vakje · +100 voor een vol raster · −25 per foute gok', xrPenalty: '−25 punten.', xrWrongLine: '{n} fout · −{points} punten', xrTricky: 'Pittig raster vandaag: sommige vakjes hebben maar een paar antwoorden.', xrRarityChip: 'gemiddelde zeldzaamheid',
 };
 const es: typeof en = {
   crossroads: 'Daily Crossroads', crossroadsShort: 'Crossroads', crossroadsLine: 'Un país por casilla',
@@ -59,8 +59,8 @@ const es: typeof en = {
   xrExample: 'p. ej. {country}', xrOutOfGuesses: 'Sin intentos', xrGridDone: '¡Cuadrícula completa!', xrSquares: 'casillas', xrShareTitle: 'Daily Crossroads #{n}',
   xrShareLine: '{points} pts · rareza {rarity}% · más rara: {country} ({n}%)', xrShareLineShort: '{points} pts', xrPractice: 'Cuadrícula sin puntos',
   xrStatus: '{filled} de 9 casillas, quedan {left} intentos', xrCell: 'Casilla {row} × {col}', xrCellFilled: '{country}, {share}',
-  competitionCrossroads: 'Daily Crossroads: 100 puntos por casilla llena y 100 extra por la cuadrícula completa, hasta 1.000. 12 intentos, sin tiempo. Lo rara que sea tu elección nunca cambia tus puntos.',
-  xrRuleShort: '100 por casilla · +100 por cuadrícula completa', xrRarityChip: 'rareza media',
+  competitionCrossroads: 'Daily Crossroads: 100 puntos por casilla llena y 100 extra por la cuadrícula completa, hasta 1.000. Cada intento fallido resta 25 puntos. 12 intentos, sin tiempo. Lo rara que sea tu elección nunca cambia tus puntos.',
+  xrRuleShort: '100 por casilla · +100 por cuadrícula completa · −25 por fallo', xrPenalty: '−25 puntos.', xrWrongLine: '{n} fallos · −{points} puntos', xrTricky: 'Cuadrícula difícil hoy: algunas casillas tienen pocas respuestas.', xrRarityChip: 'rareza media',
 };
 export const v155Messages = { en, nl, es };
 /** Continent names for the reasons ("Spain is in Europe"). */

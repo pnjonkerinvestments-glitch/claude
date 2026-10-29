@@ -7,7 +7,7 @@ import { recordCompetition } from './competition';
 import { resultStatement } from './stats';
 import { COMPETITION_SUFFIX, dailyScore } from '../lib/daily-scoring';
 import { CROSSROADS_FROM, dailyModesFor } from '../lib/daily-loop';
-import { CROSSROADS_CELLS, CROSSROADS_GUESSES, COUNTRIES, answersFor, categoryById, crossroadsFor, crossroadsPoints, judge, pickShare, isRare, resolveCountry, solveGrid, type Reason } from '../lib/puzzles/crossroads';
+import { CROSSROADS_CELLS, CROSSROADS_GUESSES, COUNTRIES, answersFor, categoryById, crossroadsFor, crossroadsPoints, isTrickyDay, judge, pickShare, isRare, resolveCountry, solveGrid, type Reason } from '../lib/puzzles/crossroads';
 import type { Env, User } from './types';
 
 type Guess = { cell: number; country: string; ok: boolean; at: number; reason?: Reason };
@@ -19,6 +19,7 @@ export type CrossroadsState = {
 const KIND = 'crossroads';
 /** Edition number for the share text: #1 on CROSSROADS_FROM. */
 export const editionOf = (date: string) => Math.max(1, Math.round((Date.parse(date + 'T00:00:00Z') - Date.parse(CROSSROADS_FROM + 'T00:00:00Z')) / 86400000) + 1);
+const wrongOf = (s: CrossroadsState) => s.guesses.filter(g => !g.ok).length;
 const today = () => new Date().toISOString().slice(0, 10);
 
 /** Today's grid: started or resumed (one attempt a day). Scores only when Crossroads is one of the day's daily games. */
@@ -60,7 +61,7 @@ export async function crossroadsAction(env: Env, user: User, id: string, action:
   s.guessesLeft = Math.max(0, s.guessesLeft - 1);
   if (verdict.ok) s.cells[b.cell] = country;
   if (s.cells.every(Boolean) || s.guessesLeft === 0) s.phase = 'finished';
-  const updated = await run(env, 'UPDATE game_sessions SET state=?,version=version+1,score=?,completed=? WHERE id=? AND version=?', JSON.stringify(s), crossroadsPoints(s.cells.filter(Boolean).length), s.phase === 'finished' ? 1 : 0, id, row.version);
+  const updated = await run(env, 'UPDATE game_sessions SET state=?,version=version+1,score=?,completed=? WHERE id=? AND version=?', JSON.stringify(s), crossroadsPoints(s.cells.filter(Boolean).length, wrongOf(s)), s.phase === 'finished' ? 1 : 0, id, row.version);
   if (!updated.meta.changes) throw new AppError('STATE_CHANGED', 409);
   // Rarity: how often each country was the right answer in this square today. Only the first (scored) attempt of the day
   // counts; a count per date, square and country, never who picked it.
@@ -101,5 +102,5 @@ async function view(env: Env, s: CrossroadsState, version: number) {
   const category = (id: string) => ({ ...(categoryById(id) ?? { icon: '❔', label: { en: id, nl: id, es: id }, kind: 'continent' }), id });
   return { id: s.id, mode: 'crossroads' as const, daily: s.daily, edition: s.edition, version, phase: s.phase, competition: s.competition ?? null,
     rows: s.grid.rows.map(category), cols: s.grid.cols.map(category), cells, guessesLeft: s.guessesLeft, guessesTotal: CROSSROADS_GUESSES,
-    last: s.guesses.at(-1) ?? null, score: s.competition ? dailyScore(s as any) : crossroadsPoints(s.cells.filter(Boolean).length), examples };
+    last: s.guesses.at(-1) ?? null, score: s.competition ? dailyScore(s as any) : crossroadsPoints(s.cells.filter(Boolean).length, wrongOf(s)), wrong: wrongOf(s), tricky: isTrickyDay(s.daily), examples };
 }

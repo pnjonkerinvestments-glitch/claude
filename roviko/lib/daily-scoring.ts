@@ -50,8 +50,9 @@ export function dailyScore(s: { competition?: Competition; answers: any[]; quest
   else if (mode === 'compare') score = Math.round(s.answers.filter(a => a.correct).length / Math.max(1, s.questions?.length ?? 10) * 1000);
   // World Duel: the share of rounds won (five rounds before 1.21, seven since).
   else if (mode === 'duel') score = Math.round(s.answers.filter(a => a.correct).length / Math.max(1, s.board?.rounds?.length ?? 5) * 1000);
-  // Daily Crossroads (1.55): 100 per filled square, plus 100 for the full grid. Rarity never counts.
-  else if (mode === 'crossroads') { const filled = (s.cells ?? []).filter(Boolean).length; score = filled * 100 + (filled === 9 ? 100 : 0); }
+  // Daily Crossroads (1.55): 100 per filled square, plus 100 for the full grid, minus 25 per wrong guess. Rarity never counts.
+  else if (mode === 'crossroads') { const filled = (s.cells ?? []).filter(Boolean).length, wrong = s.answers.filter(a => !a.correct).length;
+    score = Math.max(0, filled * 100 + (filled === 9 ? 100 : 0) - wrong * 25); }
   else if (mode === 'mosaic') {
     const solved = new Set(s.answers.filter(a => a.correct).map(a => a.countryId));
     for (const id of solved) { const aid = s.mosaicAid?.[id]; score += aid?.wrong ? 0 : Math.max(0, 250 - (aid?.hints ?? 0) * 125); }

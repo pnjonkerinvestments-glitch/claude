@@ -62,8 +62,23 @@ test('Daily Crossroads: points are 100 per square plus 100 for a full grid; rari
   assert.equal(x.crossroadsPoints(9), 1000);
   assert.equal(x.crossroadsPoints(6), 600);
   assert.equal(x.crossroadsPoints(0), 0);
+  assert.equal(x.crossroadsPoints(9, 3), 925, 'every wrong guess costs 25');
+  assert.equal(x.crossroadsPoints(2, 12), 0, 'never below 0');
   assert.equal(x.pickShare(5, 19), null, 'fewer than 20 players: Early pick');
   assert.equal(x.pickShare(31, 100), 31);
   assert.equal(x.isRare(x.pickShare(2, 100)), true);
   assert.equal(x.isRare(x.pickShare(6, 100)), false);
+});
+
+test('Daily Crossroads: about one day in four is tricky, never unfair', () => {
+  let tricky = 0;
+  for (let i = 0; i < 365; i++) {
+    const date = new Date(Date.parse('2026-10-31T00:00:00Z') + i * 86400000).toISOString().slice(0, 10);
+    if (!x.isTrickyDay(date)) continue;
+    tricky++;
+    const grid = x.crossroadsFor(date), tight = x.tightSquares(grid);
+    assert.ok(tight >= 3 && tight <= 5, date + ': a tricky day has 3 to 5 squares with only 4 to 6 answers, not ' + tight);
+    assert.deepEqual(x.gridProblems(grid), [], date + ': still at least 4 answers per square and a full solution');
+  }
+  assert.ok(tricky > 60 && tricky < 130, 'tricky days: ' + tricky);
 });

@@ -1091,9 +1091,10 @@ test('1.55: Daily Crossroads: one grid a day, unknown or repeated names cost not
  assert.equal((await request(a,'/crossroads/'+game.id)).data.guessesLeft,10);
  for(let i=1;i<9;i++){r=await guess(i,solution[i]);assert.equal(r.status,200,JSON.stringify(r.data));v=r.data.version;}
  assert.equal(r.data.phase,'finished');assert.equal(r.data.cells.filter(Boolean).length,9);
+ assert.equal(r.data.wrong,1);assert.equal(r.data.score,975,'one wrong guess: 1,000 minus 25');
  const ranked=x.dailyModesFor(new Date().toISOString().slice(0,10)).includes('crossroads');
  const today=new Date().toISOString().slice(0,10);
- if(ranked){assert.equal(r.data.score,1000);const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,1000);
+ if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,975);
   assert.equal((await db.prepare('SELECT SUM(picks) n FROM crossroads_picks WHERE date=?').bind(today).first()).n,9,'nine picks counted');}
  else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before CROSSROADS_FROM it does not score');
  assert.ok(await db.prepare('SELECT 1 FROM daily_challenge_results WHERE user_id=? AND date=?').bind(g.data.user.id,today).first(),'counts for the streak');
