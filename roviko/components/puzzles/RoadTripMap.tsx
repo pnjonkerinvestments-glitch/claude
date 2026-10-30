@@ -1,14 +1,15 @@
 'use client';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { LocateFixed, Maximize2, Minus, Plus } from 'lucide-react';
+import { Minus, Plus, RotateCcw } from 'lucide-react';
 
 /**
  * The fog map of Daily Road Trip (1.56). The land is one grey shape without inner borders; only start and finish (purple),
  * the countries on your route (green closer, orange detour) and the neighbours you can drive to now (light blue, dashed,
  * named, tappable) are drawn. A dotted line joins the middles of your stops and draws itself to every new stop. A peek
- * shows every border for a moment (no names). At the end one shortest route is drawn for comparison. Zoom: pinch or drag
- * on a phone, ctrl + wheel or a trackpad pinch on a laptop, and the +, −, "where am I" and "whole trip" buttons; names,
- * pins and lines keep their size on screen, so zooming in shows the small countries.
+ * shows every border for a moment (no names). At the end one shortest route is drawn for comparison. Zoom works exactly
+ * like the Pinpoint map (components/game/WorldMap.tsx): drag to pan, pinch or the wheel to zoom around your fingers or the
+ * pointer, a tap without moving picks a neighbour, and +, − and reset in the corner. Names, pins and lines keep their size
+ * on screen, so zooming in shows the small countries.
  * Geometry: the licensed boundaries file of the Next Door map (/data/boundaries.json, one cached download).
  */
 type Polygon = number[][][];
@@ -18,7 +19,7 @@ export type RoadStop = { country: string; closer: boolean | null; auto?: boolean
 type Props = {
   start: string; finish: string; frame: Box; route: RoadStop[]; options: string[]; middles: Record<string, [number, number]>;
   best?: string[] | null; peeking: boolean; disabled?: boolean; name: (id: string) => string; onPick: (id: string) => void; label: string; failText: string; retryText: string;
-  zoomText: { in: string; out: string; here: string; all: string };
+  zoomText: { in: string; out: string; reset: string };
 };
 
 let atlas: Promise<World> | null = null;
@@ -40,7 +41,7 @@ function mainBox(polys: Polygon[]): Box {
 type Role = 'end' | 'closer' | 'detour' | 'option' | 'best';
 type Built = { base: Box; w: number; h: number; land: string; borders: string; shapes: Record<string, string>; boxes: Record<string, Box>; project: (p: [number, number]) => [number, number] };
 type View = { z: number; cx: number; cy: number };
-const MAX_ZOOM = 8;
+const MAX_ZOOM = 12;
 
 function build(world: World, frame: Box, extra: string[]): Built {
   let box = frame;
@@ -89,87 +90,90 @@ export function RoadTripMap({ start, finish, frame, route, options, middles, bes
   useEffect(() => { let on = true; setFailed(false); loadAtlas().then(w => { if (on) setWorld(w); }).catch(() => { if (on) setFailed(true); }); return () => { on = false; }; }, [retry]);
   const extra = useMemo(() => [...new Set([...route.map(r => r.country), ...options, ...(best ?? [])])], [route, options, best]);
   const map = useMemo(() => world ? build(world, frame, extra) : null, [world, frame.join(','), extra.join(',')]);
-  // Zoom and pan: z = 1 shows the whole trip; the centre (cx, cy) is in map units.
+  // Zoom and pan, the Pinpoint way: z = 1 shows the whole trip; the centre (cx, cy) is in map units.
   const [view, setView] = useState<View | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null), pointers = useRef(new Map<number, { x: number; y: number }>());
-  const gesture = useRef<{ dist: number; z: number; mx: number; my: number; fx: number; fy: number } | null>(null), moved = useRef(false), animation = useRef(0);
+  const svgRef = useRef<SVGSVGElement>(null), viewRef = useRef<View | null>(null);
+  const active = useRef(new Map<number, [number, number]>());
+  const gesture = useRef<{ view: View; point: [number, number]; anchor: [number, number]; distance: number; moved: boolean; multiple: boolean } | null>(null);
+  const whole = useMemo<View | null>(() => map ? { z: 1, cx: map.base[0] + map.base[2] / 2, cy: map.base[1] + map.base[3] / 2 } : null, [map]);
+  // At most one redraw per frame: dragging and pinching stay smooth on a phone.
+  const redraw = useRef(0);
+  const update = (next: View) => { viewRef.current = next; if (!redraw.current) redraw.current = requestAnimationFrame(() => { redraw.current = 0; setView(viewRef.current); }); };
+  useEffect(() => () => cancelAnimationFrame(redraw.current), []);
+  const now = () => viewRef.current ?? whole!;
   const fit = useCallback((v: View): View => {
-    if (!map) return v;
-    const [x0, y0, w, h] = map.base, z = Math.max(1, Math.min(MAX_ZOOM, v.z)), vw = w / z, vh = h / z;
+    const [x0, y0, w, h] = map!.base, z = Math.max(1, Math.min(MAX_ZOOM, v.z)), vw = w / z, vh = h / z;
     return { z, cx: Math.min(x0 + w - vw / 2, Math.max(x0 + vw / 2, v.cx)), cy: Math.min(y0 + h - vh / 2, Math.max(y0 + vh / 2, v.cy)) };
   }, [map]);
-  const whole = map ? { z: 1, cx: map.base[0] + map.base[2] / 2, cy: map.base[1] + map.base[3] / 2 } : null;
-  const current = view ?? whole;
-  /** Glide to another view in a quarter of a second (buttons only; fingers move the map directly). */
-  const glide = (to: View) => {
-    if (!current) return;
-    const from = current, target = fit(to), t0 = performance.now();
-    cancelAnimationFrame(animation.current);
-    const step = (now: number) => { const p = Math.min(1, (now - t0) / 250), e = 1 - Math.pow(1 - p, 3);
-      setView({ z: from.z + (target.z - from.z) * e, cx: from.cx + (target.cx - from.cx) * e, cy: from.cy + (target.cy - from.cy) * e });
-      if (p < 1) animation.current = requestAnimationFrame(step); };
-    animation.current = requestAnimationFrame(step);
+  /** Where a screen point falls on the drawn map, as a fraction of its width and height (the svg may be letterboxed). */
+  const fraction = (x: number, y: number): [number, number] => {
+    const r = svgRef.current!.getBoundingClientRect(), [, , w, h] = map!.base, scale = Math.min(r.width / w, r.height / h);
+    return [(x - r.left - (r.width - w * scale) / 2) / (w * scale), (y - r.top - (r.height - h * scale) / 2) / (h * scale)];
   };
-  /** "Where am I": your last country and every neighbour you can drive to, as big as fits. */
-  const focusHere = () => {
-    if (!map) return;
-    const ids = [route.at(-1)?.country, ...options].filter((id): id is string => !!id && !!map.boxes[id]);
-    if (!ids.length) return;
-    const b = ids.map(id => map.boxes[id]).reduce(union), [, , w, h] = map.base;
-    const bw = Math.max(b[2] - b[0], w / MAX_ZOOM), bh = Math.max(b[3] - b[1], h / MAX_ZOOM);
-    glide({ z: Math.min(w / bw, h / bh) * .8, cx: (b[0] + b[2]) / 2, cy: (b[1] + b[3]) / 2 });
+  const worldAt = (f: [number, number], v = now()): [number, number] => { const [, , w, h] = map!.base; return [v.cx + (f[0] - .5) * w / v.z, v.cy + (f[1] - .5) * h / v.z]; };
+  /** Zoom to z keeping the map point `anchor` under the screen fraction `f` (the middle by default). */
+  const zoomAt = (v: View, z: number, anchor: [number, number] = [v.cx, v.cy], f: [number, number] = [.5, .5]): View => {
+    const [, , w, h] = map!.base, zz = Math.max(1, Math.min(MAX_ZOOM, z));
+    return fit({ z: zz, cx: anchor[0] - (f[0] - .5) * w / zz, cy: anchor[1] - (f[1] - .5) * h / zz });
+  };
+  const changeZoom = (z: number) => update(zoomAt(now(), z));
+  const begin = () => {
+    const points = [...active.current.values()], v = now();
+    const point: [number, number] = points.length > 1 ? [(points[0][0] + points[1][0]) / 2, (points[0][1] + points[1][1]) / 2] : points[0];
+    gesture.current = { view: v, point, anchor: worldAt(fraction(...point), v), distance: points.length > 1 ? Math.hypot(points[0][0] - points[1][0], points[0][1] - points[1][1]) : 0,
+      moved: gesture.current?.moved ?? false, multiple: points.length > 1 || !!gesture.current?.multiple };
   };
   // A new trip (or a wider frame) starts from the whole trip again.
-  useEffect(() => { setView(null); }, [map?.base.join(',')]);
-  // Zoomed in and driving on: the map follows you.
+  useEffect(() => { viewRef.current = null; setView(null); }, [map?.base.join(',')]);
+  // Zoomed in and driving on: when your new country is out of sight, the map moves to it.
   const hereId = route.at(-1)?.country;
-  useEffect(() => { if (view && view.z > 1.05 && hereId && middles[hereId] && map) { const [x, y] = map.project(middles[hereId]); glide({ ...view, cx: x, cy: y }); } }, [hereId]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Ctrl + wheel and trackpad pinches zoom around the pointer; a plain wheel keeps scrolling the page.
+  useEffect(() => {
+    const v = viewRef.current;
+    if (!v || v.z <= 1.01 || !hereId || !middles[hereId] || !map) return;
+    const [x, y] = map.project(middles[hereId]), [, , w, h] = map.base;
+    if (Math.abs(x - v.cx) > w / v.z * .4 || Math.abs(y - v.cy) > h / v.z * .4) update(fit({ ...v, cx: x, cy: y }));
+  }, [hereId]); // eslint-disable-line react-hooks/exhaustive-deps
+  // The wheel zooms around the pointer, like Pinpoint.
   useEffect(() => {
     const el = svgRef.current;
-    if (!el || !current) return;
-    const onWheel = (e: WheelEvent) => {
-      if (!e.ctrlKey) return;
-      e.preventDefault();
-      setView(v => { const now = v ?? whole!; const r = el.getBoundingClientRect(), [, , w, h] = map!.base;
-        const z = Math.max(1, Math.min(MAX_ZOOM, now.z * Math.exp(-e.deltaY * .01))), fx = (e.clientX - r.left) / r.width - .5, fy = (e.clientY - r.top) / r.height - .5;
-        const px = now.cx + fx * w / now.z, py = now.cy + fy * h / now.z;
-        return fit({ z, cx: px - fx * w / z, cy: py - fy * h / z }); });
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
+    if (!el || !map) return;
+    const wheel = (e: WheelEvent) => { e.preventDefault(); const v = now(), f = fraction(e.clientX, e.clientY); update(zoomAt(v, v.z * Math.exp(-e.deltaY * .002), worldAt(f, v), f)); };
+    el.addEventListener('wheel', wheel, { passive: false });
+    return () => el.removeEventListener('wheel', wheel);
   }); // eslint-disable-line react-hooks/exhaustive-deps
   if (failed) return <figure className="rt-map rt-map-state"><p role="status">{failText} <button className="text-link" onClick={() => setRetry(n => n + 1)}>{retryText}</button></p></figure>;
+  const current = view ?? whole;
   if (!map || !current) return <figure className="rt-map rt-map-state" aria-busy="true"><span className="rt-map-spinner" aria-hidden="true"/></figure>;
   const zoom = current.z, [, , bw0, bh0] = map.base, vbw = bw0 / zoom, vbh = bh0 / zoom, vbx = current.cx - vbw / 2, vby = current.cy - vbh / 2;
   const viewBox = [vbx, vby, vbw, vbh].map(n => Math.round(n * 1000) / 1000).join(' ');
-  const pick = (id: string) => { if (!moved.current) onPick(id); };
-  const onDown = (e: React.PointerEvent) => {
-    cancelAnimationFrame(animation.current);
-    if (pointers.current.size === 0) moved.current = false;
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointers.current.size === 2) {
-      const [a, b] = [...pointers.current.values()], r = svgRef.current!.getBoundingClientRect();
-      const fx = ((a.x + b.x) / 2 - r.left) / r.width - .5, fy = ((a.y + b.y) / 2 - r.top) / r.height - .5;
-      gesture.current = { dist: Math.hypot(a.x - b.x, a.y - b.y) || 1, z: zoom, mx: current.cx + fx * bw0 / zoom, my: current.cy + fy * bh0 / zoom, fx, fy };
+  const pointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.button !== 0) return;
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* an unknown pointer (tests, old browsers): drag still works while over the map */ }
+    active.current.set(e.pointerId, [e.clientX, e.clientY]); begin();
+  };
+  const pointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!active.current.has(e.pointerId) || !gesture.current) return;
+    active.current.set(e.pointerId, [e.clientX, e.clientY]);
+    const g = gesture.current, points = [...active.current.values()];
+    if (points.length >= 2) {
+      const [a, b] = points; g.moved = true;
+      update(zoomAt(g.view, g.view.z * Math.hypot(a[0] - b[0], a[1] - b[1]) / Math.max(1, g.distance), g.anchor, fraction((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)));
+    } else {
+      if (Math.hypot(e.clientX - g.point[0], e.clientY - g.point[1]) > 7) g.moved = true;
+      if (g.moved) { const s0 = fraction(...g.point), s1 = fraction(e.clientX, e.clientY), [, , w, h] = map.base;
+        update(fit({ ...g.view, cx: g.view.cx - (s1[0] - s0[0]) * w / g.view.z, cy: g.view.cy - (s1[1] - s0[1]) * h / g.view.z })); }
     }
   };
-  const onMove = (e: React.PointerEvent) => {
-    const last = pointers.current.get(e.pointerId);
-    if (!last) return;
-    const r = svgRef.current!.getBoundingClientRect(), dx = e.clientX - last.x, dy = e.clientY - last.y;
-    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointers.current.size === 2 && gesture.current) {
-      // Pinch: the point between your fingers stays under your fingers.
-      const [a, b] = [...pointers.current.values()], g = gesture.current, z = Math.max(1, Math.min(MAX_ZOOM, g.z * Math.hypot(a.x - b.x, a.y - b.y) / g.dist));
-      moved.current = true;
-      setView(fit({ z, cx: g.mx - g.fx * bw0 / z, cy: g.my - g.fy * bh0 / z }));
-    } else if (pointers.current.size === 1 && zoom > 1.01 && (Math.abs(dx) + Math.abs(dy) > 0)) {
-      if (Math.abs(e.clientX - last.x) + Math.abs(e.clientY - last.y) > 0) moved.current = moved.current || Math.abs(dx) + Math.abs(dy) > 3;
-      setView(v => { const now = v ?? current; return fit({ ...now, cx: now.cx - dx * vbw / r.width, cy: now.cy - dy * vbh / r.height }); });
+  const pointerEnd = (e: React.PointerEvent<SVGSVGElement>) => {
+    const g = gesture.current;
+    // A tap without moving picks the neighbour under your finger (the map holds the pointer, so it looks it up itself).
+    if (e.type === 'pointerup' && active.current.size === 1 && g && !g.moved && !g.multiple && !disabled) {
+      const hit = document.elementsFromPoint(e.clientX, e.clientY).find(el => (el as HTMLElement).dataset?.pick) as HTMLElement | undefined;
+      if (hit) onPick(hit.dataset.pick!);
     }
+    active.current.delete(e.pointerId);
+    if (active.current.size) begin(); else gesture.current = null;
   };
-  const onUp = (e: React.PointerEvent) => { pointers.current.delete(e.pointerId); if (pointers.current.size < 2) gesture.current = null; };
 
   // The colour of each country: its latest status on the route; start and finish always purple.
   const roles = new Map<string, Role>();
@@ -218,24 +222,23 @@ export function RoadTripMap({ start, finish, frame, route, options, middles, bes
 
   return <figure className={'rt-map' + (peeking ? ' is-peeking' : '') + (zoom > 1.01 ? ' is-zoomed' : '')} aria-label={label}>
     <svg ref={svgRef} viewBox={viewBox} preserveAspectRatio="xMidYMid meet" role="img" aria-label={label}
-      onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={onUp}>
+      style={{ touchAction: 'none' }} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd}>
       <defs>
         <radialGradient id="rt-sea" cx="50%" cy="40%" r="75%"><stop offset="0" className="rt-sea-a"/><stop offset="1" className="rt-sea-b"/></radialGradient>
         <radialGradient id="rt-fog" cx="50%" cy="50%" r="72%"><stop offset=".68" className="rt-fog-a"/><stop offset="1" className="rt-fog-b"/></radialGradient>
-        <filter id="rt-soft" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy={map.w / 100 * .15} stdDeviation={map.w / 100 * .5} floodColor="#0b2a22" floodOpacity=".18"/></filter>
       </defs>
       <rect x={vbx} y={vby} width={vbw} height={vbh} fill="url(#rt-sea)"/>
-      <path className="rt-land" d={map.land} filter="url(#rt-soft)"/>
+      <path className="rt-land" d={map.land}/>
       <path className="rt-borders" d={map.borders}/>
       <rect className="rt-fog" x={vbx} y={vby} width={vbw} height={vbh} fill="url(#rt-fog)" pointerEvents="none"/>
       <g>
         {painted.map(([id, role]) => role === 'option'
-          ? <path key={id} className={'rt-c is-' + role + (disabled ? '' : ' is-live')} d={map.shapes[id]} onClick={disabled ? undefined : () => pick(id)} aria-hidden="true"/>
+          ? <path key={id} className={'rt-c is-' + role + (disabled ? '' : ' is-live')} d={map.shapes[id]} data-pick={disabled ? undefined : id} aria-hidden="true"/>
           : <path key={id} className={'rt-c is-' + role}  d={map.shapes[id]} aria-hidden="true"/>)}
       </g>
       {/* Small countries (Luxembourg, Rwanda) get a ring in their colour, and a bigger target when you can drive there. */}
       {painted.filter(([id]) => small(id) && at(id)).map(([id, role]) => { const [x, y] = at(id)!;
-        return <circle key={'ring-' + id} className={'rt-ring is-' + role + (role === 'option' && !disabled ? ' is-live' : '')} cx={x} cy={y} r={map.w * .022 / zoom} onClick={role === 'option' && !disabled ? () => pick(id) : undefined} aria-hidden="true"/>; })}
+        return <circle key={'ring-' + id} className={'rt-ring is-' + role + (role === 'option' && !disabled ? ' is-live' : '')} cx={x} cy={y} r={map.w * .022 / zoom} data-pick={role === 'option' && !disabled ? id : undefined} aria-hidden="true"/>; })}
       {bestLine.slice(1).map((p, i) => <path key={'best' + i} className="rt-best-line" d={seg(bestLine[i], p)}/>)}
       {/* Your route: one calm dashed line between the middles of your stops. */}
       {stops.slice(1).map((p, i) => <path key={'s' + i + route[i + 1].country} className={'rt-line' + (route[i + 1].closer === false ? ' is-detour' : '')} d={seg(stops[i], p)}/>)}
@@ -248,11 +251,10 @@ export function RoadTripMap({ start, finish, frame, route, options, middles, bes
           <text x={x} y={y} fontSize={fs} textAnchor="middle">{name(id)}</text>
         </g>; })}
     </svg>
-    <div className="rt-zoom" role="group" aria-label={zoomText.in + ' / ' + zoomText.out}>
-      <button type="button" onClick={() => glide({ ...current, z: zoom * 1.8 })} disabled={zoom >= MAX_ZOOM - .01} aria-label={zoomText.in} title={zoomText.in}><Plus size={18} strokeWidth={2.6}/></button>
-      <button type="button" onClick={() => glide({ ...current, z: zoom / 1.8 })} disabled={zoom <= 1.01} aria-label={zoomText.out} title={zoomText.out}><Minus size={18} strokeWidth={2.6}/></button>
-      {route.length > 0 && options.length > 0 && <button type="button" onClick={focusHere} aria-label={zoomText.here} title={zoomText.here}><LocateFixed size={17} strokeWidth={2.4}/></button>}
-      {zoom > 1.01 && <button type="button" onClick={() => glide(whole!)} aria-label={zoomText.all} title={zoomText.all}><Maximize2 size={16} strokeWidth={2.4}/></button>}
+    <div className="map-tools rt-zoom">
+      <button type="button" className="icon-btn" aria-label={zoomText.in} onClick={() => changeZoom(zoom * 1.5)}><Plus size={18}/></button>
+      <button type="button" className="icon-btn" aria-label={zoomText.out} onClick={() => changeZoom(zoom / 1.5)}><Minus size={18}/></button>
+      <button type="button" className="icon-btn" aria-label={zoomText.reset} onClick={() => update(whole!)}><RotateCcw size={17}/></button>
     </div>
   </figure>;
 }

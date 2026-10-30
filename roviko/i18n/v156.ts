@@ -13,7 +13,7 @@ const en = {
   rtDone: 'You arrived!', rtResultLine: '{detours} · {peeks}', rtDetourOne: '1 detour', rtDetourMany: '{n} detours', rtPeekOne: '1 peek', rtPeekMany: '{n} peeks',
   rtShareTitle: 'Daily Road Trip #{n} · {start} → {finish}', rtShareLine: '{points} pts · {detours} · {peeks}', rtPractice: 'Unscored trip',
   rtStatus: '{steps} stops, {detours}, {peeks}', rtStop: 'Stop {n}: {country}', rtStopCloser: 'got closer', rtStopDetour: 'detour', rtStopStart: 'start', rtStopFinish: 'finish',
-  rtBusy: 'Driving…', rtZoomIn: 'Zoom in', rtZoomOut: 'Zoom out', rtZoomHere: 'Zoom to where you are', rtZoomAll: 'Show the whole trip', rtZoomTip: 'Pinch or use + to zoom in on small countries.', rtSumDetour: 'detour', rtSumDetours: 'detours', rtSumPeek: 'peek', rtSumPeeks: 'peeks', rtLegend: 'Legend', rtNotNeighbour: 'That country is not a neighbour.',
+  rtBusy: 'Driving…', rtZoomTip: 'Pinch, scroll or use + to zoom in; drag to move the map.', rtSumDetour: 'detour', rtSumDetours: 'detours', rtSumPeek: 'peek', rtSumPeeks: 'peeks', rtLegend: 'Legend', rtNotNeighbour: 'That country is not a neighbour.',
   competitionRoadtrip: 'Daily Road Trip: you start with 1,000 points. Every detour (a step that takes you no closer) costs 150, every peek at the map 200. At least 100 once you arrive. No timer, no speed bonus.',
   rtRuleShort: '1,000 · −150 per detour · −200 per peek · at least 100',
 };
@@ -31,7 +31,7 @@ const nl: typeof en = {
   rtDone: 'Je bent er!', rtResultLine: '{detours} · {peeks}', rtDetourOne: '1 omweg', rtDetourMany: '{n} omwegen', rtPeekOne: '1 keer gegluurd', rtPeekMany: '{n} keer gegluurd',
   rtShareTitle: 'Daily Road Trip #{n} · {start} → {finish}', rtShareLine: '{points} pnt · {detours} · {peeks}', rtPractice: 'Rit zonder punten',
   rtStatus: '{steps} stops, {detours}, {peeks}', rtStop: 'Stop {n}: {country}', rtStopCloser: 'dichterbij', rtStopDetour: 'omweg', rtStopStart: 'start', rtStopFinish: 'finish',
-  rtBusy: 'Rijden…', rtZoomIn: 'Inzoomen', rtZoomOut: 'Uitzoomen', rtZoomHere: 'Zoom naar waar je bent', rtZoomAll: 'Toon de hele rit', rtZoomTip: 'Knijp of tik op + om in te zoomen op kleine landen.', rtSumDetour: 'omweg', rtSumDetours: 'omwegen', rtSumPeek: 'keer gegluurd', rtSumPeeks: 'keer gegluurd', rtLegend: 'Legenda', rtNotNeighbour: 'Dat land is geen buurland.',
+  rtBusy: 'Rijden…', rtZoomTip: 'Knijp, scroll of tik op + om in te zoomen; sleep om de kaart te verschuiven.', rtSumDetour: 'omweg', rtSumDetours: 'omwegen', rtSumPeek: 'keer gegluurd', rtSumPeeks: 'keer gegluurd', rtLegend: 'Legenda', rtNotNeighbour: 'Dat land is geen buurland.',
   competitionRoadtrip: 'Daily Road Trip: je begint met 1.000 punten. Elke omweg (een stap die je niet dichterbij brengt) kost 150, elke keer gluren op de kaart 200. Minstens 100 als je aankomt. Geen tijdslimiet, geen snelheidsbonus.',
   rtRuleShort: '1.000 · −150 per omweg · −200 per keer gluren · minstens 100',
 };
@@ -49,7 +49,7 @@ const es: typeof en = {
   rtDone: '¡Llegaste!', rtResultLine: '{detours} · {peeks}', rtDetourOne: '1 desvío', rtDetourMany: '{n} desvíos', rtPeekOne: '1 vistazo', rtPeekMany: '{n} vistazos',
   rtShareTitle: 'Daily Road Trip #{n} · {start} → {finish}', rtShareLine: '{points} pts · {detours} · {peeks}', rtPractice: 'Viaje sin puntos',
   rtStatus: '{steps} paradas, {detours}, {peeks}', rtStop: 'Parada {n}: {country}', rtStopCloser: 'más cerca', rtStopDetour: 'desvío', rtStopStart: 'salida', rtStopFinish: 'meta',
-  rtBusy: 'Conduciendo…', rtZoomIn: 'Acercar', rtZoomOut: 'Alejar', rtZoomHere: 'Ir a donde estás', rtZoomAll: 'Ver todo el viaje', rtZoomTip: 'Pellizca o usa + para acercarte a los países pequeños.', rtSumDetour: 'desvío', rtSumDetours: 'desvíos', rtSumPeek: 'vistazo', rtSumPeeks: 'vistazos', rtLegend: 'Leyenda', rtNotNeighbour: 'Ese país no es vecino.',
+  rtBusy: 'Conduciendo…', rtZoomTip: 'Pellizca, usa la rueda o + para acercar; arrastra para mover el mapa.', rtSumDetour: 'desvío', rtSumDetours: 'desvíos', rtSumPeek: 'vistazo', rtSumPeeks: 'vistazos', rtLegend: 'Leyenda', rtNotNeighbour: 'Ese país no es vecino.',
   competitionRoadtrip: 'Daily Road Trip: empiezas con 1.000 puntos. Cada desvío (un paso que no te acerca) resta 150 y cada vistazo al mapa 200. Al menos 100 al llegar. Sin tiempo ni bonus de velocidad.',
   rtRuleShort: '1.000 · −150 por desvío · −200 por vistazo · al menos 100',
 };
