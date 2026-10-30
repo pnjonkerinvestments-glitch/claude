@@ -136,7 +136,7 @@ function allBuckets() {
     found.get(key)!.push([a, b]);
   }
   buckets = new Map();
-  for (const [key, list] of found) if (list.length >= MIN_BUCKET) buckets.set(key, shuffle(list, random('roviko:road-trip:bucket:v2:' + key)));
+  for (const [key, list] of found) if (list.length >= MIN_BUCKET) buckets.set(key, shuffle(list, random('roviko:road-trip:bucket:v4:' + key)));
   return buckets;
 }
 
