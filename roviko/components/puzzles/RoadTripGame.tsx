@@ -108,6 +108,7 @@ export function RoadTripGame({ app }: { app: any }) {
 
   const map = <RoadTripMap start={game.start} finish={game.finish} frame={game.frame} route={game.route} options={game.options} middles={game.middles} best={finished ? game.best : null}
     peeking={peeking} disabled={busy || finished} name={name} onPick={id => void drive(id)} failText={t('mapFailed')} retryText={t('retry')}
+    zoomText={{ in: t('rtZoomIn'), out: t('rtZoomOut'), here: t('rtZoomHere'), all: t('rtZoomAll') }}
     label={fill(t('rtMapLabel'), { start: name(game.start), finish: name(game.finish) })}/>;
 
   const legend = <ul className="rt-legend" aria-label={t('rtLegend')}>
@@ -154,6 +155,7 @@ export function RoadTripGame({ app }: { app: any }) {
       <span>{notice?.text ?? (finished ? t('rtDone') : stopsTaken === 0 ? fill(t('rtStartHint'), { country: name(last.country) }) : fill(t('rtNextHint'), { country: name(last.country) }))}</span></p>
     {map}
     {legend}
+    {!finished && <p className="rt-zoom-tip muted">{t('rtZoomTip')}</p>}
     {chips}
     {factCard}
     {finished ? <>{resultCard}<div className="finish-actions"><button className="finish-quiet" onClick={exit}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button></div></>
