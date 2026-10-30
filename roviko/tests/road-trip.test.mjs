@@ -23,11 +23,16 @@ test('Daily Road Trip: the next 365 trips all meet every rule', () => {
     if (seen.has(key)) assert.ok(i - seen.get(key) >= 60, d + ': ' + key + ' again after ' + (i - seen.get(key)) + ' days');
     seen.set(key, i);
     regions.set(x.regionOfTrip(d), (regions.get(x.regionOfTrip(d)) ?? 0) + 1);
+    // Interesting: heading straight for the finish goes wrong 1 to 4 times (never a straight corridor, never a maze).
+    const g = x.greedyDetours(trip.start, trip.finish);
+    assert.ok(g >= 1 && g <= 4, d + ': ' + trip.start + ' → ' + trip.finish + ' naive detours ' + g);
     if (x.hasTrap(trip.start, trip.finish)) traps++;
   }
   // The regions take turns: never the same region three days running, and all four show up.
   for (let i = 2; i < 365; i++) assert.ok(!(x.regionOfTrip(date(i)) === x.regionOfTrip(date(i - 1)) && x.regionOfTrip(date(i)) === x.regionOfTrip(date(i - 2))), date(i));
-  assert.deepEqual([...regions.keys()].sort(), ['Africa', 'Americas', 'Asia', 'Europe']);
+  // The Americas are mostly one corridor (Honduras → Peru was too easy), so they only take a turn when they have enough interesting trips.
+  for (const r of ['Africa', 'Asia', 'Europe']) assert.ok(regions.get(r) > 30, r + ' ' + regions.get(r));
+  assert.ok(!x.isInteresting('HND', 'PER'), 'Honduras → Peru is a straight corridor');
   assert.ok(traps > 365 * .7, 'most trips have a trap: ' + traps);
 });
 

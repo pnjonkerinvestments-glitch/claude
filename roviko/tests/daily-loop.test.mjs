@@ -57,14 +57,14 @@ test('the daily lineup is chosen per UTC date: Mosaic before SHUFFLE_FROM, Size 
   const xr = d => new Date(Date.parse(CROSSROADS_FROM + 'T00:00:00Z') + d * 86400000).toISOString().slice(0, 10);
   assert.ok(CROSSROADS_FROM > SHAPE_FROM);
   assert.deepEqual([...dailyModesFor(xr(-1))], ['rank', 'shape', 'compare', 'order', 'trail']);
-  assert.deepEqual([...dayModesFor(xr(0))], ['daily', 'rank', 'shape', 'compare', 'order', 'crossroads']);
-  for (const d of [-1, 0]) { assert.equal(dayModesFor(xr(d)).length, 6); assert.ok(!(dayModesFor(xr(d)).includes('trail') && dayModesFor(xr(d)).includes('crossroads'))); }
-  // 1.56: Daily Road Trip takes Crossroads' place from ROADTRIP_FROM on; Crossroads keeps only its own days.
+  // 1.56: Daily Road Trip went live on CROSSROADS_FROM itself, so no date has the Crossroads lineup; that day's
+  // Crossroads points stay (server/competition.ts reads them back as 'crossroads' by their session).
   const rt = d => new Date(Date.parse(ROADTRIP_FROM + 'T00:00:00Z') + d * 86400000).toISOString().slice(0, 10);
-  assert.ok(ROADTRIP_FROM > CROSSROADS_FROM);
-  assert.deepEqual([...dailyModesFor(rt(-1))], ['rank', 'shape', 'compare', 'order', 'crossroads']);
+  assert.ok(ROADTRIP_FROM >= CROSSROADS_FROM);
+  assert.deepEqual([...dailyModesFor(rt(-1))], ROADTRIP_FROM === CROSSROADS_FROM ? ['rank', 'shape', 'compare', 'order', 'trail'] : ['rank', 'shape', 'compare', 'order', 'crossroads']);
   assert.deepEqual([...dayModesFor(rt(0))], ['daily', ...DAILY_MODES]);
   assert.deepEqual([...DAILY_MODES], ['rank', 'shape', 'compare', 'order', 'roadtrip']);
+  assert.ok(ALL_DAY_MODES.includes('crossroads'), 'old Crossroads results still have a name');
   for (const d of [0, 1, 30, 400]) { assert.equal(dayModesFor(rt(d)).length, 6); assert.ok(!dayModesFor(rt(d)).includes('crossroads') && !dayModesFor(rt(d)).includes('trail')); }
   for (const d of [-1, 0, 30]) { assert.equal(dayModesFor(at(d)).length, 6); assert.ok(!(dayModesFor(at(d)).includes('duel') && dayModesFor(at(d)).includes('shape'))); }
   for (const d of [-30, -1, 0, 1, 400]) { assert.equal(dayModesFor(day(d)).length, 6); assert.ok(!(dayModesFor(day(d)).includes('mosaic') && dayModesFor(day(d)).includes('order'))); }

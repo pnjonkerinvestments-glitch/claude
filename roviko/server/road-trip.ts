@@ -27,7 +27,11 @@ const pointsOf = (s: RoadTripState) => s.competition ? dailyScore(s as any) : ro
 
 /** Today's trip: started or resumed (one attempt a day). Scores only when Road Trip is one of the day's daily games. */
 export async function startRoadTrip(env: Env, user: User) {
-  const date = today(), ranked = (dailyModesFor(date) as readonly string[]).includes('roadtrip');
+  const date = today();
+  // Scored when Road Trip is one of the day's daily games, unless this player already has points in its slot that day
+  // (Crossroads, played on the switch day before Road Trip went live): one fifth game a day, never two.
+  const ranked = (dailyModesFor(date) as readonly string[]).includes('roadtrip')
+    && !await one(env, "SELECT 1 FROM daily_scores d WHERE d.user_id=? AND d.date=? AND d.mode='trail' AND NOT EXISTS(SELECT 1 FROM game_sessions g WHERE g.id=d.session_id AND g.kind LIKE 'roadtrip%')", user.id, date);
   const kind = KIND + (ranked ? COMPETITION_SUFFIX : '');
   const existing = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, date, kind);
   if (existing) return view(JSON.parse(existing.state), existing.version);

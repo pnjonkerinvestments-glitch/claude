@@ -1103,9 +1103,15 @@ test('1.56: Daily Road Trip: one trip a day, every tap final, detours and peeks 
  assert.ok(await db.prepare('SELECT 1 FROM daily_challenge_results WHERE user_id=? AND date=?').bind(g.data.user.id,today).first(),'counts for the streak');
  assert.ok(await db.prepare("SELECT COUNT(*) n FROM answers WHERE session_id=? AND mode='roadtrip'").bind(game.id).first('n')>0,'passport stamps for the countries that got you closer');
  assert.equal((await drive(game.finish)).status,409,'finished');
- // The 'trail' slot reads as Clue Trail before CROSSROADS_FROM, as Crossroads until ROADTRIP_FROM and as Road Trip after.
- for(const [date,mode,score] of [[x.CROSSROADS_FROM,'crossroads',700],[x.ROADTRIP_FROM,'roadtrip',800]]){
-  const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,'x',date,'{}',Date.now()).run();
-  await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,date,'trail',sess,score,Date.now()).run();
-  const comp=(await request(a,'/competition?date='+date)).data;assert.deepEqual(comp.scores,[{mode,score}],date);}
+ // The 'trail' slot: Crossroads points read as 'crossroads' (on the switch day by their session), Road Trip as 'roadtrip'.
+ for(const [kind,mode,score] of [['crossroads:competitive-v1','crossroads',700],['roadtrip:competitive-v1','roadtrip',800]]){
+  const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,kind+':'+sess,x.ROADTRIP_FROM,'{}',Date.now()).run();
+  await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,x.ROADTRIP_FROM,'trail',sess,score,Date.now()).run();
+  const comp=(await request(a,'/competition?date='+x.ROADTRIP_FROM)).data;assert.deepEqual(comp.scores.filter(s=>s.mode===mode||s.mode==='trail'||s.mode==='crossroads'||s.mode==='roadtrip'),[{mode,score}],kind);}
+ // Someone who already has Crossroads points today plays Road Trip unscored: one fifth game a day.
+ if(ranked){const c=await bootstrap(),me=c.data.user.id,sess=crypto.randomUUID();
+  await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,me,'crossroads:competitive-v1',today,'{}',Date.now()).run();
+  await db.prepare("INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(me,today,'trail',sess,900,Date.now()).run();
+  const trip=(await request(c.cookie,'/roadtrip','POST',{})).data;assert.equal(trip.competition,null,'already played Crossroads today');
+  assert.deepEqual((await request(c.cookie,'/competition')).data.scores.filter(s=>s.mode==='crossroads'),[{mode:'crossroads',score:900}]);}
 });

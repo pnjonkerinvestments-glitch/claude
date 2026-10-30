@@ -29,8 +29,11 @@ export const CROSSROADS_FROM = '2026-10-30';
  * stamps stay. Like the others: the first UTC day after the release; move it only while it has not passed yet, never after.
  * In the ledger Road Trip uses Clue Trail's slot too (server/competition.ts): 'trail' before CROSSROADS_FROM, 'crossroads'
  * until ROADTRIP_FROM, 'roadtrip' from then on.
+ * The owner wanted Road Trip live on the day Crossroads started (2026-10-30), so both dates are the same: that day's
+ * Crossroads points stay and read as 'crossroads' (by their session), and a player who already has them plays Road Trip
+ * unscored that day (server/road-trip.ts). The Crossroads lineup below therefore covers no date at all.
  */
-export const ROADTRIP_FROM = '2026-10-31';
+export const ROADTRIP_FROM = '2026-10-30';
 /** The five daily games from ROADTRIP_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
 export const DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'roadtrip'] as const;
 /** The five daily games from CROSSROADS_FROM until ROADTRIP_FROM (1.55): Daily Crossroads in fifth place. */

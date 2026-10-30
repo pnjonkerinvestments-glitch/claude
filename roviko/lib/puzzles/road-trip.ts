@@ -102,36 +102,44 @@ export function hasTrap(start: string, finish: string) {
 const REGIONS = ['Africa', 'Europe', 'Asia', 'Africa', 'Europe', 'Americas'];
 /** When a region has no fair trip of the day's length left, the richest regions help out first. */
 const FALLBACK = ['Africa', 'Europe', 'Asia', 'Americas'];
+/** The naive drive: always the unvisited neighbour that lies most towards the finish (as the crow flies). How many detours
+ *  that costs, or Infinity when it never gets there. A trip is interesting when this drive goes wrong 1 to 4 times:
+ *  heading straight for the finish is not enough (Honduras → Peru was a single corridor), but it is never a maze. */
+export function greedyDetours(start: string, finish: string) {
+  const d = distancesTo(finish), seen = new Set([start]);
+  let here = start, detours = 0;
+  for (let step = 0; d.get(here)! > 1; step++) {
+    if (step > 25) return Infinity;
+    const fresh = neighboursOf(here).filter(n => !seen.has(n)), pool = fresh.length ? fresh : neighboursOf(here);
+    const next = pool.sort((a, b) => apart(a, finish) - apart(b, finish) || a.localeCompare(b))[0];
+    if (d.get(next)! >= d.get(here)!) detours++;
+    seen.add(next); here = next;
+  }
+  return detours;
+}
+export const GREEDY_MIN = 1, GREEDY_MAX = 4;
+export const isInteresting = (start: string, finish: string) => { const g = greedyDetours(start, finish); return g >= GREEDY_MIN && g <= GREEDY_MAX; };
+/** A region needs at least this many interesting trips of a length to take its turn; otherwise another region helps out. */
+const MIN_BUCKET = 6;
 let buckets: Map<string, [string, string][]> | null = null;
-/** Every fair pair, per region and length, in a fair direction (a pair stored once). With enough of them only pairs with
- *  a trap; otherwise the traps go first. */
+/** Every fair and interesting trip, per region and length, in its direction (Ghana → Kenya and Kenya → Ghana are separate). */
 function allBuckets() {
   if (buckets) return buckets;
-  const found = new Map<string, { trap: [string, string][]; plain: [string, string][] }>();
+  const found = new Map<string, [string, string][]>();
   const ids = COUNTRIES.map(c => c.id).sort();
   for (const a of ids) for (const b of ids) {
-    if (a >= b || regionOf(a) !== regionOf(b)) continue;
+    if (a === b || regionOf(a) !== regionOf(b)) continue;
     const total = distancesTo(b).get(a);
-    if (total === undefined || total - 1 < 3 || total - 1 > 5) continue;
-    // Both directions are checked: from Qatar or the Vatican the first step has no choice, the other way round it may.
-    const fair = ([[a, b], [b, a]] as [string, string][]).filter(([s, f]) => !tripProblems(s, f).length);
-    if (!fair.length) continue;
-    const key = regionOf(a) + ':' + (total - 1), trapped = fair.filter(([s, f]) => hasTrap(s, f));
-    if (!found.has(key)) found.set(key, { trap: [], plain: [] });
-    // The pair keeps the directions that are fair (with a trap, if one has it); the date picks one of them.
-    if (trapped.length) found.get(key)!.trap.push(...(trapped.length === 2 ? [[a, b] as [string, string]] : trapped)); else found.get(key)!.plain.push(fair.length === 2 ? [a, b] : fair[0]);
-    if (trapped.length === 1 || (!trapped.length && fair.length === 1)) oneWay.add((trapped[0] ?? fair[0]).join('|'));
+    if (total === undefined || total - 1 < 3 || total - 1 > 5 || tripProblems(a, b).length || !isInteresting(a, b)) continue;
+    const key = regionOf(a) + ':' + (total - 1);
+    if (!found.has(key)) found.set(key, []);
+    found.get(key)!.push([a, b]);
   }
   buckets = new Map();
-  for (const [key, { trap, plain }] of found) {
-    const rng = random('roviko:road-trip:bucket:v1:' + key);
-    buckets.set(key, trap.length >= 10 ? shuffle(trap, rng) : [...shuffle(trap, rng), ...shuffle(plain, rng)]);
-  }
+  for (const [key, list] of found) if (list.length >= MIN_BUCKET) buckets.set(key, shuffle(list, random('roviko:road-trip:bucket:v2:' + key)));
   return buckets;
 }
 
-/** Pairs that only work in the stored direction. */
-const oneWay = new Set<string>();
 const dayNumber = (date: string) => Math.floor(Date.parse(date + 'T00:00:00Z') / 86400000);
 const dateOf = (day: number) => new Date(day * 86400000).toISOString().slice(0, 10);
 /** Trips from EPOCH on, one per day, worked out in order: the regions take turns, each region and length walks through its
@@ -149,13 +157,13 @@ function planUntil(day: number) {
       const key = region + ':' + length, list = all.get(key) ?? [];
       const at = counters.get(key) ?? 0;
       for (let i = 0; i < list.length; i++) {
-        const pair = list[(at + i) % list.length], used = lastUsed.get(pair.join('|'));
+        const pair = list[(at + i) % list.length], used = lastUsed.get([...pair].sort().join('|'));
         if (used !== undefined && today - used < REPEAT_DAYS) continue;
         chosen = { pair, region }; counters.set(key, (at + i + 1) % list.length); break;
       }
     }
     if (!chosen) throw new Error('NO_ROAD_TRIP ' + dateOf(today));
-    lastUsed.set(chosen.pair.join('|'), today);
+    lastUsed.set([...chosen.pair].sort().join('|'), today);
     plan.push(chosen);
   }
 }
@@ -166,8 +174,7 @@ export function roadTripFor(date: string): RoadTrip {
   // Before EPOCH (only tests and odd clocks): the same plan, shifted by whole 42-day blocks so weekday and region match.
   const index = day >= first ? day : first + (((day - first) % 42) + 42) % 42;
   planUntil(index);
-  const [a, b] = plan[index - first].pair, flip = !oneWay.has(a + '|' + b) && random('roviko:road-trip:direction:v1:' + date)() < 0.5;
-  const [start, finish] = flip ? [b, a] : [a, b];
+  const [start, finish] = plan[index - first].pair;
   return { start, finish, shortest: distancesTo(finish).get(start)! - 1 };
 }
 export const regionOfTrip = (date: string) => { const day = dayNumber(date); planUntil(Math.max(day, dayNumber(EPOCH))); return plan[Math.max(0, day - dayNumber(EPOCH))]?.region ?? ''; };
