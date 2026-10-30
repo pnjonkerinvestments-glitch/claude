@@ -301,8 +301,8 @@ const Crossroads: Logo = () => <>
   <Sparkle x={4.4} y={6.6} s={.8}/>
 </>;
 
-// Daily Road Trip (1.56): a cream map tile in grey fog, a dotted road from a purple start pin past green stops to the
-// purple finish flag, a little red car on the way and Roviko peeking over the top edge.
+// Daily Road Trip (1.56): a cream map tile, a dotted road from a dark-green start pin past a green and an orange stop to
+// the dark-green finish flag, and Roviko peeking over the top edge.
 const RoadTrip: Logo = () => <>
   <GroundShadow x={20} y={36.6} rx={14}/>
   <MiniGlobe x={30.2} y={9.6} r={6.2} mood="cheer" look={-.4}/>
@@ -311,10 +311,8 @@ const RoadTrip: Logo = () => <>
   <path d="M8.6 30.4c2-5.6 6-3.4 8.4-7.6s5.4-5.6 9.6-8.4" fill="none" stroke="#D3DAD6" strokeWidth="5.4" strokeLinecap="round"/>
   <path d="M8.6 30.4c2-5.6 6-3.4 8.4-7.6s5.4-5.6 9.6-8.4" fill="none" stroke="#24312C" strokeWidth="1.2" strokeDasharray="1.2 2" strokeLinecap="round"/>
   <circle cx="12.8" cy="25.6" r="1.8" fill={RV.green}/><circle cx="20.2" cy="19.4" r="1.8" fill="#E8893A"/>
-  <circle cx="8.6" cy="30.4" r="2.3" fill="#7C5CD6"/><circle cx="8.6" cy="30.4" r=".9" fill="#fff"/>
-  <path d="M26.4 14.6v-6.2" stroke="#7C5CD6" strokeWidth="1.1" strokeLinecap="round"/><path d="M26.4 8.4h4.4l-1.3 1.4 1.3 1.4h-4.4Z" fill="#7C5CD6"/>
-  <g transform="translate(15.4 21.6) rotate(-32)"><rect x="-3.4" y="-1.9" width="6.8" height="3.4" rx="1.3" fill="#E5484D"/><rect x="-1.6" y="-3.1" width="3.4" height="1.8" rx=".8" fill="#E5484D"/>
-    <circle cx="-1.9" cy="1.7" r=".9" fill="#24312C"/><circle cx="1.9" cy="1.7" r=".9" fill="#24312C"/></g>
+  <circle cx="8.6" cy="30.4" r="2.3" fill="#163B32"/><circle cx="8.6" cy="30.4" r=".9" fill="#fff"/>
+  <path d="M26.4 14.6v-6.2" stroke="#163B32" strokeWidth="1.1" strokeLinecap="round"/><path d="M26.4 8.4h4.4l-1.3 1.4 1.3 1.4h-4.4Z" fill="#163B32"/>
   <Hand x={25} y={10.8} angle={20}/>
   <Sparkle x={4.2} y={6.6} s={.8}/>
 </>;

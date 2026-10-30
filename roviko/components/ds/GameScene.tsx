@@ -86,23 +86,21 @@ function Scene({ mode }: { mode: SceneMode }) {
       <Roviko x={256} y={214} w={116} pose="wave" flip/>
       <Spark x={226} y={40} s={.9}/>
     </>;
-    // Daily Road Trip (1.56): a map card in grey fog, a chain of countries (purple start, green, orange detour, purple
-    // finish) joined by a dotted road, light-blue neighbours with dashed edges and a red car; Roviko waves from the side.
+    // Daily Road Trip (1.56): a map card, a chain of countries (dark-green start, green, orange detour, dark-green finish)
+    // joined by a dotted road and light-blue neighbours with dashed edges; Roviko waves from the side.
     case 'roadtrip': return <>
       <Card x={30} y={36} w={204} h={172} r={18} rot={-4} fill="#EAF3F1">
         <path d="M44 120c10-40 50-58 92-60s78-20 88 6c8 22-4 58-30 80s-74 30-108 18-48-22-42-44Z" fill="#CFD8D3"/>
-        <path d="M60 150c4-10 14-16 24-14s12 14 4 20-26 6-28-6Z" fill="#7C5CD6"/>
+        <path d="M60 150c4-10 14-16 24-14s12 14 4 20-26 6-28-6Z" fill="#163B32"/>
         <path d="M86 128c6-12 22-14 30-6s2 22-10 24-24-6-20-18Z" fill="#2F9E6E"/>
         <path d="M116 108c8-12 26-12 32-2s-4 22-16 22-20-8-16-20Z" fill="#E8893A"/>
         <path d="M146 94c8-12 26-10 30 0s-6 20-16 20-18-8-14-20Z" fill="#2F9E6E"/>
-        <path d="M176 76c8-10 24-8 26 4s-8 18-18 16-12-10-8-20Z" fill="#7C5CD6"/>
+        <path d="M176 76c8-10 24-8 26 4s-8 18-18 16-12-10-8-20Z" fill="#163B32"/>
         <path d="M124 72c6-10 20-8 22 2s-8 14-16 12-10-6-6-14Z" fill="#CFE6FB" stroke="#3D86D6" strokeWidth="2" strokeDasharray="4 3"/>
         <path d="M176 128c6-8 18-6 20 2s-6 14-14 12-10-6-6-14Z" fill="#CFE6FB" stroke="#3D86D6" strokeWidth="2" strokeDasharray="4 3"/>
         <path d="M72 148L100 134L132 116L160 104L188 86" stroke="#24312C" strokeWidth="3.4" strokeDasharray="3 7" strokeLinecap="round" fill="none"/>
-        <g transform="translate(160 104) rotate(-26)"><rect x={-13} y={-7} width={26} height={13} rx={5} fill={C.red}/><rect x={-6} y={-12} width={13} height={7} rx={3} fill={C.red}/>
-          <circle cx={-7} cy={7} r={3.4} fill="#24312C"/><circle cx={7} cy={7} r={3.4} fill="#24312C"/></g>
       </Card>
-      <Spark x={226} y={44} s={1.1} color="#7C5CD6"/><Spark x={30} y={30} s={.8} color={C.gold}/>
+      <Spark x={226} y={44} s={1.1} color={C.gold}/><Spark x={30} y={30} s={.8} color={C.gold}/>
       <Roviko x={266} y={222} w={100} mood="cheer" pose="wave" flip/>
     </>;
     // Daily Crossroads (1.55): a white card with the 3×3 grid, category tags on top and left, green squares with flags,

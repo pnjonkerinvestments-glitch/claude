@@ -78,15 +78,6 @@ function build(world: World, frame: Box, extra: string[]): Built {
   return { viewBox: [x0, y0, w, h].map(fmt).join(' '), w, land, borders: land, shapes, small, project: ([lon, lat]) => [lon * k, -lat] };
 }
 
-/** A segment of the dotted route line; the newest one draws itself (a solid mask grows over the dashes). */
-function Segment({ d, id, fresh, className }: { d: string; id: string; fresh: boolean; className: string }) {
-  if (!fresh) return <path className={className} d={d}/>;
-  return <>
-    <mask id={id} maskUnits="userSpaceOnUse"><path className="rt-seg-mask" d={d} pathLength={1}/></mask>
-    <path className={className} d={d} mask={`url(#${id})`}/>
-  </>;
-}
-
 export function RoadTripMap({ start, finish, frame, route, options, middles, best, peeking, disabled, name, onPick, label, failText, retryText }: Props) {
   const [world, setWorld] = useState<World | null>(null), [failed, setFailed] = useState(false), [retry, setRetry] = useState(0);
   useEffect(() => { let on = true; setFailed(false); loadAtlas().then(w => { if (on) setWorld(w); }).catch(() => { if (on) setFailed(true); }); return () => { on = false; }; }, [retry]);
@@ -130,10 +121,6 @@ export function RoadTripMap({ start, finish, frame, route, options, middles, bes
     }
   }
 
-  // The car faces the way it last drove (and stays upright when that is to the left).
-  const prev = stops.length > 1 ? stops[stops.length - 2] : null;
-  const heading = here && prev ? Math.atan2(here[1] - prev[1], here[0] - prev[0]) * 180 / Math.PI : 0;
-  const flip = Math.abs(heading) > 90, carAngle = flip ? heading - 180 * Math.sign(heading) : heading;
   const u = map.w / 100, [vx, vy, vw, vh] = map.viewBox.split(' ').map(Number);
   const pin = (id: string, kind: 'start' | 'finish') => { const p = at(id); if (!p) return null;
     return <g key={'pin-' + kind} className={'rt-pin is-' + kind} transform={`translate(${p[0]} ${p[1]}) scale(${u / 5.5})`} aria-hidden="true">
@@ -148,48 +135,31 @@ export function RoadTripMap({ start, finish, frame, route, options, middles, bes
       <defs>
         <radialGradient id="rt-sea" cx="50%" cy="40%" r="75%"><stop offset="0" className="rt-sea-a"/><stop offset="1" className="rt-sea-b"/></radialGradient>
         <radialGradient id="rt-fog" cx="50%" cy="50%" r="72%"><stop offset=".68" className="rt-fog-a"/><stop offset="1" className="rt-fog-b"/></radialGradient>
-        {(['end', 'closer', 'detour', 'option', 'best'] as Role[]).map(r => <linearGradient key={r} id={'rt-g-' + r} x1="0" y1="0" x2="0" y2="1"><stop offset="0" className={'rt-ga is-' + r}/><stop offset="1" className={'rt-gb is-' + r}/></linearGradient>)}
-        <filter id="rt-lift" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy={u * .25} stdDeviation={u * .35} floodColor="#0b2a22" floodOpacity=".28"/></filter>
         <filter id="rt-soft" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy={u * .15} stdDeviation={u * .5} floodColor="#0b2a22" floodOpacity=".18"/></filter>
       </defs>
       <rect x={vx} y={vy} width={vw} height={vh} fill="url(#rt-sea)"/>
       <path className="rt-land" d={map.land} filter="url(#rt-soft)"/>
       <path className="rt-borders" d={map.borders}/>
       <rect className="rt-fog" x={vx} y={vy} width={vw} height={vh} fill="url(#rt-fog)" pointerEvents="none"/>
-      <g filter="url(#rt-lift)">
+      <g>
         {painted.map(([id, role]) => role === 'option'
-          ? <path key={id} className={'rt-c is-' + role + (disabled ? '' : ' is-live')} d={map.shapes[id]} fill={'url(#rt-g-' + role + ')'} onClick={disabled ? undefined : () => onPick(id)} aria-hidden="true"/>
-          : <path key={id} className={'rt-c is-' + role} d={map.shapes[id]} fill={'url(#rt-g-' + role + ')'} aria-hidden="true"/>)}
+          ? <path key={id} className={'rt-c is-' + role + (disabled ? '' : ' is-live')} d={map.shapes[id]} onClick={disabled ? undefined : () => onPick(id)} aria-hidden="true"/>
+          : <path key={id} className={'rt-c is-' + role}  d={map.shapes[id]} aria-hidden="true"/>)}
       </g>
       {/* Small countries (Luxembourg, Rwanda) get a ring in their colour, and a bigger target when you can drive there. */}
       {painted.filter(([id]) => map.small.has(id) && at(id)).map(([id, role]) => { const [x, y] = at(id)!;
         return <circle key={'ring-' + id} className={'rt-ring is-' + role + (role === 'option' && !disabled ? ' is-live' : '')} cx={x} cy={y} r={map.w * .022} onClick={role === 'option' && !disabled ? () => onPick(id) : undefined} aria-hidden="true"/>; })}
       {bestLine.slice(1).map((p, i) => <path key={'best' + i} className="rt-best-line" d={seg(bestLine[i], p)}/>)}
-      {/* The road: a dark edge, white tarmac and a dashed gold middle line; the newest stretch draws itself. */}
-      {stops.slice(1).map((p, i) => { const d = seg(stops[i], p), fresh = i === stops.length - 2, cls = route[i + 1].closer === false ? ' is-detour' : '';
-        return <g key={'s' + i + route[i + 1].country} className={'rt-road' + cls}>
-          <Segment d={d} id={'rt-mask-e' + i} fresh={fresh} className="rt-road-edge"/>
-          <Segment d={d} id={'rt-mask-t' + i} fresh={fresh} className="rt-road-top"/>
-          <Segment d={d} id={'rt-mask-m' + i} fresh={fresh} className="rt-road-mid"/>
-        </g>; })}
+      {/* Your route: one calm dashed line between the middles of your stops. */}
+      {stops.slice(1).map((p, i) => <path key={'s' + i + route[i + 1].country} className={'rt-line' + (route[i + 1].closer === false ? ' is-detour' : '')} d={seg(stops[i], p)}/>)}
       {stops.slice(1, -1).map(([x, y], i) => <circle key={'dot' + i} className={'rt-stop' + (route[i + 1].closer === false ? ' is-detour' : '')} cx={x} cy={y} r={u * .9}/>)}
       {pin(start, 'start')}{pin(finish, 'finish')}
-      {here && <g className="rt-car" style={{ transform: `translate(${here[0]}px, ${here[1]}px)` }} aria-hidden="true">
-        <g transform={`rotate(${carAngle}) scale(${(flip ? -1 : 1) * u / 4} ${u / 4})`}>
-          <ellipse cx="0" cy="5.6" rx="10" ry="2.2" className="rt-car-shadow"/>
-          <path className="rt-car-body" d="M-10 2.6v-3.4c0-1.3 1-2.2 2.2-2.4l3-.5 2.8-3.5c.6-.7 1.4-1.1 2.3-1.1h3.6c.9 0 1.7.4 2.3 1.1l3 3.6 2 .4c1.3.3 2.2 1.4 2.2 2.7v3.1c0 .9-.7 1.6-1.6 1.6H-8.4c-.9 0-1.6-.7-1.6-1.6Z"/>
-          <path className="rt-car-glass" d="M-3.5-3.6 -1.6-6c.3-.4.8-.6 1.3-.6H1.9v3Zm6.5 0V-6.6h1.1c.5 0 1 .2 1.3.6l2.1 2.4Z"/>
-          <rect className="rt-car-light" x="8.3" y="-1.2" width="1.6" height="1.3" rx=".5"/>
-          <circle className="rt-car-wheel" cx="-5.6" cy="4.2" r="2.3"/><circle className="rt-car-wheel" cx="5.6" cy="4.2" r="2.3"/>
-          <circle className="rt-car-hub" cx="-5.6" cy="4.2" r=".9"/><circle className="rt-car-hub" cx="5.6" cy="4.2" r=".9"/>
-        </g>
-      </g>}
+      {here && <g className="rt-here" transform={`translate(${here[0]} ${here[1]})`} aria-hidden="true"><circle r={u * 1.9}/><circle className="rt-here-dot" r={u * .8}/></g>}
       {labels.map(({ id, role, x, y }) => { const tw = name(id).length * fs * .56 + fs * .9;
         return <g key={'t-' + id} className={'rt-tag is-' + role} aria-hidden="true">
           <rect x={x - tw / 2} y={y - fs * .95} width={tw} height={fs * 1.3} rx={fs * .65}/>
           <text x={x} y={y} fontSize={fs} textAnchor="middle">{name(id)}</text>
         </g>; })}
     </svg>
-    {peeking && <span className="rt-peek-badge" aria-hidden="true"><span className="rt-peek-ring"/>👀</span>}
   </figure>;
 }

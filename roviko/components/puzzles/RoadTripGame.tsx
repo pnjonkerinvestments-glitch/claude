@@ -77,7 +77,8 @@ export function RoadTripGame({ app }: { app: any }) {
     } catch (e: any) { if (e?.message === 'STATE_CHANGED') await refresh(); else fail(e); } finally { setBusy(false); }
   }
 
-  const blocks = game.route.map((r, i) => i === 0 || (finished && i === game.route.length - 1) ? '🟪' : r.closer ? '🟩' : '🟧');
+  // Share blocks: 📍 start, 🟩 closer, 🟧 detour, 🏁 finish.
+  const blocks = game.route.map((r, i) => i === 0 ? '📍' : finished && i === game.route.length - 1 ? '🏁' : r.closer ? '🟩' : '🟧');
   const shareText = () => [fill(t('rtShareTitle'), { n: game.edition, start: name(game.start), finish: name(game.finish) }), blocks.join(''),
     fill(t('rtShareLine'), { points: formatScore(game.score), detours: detoursText(game.detours), peeks: peeksText(game.peeks) }), 'roviko.app'].join('\n');
   const share = () => (app.share ?? app.copy)(shareText());
@@ -94,7 +95,7 @@ export function RoadTripGame({ app }: { app: any }) {
       <small className="rt-ticket-kicker">{t('rtToday')}</small>
       <div className="rt-ticket-row">
         <span className="rt-ticket-end">{flagOf(game.start) && <img src={flagOf(game.start)} alt=""/>}<strong>{name(game.start)}</strong></span>
-        <span className="rt-ticket-road" aria-hidden="true"><i/><svg viewBox="0 0 24 14" className="rt-ticket-car"><path d="M1 9.5V7.2c0-.9.7-1.6 1.6-1.8l2-.3L6.8 2.4c.4-.5 1-.8 1.6-.8h4.8c.6 0 1.2.3 1.6.8l2.1 2.6 3.3.6c.9.2 1.6 1 1.6 1.9v2c0 .7-.5 1.2-1.2 1.2H2.2C1.5 10.7 1 10.2 1 9.5Z"/><circle cx="6" cy="10.6" r="2"/><circle cx="17" cy="10.6" r="2"/></svg></span>
+        <span className="rt-ticket-road" aria-hidden="true"><ChevronRight size={20} strokeWidth={2.6}/></span>
         <span className="rt-ticket-end is-finish">{flagOf(game.finish) && <img src={flagOf(game.finish)} alt=""/>}<strong>{name(game.finish)}</strong></span>
       </div>
       <p className="rt-shortest"><Route size={14} aria-hidden="true"/>{fill(t('rtShortest'), { n: game.shortest })}</p>
@@ -128,7 +129,7 @@ export function RoadTripGame({ app }: { app: any }) {
   const factCard = fact && lastPicked ? <p className="rt-fact" aria-live="polite"><Lightbulb size={15} aria-hidden="true"/><span><strong>{name(lastPicked.country)}:</strong> {fact}</span></p> : null;
 
   const resultCard = <section className="rt-result tp-card" aria-labelledby="rt-result-title">
-    <div className="rt-result-flag" aria-hidden="true">{flagOf(game.finish) && <img src={flagOf(game.finish)} alt=""/>}<span>🏁</span></div>
+    <div className="rt-result-flag" aria-hidden="true">{flagOf(game.finish) && <img src={flagOf(game.finish)} alt=""/>}</div>
     <h2 id="rt-result-title">{fill(t('rtArrived'), { country: name(game.finish) })}</h2>
     <p className="rt-result-points"><strong>{formatScore(game.score)}</strong><span>{t('rtOutOf')} {t('points')}</span></p>
     <ul className="rt-result-chips"><li className={game.detours ? 'is-cost' : ''}><Undo2 size={14} aria-hidden="true"/>{detoursText(game.detours)}</li><li className={game.peeks ? 'is-cost' : ''}><Eye size={14} aria-hidden="true"/>{peeksText(game.peeks)}</li></ul>
@@ -157,7 +158,7 @@ export function RoadTripGame({ app }: { app: any }) {
     {factCard}
     {finished ? <>{resultCard}<div className="finish-actions"><button className="finish-quiet" onClick={exit}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button></div></>
       : <section className="rt-drive" aria-labelledby="rt-drive-title">
-        <h2 id="rt-drive-title" className="rt-drive-title"><span aria-hidden="true">🚗</span>{t('rtDriveTo')}</h2>
+        <h2 id="rt-drive-title" className="rt-drive-title">{t('rtDriveTo')}</h2>
         <div className="rt-options">{game.options.map(id => { const flag = byId.get(id)?.flag;
           return <button key={id} type="button" className="rt-option" disabled={busy} onClick={() => void drive(id)}>{flag && <img src={flag} alt=""/>}<span>{name(id)}</span><ChevronRight className="rt-option-go" size={18} aria-hidden="true"/></button>; })}</div>
         <button type="button" className="btn secondary rt-peek" disabled={busy || peeking} onClick={() => void peek()}><Eye size={17} aria-hidden="true"/>{t('rtPeek')}</button>
