@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.56.0 (op de testversie, nog niet live)
+## 1.56.0 (live sinds 30 oktober 2026, PR #57)
 
 **Daily Road Trip vervangt Daily Crossroads** (opdracht van de eigenaar). Crossroads is helemaal weg: geen dagspel, geen klassiek spel, geen eigen scherm meer (`/crossroads` stuurt door). Oude Crossroads-punten, reeksen en paspoortstempels blijven precies zoals ze zijn.
 - **Het spel:** iedereen krijgt per UTC-datum dezelfde start en finish (bijv. Ghana → Kenia). Je rijdt over land door steeds een buurland van je laatste land aan te tikken; elke tik is definitief. Bovenaan "Kortste route: X landen" (landen ertussen). Dichterbij = "Dichterbij." (groen), anders "Omweg: daarmee kwam je niet dichterbij." (oranje, −150). Na elke stap een weetje over het land. Grenst je laatste land aan de finish, dan rijdt de auto vanzelf door. Na 40 stappen rijdt de auto zelf de kortste weg verder (vangnet, zodat een rit altijd eindigt).
