@@ -49,7 +49,10 @@ test("renders the playable branded homepage before hydration", async () => {
   // 1.41: from SHAPE_FROM (UTC) Shape Shift takes the place of World Duel.
   const shapeFrom=fs.readFileSync('lib/daily-loop.ts','utf8').match(/SHAPE_FROM = '([\d-]+)'/)[1];
   const second=new Date().toISOString().slice(0,10)>=shapeFrom?'Shape Shift':'World Duel';
-  const order=['Daily Detour','Rank Radar',second,'Side by Side',fourth,'Daily Clue Trail'].map(n=>trip.indexOf(n));
+  // 1.55: Daily Crossroads from CROSSROADS_FROM; 1.56: Daily Road Trip from ROADTRIP_FROM.
+  const src=fs.readFileSync('lib/daily-loop.ts','utf8'),today=new Date().toISOString().slice(0,10);
+  const fifth=today>=src.match(/ROADTRIP_FROM = '([\d-]+)'/)[1]?'Daily Road Trip':today>=src.match(/CROSSROADS_FROM = '([\d-]+)'/)[1]?'Daily Crossroads':'Daily Clue Trail';
+  const order=['Daily Detour','Rank Radar',second,'Side by Side',fourth,fifth].map(n=>trip.indexOf(n));
   assert.ok(order.every((v,i)=>v>0&&(i===0||v>order[i-1])), 'games in order');
   // One side column: the rankings and the daily quests (folded), and a way to all games.
   assert.match(html, /Daily quests/);

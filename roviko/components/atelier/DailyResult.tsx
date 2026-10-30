@@ -1,7 +1,7 @@
 'use client';
 import { plural } from '@/lib/plural';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowRight, Check, Clock, Flame, Star, Users, X } from 'lucide-react';
+import { ArrowRight, Check, Clock, Eye, Flame, Route, Star, Users, X } from 'lucide-react';
 import { api } from '@/lib/client';
 import { rememberStanding } from '@/lib/share';
 import type { PointMode } from '@/lib/daily-scoring';
@@ -27,7 +27,7 @@ type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => strin
  * place among today's players and one forest pill on to the next daily game. After the sixth game the whole
  * screen becomes the day summary instead (Roviko cheering, the six games, the bonus tour, challenge a friend).
  */
-export type ResultSummary = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' }[];
+export type ResultSummary = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' | 'route' | 'eye' }[];
 export function DailyResult({ app, date, mode, summary, trail, stage }: { app: ResultApp; date: string; mode: PointMode; summary?: ResultSummary; trail?: boolean[]; stage?: Omit<FinishStageProps, 'score' | 'max' | 'locale' | 'unit'> }) {
   const { t, locale, boot, fail } = app;
   const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
@@ -88,7 +88,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       <strong>{game ? <CountUp value={score} format={fmt}/> : '…'}<small> / {fmt(1000)}</small></strong>
       <span>{t('points')}{isBest && <b className="daily-result-best"><Star size={13} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</b>}</span>
     </div>
-    {summary && summary.length > 0 && <ul className="daily-result-summary">{summary.map(item => <li key={item.label}>{item.icon === 'flame' ? <Flame size={16} aria-hidden="true"/> : item.icon === 'clock' ? <Clock size={16} aria-hidden="true"/> : <Check size={16} strokeWidth={3} aria-hidden="true"/>}<b>{item.value}</b><span>{item.label}</span></li>)}</ul>}
+    {summary && summary.length > 0 && <ul className="daily-result-summary">{summary.map(item => <li key={item.label}>{item.icon === 'flame' ? <Flame size={16} aria-hidden="true"/> : item.icon === 'route' ? <Route size={16} aria-hidden="true"/> : item.icon === 'eye' ? <Eye size={16} aria-hidden="true"/> : item.icon === 'clock' ? <Clock size={16} aria-hidden="true"/> : <Check size={16} strokeWidth={3} aria-hidden="true"/>}<b>{item.value}</b><span>{item.label}</span></li>)}</ul>}
     {trail && trail.length > 0 && <ol className="daily-result-trail" aria-label={summary?.[0]?.label}>{trail.map((ok, i) => <li key={i} className={ok ? 'is-right' : 'is-wrong'} aria-label={String(i + 1)}>{ok ? <Check size={13} strokeWidth={3}/> : <X size={13} strokeWidth={3}/>}</li>)}</ol>}</>}
     <div className="daily-result-compare">
       <p><Users size={18} aria-hidden="true"/>{!game ? (standingFailed ? <>{t('standingFailed')} <button type="button" className="text-link" onClick={() => { setStandingFailed(false); setStandingLoaded(false); setRetry(n => n + 1); }}>{t('tryAgain')}</button></> : t('loading')) : players <= 1 ? t('resultFirstPlayer') : plural(t, 'competitionRank', players, '{count}', fmt(players)).replace('{rank}', fmt(place))}</p>

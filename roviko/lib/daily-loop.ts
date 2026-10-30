@@ -23,8 +23,21 @@ export const SHAPE_FROM = '2026-10-16';
  * (server/competition.ts), so old Clue Trail points stay as they are.
  */
 export const CROSSROADS_FROM = '2026-10-30';
-/** The five daily games from CROSSROADS_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
-export const DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'crossroads'] as const;
+/**
+ * The first UTC date on which Daily Road Trip ('roadtrip', drive from a start to a finish country, neighbour by neighbour)
+ * replaces Daily Crossroads (1.56). Crossroads is gone completely (no classic game); its points, streaks and passport
+ * stamps stay. Like the others: the first UTC day after the release; move it only while it has not passed yet, never after.
+ * In the ledger Road Trip uses Clue Trail's slot too (server/competition.ts): 'trail' before CROSSROADS_FROM, 'crossroads'
+ * until ROADTRIP_FROM, 'roadtrip' from then on.
+ * The owner wanted Road Trip live on the day Crossroads started (2026-10-30), so both dates are the same: that day's
+ * Crossroads points stay and read as 'crossroads' (by their session), and a player who already has them plays Road Trip
+ * unscored that day (server/road-trip.ts). The Crossroads lineup below therefore covers no date at all.
+ */
+export const ROADTRIP_FROM = '2026-10-30';
+/** The five daily games from ROADTRIP_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
+export const DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'roadtrip'] as const;
+/** The five daily games from CROSSROADS_FROM until ROADTRIP_FROM (1.55): Daily Crossroads in fifth place. */
+export const CROSSROADS_DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'crossroads'] as const;
 /** The five daily games from SHAPE_FROM until CROSSROADS_FROM (1.41–1.54): Clue Trail in fifth place. */
 export const TRAIL_DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'trail'] as const;
 /** The five daily games from SHUFFLE_FROM until SHAPE_FROM (1.24–1.40): World Duel in second place. */
@@ -32,23 +45,24 @@ export const DUEL_DAILY_MODES = ['rank', 'duel', 'compare', 'order', 'trail'] as
 /** The five daily games before SHUFFLE_FROM (1.19–1.23): Country Mosaic in fourth place. */
 export const MOSAIC_DAILY_MODES = ['rank', 'duel', 'compare', 'mosaic', 'trail'] as const;
 export const DAY_MODES = ['daily', ...DAILY_MODES] as const;
+export const CROSSROADS_DAY_MODES = ['daily', ...CROSSROADS_DAILY_MODES] as const;
 export const TRAIL_DAY_MODES = ['daily', ...TRAIL_DAILY_MODES] as const;
 export const DUEL_DAY_MODES = ['daily', ...DUEL_DAILY_MODES] as const;
 export const MOSAIC_DAY_MODES = ['daily', ...MOSAIC_DAILY_MODES] as const;
-export type DailyMode = typeof DAILY_MODES[number] | typeof TRAIL_DAILY_MODES[number] | typeof DUEL_DAILY_MODES[number] | typeof MOSAIC_DAILY_MODES[number];
+export type DailyMode = typeof DAILY_MODES[number] | typeof CROSSROADS_DAILY_MODES[number] | typeof TRAIL_DAILY_MODES[number] | typeof DUEL_DAILY_MODES[number] | typeof MOSAIC_DAILY_MODES[number];
 export type DayMode = 'daily' | DailyMode;
 /** Every game that ever was a daily game (old results, shared links, history). */
-export const ALL_DAY_MODES: readonly DayMode[] = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail', 'crossroads'];
+export const ALL_DAY_MODES: readonly DayMode[] = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail', 'crossroads', 'roadtrip'];
 const isDate = (date?: string | null): date is string => !!date && /^\d{4}-\d{2}-\d{2}$/.test(date);
 /** The five daily games of one UTC date (YYYY-MM-DD). Without a date: today's lineup on this device's clock. */
 export function dailyModesFor(date?: string | null): readonly DailyMode[] {
   const day = isDate(date) ? date : new Date().toISOString().slice(0, 10);
-  return day < SHUFFLE_FROM ? MOSAIC_DAILY_MODES : day < SHAPE_FROM ? DUEL_DAILY_MODES : day < CROSSROADS_FROM ? TRAIL_DAILY_MODES : DAILY_MODES;
+  return day < SHUFFLE_FROM ? MOSAIC_DAILY_MODES : day < SHAPE_FROM ? DUEL_DAILY_MODES : day < CROSSROADS_FROM ? TRAIL_DAILY_MODES : day < ROADTRIP_FROM ? CROSSROADS_DAILY_MODES : DAILY_MODES;
 }
 /** The Daily Detour plus the five daily games of one UTC date. */
 export function dayModesFor(date?: string | null): readonly DayMode[] {
   const day = isDate(date) ? date : new Date().toISOString().slice(0, 10);
-  return day < SHUFFLE_FROM ? MOSAIC_DAY_MODES : day < SHAPE_FROM ? DUEL_DAY_MODES : day < CROSSROADS_FROM ? TRAIL_DAY_MODES : DAY_MODES;
+  return day < SHUFFLE_FROM ? MOSAIC_DAY_MODES : day < SHAPE_FROM ? DUEL_DAY_MODES : day < CROSSROADS_FROM ? TRAIL_DAY_MODES : day < ROADTRIP_FROM ? CROSSROADS_DAY_MODES : DAY_MODES;
 }
 export type { DailyState } from './bonus';
 

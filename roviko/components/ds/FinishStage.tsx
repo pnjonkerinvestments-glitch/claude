@@ -2,13 +2,13 @@
 import React, { useEffect, useRef } from 'react';
 import { sound } from '@/lib/client';
 import { warmShareImage } from '@/lib/share-image';
-import { Check, Clock, Flame, Target, Trophy } from 'lucide-react';
+import { Check, Clock, Eye, Flame, Route, Target, Trophy } from 'lucide-react';
 import { Character, type CharacterMood, type CharacterPose } from './Character';
 import type { MascotMood } from './Mascot';
 import { CountUp } from './Celebration';
 import { Coin } from './Coin';
 
-export type StageChip = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' | 'target' | 'trophy' };
+export type StageChip = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' | 'target' | 'trophy' | 'route' | 'eye' };
 export type StageTone = 'forest' | 'gold' | 'out';
 export type FinishStageProps = {
   game: string; headline: string; mood: MascotMood | CharacterMood; score?: number | null; max?: number; unit?: string; locale: string;
@@ -17,7 +17,7 @@ export type FinishStageProps = {
   coin?: boolean;
 };
 
-const ICON = { check: Check, flame: Flame, clock: Clock, target: Target, trophy: Trophy };
+const ICON = { check: Check, flame: Flame, clock: Clock, target: Target, trophy: Trophy, route: Route, eye: Eye };
 const POSE: Partial<Record<string, CharacterPose>> = { cheer: 'cheer', happy: 'wave', wink: 'hips', worried: 'shrug', sad: 'shrug', shock: 'shrug', curious: 'point', sleepy: 'stand', cool: 'hips' };
 
 /** Scrolls an end screen into view from its top (a game often ends with the page scrolled down to its button). */

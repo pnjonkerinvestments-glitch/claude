@@ -24,11 +24,11 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '👆', text: l('Tap one tile of each kind that belong to the same country, then tap "Check match".', 'Tik op één tegel van elke soort die bij hetzelfde land hoort en tik dan op "Controleer set".', 'Toca una ficha de cada tipo del mismo país y luego «Comprobar grupo».') },
     { icon: '💡', text: l('Find all four countries. A wrong try shows which tiles do not fit, and a hint helps you on.', 'Vind alle vier de landen. Een foute poging laat zien welke tegels niet passen, en een hint helpt je verder.', 'Encuentra los cuatro países. Un intento fallido muestra qué fichas no encajan y una pista te ayuda.') },
   ], tip: l('Start with a flag and name you are sure about. Mosaic is an extra: no points, just practice.', 'Begin met een vlag en naam die je zeker weet. Mosaic is een extra: geen punten, gewoon oefenen.', 'Empieza con una bandera y un nombre que conozcas. Mosaic es un extra: sin puntos, solo práctica.') },
-  crossroads: { emoji: '🧩', steps: [
-    { icon: '🔲', text: l('A grid of 3 × 3 squares. Three categories head the columns, three the rows, for example "In Europe" and "Landlocked".', 'Een raster van 3 × 3 vakjes. Boven de kolommen staan drie categorieën en links nog drie, bijvoorbeeld "In Europa" en "Geen zee".', 'Una cuadrícula de 3 × 3 casillas. Tres categorías encabezan las columnas y tres las filas, por ejemplo «En Europa» y «Sin salida al mar».') },
-    { icon: '⌨️', text: l('Tap a square and type a country that fits both its row and its column. Every country only once.', 'Tik op een vakje en typ een land dat bij de rij én de kolom past. Elk land maar één keer.', 'Toca una casilla y escribe un país que encaje en su fila y su columna. Cada país solo una vez.') },
-    { icon: '🎯', text: l('12 guesses, no timer. A wrong country costs a guess and 25 points; a typo or a used country costs nothing. 100 per square, +100 for a full grid.', '12 pogingen, geen timer. Een fout land kost een poging en 25 punten; een typfout of een al gebruikt land niets. 100 per vakje, +100 voor een vol raster.', '12 intentos, sin tiempo. Un país equivocado cuesta un intento y 25 puntos; una errata o un país ya usado, nada. 100 por casilla, +100 por la cuadrícula completa.') },
-  ], tip: l('Each square shows how many players picked the same country. A rare pick (5% or less) turns purple, but never changes your points.', 'Elk vakje toont hoeveel spelers hetzelfde land kozen. Een zeldzame keuze (5% of minder) wordt paars, maar telt niet mee.', 'Cada casilla muestra cuántos eligieron el mismo país. Una elección rara (5% o menos) se pone morada, pero no cambia tus puntos.') },
+  roadtrip: { emoji: '🚗', steps: [
+    { icon: '🗺️', text: l('Everyone gets the same start and finish, for example Ghana → Kenya. The map is fog: only your route and its neighbours show.', 'Iedereen krijgt dezelfde start en finish, bijvoorbeeld Ghana → Kenia. De kaart is mist: je ziet alleen je route en de buurlanden.', 'Todos tienen la misma salida y meta, por ejemplo Ghana → Kenia. El mapa es niebla: solo ves tu ruta y sus vecinos.') },
+    { icon: '👆', text: l('Tap a neighbour of your last country to drive there. Every tap is final. Next to the finish, the car drives on by itself.', 'Tik op een buurland van je laatste land om erheen te rijden. Elke tik is definitief. Naast de finish rijdt de auto vanzelf door.', 'Toca un vecino de tu último país para ir allí. Cada toque es definitivo. Junto a la meta, el coche sigue solo.') },
+    { icon: '🎯', text: l('1,000 points. A detour (no closer to the finish) costs 150, a peek at the map 200. At least 100 when you arrive. No timer.', '1.000 punten. Een omweg (niet dichter bij de finish) kost 150, gluren op de kaart 200. Minstens 100 als je aankomt. Geen timer.', '1.000 puntos. Un desvío (no te acerca a la meta) resta 150 y un vistazo al mapa 200. Al menos 100 al llegar. Sin tiempo.') },
+  ], tip: l('The neighbour that looks closest on the map is not always the way: sometimes a desert or a lake is in the road.', 'Het buurland dat op de kaart het dichtst lijkt, is niet altijd de weg: soms ligt er een woestijn of meer tussen.', 'El vecino que parece más cerca no siempre es el camino: a veces hay un desierto o un lago en medio.') },
   trail: { emoji: '🧭', steps: [
     { icon: '🔎', text: l('Find the mystery country. Clues come one by one, from vague to sharp. The flag always comes last.', 'Zoek het geheime land. De hints komen één voor één, van vaag naar scherp. De vlag komt altijd als laatste.', 'Encuentra el país misterioso. Las pistas llegan una a una, de vagas a claras. La bandera siempre es la última.') },
     { icon: '💡', text: l('Only open the next clue when you need it.', 'Open de volgende hint alleen als je hem nodig hebt.', 'Abre la siguiente pista solo si la necesitas.') },
@@ -82,14 +82,15 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
 };
 
 /** Translation key of each game's name. */
-export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', daily: 'dailyTitle', mystery: 'mysteryShort', room: 'howToRoomName', crossroads: 'crossroads' };
+export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', daily: 'dailyTitle', mystery: 'mysteryShort', room: 'howToRoomName', roadtrip: 'roadtrip' };
 
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
   // 1.24: the daily Size Shuffle took Country Mosaic's place among the daily games; Mosaic is an extra now.
   // 1.41: Shape Shift took World Duel's place (from SHAPE_FROM); the duel is an extra now.
   // 1.55: Daily Crossroads took the daily Clue Trail's place (from CROSSROADS_FROM); Clue Trail is a classic game again.
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'crossroads'] },
+  // 1.56: Daily Road Trip took Crossroads' place (from ROADTRIP_FROM); Crossroads is gone, not a classic game.
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'roadtrip'] },
   { key: 'howToExtras', note: 'howToExtrasNote', modes: ['duel', 'mosaic', 'mystery'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'trail'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
@@ -115,9 +116,9 @@ export const HOW_TO_EXAMPLES: Record<string, L> = {
   mosaic: l('Find Japan: the name, the white flag with a red circle, its island shape and the matching fact. Select all four, then tap "Check match".',
     'Zoek Japan: de naam, de witte vlag met een rode cirkel, de eilandvorm en het bijpassende weetje. Kies ze alle vier en tik op "Controleer set".',
     'Busca Japón: el nombre, la bandera blanca con un círculo rojo, su silueta de islas y el dato correcto. Elige las cuatro y toca «Comprobar grupo».'),
-  crossroads: l('Row "In Europe", column "Landlocked": Liechtenstein, Austria or Hungary fit. Spain does not: it has a coastline. Row "In South America", column "Over 50 million people": only Brazil and Colombia.',
-    'Rij "In Europa", kolom "Geen zee": Liechtenstein, Oostenrijk of Hongarije passen. Spanje niet: dat ligt aan zee. Rij "In Zuid-Amerika", kolom "Meer dan 50 miljoen inwoners": alleen Brazilië en Colombia.',
-    'Fila «En Europa», columna «Sin salida al mar»: valen Liechtenstein, Austria o Hungría. España no: tiene costa. Fila «En América del Sur», columna «Más de 50 millones de habitantes»: solo Brasil y Colombia.'),
+  roadtrip: l('Nigeria → Kenya, shortest route 3. Cameroon, then the Central African Republic: closer. DR Congo is no closer to Kenya, so it would be a detour; South Sudan borders Kenya and the car drives on.',
+    'Nigeria → Kenia, kortste route 3. Kameroen, dan de Centraal-Afrikaanse Republiek: dichterbij. DR Congo ligt niet dichter bij Kenia, dus dat is een omweg; Zuid-Soedan grenst aan Kenia en de auto rijdt door.',
+    'Nigeria → Kenia, ruta más corta 3. Camerún y luego la República Centroafricana: más cerca. RD del Congo no está más cerca de Kenia, así que sería un desvío; Sudán del Sur limita con Kenia y el coche sigue solo.'),
   trail: l('Clue 1: Europe. Clue 2: it borders Spain. Guess Portugal now, before the capital and the flag, and you score more.',
     'Hint 1: Europa. Hint 2: grenst aan Spanje. Raad je nu Portugal, nog voor de hoofdstad en de vlag, dan scoor je meer.',
     'Pista 1: Europa. Pista 2: limita con España. Si dices Portugal ahora, antes de la capital y la bandera, sumas más.'),

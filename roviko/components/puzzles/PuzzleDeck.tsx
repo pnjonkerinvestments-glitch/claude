@@ -34,13 +34,13 @@ export async function launchDaily(app: PuzzleLauncher & { start: (settings: Reco
   // 1.41: the daily Shape Shift too ('shape').
   if (mode === 'trail' || mode === 'order' || mode === 'shape') return app.start({ ...DEFAULT_SETTINGS, mode: 'daily-' + mode });
   if (mode === 'duel') return app.go('/duel');
-  // 1.55: Daily Crossroads has its own screen, which starts or resumes today's grid.
-  if (mode === 'crossroads') return app.go('/crossroads');
+  // 1.56: Daily Road Trip has its own screen, which starts or resumes today's trip (Crossroads links land there too).
+  if (mode === 'roadtrip' || mode === 'crossroads') return app.go('/roadtrip');
   return openPuzzle(app, mode);
 }
 
 /** One short line per game for the compact lists on the All games page. */
-const LINE: Record<string, string> = { shape: 'agLineShape', daily: 'agLineDaily', rank: 'agLineRank', duel: 'agLineDuel', compare: 'agLineCompare', order: 'agLineOrder', mosaic: 'agLineMosaic', trail: 'agLineTrail', crossroads: 'agLineCrossroads' };
+const LINE: Record<string, string> = { shape: 'agLineShape', daily: 'agLineDaily', rank: 'agLineRank', duel: 'agLineDuel', compare: 'agLineCompare', order: 'agLineOrder', mosaic: 'agLineMosaic', trail: 'agLineTrail', crossroads: 'agLineCrossroads', roadtrip: 'agLineRoadtrip' };
 
 /**
  * The practice set-up for Side by Side (a topic) and Country Mosaic (board size): unranked, never today's shared puzzle.

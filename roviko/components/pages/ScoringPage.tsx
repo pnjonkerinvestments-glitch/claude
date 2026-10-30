@@ -9,7 +9,7 @@ import { GameIcon } from '../atelier/GameIcon';
 import { dailyTitleKey } from '../atelier/DailyLoop';
 import { PageHeader } from '../ds/States';
 
-const RULES: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail', crossroads: 'competitionCrossroads', duel: 'competitionDuel', order: 'competitionOrder', shape: 'competitionShape' };
+const RULES: Record<string, string> = { rank: 'competitionRankRule', daily: 'competitionDaily', compare: 'competitionCompare', mosaic: 'competitionMosaic', trail: 'competitionTrail', roadtrip: 'competitionRoadtrip', crossroads: 'competitionCrossroads', duel: 'competitionDuel', order: 'competitionOrder', shape: 'competitionShape' };
 
 /** Everything about points in one place, so the homepage never has to explain it. */
 export function ScoringPage() {

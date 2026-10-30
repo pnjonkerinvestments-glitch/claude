@@ -8,13 +8,13 @@ import { CharacterArt, type CharacterMood, type CharacterPose } from './Characte
  * Each scene is drawn in a 320 × 240 box around its centre; `shape` widens the canvas for the wide cards
  * and the background decorations simply run further. Decorative only: never used as quiz geography.
  */
-export type SceneMode = 'daily' | 'rank' | 'duel' | 'compare' | 'mosaic' | 'trail' | 'crossroads' | 'flags' | 'capitals' | 'pinpoint' | 'borders' | 'order' | 'shape' | 'mystery' | 'classic' | 'room';
+export type SceneMode = 'daily' | 'rank' | 'duel' | 'compare' | 'mosaic' | 'trail' | 'crossroads' | 'roadtrip' | 'flags' | 'capitals' | 'pinpoint' | 'borders' | 'order' | 'shape' | 'mystery' | 'classic' | 'room';
 export type SceneShape = 'card' | 'wide' | 'banner';
 const BOX: Record<SceneShape, [number, number]> = { card: [320, 240], wide: [460, 200], banner: [560, 190] };
 
 const C = { forest: '#163B32', green: '#1F806B', mint: '#DDEDE6', gold: '#F6B84B', cream: '#F6F3E9', ocean: '#36B3F5', water: '#BFE4F8', ink: '#06224F', red: '#E5484D', white: '#FFFFFF', land: '#5ED34F' };
 const BG: Record<SceneMode, [string, string]> = {
-  daily: ['#DDEDE6', '#BFE3D3'], rank: ['#F9E4DC', '#F3C9B8'], duel: ['#F4DDE7', '#EBC0D3'], compare: ['#F7E8CE', '#EFD3A2'], mosaic: ['#E3E7F6', '#C9D1EE'], trail: ['#DAEEF1', '#B7DDE4'], crossroads: ['#EAE5F9', '#D3C9F2'],
+  daily: ['#DDEDE6', '#BFE3D3'], rank: ['#F9E4DC', '#F3C9B8'], duel: ['#F4DDE7', '#EBC0D3'], compare: ['#F7E8CE', '#EFD3A2'], mosaic: ['#E3E7F6', '#C9D1EE'], trail: ['#DAEEF1', '#B7DDE4'], crossroads: ['#EAE5F9', '#D3C9F2'], roadtrip: ['#DCF1EF', '#B6E1DC'],
   flags: ['#F9E4DC', '#F3C9B8'], capitals: ['#E3E7F6', '#C9D1EE'], pinpoint: ['#DDEDE6', '#BFE3D3'], borders: ['#F7E8CE', '#EFD3A2'], order: ['#F4DDE7', '#EBC0D3'], shape: ['#DCEDF5', '#B9DCEC'],
   mystery: ['#E7E2F6', '#CFC6EE'], classic: ['#DDEDE6', '#BFE3D3'], room: ['#FBECCB', '#F5D78F'],
 };
@@ -85,6 +85,23 @@ function Scene({ mode }: { mode: SceneMode }) {
       </g>
       <Roviko x={256} y={214} w={116} pose="wave" flip/>
       <Spark x={226} y={40} s={.9}/>
+    </>;
+    // Daily Road Trip (1.56): a map card, a chain of countries (dark-green start, green, orange detour, dark-green finish)
+    // joined by a dotted road and light-blue neighbours with dashed edges; Roviko waves from the side.
+    case 'roadtrip': return <>
+      <Card x={30} y={36} w={204} h={172} r={18} rot={-4} fill="#EAF3F1">
+        <path d="M44 120c10-40 50-58 92-60s78-20 88 6c8 22-4 58-30 80s-74 30-108 18-48-22-42-44Z" fill="#CFD8D3"/>
+        <path d="M60 150c4-10 14-16 24-14s12 14 4 20-26 6-28-6Z" fill="#163B32"/>
+        <path d="M86 128c6-12 22-14 30-6s2 22-10 24-24-6-20-18Z" fill="#2F9E6E"/>
+        <path d="M116 108c8-12 26-12 32-2s-4 22-16 22-20-8-16-20Z" fill="#E8893A"/>
+        <path d="M146 94c8-12 26-10 30 0s-6 20-16 20-18-8-14-20Z" fill="#2F9E6E"/>
+        <path d="M176 76c8-10 24-8 26 4s-8 18-18 16-12-10-8-20Z" fill="#163B32"/>
+        <path d="M124 72c6-10 20-8 22 2s-8 14-16 12-10-6-6-14Z" fill="#CFE6FB" stroke="#3D86D6" strokeWidth="2" strokeDasharray="4 3"/>
+        <path d="M176 128c6-8 18-6 20 2s-6 14-14 12-10-6-6-14Z" fill="#CFE6FB" stroke="#3D86D6" strokeWidth="2" strokeDasharray="4 3"/>
+        <path d="M72 148L100 134L132 116L160 104L188 86" stroke="#24312C" strokeWidth="3.4" strokeDasharray="3 7" strokeLinecap="round" fill="none"/>
+      </Card>
+      <Spark x={226} y={44} s={1.1} color={C.gold}/><Spark x={30} y={30} s={.8} color={C.gold}/>
+      <Roviko x={266} y={222} w={100} mood="cheer" pose="wave" flip/>
     </>;
     // Daily Crossroads (1.55): a white card with the 3×3 grid, category tags on top and left, green squares with flags,
     // one rare pick in purple and an empty square with a plus; Roviko points at it.

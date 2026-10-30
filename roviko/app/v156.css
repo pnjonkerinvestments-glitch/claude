@@ -1,0 +1,156 @@
+/* ===== 1.56 · Daily Road Trip: drive there, country by country, through the fog ===== */
+:root{--rt-sea-a:#eaf6f8;--rt-sea-b:#cfe6ea;--rt-land:#c9d1c6;--rt-land-edge:#c4cbc1;--rt-border:#7f8f86;--rt-fog:#eef5f4;
+  --rt-end:#163b32;--rt-end-hi:#245a4c;--rt-end-soft:#ddede6;--rt-closer:#3fae6f;--rt-closer-hi:#5cc487;--rt-closer-soft:#dff3e6;
+  --rt-detour:#ec7a2c;--rt-detour-hi:#ffa45c;--rt-detour-soft:#fff0e2;--rt-option:#bfe0ff;--rt-option-hi:#e3f1ff;--rt-option-line:#2f7fe0;--rt-option-ink:#17488a;
+  --rt-road-edge:#26332e;--rt-road:#fdfcf7;--rt-road-mid:#f2b33d;--rt-best:#163b32;--rt-line:#163b32;--rt-tag:#ffffff;--rt-tag-ink:#1b2a24;--rt-car:#e5484d;--rt-car-dark:#b3262b}
+[data-theme=dark]{--rt-sea-a:#14252a;--rt-sea-b:#0c171a;--rt-land:#3a4a42;--rt-land-edge:#2b3832;--rt-border:#93a69c;--rt-fog:#0f1c1f;
+  --rt-end:#9fd9bf;--rt-end-hi:#bfe8d4;--rt-end-soft:#1d3a30;--rt-closer:#3fae6f;--rt-closer-hi:#5cc487;--rt-closer-soft:#17392b;
+  --rt-detour:#f08a3e;--rt-detour-hi:#ffb072;--rt-detour-soft:#45301e;--rt-option:#22476e;--rt-option-hi:#2d5b8a;--rt-option-line:#7cb6f0;--rt-option-ink:#d6eaff;
+  --rt-road-edge:#0b1210;--rt-road:#e9ece6;--rt-road-mid:#f2b33d;--rt-best:#9fd9bf;--rt-line:#eef3f1;--rt-tag:#18241f;--rt-tag-ink:#eef3f1}
+.rt-game{width:min(640px,100%);margin:0 auto;padding-bottom:28px;box-sizing:border-box}
+.rt-game .game-header{margin-bottom:8px}
+
+/* Today's trip: a clean card with both flags and the shortest route. */
+.rt-ticket{margin:4px 0 10px;padding:12px 14px;border-radius:var(--t-radius-sm,20px);background:var(--t-card);box-shadow:var(--t-shadow);border:1px solid var(--t-line);color:var(--t-ink)}
+.rt-ticket-kicker{display:block;font:700 .6875rem/1.2 var(--font-sans);letter-spacing:.02em;color:var(--t-soft)}
+.rt-ticket-row{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px;margin:6px 0 10px}
+.rt-ticket-end{display:flex;align-items:center;gap:8px;min-width:0}
+.rt-ticket-end.is-finish{justify-content:flex-end;text-align:right}
+.rt-ticket-end img{width:28px;height:19px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.1);flex:none}
+.rt-ticket-end strong{font:600 1.0625rem/1.15 var(--font-display,var(--font-sans));overflow-wrap:break-word;hyphens:auto}
+.rt-ticket-road{display:grid;place-items:center;color:var(--t-soft)}
+.rt-shortest{display:inline-flex;align-items:center;gap:6px;margin:0;padding:5px 11px;border-radius:999px;background:var(--t-mint);color:var(--t-mint-ink,var(--rt-end));font:700 .8125rem/1.3 var(--font-sans)}
+
+/* Two small stat cards. */
+.rt-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}
+.rt-stat{display:flex;align-items:center;gap:10px;min-width:0;padding:10px 12px;border-radius:var(--t-radius-sm,20px);background:var(--t-card);box-shadow:var(--t-shadow);border:1px solid var(--t-line)}
+.rt-stat-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--t-mint);color:var(--t-brand);flex:none}
+.rt-stat.is-points .rt-stat-icon{background:color-mix(in srgb,var(--t-gold,#f6b84b) 25%,var(--t-card));color:#b97a0c}
+.rt-stat.is-cost .rt-stat-icon{background:var(--rt-detour-soft);color:var(--rt-detour)}
+.rt-stat small{display:block;font:700 .6875rem/1.2 var(--font-sans);letter-spacing:.02em;color:var(--t-soft)}
+.rt-stat strong{display:block;font:600 1.125rem/1.2 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.rt-stat.is-cost strong{color:var(--rt-detour)}
+
+/* One line of feedback above the map. */
+.rt-notice{display:flex;align-items:center;gap:8px;min-height:40px;margin:0 0 10px;padding:8px 14px;border-radius:16px;font:600 .9375rem/1.35 var(--font-sans);color:var(--t-ink);background:var(--t-card);border:1px solid var(--t-line)}
+.rt-notice svg{flex:none}
+.rt-notice.is-hint{color:var(--t-soft)}.rt-notice.is-hint svg{color:var(--rt-end)}
+.rt-notice.is-good{background:var(--rt-closer-soft);border-color:transparent;color:color-mix(in srgb,var(--rt-closer) 75%,var(--t-ink))}
+.rt-notice.is-bad{background:var(--rt-detour-soft);border-color:transparent;color:color-mix(in srgb,var(--rt-detour) 80%,var(--t-ink))}
+.rt-notice.is-info{background:var(--rt-option-hi);border-color:transparent;color:var(--rt-option-ink)}
+@keyframes rt-pop{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}
+
+/* The map: a soft sea, one landmass in the fog, the countries you know as bright stickers. */
+.rt-map{position:relative;margin:0;border-radius:var(--t-radius,28px);overflow:hidden;background:var(--rt-sea-b);box-shadow:var(--t-shadow),inset 0 0 0 1px var(--t-line)}
+.rt-map svg{display:block;width:100%;height:auto;max-height:min(60vh,520px)}
+.rt-map-state{display:grid;place-items:center;min-height:260px;padding:20px;text-align:center;color:var(--t-soft)}
+.rt-map-spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--rt-land);border-top-color:var(--t-brand);animation:rt-spin .9s linear infinite}
+@keyframes rt-spin{to{transform:rotate(360deg)}}
+.rt-sea-a{stop-color:var(--rt-sea-a)}.rt-sea-b{stop-color:var(--rt-sea-b)}
+.rt-fog-a{stop-color:var(--rt-fog);stop-opacity:0}.rt-fog-b{stop-color:var(--rt-fog);stop-opacity:.5}
+.rt-land{fill:var(--rt-land);stroke:var(--rt-land);stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.rt-borders{fill:none;stroke:var(--rt-border);stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:round;opacity:0;transition:opacity .35s ease;pointer-events:none}
+.rt-map.is-peeking .rt-borders{opacity:1}
+.rt-map.is-peeking .rt-fog{opacity:.3}
+.rt-fog{transition:opacity .35s ease}
+.rt-c.is-end{fill:var(--rt-end)}.rt-c.is-closer{fill:var(--rt-closer)}.rt-c.is-detour{fill:var(--rt-detour)}.rt-c.is-option{fill:var(--rt-option-hi)}.rt-c.is-best{fill:var(--rt-end-soft)}
+.rt-c{stroke:#fff;stroke-width:1.4px;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:opacity .3s ease}
+[data-theme=dark] .rt-c{stroke:rgba(255,255,255,.55)}
+.rt-c.is-option{stroke:var(--rt-option-line);stroke-dasharray:5 4;stroke-width:1.8px}
+.rt-c.is-best{stroke:var(--rt-best);stroke-width:1.2px}
+.rt-c.is-live,.rt-ring.is-live{cursor:pointer}
+.rt-c.is-live:hover{opacity:.82}
+.rt-ring{fill:none;stroke-width:2px;vector-effect:non-scaling-stroke}
+.rt-ring.is-end{stroke:var(--rt-end)}.rt-ring.is-closer{stroke:var(--rt-closer)}.rt-ring.is-detour{stroke:var(--rt-detour)}.rt-ring.is-best{stroke:var(--rt-best)}
+.rt-ring.is-option{fill:color-mix(in srgb,var(--rt-option) 55%,transparent);stroke:var(--rt-option-line);stroke-dasharray:4 3}
+.rt-line,.rt-best-line{fill:none;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.rt-line{stroke:var(--rt-line);stroke-width:2.4px;stroke-dasharray:2 5}
+.rt-best-line{stroke:var(--rt-best);stroke-width:2px;stroke-dasharray:7 5;opacity:.55}
+.rt-stop{fill:var(--t-card);stroke:var(--rt-closer);stroke-width:2.2px;vector-effect:non-scaling-stroke}
+.rt-stop.is-detour{stroke:var(--rt-detour)}
+.rt-here circle{fill:var(--t-card);stroke:var(--rt-line);stroke-width:2.4px;vector-effect:non-scaling-stroke}
+.rt-here .rt-here-dot{fill:var(--rt-line);stroke:none}
+.rt-pin-shadow{fill:rgba(0,0,0,.22)}
+.rt-pin-body{fill:#fff;stroke:var(--rt-end);stroke-width:2px;vector-effect:non-scaling-stroke}
+.rt-pin-dot{fill:var(--rt-end)}
+.rt-pin-flag rect{fill:#fff;stroke:var(--rt-end);stroke-width:1px;vector-effect:non-scaling-stroke}.rt-pin-flag path{fill:var(--rt-end)}
+[data-theme=dark] .rt-pin-body,[data-theme=dark] .rt-pin-flag rect{fill:#0f1c17}
+.rt-tag{pointer-events:none}
+.rt-tag rect{fill:var(--rt-tag);opacity:.94;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.18))}
+.rt-tag text{font-family:var(--font-sans);font-weight:800;fill:var(--rt-tag-ink);dominant-baseline:auto}
+.rt-tag.is-end rect{fill:var(--rt-end);opacity:1}.rt-tag.is-end text{fill:#fff}
+.rt-tag.is-option text{fill:var(--rt-option-ink)}
+.rt-tag.is-option rect{stroke:var(--rt-option-line);stroke-width:1px;vector-effect:non-scaling-stroke}
+.rt-tag.is-best text{font-weight:700;opacity:.85}
+/* Legend, route strip, the fact. */
+.rt-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 6px 0;padding:0;list-style:none;font:600 .75rem/1.3 var(--font-sans);color:var(--t-soft)}
+.rt-legend li{display:flex;align-items:center;gap:6px}
+.rt-legend i{width:14px;height:14px;border-radius:5px;flex:none}
+.rt-legend .is-end{background:var(--rt-end)}.rt-legend .is-closer{background:var(--rt-closer)}.rt-legend .is-detour{background:var(--rt-detour)}
+.rt-legend .is-option{background:var(--rt-option-hi);border:1.5px dashed var(--rt-option-line)}
+.rt-legend .is-best{background:var(--rt-end-soft);border:1.5px dashed var(--rt-best)}
+.rt-chips{display:flex;gap:0;margin:12px -16px 0;padding:4px 16px 8px;list-style:none;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
+.rt-chips::-webkit-scrollbar{display:none}
+.rt-chip{position:relative;display:inline-flex;align-items:center;gap:6px;flex:none;padding:5px 11px 5px 5px;margin-right:18px;border-radius:999px;font:700 .8125rem/1.2 var(--font-sans);scroll-snap-align:end}
+.rt-chip:not(:last-child)::after{content:"";position:absolute;right:-17px;top:50%;width:16px;border-top:2px dotted var(--t-soft);opacity:.6}
+.rt-chip b{display:grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border-radius:999px;background:rgba(255,255,255,.75);font:800 .6875rem/1 var(--font-sans);box-sizing:border-box}
+.rt-chip img{width:20px;height:14px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.rt-chip.is-end{background:var(--rt-end-soft);color:var(--rt-end)}
+.rt-chip.is-closer{background:var(--rt-closer-soft);color:color-mix(in srgb,var(--rt-closer) 80%,var(--t-ink))}
+.rt-chip.is-detour{background:var(--rt-detour-soft);color:color-mix(in srgb,var(--rt-detour) 80%,var(--t-ink))}
+[data-theme=dark] .rt-chip b{background:rgba(0,0,0,.25)}
+.rt-chip.is-here{box-shadow:0 0 0 2px currentColor}
+.rt-fact{display:flex;gap:10px;align-items:flex-start;margin:6px 0 0;padding:12px 14px;border-radius:18px;background:var(--t-card);border:1px solid var(--t-line);color:var(--t-ink);font:500 .875rem/1.45 var(--font-sans)}
+.rt-fact svg{flex:none;margin-top:1px;color:var(--t-brand)}
+
+/* Under the map: the neighbours as buttons (small countries are easy to pick here) and the peek. */
+.rt-drive{margin-top:14px;padding:14px;border-radius:var(--t-radius,28px);background:var(--t-card);box-shadow:var(--t-shadow);border:1px solid var(--t-line)}
+.rt-drive-title{display:flex;align-items:center;gap:8px;margin:0 0 10px;font:700 .9375rem/1.3 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.rt-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.rt-option{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px 8px 12px;border-radius:16px;border:2px dashed var(--rt-option-line);background:var(--rt-option-hi);color:var(--rt-option-ink);font:700 .9375rem/1.2 var(--font-sans);text-align:left}
+.rt-option img{width:28px;height:19px;object-fit:cover;border-radius:4px;box-shadow:0 0 0 1px rgba(0,0,0,.1);flex:none}
+.rt-option span{flex:1;min-width:0;overflow-wrap:break-word;hyphens:auto}
+.rt-option-go{flex:none;opacity:.55;transition:transform .15s ease,opacity .15s ease}
+.rt-option:hover:not(:disabled){transform:translateY(-1px);border-style:solid}
+.rt-option:hover:not(:disabled) .rt-option-go{opacity:1;transform:translateX(2px)}
+.rt-option:active:not(:disabled){transform:translateY(1px)}
+.rt-option:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.rt-peek{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;min-height:48px}
+.rt-rule{margin:8px 2px 0;font-size:.75rem;text-align:center}
+
+/* The result card. */
+.rt-result{position:relative;margin:16px 0;padding:22px 16px 16px;text-align:center;overflow:hidden}
+.rt-result>*{position:relative}
+.rt-result-flag{display:inline-flex;align-items:center;gap:6px;margin-bottom:8px}
+.rt-result-flag img{width:40px;height:27px;object-fit:cover;border-radius:5px;box-shadow:0 0 0 1px rgba(0,0,0,.1)}
+.rt-result h2{margin:0 0 4px;font:600 1.25rem/1.25 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.rt-result-points{display:flex;align-items:baseline;justify-content:center;gap:6px;margin:4px 0 10px}
+.rt-result-points strong{font:600 2.5rem/1 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.rt-result-points span{font:700 .875rem/1 var(--font-sans);color:var(--t-soft)}
+.rt-result-chips{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0 0 12px;padding:0;list-style:none}
+.rt-result-chips li{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;background:var(--rt-closer-soft);color:color-mix(in srgb,var(--rt-closer) 80%,var(--t-ink));font:700 .8125rem/1.2 var(--font-sans)}
+.rt-result-chips li.is-cost{background:var(--rt-detour-soft);color:color-mix(in srgb,var(--rt-detour) 80%,var(--t-ink))}
+.rt-blocks{display:flex;justify-content:center;flex-wrap:wrap;gap:5px;margin:0 auto 14px}
+.rt-blocks i{width:20px;height:20px;border-radius:6px}
+.rt-blocks i.is-end{background:var(--rt-end)}.rt-blocks i.is-closer{background:var(--rt-closer)}.rt-blocks i.is-detour{background:var(--rt-detour)}
+.rt-best{margin:0 0 12px;padding:10px 12px;border-radius:16px;background:var(--t-mint)}
+.rt-best small{display:block;margin-bottom:6px;font:800 .6875rem/1.2 var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--t-soft)}
+.rt-best ol{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 2px;margin:0;padding:0;list-style:none}
+.rt-best li{display:inline-flex;align-items:center;gap:4px;font:700 .8125rem/1.3 var(--font-sans);color:var(--t-ink)}
+.rt-best li img{width:18px;height:12px;object-fit:cover;border-radius:2px}
+.rt-best li svg{color:var(--t-soft)}
+.rt-game.is-finished .daily-finish .rt-map{margin-top:14px}
+.rt-game>.finish-actions{display:flex;justify-content:center;margin-top:10px}
+.tone-roadtrip,.game-icon-roadtrip{--g:#2f8f8a;--g-soft:#dcf1ef;--gi:#2f8f8a;--gi-bg:#e1f3f1}
+
+@media (max-width:420px){
+  .rt-ticket-end strong{font-size:.9375rem}
+  .rt-options{grid-template-columns:1fr 1fr}
+  .rt-option{font-size:.875rem}
+}
+[data-theme=dark] .rt-tag.is-end text{fill:#0f1c17}
+/* Zoom like the Pinpoint map: the map owns the finger (drag pans, pinch zooms); the shared .map-tools buttons sit top left. */
+.rt-map svg{user-select:none;-webkit-user-select:none;cursor:grab}
+.rt-map svg:active{cursor:grabbing}
+.rt-zoom{top:12px!important;left:12px!important}
+.rt-zoom-tip{margin:4px 6px 0;font-size:.75rem}
