@@ -430,10 +430,13 @@ test('official Clue Trail reveals paid hints in order, keeps flags private, scor
  const body={round:0,answer:s.questions[0].correct};const writes=await Promise.all([request(a.cookie,'/games/'+g.id+'/answer','POST',body),request(a.cookie,'/games/'+g.id+'/answer','POST',body)]);assert.deepEqual(writes.map(x=>x.status).sort(),[200,409]);
  g=writes.find(x=>x.status===200).data;assert.equal(g.feedback.points,50);assert.equal(g.feedback.cluesUsed,4);
  g=(await request(a.cookie,'/games/'+g.id+'/next','POST',{})).data;g=await finishCompetitionSolo(a,g,(q,round)=>round===1?q.options.find(o=>o.id!==q.correct).id:q.correct);
- assert.equal(g.score,650);assert.equal(g.answers[1].points,0);assert.equal(g.answers[1].cluesUsed,1);
- const standings=(await request(a.cookie,'/competition?mode=trail')).data;assert.equal(standings.game.score,650);assert.equal(standings.today.score,650);assert.equal(standings.total.score,650);assert.equal(standings.month.score,650,'this month (1.50)');assert.equal(standings.monthStart,standings.date.slice(0,8)+'01');assert.equal(standings.game.place,1);
+ // 1.56: the daily Clue Trail only scores before CROSSROADS_FROM; the hint rules above hold every day.
+ const trailScores=new Date().toISOString().slice(0,10)<(await fs.readFile('lib/daily-loop.ts','utf8')).match(/CROSSROADS_FROM = '([\d-]+)'/)[1];
+ assert.equal(g.answers[1].points,0);assert.equal(g.answers[1].cluesUsed,1);
+ if(trailScores){assert.equal(g.score,650);
+ const standings=(await request(a.cookie,'/competition?mode=trail')).data;assert.equal(standings.game.score,650);assert.equal(standings.today.score,650);assert.equal(standings.total.score,650);assert.equal(standings.month.score,650,'this month (1.50)');assert.equal(standings.monthStart,standings.date.slice(0,8)+'01');assert.equal(standings.game.place,1);}
  for(let i=0;i<2;i++){assert.equal((await request(a.cookie,'/games','POST',create)).data.id,g.id);await request(a.cookie,'/games/'+g.id);}
- assert.equal((await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE user_id=?').bind(a.data.user.id).first()).n,1);
+ assert.equal((await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE user_id=?').bind(a.data.user.id).first()).n,trailScores?1:0);
  const fresh=(await request(b.cookie,'/games','POST',create)).data;assert.equal(fresh.question.id,s.questions[0].id);assert.equal(fresh.question.clues.length,1);
  const retry=(await request(a.cookie,'/next-round','POST',{sessionId:g.id,intent:'review'})).data;
  const review=(await request(a.cookie,retry.href.replace('/game/','/games/'))).data;assert.equal(review.competition,undefined);assert.equal(review.score,0);assert.equal(review.daily,null);
@@ -521,6 +524,8 @@ test('daily Size Shuffle: one shared edition, never the order before an answer, 
  const mosaic=(await request(a.cookie,'/puzzles','POST',{mode:'mosaic',daily:true,competition:true})).data;assert.equal(mosaic.competition,undefined);
  const today=(await request(a.cookie,'/puzzles/today?competition=1')).data;assert.ok(today.sessions.some(x=>x.mode==='order'&&x.completed));assert.ok(!today.sessions.some(x=>x.mode==='mosaic'));
 });
+// 1.56: these use the daily Shape Shift: the daily Clue Trail stopped scoring on CROSSROADS_FROM, so tests that need a
+// scored solo daily game must not depend on it.
 test('daily comparisons conceal values until reveal and accumulate with other daily modes',async()=>{
  const a=await bootstrap();let g=(await request(a.cookie,'/puzzles','POST',{mode:'compare',daily:true,competition:true})).data;
  while(g.phase!=='finished'){
@@ -529,7 +534,7 @@ test('daily comparisons conceal values until reveal and accumulate with other da
   g=(await request(a.cookie,'/puzzles/'+g.id+'/next','POST',{version:r.data.version})).data;
  }
  assert.equal(g.score,1000);
- let trail=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;trail=await finishCompetitionSolo(a,trail);
+ let trail=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-shape'},competition:true})).data;trail=await finishCompetitionSolo(a,trail);
  const summary=(await request(a.cookie,'/competition')).data;assert.equal(summary.today.score,2000);assert.equal(summary.total.score,2000);assert.equal(summary.today.games,2);assert.equal(summary.scores.length,2);
  const exported=(await request(a.cookie,'/export')).data;assert.equal(exported.dailyScores.length,2);
  // Existing unranked clients keep their published edition and never get retroactive points.
@@ -539,23 +544,23 @@ test('daily comparisons conceal values until reveal and accumulate with other da
 test('guest daily scores merge once, preserve the account’s first result and disappear on account deletion',async()=>{
  const a=await bootstrap(),email='daily-merge@example.test',password='Synthetic-daily-merge-password';
  const account=await request(a.cookie,'/auth/signup','POST',{email,password,name:'Daily Player'});assert.equal(account.status,200);const registered={cookie:account.cookie,data:{user:account.data.user}};
- let first=(await request(registered.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;
- first=await finishCompetitionSolo(registered,first,(q,round)=>round===0?q.options.find(o=>o.id!==q.correct).id:q.correct);assert.equal(first.score,800);
- const guest=await bootstrap();let duplicate=(await request(guest.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;duplicate=await finishCompetitionSolo(guest,duplicate);assert.equal(duplicate.score,1000);
+ let first=(await request(registered.cookie,'/games','POST',{settings:{...settings,mode:'daily-shape'},competition:true})).data;
+ first=await finishCompetitionSolo(registered,first,(q,round)=>round===0?q.options.find(o=>o.id!==q.correct).id:q.correct);assert.equal(first.score,900);
+ const guest=await bootstrap();let duplicate=(await request(guest.cookie,'/games','POST',{settings:{...settings,mode:'daily-shape'},competition:true})).data;duplicate=await finishCompetitionSolo(guest,duplicate);assert.equal(duplicate.score,1000);
  let extra=(await request(guest.cookie,'/games','POST',{settings:{...settings,mode:'daily'},competition:true})).data;extra=await finishCompetitionSolo(guest,extra);
  const login=await request(guest.cookie,'/auth/login','POST',{email,password});assert.equal(login.status,200,JSON.stringify(login.data));
- let scores=(await request(login.cookie,'/competition')).data;assert.equal(scores.today.games,2);assert.equal(scores.scores.find(s=>s.mode==='trail').score,800);assert.equal(scores.total.score,800+extra.score);
+ let scores=(await request(login.cookie,'/competition')).data;assert.equal(scores.today.games,2);assert.equal(scores.scores.find(s=>s.mode==='shape').score,900);assert.equal(scores.total.score,900+extra.score);
  assert.equal((await request(login.cookie,'/games/'+duplicate.id)).data.competition,undefined);
  await request(login.cookie,'/games/'+extra.id);assert.equal((await request(login.cookie,'/competition')).data.total.score,scores.total.score);
  assert.equal((await request(guest.cookie,'/competition')).status,401);
  const deleted=await request(login.cookie,'/profile','DELETE');assert.equal(deleted.status,200);assert.equal((await db.prepare('SELECT COUNT(*) n FROM daily_scores WHERE user_id=?').bind(account.data.user.id).first()).n,0);
 });
 test('daily ranks and cumulative ranks use different date scopes and validate query input',async()=>{
- const a=await bootstrap();let g=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-trail'},competition:true})).data;g=await finishCompetitionSolo(a,g);
+ const a=await bootstrap();let g=(await request(a.cookie,'/games','POST',{settings:{...settings,mode:'daily-shape'},competition:true})).data;g=await finishCompetitionSolo(a,g);
  const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
  await db.prepare('UPDATE daily_scores SET date=? WHERE session_id=?').bind(yesterday,g.id).run();
  const summary=(await request(a.cookie,'/competition')).data;assert.equal(summary.today.score,0);assert.equal(summary.today.place,null);assert.equal(summary.total.score,1000);assert.equal(summary.scores.length,0);
- const historic=(await request(a.cookie,'/competition?date='+yesterday+'&mode=trail')).data;assert.equal(historic.game.score,1000);assert.ok(historic.game.place>=1);
+ const historic=(await request(a.cookie,'/competition?date='+yesterday+'&mode=shape')).data;assert.equal(historic.game.score,1000);assert.ok(historic.game.place>=1);
  for(const query of ['?date=2026-99-99','?date=2026-02-30','?mode=madeup','?date=abc'])assert.equal((await request(a.cookie,'/competition'+query)).status,400);
 });
 test('competition summary reports earlier personal bests, the best day and yesterday, never counting today',async()=>{
@@ -1069,38 +1074,38 @@ test('1.54: Lucia does not invite on a day you were in a room',async()=>{
  const state=await db.prepare('SELECT last_day,noes FROM lucia_friends WHERE user_id=?').bind(a.data.user.id).first();
  assert.equal(state.last_day,new Date().toISOString().slice(0,10));assert.equal(state.noes,0,'not counted as a no');
 });
-test('1.55: Daily Crossroads: one grid a day, unknown or repeated names cost nothing, a wrong country costs a guess, rarity is counted',async()=>{
- await build({stdin:{contents:"export * from './lib/puzzles/crossroads';export {CROSSROADS_FROM,dailyModesFor} from './lib/daily-loop';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/xr-int.mjs',format:'esm',platform:'node',logLevel:'error'});
- const x=await import('../.test-runtime/xr-int.mjs');
+test('1.56: Daily Road Trip: one trip a day, every tap final, detours and peeks cost points, Crossroads history stays',async()=>{
+ await build({stdin:{contents:"export * from './lib/puzzles/road-trip';export {CROSSROADS_FROM,ROADTRIP_FROM,dailyModesFor} from './lib/daily-loop';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/rt-int.mjs',format:'esm',platform:'node',logLevel:'error'});
+ const x=await import('../.test-runtime/rt-int.mjs');
  const g=await bootstrap(),a=g.cookie;
- const game=(await request(a,'/crossroads','POST',{})).data;
- assert.equal(game.cells.length,9);assert.equal(game.guessesLeft,12);assert.equal(game.rows.length,3);assert.ok(game.rows[0].label.en);
- assert.equal((await request(a,'/crossroads','POST',{})).data.id,game.id,'one attempt a day: the same game comes back');
- const other=(await request((await bootstrap()).cookie,'/crossroads','POST',{})).data;
- assert.deepEqual(other.rows.map(r=>r.id),game.rows.map(r=>r.id),'everyone gets the same grid');
- const grid={rows:game.rows.map(r=>r.id),cols:game.cols.map(c=>c.id)};
- const solution=x.solveGrid(grid.rows.flatMap(r=>grid.cols.map(c=>x.answersFor(r,c))));
+ const game=(await request(a,'/roadtrip','POST',{})).data;
+ assert.ok(game.start&&game.finish&&game.start!==game.finish);assert.ok(game.shortest>=3&&game.shortest<=5);assert.equal(game.route.length,1);assert.equal(game.score,1000);
+ assert.deepEqual(game.options,x.neighboursOf(game.start),'the neighbours of the start are the only choices');
+ assert.equal(game.best,null,'no route before the end');
+ assert.equal((await request(a,'/roadtrip','POST',{})).data.id,game.id,'one attempt a day: the same trip comes back');
+ const other=(await request((await bootstrap()).cookie,'/roadtrip','POST',{})).data;
+ assert.deepEqual([other.start,other.finish],[game.start,game.finish],'everyone gets the same trip');
  let v=game.version;
- const guess=async(cell,country)=>request(a,'/crossroads/'+game.id+'/guess','POST',{version:v,cell,country});
- assert.equal((await guess(0,'Atlantis')).status,400,'unknown name');
- const wrongId=x.COUNTRIES.find(c=>!x.answersFor(grid.rows[0],grid.cols[0]).includes(c.id)).id;
- let r=await guess(0,wrongId);assert.equal(r.status,200);assert.equal(r.data.guessesLeft,11,'a wrong country costs a guess');assert.equal(r.data.last.ok,false);assert.ok(r.data.last.reason?.key);v=r.data.version;
- r=await guess(0,solution[0]);assert.equal(r.data.cells[0].country,solution[0]);assert.equal(r.data.guessesLeft,10);v=r.data.version;
- assert.equal(r.data.cells[0].share,null,'fewer than 20 players: Early pick');
- assert.equal((await guess(1,solution[0])).status,409,'a country already in the grid costs nothing');
- assert.equal((await request(a,'/crossroads/'+game.id)).data.guessesLeft,10);
- for(let i=1;i<9;i++){r=await guess(i,solution[i]);assert.equal(r.status,200,JSON.stringify(r.data));v=r.data.version;}
- assert.equal(r.data.phase,'finished');assert.equal(r.data.cells.filter(Boolean).length,9);
- assert.equal(r.data.wrong,1);assert.equal(r.data.score,975,'one wrong guess: 1,000 minus 25');
- const ranked=x.dailyModesFor(new Date().toISOString().slice(0,10)).includes('crossroads');
- const today=new Date().toISOString().slice(0,10);
- if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,975);
-  assert.equal((await db.prepare('SELECT SUM(picks) n FROM crossroads_picks WHERE date=?').bind(today).first()).n,9,'nine picks counted');}
- else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before CROSSROADS_FROM it does not score');
+ const drive=async country=>request(a,'/roadtrip/'+game.id+'/drive','POST',{version:v,country});
+ assert.equal((await drive(game.finish)).status,400,'only a neighbour of your last country');
+ const d=x.distancesTo(game.finish);
+ const detour=game.options.find(n=>d.get(n)>=d.get(game.start));
+ let r=await drive(detour);assert.equal(r.status,200);assert.equal(r.data.route[1].closer,false);assert.equal(r.data.detours,1);assert.equal(r.data.score,850,'a detour costs 150');v=r.data.version;
+ r=await request(a,'/roadtrip/'+game.id+'/peek','POST',{version:v});assert.equal(r.data.peeks,1);assert.equal(r.data.score,650,'a peek costs 200');v=r.data.version;
+ assert.equal((await request(a,'/roadtrip/'+game.id+'/peek','POST',{version:v-1})).status,409,'an old version is refused');
+ // Drive the shortest way from here; the last stop before the finish makes the car drive on by itself.
+ for(const c of x.shortestRoute(r.data.route.at(-1).country,game.finish).slice(1,-1)){r=await drive(c);assert.equal(r.status,200,JSON.stringify(r.data));assert.equal(r.data.route.at(-1).closer,true);v=r.data.version;}
+ assert.equal(r.data.phase,'finished');assert.equal(r.data.route.at(-1).country,game.finish);assert.equal(r.data.route.at(-1).auto,true);
+ assert.equal(r.data.score,650);assert.deepEqual(r.data.best,x.shortestRoute(game.start,game.finish),'one shortest route at the end');
+ const today=new Date().toISOString().slice(0,10),ranked=x.dailyModesFor(today).includes('roadtrip');
+ if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,650);}
+ else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before ROADTRIP_FROM it does not score');
  assert.ok(await db.prepare('SELECT 1 FROM daily_challenge_results WHERE user_id=? AND date=?').bind(g.data.user.id,today).first(),'counts for the streak');
- assert.equal((await guess(0,solution[0])).status,409,'finished');
- // Old Clue Trail points stay "trail"; from CROSSROADS_FROM the same slot reads as "crossroads".
- const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,'x',x.CROSSROADS_FROM,'{}',Date.now()).run();
- await db.prepare("INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,x.CROSSROADS_FROM,'trail',sess,700,Date.now()).run();
- const comp=(await request(a,'/competition?date='+x.CROSSROADS_FROM)).data;assert.deepEqual(comp.scores,[{mode:'crossroads',score:700}]);
+ assert.ok(await db.prepare("SELECT COUNT(*) n FROM answers WHERE session_id=? AND mode='roadtrip'").bind(game.id).first('n')>0,'passport stamps for the countries that got you closer');
+ assert.equal((await drive(game.finish)).status,409,'finished');
+ // The 'trail' slot reads as Clue Trail before CROSSROADS_FROM, as Crossroads until ROADTRIP_FROM and as Road Trip after.
+ for(const [date,mode,score] of [[x.CROSSROADS_FROM,'crossroads',700],[x.ROADTRIP_FROM,'roadtrip',800]]){
+  const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,'x',date,'{}',Date.now()).run();
+  await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,date,'trail',sess,score,Date.now()).run();
+  const comp=(await request(a,'/competition?date='+date)).data;assert.deepEqual(comp.scores,[{mode,score}],date);}
 });

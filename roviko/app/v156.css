@@ -1,0 +1,97 @@
+/* ===== 1.56 · Daily Road Trip: drive there, country by country, through the fog ===== */
+:root{--rt-sea:#eaf3f1;--rt-land:#cfd8d3;--rt-border:#8a9a92;--rt-end:#7c5cd6;--rt-end-soft:#e6ddfb;--rt-closer:#2f9e6e;--rt-closer-soft:#d4f0e2;
+  --rt-detour:#e8893a;--rt-detour-soft:#fde5cf;--rt-option:#cfe6fb;--rt-option-line:#3d86d6;--rt-option-ink:#1d4f86;--rt-line:#24312c;--rt-best:#7c5cd6;--rt-halo:rgba(255,255,255,.92)}
+[data-theme=dark]{--rt-sea:#13201b;--rt-land:#33423b;--rt-border:#7d8f86;--rt-end:#9a7cf0;--rt-end-soft:#2c2547;--rt-closer:#4cc28e;--rt-closer-soft:#173a2b;
+  --rt-detour:#f0a061;--rt-detour-soft:#47301c;--rt-option:#1f3d5c;--rt-option-line:#7cb6f0;--rt-option-ink:#cfe6fb;--rt-line:#eef3f1;--rt-best:#b9a2f7;--rt-halo:rgba(16,26,22,.9)}
+.rt-game{width:min(640px,100%);margin:0 auto;padding-bottom:28px;box-sizing:border-box}
+.rt-game .game-header{margin-bottom:6px}
+
+/* Three stat cards: today's trip, detours · peeks, points. */
+.rt-stats{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;margin:6px 0 10px}
+.rt-stat{display:flex;flex-direction:column;gap:2px;min-width:0;padding:9px 12px;border-radius:var(--t-radius-sm,20px);background:var(--t-card);box-shadow:var(--t-shadow);border:1px solid var(--t-line)}
+.rt-stat small{font:700 .6875rem/1.2 var(--font-sans);letter-spacing:.02em;color:var(--t-soft)}
+.rt-stat strong{font:600 1.125rem/1.2 var(--font-display,var(--font-sans));color:var(--t-ink);overflow-wrap:anywhere}
+.rt-stat-trip strong{font-size:1rem}
+.rt-stat.is-cost strong{color:var(--rt-detour)}
+.rt-shortest{display:inline-flex;align-items:center;gap:6px;margin:0 0 6px;padding:5px 12px;border-radius:999px;background:var(--rt-end-soft);color:var(--rt-end);font:700 .8125rem/1.3 var(--font-sans)}
+.rt-notice{min-height:1.45em;margin:2px 2px 8px;font:600 .9375rem/1.45 var(--font-sans);color:var(--t-soft)}
+.rt-notice.is-good{color:var(--t-right)}
+.rt-notice.is-bad{color:var(--rt-detour)}
+
+/* The map: one grey landmass in the fog, the countries you know in colour. */
+.rt-map{position:relative;margin:0;border-radius:var(--t-radius,28px);overflow:hidden;background:var(--rt-sea);box-shadow:var(--t-shadow);border:1px solid var(--t-line)}
+.rt-map svg{display:block;width:100%;height:auto;max-height:min(62vh,520px)}
+.rt-map-state{display:grid;place-items:center;min-height:260px;padding:20px;text-align:center;color:var(--t-soft)}
+.rt-map-spinner{width:28px;height:28px;border-radius:50%;border:3px solid var(--rt-land);border-top-color:var(--t-brand);animation:rt-spin .9s linear infinite}
+@keyframes rt-spin{to{transform:rotate(360deg)}}
+.rt-land{fill:var(--rt-land);stroke:var(--rt-land);stroke-width:.8px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.rt-borders{fill:none;stroke:var(--rt-border);stroke-width:.9px;vector-effect:non-scaling-stroke;stroke-linejoin:round;opacity:0;transition:opacity .35s ease;pointer-events:none}
+.rt-map.is-peeking .rt-borders{opacity:1}
+.rt-c{stroke-width:1.2px;vector-effect:non-scaling-stroke;stroke-linejoin:round;transition:fill .3s ease}
+.rt-c.is-end{fill:var(--rt-end);stroke:color-mix(in srgb,var(--rt-end) 70%,#000)}
+.rt-c.is-closer{fill:var(--rt-closer);stroke:color-mix(in srgb,var(--rt-closer) 70%,#000)}
+.rt-c.is-detour{fill:var(--rt-detour);stroke:color-mix(in srgb,var(--rt-detour) 70%,#000)}
+.rt-c.is-option{fill:var(--rt-option);stroke:var(--rt-option-line);stroke-dasharray:4 3;stroke-width:1.6px}
+.rt-c.is-best{fill:var(--rt-end-soft);stroke:var(--rt-best);stroke-width:1px}
+.rt-c.is-live,.rt-ring.is-live{cursor:pointer}
+.rt-c.is-live:hover{fill:color-mix(in srgb,var(--rt-option) 70%,var(--rt-option-line))}
+.rt-ring{fill:none;stroke-width:1.6px;vector-effect:non-scaling-stroke}
+.rt-ring.is-end{stroke:var(--rt-end)}.rt-ring.is-closer{stroke:var(--rt-closer)}.rt-ring.is-detour{stroke:var(--rt-detour)}.rt-ring.is-best{stroke:var(--rt-best)}
+.rt-ring.is-option{fill:color-mix(in srgb,var(--rt-option) 60%,transparent);stroke:var(--rt-option-line);stroke-dasharray:3 3}
+.rt-line,.rt-best-line{fill:none;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.rt-line{stroke:var(--rt-line);stroke-width:2.6px;stroke-dasharray:2 6}
+.rt-best-line{stroke:var(--rt-best);stroke-width:2px;stroke-dasharray:6 5;opacity:.9}
+.rt-seg-mask{fill:none;stroke:#fff;stroke-width:40px;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:rt-draw .7s ease-out forwards}
+@keyframes rt-draw{to{stroke-dashoffset:0}}
+.rt-dot{fill:var(--rt-line)}
+.rt-name{font-family:var(--font-sans);font-weight:800;fill:var(--t-ink);paint-order:stroke;stroke:var(--rt-halo);stroke-width:3px;stroke-linejoin:round;vector-effect:non-scaling-stroke;pointer-events:none}
+.rt-name.is-option{fill:var(--rt-option-ink)}
+.rt-name.is-best{font-weight:700;opacity:.8}
+.rt-car{transition:transform .6s cubic-bezier(.3,1.2,.4,1);pointer-events:none}
+.rt-car circle{fill:var(--t-card);stroke:var(--rt-line);stroke-width:1.5px;vector-effect:non-scaling-stroke}
+
+/* Legend, route chips, the fact. */
+.rt-legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 4px 0;padding:0;list-style:none;font:600 .75rem/1.3 var(--font-sans);color:var(--t-soft)}
+.rt-legend li{display:flex;align-items:center;gap:6px}
+.rt-legend i{width:14px;height:14px;border-radius:4px;flex:none}
+.rt-legend .is-end{background:var(--rt-end)}.rt-legend .is-closer{background:var(--rt-closer)}.rt-legend .is-detour{background:var(--rt-detour)}
+.rt-legend .is-option{background:var(--rt-option);border:1.5px dashed var(--rt-option-line)}
+.rt-legend .is-best{background:var(--rt-end-soft);border:1.5px dashed var(--rt-best)}
+.rt-chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0;padding:0;list-style:none}
+.rt-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px 5px 6px;border-radius:999px;font:700 .8125rem/1.2 var(--font-sans);animation:rt-chip .35s cubic-bezier(.2,1.4,.4,1)}
+.rt-chip img{width:20px;height:14px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.rt-chip.is-end{background:var(--rt-end-soft);color:var(--rt-end)}
+.rt-chip.is-closer{background:var(--rt-closer-soft);color:color-mix(in srgb,var(--rt-closer) 80%,var(--t-ink))}
+.rt-chip.is-detour{background:var(--rt-detour-soft);color:color-mix(in srgb,var(--rt-detour) 75%,var(--t-ink))}
+.rt-chip.is-here{box-shadow:0 0 0 2px currentColor}
+@keyframes rt-chip{from{transform:scale(.8);opacity:0}to{transform:none;opacity:1}}
+.rt-fact{display:flex;gap:8px;align-items:flex-start;margin:12px 0 0;padding:10px 12px;border-radius:16px;background:color-mix(in srgb,var(--t-mint) 60%,var(--t-card));color:var(--t-text,var(--t-ink));font:500 .875rem/1.45 var(--font-sans)}
+.rt-fact svg{flex:none;margin-top:2px;color:var(--t-brand)}
+
+/* Under the map: the neighbours as buttons (small countries are easy to pick here) and the peek. */
+.rt-drive{margin-top:14px;padding:14px;border-radius:var(--t-radius,28px);background:var(--t-card);box-shadow:var(--t-shadow);border:1px solid var(--t-line)}
+.rt-drive-title{margin:0 0 10px;font:700 .875rem/1.3 var(--font-sans);color:var(--t-soft)}
+.rt-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.rt-option{display:flex;align-items:center;gap:8px;min-height:48px;padding:8px 12px;border-radius:14px;border:2px dashed var(--rt-option-line);background:var(--rt-option);color:var(--rt-option-ink);font:700 .9375rem/1.2 var(--font-sans);text-align:left}
+.rt-option img{width:26px;height:18px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08);flex:none}
+.rt-option:hover:not(:disabled){transform:translateY(-1px);border-style:solid}
+.rt-option:focus-visible{outline:3px solid var(--t-brand);outline-offset:2px}
+.rt-peek{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:12px;min-height:46px}
+.rt-rule{margin:8px 2px 0;font-size:.75rem}
+
+/* The result card. */
+.rt-result{margin:16px 0;padding:16px;text-align:center}
+.rt-result h2{margin:0 0 6px;font:600 1.25rem/1.25 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.rt-result p{margin:6px 0;font:600 .9375rem/1.4 var(--font-sans);color:var(--t-text,var(--t-ink))}
+.rt-result-points strong{font:600 2rem/1 var(--font-display,var(--font-sans));color:var(--t-ink)}
+.rt-blocks{letter-spacing:2px;font-size:1.125rem}
+.rt-game.is-finished .daily-finish .rt-map{margin-top:14px}
+.rt-game>.finish-actions{display:flex;justify-content:center;margin-top:10px}
+.tone-roadtrip,.game-icon-roadtrip{--g:#2f8f8a;--g-soft:#dcf1ef;--gi:#2f8f8a;--gi-bg:#e1f3f1}
+
+@media (max-width:420px){
+  .rt-stats{grid-template-columns:1fr 1fr}
+  .rt-stat-trip{grid-column:1/-1}
+  .rt-options{grid-template-columns:1fr 1fr}
+}
+@media (prefers-reduced-motion:reduce){.rt-seg-mask{animation:none;stroke-dashoffset:0}.rt-car,.rt-borders{transition:none}.rt-chip{animation:none}}

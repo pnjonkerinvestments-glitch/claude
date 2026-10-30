@@ -1,5 +1,5 @@
 import { DAILY_POINT_MODES, DAILY_TOTAL_MAX, dailyScore, type Competition } from '../lib/daily-scoring';
-import { CROSSROADS_FROM, SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
+import { CROSSROADS_FROM, ROADTRIP_FROM, SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
 
 /**
  * The daily Size Shuffle (1.24) has no mode of its own in the ledger: the CHECK on daily_scores.mode only allows the six
@@ -9,9 +9,11 @@ import { CROSSROADS_FROM, SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/d
  * The same for Shape Shift (1.41): it replaces World Duel from SHAPE_FROM on, stored as 'duel', read back as 'shape'.
  * And for Daily Crossroads (1.55): it replaces the daily Clue Trail from CROSSROADS_FROM on, stored as 'trail', read back as
  * 'crossroads'. Clue Trail points of earlier dates stay 'trail'.
+ * And for Daily Road Trip (1.56): it replaces Crossroads from ROADTRIP_FROM on, in the same slot: stored as 'trail', read
+ * back as 'roadtrip' from ROADTRIP_FROM, as 'crossroads' from CROSSROADS_FROM until then, as 'trail' before.
  */
-export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode === 'crossroads' ? 'trail' : mode;
-export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' WHEN ${alias}mode='trail' AND ${alias}date>='${CROSSROADS_FROM}' THEN 'crossroads' ELSE ${alias}mode END`;
+export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode === 'crossroads' || mode === 'roadtrip' ? 'trail' : mode;
+export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' WHEN ${alias}mode='trail' AND ${alias}date>='${ROADTRIP_FROM}' THEN 'roadtrip' WHEN ${alias}mode='trail' AND ${alias}date>='${CROSSROADS_FROM}' THEN 'crossroads' ELSE ${alias}mode END`;
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';
