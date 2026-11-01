@@ -3,9 +3,9 @@
   Under the big headline three clue cards land, hard to easy, each a real fact (roviko.app data and well-known records); a ring
   counts each clue down, then the answer (silhouette, true-ratio flag, name) and one more fact as the payoff.
 */
-// @scripts lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
+// @scripts data/w3.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
 const D = +(Q.get('d') || 1);
-const DAY = {
+const DAY = WK === 3 ? W3.clue[D] : {
   1: { iso: 'ZAF', fl: 'za', name: 'South Africa', song: 'fun-and-games', tempo: 99.547, hook: ['3 clues. 1 country.', 'Got it on clue 1?'],
     clues: [['columns', 'It has three capital cities'], ['map', 'A whole other country sits inside it'], ['pin', 'Cape Town is here']],
     fact: 'Pretoria (government), Cape Town (parliament), Bloemfontein (courts). And Lesotho sits completely inside it.',
@@ -61,7 +61,7 @@ const ansSvg = svgEl(ans, 'svg', { width: 952, height: 560 }); ansSvg.style.posi
 const shape = svgEl(ansSvg, 'path', { d: fS.d, fill: '#CFE9DA', stroke: C.forest, 'stroke-width': 3, 'stroke-linejoin': 'round' });
 el(ans, { left: 540, top: 110, width: 380 }, `<div style="display:flex;flex-direction:column;gap:22px;align-items:flex-start">${flagW(DAY.fl, 150)}<div style="font-family:Fredoka;font-weight:700;font-size:${DAY.name.length > 9 ? 60 : 78}px;color:${C.forest};line-height:1.02">${DAY.name}</div><div style="display:flex;align-items:center;gap:10px">${glyph('check', 42, IOS.green)}<span style="font-family:Manrope;font-weight:800;font-size:26px;letter-spacing:.1em;color:${IOS.green}">ANSWER</span></div></div>`);
 const fact = factCard('bulb', ['#FFD60A', '#FF9F0A'], 'DID YOU KNOW', DAY.fact, { x: 360, w: 656, y: 1180 });
-const heads = [[DAY.hook, -9, TL.rev], [[`It’s ${DAY.name}`, ''], TL.rev, TL.cta], [DAY.cta, TL.cta, END + 2]].map(([lines, b0, b1]) => ({ h: Head(lines.filter(Boolean)), b0, b1 }));
+const heads = [[DAY.hook, -9, TL.rev], [[DAY.its || `It’s ${DAY.name}`, ''], TL.rev, TL.cta], [DAY.cta, TL.cta, END + 2]].map(([lines, b0, b1]) => ({ h: Head(lines.filter(Boolean)), b0, b1 }));
 
 // ---- sound
 ev(0.02, 'pop', -12, { rate: 1.1 });

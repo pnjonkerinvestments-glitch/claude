@@ -4,9 +4,9 @@
   best of last week's challenges). "size": two countries on a normal web map, then at true size on the same scale.
   Areas: roviko.app data.
 */
-// @scripts lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
+// @scripts data/w3.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
 const D = +(Q.get('d') || 1);
-const DAY = {
+const DAY = WK === 3 ? W3.map[D] : {
   1: { mode: 'find', song: 'games-worldbeat', tempo: 115.993, iso: 'URY', name: 'Uruguay', bounds: [-76, -40, -40, -13.5], answer: 4,
     pins: [['BOL', 1, -64.5, -17], ['PRY', 2, -58.2, -23.4], ['ARG', 3, -64, -34], ['URY', 4, -56, -32.8], ['BRA', 5, -51.5, -28]],
     hook: ['Which number', 'is Uruguay?'], say: 'Number 2. Trust me.', win: ['It’s number 4.', 'Paraguay is number 2'],
@@ -84,8 +84,8 @@ if (DAY.mode === 'find') {
   const mercF = (lo, la) => [lo * Math.PI / 180, -Math.log(Math.tan(Math.PI / 4 + la * Math.PI / 360))];
   const tA = proj(A[2], XA, CYs, DAY.scale, laeaF, { fill: win === 0 ? '#BFEBD0' : '#FBD5D3', stroke: C.forest, 'stroke-width': 3 });
   const tB = proj(Bc[2], XB, CYs, DAY.scale, laeaF, { fill: win === 1 ? '#BFEBD0' : '#FBD5D3', stroke: C.forest, 'stroke-width': 3 });
-  const mA = proj(A[2], XA, CYs, DAY.scale / 1.9, mercF, { fill: '#DDE7F2', stroke: '#5B7FA6', 'stroke-width': 3 });
-  const mB = proj(Bc[2], XB, CYs, DAY.scale / 1.9, mercF, { fill: '#DDE7F2', stroke: '#5B7FA6', 'stroke-width': 3 });
+  const mA = proj(A[2], XA, CYs, DAY.scale / (DAY.merc || 1.9), mercF, { fill: '#DDE7F2', stroke: '#5B7FA6', 'stroke-width': 3 });
+  const mB = proj(Bc[2], XB, CYs, DAY.scale / (DAY.merc || 1.9), mercF, { fill: '#DDE7F2', stroke: '#5B7FA6', 'stroke-width': 3 });
   const lab = el(uiL, { left: 110, top: LY.body + 255, zIndex: 13, transformOrigin: '0 50%', whiteSpace: 'pre' }, `<span style="font-family:Manrope;font-weight:800;font-size:26px;letter-spacing:.12em;color:${IOS.grey}">ON A NORMAL WEB MAP</span>`);
   const lab2 = el(uiL, { left: 110, top: LY.body + 255, zIndex: 13, transformOrigin: '0 50%', whiteSpace: 'pre' }, `<span style="font-family:Manrope;font-weight:800;font-size:26px;letter-spacing:.12em;color:${IOS.green}">TRUE SIZE, SAME SCALE</span>`);
   const chip = (txt, x, w_) => el(uiL, { left: x - 220, top: LY.body + 598, width: 440, textAlign: 'center', zIndex: 16, transformOrigin: '50% 50%' },

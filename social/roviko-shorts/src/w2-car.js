@@ -4,7 +4,7 @@
   2 the answers and how to tell, 3 magnifiers on the detail, 4 one fact, 5 which twins next. halloween: Saturday's post 5, real
   places with scary names. Rendered by build/w2-car.mjs. Areas: roviko.app data.
 */
-// @scripts lib/ios.js lib/flagratio.js
+// @scripts data/w3.js lib/ios.js lib/flagratio.js
 const id = Q.get('id') || 'twins1-1', [post, nStr] = id.split('-'), N = +nStr;
 const W = 1080, H = 1350, DARK = post === 'halloween';
 S(document.body, { width: W, height: H }); S(stage, { width: W, height: H, overflow: 'hidden' });
@@ -123,7 +123,8 @@ function halloween() {
     el(uiL, { left: 64, top: 1130, width: W - 128, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 500, fontSize: 44, color: SUB }, 'Comment the number. Know a scarier one?');
   }
 }
-if (DARK) halloween(); else twins(TWINS[+post.replace('twins', '')]);
+const WK = +(Q.get('w') || 2);   // ?w=3: week 3 (2-8 Nov), data/w3.js
+if (DARK) halloween(); else twins((WK === 3 ? W3.twins : TWINS)[+post.replace('twins', '')]);
 window.filmReady = (async () => {
   await Promise.all(['500 20px Fredoka', '600 28px Fredoka', '700 28px Fredoka', '700 13px Manrope', '800 13px Manrope'].map(f => document.fonts.load(f)));
   await document.fonts.ready; await Promise.all([...document.images].map(i => i.decode().catch(() => {})));

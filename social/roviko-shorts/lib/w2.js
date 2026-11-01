@@ -45,4 +45,6 @@ function lensOn(code, h, fx, fy, zoom, lx, ly, r = 120, z = 22) {
   return el(uiL, { left: lx - r, top: ly - r, width: 2 * r, height: 2 * r, borderRadius: r, overflow: 'hidden', zIndex: z, transformOrigin: '50% 50%', border: '8px solid #fff',
     boxShadow: '0 18px 40px rgba(22,59,50,.28)', background: `url(${FLAG_W}${code}.svg) ${(r - fx * fw).toFixed(1)}px ${(r - fy * fh).toFixed(1)}px / ${fw.toFixed(1)}px ${fh.toFixed(1)}px no-repeat` });
 }
-const W2DAYS = { 1: 'MON 26', 2: 'TUE 27', 3: 'WED 28', 4: 'THU 29', 5: 'FRI 30', 6: 'SAT 31', 7: 'SUN 1' };
+// ?w=3: week 3 (2-8 Nov) takes its data from data/w3.js
+const WK = +(Q.get('w') || 2);
+const W2DAYS = WK === 3 ? W3.days : { 1: 'MON 26', 2: 'TUE 27', 3: 'WED 28', 4: 'THU 29', 5: 'FRI 30', 6: 'SAT 31', 7: 'SUN 1' };
