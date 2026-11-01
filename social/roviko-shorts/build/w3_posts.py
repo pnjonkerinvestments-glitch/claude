@@ -21,7 +21,7 @@ TAGS = {
 }
 
 def map_caption(n):
-    return (f"Map challenge #{n}: {MAPR[n]} {MAPE[n]}\n5 countries, no names, from Easy to Legend. Every answer comes with a fact.\n"
+    return (f"Map challenge {n}: {MAPR[n]} {MAPE[n]}\n5 countries, no names, from Easy to Legend. Every answer comes with a fact.\n"
             f"Guess before you swipe, then comment your score: __/5 👇\n{TAGS['map']}")
 
 # post id -> (caption without hashtags, hashtag set, banner line 1, banner line 2)
