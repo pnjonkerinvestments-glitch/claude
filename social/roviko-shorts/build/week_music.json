@@ -550,5 +550,41 @@
     null
    ]
   ]
+ },
+ "w3-D1P3": {
+  "song": "games-worldbeat",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "w3-D1P4": {
+  "song": "fun-and-games",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
+ },
+ "w3-D1P5": {
+  "song": "upbeat-jazz",
+  "end": 24,
+  "fade": 0.8,
+  "pieces": [
+   [
+    0,
+    36,
+    null
+   ]
+  ]
  }
 }
