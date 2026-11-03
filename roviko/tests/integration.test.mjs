@@ -1108,8 +1108,9 @@ test('1.56: Daily Road Trip: one trip a day, every tap final, detours and peeks 
   const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,kind+':'+sess,x.ROADTRIP_FROM,'{}',Date.now()).run();
   await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,x.ROADTRIP_FROM,'trail',sess,score,Date.now()).run();
   const comp=(await request(a,'/competition?date='+x.ROADTRIP_FROM)).data;assert.deepEqual(comp.scores.filter(s=>s.mode===mode||s.mode==='trail'||s.mode==='crossroads'||s.mode==='roadtrip'),[{mode,score}],kind);}
- // Someone who already has Crossroads points today plays Road Trip unscored: one fifth game a day.
- if(ranked){const c=await bootstrap(),me=c.data.user.id,sess=crypto.randomUUID();
+ // On the switch day (ROADTRIP_FROM) someone who already has Crossroads points plays Road Trip unscored: one fifth game a
+ // day. That can only happen on that one date, so the check only runs then.
+ if(ranked&&today===x.ROADTRIP_FROM){const c=await bootstrap(),me=c.data.user.id,sess=crypto.randomUUID();
   await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,me,'crossroads:competitive-v1',today,'{}',Date.now()).run();
   await db.prepare("INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(me,today,'trail',sess,900,Date.now()).run();
   const trip=(await request(c.cookie,'/roadtrip','POST',{})).data;assert.equal(trip.competition,null,'already played Crossroads today');

@@ -77,8 +77,9 @@ export function RoadTripGame({ app }: { app: any }) {
     } catch (e: any) { if (e?.message === 'STATE_CHANGED') await refresh(); else fail(e); } finally { setBusy(false); }
   }
 
-  // Share blocks: 📍 start, 🟩 closer, 🟧 detour, 🏁 finish.
-  const blocks = game.route.map((r, i) => i === 0 ? '📍' : finished && i === game.route.length - 1 ? '🏁' : r.closer ? '🟩' : '🟧');
+  // Share blocks in the same square style as the other daily games (Crossroads had 🟩🟪⬜): 🟪 start and finish,
+  // 🟩 closer, 🟧 detour.
+  const blocks = game.route.map((r, i) => i === 0 || (finished && i === game.route.length - 1) ? '🟪' : r.closer ? '🟩' : '🟧');
   const shareText = () => [fill(t('rtShareTitle'), { n: game.edition, start: name(game.start), finish: name(game.finish) }), blocks.join(''),
     fill(t('rtShareLine'), { points: formatScore(game.score), detours: detoursText(game.detours), peeks: peeksText(game.peeks) }), 'roviko.app'].join('\n');
   const share = () => (app.share ?? app.copy)(shareText());
