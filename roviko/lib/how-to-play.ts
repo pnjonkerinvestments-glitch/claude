@@ -24,11 +24,11 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
     { icon: '👆', text: l('Tap one tile of each kind that belong to the same country, then tap "Check match".', 'Tik op één tegel van elke soort die bij hetzelfde land hoort en tik dan op "Controleer set".', 'Toca una ficha de cada tipo del mismo país y luego «Comprobar grupo».') },
     { icon: '💡', text: l('Find all four countries. A wrong try shows which tiles do not fit, and a hint helps you on.', 'Vind alle vier de landen. Een foute poging laat zien welke tegels niet passen, en een hint helpt je verder.', 'Encuentra los cuatro países. Un intento fallido muestra qué fichas no encajan y una pista te ayuda.') },
   ], tip: l('Start with a flag and name you are sure about. Mosaic is an extra: no points, just practice.', 'Begin met een vlag en naam die je zeker weet. Mosaic is een extra: geen punten, gewoon oefenen.', 'Empieza con una bandera y un nombre que conozcas. Mosaic es un extra: sin puntos, solo práctica.') },
-  roadtrip: { emoji: '🚗', steps: [
-    { icon: '🗺️', text: l('Everyone gets the same start and finish, for example Ghana → Kenya. The map is fog: only your route and its neighbours show.', 'Iedereen krijgt dezelfde start en finish, bijvoorbeeld Ghana → Kenia. De kaart is mist: je ziet alleen je route en de buurlanden.', 'Todos tienen la misma salida y meta, por ejemplo Ghana → Kenia. El mapa es niebla: solo ves tu ruta y sus vecinos.') },
-    { icon: '👆', text: l('Tap a neighbour of your last country to drive there. Every tap is final. Next to the finish, the car drives on by itself.', 'Tik op een buurland van je laatste land om erheen te rijden. Elke tik is definitief. Naast de finish rijdt de auto vanzelf door.', 'Toca un vecino de tu último país para ir allí. Cada toque es definitivo. Junto a la meta, el coche sigue solo.') },
-    { icon: '🎯', text: l('1,000 points. A detour (no closer to the finish) costs 150, a peek at the map 200. At least 100 when you arrive. No timer.', '1.000 punten. Een omweg (niet dichter bij de finish) kost 150, gluren op de kaart 200. Minstens 100 als je aankomt. Geen timer.', '1.000 puntos. Un desvío (no te acerca a la meta) resta 150 y un vistazo al mapa 200. Al menos 100 al llegar. Sin tiempo.') },
-  ], tip: l('The neighbour that looks closest on the map is not always the way: sometimes a desert or a lake is in the road.', 'Het buurland dat op de kaart het dichtst lijkt, is niet altijd de weg: soms ligt er een woestijn of meer tussen.', 'El vecino que parece más cerca no siempre es el camino: a veces hay un desierto o un lago en medio.') },
+  closecall: { emoji: '🎯', steps: [
+    { icon: '🎯', text: l('Three rounds, each with a target, for example "150 million people". Ten countries pass by; you see each one, not its number.', 'Drie rondes, elk met een doel, bijvoorbeeld "150 miljoen inwoners". Er komen tien landen langs; je ziet het land, niet het getal.', 'Tres rondas con un objetivo, por ejemplo «150 millones de habitantes». Pasan diez países; ves el país, no su número.') },
+    { icon: '🃏', text: l('Take adds the country, Skip lets it go, Hold ends the round. After the tenth country the round ends by itself.', 'Pak telt het land op, Sla over laat het gaan, Stop sluit de ronde af. Na het tiende land stopt de ronde vanzelf.', 'Coger lo suma, Pasar lo deja ir, Plantarse cierra la ronda. Tras el décimo país la ronda termina sola.') },
+    { icon: '⭐', text: l('Up to 333 points a round: the closer you end, the faster points rise, with a bonus within 2%. Over the target is 0.', 'Maximaal 333 punten per ronde: hoe dichterbij, hoe sneller de punten stijgen, met bonus binnen 2%. Eroverheen is 0.', 'Hasta 333 puntos por ronda: cuanto más cerca, más rápido suben, con bonus a menos del 2%. Pasarse es 0.') },
+  ], tip: l('Skip the giants early and keep small countries for the end: they fill the last gap without going over.', 'Sla grote landen vroeg over en bewaar kleine voor het eind: die vullen het laatste gat zonder dat je eroverheen gaat.', 'Pasa los países grandes al principio y guarda los pequeños para el final: llenan el último hueco sin pasarte.') },
   trail: { emoji: '🧭', steps: [
     { icon: '🔎', text: l('Find the mystery country. Clues come one by one, from vague to sharp. The flag always comes last.', 'Zoek het geheime land. De hints komen één voor één, van vaag naar scherp. De vlag komt altijd als laatste.', 'Encuentra el país misterioso. Las pistas llegan una a una, de vagas a claras. La bandera siempre es la última.') },
     { icon: '💡', text: l('Only open the next clue when you need it.', 'Open de volgende hint alleen als je hem nodig hebt.', 'Abre la siguiente pista solo si la necesitas.') },
@@ -82,7 +82,7 @@ export const HOW_TO_PLAY: Record<string, HowToPlay> = {
 };
 
 /** Translation key of each game's name. */
-export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', daily: 'dailyTitle', mystery: 'mysteryShort', room: 'howToRoomName', roadtrip: 'roadtrip' };
+export const HOW_TO_PLAY_TITLE: Record<string, string> = { rank: 'rankRadar', daily: 'dailyTitle', mystery: 'mysteryShort', room: 'howToRoomName', closecall: 'closecall' };
 
 /** Where the overview groups each game. */
 export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[] = [
@@ -90,7 +90,8 @@ export const HOW_TO_PLAY_GROUPS: { key: string; note: string; modes: string[] }[
   // 1.41: Shape Shift took World Duel's place (from SHAPE_FROM); the duel is an extra now.
   // 1.55: Daily Crossroads took the daily Clue Trail's place (from CROSSROADS_FROM); Clue Trail is a classic game again.
   // 1.56: Daily Road Trip took Crossroads' place (from ROADTRIP_FROM); Crossroads is gone, not a classic game.
-  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'roadtrip'] },
+  // 1.57: Daily Close Call took Road Trip's place (from CLOSECALL_FROM); Road Trip is gone, not a classic game.
+  { key: 'howToDaily', note: 'howToDailyNote', modes: ['daily', 'rank', 'shape', 'compare', 'order', 'closecall'] },
   { key: 'howToExtras', note: 'howToExtrasNote', modes: ['duel', 'mosaic', 'mystery'] },
   { key: 'howToClassic', note: 'howToClassicNote', modes: ['capitals', 'flags', 'pinpoint', 'borders', 'trail'] },
   { key: 'howToFriends', note: 'howToFriendsNote', modes: ['room'] },
@@ -116,9 +117,9 @@ export const HOW_TO_EXAMPLES: Record<string, L> = {
   mosaic: l('Find Japan: the name, the white flag with a red circle, its island shape and the matching fact. Select all four, then tap "Check match".',
     'Zoek Japan: de naam, de witte vlag met een rode cirkel, de eilandvorm en het bijpassende weetje. Kies ze alle vier en tik op "Controleer set".',
     'Busca Japón: el nombre, la bandera blanca con un círculo rojo, su silueta de islas y el dato correcto. Elige las cuatro y toca «Comprobar grupo».'),
-  roadtrip: l('Nigeria → Kenya, shortest route 3. Cameroon, then the Central African Republic: closer. DR Congo is no closer to Kenya, so it would be a detour; South Sudan borders Kenya and the car drives on.',
-    'Nigeria → Kenia, kortste route 3. Kameroen, dan de Centraal-Afrikaanse Republiek: dichterbij. DR Congo ligt niet dichter bij Kenia, dus dat is een omweg; Zuid-Soedan grenst aan Kenia en de auto rijdt door.',
-    'Nigeria → Kenia, ruta más corta 3. Camerún y luego la República Centroafricana: más cerca. RD del Congo no está más cerca de Kenia, así que sería un desvío; Sudán del Sur limita con Kenia y el coche sigue solo.'),
+  closecall: l('Target: 150 million people. Take Algeria (47 million), Ukraine (39 million) and Argentina (46 million): 132 million. Skip Mozambique next, about 35 million would go over. Then take Zimbabwe (17 million): 149 million, 99%, bonus. Hold.',
+    'Doel: 150 miljoen inwoners. Pak Algerije (47 miljoen), Oekraïne (39 miljoen) en Argentinië (46 miljoen): 132 miljoen. Sla daarna Mozambique over, zo’n 35 miljoen is te veel. Pak dan Zimbabwe (17 miljoen): 149 miljoen, 99%, bonus. Stop.',
+    'Objetivo: 150 millones. Coge Argelia (47 millones), Ucrania (39 millones) y Argentina (46 millones): 132 millones. Pasa Mozambique, unos 35 millones te pasarían. Luego coge Zimbabue (17 millones): 149 millones, 99%, bonus. Plántate.'),
   trail: l('Clue 1: Europe. Clue 2: it borders Spain. Guess Portugal now, before the capital and the flag, and you score more.',
     'Hint 1: Europa. Hint 2: grenst aan Spanje. Raad je nu Portugal, nog voor de hoofdstad en de vlag, dan scoor je meer.',
     'Pista 1: Europa. Pista 2: limita con España. Si dices Portugal ahora, antes de la capital y la bandera, sumas más.'),

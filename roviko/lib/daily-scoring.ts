@@ -1,4 +1,3 @@
-import { roadTripPoints } from './puzzles/road-trip-points';
 /** Versioned, untimed daily competition. Practice and multiplayer never enter this ledger. */
 export const COMPETITION_VERSION = 1;
 export const COMPETITION_SUFFIX = ':competitive-v1';
@@ -6,7 +5,7 @@ export const COMPETITION_SUFFIX = ':competitive-v1';
  * Every game that can give daily points: the Daily Detour plus the daily games. A UTC date has six of them
  * (`dayModesFor` in lib/daily-loop.ts): Country Mosaic before the switch to the daily Size Shuffle ('order', 1.24), Size Shuffle after.
  */
-export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail', 'crossroads', 'roadtrip'] as const;
+export const DAILY_POINT_MODES = ['daily', 'rank', 'duel', 'shape', 'compare', 'mosaic', 'order', 'trail', 'crossroads', 'roadtrip', 'closecall'] as const;
 export type PointMode = typeof DAILY_POINT_MODES[number];
 export type Competition = { version: 1; mode: PointMode };
 export const DAILY_GAME_MAX = 1000;
@@ -55,7 +54,9 @@ export function dailyScore(s: { competition?: Competition; answers: any[]; quest
   else if (mode === 'crossroads') { const filled = (s.cells ?? []).filter(Boolean).length, wrong = s.answers.filter(a => !a.correct).length;
     score = Math.max(0, filled * 100 + (filled === 9 ? 100 : 0) - wrong * 25); }
   // Daily Road Trip (1.56): 1,000 − 150 per detour − 200 per peek, at least 100 once you arrive. No speed bonus.
-  else if (mode === 'roadtrip') score = roadTripPoints(s.answers.filter(a => !a.correct).length, s.peeks ?? 0);
+  else if (mode === 'roadtrip') score = Math.max(100, Math.min(1000, 1000 - s.answers.filter(a => !a.correct).length * 150 - (s.peeks ?? 0) * 200));
+  // Daily Close Call (1.57): the points of its three rounds (each saved with the round: 0 for a bust).
+  else if (mode === 'closecall') score = s.answers.reduce((n, a) => n + (a.points ?? 0), 0);
   else if (mode === 'mosaic') {
     const solved = new Set(s.answers.filter(a => a.correct).map(a => a.countryId));
     for (const id of solved) { const aid = s.mosaicAid?.[id]; score += aid?.wrong ? 0 : Math.max(0, 250 - (aid?.hints ?? 0) * 125); }

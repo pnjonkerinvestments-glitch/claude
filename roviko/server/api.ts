@@ -18,7 +18,7 @@ import { seedHash } from '../lib/game-engine/scoring';
 import { AppError, auth, getUser, guest, renewSession, requireUser, safeUser, newSession, sessionCookie, cookieValue, digest, limit, checkOrigin, nameSchema, admin, nameUnlocksAt } from './auth';
 import { one, rows, run, batch } from './db';
 import { levelsFor, stats, leaderboard } from './stats';
-import { startRoadTrip, roadTripAction } from './road-trip';
+import { startCloseCall, closeCallAction } from './close-call';
 import silhouettes from '../lib/data/silhouettes.json';
 import { startSolo, startSurvival, soloAction, bonusStanding } from './solo';
 import { startPuzzle, puzzleAction, puzzleToday } from './puzzles';
@@ -220,7 +220,7 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await limit(env, 'metrics:' + user.id, 20); await measure(req, env, user, b.event, b.mode, new Date().toISOString().slice(0,10) + ':' + b.context); return json({ ok:true });
         }
         if(path[0]==='league' && method==='GET') return json(await leagueStanding(env,user,new Date().toISOString().slice(0,10)));
-        if(path[0]==='competition' && method==='GET') return json(await competitionSummary(env,user,url.searchParams.get('date')??new Date().toISOString().slice(0,10),url.searchParams.get('mode')??undefined));
+        if(path[0]==='competition' && method==='GET') return json(await competitionSummary(env,user,url.searchParams.get('date')??new Date().toISOString().slice(0,10),url.searchParams.get('mode')??undefined,url.searchParams.get('recap')==='1'));
         if (path[0] === 'export') {
             const data = { // 1.45: everything stored about the account (GDPR art. 15 and 20).
                 appOpens: await rows(env, 'SELECT day,platform FROM app_opens WHERE user_id=?', user.id),
@@ -286,12 +286,13 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await limit(env, 'games:' + user.id, 30);
             const b = await body(req), game = await startSurvival(env, user, String(b.mode ?? '')); await measureStart(req, env, user, 'survival-' + game.settings.mode, game.id); return json(game);
         }
-        // Daily Road Trip (1.56): start or resume today's trip, read it, drive to a neighbour, peek at the map.
-        // (Daily Crossroads, 1.55, is gone: its saved games and points stay in the database.)
-        if (path[0] === 'roadtrip') {
-            if (method === 'POST' && !path[1]) { await limit(env, 'games:' + user.id, 30); const game = await startRoadTrip(env, user); await measureStart(req, env, user, 'roadtrip', game.id); return json(game); }
-            if (path[1] && !path[2] && method === 'GET') return json(await roadTripAction(env, user, path[1], 'get', {}));
-            if (path[1] && (path[2] === 'drive' || path[2] === 'peek') && method === 'POST') return json(await roadTripAction(env, user, path[1], path[2], await body(req)));
+        // Daily Close Call (1.57): start or resume today's rounds, read them, take or skip the next country, or hold
+        // ('draw' is refused with INVALID_ACTION, for an old screen still open).
+        // (Daily Crossroads, 1.55, and Daily Road Trip, 1.56, are gone: their saved games and points stay in the database.)
+        if (path[0] === 'closecall') {
+            if (method === 'POST' && !path[1]) { await limit(env, 'games:' + user.id, 30); const game = await startCloseCall(env, user); await measureStart(req, env, user, 'closecall', game.id); return json(game); }
+            if (path[1] && !path[2] && method === 'GET') return json(await closeCallAction(env, user, path[1], 'get', {}));
+            if (path[1] && ['take', 'skip', 'hold', 'draw'].includes(path[2]) && method === 'POST') return json(await closeCallAction(env, user, path[1], path[2], await body(req)));
         }
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {

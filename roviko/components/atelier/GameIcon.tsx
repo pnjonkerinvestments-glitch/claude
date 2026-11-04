@@ -317,7 +317,25 @@ const RoadTrip: Logo = () => <>
   <Sparkle x={4.2} y={6.6} s={.8}/>
 </>;
 
+// Daily Close Call (1.57): a cream card with a target line, a green bar that stops just short of it and two little
+// country cards waiting on top, with Roviko peeking over the edge.
+const CloseCall: Logo = () => <>
+  <GroundShadow x={20} y={36.6} rx={14}/>
+  <MiniGlobe x={30.2} y={9.6} r={6.2} mood="cheer" look={-.4}/>
+  <rect x="6.4" y="10.8" width="27" height="25" rx="4.6" fill="#E9DFC6"/>
+  <rect x="5.4" y="9.6" width="27" height="25" rx="4.6" fill={RV.paper}/>
+  <rect x="9" y="27" width="20" height="4" rx="2" fill={RV.mint}/>
+  <rect x="9" y="27" width="16.4" height="4" rx="2" fill={RV.green}/>
+  <path d="M26.6 24.6v8.6" stroke={RV.forest} strokeWidth="1.2" strokeLinecap="round"/>
+  <rect x="9" y="13.4" width="8" height="10" rx="1.8" fill={RV.mint} stroke={RV.green} strokeWidth=".8"/>
+  <rect x="18.6" y="13.4" width="8" height="10" rx="1.8" fill={RV.paper} stroke={RV.forest} strokeWidth=".8" strokeDasharray="1.4 1"/>
+  <text x="22.6" y="20.6" fontSize="5.4" fontWeight="800" textAnchor="middle" fill={RV.forest}>?</text>
+  <Hand x={25} y={10.8} angle={20}/>
+  <Sparkle x={4.2} y={6.6} s={.8}/>
+</>;
+
 const LOGOS: Record<string, Logo> = {
+  closecall: CloseCall,
   roadtrip: RoadTrip,
   crossroads: Crossroads,
   rank: Rank, daily: Daily, compare: Compare, mosaic: Mosaic, trail: Trail, 'daily-trail': Trail, duel: Duel,

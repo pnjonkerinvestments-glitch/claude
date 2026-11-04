@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef } from 'react';
-import { ArrowRight, Share2 } from 'lucide-react';
+import { ArrowRight, Flame, Share2, Trophy } from 'lucide-react';
 import { dayModesFor } from '@/lib/daily-loop';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import { challengeExtras, rememberStanding, shareCard } from '@/lib/share';
@@ -24,7 +24,7 @@ export const dayTrail = (scores: { mode: string; score: number }[], date?: strin
  * in gold), then one forest pill to the bonus tour, an outline pill to challenge a friend with the day, and
  * the time until the new games. Without `screen` it is the compact card only (under an older result).
  */
-export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name, tomorrow }: {
+export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name, tomorrow, game, yesterdayPlace, onOpen, onRankings }: {
   date: string; scores: { mode: string; score: number }[]; place?: number; players?: number; streak?: number;
   t: (k: string) => string; locale: string; share: (text: string) => void;
   /** The player's name, for "Pietje: #1 of 230 players worldwide today" in the share (1.26). */
@@ -33,6 +33,12 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
   screen?: boolean; current?: string; onBonus?: () => void; bonusBusy?: boolean;
   /** Tomorrow's Side by Side subject (1.35), a concrete reason to come back; never a question or an answer. */
   tomorrow?: { emoji?: string; label: Record<string, string> } | null;
+  /** 1.57: the game just finished: its points and its place among today's players of that game, right now. */
+  game?: { score: number; place?: number; participants: number } | null;
+  /** 1.57: yesterday's place in the day ranking, for "12 places higher than yesterday" (left out when unknown). */
+  yesterdayPlace?: number | null;
+  /** 1.57: open a game's own (finished) result from the list; and the Rankings page. */
+  onOpen?: (mode: any) => void; onRankings?: () => void;
 }) {
   const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
   const scoreOf = (m: string) => scores.find(s => s.mode === m)?.score ?? 0;
@@ -43,10 +49,15 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
   const top = total >= DAILY_TOTAL_MAX * 0.8;
   // The six games of that UTC date: Country Mosaic before the switch to the daily Size Shuffle (1.24), Size Shuffle after.
   const lineup = dayModesFor(date);
+  const row = (m: string) => <><GameIcon mode={m as any} size="sm"/><span>{t(dailyTitleKey(m as any))}</span>
+    {m === current && screen && scoreOf(m) > 0 ? <b className="t-points">+{n(scoreOf(m))}</b> : <b>{n(scoreOf(m))}</b>}</>;
+  // 1.57: on the end screen each game opens its own result (every daily game reopens finished on the same day).
   const list = <ul className="day-scores" aria-label={t('dayGamesLabel')}>{lineup.map((m, i) => <li key={m} className={m === current ? 'is-now' : ''} style={{ '--i': i } as React.CSSProperties}>
-    <GameIcon mode={m} size="sm"/><span>{t(dailyTitleKey(m))}</span>
-    {m === current && screen && scoreOf(m) > 0 ? <b className="t-points">+{n(scoreOf(m))}</b> : <b>{n(scoreOf(m))}</b>}
+    {screen && onOpen && m !== current ? <button type="button" onClick={() => onOpen(m)}>{row(m)}</button> : row(m)}
   </li>)}</ul>;
+  const rank = (p?: number, c?: number) => p ? t('dayGameRank').replace('{rank}', n(p)).replace('{count}', n(c ?? 0)) : '';
+  const topPct = game?.place && game.participants > 1 ? Math.max(1, Math.ceil(game.place / game.participants * 100)) : null;
+  const moved = place && yesterdayPlace ? yesterdayPlace - place : null;
   if (!screen) return <section className="day-summary" aria-labelledby="day-summary-title">
     <h3 id="day-summary-title">{t('dayDoneTitle')}</h3>
     {list}
@@ -59,13 +70,23 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
     <p className="fs-kicker">{t('dayDoneKicker')}</p>
     <ol className="ds-dots" aria-hidden="true">{lineup.map((m, i) => <li key={m} style={{ '--i': i } as React.CSSProperties}/>)}</ol>
     <h1 className="fs-title" id="day-summary-title" ref={title} tabIndex={-1}>{t('dayDoneHeadline')}</h1>
+    {/* 1. The game just played: points and its place right now (later players can still pass you). */}
+    {current && game && <p className="ds-game"><span>{t(dailyTitleKey(current as any))} · <b>{n(game.score)}</b> / {n(1000)}</span>
+      {game.place ? <small>{rank(game.place, game.participants)}{topPct ? ' · ' + t('dayTopPct').replace('{n}', String(topPct)) : ''} · {t('dayRightNow')}</small> : null}</p>}
+    {/* 2. The day: total of all six, the day ranking right now, and how that compares with yesterday. */}
     <p className="fs-score has-coin"><Coin size={44} className="fs-coin"/><strong><CountUp value={total} format={n}/></strong><span className="fs-of">/ {n(DAILY_TOTAL_MAX)} {t('points')}</span></p>
-    {place ? <p className="ds-place">{t('resultDayRank').replace('{rank}', n(place)).replace('{count}', n(players ?? 0))}</p> : null}
+    {place ? <p className="ds-place">{rank(place, players)} · <small>{t('dayRightNow')}</small></p> : null}
+    {moved !== null && <p className="ds-since">{moved > 0 ? t('dayVsYesterdayUp').replace('{n}', n(moved)) : moved < 0 ? t('dayVsYesterdayDown').replace('{n}', n(-moved)) : t('dayVsYesterdaySame')}</p>}
+    {/* 3. The six games, in the day's order. */}
     {list}
+    {/* 4. The streak, as elsewhere. */}
+    {streak ? <p className="ds-streak"><Flame size={16} aria-hidden="true"/>{t('dayStreak').replace('{n}', n(streak))}</p> : null}
+    {/* 5. Share the day, the rankings, then the bonus tour as before. */}
     <div className="ds-actions">
+      <button className="btn primary btn-lg ds-challenge" onClick={shareDay}><Share2 size={18} aria-hidden="true"/>{t('dayShareTrip')}</button>
+      {onRankings && <button className="btn secondary btn-lg" onClick={onRankings}><Trophy size={18} aria-hidden="true"/>{t('dayViewRankings')}</button>}
       <ContinentCTA/>
       {onBonus && <button className="btn secondary btn-lg ds-bonus" disabled={bonusBusy} aria-busy={bonusBusy} onClick={onBonus}>{bonusBusy ? t('loading') : t('dayBonus')}<ArrowRight size={19} aria-hidden="true"/></button>}
-      <button className="btn secondary btn-lg ds-challenge" onClick={shareDay}><Share2 size={18} aria-hidden="true"/>{t('dayChallenge')}</button>
     </div>
     {tomorrow && <p className="ds-tomorrow">{t('loopTomorrow').replace('{topic}', (tomorrow.emoji ? tomorrow.emoji + ' ' : '') + (tomorrow.label[locale] ?? tomorrow.label.en))}</p>}
     <p className="ds-reset"><ResetCountdown label={t('dayNewIn')} t={t}/></p>
