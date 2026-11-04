@@ -1074,45 +1074,42 @@ test('1.54: Lucia does not invite on a day you were in a room',async()=>{
  const state=await db.prepare('SELECT last_day,noes FROM lucia_friends WHERE user_id=?').bind(a.data.user.id).first();
  assert.equal(state.last_day,new Date().toISOString().slice(0,10));assert.equal(state.noes,0,'not counted as a no');
 });
-test('1.56: Daily Road Trip: one trip a day, every tap final, detours and peeks cost points, Crossroads history stays',async()=>{
- await build({stdin:{contents:"export * from './lib/puzzles/road-trip';export {CROSSROADS_FROM,ROADTRIP_FROM,dailyModesFor} from './lib/daily-loop';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/rt-int.mjs',format:'esm',platform:'node',logLevel:'error'});
- const x=await import('../.test-runtime/rt-int.mjs');
- const g=await bootstrap(),a=g.cookie;
- const game=(await request(a,'/roadtrip','POST',{})).data;
- assert.ok(game.start&&game.finish&&game.start!==game.finish);assert.ok(game.shortest>=3&&game.shortest<=5);assert.equal(game.route.length,1);assert.equal(game.score,1000);
- assert.deepEqual(game.options,x.neighboursOf(game.start),'the neighbours of the start are the only choices');
- assert.equal(game.best,null,'no route before the end');
- assert.equal((await request(a,'/roadtrip','POST',{})).data.id,game.id,'one attempt a day: the same trip comes back');
- const other=(await request((await bootstrap()).cookie,'/roadtrip','POST',{})).data;
- assert.deepEqual([other.start,other.finish],[game.start,game.finish],'everyone gets the same trip');
+test('1.57: Daily Close Call: one game a day, draw and hold, a bust scores 0, the ledger slot reads by date',async()=>{
+ await build({stdin:{contents:"export * from './lib/puzzles/close-call';export {CROSSROADS_FROM,ROADTRIP_FROM,CLOSECALL_FROM,dailyModesFor} from './lib/daily-loop';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/cc-int.mjs',format:'esm',platform:'node',logLevel:'error'});
+ const x=await import('../.test-runtime/cc-int.mjs');
+ const g=await bootstrap(),a=g.cookie,today=new Date().toISOString().slice(0,10),ranked=x.dailyModesFor(today).includes('closecall');
+ const game=(await request(a,'/closecall','POST',{})).data;
+ assert.equal(game.rounds.length,3);assert.equal(game.round,0);assert.ok(game.rounds[0].target>0);assert.ok(game.rounds[0].next);
+ assert.equal(game.rounds[0].drawn.length,0);assert.equal(game.rounds[1].target,null,'later rounds stay hidden');
+ assert.ok(!JSON.stringify(game).includes('"deck"'),'the deck never reaches the device');
+ assert.equal((await request(a,'/closecall','POST',{})).data.id,game.id,'one attempt a day');
+ const other=(await request((await bootstrap()).cookie,'/closecall','POST',{})).data;
+ assert.deepEqual(other.rounds.map(r=>r.topic),game.rounds.map(r=>r.topic),'everyone gets the same rounds');
  let v=game.version;
- const drive=async country=>request(a,'/roadtrip/'+game.id+'/drive','POST',{version:v,country});
- assert.equal((await drive(game.finish)).status,400,'only a neighbour of your last country');
- const d=x.distancesTo(game.finish);
- const detour=game.options.find(n=>d.get(n)>=d.get(game.start));
- let r=await drive(detour);assert.equal(r.status,200);assert.equal(r.data.route[1].closer,false);assert.equal(r.data.detours,1);assert.equal(r.data.score,850,'a detour costs 150');v=r.data.version;
- r=await request(a,'/roadtrip/'+game.id+'/peek','POST',{version:v});assert.equal(r.data.peeks,1);assert.equal(r.data.score,650,'a peek costs 200');v=r.data.version;
- assert.equal((await request(a,'/roadtrip/'+game.id+'/peek','POST',{version:v-1})).status,409,'an old version is refused');
- // Drive the shortest way from here; the last stop before the finish makes the car drive on by itself.
- for(const c of x.shortestRoute(r.data.route.at(-1).country,game.finish).slice(1,-1)){r=await drive(c);assert.equal(r.status,200,JSON.stringify(r.data));assert.equal(r.data.route.at(-1).closer,true);v=r.data.version;}
- assert.equal(r.data.phase,'finished');assert.equal(r.data.route.at(-1).country,game.finish);assert.equal(r.data.route.at(-1).auto,true);
- assert.equal(r.data.score,650);assert.deepEqual(r.data.best,x.shortestRoute(game.start,game.finish),'one shortest route at the end');
- const today=new Date().toISOString().slice(0,10),ranked=x.dailyModesFor(today).includes('roadtrip');
- if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,650);}
- else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before ROADTRIP_FROM it does not score');
+ const act=async(action)=>{const r=await request(a,'/closecall/'+game.id+'/'+action,'POST',{version:v});if(r.status===200)v=r.data.version;return r;};
+ assert.equal((await act('hold')).status,400,'hold needs one draw first');
+ const rounds=x.closeCallFor(today);
+ // Round 1: draw every safe country, then hold at the best possible total.
+ const k=x.safeDraws(rounds[0]);let r;
+ for(let i=0;i<k;i++){r=await act('draw');assert.equal(r.status,200);assert.equal(r.data.rounds[0].bust,false);}
+ r=await act('hold');assert.equal(r.data.rounds[0].held,true);assert.ok(r.data.rounds[0].points>0&&r.data.rounds[0].points<=333);assert.ok(r.data.rounds[0].wouldBe,'after a hold you see what came next');
+ assert.equal(r.data.round,1);
+ // Round 2: draw until it goes over: 0 points.
+ for(let i=0;i<=x.safeDraws(rounds[1]);i++)r=await act('draw');
+ assert.equal(r.data.rounds[1].bust,true);assert.equal(r.data.rounds[1].points,0);
+ // Round 3: one draw and hold.
+ await act('draw');r=await act('hold');
+ assert.equal(r.data.phase,'finished');const total=r.data.rounds.reduce((n,x)=>n+x.points,0);assert.equal(r.data.score,total);
+ if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,total);}
+ else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before CLOSECALL_FROM it does not score');
  assert.ok(await db.prepare('SELECT 1 FROM daily_challenge_results WHERE user_id=? AND date=?').bind(g.data.user.id,today).first(),'counts for the streak');
- assert.ok(await db.prepare("SELECT COUNT(*) n FROM answers WHERE session_id=? AND mode='roadtrip'").bind(game.id).first('n')>0,'passport stamps for the countries that got you closer');
- assert.equal((await drive(game.finish)).status,409,'finished');
- // The 'trail' slot: Crossroads points read as 'crossroads' (on the switch day by their session), Road Trip as 'roadtrip'.
- for(const [kind,mode,score] of [['crossroads:competitive-v1','crossroads',700],['roadtrip:competitive-v1','roadtrip',800]]){
-  const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,kind+':'+sess,x.ROADTRIP_FROM,'{}',Date.now()).run();
-  await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,x.ROADTRIP_FROM,'trail',sess,score,Date.now()).run();
-  const comp=(await request(a,'/competition?date='+x.ROADTRIP_FROM)).data;assert.deepEqual(comp.scores.filter(s=>s.mode===mode||s.mode==='trail'||s.mode==='crossroads'||s.mode==='roadtrip'),[{mode,score}],kind);}
- // On the switch day (ROADTRIP_FROM) someone who already has Crossroads points plays Road Trip unscored: one fifth game a
- // day. That can only happen on that one date, so the check only runs then.
- if(ranked&&today===x.ROADTRIP_FROM){const c=await bootstrap(),me=c.data.user.id,sess=crypto.randomUUID();
-  await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,me,'crossroads:competitive-v1',today,'{}',Date.now()).run();
-  await db.prepare("INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(me,today,'trail',sess,900,Date.now()).run();
-  const trip=(await request(c.cookie,'/roadtrip','POST',{})).data;assert.equal(trip.competition,null,'already played Crossroads today');
-  assert.deepEqual((await request(c.cookie,'/competition')).data.scores.filter(s=>s.mode==='crossroads'),[{mode:'crossroads',score:900}]);}
+ assert.ok(await db.prepare("SELECT COUNT(*) n FROM answers WHERE session_id=? AND mode='closecall'").bind(game.id).first('n')>0,'passport stamps for the safe draws');
+ assert.equal((await act('draw')).status,409,'finished');
+ // The day overview asks for yesterday's day place too.
+ const comp=(await request(a,'/competition?date='+today+'&mode=closecall&recap=1')).data;assert.ok('place' in comp.yesterday);
+ // The 'trail' slot reads as Crossroads, Road Trip and Close Call by date.
+ for(const [date,mode,score] of [[x.CROSSROADS_FROM,'crossroads',700],[new Date(Date.parse(x.ROADTRIP_FROM+'T00:00:00Z')+86400000).toISOString().slice(0,10),'roadtrip',800],[x.CLOSECALL_FROM,'closecall',650]]){
+  const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,mode+':competitive-v1:'+sess,date,'{}',Date.now()).run();
+  await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,date,'trail',sess,score,Date.now()).run();
+  const c=(await request(a,'/competition?date='+date)).data;assert.deepEqual(c.scores.filter(s=>['trail','crossroads','roadtrip','closecall'].includes(s.mode)),[{mode,score}],date);}
 });

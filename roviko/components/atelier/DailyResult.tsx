@@ -37,7 +37,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const [standingFailed, setStandingFailed] = useState(false), [retry, setRetry] = useState(0);
   const bonusLaunch = useBonusLaunch({ go: app.go, fail });
   const lock = useRef(false);
-  const [scores, setScores] = useState<{ mode: string; score: number }[]>([]);
+  const [scores, setScores] = useState<{ mode: string; score: number }[]>([]), [yesterdayPlace, setYesterdayPlace] = useState<number | null>(null);
   // The streak moment: after the first finished daily game of the day, once, a moment after the score.
   const [week, setWeek] = useState<{ date: string; completed: boolean }[] | undefined>(), [firstToday, setFirstToday] = useState(false), [moment, setMoment] = useState(false);
   const streak = boot.stats.dailyStreak ?? 0;
@@ -48,7 +48,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   }, [firstToday, boot.stats.dailyDone, streak, date]);
   useEffect(() => {
     let active = true;
-    api('/competition?date=' + date + '&mode=' + mode).then(r => { if (active) { rememberStanding(mode, date, r.game?.place, r.game?.participants, r.game?.score ?? 0); rememberStanding('day', date, r.today?.place, r.today?.participants, r.today?.score ?? 0); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); setStandingFailed(false); } }).catch(() => { if (active) setStandingFailed(true); }).finally(() => { if (active) setStandingLoaded(true); });
+    api('/competition?date=' + date + '&mode=' + mode + '&recap=1').then(r => { if (active) { setYesterdayPlace(r.yesterday?.place ?? null); rememberStanding(mode, date, r.game?.place, r.game?.participants, r.game?.score ?? 0); rememberStanding('day', date, r.today?.place, r.today?.participants, r.today?.score ?? 0); setGame(r.game ?? null); setDay(r.today ?? null); setBest(r.personalBest?.[mode]?.best); setScores(r.scores ?? []); setStandingFailed(false); } }).catch(() => { if (active) setStandingFailed(true); }).finally(() => { if (active) setStandingLoaded(true); });
     api('/puzzles/today?competition=1').then(r => { if (active) { setNext(nextDailyMode(r.sessions, dayModesFor(r.date))); setBonusNext(nextBonusMode(r.bonus)); setWeek(r.week); setTomorrow(r.tomorrowTopic ?? null); setFirstToday(r.date === date && completedDailies(r.sessions) === 1); } }).catch(() => { if (active) setNext(null); });
     return () => { active = false; };
   }, [date, mode, boot.stats.dailyCount, retry]);
@@ -60,8 +60,13 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const ready = next !== undefined && standingLoaded;
   // When the answers came in after the short wait and it turns out the day is complete, still show the day summary.
   const [late, setLate] = useState(false);
-  if (view === 'wait' && (ready || waited)) { setView(ready && dayDone ? 'day' : 'game'); if (!ready) setLate(true); }
-  if (late && view === 'game' && ready) { setLate(false); if (dayDone) setView('day'); }
+  // 1.57: the day overview comes once a day by itself (after the sixth game). Opening a game from it afterwards shows that
+  // game's own result, with the compact day card under it, instead of jumping back to the overview.
+  const recapKey = 'rv_day_recap_' + date;
+  const recapSeen = () => { try { return sessionStorage.getItem(recapKey) === '1'; } catch { return false; } };
+  const showDay = () => { try { sessionStorage.setItem(recapKey, '1'); } catch { /* private mode: it may show again */ } setView('day'); };
+  if (view === 'wait' && (ready || waited)) { if (ready && dayDone && !recapSeen()) showDay(); else setView('game'); if (!ready) setLate(true); }
+  if (late && view === 'game' && ready) { setLate(false); if (dayDone && !recapSeen()) showDay(); }
   const fmt = (n: number) => n.toLocaleString(locale);
   const score = game?.score ?? 0, players = game?.participants ?? 0, place = game?.place ?? 0;
   // Share of today's other players you scored strictly higher than (1.35: from the server's count, so ties are not beaten).
@@ -80,7 +85,9 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   if (view === 'day') return <>
     {streakMoment}
     <DaySummary screen tomorrow={tomorrow} date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}
-      current={mode} onBonus={toBonus} bonusBusy={!!bonusLaunch.launching || app.busy}/>
+      current={mode} onBonus={toBonus} bonusBusy={!!bonusLaunch.launching || app.busy}
+      game={game ? { score: game.score, place: game.place, participants: game.participants } : null} yesterdayPlace={yesterdayPlace}
+      onOpen={m => { launchDaily(app, m).catch(fail); }} onRankings={() => app.go('/leaderboard')}/>
     {savePrompt}
   </>;
   const card = <section className={'daily-result' + (stage ? ' has-stage' : '')} aria-label={t('competitionScoreSaved')}>
@@ -95,6 +102,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       {beaten !== null && beaten > 0 && <><span className="daily-result-bar" aria-hidden="true"><i style={{ width: Math.max(4, beaten) + '%' }}/></span><small>{t('resultBeaten').replace('{n}', String(beaten))}</small></>}
       {day?.place ? <p className="daily-result-target">{t('resultDayRank').replace('{rank}', fmt(day.place)).replace('{count}', fmt(day.participants))} · {day.next ? t('rankTarget').replace('{n}', fmt(day.next.gap + 1)).replace('{name}', day.next.name).replace('{place}', fmt(day.next.place)) : t('rankLeading')}</p> : null}
     </div>
+    {!dayDone && scores.length > 0 && <p className="daily-result-played">{t('dayGamesPlayed').replace('{n}', String(Math.min(6, scores.length)))}</p>}
     {dayDone && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}/>}
     {savePrompt}
     {next === undefined ? <span className="daily-result-next is-pending" aria-hidden="true"/> : next

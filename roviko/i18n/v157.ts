@@ -1,0 +1,55 @@
+// Copy for 1.57: Daily Close Call (three rounds: draw countries towards a target, hold before you go over) and the day
+// overview after the sixth game. Spread last in messages.ts.
+const en = {
+  closecall: 'Daily Close Call', closecallShort: 'Close Call', closecallLine: 'Get close, don’t go over',
+  agLineClosecall: 'Get close, don’t go over', closecallEmoji: '🎯',
+  ccRound: 'Round {n} of 3', ccTopic_population: 'People', ccTopic_area: 'Area', ccTopic_economy: 'Economy',
+  ccTarget: 'Target', ccTotal: 'Your total', ccNext: 'Next country', ccDraw: 'Draw', ccHold: 'Hold', ccHoldFor: 'Hold for {n} pts',
+  ccDrawFirst: 'Draw at least one country first.', ccHeld: 'Held at {pct}% of the target · +{n} pts', ccBust: 'Bust: {over} over the target · 0 pts',
+  ccWouldBe: 'Next would have been {country}: {value}.', ccNextRound: 'Next round', ccSeeResult: 'See your result',
+  ccRounds: 'rounds', ccPractice: 'Unscored game', ccDrawn: 'Drawn so far', ccNone: 'Nothing drawn yet',
+  ccPeople: '{n} million people', ccPeopleBillion: '{n} billion people', ccArea: '{n} km²', ccAreaMillion: '{n} million km²', ccMoneyBillion: '${n} billion', ccMoneyTrillion: '${n} trillion',
+  ccShareTitle: 'Daily Close Call #{n}', ccShareLine: '{points} pts', ccResultTitle: 'Close Call done', ccRoundLine: 'Round {n}', ccPoints: '{n} pts',
+  ccBustTag: 'Bust', ccHeldTag: 'Held',
+  competitionClosecall: 'Daily Close Call: three rounds of up to 333 points. Draw countries towards a target and hold in time: the closer you get, the more points; go over and the round scores 0. No timer.',
+  ccRuleShort: 'Up to 333 per round · closer is more · over is 0',
+  // The day overview after the sixth game (1.57).
+  dayGameRank: '#{rank} of {count}', dayTopPct: 'Top {n}%', dayRightNow: 'Right now', dayVsYesterdayUp: '{n} places higher than yesterday',
+  dayVsYesterdayDown: '{n} places lower than yesterday', dayVsYesterdaySame: 'Same place as yesterday', dayTotalTitle: 'Today’s total',
+  dayGamesPlayed: '{n} of 6 games played', dayShareTrip: 'Share today’s trip', dayViewRankings: 'View rankings', dayStreak: '{n}-day streak',
+};
+const nl: typeof en = {
+  closecall: 'Daily Close Call', closecallShort: 'Close Call', closecallLine: 'Kom dichtbij, ga er niet over',
+  agLineClosecall: 'Kom dichtbij, ga er niet over', closecallEmoji: '🎯',
+  ccRound: 'Ronde {n} van 3', ccTopic_population: 'Inwoners', ccTopic_area: 'Oppervlakte', ccTopic_economy: 'Economie',
+  ccTarget: 'Doel', ccTotal: 'Jouw totaal', ccNext: 'Volgend land', ccDraw: 'Trek', ccHold: 'Stop', ccHoldFor: 'Stop voor {n} pnt',
+  ccDrawFirst: 'Trek eerst minstens één land.', ccHeld: 'Gestopt op {pct}% van het doel · +{n} pnt', ccBust: 'Eroverheen: {over} te veel · 0 pnt',
+  ccWouldBe: 'Hierna kwam {country}: {value}.', ccNextRound: 'Volgende ronde', ccSeeResult: 'Bekijk je resultaat',
+  ccRounds: 'rondes', ccPractice: 'Spel zonder punten', ccDrawn: 'Getrokken', ccNone: 'Nog niets getrokken',
+  ccPeople: '{n} miljoen inwoners', ccPeopleBillion: '{n} miljard inwoners', ccArea: '{n} km²', ccAreaMillion: '{n} miljoen km²', ccMoneyBillion: '${n} miljard', ccMoneyTrillion: '${n} biljoen',
+  ccShareTitle: 'Daily Close Call #{n}', ccShareLine: '{points} pnt', ccResultTitle: 'Close Call klaar', ccRoundLine: 'Ronde {n}', ccPoints: '{n} pnt',
+  ccBustTag: 'Eroverheen', ccHeldTag: 'Gestopt',
+  competitionClosecall: 'Daily Close Call: drie rondes van maximaal 333 punten. Trek landen richting een doel en stop op tijd: hoe dichterbij, hoe meer punten; ga je eroverheen, dan levert de ronde 0 op. Geen tijdslimiet.',
+  ccRuleShort: 'Max 333 per ronde · dichterbij is meer · eroverheen is 0',
+  dayGameRank: '#{rank} van {count}', dayTopPct: 'Top {n}%', dayRightNow: 'Op dit moment', dayVsYesterdayUp: '{n} plekken hoger dan gisteren',
+  dayVsYesterdayDown: '{n} plekken lager dan gisteren', dayVsYesterdaySame: 'Zelfde plek als gisteren', dayTotalTitle: 'Totaal vandaag',
+  dayGamesPlayed: '{n} van 6 spellen gespeeld', dayShareTrip: 'Deel je dag', dayViewRankings: 'Bekijk ranglijsten', dayStreak: '{n} dagen op rij',
+};
+const es: typeof en = {
+  closecall: 'Daily Close Call', closecallShort: 'Close Call', closecallLine: 'Acércate, no te pases',
+  agLineClosecall: 'Acércate, no te pases', closecallEmoji: '🎯',
+  ccRound: 'Ronda {n} de 3', ccTopic_population: 'Habitantes', ccTopic_area: 'Superficie', ccTopic_economy: 'Economía',
+  ccTarget: 'Objetivo', ccTotal: 'Tu total', ccNext: 'Siguiente país', ccDraw: 'Sacar', ccHold: 'Plantarse', ccHoldFor: 'Plantarse por {n} pts',
+  ccDrawFirst: 'Saca al menos un país primero.', ccHeld: 'Te plantaste en el {pct}% del objetivo · +{n} pts', ccBust: 'Te pasaste por {over} · 0 pts',
+  ccWouldBe: 'El siguiente era {country}: {value}.', ccNextRound: 'Siguiente ronda', ccSeeResult: 'Ver tu resultado',
+  ccRounds: 'rondas', ccPractice: 'Partida sin puntos', ccDrawn: 'Sacados', ccNone: 'Aún nada',
+  ccPeople: '{n} millones de habitantes', ccPeopleBillion: '{n} mil millones de habitantes', ccArea: '{n} km²', ccAreaMillion: '{n} millones de km²', ccMoneyBillion: '{n} mil millones de $', ccMoneyTrillion: '{n} billones de $',
+  ccShareTitle: 'Daily Close Call #{n}', ccShareLine: '{points} pts', ccResultTitle: 'Close Call terminado', ccRoundLine: 'Ronda {n}', ccPoints: '{n} pts',
+  ccBustTag: 'Te pasaste', ccHeldTag: 'Plantado',
+  competitionClosecall: 'Daily Close Call: tres rondas de hasta 333 puntos. Saca países hacia un objetivo y plántate a tiempo: cuanto más cerca, más puntos; si te pasas, la ronda da 0. Sin tiempo.',
+  ccRuleShort: 'Hasta 333 por ronda · más cerca es más · pasarse es 0',
+  dayGameRank: '#{rank} de {count}', dayTopPct: 'Top {n}%', dayRightNow: 'Ahora mismo', dayVsYesterdayUp: '{n} puestos más arriba que ayer',
+  dayVsYesterdayDown: '{n} puestos más abajo que ayer', dayVsYesterdaySame: 'Mismo puesto que ayer', dayTotalTitle: 'Total de hoy',
+  dayGamesPlayed: '{n} de 6 juegos jugados', dayShareTrip: 'Comparte tu día', dayViewRankings: 'Ver clasificaciones', dayStreak: '{n} días seguidos',
+};
+export const v157Messages = { en, nl, es };

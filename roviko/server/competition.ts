@@ -1,5 +1,5 @@
 import { DAILY_POINT_MODES, DAILY_TOTAL_MAX, dailyScore, type Competition } from '../lib/daily-scoring';
-import { CROSSROADS_FROM, ROADTRIP_FROM, SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
+import { CLOSECALL_FROM, CROSSROADS_FROM, ROADTRIP_FROM, SHAPE_FROM, SHUFFLE_FROM, dayModesFor } from '../lib/daily-loop';
 
 /**
  * The daily Size Shuffle (1.24) has no mode of its own in the ledger: the CHECK on daily_scores.mode only allows the six
@@ -12,9 +12,10 @@ import { CROSSROADS_FROM, ROADTRIP_FROM, SHAPE_FROM, SHUFFLE_FROM, dayModesFor }
  * And for Daily Road Trip (1.56): it replaces Crossroads from ROADTRIP_FROM on, in the same slot: stored as 'trail', read
  * back as 'roadtrip' from ROADTRIP_FROM, as 'crossroads' from CROSSROADS_FROM until then, as 'trail' before. On the switch
  * day itself (Road Trip went live the day Crossroads started) a Crossroads session's points still read as 'crossroads'.
+ * And for Daily Close Call (1.57): it replaces Road Trip from CLOSECALL_FROM on, in the same slot, read back as 'closecall'.
  */
-export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode === 'crossroads' || mode === 'roadtrip' ? 'trail' : mode;
-export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' WHEN ${alias}mode='trail' AND ${alias}date='${ROADTRIP_FROM}' AND EXISTS(SELECT 1 FROM game_sessions xg WHERE xg.id=${alias}session_id AND xg.kind LIKE 'crossroads%') THEN 'crossroads' WHEN ${alias}mode='trail' AND ${alias}date>='${ROADTRIP_FROM}' THEN 'roadtrip' WHEN ${alias}mode='trail' AND ${alias}date>='${CROSSROADS_FROM}' THEN 'crossroads' ELSE ${alias}mode END`;
+export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode === 'crossroads' || mode === 'roadtrip' || mode === 'closecall' ? 'trail' : mode;
+export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' WHEN ${alias}mode='trail' AND ${alias}date='${ROADTRIP_FROM}' AND EXISTS(SELECT 1 FROM game_sessions xg WHERE xg.id=${alias}session_id AND xg.kind LIKE 'crossroads%') THEN 'crossroads' WHEN ${alias}mode='trail' AND ${alias}date>='${CLOSECALL_FROM}' THEN 'closecall' WHEN ${alias}mode='trail' AND ${alias}date>='${ROADTRIP_FROM}' THEN 'roadtrip' WHEN ${alias}mode='trail' AND ${alias}date>='${CROSSROADS_FROM}' THEN 'crossroads' ELSE ${alias}mode END`;
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';
@@ -63,7 +64,7 @@ async function ownTotal(env: Env, user: User) {
   return { participants: 0, score: Number(r?.score ?? 0), place: null, games: Number(r?.games ?? 0), below: 0, leaders: [], around: [], next: null };
 }
 export { weekStart } from './week';
-export async function competitionSummary(env: Env, user: User, date: string, mode?: string) {
+export async function competitionSummary(env: Env, user: User, date: string, mode?: string, recap = false) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !Number.isFinite(Date.parse(date+'T00:00:00Z')) || new Date(date+'T00:00:00Z').toISOString().slice(0,10)!==date || (mode && !DAILY_POINT_MODES.includes(mode as any))) throw new AppError('INVALID_INPUT');
   const yesterday = new Date(Date.parse(date+'T00:00:00Z')-86400000).toISOString().slice(0,10);
   // Friends ranking: you plus accepted friends, today. Guests have no friends list.
@@ -71,7 +72,9 @@ export async function competitionSummary(env: Env, user: User, date: string, mod
   const friendSql = "SELECT CASE WHEN from_id=? THEN to_id ELSE from_id END id FROM friend_requests WHERE status='accepted' AND (from_id=? OR to_id=?)";
   // 1.50: "this month" (the UTC month of the date, fresh every 1st) replaces "all time" as a ranking, so a new player can
   // reach the top; `total` stays in the answer for your own all-time points.
-  const [today,total,game,week,month,friendRanking,friendRows,scores,bests,bestDay,previous] = await Promise.all([
+  // 1.57: the day overview after the sixth game also wants yesterday's place in the day ranking (same rules as the
+  // Rankings page); only then, because it is one more ranking query.
+  const [today,total,game,week,month,friendRanking,friendRows,scores,bests,bestDay,previous,yesterdayDay] = await Promise.all([
     ranking(env,user,{date}),ownTotal(env,user),mode ? ranking(env,user,{date,mode}) : Promise.resolve(null),
     ranking(env,user,{since:weekStart(date)}),ranking(env,user,{since:date.slice(0,8)+'01'}),
     user.guest ? Promise.resolve(null) : ranking(env,user,{date,friendsOf:user.id}),
@@ -81,8 +84,9 @@ export async function competitionSummary(env: Env, user: User, date: string, mod
     rows(env,'SELECT '+MODE_SQL()+' mode,MAX(score) best,COUNT(*) plays FROM daily_scores WHERE user_id=? AND date<? GROUP BY 1',user.id,date),
     one(env,'SELECT MAX(total) best FROM (SELECT SUM(score) total FROM daily_scores WHERE user_id=? AND date<? GROUP BY date)',user.id,date),
     one(env,'SELECT COALESCE(SUM(score),0) score,COUNT(*) games FROM daily_scores WHERE user_id=? AND date=?',user.id,yesterday),
+    recap ? ranking(env,user,{date:yesterday}) : Promise.resolve(null),
   ]);
   const friends = friendRows.length ? friendRanking : null;
   const personalBest = Object.fromEntries(bests.map((b:any)=>[b.mode,{best:Number(b.best),plays:Number(b.plays)}]));
-  return {date,today,total,game,week,month,weekStart:weekStart(date),monthStart:date.slice(0,8)+'01',friends,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0)},maxPerGame:1000,maxPerDay:DAILY_TOTAL_MAX};
+  return {date,today,total,game,week,month,weekStart:weekStart(date),monthStart:date.slice(0,8)+'01',friends,scores,personalBest,bestDay:bestDay?.best==null?null:Number(bestDay.best),yesterday:{score:Number(previous?.score??0),games:Number(previous?.games??0),...(recap?{place:yesterdayDay?.place??null}:{})},maxPerGame:1000,maxPerDay:DAILY_TOTAL_MAX};
 }

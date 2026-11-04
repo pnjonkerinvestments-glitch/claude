@@ -8,13 +8,13 @@ import { CharacterArt, type CharacterMood, type CharacterPose } from './Characte
  * Each scene is drawn in a 320 × 240 box around its centre; `shape` widens the canvas for the wide cards
  * and the background decorations simply run further. Decorative only: never used as quiz geography.
  */
-export type SceneMode = 'daily' | 'rank' | 'duel' | 'compare' | 'mosaic' | 'trail' | 'crossroads' | 'roadtrip' | 'flags' | 'capitals' | 'pinpoint' | 'borders' | 'order' | 'shape' | 'mystery' | 'classic' | 'room';
+export type SceneMode = 'daily' | 'rank' | 'duel' | 'compare' | 'mosaic' | 'trail' | 'crossroads' | 'roadtrip' | 'closecall' | 'flags' | 'capitals' | 'pinpoint' | 'borders' | 'order' | 'shape' | 'mystery' | 'classic' | 'room';
 export type SceneShape = 'card' | 'wide' | 'banner';
 const BOX: Record<SceneShape, [number, number]> = { card: [320, 240], wide: [460, 200], banner: [560, 190] };
 
 const C = { forest: '#163B32', green: '#1F806B', mint: '#DDEDE6', gold: '#F6B84B', cream: '#F6F3E9', ocean: '#36B3F5', water: '#BFE4F8', ink: '#06224F', red: '#E5484D', white: '#FFFFFF', land: '#5ED34F' };
 const BG: Record<SceneMode, [string, string]> = {
-  daily: ['#DDEDE6', '#BFE3D3'], rank: ['#F9E4DC', '#F3C9B8'], duel: ['#F4DDE7', '#EBC0D3'], compare: ['#F7E8CE', '#EFD3A2'], mosaic: ['#E3E7F6', '#C9D1EE'], trail: ['#DAEEF1', '#B7DDE4'], crossroads: ['#EAE5F9', '#D3C9F2'], roadtrip: ['#DCF1EF', '#B6E1DC'],
+  daily: ['#DDEDE6', '#BFE3D3'], rank: ['#F9E4DC', '#F3C9B8'], duel: ['#F4DDE7', '#EBC0D3'], compare: ['#F7E8CE', '#EFD3A2'], mosaic: ['#E3E7F6', '#C9D1EE'], trail: ['#DAEEF1', '#B7DDE4'], crossroads: ['#EAE5F9', '#D3C9F2'], roadtrip: ['#DCF1EF', '#B6E1DC'], closecall: ['#DDEDE6', '#BFE3D3'],
   flags: ['#F9E4DC', '#F3C9B8'], capitals: ['#E3E7F6', '#C9D1EE'], pinpoint: ['#DDEDE6', '#BFE3D3'], borders: ['#F7E8CE', '#EFD3A2'], order: ['#F4DDE7', '#EBC0D3'], shape: ['#DCEDF5', '#B9DCEC'],
   mystery: ['#E7E2F6', '#CFC6EE'], classic: ['#DDEDE6', '#BFE3D3'], room: ['#FBECCB', '#F5D78F'],
 };
@@ -88,6 +88,21 @@ function Scene({ mode }: { mode: SceneMode }) {
     </>;
     // Daily Road Trip (1.56): a map card, a chain of countries (dark-green start, green, orange detour, dark-green finish)
     // joined by a dotted road and light-blue neighbours with dashed edges; Roviko waves from the side.
+    // Daily Close Call (1.57): a white card with the target, a green bar stopping just short of the line, three drawn
+    // countries and a face-down next card; Roviko waves from the side.
+    case 'closecall': return <>
+      <Card x={34} y={34} w={196} h={176} r={18} rot={-4}>
+        <Pill x={50} y={50} w={96} h={22} fill={C.mint} color={C.forest} text="🎯 150 M" size={12}/>
+        <rect x={50} y={84} width={164} height={14} rx={7} fill={C.mint}/>
+        <rect x={50} y={84} width={136} height={14} rx={7} fill={C.green}/>
+        <path d="M196 78v26" stroke={C.forest} strokeWidth="3" strokeLinecap="round"/>
+        {['br', 'ng', 'jp'].map((code, i) => <g key={code}><rect x={50 + i * 44} y={116} width={38} height={50} rx={9} fill={C.mint}/><Flag code={code} x={57 + i * 44} y={126} w={24} h={16}/><rect x={57 + i * 44} y={150} width={24} height={4} rx={2} fill={C.green} opacity=".6"/></g>)}
+        <rect x={182} y={116} width={38} height={50} rx={9} fill={C.white} stroke={C.forest} strokeWidth="2" strokeDasharray="5 4"/>
+        <text x={201} y={148} fontSize="22" fontWeight="800" textAnchor="middle" fill={C.forest}>?</text>
+      </Card>
+      <Spark x={226} y={44} s={1.1} color={C.gold}/><Spark x={30} y={30} s={.8} color={C.gold}/>
+      <Roviko x={266} y={222} w={100} mood="cheer" pose="wave" flip/>
+    </>;
     case 'roadtrip': return <>
       <Card x={30} y={36} w={204} h={172} r={18} rot={-4} fill="#EAF3F1">
         <path d="M44 120c10-40 50-58 92-60s78-20 88 6c8 22-4 58-30 80s-74 30-108 18-48-22-42-44Z" fill="#CFD8D3"/>

@@ -63,8 +63,8 @@ test('every scored game shows its own points rule, never the "no points" text', 
   const t = key => messages.en[key] ?? key;
   // 1.24: the daily Size Shuffle ('order') took Country Mosaic's place; Mosaic is an extra without points.
   // 1.55: Daily Crossroads took the daily Clue Trail's place; Clue Trail is a classic game again.
-  // 1.56: Daily Road Trip took Crossroads' place; Crossroads is gone (not a classic game).
-  for (const mode of ['daily', 'rank', 'shape', 'compare', 'order', 'roadtrip']) {
+  // 1.56: Daily Road Trip took Crossroads' place; 1.57: Daily Close Call took Road Trip's. Both are gone (no classic game).
+  for (const mode of ['daily', 'rank', 'shape', 'compare', 'order', 'closecall']) {
     const html = renderToStaticMarkup(createElement(HowToPlayPage, { t, locale: 'en', onPlay() {}, initialMode: mode }));
     const panel = html.slice(html.indexOf('role="tabpanel"'));
     assert.ok(!panel.includes(messages.en.scoringExtrasCopy), mode + ' says it gives no points');
@@ -74,8 +74,8 @@ test('every scored game shows its own points rule, never the "no points" text', 
   assert.ok(HOW_TO_PLAY_GROUPS.find(g => g.key === 'howToExtras').modes.includes('mosaic'), 'Mosaic is an extra');
   assert.ok(HOW_TO_PLAY_GROUPS.find(g => g.key === 'howToExtras').modes.includes('duel'), '1.41: World Duel is an extra');
   assert.ok(HOW_TO_PLAY_GROUPS.find(g => g.key === 'howToClassic').modes.includes('trail'), '1.55: Clue Trail is a classic');
-  for (const l of ['en', 'nl', 'es']) assert.match(messages[l].competitionRoadtrip, /1[.,]000.*150.*200.*100/, 'road trip rule ' + l);
-  assert.ok(!HOW_TO_PLAY_GROUPS.some(g => g.modes.includes('crossroads')), '1.56: Crossroads is in no group');
+  for (const l of ['en', 'nl', 'es']) assert.match(messages[l].competitionClosecall, /333/, 'close call rule ' + l);
+  assert.ok(!HOW_TO_PLAY_GROUPS.some(g => g.modes.includes('crossroads') || g.modes.includes('roadtrip')), 'Crossroads and Road Trip are in no group');
   for (const l of ['en', 'nl', 'es']) assert.match(messages[l].competitionShape, /100/, 'shape rule ' + l);
   for (const l of ['en', 'nl', 'es']) assert.ok(messages[l].competitionDuel, 'duel rule ' + l);
 });

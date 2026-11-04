@@ -31,6 +31,7 @@
                 <data android:path="/daily" />
                 <data android:path="/crossroads" />
                 <data android:path="/roadtrip" />
+                <data android:path="/closecall" />
                 <data android:path="/duel" />
                 <data android:path="/multiplayer" />
                 <data android:path="/leaderboard" />
