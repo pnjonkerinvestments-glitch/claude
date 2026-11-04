@@ -27,14 +27,14 @@ test('Daily Close Call: the next 365 days all have three fair rounds', () => {
   }
 });
 
-test('Daily Close Call points: closer counts more, a bonus within 2%, 0 over the target', () => {
+test('Daily Close Call points: straight like the other daily games, a bonus within 2%, 0 over the target', () => {
   assert.deepEqual(x.ROUND_MAX, [333, 333, 334]);
   assert.equal(x.ROUND_MAX.reduce((a, b) => a + b), 1000);
   const p = share => x.roundPoints(0, share * 100, 100, false);
   assert.equal(p(1), 333); assert.equal(x.roundPoints(2, 100, 100, false), 334);
-  assert.equal(p(.99), 324); assert.equal(p(.98), 315, '98%: the Close Call bonus');
-  assert.equal(p(.97), 274, 'just outside the bonus');
-  assert.equal(p(.95), 257); assert.equal(p(.9), 218); assert.equal(p(.8), 153); assert.equal(p(.5), 37);
+  assert.equal(p(.99), 330); assert.equal(p(.98), 327, '98%: the Close Call bonus');
+  assert.equal(p(.97), 291, 'just outside the bonus');
+  assert.equal(p(.95), 285); assert.equal(p(.9), 270); assert.equal(p(.8), 240); assert.equal(p(.5), 150);
   assert.equal(x.roundPoints(1, 101, 100, false), 0, 'over the target is never points');
   assert.equal(x.roundPoints(1, 90, 100, true), 0, 'a bust scores 0');
   assert.ok(x.hasBonus(98, 100) && !x.hasBonus(97, 100) && !x.hasBonus(101, 100));

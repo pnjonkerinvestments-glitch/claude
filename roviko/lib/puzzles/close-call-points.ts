@@ -5,12 +5,13 @@ export const ROUND_MAX = [333, 333, 334];
 /** Within this share of the target you get the Close Call bonus. */
 export const BONUS_FROM = .98;
 
-/** Points for one round: 0 for a bust; otherwise 90% of the round's points times (total ÷ target)³, so the last stretch
- *  counts most, plus the last 10% as the Close Call bonus when you end within 2% of the target. Exactly on target is
- *  the round's full 333 (334 in round 3). 95% ≈ 257, 90% ≈ 218, 80% ≈ 154, half ≈ 37. */
+/** Points for one round, in line with the other daily games (straight, like 100 per right answer): 0 for a bust;
+ *  otherwise 90% of the round's points times total ÷ target, plus the last 10% as the Close Call bonus when you end
+ *  within 2% of the target. Exactly on target is the round's full 333 (334 in round 3); 98% ≈ 327 (with bonus),
+ *  97% ≈ 291, 95% ≈ 285, 90% ≈ 270, 80% ≈ 240, half ≈ 150. */
 export function roundPoints(round: number, total: number, target: number, bust: boolean) {
   if (bust || total <= 0 || total > target) return 0;
   const max = ROUND_MAX[round], share = total / target;
-  return Math.round(max * .9 * share ** 3) + (share >= BONUS_FROM ? max - Math.round(max * .9) : 0);
+  return Math.round(max * .9 * share) + (share >= BONUS_FROM ? max - Math.round(max * .9) : 0);
 }
 export const hasBonus = (total: number, target: number) => total <= target && total / target >= BONUS_FROM;

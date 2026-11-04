@@ -3,7 +3,7 @@
 const en = {
   closecall: 'Daily Close Call', closecallShort: 'Close Call', closecallLine: 'Take, skip or hold: get close, don’t go over',
   agLineClosecall: 'Take, skip or hold: get close, don’t go over', closecallEmoji: '🎯',
-  ccTake: 'Take', ccSkip: 'Skip', ccTakeFirst: 'Take at least one country first.', ccLeft: '{n} left', ccSkipped: 'skipped', ccBonus: 'Close Call bonus: within 2%!', ccBonusTag: 'bonus', ccRest: 'Still to come: {list}.', ccRound: 'Round {n} of 3', ccTopic_population: 'People', ccTopic_area: 'Area', ccTopic_economy: 'Economy',
+  ccTake: 'Take', ccSkip: 'Skip', ccTakeFirst: 'Take at least one country first.', ccLeft: '{n} left', ccSkipped: 'skipped', ccBonus: 'Close Call bonus: within 2%!', ccBonusTag: 'bonus', ccRest: 'Still to come: {list}.', ccRestShort: 'The faint flags would still have come.', ccRound: 'Round {n} of 3', ccTopic_population: 'People', ccTopic_area: 'Area', ccTopic_economy: 'Economy',
   ccTarget: 'Target', ccTotal: 'Your total', ccNext: 'Next country', ccHold: 'Hold', ccHoldFor: 'Hold for {n} pts',
   ccHeld: 'Ended at {pct}% of the target · +{n} pts', ccBust: 'Bust: {over} over the target · 0 pts',
   ccNextRound: 'Next round', ccSeeResult: 'See your result',
@@ -21,7 +21,7 @@ const en = {
 const nl: typeof en = {
   closecall: 'Daily Close Call', closecallShort: 'Close Call', closecallLine: 'Pak, sla over of stop: kom dichtbij, ga er niet over',
   agLineClosecall: 'Pak, sla over of stop: kom dichtbij, ga er niet over', closecallEmoji: '🎯',
-  ccTake: 'Pak', ccSkip: 'Sla over', ccTakeFirst: 'Pak eerst minstens één land.', ccLeft: 'nog {n}', ccSkipped: 'overgeslagen', ccBonus: 'Close Call-bonus: binnen 2%!', ccBonusTag: 'bonus', ccRest: 'Hierna kwamen nog: {list}.', ccRound: 'Ronde {n} van 3', ccTopic_population: 'Inwoners', ccTopic_area: 'Oppervlakte', ccTopic_economy: 'Economie',
+  ccTake: 'Pak', ccSkip: 'Sla over', ccTakeFirst: 'Pak eerst minstens één land.', ccLeft: 'nog {n}', ccSkipped: 'overgeslagen', ccBonus: 'Close Call-bonus: binnen 2%!', ccBonusTag: 'bonus', ccRest: 'Hierna kwamen nog: {list}.', ccRestShort: 'De vage vlaggen hadden nog kunnen komen.', ccRound: 'Ronde {n} van 3', ccTopic_population: 'Inwoners', ccTopic_area: 'Oppervlakte', ccTopic_economy: 'Economie',
   ccTarget: 'Doel', ccTotal: 'Jouw totaal', ccNext: 'Volgend land', ccHold: 'Stop', ccHoldFor: 'Stop voor {n} pnt',
   ccHeld: 'Geëindigd op {pct}% van het doel · +{n} pnt', ccBust: 'Eroverheen: {over} te veel · 0 pnt',
   ccNextRound: 'Volgende ronde', ccSeeResult: 'Bekijk je resultaat',
@@ -38,7 +38,7 @@ const nl: typeof en = {
 const es: typeof en = {
   closecall: 'Daily Close Call', closecallShort: 'Close Call', closecallLine: 'Coge, pasa o plántate: acércate sin pasarte',
   agLineClosecall: 'Coge, pasa o plántate: acércate sin pasarte', closecallEmoji: '🎯',
-  ccTake: 'Coger', ccSkip: 'Pasar', ccTakeFirst: 'Coge al menos un país primero.', ccLeft: 'quedan {n}', ccSkipped: 'pasado', ccBonus: 'Bonus Close Call: ¡a menos del 2%!', ccBonusTag: 'bonus', ccRest: 'Aún venían: {list}.', ccRound: 'Ronda {n} de 3', ccTopic_population: 'Habitantes', ccTopic_area: 'Superficie', ccTopic_economy: 'Economía',
+  ccTake: 'Coger', ccSkip: 'Pasar', ccTakeFirst: 'Coge al menos un país primero.', ccLeft: 'quedan {n}', ccSkipped: 'pasado', ccBonus: 'Bonus Close Call: ¡a menos del 2%!', ccBonusTag: 'bonus', ccRest: 'Aún venían: {list}.', ccRestShort: 'Las banderas tenues aún iban a venir.', ccRound: 'Ronda {n} de 3', ccTopic_population: 'Habitantes', ccTopic_area: 'Superficie', ccTopic_economy: 'Economía',
   ccTarget: 'Objetivo', ccTotal: 'Tu total', ccNext: 'Siguiente país', ccHold: 'Plantarse', ccHoldFor: 'Plantarse por {n} pts',
   ccHeld: 'Terminaste en el {pct}% del objetivo · +{n} pts', ccBust: 'Te pasaste por {over} · 0 pts',
   ccNextRound: 'Siguiente ronda', ccSeeResult: 'Ver tu resultado',

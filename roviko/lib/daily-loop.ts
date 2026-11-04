@@ -39,8 +39,10 @@ export const ROADTRIP_FROM = '2026-10-30';
  * Road Trip (1.57). Road Trip is gone completely (no classic game); its points, streaks and passport stamps stay. Like the
  * others: the first UTC day after the release; move it only while it has not passed yet, never after. In the ledger
  * Close Call uses Clue Trail's slot too ('trail', read back as 'closecall' from this date, server/competition.ts).
+ * The owner wanted it live on the day it was finished (2026-11-04): that day's Road Trip points stay and read as 'roadtrip'
+ * (by their session), and a player who already has them plays Close Call unscored that day (server/close-call.ts).
  */
-export const CLOSECALL_FROM = '2026-11-05';
+export const CLOSECALL_FROM = '2026-11-04';
 /** The five daily games from CLOSECALL_FROM on. The Daily Detour ('daily') is the day's main trip on the homepage and scores on top of these. */
 export const DAILY_MODES = ['rank', 'shape', 'compare', 'order', 'closecall'] as const;
 /** The five daily games from ROADTRIP_FROM until CLOSECALL_FROM (1.56): Daily Road Trip in fifth place. */

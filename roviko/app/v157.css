@@ -64,3 +64,15 @@
 .cc-drawn li small{font:600 .75rem/1.2 var(--font-sans);color:var(--t-soft)}
 .cc-bonus{display:flex;align-items:center;gap:6px;color:var(--t-gold-ink)!important;font-weight:700!important}
 .cc-result-rows li small svg{vertical-align:-1px}
+/* The ten countries of a round: a fixed 5 × 2 grid, so the card never grows while you play. */
+.cc-slots{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:0 0 14px;padding:0;list-style:none}
+.cc-slots li{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;height:52px;border-radius:12px;background:var(--t-card);border:1px dashed var(--t-line);color:var(--t-soft);font:700 .75rem/1 var(--font-sans);overflow:hidden}
+.cc-slots li img{width:26px;height:18px;object-fit:cover;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+.cc-slots li small{font:700 .625rem/1.1 var(--font-sans);color:var(--t-ink);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;padding:0 2px}
+.cc-slots li.is-take{background:var(--t-mint);border:1px solid transparent}
+.cc-slots li.is-skip{opacity:.55}
+.cc-slots li.is-skip small{color:var(--t-soft);text-decoration:line-through}
+.cc-slots li.is-bust{background:var(--t-red-soft);border:1px solid transparent}
+.cc-slots li.is-bust small{color:var(--t-red-ink)}
+.cc-slots li.is-rest{opacity:.4}
+.cc-slots li.is-here{border:2px solid var(--t-brand);color:var(--t-brand);font-size:1rem}

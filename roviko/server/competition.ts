@@ -12,10 +12,11 @@ import { CLOSECALL_FROM, CROSSROADS_FROM, ROADTRIP_FROM, SHAPE_FROM, SHUFFLE_FRO
  * And for Daily Road Trip (1.56): it replaces Crossroads from ROADTRIP_FROM on, in the same slot: stored as 'trail', read
  * back as 'roadtrip' from ROADTRIP_FROM, as 'crossroads' from CROSSROADS_FROM until then, as 'trail' before. On the switch
  * day itself (Road Trip went live the day Crossroads started) a Crossroads session's points still read as 'crossroads'.
- * And for Daily Close Call (1.57): it replaces Road Trip from CLOSECALL_FROM on, in the same slot, read back as 'closecall'.
+ * And for Daily Close Call (1.57): it replaces Road Trip from CLOSECALL_FROM on, in the same slot, read back as 'closecall';
+ * on that switch day a Road Trip session's points still read as 'roadtrip'.
  */
 export const ledgerMode = (mode: string) => mode === 'order' ? 'mosaic' : mode === 'shape' ? 'duel' : mode === 'crossroads' || mode === 'roadtrip' || mode === 'closecall' ? 'trail' : mode;
-export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' WHEN ${alias}mode='trail' AND ${alias}date='${ROADTRIP_FROM}' AND EXISTS(SELECT 1 FROM game_sessions xg WHERE xg.id=${alias}session_id AND xg.kind LIKE 'crossroads%') THEN 'crossroads' WHEN ${alias}mode='trail' AND ${alias}date>='${CLOSECALL_FROM}' THEN 'closecall' WHEN ${alias}mode='trail' AND ${alias}date>='${ROADTRIP_FROM}' THEN 'roadtrip' WHEN ${alias}mode='trail' AND ${alias}date>='${CROSSROADS_FROM}' THEN 'crossroads' ELSE ${alias}mode END`;
+export const MODE_SQL = (alias = '') => `CASE WHEN ${alias}mode='mosaic' AND ${alias}date>='${SHUFFLE_FROM}' THEN 'order' WHEN ${alias}mode='duel' AND ${alias}date>='${SHAPE_FROM}' THEN 'shape' WHEN ${alias}mode='trail' AND ${alias}date='${ROADTRIP_FROM}' AND EXISTS(SELECT 1 FROM game_sessions xg WHERE xg.id=${alias}session_id AND xg.kind LIKE 'crossroads%') THEN 'crossroads' WHEN ${alias}mode='trail' AND ${alias}date='${CLOSECALL_FROM}' AND EXISTS(SELECT 1 FROM game_sessions xg WHERE xg.id=${alias}session_id AND xg.kind LIKE 'roadtrip%') THEN 'roadtrip' WHEN ${alias}mode='trail' AND ${alias}date>='${CLOSECALL_FROM}' THEN 'closecall' WHEN ${alias}mode='trail' AND ${alias}date>='${ROADTRIP_FROM}' THEN 'roadtrip' WHEN ${alias}mode='trail' AND ${alias}date>='${CROSSROADS_FROM}' THEN 'crossroads' ELSE ${alias}mode END`;
 import { one, rows, run } from './db';
 import { AppError } from './auth';
 import type { Env, User } from './types';

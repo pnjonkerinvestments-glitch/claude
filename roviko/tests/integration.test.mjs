@@ -1113,4 +1113,12 @@ test('1.57: Daily Close Call: one game a day, take, skip or hold, a bust scores 
   const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,mode+':competitive-v1:'+sess,date,'{}',Date.now()).run();
   await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,date,'trail',sess,score,Date.now()).run();
   const c=(await request(a,'/competition?date='+date)).data;assert.deepEqual(c.scores.filter(s=>['trail','crossroads','roadtrip','closecall'].includes(s.mode)),[{mode,score}],date);}
+ // On the switch day (CLOSECALL_FROM) Road Trip points keep their name, and a player who has them plays Close Call unscored.
+ {const sess=crypto.randomUUID();await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,g.data.user.id,'roadtrip:competitive-v1:'+sess,x.CLOSECALL_FROM,'{}',Date.now()).run();
+  await db.prepare("INSERT OR REPLACE INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(g.data.user.id,x.CLOSECALL_FROM,'trail',sess,850,Date.now()).run();
+  assert.deepEqual((await request(a,'/competition?date='+x.CLOSECALL_FROM)).data.scores.filter(s=>s.mode==='roadtrip'),[{mode:'roadtrip',score:850}]);}
+ if(ranked&&today===x.CLOSECALL_FROM){const c=await bootstrap(),me=c.data.user.id,sess=crypto.randomUUID();
+  await db.prepare("INSERT INTO game_sessions(id,user_id,kind,date,state,created_at,completed) VALUES (?,?,?,?,?,?,1)").bind(sess,me,'roadtrip:competitive-v1',today,'{}',Date.now()).run();
+  await db.prepare("INSERT INTO daily_scores(user_id,date,mode,session_id,score,created_at) VALUES (?,?,?,?,?,?)").bind(me,today,'trail',sess,700,Date.now()).run();
+  assert.equal((await request(c.cookie,'/closecall','POST',{})).data.competition,null,'already played Road Trip today');}
 });

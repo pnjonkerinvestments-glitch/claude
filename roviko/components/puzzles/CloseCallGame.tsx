@@ -48,6 +48,9 @@ export function CloseCallGame({ app }: { app: any }) {
     if (topic === 'area') return v >= 1e6 ? fill(t('ccAreaMillion'), { n: nf(v / 1e6, 2) }) : fill(t('ccArea'), { n: nf(Math.round(v / 1000) * 1000) });
     return v >= 1e12 ? fill(t('ccMoneyTrillion'), { n: nf(v / 1e12, 2) }) : fill(t('ccMoneyBillion'), { n: nf(v / 1e9, 0) });
   };
+  /** The short number in a slot: "47M", "580K km²", "$427B" (the locale's own compact form). */
+  const short = (topic: Topic, v: number) => { const c = v.toLocaleString(locale, { notation: 'compact', maximumFractionDigits: v >= 1e12 || (v < 1e7 && v >= 1e6) ? 1 : 0 });
+    return topic === 'area' ? c + ' km²' : topic === 'economy' ? '$' + c : c; };
   const finished = game.phase === 'finished';
   const exit = () => backToStart ? backToStart() : go('/daily');
   const r = game.rounds[shown], over = r.held || r.bust;
@@ -109,10 +112,15 @@ export function CloseCallGame({ app }: { app: any }) {
         <i style={{ width: (r.bust ? 100 : Math.min(100, pct)) + '%' }}/>
       </div>
       <p className="cc-total"><span>{t('ccTotal')}</span><b>{amount(r.topic, r.total)}</b><small>{Math.round(pct)}%</small></p>
-      <ul className="cc-drawn" aria-label={t('ccDrawn')}>{r.decided.length ? r.decided.map((d, i) => { const c = byId.get(d.id);
-        const cls = d.choice === 'skip' ? 'is-skip' : r.bust && i === r.decided.length - 1 ? 'is-bust' : '';
-        return <li key={d.id} className={cls}>{c && <img src={c.flag} alt=""/>}<span>{name(d.id)}</span>{d.choice === 'skip' && <small>{t('ccSkipped')}</small>}<b>{amount(r.topic, d.value)}</b></li>; })
-        : <li className="cc-empty">{t('ccNone')}</li>}</ul>
+      {/* The ten countries of the round as a fixed 5 × 2 grid: it fills up instead of growing, so the buttons never move.
+          A slot shows the flag and a short number; skipped ones stay quiet, the one that went over turns red, and after
+          an early hold the countries that would still have come show faintly. */}
+      <ol className="cc-slots" aria-label={t('ccDrawn')}>{Array.from({ length: 10 }, (_, i) => {
+        const d = r.decided[i], rest = !d && r.held ? r.rest[i - r.decided.length] : undefined, here = !over && i === r.decided.length;
+        const id = d?.id ?? rest?.id, c = id ? byId.get(id) : undefined, value = d?.value ?? rest?.value;
+        const cls = d ? (d.choice === 'skip' ? 'is-skip' : r.bust && i === r.decided.length - 1 ? 'is-bust' : 'is-take') : rest ? 'is-rest' : here ? 'is-here' : '';
+        const label = id ? name(id) + (value != null ? ': ' + amount(r.topic, value) : '') + (d?.choice === 'skip' ? ' (' + t('ccSkipped') + ')' : '') : String(i + 1);
+        return <li key={i} className={cls} title={label} aria-label={label}>{c ? <><img src={c.flag} alt=""/>{value != null && <small>{short(r.topic, value)}</small>}</> : <span>{here ? '?' : i + 1}</span>}</li>; })}</ol>
       {!over && r.next ? <div className="cc-next">
         <small>{t('ccNext')} · {fill(t('ccLeft'), { n: r.left })}</small>
         <div className="cc-next-country">{byId.get(r.next) && <img src={byId.get(r.next)!.flag} alt=""/>}<strong>{name(r.next)}</strong><span aria-hidden="true">?</span></div>
@@ -125,7 +133,7 @@ export function CloseCallGame({ app }: { app: any }) {
       </div> : <div className={'cc-outcome' + (r.bust ? ' is-bust' : ' is-held')}>
         <p>{r.bust ? fill(t('ccBust'), { over: amount(r.topic, r.total - (r.target ?? 0)) }) : fill(t('ccHeld'), { pct: shareOf(r), n: formatScore(r.points) })}</p>
         {r.bonus && <p className="cc-bonus"><Sparkles size={16} aria-hidden="true"/>{t('ccBonus')}</p>}
-        {r.rest.length > 0 && <small>{fill(t('ccRest'), { list: r.rest.map(x => name(x.id) + ' (' + amount(r.topic, x.value) + ')').join(', ') })}</small>}
+        {r.rest.length > 0 && <small>{t('ccRestShort')}</small>}
         {shown < 2 ? <button type="button" className="btn primary btn-lg" onClick={() => setShown(shown + 1)}>{t('ccNextRound')}</button>
           : finished && game.competition ? <button type="button" className="btn primary btn-lg" onClick={() => setResult(true)}>{t('ccSeeResult')}</button> : null}
       </div>}
