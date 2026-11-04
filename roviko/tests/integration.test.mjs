@@ -1074,37 +1074,38 @@ test('1.54: Lucia does not invite on a day you were in a room',async()=>{
  const state=await db.prepare('SELECT last_day,noes FROM lucia_friends WHERE user_id=?').bind(a.data.user.id).first();
  assert.equal(state.last_day,new Date().toISOString().slice(0,10));assert.equal(state.noes,0,'not counted as a no');
 });
-test('1.57: Daily Close Call: one game a day, draw and hold, a bust scores 0, the ledger slot reads by date',async()=>{
+test('1.57: Daily Close Call: one game a day, take, skip or hold, a bust scores 0, the ledger slot reads by date',async()=>{
  await build({stdin:{contents:"export * from './lib/puzzles/close-call';export {CROSSROADS_FROM,ROADTRIP_FROM,CLOSECALL_FROM,dailyModesFor} from './lib/daily-loop';",resolveDir:process.cwd()},bundle:true,outfile:'.test-runtime/cc-int.mjs',format:'esm',platform:'node',logLevel:'error'});
  const x=await import('../.test-runtime/cc-int.mjs');
  const g=await bootstrap(),a=g.cookie,today=new Date().toISOString().slice(0,10),ranked=x.dailyModesFor(today).includes('closecall');
  const game=(await request(a,'/closecall','POST',{})).data;
  assert.equal(game.rounds.length,3);assert.equal(game.round,0);assert.ok(game.rounds[0].target>0);assert.ok(game.rounds[0].next);
- assert.equal(game.rounds[0].drawn.length,0);assert.equal(game.rounds[1].target,null,'later rounds stay hidden');
+ assert.equal(game.rounds[0].decided.length,0);assert.equal(game.rounds[0].left,10);assert.equal(game.rounds[1].target,null,'later rounds stay hidden');
  assert.ok(!JSON.stringify(game).includes('"deck"'),'the deck never reaches the device');
  assert.equal((await request(a,'/closecall','POST',{})).data.id,game.id,'one attempt a day');
  const other=(await request((await bootstrap()).cookie,'/closecall','POST',{})).data;
  assert.deepEqual(other.rounds.map(r=>r.topic),game.rounds.map(r=>r.topic),'everyone gets the same rounds');
  let v=game.version;
  const act=async(action)=>{const r=await request(a,'/closecall/'+game.id+'/'+action,'POST',{version:v});if(r.status===200)v=r.data.version;return r;};
- assert.equal((await act('hold')).status,400,'hold needs one draw first');
- const rounds=x.closeCallFor(today);
- // Round 1: draw every safe country, then hold at the best possible total.
- const k=x.safeDraws(rounds[0]);let r;
- for(let i=0;i<k;i++){r=await act('draw');assert.equal(r.status,200);assert.equal(r.data.rounds[0].bust,false);}
- r=await act('hold');assert.equal(r.data.rounds[0].held,true);assert.ok(r.data.rounds[0].points>0&&r.data.rounds[0].points<=333);assert.ok(r.data.rounds[0].wouldBe,'after a hold you see what came next');
+ assert.equal((await act('hold')).status,400,'hold needs one country first');
+ assert.equal((await act('draw')).status,400,'only take, skip or hold');
+ const rounds=x.closeCallFor(today);let r;
+ // Round 1: take every country that still fits, skip the rest: never over, round ends after the tenth.
+ {let sum=0;for(const id of rounds[0].deck){const val=x.valueOf(rounds[0].topic,id);if(sum+val<=rounds[0].target){sum+=val;r=await act('take');}else r=await act('skip');assert.equal(r.status,200);}
+  assert.equal(r.data.rounds[0].held,true,'after ten countries the round ends');assert.equal(r.data.rounds[0].bust,false);assert.equal(r.data.rounds[0].decided.length,10);
+  assert.ok(r.data.rounds[0].decided.some(d=>d.choice==='skip'),'skipped countries show too');assert.equal(r.data.rounds[0].points,x.roundPoints(0,sum,rounds[0].target,false));}
  assert.equal(r.data.round,1);
- // Round 2: draw until it goes over: 0 points.
- for(let i=0;i<=x.safeDraws(rounds[1]);i++)r=await act('draw');
+ // Round 2: take until it goes over: 0 points.
+ for(let i=0;i<10&&!r.data.rounds[1].bust;i++)r=await act('take');
  assert.equal(r.data.rounds[1].bust,true);assert.equal(r.data.rounds[1].points,0);
- // Round 3: one draw and hold.
- await act('draw');r=await act('hold');
+ // Round 3: skip one, take one, hold early: you see what would still have come.
+ await act('skip');await act('take');r=await act('hold');assert.equal(r.data.rounds[2].rest.length,8);
  assert.equal(r.data.phase,'finished');const total=r.data.rounds.reduce((n,x)=>n+x.points,0);assert.equal(r.data.score,total);
  if(ranked){const row=await db.prepare("SELECT mode,score FROM daily_scores WHERE session_id=?").bind(game.id).first();assert.equal(row.mode,'trail','stored in Clue Trail\'s slot');assert.equal(row.score,total);}
  else assert.equal(await db.prepare("SELECT COUNT(*) n FROM daily_scores WHERE session_id=?").bind(game.id).first('n'),0,'before CLOSECALL_FROM it does not score');
  assert.ok(await db.prepare('SELECT 1 FROM daily_challenge_results WHERE user_id=? AND date=?').bind(g.data.user.id,today).first(),'counts for the streak');
- assert.ok(await db.prepare("SELECT COUNT(*) n FROM answers WHERE session_id=? AND mode='closecall'").bind(game.id).first('n')>0,'passport stamps for the safe draws');
- assert.equal((await act('draw')).status,409,'finished');
+ assert.ok(await db.prepare("SELECT COUNT(*) n FROM answers WHERE session_id=? AND mode='closecall'").bind(game.id).first('n')>0,'passport stamps for the countries taken');
+ assert.equal((await act('take')).status,409,'finished');
  // The day overview asks for yesterday's day place too.
  const comp=(await request(a,'/competition?date='+today+'&mode=closecall&recap=1')).data;assert.ok('place' in comp.yesterday);
  // The 'trail' slot reads as Crossroads, Road Trip and Close Call by date.

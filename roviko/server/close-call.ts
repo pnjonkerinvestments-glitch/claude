@@ -8,10 +8,11 @@ import { recordCompetition } from './competition';
 import { resultStatement } from './stats';
 import { COMPETITION_SUFFIX, dailyScore } from '../lib/daily-scoring';
 import { CLOSECALL_FROM, dailyModesFor } from '../lib/daily-loop';
-import { CLOSE_CALL_ROUNDS, ROUND_MAX, closeCallFor, roundPoints, valueOf, type CloseCallRound } from '../lib/puzzles/close-call';
+import { CLOSE_CALL_ROUNDS, DECK_SIZE, ROUND_MAX, closeCallFor, hasBonus, roundPoints, valueOf, type CloseCallRound } from '../lib/puzzles/close-call';
 import type { Env, User } from './types';
 
-type Played = { drawn: number; held: boolean; bust: boolean; total: number; points: number };
+/** One round as played: a choice per country so far ('take' or 'skip'), and how it ended. */
+type Played = { choices: ('take' | 'skip')[]; held: boolean; bust: boolean; total: number; points: number };
 export type CloseCallState = {
   id: string; mode: 'closecall'; daily: string; edition: number; competition?: { version: 1; mode: 'closecall' };
   rounds: CloseCallRound[]; round: number; played: Played[]; phase: 'playing' | 'finished'; startedAt: number;
@@ -37,7 +38,7 @@ export async function startCloseCall(env: Env, user: User) {
   const content = await dailyContent(env, date, KIND, () => ({ settings: {}, questions: [], board: { rounds: closeCallFor(date) } }));
   const rounds = (content.board as { rounds: CloseCallRound[] }).rounds;
   const s: CloseCallState = { id: crypto.randomUUID(), mode: 'closecall', daily: date, edition: editionOf(date), ...(ranked ? { competition: { version: 1, mode: 'closecall' } as const } : {}),
-    rounds, round: 0, played: rounds.map(() => ({ drawn: 0, held: false, bust: false, total: 0, points: 0 })), phase: 'playing', startedAt: Date.now(), answers: [] };
+    rounds, round: 0, played: rounds.map(() => ({ choices: [], held: false, bust: false, total: 0, points: 0 })), phase: 'playing', startedAt: Date.now(), answers: [] };
   const inserted = await run(env, 'INSERT OR IGNORE INTO game_sessions(id,user_id,kind,date,state,created_at) VALUES (?,?,?,?,?,?)', s.id, user.id, kind, date, JSON.stringify(s), Date.now());
   if (!inserted.meta.changes) {
     const saved = await one(env, 'SELECT state,version FROM game_sessions WHERE user_id=? AND date=? AND kind=?', user.id, date, kind);
@@ -46,23 +47,26 @@ export async function startCloseCall(env: Env, user: User) {
   return view(s, 0);
 }
 
-/** Read the game, draw the next country, or hold. Every choice is final. */
+/** Read the game; take or skip the next country; or hold. Every choice is final. */
 export async function closeCallAction(env: Env, user: User, id: string, action: string, input: unknown) {
   const row = await one(env, 'SELECT * FROM game_sessions WHERE id=? AND user_id=?', id, user.id);
   if (!row || !String(row.kind).startsWith(KIND)) throw new AppError('GAME_NOT_FOUND', 404);
   const s = JSON.parse(row.state) as CloseCallState;
   if (action === 'get') { if (s.phase === 'finished') await record(env, user, s); return view(s, row.version); }
-  if (action !== 'draw' && action !== 'hold') throw new AppError('INVALID_ACTION');
+  if (action !== 'take' && action !== 'skip' && action !== 'hold') throw new AppError('INVALID_ACTION');
   const b = z.object({ version: z.number().int().min(0) }).parse(input);
   if (s.phase === 'finished') throw new AppError('ANSWER_LOCKED', 409);
   if (row.version !== b.version) throw new AppError('STATE_CHANGED', 409);
   const r = s.rounds[s.round], p = s.played[s.round];
   if (action === 'hold') {
-    if (p.drawn === 0) throw new AppError('DRAW_FIRST', 400);
+    if (p.total === 0) throw new AppError('TAKE_FIRST', 400);
     p.held = true;
   } else {
-    p.total += valueOf(r.topic, r.deck[p.drawn]) ?? 0; p.drawn++;
-    if (p.total > r.target) p.bust = true;
+    const country = r.deck[p.choices.length];
+    p.choices.push(action);
+    if (action === 'take') { p.total += valueOf(r.topic, country) ?? 0; if (p.total > r.target) p.bust = true; }
+    // After the tenth country the round ends by itself, as if you held.
+    if (!p.bust && p.choices.length >= DECK_SIZE) p.held = true;
   }
   if (p.held || p.bust) {
     p.points = roundPoints(s.round, p.total, r.target, p.bust);
@@ -79,26 +83,27 @@ export async function closeCallAction(env: Env, user: User, id: string, action: 
 async function record(env: Env, user: User, s: CloseCallState) {
   const statements: any[] = [resultStatement(s.id, user.id, { settings: { mode: 'closecall' }, answers: s.answers, bestStreak: 0 })];
   statements.push({ sql: 'INSERT OR IGNORE INTO daily_challenge_results(user_id,date,result_id,score) VALUES (?,?,?,?)', args: [user.id, s.daily, s.id, 0] });
-  // Every country you drew without going over is a passport stamp, like the right answers in the other daily games.
-  s.rounds.forEach((r, ri) => { const p = s.played[ri]; r.deck.slice(0, p.bust ? p.drawn - 1 : p.drawn).forEach((country, i) => statements.push({
+  // Every country you took without going over is a passport stamp, like the right answers in the other daily games.
+  s.rounds.forEach((r, ri) => { const p = s.played[ri]; r.deck.forEach((country, i) => { if (p.choices[i] !== 'take' || (p.bust && i === p.choices.length - 1)) return; statements.push({
     sql: 'INSERT OR IGNORE INTO answers(session_id,round,user_id,question_id,country_id,mode,answer,correct,points,response_time,risk,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
-    args: [s.id, ri * 100 + i, user.id, 'closecall:' + s.daily + ':' + ri + ':' + i, country, 'closecall', JSON.stringify(country), 1, 0, 0, 0, Date.now()] })); });
+    args: [s.id, ri * 100 + i, user.id, 'closecall:' + s.daily + ':' + ri + ':' + i, country, 'closecall', JSON.stringify(country), 1, 0, 0, 0, Date.now()] }); }); });
   await batch(env, statements);
   await recordCompetition(env, user, s);
 }
 
-/** What the device may see: each round's subject and target, the countries drawn so far with their numbers, and only the
- *  next country of the deck (never its number). Finished rounds also show the country that would have come next. */
+/** What the device may see: each round's subject and target, every country decided so far (taken or skipped) with its
+ *  number, and only the next country of the deck (never its number). A held round also shows what would have come next. */
 function view(s: CloseCallState, version: number) {
   const rounds = s.rounds.map((r, ri) => {
     const p = s.played[ri], open = ri === s.round && s.phase === 'playing', done = p.held || p.bust;
     return { topic: r.topic, target: r.target, max: ROUND_MAX[ri],
-      drawn: r.deck.slice(0, p.drawn).map(id => ({ id, value: valueOf(r.topic, id) })),
-      next: open && !done ? r.deck[p.drawn] ?? null : null,
-      // After a hold: what the next draw would have been, so you learn whether holding was right.
-      wouldBe: p.held ? { id: r.deck[p.drawn], value: valueOf(r.topic, r.deck[p.drawn]) } : null,
-      total: p.total, held: p.held, bust: p.bust, points: p.points, started: ri < s.round || open || s.phase === 'finished' };
+      decided: p.choices.map((choice, i) => ({ id: r.deck[i], value: valueOf(r.topic, r.deck[i]), choice })),
+      next: open && !done ? r.deck[p.choices.length] ?? null : null, left: DECK_SIZE - p.choices.length,
+      // After an early hold: the countries that would still have come, so you learn whether holding was right.
+      rest: p.held ? r.deck.slice(p.choices.length).map(id => ({ id, value: valueOf(r.topic, id) })) : [],
+      total: p.total, held: p.held, bust: p.bust, points: p.points, bonus: done && !p.bust && hasBonus(p.total, r.target),
+      started: ri < s.round || open || s.phase === 'finished' };
   });
   return { id: s.id, mode: 'closecall' as const, daily: s.daily, edition: s.edition, version, phase: s.phase, competition: s.competition ?? null,
-    round: s.round, rounds: rounds.map(r => r.started ? r : { ...r, target: null, drawn: [], next: null }), score: pointsOf(s) };
+    round: s.round, rounds: rounds.map(r => r.started ? r : { ...r, target: null, decided: [], next: null }), score: pointsOf(s) };
 }

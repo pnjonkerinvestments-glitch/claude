@@ -57,3 +57,10 @@
 .day-scores li>button>span:not(.game-icon){flex:1 1 auto;min-width:0;color:var(--t-ink);font:700 .9375rem/1.25 var(--font-sans)}
 .day-scores li>button>b{color:var(--t-ink);font:600 1.0625rem/1 var(--font-display);font-variant-numeric:tabular-nums}
 .daily-result-played{margin:6px 0 0;font:600 .8125rem/1.3 var(--font-sans);color:var(--t-soft);text-align:center}
+/* Take / Skip side by side, Hold underneath; a skipped country stays visible but quiet. */
+.cc-hold{width:100%;margin-top:10px;min-height:46px}
+.cc-drawn li.is-skip{background:var(--t-card);border:1px dashed var(--t-line);color:var(--t-soft)}
+.cc-drawn li.is-skip img{opacity:.6}
+.cc-drawn li small{font:600 .75rem/1.2 var(--font-sans);color:var(--t-soft)}
+.cc-bonus{display:flex;align-items:center;gap:6px;color:var(--t-gold-ink)!important;font-weight:700!important}
+.cc-result-rows li small svg{vertical-align:-1px}

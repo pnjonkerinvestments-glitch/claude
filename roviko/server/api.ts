@@ -286,12 +286,13 @@ export async function handleApi(req: Request, env: Env, ctx?: {
             await limit(env, 'games:' + user.id, 30);
             const b = await body(req), game = await startSurvival(env, user, String(b.mode ?? '')); await measureStart(req, env, user, 'survival-' + game.settings.mode, game.id); return json(game);
         }
-        // Daily Close Call (1.57): start or resume today's rounds, read them, draw a country or hold.
+        // Daily Close Call (1.57): start or resume today's rounds, read them, take or skip the next country, or hold
+        // ('draw' is refused with INVALID_ACTION, for an old screen still open).
         // (Daily Crossroads, 1.55, and Daily Road Trip, 1.56, are gone: their saved games and points stay in the database.)
         if (path[0] === 'closecall') {
             if (method === 'POST' && !path[1]) { await limit(env, 'games:' + user.id, 30); const game = await startCloseCall(env, user); await measureStart(req, env, user, 'closecall', game.id); return json(game); }
             if (path[1] && !path[2] && method === 'GET') return json(await closeCallAction(env, user, path[1], 'get', {}));
-            if (path[1] && (path[2] === 'draw' || path[2] === 'hold') && method === 'POST') return json(await closeCallAction(env, user, path[1], path[2], await body(req)));
+            if (path[1] && ['take', 'skip', 'hold', 'draw'].includes(path[2]) && method === 'POST') return json(await closeCallAction(env, user, path[1], path[2], await body(req)));
         }
         if (path[0] === 'games') {
             if (method === 'POST' && !path[1]) {

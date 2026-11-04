@@ -1,6 +1,8 @@
-// Daily Close Call (1.57): three rounds, each with a target ("Get as close as you can to 150 million people"). You see the
-// next country of the round's deck but not its number; Draw adds it, Hold stops. Go over the target and the round is a
-// bust (0). The closer you hold, the more points. Everyone gets the same rounds per UTC date. Data Roviko already ships:
+// Daily Close Call (1.57): three rounds, each with a target ("Get as close as you can to 150 million people"). Ten
+// countries pass by one at a time; you see each country but not its number. Take adds it, Skip lets it go (its number is
+// shown afterwards), Hold ends the round; after the tenth country the round ends by itself. Go over the target and the
+// round is a bust (0). The closer you end, the more points, with a Close Call bonus within 2%. Everyone gets the same
+// rounds per UTC date. Data Roviko already ships:
 // population and GDP (World Bank 2025, lib/data/comparisons.json) and area (lib/data/countries.json).
 import data from '../data/countries.json';
 import worldbank from '../data/comparisons.json';
@@ -10,14 +12,12 @@ export type Topic = 'population' | 'area' | 'economy';
 export type CloseCallRound = { topic: Topic; target: number; deck: string[] };
 type CountryRow = { id: string; area: number };
 
-export const CLOSE_CALL_ROUNDS = 3;
-/** Points per round: 333, 333 and 334, so a perfect day is exactly 1,000. */
-export const ROUND_MAX = [333, 333, 334];
+export { CLOSE_CALL_ROUNDS, ROUND_MAX, BONUS_FROM } from './close-call-points';
 export const DECK_SIZE = 10;
-/** The shortest and longest safe run of draws a round may have. */
-export const MIN_SAFE = 3, MAX_SAFE = 6;
-/** The last safe total sits at most 97% of the target and the next draw at least 3% over it: no "is 150.0 over 150?". */
-export const MARGIN = 0.03;
+/** Middle-sized countries only: 3% to 40% of the target. */
+export const MIN_SHARE = .03, MAX_SHARE = .40;
+/** Every round can be finished within 2% of the target (the Close Call bonus), and taking everything always goes over. */
+export const BEST_REACH = .98, ALL_OVER = 1.3;
 
 const COUNTRIES = data as CountryRow[];
 const WB = (worldbank as any).topics as Record<string, { values: Record<string, number> }>;
@@ -34,22 +34,26 @@ export const TARGETS: Record<Topic, number[]> = {
 };
 export const valueOf = (topic: Topic, id: string) => VALUES[topic].get(id) ?? null;
 
-/** How many draws are safe in a deck (the running total stays at or under the target). */
-export function safeDraws(round: CloseCallRound) {
-  let sum = 0, k = 0;
-  for (const id of round.deck) { const v = valueOf(round.topic, id)!; if (sum + v > round.target) break; sum += v; k++; }
-  return k;
+/** The closest total at or under the target that a perfect player could reach with this deck (any subset). */
+export function bestReach(round: CloseCallRound) {
+  const values = round.deck.map(id => valueOf(round.topic, id) ?? 0);
+  let best = 0;
+  for (let mask = 1; mask < 1 << values.length; mask++) {
+    let sum = 0;
+    for (let i = 0; i < values.length; i++) if (mask & (1 << i)) sum += values[i];
+    if (sum <= round.target && sum > best) best = sum;
+  }
+  return best;
 }
 /** Why a round is not fair (empty: it is). */
 export function roundProblems(round: CloseCallRound): string[] {
   const problems: string[] = [];
   if (round.deck.length !== DECK_SIZE || new Set(round.deck).size !== DECK_SIZE) problems.push('deck must be 10 different countries');
-  if (round.deck.some(id => valueOf(round.topic, id) === null)) problems.push('a country without a number');
-  const k = safeDraws(round);
-  if (k < MIN_SAFE || k > MAX_SAFE) problems.push(`${k} safe draws (3 to 6 wanted)`);
-  const values = round.deck.map(id => valueOf(round.topic, id) ?? 0), safe = values.slice(0, k).reduce((a, b) => a + b, 0), over = safe + (values[k] ?? Infinity);
-  if (safe > round.target * (1 - MARGIN)) problems.push('the last safe total is too close to the target');
-  if (over < round.target * (1 + MARGIN)) problems.push('the first bust is too close to the target');
+  const values = round.deck.map(id => valueOf(round.topic, id));
+  if (values.some(v => v === null)) return [...problems, 'a country without a number'];
+  if (values.some(v => v! < round.target * MIN_SHARE || v! > round.target * MAX_SHARE)) problems.push('a country that is too small or too big');
+  if (values.reduce((a, b) => a! + b!, 0)! < round.target * ALL_OVER) problems.push('taking every country must go over');
+  if (bestReach(round) < round.target * BEST_REACH) problems.push('the Close Call bonus must be reachable');
   return problems;
 }
 
@@ -60,8 +64,8 @@ export function closeCallFor(date: string): CloseCallRound[] {
   return topics.map(topic => {
     for (let attempt = 0; attempt < 500; attempt++) {
       const target = TARGETS[topic][Math.floor(rng() * TARGETS[topic].length)];
-      // Middle-sized countries only (4% to 45% of the target): no giant fills a round alone, no dwarf is a free draw.
-      const pool = [...VALUES[topic]].filter(([id, v]) => !used.has(id) && v >= target * .04 && v <= target * .45).map(([id]) => id).sort();
+      // Middle-sized countries only: no giant fills a round alone, no dwarf is a free take.
+      const pool = [...VALUES[topic]].filter(([id, v]) => !used.has(id) && v >= target * MIN_SHARE && v <= target * MAX_SHARE).map(([id]) => id).sort();
       if (pool.length < DECK_SIZE) continue;
       const round = { topic, target, deck: shuffle(pool, rng).slice(0, DECK_SIZE) };
       if (roundProblems(round).length) continue;
@@ -72,8 +76,4 @@ export function closeCallFor(date: string): CloseCallRound[] {
   });
 }
 
-/** Points for one round: 0 for a bust, otherwise the share of the target you reached (rounded). */
-export function roundPoints(round: number, total: number, target: number, bust: boolean) {
-  if (bust || total <= 0) return 0;
-  return Math.round(ROUND_MAX[round] * Math.min(1, total / target));
-}
+export { roundPoints, hasBonus } from './close-call-points';
