@@ -1,6 +1,7 @@
 'use client';
-import React, { useEffect, useRef } from 'react';
-import { ArrowRight, Flame, Share2, Trophy } from 'lucide-react';
+import React, { useContext, useEffect, useRef } from 'react';
+import { AppContext } from '../app/context';
+import { ArrowRight, Flame, Home, Share2, Trophy } from 'lucide-react';
 import { dayModesFor } from '@/lib/daily-loop';
 import { DAILY_TOTAL_MAX } from '@/lib/daily-scoring';
 import { challengeExtras, rememberStanding, shareCard } from '@/lib/share';
@@ -24,7 +25,7 @@ export const dayTrail = (scores: { mode: string; score: number }[], date?: strin
  * in gold), then one forest pill to the bonus tour, an outline pill to challenge a friend with the day, and
  * the time until the new games. Without `screen` it is the compact card only (under an older result).
  */
-export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name, tomorrow, game, yesterdayPlace, onOpen, onRankings }: {
+export function DaySummary({ date, scores, place, players, streak, t, locale, share, screen = false, current, onBonus, bonusBusy, name, tomorrow, game, yesterdayPlace, onOpen, onRankings, onHome }: {
   date: string; scores: { mode: string; score: number }[]; place?: number; players?: number; streak?: number;
   t: (k: string) => string; locale: string; share: (text: string) => void;
   /** The player's name, for "Pietje: #1 of 230 players worldwide today" in the share (1.26). */
@@ -35,6 +36,8 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
   tomorrow?: { emoji?: string; label: Record<string, string> } | null;
   /** 1.57: the game just finished: its points and its place among today's players of that game, right now. */
   game?: { score: number; place?: number; participants: number } | null;
+  /** 1.58: the way home (and the tab bar comes back on this screen). */
+  onHome?: () => void;
   /** 1.57: yesterday's place in the day ranking, for "12 places higher than yesterday" (left out when unknown). */
   yesterdayPlace?: number | null;
   /** 1.57: open a game's own (finished) result from the list; and the Rankings page. */
@@ -45,6 +48,9 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
   const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total, extras: (rememberStanding('day', date, place, players, total), challengeExtras(t, locale, 'day', date, name)) }));
   // The day's fanfare, once, when this is the end screen (it stands in for the last game's own stage).
   const title = useRef<HTMLHeadingElement>(null);
+  const app = useContext(AppContext);
+  // 1.58: the end of the day brings the top bar and the tab bar back, like every end screen.
+  useEffect(() => { if (!screen) return; app?.setResultNav?.(true); return () => app?.setResultNav?.(false); }, [screen]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (screen) { sound('win'); warmShareImage(); toTop(); focusHeadline(title.current); } }, [screen]);
   const top = total >= DAILY_TOTAL_MAX * 0.8;
   // The six games of that UTC date: Country Mosaic before the switch to the daily Size Shuffle (1.24), Size Shuffle after.
@@ -85,6 +91,7 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
     <div className="ds-actions">
       <button className="btn primary btn-lg ds-challenge" onClick={shareDay}><Share2 size={18} aria-hidden="true"/>{t('dayShareTrip')}</button>
       {onRankings && <button className="btn secondary btn-lg" onClick={onRankings}><Trophy size={18} aria-hidden="true"/>{t('dayViewRankings')}</button>}
+      {onHome && <button className="btn secondary btn-lg" onClick={onHome}><Home size={18} aria-hidden="true"/>{t('backHome')}</button>}
       <ContinentCTA/>
       {onBonus && <button className="btn secondary btn-lg ds-bonus" disabled={bonusBusy} aria-busy={bonusBusy} onClick={onBonus}>{bonusBusy ? t('loading') : t('dayBonus')}<ArrowRight size={19} aria-hidden="true"/></button>}
     </div>

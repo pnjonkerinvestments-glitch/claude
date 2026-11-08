@@ -87,7 +87,7 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
     <DaySummary screen tomorrow={tomorrow} date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}
       current={mode} onBonus={toBonus} bonusBusy={!!bonusLaunch.launching || app.busy}
       game={game ? { score: game.score, place: game.place, participants: game.participants } : null} yesterdayPlace={yesterdayPlace}
-      onOpen={m => { launchDaily(app, m).catch(fail); }} onRankings={() => app.go('/leaderboard')}/>
+      onOpen={m => { launchDaily(app, m).catch(fail); }} onRankings={() => app.go('/leaderboard')} onHome={() => app.go('/')}/>
     {savePrompt}
   </>;
   const card = <section className={'daily-result' + (stage ? ' has-stage' : '')} aria-label={t('competitionScoreSaved')}>

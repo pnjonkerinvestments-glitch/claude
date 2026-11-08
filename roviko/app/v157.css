@@ -76,3 +76,10 @@
 .cc-slots li.is-bust small{color:var(--t-red-ink)}
 .cc-slots li.is-rest{opacity:.4}
 .cc-slots li.is-here{border:2px solid var(--t-brand);color:var(--t-brand);font-size:1rem}
+/* 1.58: the two ways out of an end screen, side by side: Home and all games. */
+.finish-ways{display:flex;justify-content:center;flex-wrap:wrap;gap:4px 14px}
+/* 1.58: on an end screen the tab bar is back, so the page leaves room for it at the bottom. */
+.game-main:has(.finish-stage,.day-summary.is-screen){padding-bottom:calc(110px + env(safe-area-inset-bottom))}
+/* 1.58: on the day overview its own buttons (share the day, rankings, home) are enough: the game's share and Home/All
+   games row under it would repeat them. */
+.daily-finish:has(.day-summary.is-screen)>.finish-actions{display:none!important}

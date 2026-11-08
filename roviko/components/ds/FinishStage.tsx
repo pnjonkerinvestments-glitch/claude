@@ -1,4 +1,5 @@
 'use client';
+import { useResultNav } from './useResultNav';
 import React, { useEffect, useRef } from 'react';
 import { sound } from '@/lib/client';
 import { warmShareImage } from '@/lib/share-image';
@@ -48,6 +49,7 @@ export function FinishConfetti() {
  * The props are shared by every game's end screen, so keep them compatible.
  */
 export function FinishStage({ game, headline, mood, score, max, unit, locale, chips, trail, tone, titleId, children, coin }: FinishStageProps) {
+  useResultNav();
   const fmt = (n: number) => n.toLocaleString(locale);
   const ratio = score != null && max ? score / max : trail?.length ? trail.filter(Boolean).length / trail.length : 0;
   const shade: StageTone = tone ?? (ratio >= 0.8 ? 'gold' : 'forest');

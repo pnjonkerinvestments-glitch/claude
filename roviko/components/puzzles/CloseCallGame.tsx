@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { Check, Share2, Sparkles } from 'lucide-react';
+import { Check, Share2, Sparkles, Home, LayoutGrid } from 'lucide-react';
 import { api, post, sound, formatScore } from '@/lib/client';
 import { plural } from '@/lib/plural';
 import { finishKey, finishMood } from '@/lib/feel-copy';
@@ -139,6 +139,6 @@ export function CloseCallGame({ app }: { app: any }) {
       </div>}
     </section>
     {game.competition && !finished && <p className="cc-rule muted">{t('ccRuleShort')}</p>}
-    {finished && !game.competition && <>{resultCard}<div className="finish-actions"><button className="finish-quiet" onClick={exit}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button></div></>}
+    {finished && !game.competition && <>{resultCard}<div className="finish-actions"><button className="finish-quiet" onClick={() => go('/')}><Home size={16} strokeWidth={2.4} aria-hidden="true"/>{t('backHome')}</button><button className="finish-quiet" onClick={() => go('/daily')}><LayoutGrid size={16} strokeWidth={2.4} aria-hidden="true"/>{t('viewAllGames')}</button></div></>}
   </div>;
 }

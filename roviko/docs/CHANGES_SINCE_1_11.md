@@ -596,7 +596,25 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.57.0 (op de testversie, nog niet live)
+## 1.58.0 (op de testversie, nog niet live)
+
+**Close Call: echt nadenken** (eigenaar: "nu is het gewoon alles pakken en bij 80–90% stoppen").
+- Elke ronde heeft nu een vaste mix van 10 landen: **2 reuzen** (45–75% van het doel) die je meestal moet overslaan, **4 middelgrote** (12–30%) en **4 kleintjes** (3–10%) om het laatste gat te vullen.
+- **Geen automatische piloot:** elke ronde wordt gecontroleerd door "blind alles pakken tot 80% (of 90%) en dan stoppen" na te spelen; dat mag hoogstens 55% van de ronde opleveren. Gemeten over de komende 365 dagen: blind pakken levert gemiddeld 0 op (je loopt tegen een reus aan), wie de landen kent en slim overslaat haalt gemiddeld 286 van de 333, perfect spel 332 (was: blind pakken tot 80% gaf gemiddeld 218).
+- De bonus (binnen 2%) blijft altijd haalbaar en alles pakken gaat altijd over het doel.
+- Nieuwe rondes gebruiken seed v2; dagen die al gespeeld zijn houden hun vastgelegde rondes.
+
+**Navigatie na een spel** (eigenaar: makkelijker naar home, ook na het laatste spel).
+- **Zodra een eindscherm verschijnt, komen de bovenbalk en de tabbalk terug** (Vandaag, Spellen, Leren, Multiplayer, Paspoort). Tijdens het spelen blijven ze weg zoals voorheen. Dit geldt voor elk eindscherm (alle dagspellen, klassiekers, bonus, survival), via het gedeelde eindscherm-onderdeel (`components/ds/useResultNav.ts`, `FinishStage`, het dagoverzicht).
+- **"Klaar" is vervangen door twee duidelijke knoppen: 🏠 Terug naar home en Alle spellen** (dagspellen, Close Call, Rank Radar, puzzels, solo-spellen). Voorheen ging "Klaar" terug naar waar je vandaan kwam.
+- **Dagoverzicht na het laatste spel:** knop "Terug naar home" bij Deel je dag en Bekijk ranglijsten; de dubbele knoppen van het spel eronder (nog een keer delen, nog een keer home) zijn op dat scherm weg.
+- De pagina laat onderaan ruimte voor de tabbalk, zodat niets wordt afgedekt.
+
+Versie 1.58.0, service worker `roviko-shell-v1.58.0`.
+
+**Getest:** `npm test` 228 geslaagd, 1 overgeslagen (Close Call-test controleert nu ook de mix en "geen automatische piloot" voor 365 dagen); typecheck en build. In de browser (390 breed): Close Call uitgespeeld, op het eindscherm staan de tabbalk en "Terug naar home"/"Alle spellen", "Terug naar home" gaat naar het startscherm; dagoverzicht na 6/6 met één rijtje knoppen en de tabbalk. **Niet getest:** de apps zelf; elk afzonderlijk eindscherm van de klassiekers (wel via hetzelfde gedeelde onderdeel).
+
+## 1.57.0 (live sinds 4 november 2026, PR #58)
 
 **Daily Close Call vervangt Daily Road Trip** (opdracht van de eigenaar; de spelregels zijn een voorstel van mij dat de eigenaar goedkeurde, omdat de oorspronkelijke opzet niet aankwam). Road Trip is helemaal weg (geen klassiek spel); oude punten, reeksen en paspoortstempels blijven.
 - **Het spel (Pak / Sla over / Stop, op verzoek van de eigenaar):** drie rondes per dag, voor iedereen dezelfde: inwoners, oppervlakte en economie (bbp), in wisselende volgorde. Elke ronde heeft een rond doel (bijv. 150 miljoen inwoners, 2 miljoen km², $2 biljoen) en 10 landen die één voor één langskomen; je ziet het land (vlag en naam), niet het getal. **Pak** telt het op, **Sla over** laat het gaan (het getal zie je daarna), **Stop** sluit de ronde af (pas als je iets hebt gepakt). Na het 10e land eindigt de ronde vanzelf. Ga je over het doel, dan is het een bust: de balk wordt rood en de ronde levert 0 op. Na een vroege stop zie je welke landen nog kwamen.
@@ -620,7 +638,7 @@ Versie 1.57.0, service worker `roviko-shell-v1.57.0`.
 
 **Getest:** `npm test` (nieuwe `tests/close-call.test.mjs`: 365 dagen eerlijke rondes, elk onderwerp één keer, geen land dubbel, alles pakken gaat over, bonus altijd haalbaar, puntentabel; integratietest: één spel per dag, stop pas na een pak, 'draw' geweigerd, slim pakken en overslaan tot het 10e land, bust is 0, vroege stop toont de rest, verborgen stapel, reeks, stempels, `trail`-slot leest per datum als Crossroads, Road Trip en Close Call, dagplek van gisteren); typecheck en build. In de browser (390 breed, licht en donker): rondes met pakken, overslaan en stoppen, een bust, eindscherm en het dagoverzicht (met de andere vijf spellen lokaal ingevuld). Voor het gescoorde pad stond `CLOSECALL_FROM` lokaal even op vandaag. **Niet getest:** de apps zelf, echt delen op een telefoon, "plekken hoger dan gisteren" met echte spelers van gisteren.
 
-## 1.56.1 (op de testversie, nog niet live)
+## 1.56.1 (live sinds 4 november 2026, samen met 1.57.0 in PR #58)
 
 - **Deeltekst Road Trip weer in blokjesstijl** (verzoek eigenaar: "zoals we het hadden, het was goed bij Daily Crossroads"): 🟪 start en finish, 🟩 dichterbij, 🟧 omweg, net als de vierkante blokjes van Crossroads, in plaats van 📍 en 🏁. Alleen de deeltekst; het spel zelf blijft in Roviko-groen.
 - Een integratietest controleerde iets dat alleen op de wisseldag (30 oktober) kan gebeuren en faalde daarna; die controle draait nu alleen op die dag (anders liep elke nieuwe publicatie vast).
