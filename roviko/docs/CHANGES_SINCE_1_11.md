@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.58.0 (op de testversie, nog niet live)
+## 1.58.0 (live sinds 8 november 2026, PR #59)
 
 **Close Call: echt nadenken** (eigenaar: "nu is het gewoon alles pakken en bij 80–90% stoppen").
 - Elke ronde heeft nu een vaste mix van 10 landen: **2 reuzen** (45–75% van het doel) die je meestal moet overslaan, **4 middelgrote** (12–30%) en **4 kleintjes** (3–10%) om het laatste gat te vullen.

@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.58.0 · op de testversie, nog niet live:** Close Call met reuzen, middelgrote en kleine landen (blind pakken loont niet meer) en betere navigatie na een spel (bovenbalk en tabbalk terug op elk eindscherm, knoppen Terug naar home / Alle spellen, Home op het dagoverzicht). Details in `docs/CHANGES_SINCE_1_11.md`. Vorige: 1.57.0 (Daily Close Call + dagoverzicht) live sinds 4 november 2026 (PR #58).
+**Versie 1.58.0 · live sinds 8 november 2026 (PR #59):** Close Call met reuzen, middelgrote en kleine landen (blind pakken loont niet meer) en betere navigatie na een spel (bovenbalk en tabbalk terug op elk eindscherm, knoppen Terug naar home / Alle spellen, Home op het dagoverzicht). Details in `docs/CHANGES_SINCE_1_11.md`. Vorige: 1.57.0 (Daily Close Call + dagoverzicht) live sinds 4 november 2026 (PR #58).
 Hosting: eigen Cloudflare-account (worker `roviko`, database `roviko-db`), sinds 25 september 2026. De oude ChatGPT-hosting (https://roviko.info960133.chatgpt.site) is alleen nog een tijdelijke terugvaloptie.
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
