@@ -1,0 +1,228 @@
+{
+ "loudness_lufs": -14.0,
+ "true_peak_dbfs": -1.2,
+ "normalization_type": "static gain + true-peak limiter",
+ "music_gain_db": -3.0,
+ "events": [
+  {
+   "t": 0.01,
+   "beat": 0.02,
+   "sfx": "pop",
+   "rate": 1.1,
+   "start_s": 0.0045,
+   "peak_lands_at_s": 0.01,
+   "bed_db": -34.0,
+   "gain_db": -29.1
+  },
+  {
+   "t": 0.0748,
+   "beat": 0.15,
+   "sfx": "pop",
+   "rate": 1,
+   "start_s": 0.0688,
+   "peak_lands_at_s": 0.0748,
+   "bed_db": -34.0,
+   "gain_db": -27.7
+  },
+  {
+   "t": 0.2243,
+   "beat": 0.45,
+   "sfx": "pop",
+   "rate": 1.1,
+   "start_s": 0.2189,
+   "peak_lands_at_s": 0.2243,
+   "bed_db": -34.0,
+   "gain_db": -27.7
+  },
+  {
+   "t": 0.7974,
+   "beat": 1.6,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 0.2806,
+   "peak_lands_at_s": 0.7974,
+   "bed_db": -28.5,
+   "gain_db": -10.6
+  },
+  {
+   "t": 1.4952,
+   "beat": 3,
+   "sfx": "clock",
+   "rate": 1.04,
+   "start_s": 1.4429,
+   "peak_lands_at_s": 1.4952,
+   "bed_db": -33.3,
+   "gain_db": -17.1
+  },
+  {
+   "t": 1.9936,
+   "beat": 4,
+   "sfx": "clock",
+   "rate": 1.08,
+   "start_s": 1.9432,
+   "peak_lands_at_s": 1.9936,
+   "bed_db": -34.0,
+   "gain_db": -18.0
+  },
+  {
+   "t": 2.492,
+   "beat": 5,
+   "sfx": "clock",
+   "rate": 1.12,
+   "start_s": 2.4434,
+   "peak_lands_at_s": 2.492,
+   "bed_db": -30.0,
+   "gain_db": -14.0
+  },
+  {
+   "t": 2.9904,
+   "beat": 6,
+   "sfx": "clock",
+   "rate": 1.16,
+   "start_s": 2.9435,
+   "peak_lands_at_s": 2.9904,
+   "bed_db": -28.8,
+   "gain_db": -12.7
+  },
+  {
+   "t": 3.4888,
+   "beat": 7,
+   "sfx": "clock",
+   "rate": 1.2,
+   "start_s": 3.4435,
+   "peak_lands_at_s": 3.4888,
+   "bed_db": -26.6,
+   "gain_db": -10.4
+  },
+  {
+   "t": 3.3892,
+   "beat": 6.8,
+   "sfx": "drumroll",
+   "rate": 1.0,
+   "start_s": 3.3665,
+   "peak_lands_at_s": 3.3892,
+   "bed_db": -29.0,
+   "gain_db": -15.9
+  },
+  {
+   "t": 3.9872,
+   "beat": 8,
+   "sfx": "impactbig",
+   "rate": 1.0,
+   "start_s": 3.9127,
+   "peak_lands_at_s": 3.9872,
+   "bed_db": -24.2,
+   "gain_db": -7.1
+  },
+  {
+   "t": 4.0122,
+   "beat": 8.05,
+   "sfx": "correct",
+   "rate": 1.0,
+   "start_s": 3.8062,
+   "peak_lands_at_s": 4.0122,
+   "bed_db": -24.1,
+   "gain_db": -11.3
+  },
+  {
+   "t": 4.0869,
+   "beat": 8.2,
+   "sfx": "pop",
+   "rate": 1.0,
+   "start_s": 4.0809,
+   "peak_lands_at_s": 4.0869,
+   "bed_db": -24.3,
+   "gain_db": -18.6
+  },
+  {
+   "t": 4.1866,
+   "beat": 8.4,
+   "sfx": "pop",
+   "rate": 1.0,
+   "start_s": 4.1806,
+   "peak_lands_at_s": 4.1866,
+   "bed_db": -24.9,
+   "gain_db": -19.3
+  },
+  {
+   "t": 5.3828,
+   "beat": 10.8,
+   "sfx": "expand",
+   "rate": 1.0,
+   "start_s": 5.368,
+   "peak_lands_at_s": 5.3828,
+   "bed_db": -30.5,
+   "gain_db": -20.4
+  },
+  {
+   "t": 5.4825,
+   "beat": 11,
+   "sfx": "sparkle",
+   "rate": 1.0,
+   "start_s": 5.0869,
+   "peak_lands_at_s": 5.4825,
+   "bed_db": -29.1,
+   "gain_db": -18.4
+  },
+  {
+   "t": 5.7815,
+   "beat": 11.6,
+   "sfx": "expand",
+   "rate": 1.0,
+   "start_s": 5.7667,
+   "peak_lands_at_s": 5.7815,
+   "bed_db": -28.2,
+   "gain_db": -18.1
+  },
+  {
+   "t": 5.8812,
+   "beat": 11.8,
+   "sfx": "sparkle",
+   "rate": 1.0,
+   "start_s": 5.4856,
+   "peak_lands_at_s": 5.8812,
+   "bed_db": -29.0,
+   "gain_db": -18.3
+  },
+  {
+   "t": 6.5789,
+   "beat": 13.2,
+   "sfx": "pop",
+   "rate": 1.0,
+   "start_s": 6.5729,
+   "peak_lands_at_s": 6.5789,
+   "bed_db": -29.3,
+   "gain_db": -22.9
+  },
+  {
+   "t": 6.6288,
+   "beat": 13.3,
+   "sfx": "kaching",
+   "rate": 1.0,
+   "start_s": 6.5418,
+   "peak_lands_at_s": 6.6288,
+   "bed_db": -30.3,
+   "gain_db": -14.6
+  },
+  {
+   "t": 8.9713,
+   "beat": 18,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 8.4545,
+   "peak_lands_at_s": 8.9713,
+   "bed_db": -27.5,
+   "gain_db": -9.5
+  },
+  {
+   "t": 9.071,
+   "beat": 18.2,
+   "sfx": "mention",
+   "rate": 1.0,
+   "start_s": 8.8669,
+   "peak_lands_at_s": 9.071,
+   "bed_db": -26.6,
+   "gain_db": -15.7
+  }
+ ]
+}
