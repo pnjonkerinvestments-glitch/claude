@@ -6,7 +6,7 @@ import { HowToPlayButton } from '../atelier/HowToPlay';
 import { GameHeader, editionLabel } from '../game/GameHeader';
 import { Peek, type CharacterMood } from '../ds/Character';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, X, Flag, Share2, Radar, RefreshCw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, X, Flag, Share2, Radar, RefreshCw, Home, LayoutGrid } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { api, post, sound, formatScore } from '@/lib/client';
 import { plural } from '@/lib/plural';
@@ -82,7 +82,7 @@ export function RankGame({ id, app }: { id: string; app: any }) {
       // The same end as every daily game (DailyFinish): stage and place card, quiet Share and Done, practice again, then the medals and the folded review.
       ?<section className="daily-finish">
         <DailyResult app={app} date={game.daily!} mode="rank" summary={summary} stage={{game:t('rankRadar'),headline,mood:finishMood,chips:summary}}/>
-        <div className="finish-actions"><button className="finish-quiet finish-share" disabled={busy} onClick={share}><Share2 size={16} aria-hidden="true"/>{t('share')}</button><button className="finish-quiet" onClick={exit}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishDone')}</button></div>
+        <div className="finish-actions"><button className="finish-quiet finish-share" disabled={busy} onClick={share}><Share2 size={16} aria-hidden="true"/>{t('share')}</button><button className="finish-quiet" onClick={() => app.go('/')}><Home size={16} strokeWidth={2.4} aria-hidden="true"/>{t('backHome')}</button><button className="finish-quiet" onClick={() => app.go('/daily')}><LayoutGrid size={16} strokeWidth={2.4} aria-hidden="true"/>{t('viewAllGames')}</button></div>
         <button className="text-link finish-again" disabled={busy} onClick={again}><RefreshCw size={15} aria-hidden="true"/>{t('finishPractice')}</button>
         {medalRow}{review}
       </section>

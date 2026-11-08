@@ -20,7 +20,13 @@ test('Daily Close Call: the next 365 days all have three fair rounds', () => {
       assert.ok(x.TARGETS[r.topic].includes(r.target), 'a round target');
       assert.equal(r.deck.length, 10, 'ten countries to take or skip');
       const values = r.deck.map(id => x.valueOf(r.topic, id));
-      for (const v of values) assert.ok(v >= r.target * .03 && v <= r.target * .40, d + ': middle-sized countries only');
+      // 1.58: two giants to skip, four middle-sized and four small countries to fill the gap.
+      const share = values.map(v => v / r.target);
+      assert.equal(share.filter(v => v >= x.GIANT[0] && v <= x.GIANT[1]).length, 2, d + ': two giants');
+      assert.equal(share.filter(v => v >= x.MIDDLE[0] && v <= x.MIDDLE[1]).length, 4, d + ': four middle-sized');
+      assert.equal(share.filter(v => v >= x.SMALL[0] && v <= x.SMALL[1]).length, 4, d + ': four small');
+      // No autopilot: taking everything until 80% or 90% and then holding never pays.
+      for (const stop of [.8, .9]) assert.ok(x.blindPlay(r, stop) <= 333 * x.BLIND_MAX, d + ': blind play until ' + stop);
       assert.ok(values.reduce((a, b) => a + b) > r.target * 1.3, d + ': taking everything goes over, so you must skip');
       assert.ok(x.bestReach(r) >= r.target * .98, d + ': the Close Call bonus is always reachable');
     }

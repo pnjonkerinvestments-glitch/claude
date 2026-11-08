@@ -1,5 +1,5 @@
 'use client';
-import { ArrowRight, Check, RefreshCw, Share2, Sprout, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, RefreshCw, Share2, Sprout, Sparkles, Home, LayoutGrid } from 'lucide-react';
 import { FinishStage } from '../ds/FinishStage';
 import { GameIcon } from '../atelier/GameIcon';
 import { DayNudge } from '../atelier/DayNudge';
@@ -9,7 +9,7 @@ import { DayNudge } from '../atelier/DayNudge';
  * Roviko and the score on the cream canvas, one card with the way on (`followUp`, with the one forest pill),
  * then quiet pills for another round, Share and Done, and the review folded.
  */
-export function SoloResults({ result, t, locale, onAgain, onShare, onHome, followUp, dailyStreak }: any) {
+export function SoloResults({ result, t, locale, onAgain, onShare, onHome, onGames, followUp, dailyStreak }: any) {
     const answers = result.answers ?? [];
     const correct = answers.filter((a: any) => a.correct).length;
     const wrong = answers.filter((a: any) => !a.correct);
@@ -29,7 +29,9 @@ export function SoloResults({ result, t, locale, onAgain, onShare, onHome, follo
         <div className="results-actions finish-actions">
             {!daily && !survival && !result.bonus && <button className="finish-quiet" onClick={onAgain}><RefreshCw size={16} aria-hidden="true"/>{t('playAgain')}</button>}
             <button className="finish-quiet" onClick={onShare}><Share2 size={16} aria-hidden="true"/>{t('share')}</button>
-            <button className="finish-quiet" onClick={onHome}><Check size={16} strokeWidth={2.6} aria-hidden="true"/>{t('finishForNow')}</button>
+            {/* 1.58: two clear ways out instead of one "Done": Home, and all the games. */}
+            <button className="finish-quiet" onClick={onHome}><Home size={16} strokeWidth={2.4} aria-hidden="true"/>{t('backHome')}</button>
+            {onGames && <button className="finish-quiet" onClick={onGames}><LayoutGrid size={16} strokeWidth={2.4} aria-hidden="true"/>{t('viewAllGames')}</button>}
         </div>
         <details className="review-section result-review"><summary><h2>{wrong.length ? <><Sprout size={20} aria-hidden="true"/> {t('learningReview')}</> : <><Sparkles size={20} aria-hidden="true"/> {t('perfect')}</>}</h2></summary>{wrong.length ? <><p>{t('learningReviewCopy')}</p><div className="review-list">{wrong.map((a: any, i: number) => <div key={i}><GameIcon mode={a.mode}/><div><strong>{a.answerLabel[locale]}</strong><p>{a.fact[locale]}</p></div><ArrowRight size={18} aria-hidden="true"/></div>)}</div></> : <p>{t('learningPerfectCopy')}</p>}</details>
     </div>;
