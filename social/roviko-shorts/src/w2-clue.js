@@ -3,9 +3,9 @@
   Under the big headline three clue cards land, hard to easy, each a real fact (roviko.app data and well-known records); a ring
   counts each clue down, then the answer (silhouette, true-ratio flag, name) and one more fact as the payoff.
 */
-// @scripts data/w3.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
+// @scripts data/w3.js data/w4.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
 const D = +(Q.get('d') || 1);
-const DAY = WK === 3 ? W3.clue[D] : {
+const DAY = WK >= 3 ? window['W' + WK].clue[D] : {
   1: { iso: 'ZAF', fl: 'za', name: 'South Africa', song: 'fun-and-games', tempo: 99.547, hook: ['3 clues. 1 country.', 'Got it on clue 1?'],
     clues: [['columns', 'It has three capital cities'], ['map', 'A whole other country sits inside it'], ['pin', 'Cape Town is here']],
     fact: 'Pretoria (government), Cape Town (parliament), Bloemfontein (courts). And Lesotho sits completely inside it.',

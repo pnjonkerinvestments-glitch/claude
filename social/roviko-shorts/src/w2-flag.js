@@ -3,9 +3,9 @@
   Two look-alike flags in big white cards under a big headline (the layout of the 10.3K post), "which one is X?", a ring counts
   down, the answer lands, two magnifiers show the detail that tells them apart, and a fact pays off the watch.
 */
-// @scripts data/w3.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
+// @scripts data/w3.js data/w4.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
 const D = +(Q.get('d') || 1);
-const DAY = WK === 3 ? W3.flag[D] : {
+const DAY = WK >= 3 ? window['W' + WK].flag[D] : {
   1: { song: 'games-worldbeat', tempo: 115.993, flags: [['ht', 'Haiti'], ['li', 'Liechtenstein']], answer: 1,
     hook: ['Same flag until 1936.', 'Which is Liechtenstein?'], win: ['It’s B.', 'Look for the crown'],
     lens: [[0, .5, .5, 2.4, 'Coat of arms'], [1, .22, .25, 2.4, 'The crown']],

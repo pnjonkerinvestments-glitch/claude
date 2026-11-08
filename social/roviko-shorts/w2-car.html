@@ -28,6 +28,7 @@ svg { overflow: visible; }
 <script src="lib/core.js"></script>
 <script src="lib/extras.js"></script>
 <script src="data/w3.js"></script>
+<script src="data/w4.js"></script>
 <script src="lib/ios.js"></script>
 <script src="lib/flagratio.js"></script>
 <script>
@@ -149,8 +150,8 @@ function halloween() {
     el(uiL, { left: 64, top: 1130, width: W - 128, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 500, fontSize: 44, color: SUB }, 'Comment the number. Know a scarier one?');
   }
 }
-const WK = +(Q.get('w') || 2);   // ?w=3: week 3 (2-8 Nov), data/w3.js
-if (DARK) halloween(); else twins((WK === 3 ? W3.twins : TWINS)[+post.replace('twins', '')]);
+const WK = +(Q.get('w') || 2);   // ?w=3, ?w=4: later weeks, data/w3.js, data/w4.js
+if (DARK) halloween(); else twins((WK >= 3 ? window['W' + WK].twins : TWINS)[+post.replace('twins', '')]);
 window.filmReady = (async () => {
   await Promise.all(['500 20px Fredoka', '600 28px Fredoka', '700 28px Fredoka', '700 13px Manrope', '800 13px Manrope'].map(f => document.fonts.load(f)));
   await document.fonts.ready; await Promise.all([...document.images].map(i => i.decode().catch(() => {})));

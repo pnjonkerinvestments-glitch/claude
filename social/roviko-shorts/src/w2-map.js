@@ -4,9 +4,9 @@
   best of last week's challenges). "size": two countries on a normal web map, then at true size on the same scale.
   Areas: roviko.app data.
 */
-// @scripts data/w3.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
+// @scripts data/w3.js data/w4.js lib/trendfilm.js lib/ios.js lib/flagratio.js lib/w2.js
 const D = +(Q.get('d') || 1);
-const DAY = WK === 3 ? W3.map[D] : {
+const DAY = WK >= 3 ? window['W' + WK].map[D] : {
   1: { mode: 'find', song: 'games-worldbeat', tempo: 115.993, iso: 'URY', name: 'Uruguay', bounds: [-76, -40, -40, -13.5], answer: 4,
     pins: [['BOL', 1, -64.5, -17], ['PRY', 2, -58.2, -23.4], ['ARG', 3, -64, -34], ['URY', 4, -56, -32.8], ['BRA', 5, -51.5, -28]],
     hook: ['Which number', 'is Uruguay?'], say: 'Number 2. Trust me.', win: ['It’s number 4.', 'Paraguay is number 2'],
