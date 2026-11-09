@@ -23,6 +23,7 @@ import { api, post, copyText, formatScore, sound, soundDefault, readPreference, 
 import { NextDiscovery } from './atelier/NextDiscovery';
 import { DailyResult } from './atelier/DailyResult';
 import { returnDestination, navigationState } from '@/lib/navigation';
+import { rememberPartner } from '@/lib/partner';
 import { GameHeader, editionLabel } from './game/GameHeader';
 import { musicPlaying, startMusic, stopMusic } from '@/lib/audio';
 import { Question } from './game/Question';
@@ -110,6 +111,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     const [measurement, setMeasurement] = useState(false);
     // 1.58: once a game shows its end screen the top bar and the tab bar come back, so Home and the other games are one tap away.
     const [resultNav, setResultNav] = useState(false);
+    useEffect(() => { rememberPartner(); }, []);
     useEffect(() => { setResultNav(false); }, [path]);
     const [manualCopy, setManualCopy] = useState<string | null>(null);
     const [report, setReport] = useState<any>(null);
