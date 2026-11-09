@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.60.0 (op de testversie, nog niet live)
+## 1.60.0 (live sinds 9 november 2026, PR #61)
 
 **Uitnodigen op een vriendelijke, slimme manier** (eigenaar: "meer en vriendelijker pushen om mensen uit te nodigen, niet alleen een knop, iets uitnodigenders, een pop-up").
 - **Uitdaag-moment (pop-up)** op een moment om trots op te zijn:
