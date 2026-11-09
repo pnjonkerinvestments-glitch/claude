@@ -93,3 +93,16 @@
 @media (max-width:760px){.next-dock{bottom:calc(92px + env(safe-area-inset-bottom))}}
 @media (prefers-reduced-motion:reduce){.next-dock{animation:none}}
 .game-main:has(.next-dock){padding-bottom:calc(180px + env(safe-area-inset-bottom))}
+/* 1.60: the invite moment: a preview of the friend's challenge card (same look as .challenge-banner) and one share button. */
+.invite-moment{text-align:center;align-items:center}
+.invite-moment .im-ticket{width:100%;margin:6px 0 4px;padding:0;text-align:left}
+.invite-moment .im-ticket figcaption{font:700 .72rem/1.2 var(--font-sans);letter-spacing:.06em;text-transform:uppercase;color:var(--color-ink-soft);margin:0 0 6px;text-align:center}
+.invite-moment .im-ticket>div{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:22px;background:var(--color-surface);border:2px solid var(--color-gold);box-shadow:var(--shadow-card);animation:fb-pop .45s cubic-bezier(.34,1.56,.64,1) .15s both}
+.invite-moment .im-ticket>div>span{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.invite-moment .im-ticket strong{font:700 1rem/1.25 var(--font-display);color:var(--color-ink)}
+.invite-moment .im-ticket small{color:var(--color-ink-soft);font-size:.9rem}
+.invite-moment .btn-lg{width:100%;margin-top:8px}
+.invite-moment .im-later{margin-top:2px}
+@media (prefers-reduced-motion:reduce){.invite-moment .im-ticket>div{animation:none}}
+.invite-moment .im-ticket em{font:700 .85rem/1.25 var(--font-sans);font-style:normal;color:var(--color-ink)}
+.invite-moment .im-later{align-self:center;justify-self:center;margin-left:auto;margin-right:auto}

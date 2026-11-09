@@ -41,7 +41,7 @@ const PuzzleGame = React.lazy(() => import('./puzzles/PuzzleGame').then(m => ({ 
 const DuelGame = React.lazy(() => import('./puzzles/DuelGame').then(m => ({ default: m.DuelGame })));
 import { evaluateLearning } from '@/lib/game-engine/learning';
 import { pageTitle } from '@/lib/page-title';
-import { challengeExtras, shareResult, setSharer } from '@/lib/share';
+import { challengeExtras, shareResult, setSharer, markShared } from '@/lib/share';
 import { shareWithImage } from '@/lib/share-image';
 import { createRoomClient } from '@/lib/realtime/room-client';
 import { AppContext, useApp } from './app/context';
@@ -156,7 +156,7 @@ export default function RovikoApp({ initialPath = '/' }: {
     // 1.43: picking a classic game opens its choices at once; the last choices for that game come back.
     const playMode = (m: string, previous?: any) => { let saved: any = {}; try { saved = JSON.parse(readPreference('rv_setup_' + m, '{}')) ?? {}; } catch { saved = {}; } setMode(m); setSetup({ ...DEFAULT_SETTINGS, region, ...saved, ...(previous ?? {}), mode: m, timer: 0 }); setModal('game'); };
     // Results use the phone's share sheet when there is one (chat apps), and copying otherwise.
-    const share = async (value: string) => { try { if (navigator.share && matchMedia('(pointer: coarse)').matches) { if (await shareWithImage(value)) return; await navigator.share({ text: value }); return; } } catch (e) { if ((e as Error)?.name === 'AbortError') return; } await copy(value); };
+    const share = async (value: string) => { markShared(); try { if (navigator.share && matchMedia('(pointer: coarse)').matches) { if (await shareWithImage(value)) return; await navigator.share({ text: value }); return; } } catch (e) { if ((e as Error)?.name === 'AbortError') return; } await copy(value); };
     const copy = async (value: string) => { try {
         await copyText(value);
         toast.success(t('copied'));

@@ -18,6 +18,13 @@ import { ContinentCTA } from '../home/ContinentWeek';
 /** A square per daily game for the day share: green from 800, yellow from 500, otherwise red. */
 export const dayTrail = (scores: { mode: string; score: number }[], date?: string) => dayModesFor(date).map(m => { const s = scores.find(x => x.mode === m)?.score ?? 0; return s >= 800 ? '🟩' : s >= 500 ? '🟨' : '🟥'; }).join('');
 
+/** The share text of a whole day ("Pietje scored 4,320/6,000 points today"), also used by the invite moment (1.60). */
+export function dayShareText({ t, locale, date, scores, place, players, streak, name }: { t: (k: string) => string; locale: string; date: string; scores: { mode: string; score: number }[]; place?: number; players?: number; streak?: number; name?: string }) {
+  const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
+  rememberStanding('day', date, place, players, total);
+  return shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total, extras: challengeExtras(t, locale, 'day', date, name) });
+}
+
 /**
  * The whole day at a glance once all six scored games are done (1.23).
  * As a screen (after the sixth game): Roviko cheering on the cream canvas, "Nice trip. Same time tomorrow?",
@@ -45,7 +52,7 @@ export function DaySummary({ date, scores, place, players, streak, t, locale, sh
 }) {
   const n = (v: number) => v.toLocaleString(locale), total = scores.reduce((a, s) => a + (s.score ?? 0), 0);
   const scoreOf = (m: string) => scores.find(s => s.mode === m)?.score ?? 0;
-  const shareDay = () => share(shareCard({ label: t('dayShareLabel'), date, trail: dayTrail(scores, date), score: n(total) + '/' + n(DAILY_TOTAL_MAX) + ' ' + t('points'), streak, url: new URL('/?shared=day', location.origin).toString(), points: total, extras: (rememberStanding('day', date, place, players, total), challengeExtras(t, locale, 'day', date, name)) }));
+  const shareDay = () => share(dayShareText({ t, locale, date, scores, place, players, streak, name }));
   // The day's fanfare, once, when this is the end screen (it stands in for the last game's own stage).
   const title = useRef<HTMLHeadingElement>(null);
   const app = useContext(AppContext);

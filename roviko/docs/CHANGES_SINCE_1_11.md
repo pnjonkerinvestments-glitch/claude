@@ -596,6 +596,34 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.60.0 (op de testversie, nog niet live)
+
+**Uitnodigen op een vriendelijke, slimme manier** (eigenaar: "meer en vriendelijker pushen om mensen uit te nodigen, niet alleen een knop, iets uitnodigenders, een pop-up").
+- **Uitdaag-moment (pop-up)** op een moment om trots op te zijn:
+  - na de hele dag ("Dag compleet! Wie verslaat jouw 4.091 punten?");
+  - na een nieuw persoonlijk record vanaf 500 punten;
+  - na een score beter dan 70% van minstens vijf spelers;
+  - na 850+ punten in één spel.
+- **De pop-up laat precies zien wat je vriend krijgt:** dezelfde kaart als op de pagina van de vriend, met je score, je naam, je plek ("Nummer 1 van de wereld vandaag") en "Kun jij dat verslaan?". Eén knop "Daag een vriend uit" opent het gewone delen (de deeltekst met uitdaaglink is niet veranderd) en daaronder "Niet nu".
+- **Tactische grenzen:**
+  - nooit na het eerste spel van de dag (dan is het reeks-scherm aan de beurt);
+  - hoogstens één keer per dag;
+  - niet als je die dag al iets hebt gedeeld;
+  - na twee keer "Niet nu" op rij drie dagen rust (wie wél uitnodigt, begint weer opnieuw).
+- Alles staat alleen op het apparaat (`roviko:invite-moment`, `roviko:shared`). Er wordt niets verstuurd.
+
+Nieuw: `components/ds/InviteMoment.tsx`. De deeltekst van de dag staat nu in `dayShareText` (`DaySummary.tsx`), die door de dagkaart en de pop-up allebei gebruikt wordt. Teksten in `i18n/v159.ts`. Versie 1.60.0, service worker `roviko-shell-v1.60.0`.
+
+**Getest:** `npm test` 228 geslaagd, 1 overgeslagen; typecheck en build. In de browser (390×844):
+- na de hele dag verschijnt de pop-up met dagtotaal en plek; "Daag een vriend uit" levert de gewone uitdaagtekst met link;
+- na een nieuw record in Close Call verschijnt de "record"-variant;
+- "Niet nu" telt mee en na herladen komt de pop-up niet terug.
+
+**Niet getest:**
+- de apps zelf;
+- de varianten "beter dan 70%" en "850+" (zelfde onderdeel en zelfde regels, alleen een andere titel);
+- het deelmenu van een telefoon (lokaal wordt gekopieerd).
+
 ## 1.59.0 (live sinds 9 november 2026, PR #60)
 
 **Spelers van Sussydle laten doorspelen** (eigenaar: Sussydle linkt naar ons, maar spelers spelen alleen de Daily Detour en stoppen).
