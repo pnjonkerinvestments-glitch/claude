@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.59.0 (op de testversie, nog niet live)
+## 1.59.0 (live sinds 9 november 2026, PR #60)
 
 **Spelers van Sussydle laten doorspelen** (eigenaar: Sussydle linkt naar ons, maar spelers spelen alleen de Daily Detour en stoppen).
 - **Volgende spel zonder scrollen:** de knop "Volgende: …" staat nu direct onder de uitslag. De vraag om een naam/account staat er voortaan *onder* en niet meer tussen. Is de knop toch niet in beeld (klein scherm), dan staat onderaan het scherm een balk met het volgende spel en "x van 6 spellen gespeeld". De balk verdwijnt zodra de knop zelf in beeld komt.

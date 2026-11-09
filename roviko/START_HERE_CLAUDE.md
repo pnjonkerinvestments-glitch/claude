@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.59.0 · op de testversie, nog niet live:** spelers van Sussydle laten doorspelen (volgende spel zonder scrollen, balk onderaan, "Volgende" op het reeks-scherm, accountvraag vanaf het 2e spel, welkomstkaart voor Sussydle). Live is 1.58.0 sinds 8 november 2026 (PR #59): Close Call met reuzen en betere navigatie na een spel. Details in `docs/CHANGES_SINCE_1_11.md`.
+**Versie 1.59.0 · live sinds 9 november 2026 (PR #60):** spelers van Sussydle laten doorspelen (volgende spel zonder scrollen, balk onderaan, "Volgende" op het reeks-scherm, accountvraag vanaf het 2e spel, welkomstkaart voor Sussydle). Details in `docs/CHANGES_SINCE_1_11.md`. Vorige: 1.58.0 (Close Call met reuzen, betere navigatie) live sinds 8 november 2026 (PR #59).
 Hosting: eigen Cloudflare-account (worker `roviko`, database `roviko-db`), sinds 25 september 2026. De oude ChatGPT-hosting (https://roviko.info960133.chatgpt.site) is alleen nog een tijdelijke terugvaloptie.
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
