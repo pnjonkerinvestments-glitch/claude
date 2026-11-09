@@ -106,3 +106,8 @@ export function shareResult(input: { mode: string; label: string; date?: string 
     url.searchParams.set('shared', input.mode);
     return shareCard({ label: input.label, date: input.date, trail: squares(input.answers), score: input.detail ?? `${input.correct}/${input.total}`, streak: input.streak, url: url.toString(), points: input.points, extras: input.extras });
 }
+
+/** 1.60: the day (UTC) something was last shared on this device, so the invite moment never asks right after a share. */
+const SHARED = 'roviko:shared';
+export function markShared() { try { localStorage.setItem(SHARED, new Date().toISOString().slice(0, 10)); } catch { /* harmless */ } }
+export function sharedToday(date: string) { try { return localStorage.getItem(SHARED) === date; } catch { return false; } }

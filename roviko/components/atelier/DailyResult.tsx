@@ -7,7 +7,8 @@ import { rememberStanding } from '@/lib/share';
 import type { PointMode } from '@/lib/daily-scoring';
 import { completedDailies, dayModesFor, nextDailyMode, type DayMode } from '@/lib/daily-loop';
 import { StreakMoment, streakMomentSeen } from '../ds/StreakMoment';
-import { DaySummary } from './DaySummary';
+import { DaySummary, dayShareText } from './DaySummary';
+import { InviteMoment, inviteAllowed, type InviteKind } from '../ds/InviteMoment';
 import { launchDaily } from '../puzzles/PuzzleDeck';
 import { CountUp } from '../ds/Celebration';
 import { FinishStage, type FinishStageProps } from '../ds/FinishStage';
@@ -28,7 +29,9 @@ type ResultApp = Parameters<typeof launchDaily>[0] & { t: (key: string) => strin
  * screen becomes the day summary instead (Roviko cheering, the six games, the bonus tour, challenge a friend).
  */
 export type ResultSummary = { label: string; value: string; icon?: 'check' | 'flame' | 'clock' | 'route' | 'eye' }[];
-export function DailyResult({ app, date, mode, summary, trail, stage }: { app: ResultApp; date: string; mode: PointMode; summary?: ResultSummary; trail?: boolean[]; stage?: Omit<FinishStageProps, 'score' | 'max' | 'locale' | 'unit'> }) {
+export function DailyResult({ app, date, mode, summary, trail, stage, onShare }: { app: ResultApp; date: string; mode: PointMode; summary?: ResultSummary; trail?: boolean[]; stage?: Omit<FinishStageProps, 'score' | 'max' | 'locale' | 'unit'>;
+  /** 1.60: this game's own share (the invite moment uses it). */
+  onShare?: () => void }) {
   const { t, locale, boot, fail } = app;
   const [game, setGame] = useState<Standing | null>(null), [day, setDay] = useState<Standing | null>(null), [best, setBest] = useState<number | undefined>(), [next, setNext] = useState<DayMode | null | undefined>(), [busy, setBusy] = useState(false), [bonusNext, setBonusNext] = useState<BonusMode | null>(null);
   const [standingLoaded, setStandingLoaded] = useState(false);
@@ -95,9 +98,25 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const played = Math.min(6, scores.length);
   const streakMoment = <StreakMoment open={moment} date={date} streak={streak} week={week} shieldIn={boot.stats.streakFreezes?.nextIn} shields={boot.stats.streakFreezes?.available} t={t} onClose={() => setMoment(false)}
     onNext={next ? () => { void go(); } : undefined} nextLabel={nextLabel}/>;
+  // 1.60: the invite moment, at a moment worth bragging about: a finished day, a new personal best (from 500 points), better than 70% of
+  // at least five players, or 850+ points. Never after the first game of the day (the streak moment's turn) and at
+  // most once a day (InviteMoment.tsx has the rest of the limits).
+  const inviteKind: InviteKind | null = view === 'day' ? 'day'
+    : view === 'game' && onShare && game && score > 0 && scores.length >= 2 && !firstToday
+      ? (isBest && score >= 500 ? 'best' : beaten !== null && beaten >= 70 && players >= 5 ? 'top' : score >= 850 ? 'score' : null) : null;
+  const [invite, setInvite] = useState(false);
+  useEffect(() => {
+    if (!inviteKind || moment || !inviteAllowed(date)) return;
+    const id = setTimeout(() => setInvite(true), 2600);
+    return () => clearTimeout(id);
+  }, [inviteKind, moment, date]);
+  const dayTotal = scores.reduce((a, s) => a + (s.score ?? 0), 0);
+  const inviteMoment = inviteKind && <InviteMoment open={invite} date={date} kind={inviteKind} mode={inviteKind === 'day' ? 'day' : mode as DayMode} points={inviteKind === 'day' ? dayTotal : score} beaten={beaten} name={boot.user?.name} t={t} locale={locale}
+    onClose={() => setInvite(false)}
+    onInvite={() => inviteKind === 'day' ? app.share?.(dayShareText({ t, locale, date, scores, place: day?.place, players: day?.participants, streak: boot.stats.dailyStreak, name: boot.user?.name })) : onShare?.()}/>;
   if (view === 'wait') return <div className="finish-wait" aria-busy="true"><span className="sr-only">{t('loading')}</span></div>;
   if (view === 'day') return <>
-    {streakMoment}
+    {streakMoment}{inviteMoment}
     <DaySummary screen tomorrow={tomorrow} date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}
       current={mode} onBonus={toBonus} bonusBusy={!!bonusLaunch.launching || app.busy}
       game={game ? { score: game.score, place: game.place, participants: game.participants } : null} yesterdayPlace={yesterdayPlace}
@@ -130,9 +149,9 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const dock = next && view === 'game' && !nextVisible ? <div className="next-dock" role="region" aria-label={nextLabel}>
     <button className="btn primary btn-lg" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span><b>{busy ? t('loading') : nextLabel}</b><small>{t('dayGamesPlayed').replace('{n}', String(played))}</small></span><ArrowRight size={19} aria-hidden="true"/></button>
   </div> : null;
-  if (!stage) return <>{card}{dock}{streakMoment}</>;
+  if (!stage) return <>{card}{dock}{streakMoment}{inviteMoment}</>;
   return <>
-    {streakMoment}
+    {streakMoment}{inviteMoment}
     <FinishStage {...stage} coin score={game ? score : null} max={1000} unit={t('points')} locale={locale} chips={stage.chips ?? summary?.map(s => ({ ...s }))} trail={stage.trail ?? trail}>
       {stage.children}
       {isBest && <p className="fs-best"><Star size={15} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</p>}
