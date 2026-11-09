@@ -20,9 +20,11 @@ const markSeen = (date: string) => { try { localStorage.setItem(KEY, date); } ca
  * played) and how far the next streak shield is. Pure motivation: the streak itself is derived from saved
  * daily results on the server (lib/streak.ts) and never changes here.
  */
-export function StreakMoment({ open, date, streak, week, shieldIn, shields, t, onClose }: {
+export function StreakMoment({ open, date, streak, week, shieldIn, shields, t, onClose, onNext, nextLabel }: {
   open: boolean; date: string; streak: number; week?: { date: string; completed: boolean }[]; shieldIn?: number; shields?: number;
   t: (k: string) => string; onClose: () => void;
+  /** 1.59: when there is a next daily game, the big button plays it ("Keep going" used to only close this). */
+  onNext?: () => void; nextLabel?: string;
 }) {
   // 1.39: day 3, 7 and 30 are a party: confetti and their own line.
   const party = PARTY_DAYS.includes(streak);
@@ -45,7 +47,7 @@ export function StreakMoment({ open, date, streak, week, shieldIn, shields, t, o
           ? <><p>{t(offer.kind === 'email' ? 'remindMailCopy' : 'remindOfferCopy')}</p><span><button className="btn secondary" onClick={() => offer.accept(t, true, streak)}>{t('remindOfferYes')}</button><button className="text-link" onClick={offer.decline}>{t('remindOfferNo')}</button></span></>
           : <p>{t(offer.state === 'on' ? (offer.kind === 'email' ? 'remindMailOn' : 'remindOfferOn') : offer.state === 'denied' ? (offer.kind === 'email' ? 'remindMailFailed' : 'reminderDenied') : 'remindOfferLater')}</p>}
       </div>}
-      <button className="btn primary btn-lg" onClick={onClose} autoFocus>{t('smContinue')}<ArrowRight size={18} aria-hidden="true"/></button>
+      <button className="btn primary btn-lg" onClick={() => { onClose(); onNext?.(); }} autoFocus>{onNext && nextLabel ? nextLabel : t('smContinue')}<ArrowRight size={18} aria-hidden="true"/></button>
     </DialogContent>
   </Dialog>;
 }

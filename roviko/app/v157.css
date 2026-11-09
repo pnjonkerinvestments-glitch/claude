@@ -83,3 +83,13 @@
 /* 1.58: on the day overview its own buttons (share the day, rankings, home) are enough: the game's share and Home/All
    games row under it would repeat them. */
 .daily-finish:has(.day-summary.is-screen)>.finish-actions{display:none!important}
+/* 1.59: the next daily game, always one tap away on a result: a bar at the bottom (above the tab bar on phones) until the
+   card's own button is on screen. Built from the existing primary button. */
+.next-dock{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom));z-index:45;display:flex;justify-content:center;padding:0 12px;pointer-events:none;animation:nd-rise .3s ease-out both}
+.next-dock .btn{pointer-events:auto;width:min(520px,100%);display:flex;align-items:center;gap:10px;text-align:left;box-shadow:var(--t-shadow-lift,0 10px 24px rgba(24,33,29,.18))}
+.next-dock .btn>span{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
+.next-dock .btn small{font:600 .75rem/1.2 var(--font-sans);opacity:.8}
+@keyframes nd-rise{from{transform:translateY(16px);opacity:0}to{transform:none;opacity:1}}
+@media (max-width:760px){.next-dock{bottom:calc(92px + env(safe-area-inset-bottom))}}
+@media (prefers-reduced-motion:reduce){.next-dock{animation:none}}
+.game-main:has(.next-dock){padding-bottom:calc(180px + env(safe-area-inset-bottom))}

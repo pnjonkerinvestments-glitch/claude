@@ -596,6 +596,24 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
+## 1.59.0 (op de testversie, nog niet live)
+
+**Spelers van Sussydle laten doorspelen** (eigenaar: Sussydle linkt naar ons, maar spelers spelen alleen de Daily Detour en stoppen).
+- **Volgende spel zonder scrollen:** de knop "Volgende: …" staat nu direct onder de uitslag. De vraag om een naam/account staat er voortaan *onder* en niet meer tussen. Is de knop toch niet in beeld (klein scherm), dan staat onderaan het scherm een balk met het volgende spel en "x van 6 spellen gespeeld". De balk verdwijnt zodra de knop zelf in beeld komt.
+- **Reeks-scherm na het eerste spel:** de grote knop is nu "Volgende: Rank Radar" en start direct het volgende spel. Voorheen sloot hij alleen het venster.
+- **Accountvraag op een beter moment:** niet meer na het allereerste spel van de dag (dan telt alleen het volgende spel), maar vanaf het tweede spel of na het laatste. De bestaande grenzen blijven: nooit twee keer per dag en hoogstens vier keer.
+- **Welkom vanaf Sussydle:** wie via sussydle.com (of `?ref=sussydle` / `?utm_source=sussydle`) binnenkomt, krijgt op de eerste welkomstkaart: "Welkom vanaf Sussydle! Speel de Daily Detour voor je Sussydle-resultaat. Direct daarna wachten nog vijf dagelijkse spellen en je reeks. Maak een account …". De herkomst blijft alleen in deze browsersessie bewaard (`lib/partner.ts`). Er wordt niets verstuurd en er is geen tracking. De deeltekst is niet veranderd, zodat het plakken in Sussydle blijft werken.
+
+Versie 1.59.0, service worker `roviko-shell-v1.59.0`. Nieuw: `lib/partner.ts`, `i18n/v159.ts`.
+
+**Getest:** `npm test` 228 geslaagd, 1 overgeslagen; typecheck en build. In de browser met Sussydle als herkomst:
+- de welkomstkaart toont de Sussydle-tekst;
+- Daily Detour uitgespeeld; op 390×844 staat "Volgende" op y=631 (was 866, onder de vouw);
+- op 375×600 staat de balk onderaan in beeld;
+- het reeks-scherm toont "Next: Rank Radar".
+
+**Niet getest:** de apps zelf; het echte doorklikken vanaf sussydle.com (wel nagebootst met referrer en `?ref=`).
+
 ## 1.58.0 (live sinds 8 november 2026, PR #59)
 
 **Close Call: echt nadenken** (eigenaar: "nu is het gewoon alles pakken en bij 80–90% stoppen").

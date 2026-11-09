@@ -37,6 +37,14 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   const [standingFailed, setStandingFailed] = useState(false), [retry, setRetry] = useState(0);
   const bonusLaunch = useBonusLaunch({ go: app.go, fail });
   const lock = useRef(false);
+  const [nextVisible, setNextVisible] = useState(false);
+  const nextRef = useRef<HTMLButtonElement | null>(null);
+  useEffect(() => {
+    const el = nextRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setNextVisible(e.isIntersecting), { threshold: .6 });
+    io.observe(el); return () => io.disconnect();
+  });
   const [scores, setScores] = useState<{ mode: string; score: number }[]>([]), [yesterdayPlace, setYesterdayPlace] = useState<number | null>(null);
   // The streak moment: after the first finished daily game of the day, once, a moment after the score.
   const [week, setWeek] = useState<{ date: string; completed: boolean }[] | undefined>(), [firstToday, setFirstToday] = useState(false), [moment, setMoment] = useState(false);
@@ -78,9 +86,15 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
   // 1.52: guests are asked to choose their own name (and so a free account) right on the result of a daily game,
   // the Daily Detour included, instead of only on day 2 (1.39). Never twice a day, at most four times (NamePrompt.tsx).
   const namePrompt = useNamePrompt(!!boot.user?.guest, date);
-  const savePrompt = namePrompt.show && <NamePrompt name={boot.user?.name ?? ''} avatar={Number((boot.user as any)?.avatar ?? 0)} place={day?.place} t={t}
+  // 1.59: not after the very first game of the day (then the only job is the next game); from the second game on, with
+  // something to lose (points, a place, a streak). Always under the next-game button, never between you and it.
+  const askName = namePrompt.show && (scores.length >= 2 || next === null);
+  const savePrompt = askName && <NamePrompt name={boot.user?.name ?? ''} avatar={Number((boot.user as any)?.avatar ?? 0)} place={day?.place} t={t}
     onChoose={() => { namePrompt.later(); app.setModal?.('signup'); }} onLater={namePrompt.later}/>;
-  const streakMoment = <StreakMoment open={moment} date={date} streak={streak} week={week} shieldIn={boot.stats.streakFreezes?.nextIn} shields={boot.stats.streakFreezes?.available} t={t} onClose={() => setMoment(false)}/>;
+  const nextLabel = next ? t('loopNext').replace('{game}', t(dailyTitleKey(next))) : '';
+  const played = Math.min(6, scores.length);
+  const streakMoment = <StreakMoment open={moment} date={date} streak={streak} week={week} shieldIn={boot.stats.streakFreezes?.nextIn} shields={boot.stats.streakFreezes?.available} t={t} onClose={() => setMoment(false)}
+    onNext={next ? () => { void go(); } : undefined} nextLabel={nextLabel}/>;
   if (view === 'wait') return <div className="finish-wait" aria-busy="true"><span className="sr-only">{t('loading')}</span></div>;
   if (view === 'day') return <>
     {streakMoment}
@@ -104,14 +118,19 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
     </div>
     {!dayDone && scores.length > 0 && <p className="daily-result-played">{t('dayGamesPlayed').replace('{n}', String(Math.min(6, scores.length)))}</p>}
     {dayDone && <DaySummary date={date} scores={scores} place={day?.place} players={day?.participants} streak={boot.stats.dailyStreak} t={t} locale={locale} share={app.share ?? (() => {})} name={boot.user?.name}/>}
-    {savePrompt}
     {next === undefined ? <span className="daily-result-next is-pending" aria-hidden="true"/> : next
-      ? <button className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}</span><ArrowRight size={19} aria-hidden="true"/></button>
+      ? <button ref={nextRef} className="btn primary btn-lg daily-result-next" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span>{busy ? t('loading') : t('loopNext').replace('{game}', t(dailyTitleKey(next)))}</span><ArrowRight size={19} aria-hidden="true"/></button>
       : bonusNext
         ? <div className="daily-result-bonus"><p>{t('bonusAfterDaily')}</p><button className="btn primary btn-lg daily-result-next" disabled={!!bonusLaunch.launching || app.busy} onClick={() => bonusLaunch.open(bonusNext)}><GameIcon mode={bonusNext} size="sm"/><span>{bonusLaunch.launching ? t('loading') : t('bonusCta').replace('{game}', t(bonusNext))}</span><ArrowRight size={19} aria-hidden="true"/></button></div>
         : <p className="daily-result-done">{t('loopAllDone')} <ResetCountdown label={t('dayNewIn')} t={t}/></p>}
+    {savePrompt}
   </section>;
-  if (!stage) return <>{card}{streakMoment}</>;
+  // 1.59: the next game is always one tap away: a bar at the bottom of the screen (above the tab bar) until the card's
+  // own button scrolls into view, so nobody has to scroll past the result to keep playing.
+  const dock = next && view === 'game' && !nextVisible ? <div className="next-dock" role="region" aria-label={nextLabel}>
+    <button className="btn primary btn-lg" disabled={busy || app.busy} aria-busy={busy} onClick={go}><GameIcon mode={next} size="sm"/><span><b>{busy ? t('loading') : nextLabel}</b><small>{t('dayGamesPlayed').replace('{n}', String(played))}</small></span><ArrowRight size={19} aria-hidden="true"/></button>
+  </div> : null;
+  if (!stage) return <>{card}{dock}{streakMoment}</>;
   return <>
     {streakMoment}
     <FinishStage {...stage} coin score={game ? score : null} max={1000} unit={t('points')} locale={locale} chips={stage.chips ?? summary?.map(s => ({ ...s }))} trail={stage.trail ?? trail}>
@@ -119,5 +138,6 @@ export function DailyResult({ app, date, mode, summary, trail, stage }: { app: R
       {isBest && <p className="fs-best"><Star size={15} strokeWidth={2.6} aria-hidden="true"/>{t('celebrateBest')}</p>}
     </FinishStage>
     {card}
+    {dock}
   </>;
 }

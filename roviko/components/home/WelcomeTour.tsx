@@ -6,6 +6,7 @@ import { Character, type CharacterMood, type CharacterPose } from '../ds/Charact
 import { FlameMark } from '../ds/Coin';
 import { RovikoIcon, type RovikoIconName } from '../ds/RovikoIcons';
 import { TourArt } from './TourArt';
+import { partner } from '@/lib/partner';
 
 export const TOUR_KEY = 'roviko:tour';
 export const tourSeen = () => { try { return localStorage.getItem(TOUR_KEY) === 'done'; } catch { return true; } };
@@ -37,6 +38,7 @@ const READY: Step = { key: 'g10', mascot: ['cheer', 'cheer'] };
  */
 export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup, onLogin }: { open: boolean; onOpenChange: (v: boolean) => void; guest: boolean; t: (k: string) => string; onStart: () => void; onSignup: () => void; onLogin?: () => void }) {
   const steps = [...STEPS, guest ? ACCOUNT : READY];
+  const [from] = useState(() => partner() === 'sussydle');
   const [i, setI] = useState(0);
   useEffect(() => { if (open) setI(0); }, [open]);
   const step = steps[i], last = i === steps.length - 1;
@@ -49,8 +51,10 @@ export function WelcomeTour({ open, onOpenChange, guest, t, onStart, onSignup, o
         {step.mascot ? <><Character mood={step.mascot[0]} pose={step.mascot[1]} size={150}/>{step.flame && <span className="tour-flame"><FlameMark size={44}/></span>}</> : <TourArt step={step.key}/>}
       </div>
       <p className="tour-step">{t('tourStepOf').replace('{n}', String(i + 1)).replace('{total}', String(steps.length))}</p>
-      <DialogTitle className="modal-title">{t(step.key + 'Title')}</DialogTitle>
-      <DialogDescription>{t(step.key + 'Copy')}</DialogDescription>
+      {/* 1.59: players sent by Sussydle come for their Daily Detour result; the first card says that, and that five more
+          daily games and a streak wait after it. */}
+      <DialogTitle className="modal-title">{t(step.key + (step.key === 'g1' && from ? 'Sussy' : '') + 'Title')}</DialogTitle>
+      <DialogDescription>{t(step.key + (step.key === 'g1' && from ? 'Sussy' : '') + 'Copy')}</DialogDescription>
       {step.where && <p className="tour-where"><span>{t('gWhere')}</span>{step.where.map(([icon, label]) => <b key={label}><RovikoIcon name={icon} size={18}/>{t(label)}</b>)}</p>}
       {step.perks && <ul className="tour-perks">{step.perks.map(k => <li key={k}><Check size={16} strokeWidth={3} aria-hidden="true"/>{t(k)}</li>)}</ul>}
       <ol className="tour-dots" aria-hidden="true">{steps.map((s, n) => <li key={s.key} className={n === i ? 'is-on' : n < i ? 'is-past' : ''}/>)}</ol>
