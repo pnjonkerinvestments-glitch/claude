@@ -607,7 +607,7 @@ Wat er mis was: titels zonder zoekwoorden ("Small planet. Big rivalries."), zoek
 - **Rijkere pagina's:** uitleg, "Zo werkt het", alle landen van dat werelddeel (met vlag, bij hoofdsteden ook de hoofdstad), vier vragen met antwoorden en links naar de andere quizzen. Alle feiten komen uit het spel en de landendata (`lib/landing-copy.ts`, `components/pages/LandingPage.tsx`).
 - **Titels en beschrijvingen met zoekwoorden** voor home, Spellen, Uitleg, Leren, Ontdekken, Samen spelen en Puntentelling, in drie talen. De titel in het browsertabblad is dezelfde.
 - **Gestructureerde gegevens:** op home wat Roviko is (gratis spel, uitgever Jonker Studios), op de zoekpagina's de vragen en antwoorden.
-- **Sitemap** met alle openbare pagina's en hun taalversies (van 20 naar 115 adressen).
+- **Sitemap** met alle openbare pagina's en hun taalversies (van 20 naar 112 adressen).
 - **Links naar de quizzen** in de voettekst, zodat zoekmachines ze ook via de site vinden.
 - **Eén adres:** `www.roviko.app` en `http://` gaan door naar `https://roviko.app` (in `worker/index.ts`). Voor www moet de eigenaar het adres nog aan de worker hangen; het deploy-token mag dat niet. Stappen in `docs/PROMOTIE_TEKSTEN.md`.
 - **Promotieteksten** voor verzamelsites, blogs, Reddit, Product Hunt, onderwijs en Spaans, plus de stappen voor Google Search Console: `docs/PROMOTIE_TEKSTEN.md`.
