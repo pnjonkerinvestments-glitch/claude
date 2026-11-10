@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.61.0 · op de testversie, nog niet live:** vindbaarheid (echte Nederlandse en Spaanse pagina's onder `/nl` en `/es`, 28 zoekpagina's per taal, titels met zoekwoorden, sitemap, gestructureerde gegevens, www/http naar roviko.app). Promotieteksten en de stappen voor Search Console en www staan in `docs/PROMOTIE_TEKSTEN.md`. Live is 1.60.0 sinds 9 november 2026 (PR #61). Details in `docs/CHANGES_SINCE_1_11.md`.
+**Versie 1.61.0 · live sinds 10 november 2026 (PR #62):** vindbaarheid (echte Nederlandse en Spaanse pagina's onder `/nl` en `/es`, 28 zoekpagina's per taal, titels met zoekwoorden, sitemap, gestructureerde gegevens, http naar https). Google Search Console is door de eigenaar gekoppeld. Open bij de eigenaar: `www.roviko.app` aan de worker hangen en de promotieteksten versturen (`docs/PROMOTIE_TEKSTEN.md`). Details in `docs/CHANGES_SINCE_1_11.md`. Vorige: 1.60.0 (uitdaag-moment) live sinds 9 november 2026 (PR #61).
 Hosting: eigen Cloudflare-account (worker `roviko`, database `roviko-db`), sinds 25 september 2026. De oude ChatGPT-hosting (https://roviko.info960133.chatgpt.site) is alleen nog een tijdelijke terugvaloptie.
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 

@@ -596,7 +596,7 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.61.0 (op de testversie, nog niet live)
+## 1.61.0 (live sinds 10 november 2026, PR #62)
 
 **Vindbaarheid in zoekmachines** (eigenaar: "controleer de vindbaarheid, ik wil meer dagelijkse gebruikers"; akkoord op dit spoor, op doorverwijzen van www en op klaarzetten van promotieteksten).
 
@@ -617,7 +617,7 @@ Nieuw: `lib/landing.ts`, `lib/landing-copy.ts`, `lib/landing-count.ts`, `lib/jso
 **Getest:** `npm test` 231 geslaagd, 1 overgeslagen (nieuw: adressen, talen, titels en aantallen landen van alle 84 pagina's); typecheck en build. Lokaal op de server: titel, taal, canonical, hreflang en gestructureerde gegevens van home, `/nl`, `/es` en zes zoekpagina's; onbekende adressen onder `/nl` geven 404. In de browser (390×844): een Nederlandse zoekpagina, doorklikken naar een andere quiz en terug, "Nu spelen" start het spel in het Nederlands, geen fouten.
 
 **Niet getest:**
-- de doorverwijzing van www en http (kan alleen op live, www pas na de stap van de eigenaar);
+- de doorverwijzing van www (pas na de stap van de eigenaar); die van http is na het live zetten gecontroleerd en werkt;
 - wat Google ermee doet (dat duurt weken; te volgen in Search Console);
 - de apps zelf.
 
