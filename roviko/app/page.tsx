@@ -1,5 +1,7 @@
 import RovikoApp from '@/components/RovikoApp';
-import {BRAND} from '@/lib/config';
 import {challengeMetadata, siteMetadata} from '@/lib/site-metadata';
-export async function generateMetadata({searchParams}:{searchParams?:Promise<Record<string,string|string[]|undefined>>}={}){const shared=await challengeMetadata('/',await searchParams);if(shared)return shared;return siteMetadata('/',BRAND.name+' — Small planet. Big rivalries.','A small daily trip around the world: the Daily Detour plus five geography games, up to 6,000 points a day, and rooms with friends, a random player or the computer.');}
-export default function Home(){return <RovikoApp initialPath="/"/>;}
+import {alternatesFor} from '@/lib/landing';
+import {PAGE_META} from '@/lib/landing-copy';
+import {siteJsonLd} from '@/lib/json-ld';
+export async function generateMetadata({searchParams}:{searchParams?:Promise<Record<string,string|string[]|undefined>>}={}){const shared=await challengeMetadata('/',await searchParams);if(shared)return shared;return siteMetadata('/',PAGE_META.en[''].title,PAGE_META.en[''].description,'en',alternatesFor('/')!);}
+export default function Home(){return <><script type="application/ld+json" dangerouslySetInnerHTML={{__html:siteJsonLd('en')}}/><RovikoApp initialPath="/"/></>;}

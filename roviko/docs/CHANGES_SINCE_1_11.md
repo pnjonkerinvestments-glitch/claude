@@ -596,7 +596,32 @@ De eigenaar vond de beeldtaal van het tweede deel geen verbetering en stuurde vi
 
 **Tests:** 166/166. Aangepast aan bewuste wijzigingen: de homepagetest (`rendered-html.test`, de nieuwe opzet) en twee testnabootsingen die nu ook `formatScore` nodig hebben (`puzzle-ui.test`, `rank.test`).
 
-## 1.60.0 (op de testversie, nog niet live)
+## 1.61.0 (op de testversie, nog niet live)
+
+**Vindbaarheid in zoekmachines** (eigenaar: "controleer de vindbaarheid, ik wil meer dagelijkse gebruikers"; akkoord op dit spoor, op doorverwijzen van www en op klaarzetten van promotieteksten).
+
+Wat er mis was: titels zonder zoekwoorden ("Small planet. Big rivalries."), zoekpagina's met zo'n 80 woorden, Nederlands en Spaans bestonden alleen in de browser (voor Google was alles Engels), 20 pagina's in de sitemap, geen gestructureerde gegevens, `www.roviko.app` werkte niet.
+
+- **Echte Nederlandse en Spaanse pagina's** onder `/nl` en `/es`, vanaf de server in die taal (titel, tekst en `<html lang>`), met verwijzingen tussen de taalversies (hreflang). Wie zo'n adres opent, krijgt de app in die taal.
+- **28 zoekpagina's per taal (84 adressen):** vlaggen, hoofdsteden, topografie en aardrijkskunde, voor de wereld en per werelddeel. Voorbeelden: `/europe-flags-quiz`, `/nl/vlaggen-europa-quiz`, `/nl/topografie-quiz`, `/es/quiz-de-capitales-de-africa`. De zes bestaande Engelse adressen zijn gebleven.
+- **Rijkere pagina's:** uitleg, "Zo werkt het", alle landen van dat werelddeel (met vlag, bij hoofdsteden ook de hoofdstad), vier vragen met antwoorden en links naar de andere quizzen. Alle feiten komen uit het spel en de landendata (`lib/landing-copy.ts`, `components/pages/LandingPage.tsx`).
+- **Titels en beschrijvingen met zoekwoorden** voor home, Spellen, Uitleg, Leren, Ontdekken, Samen spelen en Puntentelling, in drie talen. De titel in het browsertabblad is dezelfde.
+- **Gestructureerde gegevens:** op home wat Roviko is (gratis spel, uitgever Jonker Studios), op de zoekpagina's de vragen en antwoorden.
+- **Sitemap** met alle openbare pagina's en hun taalversies (van 20 naar 112 adressen).
+- **Links naar de quizzen** in de voettekst, zodat zoekmachines ze ook via de site vinden.
+- **Eén adres:** `www.roviko.app` en `http://` gaan door naar `https://roviko.app` (in `worker/index.ts`). Voor www moet de eigenaar het adres nog aan de worker hangen; het deploy-token mag dat niet. Stappen in `docs/PROMOTIE_TEKSTEN.md`.
+- **Promotieteksten** voor verzamelsites, blogs, Reddit, Product Hunt, onderwijs en Spaans, plus de stappen voor Google Search Console: `docs/PROMOTIE_TEKSTEN.md`.
+
+Nieuw: `lib/landing.ts`, `lib/landing-copy.ts`, `lib/landing-count.ts`, `lib/json-ld.ts`, `components/pages/LandingPage.tsx`, `app/v161.css`, `tests/landing.test.mjs`. Versie 1.61.0, service worker `roviko-shell-v1.61.0`. Geen migratie.
+
+**Getest:** `npm test` 231 geslaagd, 1 overgeslagen (nieuw: adressen, talen, titels en aantallen landen van alle 84 pagina's); typecheck en build. Lokaal op de server: titel, taal, canonical, hreflang en gestructureerde gegevens van home, `/nl`, `/es` en zes zoekpagina's; onbekende adressen onder `/nl` geven 404. In de browser (390×844): een Nederlandse zoekpagina, doorklikken naar een andere quiz en terug, "Nu spelen" start het spel in het Nederlands, geen fouten.
+
+**Niet getest:**
+- de doorverwijzing van www en http (kan alleen op live, www pas na de stap van de eigenaar);
+- wat Google ermee doet (dat duurt weken; te volgen in Search Console);
+- de apps zelf.
+
+## 1.60.0 (live sinds 9 november 2026, PR #61)
 
 **Uitnodigen op een vriendelijke, slimme manier** (eigenaar: "meer en vriendelijker pushen om mensen uit te nodigen, niet alleen een knop, iets uitnodigenders, een pop-up").
 - **Uitdaag-moment (pop-up)** op een moment om trots op te zijn:

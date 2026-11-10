@@ -1,0 +1,19 @@
+/* 1.61: landing pages (components/pages/LandingPage.tsx): white cards under the first card, in the same style. */
+.landing-page{gap:18px}
+.landing-page .lp-block{width:100%;max-width:560px;margin:0 auto;padding:22px 20px;text-align:left}
+.landing-page .lp-block h2{font:700 1.25rem/1.25 var(--font-display);color:var(--color-ink);margin:0 0 12px}
+.landing-page .lp-block h3{font:700 1rem/1.3 var(--font-display);margin:16px 0 8px}
+.landing-page .lp-block h3 a{color:var(--color-ink);text-decoration:underline;text-underline-offset:3px}
+.landing-page .lp-block p,.landing-page .lp-block li,.landing-page .lp-block dd{max-width:none;color:var(--color-ink-soft);font-size:.95rem;line-height:1.55}
+.lp-steps{margin:0;padding-left:20px;display:grid;gap:8px}
+.lp-countries{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px 12px}
+.lp-countries li{display:flex;align-items:center;gap:8px;min-width:0}
+.lp-countries img{flex:0 0 auto;width:32px;height:24px;object-fit:contain;border-radius:3px}
+.lp-countries span{display:flex;flex-direction:column;min-width:0;color:var(--color-ink);font-weight:600;font-size:.9rem;line-height:1.25;overflow-wrap:anywhere}
+.lp-countries small{font-weight:400;color:var(--color-ink-soft);font-size:.82rem}
+.lp-faq{margin:0;display:grid;gap:14px}
+.lp-faq dt{font-weight:700;color:var(--color-ink);margin-bottom:2px}
+.lp-faq dd{margin:0}
+.lp-links{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.lp-links a{display:inline-block;padding:8px 14px;border-radius:999px;background:var(--color-surface-soft,var(--secondary));color:var(--color-ink);font-weight:600;font-size:.9rem;text-decoration:none}
+.lp-links a:hover{text-decoration:underline}
