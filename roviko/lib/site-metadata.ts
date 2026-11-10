@@ -3,7 +3,11 @@ import {BRAND} from './config';
 /** Canonical home of the site; canonical links and share previews always point here, whatever host served the page. */
 export const SITE_URL='https://roviko.app';
 const SHARE_IMAGE={url:'/og/roviko-1200x630.png',width:1200,height:630,alt:'Roviko: a small daily trip around the world'};
-export async function siteMetadata(path:string,title:string,description:string){const h=await headers();const host=h.get('host')??'';const local=/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);const origin=BRAND.url||(local?'http://'+host:SITE_URL);return {title,description,metadataBase:new URL(origin),alternates:{canonical:path},openGraph:{title,description,type:'website' as const,siteName:BRAND.name,locale:'en_GB',url:new URL(path,origin).toString(),images:[SHARE_IMAGE]},twitter:{card:'summary_large_image' as const,title,description,images:[SHARE_IMAGE.url]},other:{'roviko-version':BRAND.version}};}
+/**
+ * 1.61: `path` is the public address of the page. `lang` is its language and `languages` its other language versions
+ * (hreflang), so a search engine shows the Dutch page to Dutch searchers and never sees them as copies of each other.
+ */
+export async function siteMetadata(path:string,title:string,description:string,lang:'en'|'nl'|'es'='en',languages?:Record<string,string>){const h=await headers();const host=h.get('host')??'';const local=/^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host);const origin=BRAND.url||(local?'http://'+host:SITE_URL);return {title,description,metadataBase:new URL(origin),alternates:{canonical:path,...(languages?{languages:{...languages,'x-default':languages.en}}:{})},openGraph:{title,description,type:'website' as const,siteName:BRAND.name,locale:lang==='nl'?'nl_NL':lang==='es'?'es_ES':'en_GB',url:new URL(path,origin).toString(),images:[SHARE_IMAGE]},twitter:{card:'summary_large_image' as const,title,description,images:[SHARE_IMAGE.url]},other:{'roviko-version':BRAND.version}};}
 
 /**
  * The link preview of a shared result (1.26): WhatsApp, iMessage and the like show "Pietje scored 3,879 points today"

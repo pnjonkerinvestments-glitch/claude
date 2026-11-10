@@ -1,6 +1,6 @@
 # Roviko — volledige websiteoverdracht aan Claude
 
-**Versie 1.60.0 · live sinds 9 november 2026 (PR #61):** uitdaag-moment (pop-up "Daag een vriend uit" na de hele dag of een topscore, met voorbeeld van wat de vriend ziet; hoogstens 1× per dag). Details in `docs/CHANGES_SINCE_1_11.md`. Vorige: 1.59.0 (Sussydle-spelers laten doorspelen) live sinds 9 november 2026 (PR #60).
+**Versie 1.61.0 · op de testversie, nog niet live:** vindbaarheid (echte Nederlandse en Spaanse pagina's onder `/nl` en `/es`, 28 zoekpagina's per taal, titels met zoekwoorden, sitemap, gestructureerde gegevens, www/http naar roviko.app). Promotieteksten en de stappen voor Search Console en www staan in `docs/PROMOTIE_TEKSTEN.md`. Live is 1.60.0 sinds 9 november 2026 (PR #61). Details in `docs/CHANGES_SINCE_1_11.md`.
 Hosting: eigen Cloudflare-account (worker `roviko`, database `roviko-db`), sinds 25 september 2026. De oude ChatGPT-hosting (https://roviko.info960133.chatgpt.site) is alleen nog een tijdelijke terugvaloptie.
 De exacte broncommit en pakketinhoud staan in `EXPORT_MANIFEST.json` van de ZIP.
 
