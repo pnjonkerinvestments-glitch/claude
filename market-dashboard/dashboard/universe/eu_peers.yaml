@@ -1,0 +1,229 @@
+# European peers of US companies, for the Earnings section.
+# Key = US ticker, value = list of European Yahoo tickers. Add or change freely and restart.
+# Names of the European tickers are under eu_names (the page uses them as labels).
+# Only `peers` is shown; set earnings.use_extra_peers: true in config.yaml to add `extra_peers`.
+
+peers:
+  # --- our own list ----------------------------------------------------------------------
+  ETN:  [SU.PA]
+  GEHC: [SHL.DE]
+  LLY:  [NOVO-B.CO]
+  EL:   [OR.PA]
+  UA:   [ADS.DE]
+  SPGI: [LSEG.L]
+  VRT:  [SU.PA, LR.PA]
+  TMUS: [DTE.DE]
+  WMT:  [AD.AS]
+  DHR:  [SRT3.DE, DIM.PA]
+  GE:   [SAF.PA]
+  PM:   [BATS.L]
+  GEV:  [ENR.DE]
+  BA:   [AIR.PA]
+  T:    [DTE.DE]
+  GLW:  [PRY.MI]
+  DOW:  [BAS.DE]
+  INFY: [CAP.PA]
+  TMO:  [SRT3.DE]
+  TRU:  [EXPN.L]
+  UPS:  [DHL.DE]
+  HLT:  [AC.PA]
+  GM:   [STLAM.MI]
+  TEVA: [MEDCL.PA]
+  IBM:  [SAP.DE, CAP.PA, WKL.AS, REN.AS]
+  ACN:  [CAP.PA]
+  MSCI: []
+  DTE:  []       # DTE Energy (US); no European peer in our list
+
+extra_peers:
+  # --- suggested additions: obvious sector peers (not shown unless enabled) --------------
+  MCO:  [LSEG.L]
+  MSFT: [SAP.DE]
+  ORCL: [SAP.DE]
+  CRM:  [SAP.DE]
+  NOW:  [SAP.DE]
+  NVDA: [ASML.AS, BESI.AS]
+  AMD:  [ASML.AS, IFX.DE]
+  AVGO: [ASML.AS, IFX.DE]
+  AMAT: [ASML.AS, ASM.AS, BESI.AS]
+  LRCX: [ASML.AS, ASM.AS]
+  KLAC: [ASML.AS, ASM.AS]
+  TXN:  [IFX.DE, STMPA.PA]
+  ADI:  [IFX.DE, STMPA.PA]
+  MCHP: [IFX.DE, STMPA.PA]
+  "ON": [IFX.DE, STMPA.PA]   # quoted: YAML would read ON as true
+  NXPI: [IFX.DE, STMPA.PA]
+  JPM:  [BNP.PA, SAN.MC, INGA.AS]
+  BAC:  [BNP.PA, SAN.MC, INGA.AS]
+  C:    [BNP.PA, DBK.DE]
+  WFC:  [INGA.AS, SAN.MC]
+  GS:   [DBK.DE, UBSG.SW]
+  MS:   [DBK.DE, UBSG.SW]
+  PFE:  [SAN.PA, GSK.L, AZN.L]
+  MRK:  [NOVN.SW, RO.SW, AZN.L]
+  ABBV: [NOVN.SW, RO.SW]
+  BMY:  [SAN.PA, AZN.L]
+  JNJ:  [NOVN.SW, RO.SW]
+  KO:   [NESN.SW, BN.PA]
+  PEP:  [NESN.SW, BN.PA]
+  PG:   [ULVR.L, BEI.DE, HEN3.DE]
+  CL:   [BEI.DE, ULVR.L]
+  KMB:  [ULVR.L]
+  V:    [ADYEN.AS]
+  MA:   [ADYEN.AS]
+  PYPL: [ADYEN.AS]
+  XOM:  [SHEL.L, TTE.PA, BP.L]
+  CVX:  [SHEL.L, TTE.PA, BP.L]
+  COP:  [EQNR.OL]
+  NKE:  [ADS.DE, PUM.DE]
+  HD:   [KGF.L]
+  LOW:  [KGF.L]
+  HON:  [SIE.DE]
+  MMM:  [SIE.DE]
+  EMR:  [SIE.DE, SU.PA]
+  RTX:  [SAF.PA, MTX.DE]
+  LMT:  [RHM.DE, BA.L, LDO.MI]
+  NOC:  [BA.L, RHM.DE]
+  GD:   [RHM.DE, BA.L]
+  F:    [STLAM.MI, VOW3.DE]
+  TSLA: [VOW3.DE, BMW.DE, MBG.DE]
+  FDX:  [DHL.DE]
+  MAR:  [AC.PA]
+  MDT:  [PHIA.AS, SHL.DE]
+  ABT:  [PHIA.AS]
+  CSCO: [NOKIA.HE, ERIC-B.ST]
+  LIN:  [AI.PA]
+  APD:  [AI.PA]
+  SHW:  [AKZA.AS]
+  PPG:  [AKZA.AS]
+  NUE:  [MT.AS]
+  STLD: [MT.AS]
+  FCX:  [GLEN.L, AAL.L]
+  LYB:  [BAS.DE]
+  DD:   [BAS.DE]
+  STZ:  [RI.PA, DGE.L]
+  TAP:  [HEIA.AS, CARL-B.CO, ABI.BR]
+  VZ:   [DTE.DE, ORA.PA, VOD.L]
+  DASH: [DHER.DE]
+  OTIS: [KNEBV.HE, SCHP.SW]
+  AMZN: [ZAL.DE]
+  TPR:  [KER.PA, MC.PA]
+  RL:   [KER.PA, MC.PA]
+  KKR:  [EQT.ST]
+  BX:   [EQT.ST]
+
+eu_names:
+  SU.PA: Schneider Electric
+  SHL.DE: Siemens Healthineers
+  NOVO-B.CO: Novo Nordisk
+  OR.PA: L'Oréal
+  ADS.DE: adidas
+  LSEG.L: London Stock Exchange Group
+  LR.PA: Legrand
+  DTE.DE: Deutsche Telekom
+  AD.AS: Ahold Delhaize
+  SRT3.DE: Sartorius
+  DIM.PA: Sartorius Stedim Biotech
+  SAF.PA: Safran
+  BATS.L: British American Tobacco
+  ENR.DE: Siemens Energy
+  AIR.PA: Airbus
+  PRY.MI: Prysmian
+  BAS.DE: BASF
+  CAP.PA: Capgemini
+  EXPN.L: Experian
+  DHL.DE: DHL Group
+  AC.PA: Accor
+  STLAM.MI: Stellantis
+  MEDCL.PA: MedinCell
+  SAP.DE: SAP
+  WKL.AS: Wolters Kluwer
+  REN.AS: RELX
+  ASML.AS: ASML
+  ASM.AS: ASM International
+  BESI.AS: BE Semiconductor
+  IFX.DE: Infineon
+  STMPA.PA: STMicroelectronics
+  BNP.PA: BNP Paribas
+  SAN.MC: Banco Santander
+  DBK.DE: Deutsche Bank
+  INGA.AS: ING
+  UBSG.SW: UBS
+  NOVN.SW: Novartis
+  RO.SW: Roche
+  AZN.L: AstraZeneca
+  SAN.PA: Sanofi
+  GSK.L: GSK
+  NESN.SW: Nestlé
+  BN.PA: Danone
+  ULVR.L: Unilever
+  BEI.DE: Beiersdorf
+  HEN3.DE: Henkel
+  ADYEN.AS: Adyen
+  SHEL.L: Shell
+  TTE.PA: TotalEnergies
+  BP.L: BP
+  EQNR.OL: Equinor
+  PUM.DE: Puma
+  KGF.L: Kingfisher
+  SIE.DE: Siemens
+  RHM.DE: Rheinmetall
+  BA.L: BAE Systems
+  LDO.MI: Leonardo
+  MTX.DE: MTU Aero Engines
+  VOW3.DE: Volkswagen
+  BMW.DE: BMW
+  MBG.DE: Mercedes-Benz
+  ZAL.DE: Zalando
+  PHIA.AS: Philips
+  NOKIA.HE: Nokia
+  ERIC-B.ST: Ericsson
+  AI.PA: Air Liquide
+  AKZA.AS: AkzoNobel
+  MT.AS: ArcelorMittal
+  GLEN.L: Glencore
+  AAL.L: Anglo American
+  RI.PA: Pernod Ricard
+  DGE.L: Diageo
+  HEIA.AS: Heineken
+  CARL-B.CO: Carlsberg
+  ABI.BR: AB InBev
+  ORA.PA: Orange
+  VOD.L: Vodafone
+  DHER.DE: Delivery Hero
+  KNEBV.HE: Kone
+  SCHP.SW: Schindler
+  EQT.ST: EQT
+  KER.PA: Kering
+  MC.PA: LVMH
+
+# SEC company numbers (CIK) of the US companies, used to pin release times to the minute from
+# their 8-K results filings. Checked against data.sec.gov, Oct 2026. Infosys files no 8-Ks.
+sec_cik:
+  ETN: 1551182
+  GEHC: 1932393
+  LLY: 59478
+  EL: 1001250
+  UA: 1336917
+  SPGI: 64040
+  VRT: 1674101
+  TMUS: 1283699
+  WMT: 104169
+  MSCI: 1408198
+  DHR: 313616
+  GE: 40545
+  PM: 1413329
+  GEV: 1996810
+  BA: 12927
+  T: 732717
+  GLW: 24741
+  DOW: 1751788
+  INFY: 1067491
+  TMO: 97745
+  TRU: 1552033
+  UPS: 1090727
+  HLT: 1585689
+  GM: 1467858
+  TEVA: 818686
+  DTE: 936340
+  IBM: 51143
+  ACN: 1467373
