@@ -1054,5 +1054,17 @@
     null
    ]
   ]
+ },
+ "w5ex-1": {
+  "song": "games-worldbeat",
+  "end": 131,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    0,
+    null
+   ]
+  ]
  }
 }
