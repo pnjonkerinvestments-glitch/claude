@@ -46,7 +46,7 @@ for d, (slug, day) in DAYS.items():
         (fol / 'caption.txt').write_text(POSTS[pid][0] + '\n')
         folders[pid] = fol
         kind = 'NEW REEL' if reel else 'NEW SWIPE POST · ' + {'P1': '5 SLIDES', 'P2': '12 SLIDES', 'P4': '16 SLIDES'}[p]
-        banners[pid] = dict(day=day, kind=kind, l1=POSTS[pid][1], l2=POSTS[pid][2], reel=reel, src='../' + str(first.relative_to(ROOT.parent)))
+        banners[pid] = dict(day=day, kind=kind, l1=POSTS[pid][1], l2=POSTS[pid][2], reel=reel, src='../' + str(first.relative_to(ROOT.parent)), cta='Watch and learn' if p == 'P3' else None)
 shutil.rmtree(tmp)
 (ROOT / 'build' / '_covers.json').write_text(json.dumps(covers)); run('node', 'build/w2-shots.mjs', 'build/_covers.json')
 (ROOT / 'data' / 'w5banners.js').write_text('// written by build/w5_pack.py: banner texts and images for src/w2-banner.js (?w=5)\nwindow.W5B = ' + json.dumps(banners, ensure_ascii=False, indent=1) + ';\n')

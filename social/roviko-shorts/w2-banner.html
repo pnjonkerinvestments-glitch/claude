@@ -29,6 +29,7 @@ svg { overflow: visible; }
 <script src="data/w2banners.js"></script>
 <script src="data/w3banners.js"></script>
 <script src="data/w4banners.js"></script>
+<script src="data/w5banners.js"></script>
 <script src="lib/ios.js"></script>
 <script>
 const id = Q.get('id') || 'D1P1', B = window['W' + (Q.get('w') || 2) + 'B'][id];
@@ -44,7 +45,7 @@ const CW = 952, CH = B.reel ? 1000 : Math.round(CW * 1350 / 1080);
 const bcard = el(uiL, { left: 64, top: 470, width: CW, height: CH, borderRadius: 46, overflow: 'hidden', background: '#fff', boxShadow: '0 2px 4px rgba(22,59,50,.06), 0 30px 70px rgba(22,59,50,.18)' },
   `<img src="${B.src}" style="width:100%;height:100%;object-fit:cover;object-position:50% ${B.reel ? 71 : 50}%;display:block">`);
 el(uiL, { left: 0, top: 470 + CH + (B.reel ? 90 : 50), width: W, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '22px' },
-  `<span style="display:inline-flex;align-items:center;gap:14px;padding:22px 40px;border-radius:999px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:600;font-size:48px">${B.reel ? 'Watch and guess' : 'Swipe and guess'}${glyph('arrow', 44, '#fff')}</span>`);
+  `<span style="display:inline-flex;align-items:center;gap:14px;padding:22px 40px;border-radius:999px;background:${C.forest};color:#fff;font-family:Fredoka;font-weight:600;font-size:48px">${B.cta || (B.reel ? 'Watch and guess' : 'Swipe and guess')}${glyph('arrow', 44, '#fff')}</span>`);
 window.filmReady = (async () => {
   await Promise.all(['600 28px Fredoka', '800 13px Manrope'].map(f => document.fonts.load(f)));
   await document.fonts.ready; await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
