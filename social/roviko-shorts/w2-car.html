@@ -29,11 +29,13 @@ svg { overflow: visible; }
 <script src="lib/extras.js"></script>
 <script src="data/w3.js"></script>
 <script src="data/w4.js"></script>
+<script src="data/w5.js"></script>
 <script src="lib/ios.js"></script>
 <script src="lib/flagratio.js"></script>
 <script>
 const id = Q.get('id') || 'twins1-1', [post, nStr] = id.split('-'), N = +nStr;
 const W = 1080, H = 1350, DARK = post === 'halloween';
+const WK = +(Q.get('w') || 2);   // ?w=3 and on: later weeks, data/w3.js, data/w4.js, data/w5.js
 S(document.body, { width: W, height: H }); S(stage, { width: W, height: H, overflow: 'hidden' });
 S(stage, { background: DARK ? 'radial-gradient(900px 700px at 80% 10%, rgba(255,149,0,.22), transparent 70%), radial-gradient(900px 800px at 10% 90%, rgba(175,82,222,.25), transparent 70%), #11231D'
   : 'radial-gradient(900px 700px at 85% 8%, rgba(31,128,107,.10), transparent 70%), radial-gradient(1000px 900px at 15% 85%, rgba(54,179,245,.10), transparent 70%), #F6F3E9' });
@@ -93,7 +95,9 @@ const HAUNT = [['Hell', 'no', 'Norway', 'flame', 'A real village near Trondheim.
 function twins(T) {
   const F = T.flags, n = F.length, names = F.map(f => f[1]);
   if (N === 1) {
-    if (T.cover) title(T.cover[0], T.cover[1], 170, 66); else title(`${names[0]}, ${names[1]} or ${names[2]}?`, `Name all ${n}`, 170, 70);
+    // the names in the title never follow the A, B, C order of the cards (from week 5 on), so the cover gives nothing away
+    const tn = WK >= 5 ? [names[1], names[2], names[0]] : names;
+    if (T.cover) title(T.cover[0], T.cover[1], 170, 66); else title(`${tn[0]}, ${tn[1]} or ${tn[2]}?`, `Name all ${n}`, 170, 70);
     const top = n === 4 ? 420 : 400, step = n === 4 ? 208 : 270, ch = n === 4 ? 188 : 240, fh = n === 4 ? 138 : 180;
     F.forEach(([c], i) => { const e = ccard(64, top + i * step, W - 128, ch); el(e, { left: 40, top: (ch - fh) / 2, height: fh, display: 'flex', alignItems: 'center', gap: '40px' }, `${flagW(c, fh)}${badge('ABCD'[i], n === 4 ? 80 : 90)}`); });
     swipe('Answers');
@@ -150,7 +154,6 @@ function halloween() {
     el(uiL, { left: 64, top: 1130, width: W - 128, textAlign: 'center', fontFamily: 'Fredoka', fontWeight: 500, fontSize: 44, color: SUB }, 'Comment the number. Know a scarier one?');
   }
 }
-const WK = +(Q.get('w') || 2);   // ?w=3, ?w=4: later weeks, data/w3.js, data/w4.js
 if (DARK) halloween(); else twins((WK >= 3 ? window['W' + WK].twins : TWINS)[+post.replace('twins', '')]);
 window.filmReady = (async () => {
   await Promise.all(['500 20px Fredoka', '600 28px Fredoka', '700 28px Fredoka', '700 13px Manrope', '800 13px Manrope'].map(f => document.fonts.load(f)));

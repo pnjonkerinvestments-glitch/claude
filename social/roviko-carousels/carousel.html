@@ -61,7 +61,7 @@ function ringPath(ring, P, cull = -0.35) {
 const countryPath = (id, P) => GEO[id].map(poly => poly.map(r => ringPath(r, P)).join('')).join('');
 // the country's own centre: the bounding box of its largest polygon, and everything within 12 degrees of it
 // (fewer for a few countries whose far-off islands would pull the centre into the sea)
-const NEAR_DEG = { PRT: 4 };
+const NEAR_DEG = { PRT: 4, ESP: 6 };
 function centreOf(id) {
   const polys = GEO[id];
   const area = poly => { const r = poly[0]; let a = 0; for (let i = 0; i < r.length; i++) { const [x1, y1] = r[i], [x2, y2] = r[(i + 1) % r.length]; a += x1 * y2 - x2 * y1; } return Math.abs(a); };
@@ -141,7 +141,8 @@ const K = post.countries;
 function questionOrAnswer(k, answered) {
   const c = K[k], lv = LEVELS[k];
   const ctr = centreOf(c.id);
-  const { b } = drawMap({ lon: ctr.lon, lat: ctr.lat, span: c.span * (post.n >= 6 ? 1.15 : 1), cy: 790 }, c.id, answered);
+  // with options (round 9 on) the cards take more room: the map sits higher and a little wider
+  const { b } = drawMap({ lon: ctr.lon, lat: ctr.lat, span: c.span * (c.opts ? 1.4 : post.n >= 6 ? 1.15 : 1), cy: c.opts ? 660 : 790 }, c.id, answered);
   // top: n/5, level, progress dots
   const n = pill(stage, `${k + 1} / 5`, 0, 0, { size: 34, h: 66 });
   const lvp = pill(stage, lv.label.toUpperCase(), 0, 0, { bg: lv.bg, fg: lv.fg, size: 28, h: 66, font: 'Manrope', weight: 800, ls: '0.08em' });
@@ -151,6 +152,7 @@ function questionOrAnswer(k, answered) {
     el(stage, { left: W / 2 - 2 * 34 + i * 34 - (cur ? 13 : 8), top: 400 - (cur ? 13 : 8), width: cur ? 26 : 16, height: cur ? 26 : 16, borderRadius: '50%', zIndex: 10,
       background: done ? '#5ED34F' : cur ? GOLD : 'rgba(221,237,230,.35)', boxShadow: cur ? '0 0 0 4px rgba(246,184,75,.3)' : 'none' });
   }
+  if (c.opts) return optionsCard(c, k, answered, b);   // round 9 on: three options to pick from
   if (!answered) {
     const card = whiteCard(140, 1200, 800, c.hint ? 210 : 160);
     el(card, Object.assign({ left: 0, top: 30, width: 800, textAlign: 'center', fontSize: 58, lineHeight: '70px' }, LT), 'Which country is this?');
@@ -169,6 +171,44 @@ function questionOrAnswer(k, answered) {
     const got = pill(stage, k < 4 ? 'Got it? +1. Next one’s harder  →' : 'Got it? Count your score  →', 0, 0, { bg: '#5ED34F', size: 30, h: 60 });
     centreRow([got], 1424);
     // a tick on the country
+    if (b) el(stage, { left: (b[0] + b[2]) / 2 - 36, top: (b[1] + b[3]) / 2 - 36, width: 72, height: 72, borderRadius: 36, background: C.white, zIndex: 9,
+      display: 'grid', placeItems: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.25)' }, icon('check', 44, C.green, 3.6));
+  }
+  if (!answered) watermark();   // on the answer the card reaches down to where it sits
+}
+
+// Round 9 on (content week 5): the question card offers three countries, A B C, so people can comment a letter.
+// The answer card keeps them, marks the right one, and adds the flag and the fact.
+function optionsCard(c, k, answered, b) {
+  const right = c.opts.indexOf(c.name), OH = answered ? 70 : 74, OG = answered ? 10 : 12;
+  const top0 = c.hint && !answered ? 138 : 104, cardH = top0 + 3 * OH + 2 * OG + 30;
+  const y0 = answered ? 990 : 1100;
+  const card = whiteCard(110, y0, 860, answered ? cardH + 140 : cardH);
+  if (!answered) {
+    el(card, Object.assign({ left: 0, top: 24, width: 860, textAlign: 'center', fontSize: 54, lineHeight: '66px' }, LT), 'Which country is this?');
+    if (c.hint) el(card, { left: 0, top: 92, width: 860, textAlign: 'center', fontSize: 28, fontWeight: 800, lineHeight: '40px', color: C.green, whiteSpace: 'pre' },
+      `<span style="background:${C.mint};border-radius:20px;padding:3px 16px">HINT</span>  ${c.hint}`);
+  } else {
+    el(card, { left: 36, top: 28, width: 132, height: 98, borderRadius: 12, overflow: 'hidden', boxShadow: '0 0 0 2px rgba(22,59,50,.1), 0 8px 18px rgba(22,59,50,.16)' },
+      `<img src="${FLAGS}${c.flag}.svg" style="width:100%;height:100%;object-fit:cover;display:block">`);
+    el(card, Object.assign({ left: 196, top: 20, fontSize: c.name.length > 14 ? 50 : 64, lineHeight: '76px', whiteSpace: 'pre' }, LT), c.name);
+    el(card, { left: 198, top: 98, width: 620, fontSize: 26, fontWeight: 700, lineHeight: '34px', color: 'rgba(22,59,50,.72)' }, c.fact);
+  }
+  const oy = answered ? 170 : top0;
+  c.opts.forEach((o, i) => {
+    const ok = answered && i === right, dim = answered && i !== right;
+    el(card, { left: 40, top: oy + i * (OH + OG), width: 780, height: OH, borderRadius: 22, zIndex: 2,
+      background: ok ? '#5ED34F' : dim ? 'rgba(22,59,50,.05)' : C.mint, opacity: dim ? 0.55 : 1 },
+      `<div style="display:flex;align-items:center;gap:20px;height:${OH}px;padding:0 22px"><span style="width:50px;height:50px;border-radius:25px;background:${ok ? '#fff' : C.white};display:grid;place-items:center;font-family:Fredoka;font-weight:700;font-size:30px;color:${C.forest}">${'ABC'[i]}</span><span style="font-family:Fredoka;font-weight:600;font-size:${o.length > 18 ? 34 : 40}px;color:${ok ? '#fff' : C.forest}">${o}</span>${ok ? `<span style="margin-left:auto">${icon('check', 40, '#fff', 3.6)}</span>` : ''}</div>`);
+  });
+  const bottom = y0 + (answered ? cardH + 140 : cardH);
+  if (!answered) {
+    peek(stage, 842, y0, { look: [-0.8, -1], brow: 1 }, 230);
+    const sw = pill(stage, 'Comment A, B or C  →', 0, 0, { bg: GOLD, size: 30, h: 60 }); centreRow([sw], bottom + 22);
+  } else {
+    peek(stage, 870, y0, { happy: 1, cheeks: 1 }, 210);
+    const got = pill(stage, k < 4 ? 'Got it? +1. Next one’s harder  →' : 'Got it? Count your score  →', 0, 0, { bg: '#5ED34F', size: 30, h: 60 });
+    centreRow([got], bottom + 22);
     if (b) el(stage, { left: (b[0] + b[2]) / 2 - 36, top: (b[1] + b[3]) / 2 - 36, width: 72, height: 72, borderRadius: 36, background: C.white, zIndex: 9,
       display: 'grid', placeItems: 'center', boxShadow: '0 8px 20px rgba(0,0,0,.25)' }, icon('check', 44, C.green, 3.6));
   }

@@ -1,0 +1,141 @@
+/*
+  Roviko content week 5 (16-22 Nov 2026), post 3 of every day: Roviko explains. w5-explain.html?d=1..7
+  A voiced explainer on a dark world map: the camera flies between regions, countries light up with a glow, big labels name
+  them, subtitles follow the voice, and a fun fact closes it. Scenes and lines: data/w5ex.js; voice timings: data/w5voice.js
+  (written by build/w5-voice.py; without it, each line gets a reading-speed estimate).
+*/
+// @scripts data/w5.js data/w5ex.js data/w5voice.js
+const D = +(Q.get('d') || 1), X = W5EX[D], TEMPO = X.tempo, DIL = TEMPO / 130;
+const SEA = '#0B2433', LAND = '#2F5E50', KPX = 6;   // world map: equirectangular, 6 px per degree before the camera
+setupStage(SEA);
+S(stage, { background: `radial-gradient(1200px 1400px at 50% 45%, #10354A, ${SEA})` });
+const S2B = s => s * TEMPO / 60;
+
+// ---- timing: real voice lengths when we have them, else about 2.6 words a second
+const VO = (window.W5VO || {})[D];
+const durs = X.scenes.map((sc, i) => VO ? VO.durs[i] + 0.45 : sc.say.split(/\s+/).length / 2.6 + 0.6);
+const starts = durs.reduce((a, d, i) => (a.push(i ? a[i - 1] + durs[i - 1] : 0.5), a), []);
+const DURATION = starts.at(-1) + durs.at(-1) + 0.4;
+
+// ---- the map: all land in one path, borders on top, a layer per scene for the lit-up countries
+const mapWrap = el(stage, { width: 1080, height: 1920, zIndex: 2 });
+const svg = svgEl(mapWrap, 'svg', { width: 1080, height: 1920 }); svg.style.position = 'absolute';
+const cam = svgEl(svg, 'g');
+const wx = lo => (lo + 180) * KPX, wy = la => (90 - la) * KPX;
+const okRing = r => r.every((q, i) => !i || Math.abs(q[0] - r[i - 1][0]) < 180);
+const ringD = r => r.map(([lo, la], i) => (i ? 'L' : 'M') + wx(lo).toFixed(1) + ' ' + wy(la).toFixed(1)).join('') + 'Z';
+const countryD = iso => (GEO[iso] || []).map(p => p.filter(okRing).map(ringD).join('')).join('');
+const allRings = [...Object.values(GEO).flatMap(p => p.map(q => q[0])), ...(window.GEO_EXTRA || [])].filter(okRing);
+svgEl(cam, 'path', { d: allRings.map(ringD).join(''), fill: LAND });
+svgEl(cam, 'path', { d: Object.keys(GEO).map(countryD).join(''), fill: 'none', stroke: 'rgba(255,255,255,.16)', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke', 'stroke-linejoin': 'round' });
+const greyG = svgEl(cam, 'g');
+const scenesG = X.scenes.map(sc => {
+  const g = svgEl(cam, 'g', { opacity: 0 });
+  (sc.grey || []).forEach(iso => svgEl(greyG, 'path', { d: countryD(iso), fill: '#4E6A62', 'data-s': X.scenes.indexOf(sc) }));
+  (sc.hl || []).forEach(iso => svgEl(g, 'path', { d: countryD(iso), fill: sc.col, 'fill-opacity': sc.dim ? 0.35 : 0.88, stroke: '#fff', 'stroke-width': 1.6, 'vector-effect': 'non-scaling-stroke', 'stroke-linejoin': 'round' }));
+  return g;
+});
+S(svg, { filter: 'drop-shadow(0 0 10px rgba(255,255,255,.18))' });
+// lines: the Europe/Asia border and the equator, drawn in as they're named
+const lineSc = X.scenes.find(s => s.line);
+const borderLine = lineSc ? svgEl(cam, 'path', { d: lineSc.line.map(([lo, la], i) => (i ? 'L' : 'M') + wx(lo) + ' ' + wy(la)).join(''), fill: 'none', stroke: '#FFD60A', 'stroke-width': 5,
+  'vector-effect': 'non-scaling-stroke', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', pathLength: 1, 'stroke-dasharray': '1 1', 'stroke-dashoffset': 1 }) : null;
+const eqLine = svgEl(cam, 'path', { d: `M ${wx(-180)} ${wy(0)} L ${wx(180)} ${wy(0)}`, fill: 'none', stroke: '#FFD60A', 'stroke-width': 3, 'vector-effect': 'non-scaling-stroke', 'stroke-dasharray': '14 10', opacity: 0 });
+
+// ---- the camera: fit a lon/lat box into the map area, fly between scenes
+const VIEW = { x: 30, y: 420, w: 1020, h: 940 };
+const camOf = ([lo0, la0, lo1, la1]) => ({ z: Math.min(VIEW.w / ((lo1 - lo0) * KPX), VIEW.h / ((la1 - la0) * KPX)), cx: wx((lo0 + lo1) / 2), cy: wy((la0 + la1) / 2) });
+const CAMS = X.scenes.map(s => camOf(s.cam));
+let CUR = CAMS[0];
+const toScreen = (lo, la) => [VIEW.x + VIEW.w / 2 + (wx(lo) - CUR.cx) * CUR.z, VIEW.y + VIEW.h / 2 + (wy(la) - CUR.cy) * CUR.z];
+
+// ---- overlays: header, labels, true-size shapes, rings, subtitles, outro
+const uiL = el(stage, { width: 1080, height: 1920, zIndex: 20 });
+el(uiL, { width: 1080, height: 520, background: 'linear-gradient(180deg, rgba(8,26,36,.92) 40%, rgba(8,26,36,0))' });
+el(uiL, { left: 0, top: 'auto', bottom: 0, width: 1080, height: 520, background: 'linear-gradient(0deg, rgba(8,26,36,.95) 45%, rgba(8,26,36,0))' });
+el(uiL, { left: 64, top: 150, display: 'flex', alignItems: 'center', gap: '14px', whiteSpace: 'pre' },
+  `<img src="${ASSETS}roviko-globe.svg" style="width:54px;height:54px"><span style="font-family:Fredoka;font-weight:600;font-size:42px;color:#F6F3E9">roviko</span><span style="margin-left:10px;padding:8px 20px;border-radius:999px;background:rgba(255,255,255,.12);font-family:Manrope;font-weight:800;font-size:24px;letter-spacing:.12em;color:#F6F3E9">EXPLAINS · ${W5.days[D]}</span>`);
+const head = el(uiL, { left: 64, top: 236, width: 952, fontFamily: 'Fredoka', fontWeight: 600, fontSize: 80, lineHeight: 1.08, color: '#F6F3E9', whiteSpace: 'nowrap' },
+  `<div>${X.title[0]}</div><div style="color:#5ED34F">${X.title[1]}</div>`);
+const label = el(uiL, { left: 0, top: 0, zIndex: 25, whiteSpace: 'pre', transformOrigin: '50% 50%', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 84, color: '#fff', letterSpacing: '.02em' }, '');
+const factBadge = el(uiL, { left: 0, top: 0, zIndex: 25, whiteSpace: 'pre', transformOrigin: '50% 50%' },
+  `<span style="display:inline-flex;align-items:center;gap:10px;padding:10px 24px;border-radius:999px;background:#FFD60A;color:#0B2433;font-family:Manrope;font-weight:800;font-size:28px;letter-spacing:.12em">★ FUN FACT</span>`);
+const extraLabels = (lineSc ? lineSc.labels : []).map(([t, lo, la, col]) => ({ lo, la, e: el(uiL, { zIndex: 24, whiteSpace: 'pre', transformOrigin: '50% 50%', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 76, color: '#fff', textShadow: `0 0 18px ${col}, 0 0 4px ${col}` }, t) }));
+const eqLabel = el(uiL, { zIndex: 24, whiteSpace: 'pre', fontFamily: 'Manrope', fontWeight: 800, fontSize: 26, letterSpacing: '.16em', color: '#FFD60A' }, 'EQUATOR');
+const ring = el(uiL, { width: 120, height: 120, borderRadius: 60, border: '6px solid #FFD60A', zIndex: 23, boxShadow: '0 0 24px rgba(255,214,10,.7)' });
+// true-size shapes (Africa): equal-area outlines at the map's scale, with their names
+const shapeSvg = svgEl(el(uiL, { width: 1080, height: 1920, zIndex: 22 }), 'svg', { width: 1080, height: 1920 }); shapeSvg.style.position = 'absolute';
+const SHAPE_COL = { USA: '#5AC8FA', CHN: '#FF6B9A', IND: '#5ED34F' };
+const shapes = {};
+X.scenes.forEach(sc => (sc.shapes || []).forEach(([iso]) => { if (shapes[iso]) return;
+  const ctr = geoCentre(iso), P = laea(ctr.lon, ctr.lat), rings = ctr.near.flatMap(p => p.map(r => r.map(([lo, la]) => P(lo, la)))), b = bboxOf(rings.flat());
+  const p = svgEl(shapeSvg, 'path', { fill: SHAPE_COL[iso], 'fill-opacity': 0.55, stroke: '#fff', 'stroke-width': 3, 'stroke-linejoin': 'round' });
+  const t = el(uiL, { zIndex: 26, whiteSpace: 'pre', fontFamily: 'Fredoka', fontWeight: 700, fontSize: 40, color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,.6)', transformOrigin: '50% 50%' },
+    { USA: 'USA', CHN: 'CHINA', IND: 'INDIA' }[iso]);
+  shapes[iso] = { rings, b, p, t, first: X.scenes.findIndex(s => (s.shapes || []).some(q => q[0] === iso)) };
+}));
+// subtitles: the line in chunks of about five words, timed by length
+const subBox = el(uiL, { left: 70, top: 1440, width: 940, zIndex: 30, textAlign: 'center' });
+const chunks = [];
+X.scenes.forEach((sc, i) => {
+  const words = sc.say.split(/\s+/), n = Math.ceil(words.length / 5), per = Math.ceil(words.length / n);
+  const total = durs[i] - 0.45, lens = [];
+  for (let k = 0; k < n; k++) lens.push(words.slice(k * per, (k + 1) * per).join(' '));
+  const chars = lens.reduce((a, s) => a + s.length, 0); let t0 = starts[i];
+  lens.forEach(s => { const d = total * s.length / chars; chunks.push({ s, t0, t1: t0 + d }); t0 += d; });
+});
+const subEl = el(subBox, { position: 'relative', display: 'inline-block', padding: '14px 26px', borderRadius: 26, background: 'rgba(0,0,0,.55)', fontFamily: 'Fredoka', fontWeight: 600, fontSize: 58, lineHeight: 1.2, color: '#fff' }, '');
+// outro
+const outro = el(uiL, { left: 140, top: 760, width: 800, zIndex: 40, transformOrigin: '50% 50%', borderRadius: 44, background: '#F6F3E9', padding: '44px 40px', boxSizing: 'border-box', textAlign: 'center',
+  boxShadow: '0 30px 80px rgba(0,0,0,.45)' },
+  `<img src="${ASSETS}roviko-globe.svg" style="width:120px;height:120px"><div style="font-family:Fredoka;font-weight:700;font-size:70px;color:${C.forest};line-height:1.05;margin-top:10px">A new map,<br>explained every day</div><div style="font-family:Manrope;font-weight:800;font-size:30px;color:${C.green};margin-top:18px;letter-spacing:.06em">FOLLOW · PLAY ROVIKO · ROVIKO.APP</div>`);
+
+// ---- sound: a whoosh as the camera moves, a pop for each label, a sparkle for the fact
+X.scenes.forEach((sc, i) => { if (i) ev(S2B(starts[i]), 'swish', -12); if (sc.label) ev(S2B(starts[i] + 0.5), 'pop', -11); if (sc.fact) ev(S2B(starts[i] + 0.3), 'sparkle', -10); if (sc.outro) ev(S2B(starts[i] + 0.2), 'levelup2', -10);
+  (sc.shapes || []).forEach(([iso]) => { if (shapes[iso] && shapes[iso].first === i) ev(S2B(starts[i] + 0.3), 'boinghit', -10); }); });
+ev(0.02, 'swoosh', -12);
+
+function seek(tReal) {
+  const sec = clamp(tReal, 0, DURATION), t = sec * DIL;
+  const i = Math.max(0, starts.findLastIndex(s => sec >= s)), sc = X.scenes[i];
+  // camera: fly from the previous scene's view in 1.1 s
+  const q = E.inOutCubic(clamp((sec - starts[i]) / 1.1)), A = CAMS[Math.max(0, i - 1)], B = CAMS[i];
+  const z = i ? Math.exp(lerp(Math.log(A.z), Math.log(B.z), q)) : B.z;
+  CUR = { z, cx: i ? lerp(A.cx, B.cx, q) : B.cx, cy: i ? lerp(A.cy, B.cy, q) : B.cy };
+  cam.setAttribute('transform', `translate(${VIEW.x + VIEW.w / 2 - CUR.cx * z} ${VIEW.y + VIEW.h / 2 - CUR.cy * z}) scale(${z})`);
+  // highlights crossfade
+  scenesG.forEach((g, k) => { const on = k === i ? segB(t, S2B(starts[k] + 0.35), S2B(starts[k] + 0.9)) : k === i - 1 ? 1 - segB(t, S2B(starts[i]), S2B(starts[i] + 0.5)) : 0; g.setAttribute('opacity', on.toFixed(3)); });
+  [...greyG.children].forEach(p => p.setAttribute('opacity', +p.dataset.s === i ? segB(t, S2B(starts[i] + 0.2), S2B(starts[i] + 0.7)).toFixed(3) : 0));
+  if (borderLine) { const li = X.scenes.indexOf(lineSc), drawn = i < li ? 0 : i === li ? segB(t, S2B(starts[li] + 0.6), S2B(starts[li] + durs[li] - 1)) : (sc.lineStay ? 1 : 0); borderLine.setAttribute('stroke-dashoffset', (1 - drawn).toFixed(4)); }
+  eqLine.setAttribute('opacity', sc.equator ? 1 : 0);
+  // labels
+  if (sc.label) {
+    label.innerHTML = sc.label; S(label, { textShadow: `0 0 22px ${sc.col}, 0 0 6px ${sc.col}, 0 3px 10px rgba(0,0,0,.6)` });
+    const [x, y] = toScreen(...sc.at), w = label.offsetWidth, p = spB(t, S2B(starts[i] + 0.5), 2.4, 0.6);
+    S(label, { left: clamp(x - w / 2, 30, 1050 - w), top: y - 50, transform: `scale(${p})`, visibility: p > 0.01 ? 'visible' : 'hidden' });
+    const fp = sc.fact ? spB(t, S2B(starts[i] + 0.3), 2.4, 0.6) : 0;
+    S(factBadge, { left: clamp(x - 110, 30, 830), top: y - 130, transform: `scale(${fp})`, visibility: fp > 0.01 ? 'visible' : 'hidden' });
+  } else { S(label, { visibility: 'hidden' }); S(factBadge, { visibility: 'hidden' }); }
+  extraLabels.forEach(L => { const on = sc === lineSc || sc.lineStay; const [x, y] = toScreen(L.lo, L.la); const p = on ? spB(t, S2B(starts[X.scenes.indexOf(lineSc)] + 1), 2.4, 0.6) : 0;
+    S(L.e, { left: x - L.e.offsetWidth / 2, top: y - 45, transform: `scale(${p})`, visibility: p > 0.01 ? 'visible' : 'hidden' }); });
+  { const [x, y] = toScreen(-20, 0); S(eqLabel, { left: Math.max(40, x), top: y - 40, visibility: sc.equator && !sc.outro ? 'visible' : 'hidden' }); if (sc.equator && i === 0) { const [x2] = toScreen(-80, 0); S(eqLabel, { left: Math.max(40, x2) }); } }
+  if (sc.ring) { const [x, y] = toScreen(...sc.ring), pulse = 1 + 0.12 * Math.sin(sec * 6), p = spB(t, S2B(starts[i] + 0.6), 2.4, 0.6); S(ring, { left: x - 60, top: y - 60, transform: `scale(${p * pulse})`, visibility: p > 0.01 ? 'visible' : 'hidden' }); }
+  else S(ring, { visibility: 'hidden' });
+  // true-size shapes
+  const pxPerUnit = 6371 * KPX * CUR.z / 111.32;
+  Object.entries(shapes).forEach(([iso, s]) => {
+    const own = (sc.shapes || []).find(q => q[0] === iso);
+    if (!own) { s.p.setAttribute('d', ''); S(s.t, { visibility: 'hidden' }); return; }
+    const p = i === s.first ? spB(t, S2B(starts[i] + 0.3), 2.4, 0.55) : 1, k = pxPerUnit * p;
+    const [cx, cy] = toScreen(own[1], own[2]), ox = cx - k * (s.b[0] + s.b[2]) / 2, oy = cy - k * (s.b[1] + s.b[3]) / 2;
+    s.p.setAttribute('d', s.rings.map(r => r.map(([x, y], j) => (j ? 'L' : 'M') + (ox + k * x).toFixed(1) + ' ' + (oy + k * y).toFixed(1)).join('') + 'Z').join(''));
+    S(s.t, { left: cx - s.t.offsetWidth / 2, top: cy - 26, transform: `scale(${p})`, visibility: p > 0.05 ? 'visible' : 'hidden' });
+  });
+  // subtitles
+  const ch = chunks.find(c => sec >= c.t0 && sec < c.t1 + 0.05);
+  if (ch && !sc.outro) { if (subEl.textContent !== ch.s) subEl.textContent = ch.s; S(subEl, { visibility: 'visible' }); } else S(subEl, { visibility: 'hidden' });
+  // outro card, header fades for it
+  const op = sc.outro ? spB(t, S2B(starts[i] + 0.2), 2.2, 0.6) : 0;
+  S(outro, { transform: `scale(${op})`, visibility: op > 0.01 ? 'visible' : 'hidden' });
+}
+boot(seek, DURATION);
