@@ -1,0 +1,148 @@
+{
+ "loudness_lufs": -14.0,
+ "true_peak_dbfs": -1.2,
+ "normalization_type": "static gain + true-peak limiter",
+ "music_gain_db": -3.0,
+ "events": [
+  {
+   "t": 6.2,
+   "beat": 11.469,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 5.6832,
+   "peak_lands_at_s": 6.2,
+   "bed_db": -32.8,
+   "gain_db": -15.5
+  },
+  {
+   "t": 6.7,
+   "beat": 12.394,
+   "sfx": "pop",
+   "rate": 1.0,
+   "start_s": 6.694,
+   "peak_lands_at_s": 6.7,
+   "bed_db": -33.2,
+   "gain_db": -27.9
+  },
+  {
+   "t": 10.7,
+   "beat": 19.794,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 10.1832,
+   "peak_lands_at_s": 10.7,
+   "bed_db": -30.5,
+   "gain_db": -13.2
+  },
+  {
+   "t": 11,
+   "beat": 20.349,
+   "sfx": "boinghit",
+   "rate": 1.0,
+   "start_s": 10.8951,
+   "peak_lands_at_s": 11.0,
+   "bed_db": -31.3,
+   "gain_db": -23.5
+  },
+  {
+   "t": 15.2,
+   "beat": 28.118,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 14.6832,
+   "peak_lands_at_s": 15.2,
+   "bed_db": -30.8,
+   "gain_db": -13.5
+  },
+  {
+   "t": 15.5,
+   "beat": 28.673,
+   "sfx": "boinghit",
+   "rate": 1.0,
+   "start_s": 15.3951,
+   "peak_lands_at_s": 15.5,
+   "bed_db": -30.9,
+   "gain_db": -23.2
+  },
+  {
+   "t": 16.9,
+   "beat": 31.263,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 16.3832,
+   "peak_lands_at_s": 16.9,
+   "bed_db": -31.3,
+   "gain_db": -14.1
+  },
+  {
+   "t": 17.2,
+   "beat": 31.818,
+   "sfx": "boinghit",
+   "rate": 1.0,
+   "start_s": 17.0951,
+   "peak_lands_at_s": 17.2,
+   "bed_db": -29.1,
+   "gain_db": -21.4
+  },
+  {
+   "t": 23.4,
+   "beat": 43.287,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 22.8832,
+   "peak_lands_at_s": 23.4,
+   "bed_db": -28.2,
+   "gain_db": -11.0
+  },
+  {
+   "t": 23.9,
+   "beat": 44.212,
+   "sfx": "pop",
+   "rate": 1.0,
+   "start_s": 23.894,
+   "peak_lands_at_s": 23.9,
+   "bed_db": -30.2,
+   "gain_db": -24.9
+  },
+  {
+   "t": 23.7,
+   "beat": 43.842,
+   "sfx": "sparkle",
+   "rate": 1.0,
+   "start_s": 23.3044,
+   "peak_lands_at_s": 23.7,
+   "bed_db": -27.2,
+   "gain_db": -16.2
+  },
+  {
+   "t": 34.7,
+   "beat": 64.19,
+   "sfx": "swish",
+   "rate": 1.0,
+   "start_s": 34.1832,
+   "peak_lands_at_s": 34.7,
+   "bed_db": -28.4,
+   "gain_db": -11.2
+  },
+  {
+   "t": 34.9,
+   "beat": 64.56,
+   "sfx": "levelup2",
+   "rate": 1.0,
+   "start_s": 33.2868,
+   "peak_lands_at_s": 34.9,
+   "bed_db": -28.9,
+   "gain_db": -16.3
+  },
+  {
+   "t": 0.0108,
+   "beat": 0.02,
+   "sfx": "swoosh",
+   "rate": 1.0,
+   "start_s": -0.03,
+   "peak_lands_at_s": 0.0108,
+   "bed_db": -26.2,
+   "gain_db": -14.6
+  }
+ ]
+}

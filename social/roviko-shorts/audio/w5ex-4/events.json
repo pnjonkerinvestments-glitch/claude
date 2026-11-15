@@ -1,0 +1,86 @@
+[
+ {
+  "t": 6.2,
+  "beat": 11.469,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 6.7,
+  "beat": 12.394,
+  "sfx": "pop",
+  "gain": -11
+ },
+ {
+  "t": 10.7,
+  "beat": 19.794,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 11,
+  "beat": 20.349,
+  "sfx": "boinghit",
+  "gain": -10
+ },
+ {
+  "t": 15.2,
+  "beat": 28.118,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 15.5,
+  "beat": 28.673,
+  "sfx": "boinghit",
+  "gain": -10
+ },
+ {
+  "t": 16.9,
+  "beat": 31.263,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 17.2,
+  "beat": 31.818,
+  "sfx": "boinghit",
+  "gain": -10
+ },
+ {
+  "t": 23.4,
+  "beat": 43.287,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 23.9,
+  "beat": 44.212,
+  "sfx": "pop",
+  "gain": -11
+ },
+ {
+  "t": 23.7,
+  "beat": 43.842,
+  "sfx": "sparkle",
+  "gain": -10
+ },
+ {
+  "t": 34.7,
+  "beat": 64.19,
+  "sfx": "swish",
+  "gain": -12
+ },
+ {
+  "t": 34.9,
+  "beat": 64.56,
+  "sfx": "levelup2",
+  "gain": -10
+ },
+ {
+  "t": 0.0108,
+  "beat": 0.02,
+  "sfx": "swoosh",
+  "gain": -12
+ }
+]

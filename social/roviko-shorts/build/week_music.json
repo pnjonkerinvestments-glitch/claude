@@ -1057,12 +1057,84 @@
  },
  "w5ex-1": {
   "song": "games-worldbeat",
-  "end": 131,
+  "end": 114,
   "fade": 1.2,
   "pieces": [
    [
     0,
     0,
+    null
+   ]
+  ]
+ },
+ "w5ex-2": {
+  "song": "funkee-monkeee",
+  "end": 114,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    8,
+    null
+   ]
+  ]
+ },
+ "w5ex-3": {
+  "song": "mi-gente",
+  "end": 90,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    24,
+    null
+   ]
+  ]
+ },
+ "w5ex-4": {
+  "song": "ko-games",
+  "end": 74,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    32,
+    null
+   ]
+  ]
+ },
+ "w5ex-5": {
+  "song": "take-this-higher",
+  "end": 88,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    60,
+    null
+   ]
+  ]
+ },
+ "w5ex-6": {
+  "song": "light-it-up-boy",
+  "end": 78,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    16,
+    null
+   ]
+  ]
+ },
+ "w5ex-7": {
+  "song": "upbeat-jazz",
+  "end": 82,
+  "fade": 1.2,
+  "pieces": [
+   [
+    0,
+    36,
     null
    ]
   ]
