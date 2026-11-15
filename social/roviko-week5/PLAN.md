@@ -25,7 +25,7 @@
 
 Captions: één tekst per post, kopiëren en plakken. Elke caption heeft **5 hashtags, altijd met #fyp**.
 
-De uitlegvideo's hebben nu muziek en ondertitels, nog geen stem. De gesproken tekst staat klaar in `roviko-shorts/data/w5ex.js` (veld `say`). Een stem kan er later onder (zie de uitleg in de chat).
+De uitlegvideo's hebben een Engelse voice-over (Kokoro-82M, open model onder Apache-2.0, stem "af_heart"), met muziek eronder en ondertitels in beeld.
 
 ## Bronbestanden
 

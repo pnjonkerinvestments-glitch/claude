@@ -38,6 +38,7 @@ TARGET = {'key': -3, 'pop': -4, 'land': 1, 'tap': 3, 'correct': 4, 'pin': 4, 'co
           'alarm': 5, 'thud': 3}
 PAN = {'coin': 0.15, 'key': -0.05, 'swoosh': 0.0, 'whoosh': 0.0}
 MUSIC_GAIN_DB = -3.0
+DUCK_DB, VOICE_OVER_DB = 9.0, 13.0      # only used with a voice.wav
 
 
 def read_wav(path):
@@ -138,6 +139,18 @@ def main():
         report.append({'t': e['t'], 'beat': e.get('beat'), 'sfx': name, 'rate': round(rate, 3), 'start_s': round(start / SR, 4),
                        'peak_lands_at_s': round(start / SR + peak, 4), 'bed_db': round(bed, 1), 'gain_db': round(gain_db, 1)})
     mix = music + sfx_bus[:, :n]
+    # a voice-over (audio/<short>/voice.wav, e.g. the week-5 explainers): the music and effects duck under it, the voice
+    # sits VOICE_OVER_DB above the bed
+    if (D / 'voice.wav').exists():
+        v = read_wav(D / 'voice.wav')
+        v = np.pad(v, ((0, 0), (0, max(0, n - v.shape[1]))))[:, :n]
+        env = np.convolve(np.abs(v[0]), np.ones(int(0.25 * SR)) / int(0.25 * SR), mode='same')
+        on = (env > 0.01).astype(float)
+        on = np.convolve(on, np.ones(int(0.3 * SR)) / int(0.3 * SR), mode='same')     # smooth the ducking in and out
+        mix *= 10 ** (-DUCK_DB * np.clip(on, 0, 1) / 20)
+        talk = on > 0.5
+        bed = rms_db(mix[:, talk]) if talk.any() else -30.0
+        mix += v * 10 ** ((bed + VOICE_OVER_DB - rms_db(v[:, talk])) / 20)
     fade = int(0.03 * SR)
     mix[:, -fade:] *= np.linspace(1, 0, fade)
     pre = D / 'mix-pre.wav'
