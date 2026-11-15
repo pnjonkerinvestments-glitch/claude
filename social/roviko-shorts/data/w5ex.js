@@ -38,7 +38,7 @@ window.W5EX = {
       labels: [['EUROPE', 35, 58, '#5AC8FA'], ['ASIA', 68, 52, '#FF9F0A']] },
     { say: 'Depending on where you draw it, the line cuts right through five countries: Russia, Kazakhstan, Georgia, Azerbaijan and Türkiye.', cam: [20, 33, 90, 72], hl: ['RUS', 'KAZ', 'GEO', 'AZE', 'TUR'], col: '#FF9F0A', label: 'ON TWO CONTINENTS', at: [50, 56], lineStay: true },
     { say: 'Most of Russia\'s land is in Asia. But most Russians live in Europe.', cam: [25, 40, 180, 78], hl: ['RUS'], col: '#BF5AF2', label: 'RUSSIA', at: [95, 62], lineStay: true },
-    { say: 'And Istanbul sits on both sides of the Bosphorus. A ferry takes you from Europe to Asia in about twenty minutes.', cam: [26.5, 39.6, 31.5, 42.2], hl: ['TUR'], col: '#5ED34F', label: 'ISTANBUL', at: [29, 41.6], fact: true, ring: [29.0, 41.05] },
+    { say: 'And Istanbul sits on both sides of the Bosphorus. A ferry takes you from Europe to Asia in about twenty minutes.', cam: [22, 36.5, 36, 44.5], hl: ['TUR'], col: '#5ED34F', label: 'ISTANBUL', at: [29, 41.6], fact: true, ring: [29.0, 41.05] },
     { say: 'Follow Roviko for a new map, explained, every day.', cam: [5, 30, 95, 72], outro: true },
   ] },
   4: { title: ['Africa is way bigger', 'than you think'], song: 'ko-games', tempo: 110.992, scenes: [
@@ -63,7 +63,7 @@ window.W5EX = {
     { say: 'Australia is a country. It is also a continent, and the only country that covers a whole continent.', cam: [108, -45, 158, -8], hl: ['AUS'], col: '#FF9F0A', label: 'AUSTRALIA', at: [134, -25] },
     { say: 'Australasia usually means Australia, New Zealand and New Guinea, with the islands nearby.', cam: [108, -50, 180, 0], hl: ['AUS', 'NZL', 'PNG'], col: '#5AC8FA', label: 'AUSTRALASIA', at: [140, -30] },
     { say: 'Oceania is the big one: fourteen countries spread across the Pacific, and most of them are islands.', cam: [105, -50, 180, 20], hl: OCEANIA, col: '#5ED34F', label: 'OCEANIA', at: [150, -28] },
-    { say: 'Fun fact: Kiribati is the only country in all four hemispheres. North and south, east and west.', cam: [160, -12, 180, 8], hl: ['KIR'], col: '#FFD60A', label: 'KIRIBATI', at: [172.5, 3], fact: true, equator: true },
+    { say: 'Fun fact: Kiribati is the only country in all four hemispheres. North and south, east and west.', cam: [160, -12, 180, 8], hl: ['KIR'], col: '#FFD60A', label: 'KIRIBATI', at: [172.5, 4.5], fact: true, equator: true, ring: [173.0, 1.4] },
     { say: 'Follow Roviko for a new map, explained, every day.', cam: [105, -50, 180, 5], outro: true },
   ] },
   7: { title: ['Countries inside', 'other countries'], song: 'upbeat-jazz', tempo: 110.004, scenes: [

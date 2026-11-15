@@ -3,7 +3,7 @@
   The layout of the post that went big: a big two-tone headline, then the post itself in one big card (slide 1 of a carousel,
   or the reel's cover). Texts and image paths come from data/w2banners.js, written by build/w2_pack.py.
 */
-// @scripts data/w2banners.js data/w3banners.js data/w4banners.js lib/ios.js
+// @scripts data/w2banners.js data/w3banners.js data/w4banners.js data/w5banners.js lib/ios.js
 const id = Q.get('id') || 'D1P1', B = window['W' + (Q.get('w') || 2) + 'B'][id];
 const W = 1080, H = 1920;
 S(document.body, { width: W, height: H }); S(stage, { width: W, height: H, overflow: 'hidden' });
