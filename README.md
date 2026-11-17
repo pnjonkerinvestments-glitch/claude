@@ -6,6 +6,8 @@
 - **[`roviko-app/`](roviko-app/)**: de App Store-/Google Play-app (Capacitor).
 - **[`nieuws/`](nieuws/)**: nieuwsmelder; Telegram-bericht zodra TradingView nieuws heeft over
   een aandeel op je lijst. Losse Cloudflare Worker `nieuws-alert`.
+- **[`market-dashboard/`](market-dashboard/)**: marktoverzicht-dashboard (regime, stemming,
+  rentes, positionering, kalender). Lokale FastAPI-app, geen Cloudflare. Zie de README daar.
 - De rest van deze README gaat over een ouder, los zijproject: de premarket-alert.
   Die staat stil (geen schema meer) en draait niet op Cloudflare.
 
