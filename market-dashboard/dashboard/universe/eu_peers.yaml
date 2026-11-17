@@ -10,6 +10,7 @@ peers:
   LLY:  [NOVO-B.CO]
   EL:   [OR.PA]
   UA:   [ADS.DE]
+  NKE:  [ADS.DE]
   SPGI: [LSEG.L]
   VRT:  [SU.PA, LR.PA]
   TMUS: [DTE.DE]
@@ -74,7 +75,6 @@ extra_peers:
   XOM:  [SHEL.L, TTE.PA, BP.L]
   CVX:  [SHEL.L, TTE.PA, BP.L]
   COP:  [EQNR.OL]
-  NKE:  [ADS.DE, PUM.DE]
   HD:   [KGF.L]
   LOW:  [KGF.L]
   HON:  [SIE.DE]
@@ -204,6 +204,7 @@ sec_cik:
   LLY: 59478
   EL: 1001250
   UA: 1336917
+  NKE: 320187
   SPGI: 64040
   VRT: 1674101
   TMUS: 1283699
